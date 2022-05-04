@@ -3,25 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary.API", "MinecraftLibrary.API\MinecraftLibrary.API.csproj", "{35E36F97-CF7F-4DB0-93B2-045BF54540F4}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtocolLib340", "ProtocolLib340\ProtocolLib340.csproj", "{353C5E7C-5ED9-4675-85B4-E20F4F28C838}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.API", "McProtoNet.API\McProtoNet.API.csproj", "{35E36F97-CF7F-4DB0-93B2-045BF54540F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{F0F61389-B74A-4F72-A4BB-8AB2D4917E88}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ProtoLib.PacketsRepository754", "ProtocolLib754\ProtoLib.PacketsRepository754.csproj", "{E1D6E2BF-F57F-4457-86AC-31C985AA0400}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.PacketRepository754", "McProtoNet.PacketRepository754\McProtoNet.PacketRepository754.csproj", "{E1D6E2BF-F57F-4457-86AC-31C985AA0400}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary", "MinecraftLibrary\MinecraftLibrary.csproj", "{FAC59F9F-B6FE-40EF-B81C-207907A0CE42}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet", "McProtoNet\McProtoNet.csproj", "{FAC59F9F-B6FE-40EF-B81C-207907A0CE42}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary.NBT", "MinecraftLibrary.NBT\MinecraftLibrary.NBT.csproj", "{A204135D-794B-4391-A947-255A1798544E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.NBT", "McProtoNet.NBT\McProtoNet.NBT.csproj", "{A204135D-794B-4391-A947-255A1798544E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary.Geometry", "MinecraftLibrary.Geometry\MinecraftLibrary.Geometry.csproj", "{31BE1A0D-66D9-4983-A0B7-5EE360FD4ABA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Geometry", "McProtoNet.Geometry\McProtoNet.Geometry.csproj", "{31BE1A0D-66D9-4983-A0B7-5EE360FD4ABA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary.Tests", "MinecraftLibrary.Tests\MinecraftLibrary.Tests.csproj", "{1B514406-98B8-4450-AEF1-FBCDDC1D88B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Tests", "McProtoNet.Tests\McProtoNet.Tests.csproj", "{1B514406-98B8-4450-AEF1-FBCDDC1D88B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftLibrary.Services", "MinecraftLibrary.Services\MinecraftLibrary.Services.csproj", "{F24E5B1F-848F-4779-A747-B85DA7CCB970}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Services", "McProtoNet.Services\McProtoNet.Services.csproj", "{F24E5B1F-848F-4779-A747-B85DA7CCB970}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestPositions", "TestPositions\TestPositions.csproj", "{2439B11E-B649-4531-A3EF-ACA28544CB3E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.PacketRepository340", "McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj", "{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,26 +55,6 @@ Global
 		{35E36F97-CF7F-4DB0-93B2-045BF54540F4}.Release|x64.Build.0 = Release|Any CPU
 		{35E36F97-CF7F-4DB0-93B2-045BF54540F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{35E36F97-CF7F-4DB0-93B2-045BF54540F4}.Release|x86.Build.0 = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|ARM.Build.0 = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|x64.Build.0 = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Debug|x86.Build.0 = Debug|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|Any CPU.Build.0 = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|ARM.ActiveCfg = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|ARM.Build.0 = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|ARM64.Build.0 = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|x64.ActiveCfg = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|x64.Build.0 = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|x86.ActiveCfg = Release|Any CPU
-		{353C5E7C-5ED9-4675-85B4-E20F4F28C838}.Release|x86.Build.0 = Release|Any CPU
 		{F0F61389-B74A-4F72-A4BB-8AB2D4917E88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F0F61389-B74A-4F72-A4BB-8AB2D4917E88}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0F61389-B74A-4F72-A4BB-8AB2D4917E88}.Debug|ARM.ActiveCfg = Debug|Any CPU
@@ -217,26 +195,26 @@ Global
 		{F24E5B1F-848F-4779-A747-B85DA7CCB970}.Release|x64.Build.0 = Release|Any CPU
 		{F24E5B1F-848F-4779-A747-B85DA7CCB970}.Release|x86.ActiveCfg = Release|Any CPU
 		{F24E5B1F-848F-4779-A747-B85DA7CCB970}.Release|x86.Build.0 = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|ARM.ActiveCfg = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|ARM.Build.0 = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|ARM64.Build.0 = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|x64.Build.0 = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Debug|x86.Build.0 = Debug|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|ARM.ActiveCfg = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|ARM.Build.0 = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|ARM64.ActiveCfg = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|ARM64.Build.0 = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|x64.ActiveCfg = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|x64.Build.0 = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|x86.ActiveCfg = Release|Any CPU
-		{2439B11E-B649-4531-A3EF-ACA28544CB3E}.Release|x86.Build.0 = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|ARM.Build.0 = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|x64.Build.0 = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Debug|x86.Build.0 = Debug|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|Any CPU.Build.0 = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|ARM.ActiveCfg = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|ARM.Build.0 = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|ARM64.Build.0 = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|x64.ActiveCfg = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|x64.Build.0 = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|x86.ActiveCfg = Release|Any CPU
+		{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

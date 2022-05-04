@@ -1,4 +1,0 @@
-﻿namespace ProtoLib.API.Protocol
-{
-
-}

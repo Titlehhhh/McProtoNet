@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Nbt\**" />
+    <EmbeddedResource Remove="Nbt\**" />
+    <None Remove="Nbt\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ionic.Zlib.Core" Version="1.0.0" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Inventory\" />
+    <Folder Include="Service\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
+    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
+    <ProjectReference Include="..\McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj" />
+    <ProjectReference Include="..\McProtoNet.PacketRepository754\McProtoNet.PacketRepository754.csproj" />
+    <ProjectReference Include="..\McProtoNet.Services\McProtoNet.Services.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.2.7" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.2.7" />
+    <PackageReference Include="coverlet.collector" Version="3.1.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
+    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
+    <ProjectReference Include="..\McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj" />
+    <ProjectReference Include="..\McProtoNet.PacketRepository754\McProtoNet.PacketRepository754.csproj" />
+    <ProjectReference Include="..\McProtoNet.Services\McProtoNet.Services.csproj" />
+    <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
+  </ItemGroup>
+
+</Project>
