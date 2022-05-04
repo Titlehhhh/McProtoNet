@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MinecraftLibrary.API": {
+      "commandName": "Project",
+      "sqlDebugging": false,
+      "hotReloadEnabled": false,
+      "nativeDebugging": true
+    }
+  }
+}
