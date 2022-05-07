@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Geometry", "McPr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Tests", "McProtoNet.Tests\McProtoNet.Tests.csproj", "{1B514406-98B8-4450-AEF1-FBCDDC1D88B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Services", "McProtoNet.Services\McProtoNet.Services.csproj", "{F24E5B1F-848F-4779-A747-B85DA7CCB970}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Utils", "McProtoNet.Utils\McProtoNet.Utils.csproj", "{F24E5B1F-848F-4779-A747-B85DA7CCB970}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.PacketRepository340", "McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj", "{55AFD8ED-1C18-42F6-942F-5B06BFE48A25}"
 EndProject

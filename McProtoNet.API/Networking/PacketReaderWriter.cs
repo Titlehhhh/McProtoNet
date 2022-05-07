@@ -1,28 +1,40 @@
 ﻿using Ionic.Zlib;
 using McProtoNet.API.IO;
+using System.Net.Sockets;
 
 namespace McProtoNet.API.Networking
 {
     public sealed class PacketReaderWriter : IPacketReaderWriter
     {
         private const int ZERO_VARLENGTH = 1;//default(int).GetVarIntLength();
-        private readonly NetworkMinecraftStream netmcStream;
+        private NetworkMinecraftStream netmcStream;
+
+        private int _compressionThreshold;
 
 
 
-
-        public PacketReaderWriter(NetworkMinecraftStream netstream)
+        public PacketReaderWriter(NetworkMinecraftStream netmcStream)
         {
-            this.netmcStream = netstream;
+            this.netmcStream = netmcStream;
+        }
+        public PacketReaderWriter(NetworkStream networkStream)
+        {
+            this.netmcStream = new NetworkMinecraftStream(networkStream);
         }
 
-        public int CompressionThreshold { get; set; }
+        public PacketReaderWriter(Socket socket) : this(new NetworkStream(socket))
+        {
 
-        public NetworkMinecraftStream NetStream => netmcStream;
+        }
+        public PacketReaderWriter(TcpClient tcpClient) : this(tcpClient.GetStream())
+        {
+            
+        }
 
         public void Dispose()
         {
-            NetStream.Dispose();
+            this.netmcStream.Dispose();
+            netmcStream = null;
         }
 
 
@@ -31,15 +43,15 @@ namespace McProtoNet.API.Networking
             try
             {
                 token.ThrowIfCancellationRequested();
-                int len = await NetStream.ReadVarIntAsync(token);
+                int len = await netmcStream.ReadVarIntAsync(token);
                 token.ThrowIfCancellationRequested();
                 // Console.WriteLine("len " + len);
                 byte[] receivedata = new byte[len];
-                await NetStream.ReadAsync(receivedata.AsMemory(0, len), token);
+                await netmcStream.ReadAsync(receivedata.AsMemory(0, len), token);
 
 
                 var mcs = new MinecraftStream(receivedata);
-                if (CompressionThreshold > 0)
+                if (_compressionThreshold > 0)
                 {
 
                     int sizeUncompressed = mcs.ReadVarInt();
@@ -63,12 +75,12 @@ namespace McProtoNet.API.Networking
         }
 
 
-        public async Task WritePacketAsync(IPacket packet, int id, CancellationToken token = default)
+        public async Task SendPacketAsync(IPacket packet, int id, CancellationToken token = default)
         {
             try
             {
                 ArgumentNullException.ThrowIfNull(packet, nameof(packet));
-                if (CompressionThreshold > 0)
+                if (_compressionThreshold > 0)
                 {
                     using (MinecraftStream packetStream = new MinecraftStream())
                     {
@@ -77,7 +89,7 @@ namespace McProtoNet.API.Networking
 
                         int to_Packetlength = (int)packetStream.Length;
 
-                        if (to_Packetlength >= CompressionThreshold)
+                        if (to_Packetlength >= _compressionThreshold)
                         {
                             await SendLongPacketAsync(packetStream, to_Packetlength, token);
                         }
@@ -104,12 +116,12 @@ namespace McProtoNet.API.Networking
                 packet.Write(packetStream);
                 int Packetlength = (int)packetStream.Length;
 
-                await NetStream.Lock.WaitAsync(token);
-                await NetStream.WriteVarIntAsync(id.GetVarIntLength() + Packetlength, token);
-                await NetStream.WriteVarIntAsync(id, token);
+                await netmcStream.Lock.WaitAsync(token);
+                await netmcStream.WriteVarIntAsync(id.GetVarIntLength() + Packetlength, token);
+                await netmcStream.WriteVarIntAsync(id, token);
                 packetStream.Position = 0;
-                packetStream.CopyTo(NetStream);
-                NetStream.Lock.Release();
+                packetStream.CopyTo(netmcStream);
+                netmcStream.Lock.Release();
             }
         }
 
@@ -125,14 +137,14 @@ namespace McProtoNet.API.Networking
             }
             int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
 
-            await NetStream.Lock.WaitAsync(token);
+            await netmcStream.Lock.WaitAsync(token);
 
-            await NetStream.WriteVarIntAsync(fullSize, token);
-            await NetStream.WriteVarIntAsync(to_Packetlength, token);
+            await netmcStream.WriteVarIntAsync(fullSize, token);
+            await netmcStream.WriteVarIntAsync(to_Packetlength, token);
             packetStream.Position = 0;
-            packetStream.CopyTo(NetStream);
+            packetStream.CopyTo(netmcStream);
 
-            NetStream.Lock.Release();
+            netmcStream.Lock.Release();
         }
 
 
@@ -140,12 +152,24 @@ namespace McProtoNet.API.Networking
         private async Task SendShortPacketAsync(MinecraftStream packetStream, CancellationToken token)
         {
             int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
-            await NetStream.Lock.WaitAsync(token);
-            await NetStream.WriteVarIntAsync(fullSize, token);
-            await NetStream.WriteVarIntAsync(0, token);
+            await netmcStream.Lock.WaitAsync(token);
+            await netmcStream.WriteVarIntAsync(fullSize, token);
+            await netmcStream.WriteVarIntAsync(0, token);
             packetStream.Position = 0;
-            packetStream.CopyTo(NetStream);
-            NetStream.Lock.Release();
+            packetStream.CopyTo(netmcStream);
+            netmcStream.Lock.Release();
+        }
+
+        public void SwitchEncryption(byte[] privateKey)
+        {
+            netmcStream.SwitchEncryption(privateKey);
+        }
+
+        public void SwitchCompression(int threshold)
+        {
+            if (threshold < 0)
+                throw new ArgumentOutOfRangeException(nameof(threshold));
+            this._compressionThreshold = threshold;
         }
     }
 

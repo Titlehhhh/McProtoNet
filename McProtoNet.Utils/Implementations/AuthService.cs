@@ -1,6 +1,6 @@
 ﻿using McProtoNet.API;
 
-namespace McProtoNet.Services
+namespace McProtoNet.Utils
 {
     public class AuthService : IAuthService
     {

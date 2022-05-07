@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Services
+﻿namespace McProtoNet.Utils
 {
     public interface ILocalWorldSearchService
     {

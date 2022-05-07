@@ -4,9 +4,11 @@ namespace McProtoNet.API.Networking
 {
     public interface IPacketReaderWriter : IDisposable
     {
-        NetworkMinecraftStream NetStream { get; }
-        int CompressionThreshold { set; }
-        Task WritePacketAsync(IPacket packet, int id, CancellationToken token = default);
+        void SwitchEncryption(byte[] privateKey);
+        void SwitchCompression(int threshold);
+        Task SendPacketAsync(IPacket packet, int id, CancellationToken token = default);
         Task<(int, MinecraftStream)> ReadNextPacketAsync(CancellationToken token = default);
+
+
     }
 }

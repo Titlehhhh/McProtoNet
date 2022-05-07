@@ -2,18 +2,17 @@
 using McProtoNet.PacketRepository754.Packets.Client;
 using McProtoNet.PacketRepository754.Packets.Server;
 using McProtoNet.API;
-using McProtoNet.API.Crypto;
 using McProtoNet.API.IO;
 using McProtoNet.API.Networking;
 using McProtoNet.API.Protocol;
 using McProtoNet.Exceptions;
 using McProtoNet.Geometry;
 using McProtoNet.Protocol;
-
-
 using System.ComponentModel;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
+using McProtoNet.Utils;
+
 
 namespace McProtoNet
 {
@@ -23,7 +22,7 @@ namespace McProtoNet
     {
         public static void Debug(string msg)
         {
-
+            
         }
         private readonly TcpClient tcpClient;
         private NetworkMinecraftStream NetMcStream;
@@ -238,7 +237,7 @@ namespace McProtoNet
                 var compress = packet as LoginSetCompressionPacket;
                 //Session.CompressionThreshold = compress.Threshold;
 
-                this.packetReaderWriter.CompressionThreshold = compress.Threshold;
+                this.packetReaderWriter.SwitchCompression(compress.Threshold);
                 return false;
             }
             else if (packet is EncryptionRequestPacket)
@@ -272,7 +271,7 @@ namespace McProtoNet
                 int id = 0;
                 if (PacketFactory.TryGetOutputId(packet.GetType(), out id))
                 {
-                    await this.packetReaderWriter.WritePacketAsync(packet, id, Cancellation.Token);
+                    await this.packetReaderWriter.SendPacketAsync(packet, id, Cancellation.Token);
                 }
             }
             catch (Exception e)

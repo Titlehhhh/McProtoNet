@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace McProtoNet.API.Crypto
+namespace McProtoNet.Utils
 {
     public class CryptoHandler
     {
@@ -152,5 +152,6 @@ namespace McProtoNet.API.Crypto
             }
             return p;
         }
+
     }
 }

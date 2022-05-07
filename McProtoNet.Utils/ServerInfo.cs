@@ -1,7 +1,7 @@
 ﻿using McProtoNet.API.Types.Chat;
 using System.Runtime.Serialization;
 
-namespace McProtoNet.Services
+namespace McProtoNet.Utils
 {
     [DataContract]
     public class ServerInfo

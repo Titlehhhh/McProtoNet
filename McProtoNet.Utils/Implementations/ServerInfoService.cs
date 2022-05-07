@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
-namespace McProtoNet.Services
+namespace McProtoNet.Utils
 {
     public class ServerInfoService : IServerInfoService
     {
@@ -16,9 +16,9 @@ namespace McProtoNet.Services
             NetworkMinecraftStream networkMinecraftStream = new NetworkMinecraftStream(tcpClient.GetStream());
             PacketReaderWriter packetReaderWriter = new PacketReaderWriter(networkMinecraftStream);
 
-            await packetReaderWriter.WritePacketAsync(
+            await packetReaderWriter.SendPacketAsync(
                 new HandShakePacket(API.HandShakeIntent.STATUS, -1, port, host), 0);
-            await packetReaderWriter.WritePacketAsync(
+            await packetReaderWriter.SendPacketAsync(
                 new StatusQueryPacket(), 0);
 
             (int id, MinecraftStream stream) = await packetReaderWriter.ReadNextPacketAsync(default);
