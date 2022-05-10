@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.position = NetUtil.readPosition(in);
         //this.type = MagicValues.key(UpdatedTileType.class, in.readUnsignedByte());
         //this.nbt = NetUtil.readNBT(in);
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

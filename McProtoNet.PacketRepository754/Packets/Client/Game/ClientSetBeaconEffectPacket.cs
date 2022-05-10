@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public int PrimaryEffect { get; private set; }
         public int SecondaryEffect { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(PrimaryEffect);
             stream.WriteVarInt(SecondaryEffect);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             PrimaryEffect = stream.ReadVarInt();
             SecondaryEffect = stream.ReadVarInt();

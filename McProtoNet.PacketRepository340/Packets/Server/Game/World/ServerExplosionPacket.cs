@@ -21,12 +21,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.pushX = in.readFloat();
         //this.pushY = in.readFloat();
         //this.pushZ = in.readFloat();
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

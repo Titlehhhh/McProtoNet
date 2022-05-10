@@ -8,7 +8,5 @@ namespace McProtoNet.API.Networking
         void SwitchCompression(int threshold);
         Task SendPacketAsync(IPacket packet, int id, CancellationToken token = default);
         Task<(int, MinecraftStream)> ReadNextPacketAsync(CancellationToken token = default);
-
-
     }
 }

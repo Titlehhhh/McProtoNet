@@ -23,12 +23,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //if(this.pos || this.rot) {
         //this.onGround = in.readBoolean();
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

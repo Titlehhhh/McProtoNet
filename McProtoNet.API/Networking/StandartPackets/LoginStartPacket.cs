@@ -7,12 +7,12 @@ namespace McProtoNet.API
     public sealed class LoginStartPacket : IPacket
     {
         public string Nickname { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Nickname);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

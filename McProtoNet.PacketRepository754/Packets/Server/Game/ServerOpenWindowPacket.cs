@@ -13,11 +13,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
         public int Id { get; set; }
         public WindowType WinType { get; set; }
         public string Name { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             throw new NotImplementedException();
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Id = stream.ReadVarInt();
             WinType = (WindowType)stream.ReadVarInt();

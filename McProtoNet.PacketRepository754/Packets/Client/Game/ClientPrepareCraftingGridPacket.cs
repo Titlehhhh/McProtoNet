@@ -14,13 +14,13 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public string RecipeId { get; private set; }
         public bool MakeAll { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
             stream.WriteString(RecipeId);
             stream.WriteBoolean(MakeAll);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
             RecipeId = stream.ReadString();

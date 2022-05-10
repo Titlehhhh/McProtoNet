@@ -13,7 +13,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         public PlayerAction Action { get; set; }
         public Point3_Int Position { get; set; }
         public GeoBlockFace Face { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Action);
             long x = Position.X & POSITION_WRITE_SHIFT;
@@ -25,7 +25,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             stream.WriteByte((sbyte)Face);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

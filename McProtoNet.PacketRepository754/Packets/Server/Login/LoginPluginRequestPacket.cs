@@ -12,7 +12,7 @@ namespace McProtoNet.PacketRepository754.Packets.Server
         public string Channel { get; set; }
         public byte[] Data { get; set; }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             int len = (int)stream.Length;
             MessageID = stream.ReadVarInt();
@@ -20,7 +20,7 @@ namespace McProtoNet.PacketRepository754.Packets.Server
             Data = stream.ReadUInt8Array(len - ((int)stream.Length));
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

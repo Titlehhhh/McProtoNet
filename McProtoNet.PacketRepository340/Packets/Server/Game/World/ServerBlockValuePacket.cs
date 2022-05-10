@@ -30,12 +30,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.type = MagicValues.key(GenericBlockValueType.class, type);
         //this.value = new GenericBlockValue(value);
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

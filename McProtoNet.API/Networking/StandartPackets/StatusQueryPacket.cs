@@ -5,12 +5,12 @@ namespace McProtoNet.API
 {
     public sealed class StatusQueryPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

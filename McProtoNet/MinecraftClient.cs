@@ -131,8 +131,6 @@ namespace McProtoNet
         {
             try
             {
-                PacketManager = new PacketManager();
-                this.NetMcStream = new NetworkMinecraftStream(tcpClient.GetStream());
                 this.packetReaderWriter = new PacketReaderWriter(NetMcStream);
 
                 SubProtocol = ProtocolState.HandShake;

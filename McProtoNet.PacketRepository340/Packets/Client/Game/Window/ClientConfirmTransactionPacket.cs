@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientConfirmTransactionPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -16,7 +16,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeByte(this.windowId);
         //out.writeShort(this.actionId);
         //out.WriteBooleanean(this.accepted);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

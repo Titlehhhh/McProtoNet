@@ -12,12 +12,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.motX = in.readShort() / 8000D;
         //this.motY = in.readShort() / 8000D;
         //this.motZ = in.readShort() / 8000D;
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

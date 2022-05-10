@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.windowId = in.readUnsignedByte();
         //this.slot = in.readShort();
         //this.item = NetUtil.readItem(in);
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

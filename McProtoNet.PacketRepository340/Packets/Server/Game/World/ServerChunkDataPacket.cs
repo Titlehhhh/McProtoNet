@@ -23,7 +23,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //}
         //
         //this.column = NetUtil.readColumn(data, x, z, fullChunk, false, chunkMask, tileEntities);
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             int x = stream.ReadInt();
             int z = stream.ReadInt();
@@ -132,7 +132,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
             Column = column;
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -12,12 +12,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.difficulty = MagicValues.key(Difficulty.class, in.readUnsignedByte());
         //this.gamemode = MagicValues.key(GameMode.class, in.readUnsignedByte());
         //this.worldType = MagicValues.key(WorldType.class, in.readString().toLowerCase());
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

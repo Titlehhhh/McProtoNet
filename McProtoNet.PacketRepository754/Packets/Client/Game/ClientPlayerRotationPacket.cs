@@ -14,13 +14,13 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteFloat(Yaw);
             stream.WriteFloat(Pitch);
             stream.WriteBoolean(OnGround);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Yaw = stream.ReadFloat();
             Pitch = stream.ReadFloat();

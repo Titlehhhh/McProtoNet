@@ -12,11 +12,11 @@ namespace McProtoNet.PacketRepository754.Packets.Client
     {
         public long PingId { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteLong(PingId);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             PingId = stream.ReadLong();
         }

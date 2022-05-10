@@ -11,7 +11,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
     {
         public Hand PlayerHand { get; private set; }
         public int MyProperty { get; private set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             switch (PlayerHand)
             {
@@ -24,7 +24,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             }
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

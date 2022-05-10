@@ -12,12 +12,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //for(int index = 0; index < this.entityIds.length; index++) {
         //this.entityIds[index] = in.readVarInt();
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

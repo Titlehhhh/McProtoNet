@@ -28,7 +28,7 @@ namespace McProtoNet.API.Networking
         }
         public PacketReaderWriter(TcpClient tcpClient) : this(tcpClient.GetStream())
         {
-            
+
         }
 
         public void Dispose()

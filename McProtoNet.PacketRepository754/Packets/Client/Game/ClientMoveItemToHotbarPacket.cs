@@ -12,11 +12,11 @@ namespace McProtoNet.PacketRepository754.Packets.Client
     {
         public int Slot { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(Slot);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Slot = stream.ReadVarInt();
         }

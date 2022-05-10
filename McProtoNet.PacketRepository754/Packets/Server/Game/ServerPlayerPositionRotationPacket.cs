@@ -19,11 +19,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
         public bool IsGround { get; set; }
 
         public int TeleportId { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

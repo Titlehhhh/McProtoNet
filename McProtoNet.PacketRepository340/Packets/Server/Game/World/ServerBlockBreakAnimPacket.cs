@@ -15,12 +15,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //} catch(IllegalArgumentException e) {
         //this.stage = BlockBreakStage.RESET;
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

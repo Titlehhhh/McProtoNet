@@ -8,12 +8,12 @@ namespace McProtoNet.API
     {
         public int Threshold { get; set; }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Threshold = stream.ReadVarInt();
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientPlayerInteractEntityPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -24,7 +24,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //if(this.action == InteractAction.INTERACT || this.action == InteractAction.INTERACT_AT) {
         //out.writeVarInt(MagicValues.value(Integer.class, this.hand));
         //}
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

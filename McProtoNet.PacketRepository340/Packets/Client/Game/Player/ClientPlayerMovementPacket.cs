@@ -9,12 +9,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
     public class ClientPlayerMovementPacket : IPacket
     {
         public bool OnGround { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteBoolean(OnGround);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

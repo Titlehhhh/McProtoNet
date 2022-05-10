@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.API.IO
 {
-    public interface IMinecraftStreamReader
+    public interface IMinecraftPrimitiveReader
     {
         long Length { get; }
         int Read(byte[] buffer, int offset, int count);

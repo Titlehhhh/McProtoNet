@@ -8,14 +8,14 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientCreativeInventoryActionPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
         //out.writeShort(this.slot);
         //NetUtil.writeItem(out, this.clicked);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

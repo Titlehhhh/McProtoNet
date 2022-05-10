@@ -14,13 +14,13 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public ushort ActionId { get; private set; }
         public bool Accepted { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
             stream.WriteUnsignedLong(ActionId);
             stream.WriteBoolean(Accepted);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
             ActionId = stream.ReadUnsignedShort();

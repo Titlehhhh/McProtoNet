@@ -16,12 +16,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.yaw = in.readByte() * 360 / 256f;
         //this.pitch = in.readByte() * 360 / 256f;
         //this.metadata = NetUtil.readEntityMetadata(in);
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

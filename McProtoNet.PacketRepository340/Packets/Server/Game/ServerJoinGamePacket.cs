@@ -18,12 +18,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.maxPlayers = in.readUnsignedByte();
         //this.worldType = MagicValues.key(WorldType.class, in.readString().toLowerCase());
         //this.reducedDebugInfo = in.readBoolean();
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

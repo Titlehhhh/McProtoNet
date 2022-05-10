@@ -15,12 +15,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.creative = (flags & 8) > 0;
         //this.flySpeed = in.readFloat();
         //this.walkSpeed = in.readFloat();
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

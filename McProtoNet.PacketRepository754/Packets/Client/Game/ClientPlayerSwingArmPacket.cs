@@ -12,11 +12,11 @@ namespace McProtoNet.PacketRepository754.Packets.Client
     {
         public Hand PlayerHand { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(PlayerHand);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             PlayerHand = (Hand)stream.ReadVarInt();
         }

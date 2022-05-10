@@ -14,13 +14,13 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public string Command { get; private set; }
         public bool DoesTrackOutput { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(EntityId);
             stream.WriteString(Command);
             stream.WriteBoolean(DoesTrackOutput);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             EntityId = stream.ReadVarInt();
             Command = stream.ReadString();

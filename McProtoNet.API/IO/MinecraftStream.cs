@@ -3,7 +3,7 @@
     /// <summary>
     /// Поток обеспечивающий работу с примитивными данными протокола Майкрафт    /// 
     /// </summary>
-    public sealed partial class MinecraftStream : Stream, IMinecraftStreamReader, IMinecraftStreamWriter
+    public sealed partial class MinecraftStream : Stream, IMinecraftPrimitiveReader, IMinecraftPrimitiveWriter
     {
         public Stream BaseStream { get; set; }
 
@@ -63,7 +63,6 @@
         /// <returns></returns>
         public override int Read(Span<byte> buffer)
         {
-            BaseStream.Position -= buffer.Length;
             return BaseStream.Read(buffer);
         }
 

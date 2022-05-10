@@ -14,12 +14,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.displayName = in.readString();
         //this.type = MagicValues.key(ScoreType.class, in.readString());
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

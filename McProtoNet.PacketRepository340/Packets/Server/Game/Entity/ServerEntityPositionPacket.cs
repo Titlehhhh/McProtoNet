@@ -19,12 +19,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.moveY = moveY;
         //this.moveZ = moveZ;
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

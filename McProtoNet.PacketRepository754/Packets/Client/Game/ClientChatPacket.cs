@@ -10,11 +10,11 @@ namespace McProtoNet.PacketRepository754.Packets.Client
     [PacketInfo(0x03, 754, PacketCategory.Game, PacketSide.Client)]
     public class ClientChatPacket : IPacket
     {
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

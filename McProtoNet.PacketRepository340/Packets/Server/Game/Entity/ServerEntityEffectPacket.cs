@@ -16,12 +16,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //int flags = in.readByte();
         //this.ambient = (flags & 0x1) == 0x1;
         //this.showParticles = (flags & 0x2) == 0x2;
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

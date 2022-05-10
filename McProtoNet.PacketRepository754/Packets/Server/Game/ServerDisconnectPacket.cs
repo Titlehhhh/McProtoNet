@@ -11,11 +11,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
     public class ServerDisconnectPacket : IPacket
     {
         public string Message { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Message);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Message = stream.ReadString();
         }

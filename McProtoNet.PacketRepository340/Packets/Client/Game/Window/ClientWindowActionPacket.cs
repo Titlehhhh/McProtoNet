@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientWindowActionPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -36,7 +36,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeShort(this.actionId);
         //out.writeByte(MagicValues.value(Integer.class, this.action));
         //NetUtil.writeItem(out, this.clicked);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

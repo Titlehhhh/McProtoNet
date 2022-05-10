@@ -17,7 +17,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public string FinalState { get; private set; }
         public string JointType { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             //stream.WriteVarInt(Position);
             stream.WriteString(Name);
@@ -26,7 +26,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
             stream.WriteString(FinalState);
             stream.WriteString(JointType);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             //Position = (Point3_Int)stream.ReadVarInt();
             Name = stream.ReadString();

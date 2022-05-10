@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //for(int index = 0; index < this.items.length; index++) {
         //this.items[index] = NetUtil.readItem(in);
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

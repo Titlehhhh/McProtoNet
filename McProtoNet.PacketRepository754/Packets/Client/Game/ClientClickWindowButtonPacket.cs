@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public byte WindowId { get; private set; }
         public byte ButtonId { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
             stream.WriteUnsignedByte(ButtonId);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
             ButtonId = stream.ReadUnsignedByte();

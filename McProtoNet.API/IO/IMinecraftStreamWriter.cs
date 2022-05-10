@@ -2,7 +2,7 @@
 
 namespace McProtoNet.API.IO
 {
-    public interface IMinecraftStreamWriter
+    public interface IMinecraftPrimitiveWriter
     {
         void Write(byte[] buffer);
         void Write(byte[] buffer, int offset, int count);
@@ -29,7 +29,7 @@ namespace McProtoNet.API.IO
 
     }
 
-    public interface IMinecraftStream : IMinecraftStreamReader, IMinecraftStreamWriter
+    public interface IMinecraftStream : IMinecraftPrimitiveReader, IMinecraftPrimitiveWriter
     {
 
     }

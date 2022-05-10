@@ -10,11 +10,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
     [PacketInfo(0x59, 754, PacketCategory.Game, PacketSide.Server)]
     public class ServerEntityEffectPacket : IPacket
     {
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

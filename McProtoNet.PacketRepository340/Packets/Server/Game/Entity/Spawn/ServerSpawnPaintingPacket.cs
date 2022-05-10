@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.paintingType = MagicValues.key(PaintingType.class, in.readString());
         //this.position = NetUtil.readPosition(in);
         //this.direction = MagicValues.key(HangingDirection.class, in.readUnsignedByte());
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

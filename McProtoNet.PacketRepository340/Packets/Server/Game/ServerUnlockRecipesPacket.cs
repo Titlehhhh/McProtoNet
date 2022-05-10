@@ -26,12 +26,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //for(int i = 0; i < size; i++) {
         //this.recipes.add(in.readVarInt());
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

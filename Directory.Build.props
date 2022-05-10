@@ -3,8 +3,7 @@
     <PropertyGroup>
         <SolutionDir>$(MSBuildThisFileDirectory)</SolutionDir>
         <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
-        <OutputPath>$(SolutionDir)\bin\$(Configuration)\</OutputPath>
-        <OutDir>$(OutputPath)</OutDir>
+        <BaseOutputPath>$(SolutionDir)\bin\</BaseOutputPath>
         
         <UseCommonOutputDirectory>false</UseCommonOutputDirectory>
         <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

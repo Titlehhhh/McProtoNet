@@ -17,7 +17,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteDouble(X);
             stream.WriteDouble(Y);
@@ -26,7 +26,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
             stream.WriteFloat(Pitch);
             stream.WriteBoolean(OnGround);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             X = stream.ReadDouble();
             Y = stream.ReadDouble();

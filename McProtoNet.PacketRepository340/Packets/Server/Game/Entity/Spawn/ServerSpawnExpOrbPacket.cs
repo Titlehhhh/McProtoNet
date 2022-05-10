@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.y = in.readDouble();
         //this.z = in.readDouble();
         //this.exp = in.readShort();
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

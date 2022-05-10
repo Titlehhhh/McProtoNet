@@ -21,12 +21,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //} else if(this.notification == ClientNotification.THUNDER_STRENGTH) {
         //this.value = new ThunderStrengthValue(value);
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

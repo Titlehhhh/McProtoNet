@@ -12,14 +12,14 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         public float Pitch { get; set; }
         public bool OnGround { get; set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteFloat(Yaw);
             stream.WriteFloat(Pitch);
             stream.WriteBoolean(OnGround);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

@@ -10,12 +10,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
     {
         //this.position = MagicValues.key(ScoreboardPosition.class, in.readByte());
         //this.name = in.readString();
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

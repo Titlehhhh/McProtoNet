@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientCraftingBookDataPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -25,7 +25,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //default:
         //throw new IOException("Unknown crafting book data type: " + this.type);
         //}
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

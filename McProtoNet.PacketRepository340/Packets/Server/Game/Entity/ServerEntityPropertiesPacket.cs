@@ -22,12 +22,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //
         //this.attributes.add(new Attribute(MagicValues.key(AttributeType.class, key), value, modifiers));
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

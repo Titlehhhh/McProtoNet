@@ -10,12 +10,12 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public int MessageID { get; set; }
         public byte[] Data { get; set; }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             throw new NotImplementedException();
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(MessageID);
             if (Data != null)

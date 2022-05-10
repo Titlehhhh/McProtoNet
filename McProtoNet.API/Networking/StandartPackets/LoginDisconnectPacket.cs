@@ -7,12 +7,12 @@ namespace McProtoNet.API
     public sealed class LoginDisconnectPacket : IPacket
     {
         public string Message { get; set; }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Message = stream.ReadString();
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

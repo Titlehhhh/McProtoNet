@@ -9,12 +9,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
     {
         public string Message { get; set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Message);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

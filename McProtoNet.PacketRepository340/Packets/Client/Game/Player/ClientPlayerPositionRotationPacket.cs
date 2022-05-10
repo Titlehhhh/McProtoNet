@@ -16,7 +16,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
         public bool OnGround { get; set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteDouble(X);
             stream.WriteDouble(Y);
@@ -26,7 +26,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             stream.WriteBoolean(OnGround);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

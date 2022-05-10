@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientPlayerAbilitiesPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -33,7 +33,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeByte(flags);
         //out.writeFloat(this.flySpeed);
         //out.writeFloat(this.walkSpeed);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

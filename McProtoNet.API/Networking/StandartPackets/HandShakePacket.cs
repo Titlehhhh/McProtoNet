@@ -9,7 +9,7 @@ namespace McProtoNet.API
         public int ProtocolVersion { get; set; }
         public ushort Port { get; set; }
         public string Host { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(ProtocolVersion);
             stream.WriteString(Host);
@@ -17,7 +17,7 @@ namespace McProtoNet.API
             stream.WriteVarInt((int)Intent);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

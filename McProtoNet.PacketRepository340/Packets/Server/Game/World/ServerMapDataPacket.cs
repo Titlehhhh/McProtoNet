@@ -29,12 +29,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //byte data[] = in.readBytes(in.readVarInt());
         //this.data = new MapData(columns, rows, x, y, data);
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

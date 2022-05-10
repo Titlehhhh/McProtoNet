@@ -14,7 +14,7 @@ namespace McProtoNet.API
             VerifyToken = verifyToken;
             SharedKey = sharedKey;
         }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(SharedKey.Length);
             stream.WriteByteArray(SharedKey);
@@ -22,7 +22,7 @@ namespace McProtoNet.API
             stream.WriteByteArray(VerifyToken);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             SharedKey = stream.ReadUInt8Array(stream.ReadVarInt());
             VerifyToken = stream.ReadUInt8Array(stream.ReadVarInt());

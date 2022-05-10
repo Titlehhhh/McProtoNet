@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientPlayerStatePacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -16,7 +16,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeVarInt(this.entityId);
         //out.writeVarInt(MagicValues.value(Integer.class, this.state));
         //out.writeVarInt(this.jumpBoost);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

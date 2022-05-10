@@ -10,12 +10,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client
     {
         public long ID { get; set; }
         //out.writeLong(this.id);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteLong(ID);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

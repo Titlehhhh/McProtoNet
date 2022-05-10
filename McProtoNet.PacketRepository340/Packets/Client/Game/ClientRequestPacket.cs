@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
     {
         public ClientRequest Request { get; set; }
         //out.writeVarInt(MagicValues.value(Integer.class, this.request));
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Request);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public int TransactionId { get; private set; }
         public string Text { get; private set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(TransactionId);
             stream.WriteString(Text);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             TransactionId = stream.ReadVarInt();
             Text = stream.ReadString();

@@ -11,11 +11,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
     public class ServerKeepAlivePacket : IPacket
     {
         public long PingID { get; set; }
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteLong(PingID);
         }
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             PingID = stream.ReadLong();
         }

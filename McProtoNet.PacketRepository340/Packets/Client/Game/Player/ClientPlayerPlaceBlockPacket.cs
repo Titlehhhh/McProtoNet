@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientPlayerPlaceBlockPacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -19,7 +19,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeFloat(this.cursorX);
         //out.writeFloat(this.cursorY);
         //out.writeFloat(this.cursorZ);
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

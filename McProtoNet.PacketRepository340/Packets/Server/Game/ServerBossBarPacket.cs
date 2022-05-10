@@ -29,12 +29,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.darkenSky = (flags & 0x1) == 0x1;
         //this.dragonBar = (flags & 0x2) == 0x2;
         //}
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

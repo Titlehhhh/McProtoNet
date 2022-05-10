@@ -9,7 +9,7 @@ namespace McProtoNet.API
         public Guid UUID { get; set; }
         public string Username { get; set; }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
             UUID = stream.ReadGuid();
@@ -18,7 +18,7 @@ namespace McProtoNet.API
 
 
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

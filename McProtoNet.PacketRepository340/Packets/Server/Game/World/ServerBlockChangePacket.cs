@@ -9,12 +9,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
     public class ServerBlockChangePacket : IPacket
     {
         //this.record = new BlockChangeRecord(NetUtil.readPosition(in), NetUtil.readBlockState(in));
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

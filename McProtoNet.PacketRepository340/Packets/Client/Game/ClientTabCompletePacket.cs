@@ -8,7 +8,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
     public class ClientTabCompletePacket : IPacket
     {
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -19,7 +19,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //if(this.lookingAt != null) {
         //NetUtil.writePosition(out, this.lookingAt);
         //}
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -9,14 +9,14 @@ namespace McProtoNet.API
         public byte[] PublicKey { get; private set; }
         public byte[] VerifyToken { get; private set; }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             ServerId = stream.ReadString();
             PublicKey = stream.ReadUInt8Array(stream.ReadVarInt());
             VerifyToken = stream.ReadUInt8Array(stream.ReadVarInt());
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(ServerId);
             stream.WriteVarInt(PublicKey.Length);

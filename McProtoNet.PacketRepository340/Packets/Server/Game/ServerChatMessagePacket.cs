@@ -8,12 +8,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
     public class ServerChatMessagePacket : IPacket
     {
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

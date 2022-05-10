@@ -10,12 +10,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
     {
         public int ID { get; set; }
 
-        public void Write(IMinecraftStreamWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(ID);
         }
 
-        public void Read(IMinecraftStreamReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

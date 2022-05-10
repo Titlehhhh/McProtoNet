@@ -4,7 +4,7 @@ namespace McProtoNet.API.Networking
 {
     public interface IPacket
     {
-        void Read(IMinecraftStreamReader stream);
-        void Write(IMinecraftStreamWriter stream);
+        void Read(IMinecraftPrimitiveReader stream);
+        void Write(IMinecraftPrimitiveWriter stream);
     }
 }
