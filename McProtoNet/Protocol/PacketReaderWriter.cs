@@ -1,8 +1,10 @@
 ﻿using Ionic.Zlib;
+using McProtoNet.API;
 using McProtoNet.API.IO;
+using McProtoNet.API.Networking;
 using System.Net.Sockets;
 
-namespace McProtoNet.API.Networking
+namespace McProtoNet
 {
     public sealed class PacketReaderWriter : IPacketReaderWriter
     {

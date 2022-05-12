@@ -14,7 +14,7 @@ namespace McProtoNet.Utils
         {
             TcpClient tcpClient = new TcpClient(host, port);
             NetworkMinecraftStream networkMinecraftStream = new NetworkMinecraftStream(tcpClient.GetStream());
-            PacketReaderWriter packetReaderWriter = new PacketReaderWriter(networkMinecraftStream);
+            IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(networkMinecraftStream);
 
             await packetReaderWriter.SendPacketAsync(
                 new HandShakePacket(API.HandShakeIntent.STATUS, -1, port, host), 0);

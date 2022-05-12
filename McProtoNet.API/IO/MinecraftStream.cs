@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.API.IO
+﻿
+
+namespace McProtoNet.API.IO
 {
     /// <summary>
     /// Поток обеспечивающий работу с примитивными данными протокола Майкрафт    /// 
@@ -20,7 +22,7 @@
         public override long Position { get => BaseStream.Position; set => BaseStream.Position = value; }
         public MinecraftStream() : this(new MemoryStream())
         {
-
+            
         }
         public MinecraftStream(Stream stream)
         {
@@ -38,6 +40,7 @@
 
         public override long Seek(long offset, SeekOrigin origin)
         {
+            
             return BaseStream.Seek(offset, origin);
         }
 
@@ -63,7 +66,10 @@
         /// <returns></returns>
         public override int Read(Span<byte> buffer)
         {
-            return BaseStream.Read(buffer);
+            BaseStream.Position -= buffer.Length;
+            int a = BaseStream.Read(buffer);
+            BaseStream.Position -= buffer.Length;
+            return a;
         }
 
         public override void Write(byte[] buffer, int offset, int count)

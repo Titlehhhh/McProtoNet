@@ -28,10 +28,4 @@ namespace McProtoNet.API.IO
         void WriteVarLong(long value);
 
     }
-
-    public interface IMinecraftStream : IMinecraftPrimitiveReader, IMinecraftPrimitiveWriter
-    {
-
-    }
-
 }
