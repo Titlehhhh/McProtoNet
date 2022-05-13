@@ -1,7 +1,4 @@
-﻿using McProtoNet.API.World;
-using McProtoNet.Geometry;
-
-namespace McProtoNet.PacketRepository340.Data.World
+﻿namespace McProtoNet.PacketRepository340.Data.World
 {
 
     public struct Block340 : IBlock

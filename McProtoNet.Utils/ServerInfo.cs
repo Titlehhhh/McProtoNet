@@ -1,4 +1,4 @@
-﻿using McProtoNet.API.Types.Chat;
+﻿using McProtoNet.Types.Chat;
 using System.Runtime.Serialization;
 
 namespace McProtoNet.Utils

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.API\McProtoNet.csproj" />
     <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
     <ProjectReference Include="..\McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj" />

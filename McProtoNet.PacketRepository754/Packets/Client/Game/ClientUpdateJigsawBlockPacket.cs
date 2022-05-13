@@ -1,9 +1,3 @@
-using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
-using McProtoNet.API.Protocol;
-using McProtoNet.Geometry;
-
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 

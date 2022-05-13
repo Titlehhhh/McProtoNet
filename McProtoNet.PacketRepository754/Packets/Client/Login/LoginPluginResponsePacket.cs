@@ -1,10 +1,6 @@
-﻿using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
-
-namespace McProtoNet.PacketRepository754.Packets.Client
+﻿namespace McProtoNet.PacketRepository754.Packets.Client
 {
-    [McProtoNet.API.Protocol.PacketInfo(0x02, 740, PacketCategory.Login, PacketSide.Client)]
+    [McProtoNet.Protocol.PacketInfo(0x02, 740, PacketCategory.Login, PacketSide.Client)]
     public class LoginPluginResponsePacket : IPacket
     {
         public int MessageID { get; set; }

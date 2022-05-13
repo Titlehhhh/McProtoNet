@@ -1,4 +1,4 @@
-using McProtoNet.API.IO;
+using McProtoNet.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace McProtoNet.Tests

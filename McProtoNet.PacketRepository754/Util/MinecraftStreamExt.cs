@@ -1,7 +1,4 @@
-﻿using McProtoNet.API.IO;
-using McProtoNet.Geometry;
-
-namespace McProtoNet.PacketRepository754
+﻿namespace McProtoNet.PacketRepository754
 {
     public static class MinecraftStreamExt
     {

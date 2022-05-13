@@ -1,9 +1,4 @@
-﻿using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
-using McProtoNet.API.Protocol;
-
-namespace McProtoNet.PacketRepository754.Packets.Server
+﻿namespace McProtoNet.PacketRepository754.Packets.Server
 {
     [PacketInfo(0x04, 754, PacketCategory.Login, PacketSide.Server)]
     public class LoginPluginRequestPacket : IPacket

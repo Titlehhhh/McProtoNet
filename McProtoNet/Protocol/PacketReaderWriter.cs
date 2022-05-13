@@ -1,7 +1,6 @@
 ﻿using Ionic.Zlib;
-using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
+using McProtoNet.IO;
+using McProtoNet.Networking;
 using System.Net.Sockets;
 
 namespace McProtoNet

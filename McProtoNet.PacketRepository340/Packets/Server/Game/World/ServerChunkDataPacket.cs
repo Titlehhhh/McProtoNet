@@ -1,9 +1,5 @@
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
-using McProtoNet.API.World;
-using McProtoNet.API.World.Implements;
-using McProtoNet.Geometry;
 using McProtoNet.PacketRepository340.Data.World;
+using McProtoNet.World.Implements;
 
 namespace McProtoNet.PacketRepository340.Packets.Server
 {

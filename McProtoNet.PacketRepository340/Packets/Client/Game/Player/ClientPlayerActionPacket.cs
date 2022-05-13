@@ -1,7 +1,3 @@
-using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
-using McProtoNet.Geometry;
 using static McProtoNet.PacketRepository340.Constans;
 
 namespace McProtoNet.PacketRepository340.Packets.Client.Game

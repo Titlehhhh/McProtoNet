@@ -1,5 +1,4 @@
-﻿using McProtoNet.API.Networking;
-using McProtoNet.API.Protocol;
+﻿using McProtoNet.Networking;
 
 namespace McProtoNet.Protocol
 {

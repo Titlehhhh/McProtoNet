@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.API\McProtoNet.csproj" />
     <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
   </ItemGroup>
 

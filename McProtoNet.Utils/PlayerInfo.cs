@@ -1,5 +1,4 @@
-﻿using McProtoNet.API;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace McProtoNet.Utils
 {

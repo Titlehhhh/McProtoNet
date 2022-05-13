@@ -7,15 +7,13 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="Nbt\**" />
-    <EmbeddedResource Remove="Nbt\**" />
-    <None Remove="Nbt\**" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="MinecraftClient.cs" />
-  </ItemGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>full</DebugType>
+  </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Ionic.Zlib.Core" Version="1.0.0" />
@@ -23,11 +21,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
     <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
-    <ProjectReference Include="..\McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj" />
-    <ProjectReference Include="..\McProtoNet.PacketRepository754\McProtoNet.PacketRepository754.csproj" />
   </ItemGroup>
 
 </Project>

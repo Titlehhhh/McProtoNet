@@ -1,6 +1,4 @@
-﻿using McProtoNet.API.Networking;
-using McProtoNet.API.Protocol;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace McProtoNet.PacketRepository754
 {
@@ -29,22 +27,22 @@ namespace McProtoNet.PacketRepository754
                 foreach (var item in list)
                 {
                     PacketInfoAttribute packetInfo = item.GetCustomAttribute<PacketInfoAttribute>();
-                    if (packetInfo.Side == McProtoNet.API.PacketSide.Client)
+                    if (packetInfo.Side == McProtoNet.PacketSide.Client)
                     {
 
 
                         switch (packetInfo.Category)
                         {
-                            case McProtoNet.API.PacketCategory.Status:
+                            case McProtoNet.PacketCategory.Status:
                                 CLIENTPACKETS.StatusPackets.Add(packetInfo.ID, item);
                                 break;
-                            case McProtoNet.API.PacketCategory.HandShake:
+                            case McProtoNet.PacketCategory.HandShake:
                                 CLIENTPACKETS.HandShakePackets.Add(packetInfo.ID, item);
                                 break;
-                            case McProtoNet.API.PacketCategory.Login:
+                            case McProtoNet.PacketCategory.Login:
                                 CLIENTPACKETS.LoginPackets.Add(packetInfo.ID, item);
                                 break;
-                            case McProtoNet.API.PacketCategory.Game:
+                            case McProtoNet.PacketCategory.Game:
                                 CLIENTPACKETS.GamePackets.Add(packetInfo.ID, item);
                                 break;
                         }
@@ -56,13 +54,13 @@ namespace McProtoNet.PacketRepository754
 
                         switch (packetInfo.Category)
                         {
-                            case McProtoNet.API.PacketCategory.Status:
+                            case McProtoNet.PacketCategory.Status:
                                 SERVERPACKETS.StatusPackets.Add(packetInfo.ID, item);
                                 break;
-                            case McProtoNet.API.PacketCategory.Login:
+                            case McProtoNet.PacketCategory.Login:
                                 SERVERPACKETS.LoginPackets.Add(packetInfo.ID, item);
                                 break;
-                            case McProtoNet.API.PacketCategory.Game:
+                            case McProtoNet.PacketCategory.Game:
                                 SERVERPACKETS.GamePackets.Add(packetInfo.ID, item);
                                 break;
                         }

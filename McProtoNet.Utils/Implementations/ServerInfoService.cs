@@ -1,6 +1,5 @@
-﻿using McProtoNet.API;
-using McProtoNet.API.IO;
-using McProtoNet.API.Networking;
+﻿using McProtoNet.IO;
+using McProtoNet.Networking;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -17,7 +16,7 @@ namespace McProtoNet.Utils
             IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(networkMinecraftStream);
 
             await packetReaderWriter.SendPacketAsync(
-                new HandShakePacket(API.HandShakeIntent.STATUS, -1, port, host), 0);
+                new HandShakePacket(HandShakeIntent.STATUS, -1, port, host), 0);
             await packetReaderWriter.SendPacketAsync(
                 new StatusQueryPacket(), 0);
 
