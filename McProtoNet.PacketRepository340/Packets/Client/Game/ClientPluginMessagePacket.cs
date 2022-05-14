@@ -3,16 +3,16 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPluginMessagePacket : IPacket
+    public sealed class ClientPluginMessagePacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
         //out.writeString(this.channel);
         //out.writeBytes(this.data);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

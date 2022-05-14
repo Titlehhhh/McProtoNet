@@ -4,9 +4,9 @@ namespace McProtoNet.Protocol
 {
     public sealed class PacketManager : IPacketProducer, IPacketManager
     {
-        private Dictionary<int, Lazy<IPacket>> packets = new Dictionary<int, Lazy<IPacket>>();
+        private Dictionary<int, Lazy<Packet>> packets = new Dictionary<int, Lazy<Packet>>();
 
-        public Dictionary<int, Lazy<IPacket>> InputPackets => packets ??= new Dictionary<int, Lazy<IPacket>>();
+        public Dictionary<int, Lazy<Packet>> InputPackets => packets ??= new Dictionary<int, Lazy<Packet>>();
 
         private Dictionary<Type, int> outPackets;
 
@@ -32,9 +32,9 @@ namespace McProtoNet.Protocol
             OutputPackets.Clear();
         }
 
-        public void RegisterInputPacket<TPacket>(int id) where TPacket : IPacket, new()
+        public void RegisterInputPacket<TPacket>(int id) where TPacket : Packet, new()
         {
-            Lazy<IPacket> packet = new Lazy<IPacket>(() => new TPacket());
+            Lazy<Packet> packet = new Lazy<Packet>(() => new TPacket());
             packets.Add(id, packet);
             PacketsRegistered?.Invoke(this, new RegisterPacketsEventArgs(new List<Type>() { typeof(TPacket) }));
         }
@@ -43,12 +43,12 @@ namespace McProtoNet.Protocol
         {
             try
             {
-                Lazy<IPacket> packet = new Lazy<IPacket>(() => (IPacket)Activator.CreateInstance(Tpacket));
+                Lazy<Packet> packet = new Lazy<Packet>(() => (Packet)Activator.CreateInstance(Tpacket));
                 InputPackets.Add(id, packet);
             }
             catch (InvalidCastException)
             {
-                throw new InvalidOperationException($"Параметр {nameof(Tpacket)} не является производным от {nameof(IPacket)}");
+                throw new InvalidOperationException($"Параметр {nameof(Tpacket)} не является производным от {nameof(Packet)}");
             }
             catch
             {
@@ -58,12 +58,12 @@ namespace McProtoNet.Protocol
 
         public void RegisterOutputPacket(Type Tpacket, int id)
         {
-            if (!Tpacket.IsAssignableTo(typeof(IPacket)))
-                throw new InvalidOperationException($"Параметр {nameof(Tpacket)} не является производным от {nameof(IPacket)}");
+            if (!Tpacket.IsAssignableTo(typeof(Packet)))
+                throw new InvalidOperationException($"Параметр {nameof(Tpacket)} не является производным от {nameof(Packet)}");
             OutputPackets.Add(Tpacket, id);
         }
 
-        public void RegisterOutputPacket<TPacket>(int id) where TPacket : IPacket
+        public void RegisterOutputPacket<TPacket>(int id) where TPacket : Packet
         {
             OutputPackets.Add(typeof(TPacket), id);
         }
@@ -82,7 +82,7 @@ namespace McProtoNet.Protocol
             return false;
         }
 
-        public bool TryGetInputPacket(int id, out Lazy<IPacket> packet)
+        public bool TryGetInputPacket(int id, out Lazy<Packet> packet)
         {
             if (packets.ContainsKey(id))
             {
@@ -98,7 +98,7 @@ namespace McProtoNet.Protocol
             InputPackets.Remove(id);
         }
 
-        public void UnRegisterInputPacket<TPacket>() where TPacket : IPacket
+        public void UnRegisterInputPacket<TPacket>() where TPacket : Packet
         {
             throw new NotImplementedException();
         }
@@ -108,7 +108,7 @@ namespace McProtoNet.Protocol
             OutputPackets.Remove(t);
         }
 
-        public void UnRegisterOutputPacket<TPacket>() where TPacket : IPacket
+        public void UnRegisterOutputPacket<TPacket>() where TPacket : Packet
         {
             this.UnRegisterOutputPacket(typeof(TPacket));
         }
@@ -122,11 +122,11 @@ namespace McProtoNet.Protocol
         {
             foreach (var item in packets)
             {
-                if (!item.Value.IsAssignableTo(typeof(IPacket)))
+                if (!item.Value.IsAssignableTo(typeof(Packet)))
                 {
-                    throw new InvalidOperationException($"Элемент {nameof(item)} не является производным от {nameof(IPacket)}");
+                    throw new InvalidOperationException($"Элемент {nameof(item)} не является производным от {nameof(Packet)}");
                 }
-                Lazy<IPacket> packet = new Lazy<IPacket>(() => (IPacket)Activator.CreateInstance(item.Value));
+                Lazy<Packet> packet = new Lazy<Packet>(() => (Packet)Activator.CreateInstance(item.Value));
                 InputPackets.Add(item.Key, packet);
             }
         }
@@ -135,9 +135,9 @@ namespace McProtoNet.Protocol
         {
             foreach (var item in packets)
             {
-                if (!item.Value.IsAssignableTo(typeof(IPacket)))
+                if (!item.Value.IsAssignableTo(typeof(Packet)))
                 {
-                    throw new InvalidOperationException($"Элемент {nameof(item)} не является производным от {nameof(IPacket)}");
+                    throw new InvalidOperationException($"Элемент {nameof(item)} не является производным от {nameof(Packet)}");
                 }
                 OutputPackets.Add(item.Value, item.Key);
             }

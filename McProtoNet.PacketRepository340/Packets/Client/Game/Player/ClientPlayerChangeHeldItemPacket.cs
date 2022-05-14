@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerChangeHeldItemPacket : IPacket
+    public sealed class ClientPlayerChangeHeldItemPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
         //out.writeShort(this.slot);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

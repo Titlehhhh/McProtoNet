@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerTeamPacket : IPacket
+    public sealed class ServerTeamPacket : Packet
     {
         //this.name = in.readString();
         //this.action = MagicValues.key(TeamAction.class, in.readByte());
@@ -29,12 +29,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.players[index] = in.readString();
         //}
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

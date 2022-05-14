@@ -6,7 +6,7 @@ namespace McProtoNet.Networking
     {
         void SwitchEncryption(byte[] privateKey);
         void SwitchCompression(int threshold);
-        Task SendPacketAsync(IPacket packet, int id, CancellationToken token = default);
+        Task SendPacketAsync(Packet packet, int id, CancellationToken token = default);
         Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token = default);
     }
 }

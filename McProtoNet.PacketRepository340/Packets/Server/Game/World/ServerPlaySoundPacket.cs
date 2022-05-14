@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlaySoundPacket : IPacket
+    public sealed class ServerPlaySoundPacket : Packet
     {
         //String value = in.readString();
         //try {
@@ -17,12 +17,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.z = in.readInt() / 8D;
         //this.volume = in.readFloat();
         //this.pitch = in.readFloat();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

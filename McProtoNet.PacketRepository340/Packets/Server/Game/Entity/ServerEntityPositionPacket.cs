@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityPositionPacket : IPacket
+    public sealed class ServerEntityPositionPacket : Packet
     {
         //protected ServerEntityPositionPacket() {
         //this.pos = true;
@@ -15,12 +15,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.moveY = moveY;
         //this.moveZ = moveZ;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

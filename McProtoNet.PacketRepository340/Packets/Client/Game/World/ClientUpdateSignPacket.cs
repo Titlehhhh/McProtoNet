@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientUpdateSignPacket : IPacket
+    public sealed class ClientUpdateSignPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -13,7 +13,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //for(String line : this.lines) {
         //out.writeString(line);
         //}
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -4,15 +4,15 @@ using McProtoNet.Networking;
 namespace McProtoNet
 {
 
-    public sealed class LoginStartPacket : IPacket
+    public sealed class LoginStartPacket : Packet
     {
         public string Nickname { get; private set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Nickname);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

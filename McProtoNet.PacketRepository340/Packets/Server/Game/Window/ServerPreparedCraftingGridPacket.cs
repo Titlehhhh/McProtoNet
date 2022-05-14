@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPreparedCraftingGridPacket : IPacket
+    public sealed class ServerPreparedCraftingGridPacket : Packet
     {
         //this.windowId = in.readByte();
         //this.recipeId = in.readVarInt();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

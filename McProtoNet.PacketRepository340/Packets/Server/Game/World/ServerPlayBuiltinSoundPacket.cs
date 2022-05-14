@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayBuiltinSoundPacket : IPacket
+    public sealed class ServerPlayBuiltinSoundPacket : Packet
     {
         //this.sound = MagicValues.key(BuiltinSound.class, in.readVarInt());
         //this.category = MagicValues.key(SoundCategory.class, in.readVarInt());
@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.z = in.readInt() / 8D;
         //this.volume = in.readFloat();
         //this.pitch = in.readFloat();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

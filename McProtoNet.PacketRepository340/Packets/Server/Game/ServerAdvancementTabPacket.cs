@@ -2,19 +2,19 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerAdvancementTabPacket : IPacket
+    public sealed class ServerAdvancementTabPacket : Packet
     {
         //if(in.readBoolean()) {
         //this.tabId = in.readString();
         //} else {
         //this.tabId = null;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -5,7 +5,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerChunkDataPacket : IPacket
+    public sealed class ServerChunkDataPacket : Packet
     {
         public IChunkColumn Column { get; set; }
         //int x = in.readInt();
@@ -19,7 +19,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //}
         //
         //this.column = NetUtil.readColumn(data, x, z, fullChunk, false, chunkMask, tileEntities);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             int x = stream.ReadInt();
             int z = stream.ReadInt();
@@ -128,7 +128,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
             Column = column;
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSetCooldownPacket : IPacket
+    public sealed class ServerSetCooldownPacket : Packet
     {
         //this.itemId = in.readVarInt();
         //this.cooldownTicks = in.readVarInt();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

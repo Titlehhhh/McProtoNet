@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x00, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientTeleportConfirmPacket : IPacket
+    public sealed class ClientTeleportConfirmPacket : Packet
     {
         public int Id { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(Id);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             Id = stream.ReadVarInt();
         }

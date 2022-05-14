@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPluginMessagePacket : IPacket
+    public sealed class ServerPluginMessagePacket : Packet
     {
         //this.channel = in.readString();
         //this.data = in.readBytes(in.available());
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

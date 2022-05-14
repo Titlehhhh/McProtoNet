@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayerListEntryPacket : IPacket
+    public sealed class ServerPlayerListEntryPacket : Packet
     {
         //this.action = MagicValues.key(PlayerListEntryAction.class, in.readVarInt());
         //this.entries = new PlayerListEntry[in.readVarInt()];
@@ -63,12 +63,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //
         //this.entries[count] = entry;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

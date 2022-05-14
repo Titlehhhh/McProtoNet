@@ -3,16 +3,16 @@ using McProtoNet.Networking;
 
 namespace McProtoNet
 {
-    public sealed class StatusResponsePacket : IPacket
+    public sealed class StatusResponsePacket : Packet
     {
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             throw new NotImplementedException();
             string debug = stream.ReadString();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

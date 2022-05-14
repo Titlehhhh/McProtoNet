@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityPositionRotationPacket : IPacket
+    public sealed class ServerEntityPositionRotationPacket : Packet
     {
         //protected ServerEntityPositionRotationPacket() {
         //this.pos = true;
@@ -19,12 +19,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.yaw = yaw;
         //this.pitch = pitch;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

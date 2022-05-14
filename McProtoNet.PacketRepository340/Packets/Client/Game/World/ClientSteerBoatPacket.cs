@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientSteerBoatPacket : IPacket
+    public sealed class ClientSteerBoatPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
         //out.WriteBooleanean(this.rightPaddleTurning);
         //out.WriteBooleanean(this.leftPaddleTurning);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

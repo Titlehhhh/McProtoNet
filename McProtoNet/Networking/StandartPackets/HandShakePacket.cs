@@ -3,13 +3,13 @@ using McProtoNet.Networking;
 
 namespace McProtoNet
 {
-    public sealed class HandShakePacket : IPacket
+    public sealed class HandShakePacket : Packet
     {
         public HandShakeIntent Intent { get; set; }
         public int ProtocolVersion { get; set; }
         public ushort Port { get; set; }
         public string Host { get; set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(ProtocolVersion);
             stream.WriteString(Host);
@@ -17,7 +17,7 @@ namespace McProtoNet
             stream.WriteVarInt((int)Intent);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

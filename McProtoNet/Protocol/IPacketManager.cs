@@ -7,18 +7,18 @@ namespace McProtoNet.Protocol
     /// </summary>
     public interface IPacketManager
     {
-        Dictionary<int, Lazy<IPacket>> InputPackets { get; }
+        Dictionary<int, Lazy<Packet>> InputPackets { get; }
         Dictionary<Type, int> OutputPackets { get; }
 
-        void RegisterOutputPacket<TPacket>(int id) where TPacket : IPacket;
+        void RegisterOutputPacket<TPacket>(int id) where TPacket : Packet;
         void RegisterOutputPacket(Type Tpacket, int id);
 
         void UnRegisterOutputPacket(Type t);
-        void UnRegisterOutputPacket<TPacket>() where TPacket : IPacket;
+        void UnRegisterOutputPacket<TPacket>() where TPacket : Packet;
 
-        void RegisterInputPacket<TPacket>(int id) where TPacket : IPacket, new();
+        void RegisterInputPacket<TPacket>(int id) where TPacket : Packet, new();
         void RegisterInputPacket(Type Tpacket, int id);
-        void UnRegisterInputPacket<TPacket>() where TPacket : IPacket;
+        void UnRegisterInputPacket<TPacket>() where TPacket : Packet;
         void UnRegisterInputPacket(int id);
 
         void LoadInputPackets(Dictionary<int, Type> packets);

@@ -181,7 +181,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named byte tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteByte(byte value)
+        public   void WriteByte(byte value)
         {
             EnforceConstraints(null, NbtTagType.Byte);
             writer.Write(value);
@@ -193,7 +193,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The unsigned byte to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed byte tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteByte(string tagName, byte value)
+        public   void WriteByte(string tagName, byte value)
         {
             EnforceConstraints(tagName, NbtTagType.Byte);
             writer.Write((byte)NbtTagType.Byte);
@@ -207,7 +207,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named double tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteDouble(double value)
+        public   void WriteDouble(double value)
         {
             EnforceConstraints(null, NbtTagType.Double);
             writer.Write(value);
@@ -219,7 +219,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The unsigned byte to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed byte tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteDouble(string tagName, double value)
+        public   void WriteDouble(string tagName, double value)
         {
             EnforceConstraints(tagName, NbtTagType.Double);
             writer.Write((byte)NbtTagType.Double);
@@ -233,7 +233,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named float tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteFloat(float value)
+        public   void WriteFloat(float value)
         {
             EnforceConstraints(null, NbtTagType.Float);
             writer.Write(value);
@@ -245,7 +245,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The four-byte floating-point value to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed float tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteFloat(string tagName, float value)
+        public   void WriteFloat(string tagName, float value)
         {
             EnforceConstraints(tagName, NbtTagType.Float);
             writer.Write((byte)NbtTagType.Float);
@@ -259,7 +259,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named int tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteInt(int value)
+        public   void WriteInt(int value)
         {
             EnforceConstraints(null, NbtTagType.Int);
             writer.Write(value);
@@ -271,7 +271,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The four-byte signed integer to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed int tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteInt(string tagName, int value)
+        public   void WriteInt(string tagName, int value)
         {
             EnforceConstraints(tagName, NbtTagType.Int);
             writer.Write((byte)NbtTagType.Int);
@@ -285,7 +285,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named long tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteLong(long value)
+        public   void WriteLong(long value)
         {
             EnforceConstraints(null, NbtTagType.Long);
             writer.Write(value);
@@ -297,7 +297,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The eight-byte signed integer to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed long tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteLong(string tagName, long value)
+        public   void WriteLong(string tagName, long value)
         {
             EnforceConstraints(tagName, NbtTagType.Long);
             writer.Write((byte)NbtTagType.Long);
@@ -311,7 +311,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named short tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteShort(short value)
+        public   void WriteShort(short value)
         {
             EnforceConstraints(null, NbtTagType.Short);
             writer.Write(value);
@@ -323,7 +323,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The two-byte signed integer to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed short tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteShort(string tagName, short value)
+        public   void WriteShort(string tagName, short value)
         {
             EnforceConstraints(tagName, NbtTagType.Short);
             writer.Write((byte)NbtTagType.Short);
@@ -337,7 +337,7 @@ namespace McProtoNet.NBT
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// a named string tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
-        public void WriteString(string value)
+        public   void WriteString(string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             EnforceConstraints(null, NbtTagType.String);
@@ -350,7 +350,7 @@ namespace McProtoNet.NBT
         /// <param name="value"> The string to write. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR-
         /// an unnamed string tag was expected -OR- a tag of a different type was expected. </exception>
-        public void WriteString(string tagName, string value)
+        public   void WriteString(string tagName, string value)
         {
             if (value == null) throw new ArgumentNullException(nameof(value));
             EnforceConstraints(tagName, NbtTagType.String);
@@ -370,7 +370,7 @@ namespace McProtoNet.NBT
         /// a named byte array tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
-        public void WriteByteArray(byte[] data)
+        public   void WriteByteArray(byte[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteByteArray(data, 0, data.Length);
@@ -389,7 +389,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteByteArray(byte[] data, int offset, int count)
+        public   void WriteByteArray(byte[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(null, NbtTagType.ByteArray);
@@ -405,7 +405,7 @@ namespace McProtoNet.NBT
         /// an unnamed byte array tag was expected -OR- a tag of a different type was expected. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="tagName"/> or
         /// <paramref name="data"/> is null </exception>
-        public void WriteByteArray(string tagName, byte[] data)
+        public   void WriteByteArray(string tagName, byte[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteByteArray(tagName, data, 0, data.Length);
@@ -425,7 +425,7 @@ namespace McProtoNet.NBT
         /// <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteByteArray(string tagName, byte[] data, int offset, int count)
+        public   void WriteByteArray(string tagName, byte[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(tagName, NbtTagType.ByteArray);
@@ -447,7 +447,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count"/> is negative. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="dataSource"/> is null. </exception>
         /// <exception cref="ArgumentException"> Given stream does not support reading. </exception>
-        public void WriteByteArray(Stream dataSource, int count)
+        public   void WriteByteArray(Stream dataSource, int count)
         {
             if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
             if (!dataSource.CanRead)
@@ -475,7 +475,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentNullException"> <paramref name="dataSource"/> is null. </exception>
         /// <exception cref="ArgumentException"> Given stream does not support reading -OR-
         /// <paramref name="buffer"/> size is 0. </exception>
-        public void WriteByteArray(Stream dataSource, int count, byte[] buffer)
+        public   void WriteByteArray(Stream dataSource, int count, byte[] buffer)
         {
             if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
             if (buffer == null) throw new ArgumentNullException(nameof(buffer));
@@ -507,7 +507,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count"/> is negative. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="dataSource"/> is null. </exception>
         /// <exception cref="ArgumentException"> Given stream does not support reading. </exception>
-        public void WriteByteArray(string tagName, Stream dataSource, int count)
+        public   void WriteByteArray(string tagName, Stream dataSource, int count)
         {
             if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
             if (count < 0)
@@ -531,7 +531,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentNullException"> <paramref name="dataSource"/> is null. </exception>
         /// <exception cref="ArgumentException"> Given stream does not support reading -OR-
         /// <paramref name="buffer"/> size is 0. </exception>
-        public void WriteByteArray(string tagName, Stream dataSource, int count,
+        public   void WriteByteArray(string tagName, Stream dataSource, int count,
                                     byte[] buffer)
         {
             if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
@@ -561,7 +561,7 @@ namespace McProtoNet.NBT
         /// a named int array tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
-        public void WriteIntArray(int[] data)
+        public   void WriteIntArray(int[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteIntArray(data, 0, data.Length);
@@ -580,7 +580,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteIntArray(int[] data, int offset, int count)
+        public   void WriteIntArray(int[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(null, NbtTagType.IntArray);
@@ -599,7 +599,7 @@ namespace McProtoNet.NBT
         /// an unnamed int array tag was expected -OR- a tag of a different type was expected. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="tagName"/> or
         /// <paramref name="data"/> is null </exception>
-        public void WriteIntArray(string tagName, int[] data)
+        public   void WriteIntArray(string tagName, int[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteIntArray(tagName, data, 0, data.Length);
@@ -619,7 +619,7 @@ namespace McProtoNet.NBT
         /// <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteIntArray(string tagName, int[] data, int offset, int count)
+        public   void WriteIntArray(string tagName, int[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(tagName, NbtTagType.IntArray);
@@ -638,7 +638,7 @@ namespace McProtoNet.NBT
         /// a named long array tag was expected -OR- a tag of a different type was expected -OR-
         /// the size of a parent list has been exceeded. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
-        public void WriteLongArray(long[] data)
+        public   void WriteLongArray(long[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteLongArray(data, 0, data.Length);
@@ -657,7 +657,7 @@ namespace McProtoNet.NBT
         /// <exception cref="ArgumentNullException"> <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteLongArray(long[] data, int offset, int count)
+        public   void WriteLongArray(long[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(null, NbtTagType.LongArray);
@@ -676,7 +676,7 @@ namespace McProtoNet.NBT
         /// an unnamed long array tag was expected -OR- a tag of a different type was expected. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="tagName"/> or
         /// <paramref name="data"/> is null </exception>
-        public void WriteLongArray(string tagName, long[] data)
+        public   void WriteLongArray(string tagName, long[] data)
         {
             if (data == null) throw new ArgumentNullException(nameof(data));
             WriteLongArray(tagName, data, 0, data.Length);
@@ -696,7 +696,7 @@ namespace McProtoNet.NBT
         /// <paramref name="data"/> is null </exception>
         /// <exception cref="ArgumentException"> <paramref name="count"/> is greater than
         /// <paramref name="offset"/> subtracted from the array length. </exception>
-        public void WriteLongArray(string tagName, long[] data, int offset, int count)
+        public   void WriteLongArray(string tagName, long[] data, int offset, int count)
         {
             CheckArray(data, offset, count);
             EnforceConstraints(tagName, NbtTagType.LongArray);
@@ -718,7 +718,7 @@ namespace McProtoNet.NBT
         /// <param name="tag"> Tag to write. Must not be null. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR- given tag is unacceptable at this time. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="tag"/> is null </exception>
-        public void WriteTag(NbtTag tag)
+        public   void WriteTag(NbtTag tag)
         {
             if (tag == null) throw new ArgumentNullException(nameof(tag));
             EnforceConstraints(tag.Name, tag.TagType);

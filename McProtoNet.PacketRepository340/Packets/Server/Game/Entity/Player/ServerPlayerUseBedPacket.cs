@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayerUseBedPacket : IPacket
+    public sealed class ServerPlayerUseBedPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.position = NetUtil.readPosition(in);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

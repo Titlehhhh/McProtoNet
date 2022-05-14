@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayerPositionRotationPacket : IPacket
+    public sealed class ServerPlayerPositionRotationPacket : Packet
     {
         //this.x = in.readDouble();
         //this.y = in.readDouble();
@@ -19,12 +19,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //}
         //
         //this.teleportId = in.readVarInt();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

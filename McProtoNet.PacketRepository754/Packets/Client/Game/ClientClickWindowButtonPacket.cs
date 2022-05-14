@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x08, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientClickWindowButtonPacket : IPacket
+    public sealed class ClientClickWindowButtonPacket : Packet
     {
         public byte WindowId { get; private set; }
         public byte ButtonId { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
             stream.WriteUnsignedByte(ButtonId);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
             ButtonId = stream.ReadUnsignedByte();

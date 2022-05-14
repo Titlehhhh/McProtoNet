@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSwitchCameraPacket : IPacket
+    public sealed class ServerSwitchCameraPacket : Packet
     {
         //this.cameraEntityId = in.readVarInt();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

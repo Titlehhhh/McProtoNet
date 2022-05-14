@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerBossBarPacket : IPacket
+    public sealed class ServerBossBarPacket : Packet
     {
         //this.uuid = in.readUUID();
         //this.action = MagicValues.key(BossBarAction.class, in.readVarInt());
@@ -25,12 +25,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.darkenSky = (flags & 0x1) == 0x1;
         //this.dragonBar = (flags & 0x2) == 0x2;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

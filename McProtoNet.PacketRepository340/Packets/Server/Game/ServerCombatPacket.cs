@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerCombatPacket : IPacket
+    public sealed class ServerCombatPacket : Packet
     {
         //this.state = MagicValues.key(CombatState.class, in.readVarInt());
         //if(this.state == CombatState.END_COMBAT) {
@@ -13,12 +13,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.entityId = in.readInt();
         //this.message = Message.fromString(in.readString());
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

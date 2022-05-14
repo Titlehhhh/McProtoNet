@@ -1,15 +1,15 @@
 namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
-    public class ClientCloseWindowPacket : IPacket
+    public sealed class ClientCloseWindowPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
         //out.writeByte(this.windowId);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

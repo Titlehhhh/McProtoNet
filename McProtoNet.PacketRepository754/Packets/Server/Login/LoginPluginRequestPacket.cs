@@ -1,13 +1,13 @@
 ﻿namespace McProtoNet.PacketRepository754.Packets.Server
 {
     [PacketInfo(0x04, 754, PacketCategory.Login, PacketSide.Server)]
-    public class LoginPluginRequestPacket : IPacket
+    public sealed class LoginPluginRequestPacket : Packet
     {
         public int MessageID { get; set; }
         public string Channel { get; set; }
         public byte[] Data { get; set; }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             
             MessageID = stream.ReadVarInt();
@@ -15,7 +15,7 @@
             Data = stream.ReadToEnd();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

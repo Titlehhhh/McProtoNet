@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerDisconnectPacket : IPacket
+    public sealed class ServerDisconnectPacket : Packet
     {
 
         public string Messaage { get; private set; }
         //this.message = Message.fromString(in.readString());
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

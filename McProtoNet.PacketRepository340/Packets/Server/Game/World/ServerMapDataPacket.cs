@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerMapDataPacket : IPacket
+    public sealed class ServerMapDataPacket : Packet
     {
         //this.mapId = in.readVarInt();
         //this.scale = in.readByte();
@@ -25,12 +25,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //byte data[] = in.readBytes(in.readVarInt());
         //this.data = new MapData(columns, rows, x, y, data);
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

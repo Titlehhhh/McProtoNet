@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerResourcePackSendPacket : IPacket
+    public sealed class ServerResourcePackSendPacket : Packet
     {
         //this.url = in.readString();
         //this.hash = in.readString();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

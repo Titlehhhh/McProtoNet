@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientTabCompletePacket : IPacket
+    public sealed class ClientTabCompletePacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -15,7 +15,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //if(this.lookingAt != null) {
         //NetUtil.writePosition(out, this.lookingAt);
         //}
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

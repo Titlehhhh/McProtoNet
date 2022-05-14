@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityTeleportPacket : IPacket
+    public sealed class ServerEntityTeleportPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.x = in.readDouble();
@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.yaw = in.readByte() * 360 / 256f;
         //this.pitch = in.readByte() * 360 / 256f;
         //this.onGround = in.readBoolean();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

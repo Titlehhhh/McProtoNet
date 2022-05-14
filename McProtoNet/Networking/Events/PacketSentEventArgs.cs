@@ -2,8 +2,8 @@
 {
     public class PacketSentEventArgs : EventArgs
     {
-        public IPacket Packet { get; private set; }
-        public PacketSentEventArgs(IPacket packet)
+        public Packet Packet { get; private set; }
+        public PacketSentEventArgs(Packet packet)
         {
             Packet = packet;
         }

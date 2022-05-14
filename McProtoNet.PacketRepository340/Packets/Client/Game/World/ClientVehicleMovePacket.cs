@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientVehicleMovePacket : IPacket
+    public sealed class ClientVehicleMovePacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -14,7 +14,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeDouble(this.z);
         //out.writeFloat(this.yaw);
         //out.writeFloat(this.pitch);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

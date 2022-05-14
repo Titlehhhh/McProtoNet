@@ -81,7 +81,7 @@ namespace McProtoNet
         }
 
 
-        public async Task SendPacketAsync(IPacket packet, int id, CancellationToken token = default)
+        public async Task SendPacketAsync(Packet packet, int id, CancellationToken token = default)
         {
             Trace.WriteLine("1: "+packet.GetType().Name);
             if(id == 0x01)
@@ -123,7 +123,7 @@ namespace McProtoNet
             Trace.WriteLine("2: " + packet.GetType().Name);
 
         }
-        private async Task SendPacketWithoutCompressionAsync(IPacket packet, int id, CancellationToken token)
+        private async Task SendPacketWithoutCompressionAsync(Packet packet, int id, CancellationToken token)
         {
             using (MemoryStream bufferStream = new MemoryStream())
             {

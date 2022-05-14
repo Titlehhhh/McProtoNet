@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerPositionRotationPacket : IPacket
+    public sealed class ClientPlayerPositionRotationPacket : Packet
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -12,7 +12,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 
         public bool OnGround { get; set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteDouble(X);
             stream.WriteDouble(Y);
@@ -22,7 +22,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             stream.WriteBoolean(OnGround);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

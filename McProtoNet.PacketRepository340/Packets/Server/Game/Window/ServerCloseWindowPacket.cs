@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerCloseWindowPacket : IPacket
+    public sealed class ServerCloseWindowPacket : Packet
     {
         //this.windowId = in.readUnsignedByte();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerInteractEntityPacket : IPacket
+    public sealed class ClientPlayerInteractEntityPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -20,7 +20,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //if(this.action == InteractAction.INTERACT || this.action == InteractAction.INTERACT_AT) {
         //out.writeVarInt(MagicValues.value(Integer.class, this.hand));
         //}
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

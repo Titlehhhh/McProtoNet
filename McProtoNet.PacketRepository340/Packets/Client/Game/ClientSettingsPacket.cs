@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientSettingsPacket : IPacket
+    public sealed class ClientSettingsPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -22,7 +22,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeByte(flags);
         //
         //out.writeVarInt(MagicValues.value(Integer.class, this.mainHand));
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

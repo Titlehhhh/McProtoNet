@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerUpdateTileEntityPacket : IPacket
+    public sealed class ServerUpdateTileEntityPacket : Packet
     {
         //this.position = NetUtil.readPosition(in);
         //this.type = MagicValues.key(UpdatedTileType.class, in.readUnsignedByte());
         //this.nbt = NetUtil.readNBT(in);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

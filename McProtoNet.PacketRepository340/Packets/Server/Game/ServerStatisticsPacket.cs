@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerStatisticsPacket : IPacket
+    public sealed class ServerStatisticsPacket : Packet
     {
         //int length = in.readVarInt();
         //for(int index = 0; index < length; index++) {
@@ -34,12 +34,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //
         //this.statistics.put(statistic, in.readVarInt());
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

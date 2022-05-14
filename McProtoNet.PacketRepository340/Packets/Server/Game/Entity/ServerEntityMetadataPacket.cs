@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityMetadataPacket : IPacket
+    public sealed class ServerEntityMetadataPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.metadata = NetUtil.readEntityMetadata(in);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -42,7 +42,7 @@ namespace McProtoNet.Protocol
         }
         private static void CheckAssignable(Dictionary<int, Type> collection, string name)
         {
-            bool result = collection.All(item => item.Value.IsAssignableTo(typeof(IPacket)));
+            bool result = collection.All(item => item.Value.IsAssignableTo(typeof(Packet)));
             if (!result)
             {
                 throw new InvalidOperationException("В словаре содержится тип не реализующий IPacket. Имя параметра: " + name);

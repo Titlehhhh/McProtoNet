@@ -4,16 +4,16 @@ using McProtoNet.Networking;
 namespace McProtoNet
 {
 
-    public sealed class LoginSetCompressionPacket : IPacket
+    public sealed class LoginSetCompressionPacket : Packet
     {
         public int Threshold { get; set; }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             Threshold = stream.ReadVarInt();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

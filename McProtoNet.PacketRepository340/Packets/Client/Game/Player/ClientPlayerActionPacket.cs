@@ -4,12 +4,12 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerActionPacket : IPacket
+    public sealed class ClientPlayerActionPacket : Packet
     {
         public PlayerAction Action { get; set; }
         public Point3_Int Position { get; set; }
         public GeoBlockFace Face { get; set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Action);
             long x = Position.X & POSITION_WRITE_SHIFT;
@@ -21,7 +21,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             stream.WriteByte((sbyte)Face);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

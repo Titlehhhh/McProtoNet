@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityRemoveEffectPacket : IPacket
+    public sealed class ServerEntityRemoveEffectPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.effect = MagicValues.key(Effect.class, in.readUnsignedByte());
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

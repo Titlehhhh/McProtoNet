@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerBlockValuePacket : IPacket
+    public sealed class ServerBlockValuePacket : Packet
     {
         //this.position = NetUtil.readPosition(in);
         //int type = in.readUnsignedByte();
@@ -26,12 +26,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.type = MagicValues.key(GenericBlockValueType.class, type);
         //this.value = new GenericBlockValue(value);
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

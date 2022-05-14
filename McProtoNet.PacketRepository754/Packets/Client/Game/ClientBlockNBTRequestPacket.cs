@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x01, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientBlockNBTRequestPacket : IPacket
+    public sealed class ClientBlockNBTRequestPacket : Packet
     {
 
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

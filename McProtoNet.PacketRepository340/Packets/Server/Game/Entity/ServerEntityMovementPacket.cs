@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityMovementPacket : IPacket
+    public sealed class ServerEntityMovementPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //if(this.pos) {
@@ -19,12 +19,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //if(this.pos || this.rot) {
         //this.onGround = in.readBoolean();
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerDisplayScoreboardPacket : IPacket
+    public sealed class ServerDisplayScoreboardPacket : Packet
     {
         //this.position = MagicValues.key(ScoreboardPosition.class, in.readByte());
         //this.name = in.readString();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

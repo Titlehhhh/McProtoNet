@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSpawnParticlePacket : IPacket
+    public sealed class ServerSpawnParticlePacket : Packet
     {
         //this.particle = MagicValues.key(Particle.class, in.readInt());
         //this.longDistance = in.readBoolean();
@@ -18,12 +18,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //for(int index = 0; index < this.data.length; index++) {
         //this.data[index] = in.readVarInt();
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

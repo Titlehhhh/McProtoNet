@@ -2,14 +2,14 @@ namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
     [PacketInfo(0x1F, 754, PacketCategory.Game, PacketSide.Server)]
-    public class ServerKeepAlivePacket : IPacket
+    public sealed class ServerKeepAlivePacket : Packet
     {
         public long PingID { get; set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteLong(PingID);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             PingID = stream.ReadLong();
         }

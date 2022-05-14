@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Client
 {
 
 
-    public class ClientKeepAlivePacket : IPacket
+    public sealed class ClientKeepAlivePacket : Packet
     {
         public long ID { get; set; }
         //out.writeLong(this.id);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteLong(ID);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

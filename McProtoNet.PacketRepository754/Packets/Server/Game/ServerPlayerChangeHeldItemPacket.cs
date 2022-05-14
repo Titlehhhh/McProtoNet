@@ -2,13 +2,13 @@ namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
     [PacketInfo(0x3F, 754, PacketCategory.Game, PacketSide.Server)]
-    public class ServerPlayerChangeHeldItemPacket : IPacket
+    public sealed class ServerPlayerChangeHeldItemPacket : Packet
     {
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

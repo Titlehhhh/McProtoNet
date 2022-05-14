@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerOpenWindowPacket : IPacket
+    public sealed class ServerOpenWindowPacket : Packet
     {
         //this.windowId = in.readUnsignedByte();
         //this.type = MagicValues.key(WindowType.class, in.readString());
@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //if(this.type == WindowType.HORSE) {
         //this.ownerEntityId = in.readInt();
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayerHealthPacket : IPacket
+    public sealed class ServerPlayerHealthPacket : Packet
     {
         //this.health = in.readFloat();
         //this.food = in.readVarInt();
         //this.saturation = in.readFloat();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

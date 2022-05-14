@@ -2,11 +2,11 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerUseItemPacket : IPacket
+    public sealed class ClientPlayerUseItemPacket : Packet
     {
         public Hand PlayerHand { get; private set; }
         public int MyProperty { get; private set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             switch (PlayerHand)
             {
@@ -19,7 +19,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
             }
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

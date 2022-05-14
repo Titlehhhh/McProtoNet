@@ -2,14 +2,14 @@ namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
     [PacketInfo(0x19, 754, PacketCategory.Game, PacketSide.Server)]
-    public class ServerDisconnectPacket : IPacket
+    public sealed class ServerDisconnectPacket : Packet
     {
         public string Message { get; set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Message);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             Message = stream.ReadString();
         }

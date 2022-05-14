@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerMultiBlockChangePacket : IPacket
+    public sealed class ServerMultiBlockChangePacket : Packet
     {
         //int chunkX = in.readInt();
         //int chunkZ = in.readInt();
@@ -15,12 +15,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //int z = (chunkZ << 4) + (pos >> 8 & 15);
         //this.records[index] = new BlockChangeRecord(new Position(x, y, z), block);
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

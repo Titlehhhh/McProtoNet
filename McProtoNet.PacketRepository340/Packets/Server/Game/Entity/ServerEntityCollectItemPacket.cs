@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityCollectItemPacket : IPacket
+    public sealed class ServerEntityCollectItemPacket : Packet
     {
         //this.collectedEntityId = in.readVarInt();
         //this.collectorEntityId = in.readVarInt();
         //this.itemCount = in.readVarInt();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -3,14 +3,14 @@ using McProtoNet.Networking;
 
 namespace McProtoNet
 {
-    public sealed class StatusQueryPacket : IPacket
+    public sealed class StatusQueryPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

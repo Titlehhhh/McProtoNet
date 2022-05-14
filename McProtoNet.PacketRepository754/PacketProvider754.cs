@@ -11,7 +11,7 @@ namespace McProtoNet.PacketRepository754
         {
             try
             {
-                Type tpacket = typeof(IPacket);
+                Type tpacket = typeof(Packet);
                 var list = new List<Type>();
                 foreach (var item in Assembly.GetExecutingAssembly().GetTypes())
                 {

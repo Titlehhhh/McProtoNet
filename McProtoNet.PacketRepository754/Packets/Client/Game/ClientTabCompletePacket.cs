@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x06, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientTabCompletePacket : IPacket
+    public sealed class ClientTabCompletePacket : Packet
     {
         public int TransactionId { get; private set; }
         public string Text { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(TransactionId);
             stream.WriteString(Text);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             TransactionId = stream.ReadVarInt();
             Text = stream.ReadString();

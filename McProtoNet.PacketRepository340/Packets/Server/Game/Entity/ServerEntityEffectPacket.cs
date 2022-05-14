@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityEffectPacket : IPacket
+    public sealed class ServerEntityEffectPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.effect = MagicValues.key(Effect.class, in.readByte());
@@ -12,12 +12,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //int flags = in.readByte();
         //this.ambient = (flags & 0x1) == 0x1;
         //this.showParticles = (flags & 0x2) == 0x2;
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

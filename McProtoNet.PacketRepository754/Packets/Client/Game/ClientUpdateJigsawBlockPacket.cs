@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x29, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientUpdateJigsawBlockPacket : IPacket
+    public sealed class ClientUpdateJigsawBlockPacket : Packet
     {
         public Point3_Int Position { get; private set; }
         public string Name { get; private set; }
@@ -11,7 +11,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
         public string FinalState { get; private set; }
         public string JointType { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             //stream.WriteVarInt(Position);
             stream.WriteString(Name);
@@ -20,7 +20,7 @@ namespace McProtoNet.PacketRepository754.Packets.Client
             stream.WriteString(FinalState);
             stream.WriteString(JointType);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             //Position = (Point3_Int)stream.ReadVarInt();
             Name = stream.ReadString();

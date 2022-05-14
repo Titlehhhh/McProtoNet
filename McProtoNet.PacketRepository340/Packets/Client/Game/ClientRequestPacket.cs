@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientRequestPacket : IPacket
+    public sealed class ClientRequestPacket : Packet
     {
         public ClientRequest Request { get; set; }
         //out.writeVarInt(MagicValues.value(Integer.class, this.request));
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Request);
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

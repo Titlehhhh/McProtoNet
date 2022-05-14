@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerWorldBorderPacket : IPacket
+    public sealed class ServerWorldBorderPacket : Packet
     {
         //this.action = MagicValues.key(WorldBorderAction.class, in.readVarInt());
         //if(this.action == WorldBorderAction.SET_SIZE) {
@@ -28,12 +28,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //} else if(this.action == WorldBorderAction.SET_WARNING_BLOCKS) {
         //this.warningBlocks = in.readVarInt();
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

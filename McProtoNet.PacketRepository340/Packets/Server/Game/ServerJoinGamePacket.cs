@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerJoinGamePacket : IPacket
+    public sealed class ServerJoinGamePacket : Packet
     {
         //this.entityId = in.readInt();
         //int gamemode = in.readUnsignedByte();
@@ -14,12 +14,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.maxPlayers = in.readUnsignedByte();
         //this.worldType = MagicValues.key(WorldType.class, in.readString().toLowerCase());
         //this.reducedDebugInfo = in.readBoolean();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

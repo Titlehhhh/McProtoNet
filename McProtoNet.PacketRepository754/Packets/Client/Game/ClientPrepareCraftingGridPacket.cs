@@ -2,19 +2,19 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x19, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientPrepareCraftingGridPacket : IPacket
+    public sealed class ClientPrepareCraftingGridPacket : Packet
     {
         public byte WindowId { get; private set; }
         public string RecipeId { get; private set; }
         public bool MakeAll { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
             stream.WriteString(RecipeId);
             stream.WriteBoolean(MakeAll);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
             RecipeId = stream.ReadString();

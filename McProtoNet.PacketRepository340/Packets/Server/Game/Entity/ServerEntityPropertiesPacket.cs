@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityPropertiesPacket : IPacket
+    public sealed class ServerEntityPropertiesPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.attributes = new ArrayList<Attribute>();
@@ -18,12 +18,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //
         //this.attributes.add(new Attribute(MagicValues.key(AttributeType.class, key), value, modifiers));
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

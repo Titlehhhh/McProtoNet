@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayEffectPacket : IPacket
+    public sealed class ServerPlayEffectPacket : Packet
     {
         //this.effect = MagicValues.key(WorldEffect.class, in.readInt());
         //this.position = NetUtil.readPosition(in);
@@ -20,12 +20,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //}
         //
         //this.broadcast = in.readBoolean();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

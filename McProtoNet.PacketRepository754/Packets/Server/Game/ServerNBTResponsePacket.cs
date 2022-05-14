@@ -2,13 +2,13 @@ namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
     [PacketInfo(0x54, 754, PacketCategory.Game, PacketSide.Server)]
-    public class ServerNBTResponsePacket : IPacket
+    public sealed class ServerNBTResponsePacket : Packet
     {
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

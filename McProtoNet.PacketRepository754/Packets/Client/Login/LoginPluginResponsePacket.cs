@@ -1,17 +1,17 @@
 ﻿namespace McProtoNet.PacketRepository754.Packets.Client
 {
     [McProtoNet.Protocol.PacketInfo(0x02, 740, PacketCategory.Login, PacketSide.Client)]
-    public class LoginPluginResponsePacket : IPacket
+    public sealed class LoginPluginResponsePacket : Packet
     {
         public int MessageID { get; set; }
         public byte[] Data { get; set; }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             throw new NotImplementedException();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(MessageID);
             if (Data != null)

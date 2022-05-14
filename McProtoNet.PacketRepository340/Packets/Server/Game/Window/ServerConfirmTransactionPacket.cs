@@ -2,17 +2,17 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerConfirmTransactionPacket : IPacket
+    public sealed class ServerConfirmTransactionPacket : Packet
     {
         //this.windowId = in.readUnsignedByte();
         //this.actionId = in.readShort();
         //this.accepted = in.readBoolean();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

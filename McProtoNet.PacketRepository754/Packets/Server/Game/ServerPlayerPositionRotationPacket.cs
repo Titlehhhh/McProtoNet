@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
     [PacketInfo(0x34, 754, PacketCategory.Game, PacketSide.Server)]
-    public class ServerPlayerPositionRotationPacket : IPacket
+    public sealed class ServerPlayerPositionRotationPacket : Packet
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -13,11 +13,11 @@ namespace McProtoNet.PacketRepository754.Packets.Server
         public bool IsGround { get; set; }
 
         public int TeleportId { get; set; }
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }

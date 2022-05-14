@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientPlayerPlaceBlockPacket : IPacket
+    public sealed class ClientPlayerPlaceBlockPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -15,7 +15,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeFloat(this.cursorX);
         //out.writeFloat(this.cursorY);
         //out.writeFloat(this.cursorZ);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

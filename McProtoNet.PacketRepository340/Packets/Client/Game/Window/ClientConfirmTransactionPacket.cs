@@ -2,9 +2,9 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
 {
 
 
-    public class ClientConfirmTransactionPacket : IPacket
+    public sealed class ClientConfirmTransactionPacket : Packet
     {
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
@@ -12,7 +12,7 @@ namespace McProtoNet.PacketRepository340.Packets.Client.Game
         //out.writeByte(this.windowId);
         //out.writeShort(this.actionId);
         //out.WriteBooleanean(this.accepted);
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

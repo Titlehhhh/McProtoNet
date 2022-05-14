@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerBlockChangePacket : IPacket
+    public sealed class ServerBlockChangePacket : Packet
     {
         //this.record = new BlockChangeRecord(NetUtil.readPosition(in), NetUtil.readBlockState(in));
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

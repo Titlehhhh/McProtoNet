@@ -29,7 +29,7 @@ static async void Connect()
             (int id, MemoryStream data) = await _packetReaderWriter.ReadNextPacketAsync();
 
 
-            IPacket packet = null;
+            Packet packet = null;
 
             switch (id)
             {
@@ -66,7 +66,7 @@ static async void Connect()
     Console.ReadLine();
 }
 
-static async Task<bool> HandleLoginPackets(IPacket packet, IPacketReaderWriter packetReaderWriter)
+static async Task<bool> HandleLoginPackets(Packet packet, IPacketReaderWriter packetReaderWriter)
 {
 
     if (packet is LoginDisconnectPacket)

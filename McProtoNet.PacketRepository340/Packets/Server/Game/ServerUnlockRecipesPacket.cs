@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerUnlockRecipesPacket : IPacket
+    public sealed class ServerUnlockRecipesPacket : Packet
     {
         //this.action = MagicValues.key(UnlockRecipesAction.class, in.readVarInt());
         //
@@ -22,12 +22,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //for(int i = 0; i < size; i++) {
         //this.recipes.add(in.readVarInt());
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

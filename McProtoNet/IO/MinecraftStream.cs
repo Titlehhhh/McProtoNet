@@ -68,7 +68,7 @@ namespace McProtoNet.IO
             throw new NotImplementedException();
         }
 
-        public void WriteString(string value)
+        public  void WriteString(string value)
         {
             throw new NotImplementedException();
         }

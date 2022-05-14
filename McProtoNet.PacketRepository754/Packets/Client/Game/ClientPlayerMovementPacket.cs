@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x15, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientPlayerMovementPacket : IPacket
+    public sealed class ClientPlayerMovementPacket : Packet
     {
         public bool OnGround { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteBoolean(OnGround);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             OnGround = stream.ReadBoolean();
         }

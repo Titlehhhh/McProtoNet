@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerTitlePacket : IPacket
+    public sealed class ServerTitlePacket : Packet
     {
         //this.action = MagicValues.key(TitleAction.class, in.readVarInt());
         //switch(this.action) {
@@ -25,12 +25,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //case RESET:
         //break;
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

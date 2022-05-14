@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerExplosionPacket : IPacket
+    public sealed class ServerExplosionPacket : Packet
     {
         //this.x = in.readFloat();
         //this.y = in.readFloat();
@@ -17,12 +17,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.pushX = in.readFloat();
         //this.pushY = in.readFloat();
         //this.pushZ = in.readFloat();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

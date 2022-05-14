@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerUpdateScorePacket : IPacket
+    public sealed class ServerUpdateScorePacket : Packet
     {
         //this.entry = in.readString();
         //this.action = MagicValues.key(ScoreboardAction.class, in.readVarInt());
@@ -10,12 +10,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //if(this.action == ScoreboardAction.ADD_OR_UPDATE) {
         //this.value = in.readVarInt();
         //}
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

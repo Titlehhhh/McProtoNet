@@ -2,16 +2,16 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerEntityAnimationPacket : IPacket
+    public sealed class ServerEntityAnimationPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.animation = MagicValues.key(Animation.class, in.readUnsignedByte());
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

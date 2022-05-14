@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSpawnPlayerPacket : IPacket
+    public sealed class ServerSpawnPlayerPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();
@@ -12,12 +12,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.yaw = in.readByte() * 360 / 256f;
         //this.pitch = in.readByte() * 360 / 256f;
         //this.metadata = NetUtil.readEntityMetadata(in);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

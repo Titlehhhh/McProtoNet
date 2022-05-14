@@ -2,7 +2,7 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerPlayerAbilitiesPacket : IPacket
+    public sealed class ServerPlayerAbilitiesPacket : Packet
     {
         //byte flags = in.readByte();
         //this.invincible = (flags & 1) > 0;
@@ -11,12 +11,12 @@ namespace McProtoNet.PacketRepository340.Packets.Server
         //this.creative = (flags & 8) > 0;
         //this.flySpeed = in.readFloat();
         //this.walkSpeed = in.readFloat();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

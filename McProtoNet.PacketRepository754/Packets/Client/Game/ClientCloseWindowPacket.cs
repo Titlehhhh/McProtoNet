@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x0A, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientCloseWindowPacket : IPacket
+    public sealed class ClientCloseWindowPacket : Packet
     {
         public byte WindowId { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteUnsignedByte(WindowId);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
         }

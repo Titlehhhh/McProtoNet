@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSpawnPositionPacket : IPacket
+    public sealed class ServerSpawnPositionPacket : Packet
     {
         //this.position = NetUtil.readPosition(in);
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

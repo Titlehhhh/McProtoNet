@@ -2,15 +2,15 @@ namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
     [PacketInfo(0x2F, 754, PacketCategory.Game, PacketSide.Client)]
-    public class ClientPlayerUseItemPacket : IPacket
+    public sealed class ClientPlayerUseItemPacket : Packet
     {
         public Hand PlayerHand { get; private set; }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(PlayerHand);
         }
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             PlayerHand = (Hand)stream.ReadVarInt();
         }

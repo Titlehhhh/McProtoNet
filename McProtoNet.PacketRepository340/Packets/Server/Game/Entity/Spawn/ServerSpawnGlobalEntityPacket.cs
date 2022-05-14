@@ -2,19 +2,19 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 {
 
 
-    public class ServerSpawnGlobalEntityPacket : IPacket
+    public sealed class ServerSpawnGlobalEntityPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.type = MagicValues.key(GlobalEntityType.class, in.readByte());
         //this.x = in.readDouble();
         //this.y = in.readDouble();
         //this.z = in.readDouble();
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
