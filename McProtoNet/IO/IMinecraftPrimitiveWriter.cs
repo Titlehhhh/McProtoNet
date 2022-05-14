@@ -5,7 +5,6 @@ namespace McProtoNet.IO
     public interface IMinecraftPrimitiveWriter
     {
         void Write(byte[] buffer);
-        void Write(byte[] buffer, int offset, int count);
         void WriteBoolean(bool value);
         void WriteByte(sbyte value);
         void WriteByteArray(byte[] values);
@@ -17,7 +16,7 @@ namespace McProtoNet.IO
         void WriteNbt(NbtTag nbt);
         void WriteNbtCompound(NbtCompound compound);
         void WriteShort(short value);
-        void WriteString(string value, int maxLength = 32767);
+        void WriteString(string value);
         void WriteUnsignedByte(byte value);
         void WriteUnsignedLong(ulong value);
         void WriteUnsignedShort(ushort value);

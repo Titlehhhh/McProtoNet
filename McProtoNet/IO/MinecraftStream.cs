@@ -40,7 +40,6 @@ namespace McProtoNet.IO
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-
             return BaseStream.Seek(offset, origin);
         }
 
@@ -48,29 +47,11 @@ namespace McProtoNet.IO
         {
             BaseStream.SetLength(value);
         }
-        /// <summary>
-        /// asd
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="offset"></param>
-        /// <param name="count"></param>
-        /// <returns></returns>
+        
         public override int Read(byte[] buffer, int offset, int count)
         {
             return BaseStream.Read(buffer, offset, count);
-        }
-        /// <summary>
-        /// asd
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <returns></returns>
-        public override int Read(Span<byte> buffer)
-        {
-            BaseStream.Position -= buffer.Length;
-            int a = BaseStream.Read(buffer);
-            BaseStream.Position -= buffer.Length;
-            return a;
-        }
+        }      
 
         public override void Write(byte[] buffer, int offset, int count)
         {
@@ -82,7 +63,15 @@ namespace McProtoNet.IO
             BaseStream.Write(buffer);
         }
 
+        public byte[] ReadToEnd()
+        {
+            throw new NotImplementedException();
+        }
 
+        public void WriteString(string value)
+        {
+            throw new NotImplementedException();
+        }
     }
     public static class GuidExtensions
     {

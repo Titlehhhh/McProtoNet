@@ -4,25 +4,39 @@ using System.Text;
 
 namespace McProtoNet.IO
 {
-
-    public sealed partial class MinecraftStream
+    public class MinecraftPrimitiveReader : IMinecraftPrimitiveReader
     {
+        private readonly Stream _data;
 
+        public MinecraftPrimitiveReader(Stream data)
+        {
+            _data = data;
+        }
+
+        private int offset;
+
+        private Span<byte> Read(int length)
+        {
+            byte[] buffer = new byte[length];
+            //_data.Position -= length;
+            _data.Read(buffer, 0, length);
+            return buffer;
+        }
 
         public sbyte ReadSignedByte() => (sbyte)this.ReadUnsignedByte();
-        
+
         public ulong[] ReadULongArray()
         {
             int len = this.ReadVarInt();
-            Span<byte> buffer = stackalloc byte[len * 8];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(len * 8);
+
             Span<ulong> result = MemoryMarshal.Cast<byte, ulong>(buffer);
             return result.ToArray();
         }
         public byte ReadUnsignedByte()
         {
-            Span<byte> buffer = stackalloc byte[1];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(1);
+
             return buffer[0];
         }
 
@@ -38,14 +52,6 @@ namespace McProtoNet.IO
             return *(Guid*)ptr;
         }
 
-        public async Task<byte> ReadUnsignedByteAsync(CancellationToken cancellationToken = default)
-        {
-            var buffer = new byte[1];
-            await this.ReadAsync(buffer, cancellationToken);
-            return buffer[0];
-        }
-
-
         public bool ReadBoolean()
         {
             return ReadUnsignedByte() == 0x01;
@@ -56,8 +62,8 @@ namespace McProtoNet.IO
 
         public ushort ReadUnsignedShort()
         {
-            Span<byte> buffer = stackalloc byte[2];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(2);
+
             return BinaryPrimitives.ReadUInt16BigEndian(buffer);
         }
 
@@ -66,8 +72,7 @@ namespace McProtoNet.IO
 
         public short ReadShort()
         {
-            Span<byte> buffer = stackalloc byte[2];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(2);
             return BinaryPrimitives.ReadInt16BigEndian(buffer);
         }
 
@@ -76,8 +81,7 @@ namespace McProtoNet.IO
 
         public int ReadInt()
         {
-            Span<byte> buffer = stackalloc byte[4];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(4);
 
 
             return BinaryPrimitives.ReadInt32BigEndian(buffer);
@@ -88,8 +92,7 @@ namespace McProtoNet.IO
 
         public long ReadLong()
         {
-            Span<byte> buffer = stackalloc byte[8];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(8);
             return BinaryPrimitives.ReadInt64BigEndian(buffer);
         }
 
@@ -98,8 +101,7 @@ namespace McProtoNet.IO
 
         public ulong ReadUnsignedLong()
         {
-            Span<byte> buffer = stackalloc byte[8];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(8);
             return BinaryPrimitives.ReadUInt64BigEndian(buffer);
         }
 
@@ -108,8 +110,7 @@ namespace McProtoNet.IO
 
         public float ReadFloat()
         {
-            Span<byte> buffer = stackalloc byte[4];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(4);
             return BinaryPrimitives.ReadSingleBigEndian(buffer);
         }
 
@@ -117,8 +118,7 @@ namespace McProtoNet.IO
 
         public double ReadDouble()
         {
-            Span<byte> buffer = stackalloc byte[8];
-            this.Read(buffer);
+            Span<byte> buffer = this.Read(8);
             return BinaryPrimitives.ReadDoubleBigEndian(buffer);
         }
 
@@ -127,8 +127,7 @@ namespace McProtoNet.IO
         public string ReadString(int maxLength = 32767)
         {
             var length = ReadVarInt();
-            var buffer = new byte[length];
-            this.Read(buffer, 0, length);
+            var buffer = this.Read(length);
 
             var value = Encoding.UTF8.GetString(buffer);
             if (maxLength > 0 && value.Length > maxLength)
@@ -143,9 +142,7 @@ namespace McProtoNet.IO
         public byte[] ReadByteArray()
         {
             int len = ReadVarInt();
-            byte[] buf = new byte[len];
-            Read(buf, 0, len);
-            return buf;
+            return Read(len).ToArray();
         }
 
         public int ReadVarInt()
@@ -169,24 +166,6 @@ namespace McProtoNet.IO
 
             return result;
         }
-        public byte[] ReadUInt8Array(int length = 0)
-        {
-            if (length == 0)
-                length = ReadVarInt();
-
-            var result = new byte[length];
-            if (length == 0)
-                return result;
-
-            int n = length;
-            while (true)
-            {
-                n -= Read(result, length - n, n);
-                if (n == 0)
-                    break;
-            }
-            return result;
-        }
         public long ReadVarLong()
         {
             int numRead = 0;
@@ -207,5 +186,11 @@ namespace McProtoNet.IO
 
             return result;
         }
+
+        public byte[] ReadToEnd()
+        {
+            throw new NotImplementedException();
+        }
+
     }
 }

@@ -9,10 +9,10 @@
 
         public void Read(IMinecraftPrimitiveReader stream)
         {
-            int len = (int)stream.Length;
+            
             MessageID = stream.ReadVarInt();
             Channel = stream.ReadString();
-            Data = stream.ReadUInt8Array(len - ((int)stream.Length));
+            Data = stream.ReadToEnd();
         }
 
         public void Write(IMinecraftPrimitiveWriter stream)

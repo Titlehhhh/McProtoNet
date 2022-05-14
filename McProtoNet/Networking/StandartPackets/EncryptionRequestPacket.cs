@@ -12,17 +12,15 @@ namespace McProtoNet
         public void Read(IMinecraftPrimitiveReader stream)
         {
             ServerId = stream.ReadString();
-            PublicKey = stream.ReadUInt8Array(stream.ReadVarInt());
-            VerifyToken = stream.ReadUInt8Array(stream.ReadVarInt());
+            PublicKey = stream.ReadByteArray();
+            VerifyToken = stream.ReadByteArray();
         }
 
         public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(ServerId);
-            stream.WriteVarInt(PublicKey.Length);
-            stream.Write(PublicKey);
-            stream.WriteVarInt(VerifyToken.Length);
-            stream.Write(VerifyToken);
+            stream.WriteByteArray(PublicKey);
+            stream.WriteByteArray(VerifyToken);
         }
     }
 }

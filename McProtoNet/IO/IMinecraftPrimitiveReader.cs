@@ -2,8 +2,8 @@
 {
     public interface IMinecraftPrimitiveReader
     {
-        long Length { get; }
-        int Read(byte[] buffer, int offset, int count);
+        byte[] ReadToEnd();
+
         bool ReadBoolean();
         double ReadDouble();
         float ReadFloat();
@@ -13,7 +13,7 @@
         short ReadShort();
         sbyte ReadSignedByte();
         string ReadString(int maxLength = 32767);
-        byte[] ReadUInt8Array(int length = 0);
+        byte[] ReadByteArray();
         ulong[] ReadULongArray();
         byte ReadUnsignedByte();
         ulong ReadUnsignedLong();

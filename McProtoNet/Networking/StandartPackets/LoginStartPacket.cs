@@ -6,7 +6,7 @@ namespace McProtoNet
 
     public sealed class LoginStartPacket : IPacket
     {
-        public string Nickname { get; set; }
+        public string Nickname { get; private set; }
         public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Nickname);

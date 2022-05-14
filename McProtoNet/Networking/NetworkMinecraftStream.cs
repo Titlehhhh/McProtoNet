@@ -166,6 +166,16 @@ namespace McProtoNet.Networking
                 throw;
             }
         }
+        /// <summary>
+        /// asd
+        /// </summary>
+        /// <param name="buffer"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return BaseStream.ReadAsync(buffer, cancellationToken);
+        }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
