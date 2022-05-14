@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace McProtoNet.IO
+﻿namespace McProtoNet.IO
 {
     public static class StreamExt
     {
-        
+
 
         public static int ReadVarInt(this Stream stream)
         {
@@ -36,7 +30,7 @@ namespace McProtoNet.IO
             return result;
         }
 
-        public static void WriteVarInt(this Stream stream,int value)
+        public static void WriteVarInt(this Stream stream, int value)
         {
             var unsigned = (uint)value;
             do

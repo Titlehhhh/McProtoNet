@@ -62,16 +62,16 @@ namespace McProtoNet
                     {
                         ZlibStream zlibStream = new ZlibStream(dataStream, CompressionMode.Decompress);
                         byte[] uncompressdata = new byte[sizeUncompressed];
-                        zlibStream.Read(uncompressdata,0,sizeUncompressed);
+                        zlibStream.Read(uncompressdata, 0, sizeUncompressed);
                         zlibStream.Close();
                         zlibStream.Dispose();
                         dataStream = new MemoryStream(uncompressdata);
                     }
 
                 }
-                
+
                 int id = dataStream.ReadVarInt();
-                
+
                 return (id, dataStream);
             }
             catch
@@ -83,8 +83,8 @@ namespace McProtoNet
 
         public async Task SendPacketAsync(Packet packet, int id, CancellationToken token = default)
         {
-            Trace.WriteLine("1: "+packet.GetType().Name);
-            if(id == 0x01)
+            Trace.WriteLine("1: " + packet.GetType().Name);
+            if (id == 0x01)
             {
 
             }
@@ -93,7 +93,7 @@ namespace McProtoNet
                 ArgumentNullException.ThrowIfNull(packet, nameof(packet));
                 if (_compressionThreshold > 0)
                 {
-                    using(MemoryStream bufferStream = new MemoryStream())                    
+                    using (MemoryStream bufferStream = new MemoryStream())
                     {
                         IMinecraftPrimitiveWriter packetStream = new MinecraftPrimitiveWriter(bufferStream);
                         packetStream.WriteVarInt(id);
@@ -129,15 +129,15 @@ namespace McProtoNet
             {
                 IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(bufferStream);
 
-                
+
                 packet.Write(writer);
-           
+
 
                 int Packetlength = (int)bufferStream.Length;
 
                 await netmcStream.Lock.WaitAsync(token);
 
-                await netmcStream.WriteVarIntAsync(Packetlength+id.GetVarIntLength(), token);
+                await netmcStream.WriteVarIntAsync(Packetlength + id.GetVarIntLength(), token);
                 await netmcStream.WriteVarIntAsync(id, token);
                 bufferStream.Position = 0;
                 bufferStream.CopyTo(netmcStream);

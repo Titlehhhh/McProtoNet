@@ -48,19 +48,19 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(byte value)
+        public void Write(byte value)
         {
             stream.WriteByte(value);
         }
 
 
-        public   void Write(NbtTagType value)
+        public void Write(NbtTagType value)
         {
             stream.WriteByte((byte)value);
         }
 
 
-        public   void Write(short value)
+        public void Write(short value)
         {
             unchecked
             {
@@ -79,7 +79,7 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(int value)
+        public void Write(int value)
         {
             unchecked
             {
@@ -103,7 +103,7 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(long value)
+        public void Write(long value)
         {
             unchecked
             {
@@ -134,7 +134,7 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(float value)
+        public void Write(float value)
         {
             ulong tmpValue = *(uint*)&value;
             unchecked
@@ -158,7 +158,7 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(double value)
+        public void Write(double value)
         {
             ulong tmpValue = *(ulong*)&value;
             unchecked
@@ -191,7 +191,7 @@ namespace McProtoNet.NBT
 
 
         // Based on BinaryWriter.Write(String)
-        public   void Write(string value)
+        public void Write(string value)
         {
             if (value == null)
             {
@@ -236,7 +236,7 @@ namespace McProtoNet.NBT
         }
 
 
-        public   void Write(byte[] data, int offset, int count)
+        public void Write(byte[] data, int offset, int count)
         {
             int written = 0;
             while (written < count)

@@ -47,11 +47,11 @@ namespace McProtoNet.IO
         {
             BaseStream.SetLength(value);
         }
-        
+
         public override int Read(byte[] buffer, int offset, int count)
         {
             return BaseStream.Read(buffer, offset, count);
-        }      
+        }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
@@ -68,7 +68,7 @@ namespace McProtoNet.IO
             throw new NotImplementedException();
         }
 
-        public  void WriteString(string value)
+        public void WriteString(string value)
         {
             throw new NotImplementedException();
         }

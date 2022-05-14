@@ -10,7 +10,7 @@ namespace McProtoNet.IO
 
 
         public sbyte ReadSignedByte() => (sbyte)this.ReadUnsignedByte();
-        
+
         public ulong[] ReadULongArray()
         {
             int len = this.ReadVarInt();

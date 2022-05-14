@@ -1,6 +1,4 @@
-﻿using McProtoNet.IO;
-
-namespace McProtoNet.Networking
+﻿namespace McProtoNet.Networking
 {
     public interface IPacketReaderWriter : IDisposable
     {

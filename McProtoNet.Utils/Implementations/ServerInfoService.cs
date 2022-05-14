@@ -1,8 +1,4 @@
-﻿using McProtoNet.IO;
-using McProtoNet.Networking;
-using System.Net.Sockets;
-using System.Runtime.Serialization.Json;
-using System.Text;
+﻿using System.Runtime.Serialization.Json;
 
 namespace McProtoNet.Utils
 {

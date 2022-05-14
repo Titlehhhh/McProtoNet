@@ -9,7 +9,7 @@
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            
+
             MessageID = stream.ReadVarInt();
             Channel = stream.ReadString();
             Data = stream.ReadToEnd();
