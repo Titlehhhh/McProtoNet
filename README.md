@@ -1,7 +1,7 @@
 # McProtoNet
-Мульти-версионная библиотека для работы с протоколом майнкрафт, написанная на c#.
+Ru: Мульти-версионная библиотека для работы с протоколом майнкрафт, написанная на c#.
 
-Multi-version library for work minecraft protocol
+En: Multi-version library for working with the Minecraft protocol, written in c#.
 # Пример кода
 ```
 using McProtoNet;
