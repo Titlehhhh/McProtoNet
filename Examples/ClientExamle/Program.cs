@@ -1,5 +1,5 @@
 
-using MineStatLib;
+
 using McProtoNet;
 using McProtoNet.IO;
 using McProtoNet.Networking;
@@ -8,7 +8,7 @@ using System.Net.Sockets;
 
 class Core
 {
-    static void Main(String[] args)
+    static void Main(string[] args)
     {
         Bot client = new Bot("TestBot");
         client.Connect("localhost", 25565).GetAwaiter().GetResult();
@@ -17,13 +17,13 @@ class Core
 
 class Bot
 {
-    public static String? name;
-    public Bot(String botName)
+    public static string? name;
+    public Bot(string botName)
     {
         name = botName;
     }
 
-    public async Task Connect(String ip, ushort port)
+    public async Task Connect(string ip, ushort port)
     {
         TcpClient tcpClient = new();
         await tcpClient.ConnectAsync(ip, port);
