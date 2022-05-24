@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
-    [PacketInfo(0x19, 754, PacketCategory.Game, PacketSide.Server)]
+    [PacketInfo(0x19, 754, PacketSide.Server)]
     public sealed class ServerDisconnectPacket : Packet
     {
         public string Message { get; set; }

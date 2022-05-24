@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x14, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x14, 754, PacketSide.Client)]
     public sealed class ClientPlayerRotationPacket : Packet
     {
         public float Yaw { get; private set; }

@@ -1,14 +1,12 @@
 ﻿namespace McProtoNet.Utils
 {
     public struct AuthInfo
-    {
-        public AccountType AccountType { get; set; }
+    {        
         public string Login { get; set; }
         public string Password { get; set; }
 
-        public AuthInfo(AccountType accountType, string login, string password)
-        {
-            AccountType = accountType;
+        public AuthInfo( string login, string password)
+        {            
             Login = login;
             Password = password;
         }

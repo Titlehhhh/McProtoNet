@@ -1,4 +1,5 @@
-﻿global using McProtoNet.Geometry;
-global using McProtoNet.IO;
-global using McProtoNet.Networking;
-global using McProtoNet.Protocol;
+﻿global using McProtoNet.API;
+global using McProtoNet.API.IO;
+global using McProtoNet.API.Packets;
+global using McProtoNet.API.Protocol;
+global using McProtoNet.Geometry;

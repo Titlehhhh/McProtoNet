@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.PacketRepository754.Packets.Client
 {
-    [McProtoNet.Protocol.PacketInfo(0x02, 740, PacketCategory.Login, PacketSide.Client)]
+    [PacketInfo(0x02, 740, PacketSide.Client)]
     public sealed class LoginPluginResponsePacket : Packet
     {
         public int MessageID { get; set; }

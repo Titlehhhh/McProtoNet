@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x0D, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x0D, 754, PacketSide.Client)]
     public sealed class ClientEntityNBTRequestPacket : Packet
     {
 

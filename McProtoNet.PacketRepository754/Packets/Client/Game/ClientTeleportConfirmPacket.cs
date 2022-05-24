@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x00, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x00, 754, PacketSide.Client)]
     public sealed class ClientTeleportConfirmPacket : Packet
     {
         public int Id { get; private set; }

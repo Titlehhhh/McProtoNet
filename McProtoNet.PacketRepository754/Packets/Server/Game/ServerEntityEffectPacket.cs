@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
-    [PacketInfo(0x59, 754, PacketCategory.Game, PacketSide.Server)]
+    [PacketInfo(0x59, 754, PacketSide.Server)]
     public sealed class ServerEntityEffectPacket : Packet
     {
         public override void Write(IMinecraftPrimitiveWriter stream)

@@ -1,5 +1,5 @@
 using McProtoNet.PacketRepository340.Data.World;
-using McProtoNet.World.Implements;
+
 
 namespace McProtoNet.PacketRepository340.Packets.Server
 {
@@ -7,18 +7,8 @@ namespace McProtoNet.PacketRepository340.Packets.Server
 
     public sealed class ServerChunkDataPacket : Packet
     {
-        public IChunkColumn Column { get; set; }
-        //int x = in.readInt();
-        //int z = in.readInt();
-        //boolean fullChunk = in.readBoolean();
-        //int chunkMask = in.readVarInt();
-        //byte data[] = in.readBytes(in.readVarInt());
-        //CompoundTag[] tileEntities = new CompoundTag[in.readVarInt()];
-        //for(int i = 0; i < tileEntities.length; i++) {
-        //tileEntities[i] = NetUtil.readNBT(in);
-        //}
-        //
-        //this.column = NetUtil.readColumn(data, x, z, fullChunk, false, chunkMask, tileEntities);
+        public IChunkColumn Column { get; private set; }
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             int x = stream.ReadInt();

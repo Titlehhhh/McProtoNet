@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x12, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x12, 754, PacketSide.Client)]
     public sealed class ClientPlayerPositionPacket : Packet
     {
         public double X { get; private set; }

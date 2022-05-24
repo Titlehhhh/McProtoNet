@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x24, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x24, 754, PacketSide.Client)]
     public sealed class ClientSetBeaconEffectPacket : Packet
     {
         public int PrimaryEffect { get; private set; }

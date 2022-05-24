@@ -1,5 +1,4 @@
-﻿using McProtoNet.Types.Chat;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 
 namespace McProtoNet.Utils
 {
@@ -13,7 +12,7 @@ namespace McProtoNet.Utils
         public VersionInfo TargetVersion { get; set; }
 
         [DataMember(Name = "description", EmitDefaultValue = true)]
-        public ChatMessage Description { get; set; }
+        public string Description { get; set; }
 
         [DataMember(Name = "favicon")]
         public string Icon { get; set; }

@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
-    [PacketInfo(0x2D, 754, PacketCategory.Game, PacketSide.Server)]
+    [PacketInfo(0x2D, 754, PacketSide.Server)]
     public sealed class ServerOpenWindowPacket : Packet
     {
         public int Id { get; set; }

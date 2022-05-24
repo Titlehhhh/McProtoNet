@@ -20,7 +20,6 @@
     <ProjectReference Include="..\McProtoNet.PacketRepository340\McProtoNet.PacketRepository340.csproj" />
     <ProjectReference Include="..\McProtoNet.PacketRepository754\McProtoNet.PacketRepository754.csproj" />
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
-    <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
   </ItemGroup>
 
 </Project>

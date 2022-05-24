@@ -1,7 +1,5 @@
 namespace McProtoNet.PacketRepository340.Packets.Client
 {
-
-
     public sealed class ClientKeepAlivePacket : Packet
     {
         public long ID { get; set; }

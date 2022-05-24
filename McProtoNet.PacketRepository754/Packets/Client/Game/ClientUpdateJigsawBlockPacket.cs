@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x29, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x29, 754, PacketSide.Client)]
     public sealed class ClientUpdateJigsawBlockPacket : Packet
     {
         public Point3_Int Position { get; private set; }

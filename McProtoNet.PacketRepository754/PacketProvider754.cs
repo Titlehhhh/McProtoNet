@@ -21,50 +21,19 @@ namespace McProtoNet.PacketRepository754
                     }
                 }
 
-                CLIENTPACKETS = new DefaultPacketProviderClient();
-                SERVERPACKETS = new DefaultPacketProviderServer();
+                CLIENTPACKETS = new PacketProviderClient();
+                SERVERPACKETS = new PacketProviderServer();
 
                 foreach (var item in list)
                 {
                     PacketInfoAttribute packetInfo = item.GetCustomAttribute<PacketInfoAttribute>();
-                    if (packetInfo.Side == McProtoNet.PacketSide.Client)
+                    if (packetInfo.Side == PacketSide.Client)
                     {
-
-
-                        switch (packetInfo.Category)
-                        {
-                            case McProtoNet.PacketCategory.Status:
-                                CLIENTPACKETS.StatusPackets.Add(packetInfo.ID, item);
-                                break;
-                            case McProtoNet.PacketCategory.HandShake:
-                                CLIENTPACKETS.HandShakePackets.Add(packetInfo.ID, item);
-                                break;
-                            case McProtoNet.PacketCategory.Login:
-                                CLIENTPACKETS.LoginPackets.Add(packetInfo.ID, item);
-                                break;
-                            case McProtoNet.PacketCategory.Game:
-                                CLIENTPACKETS.GamePackets.Add(packetInfo.ID, item);
-                                break;
-                        }
-
+                        throw new NotImplementedException();
                     }
                     else
                     {
-
-
-                        switch (packetInfo.Category)
-                        {
-                            case McProtoNet.PacketCategory.Status:
-                                SERVERPACKETS.StatusPackets.Add(packetInfo.ID, item);
-                                break;
-                            case McProtoNet.PacketCategory.Login:
-                                SERVERPACKETS.LoginPackets.Add(packetInfo.ID, item);
-                                break;
-                            case McProtoNet.PacketCategory.Game:
-                                SERVERPACKETS.GamePackets.Add(packetInfo.ID, item);
-                                break;
-                        }
-
+                        throw new NotImplementedException();
                     }
                 }
             }

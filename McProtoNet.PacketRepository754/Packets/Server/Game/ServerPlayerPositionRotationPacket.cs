@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
-    [PacketInfo(0x34, 754, PacketCategory.Game, PacketSide.Server)]
+    [PacketInfo(0x34, 754, PacketSide.Server)]
     public sealed class ServerPlayerPositionRotationPacket : Packet
     {
         public double X { get; set; }

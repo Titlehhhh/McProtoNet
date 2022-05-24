@@ -1,7 +1,9 @@
-﻿namespace McProtoNet.Utils
+﻿using McProtoNet.API;
+
+namespace McProtoNet.Utils
 {
     public interface IAuthService
     {
-        Task<LoginResponse> AuthAsync(AuthInfo authInfo, out GameProfile gameProfile);
+        Task<LoginResponse> AuthAsync(AuthInfo authInfo);
     }
 }

@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Client
 {
 
-    [PacketInfo(0x20, 754, PacketCategory.Game, PacketSide.Client)]
+    [PacketInfo(0x20, 754, PacketSide.Client)]
     public sealed class ClientRenameItemPacket : Packet
     {
         public string Name { get; private set; }

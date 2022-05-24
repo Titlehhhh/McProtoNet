@@ -1,7 +1,7 @@
 namespace McProtoNet.PacketRepository754.Packets.Server
 {
 
-    [PacketInfo(0x24, 754, PacketCategory.Game, PacketSide.Server)]
+    [PacketInfo(0x24, 754, PacketSide.Server)]
     public sealed class ServerJoinGamePacket : Packet
     {
         public override void Write(IMinecraftPrimitiveWriter stream)

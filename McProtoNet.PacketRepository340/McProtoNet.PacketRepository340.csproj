@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
+    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
     <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
   </ItemGroup>
