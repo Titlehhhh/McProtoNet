@@ -5,17 +5,20 @@ En: Multi-version library for working with the Minecraft protocol, written in c#
 # Пример кода
 ```
 using McProtoNet;
-using McProtoNet.IO;
-using McProtoNet.Networking;
-using McProtoNet.Utils;
-using System.Net.Sockets;
 
-ushort port = 64463;
-TcpClient tcpClient = new();
-await tcpClient.ConnectAsync("192.168.1.153", port);
-IPacketReaderWriter _packetReaderWriter = new PacketReaderWriter(new NetworkMinecraftStream(tcpClient.GetStream()));
+Console.WriteLine("start");
 
-await _packetReaderWriter.SendPacketAsync(new HandShakePacket(HandShakeIntent.LOGIN, 340, port, "192.168.1.153"), 0x00);
+IClient client = new MinecraftClient754("TestBot", "192.168.1.153", 52029);
 
-await _packetReaderWriter.SendPacketAsync(new LoginStartPacket("TestBot"), 0x00);
+client.OnPacketReceived += (s, packet) =>
+{
+    Console.WriteLine("Received: " + packet.GetType().Name);
+};
+client.OnDisconnected += (s, reason) =>
+{
+    Console.WriteLine(reason);
+};
+client.Start();
+
+Console.ReadLine();
 ```
