@@ -1,4 +1,3 @@
-
 using McProtoNet;
 
 Console.WriteLine("start");
