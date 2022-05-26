@@ -14,7 +14,7 @@ namespace McProtoNet.API
 
         public string UUID { get; private set; }
 
-        
+
 
 
         public string Nickname { get; set; }

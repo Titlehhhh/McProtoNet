@@ -1,6 +1,4 @@
-﻿using McProtoNet.API;
-
-namespace McProtoNet.Utils
+﻿namespace McProtoNet.Utils
 {
     public class MicrosoftAuthService : IAuthService
     {

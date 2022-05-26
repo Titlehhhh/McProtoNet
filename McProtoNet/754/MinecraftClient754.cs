@@ -2,22 +2,40 @@
 using McProtoNet.API.IO;
 using McProtoNet.API.Packets;
 using McProtoNet.API.Protocol;
-using McProtoNet.PacketRepository754.Packets.Server;
+using McProtoNet.Protocol754;
+using McProtoNet.Protocol754.Packets.Client;
+using McProtoNet.Protocol754.Packets.Server;
 using McProtoNet.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McProtoNet
 {
     public class MinecraftClient754 : Client
     {
-        public MinecraftClient754(TcpClient tcpClient, SessionToken session, IPacketDictionary packetDictionary, ISessionCheckService sessionCheckService) : base(tcpClient, session, packetDictionary, sessionCheckService)
+
+
+
+        public MinecraftClient754(TcpClient tcpClient, SessionToken session, IPacketSet packetDictionary, ISessionCheckService sessionCheckService) : base(tcpClient, session, packetDictionary, sessionCheckService)
         {
         }
+
+        public MinecraftClient754(string nick, string host, ushort port)
+        {
+            tcpClient = new TcpClient(host, port);
+            SessionToken session = new SessionToken(nick);
+            var checksession = new PiratedCheckService();
+            var collection754 = new PacketCollection754();
+
+            var outPackets = collection754.GetClientPacketsByCategory(PacketCategory.Game)
+                .ToDictionary(k => k.Value, v => v.Key);
+            var inPackets = collection754.GetServerPacketsByCategory(PacketCategory.Game)
+                .ToDictionary(k => k.Key, v => (Packet)Activator.CreateInstance(v.Value));
+
+            var set = new PacketSet(outPackets, inPackets);
+            Init(tcpClient, session, set, checksession);
+        }
+
+
 
         private async Task SendPacket(Packet packet, int id)
         {
@@ -64,7 +82,7 @@ namespace McProtoNet
                 var RSAService = CryptoHandler.DecodeRSAPublicKey(requestPacket.PublicKey);
                 byte[] secretKey = CryptoHandler.GenerateAESPrivateKey();
 
-                if (!await sessionCheckService.Check(_uuid, _sessionId,
+                if (!await sessionCheckService.Check(Session.UUID, Session.SessionId,
                     CryptoHandler.getServerHash(requestPacket.ServerId, requestPacket.PublicKey, secretKey)))
                 {
                     throw new InvalidOperationException("Session failed!");
@@ -75,6 +93,7 @@ namespace McProtoNet
 
                 await SendPacket(new EncryptionResponsePacket(key_enc, token_enc), 0x01);
 
+                packetReaderWriter.SwitchEncryption(secretKey);
                 return false;
             }
             else if (packet is LoginSuccessPacket successPacket)
@@ -97,6 +116,10 @@ namespace McProtoNet
                 DisconnectedEvent(disconnectPacket.Message);
                 return false;
             }
+            if (packet is ServerKeepAlivePacket keepAlivePacket)
+            {
+                SendPacketAsync(new ClientKeepAlivePacket(keepAlivePacket.PingID)).Wait();
+            }
             return true;
         }
 
@@ -105,7 +128,7 @@ namespace McProtoNet
             await SendPacket(
                 new HandShakePacket(HandShakeIntent.LOGIN, 754, "", 0),
                 0x00);
-            await SendPacket(new LoginStartPacket(_nick), 0x00);
+            await SendPacket(new LoginStartPacket(Session.Username), 0x00);
 
             bool login = false;
 

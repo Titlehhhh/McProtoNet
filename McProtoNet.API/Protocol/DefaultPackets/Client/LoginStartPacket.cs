@@ -1,5 +1,4 @@
 ﻿using McProtoNet.API.IO;
-using McProtoNet.API.Protocol;
 
 namespace McProtoNet.API.Protocol
 {

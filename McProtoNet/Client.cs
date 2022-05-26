@@ -1,14 +1,8 @@
-﻿using McProtoNet.API;
-using McProtoNet.API.IO;
+﻿using McProtoNet.API.IO;
 using McProtoNet.API.Packets;
 using McProtoNet.API.Protocol;
 using McProtoNet.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McProtoNet
 {
@@ -21,21 +15,7 @@ namespace McProtoNet
 
     public abstract class Client : IClient
     {
-
-        protected TcpClient tcpClient;
-        protected IPacketReaderWriter packetReaderWriter;
-        protected ISessionCheckService sessionCheckService;
-
-        protected IPacketDictionary packetDictionary;
-
-        protected Task MainTask;
-
-        protected string _nick;
-        protected string _uuid;
-        protected string _sessionId;
-
-        protected CancellationTokenSource CancellationTokenSource;
-        public Client(TcpClient tcpClient, SessionToken session, IPacketDictionary packetDictionary, ISessionCheckService sessionCheckService)
+        protected void Init(TcpClient tcpClient, SessionToken session, IPacketSet packetDictionary, ISessionCheckService sessionCheckService)
         {
             ArgumentNullException.ThrowIfNull(tcpClient, nameof(tcpClient));
             ArgumentNullException.ThrowIfNull(packetDictionary, nameof(packetDictionary));
@@ -43,20 +23,35 @@ namespace McProtoNet
             ArgumentNullException.ThrowIfNull(sessionCheckService, nameof(sessionCheckService));
 
             this.packetDictionary = packetDictionary;
-            _nick = session.Username;
-            _uuid = session.UUID;
-            _sessionId = session.SessionId;
+            Session = session;
 
             CancellationTokenSource = new();
             this.tcpClient = tcpClient;
             packetReaderWriter = new PacketReaderWriter(tcpClient);
-
-
-
-            MainTask =
-                Task.Factory.StartNew(MainAction,
-                TaskCreationOptions.LongRunning);
             this.sessionCheckService = sessionCheckService;
+        }
+
+
+        public Client()
+        {
+
+        }
+
+        protected TcpClient tcpClient;
+        protected IPacketReaderWriter packetReaderWriter;
+        protected ISessionCheckService sessionCheckService;
+
+        protected IPacketSet packetDictionary;
+
+        protected Task MainTask;
+
+        public virtual SessionToken Session { get; protected set; }
+
+
+        protected CancellationTokenSource CancellationTokenSource;
+        public Client(TcpClient tcpClient, SessionToken session, IPacketSet packetDictionary, ISessionCheckService sessionCheckService)
+        {
+            Init(tcpClient, session, packetDictionary, sessionCheckService);
         }
 
         public bool Connected => tcpClient.Connected;
@@ -87,16 +82,14 @@ namespace McProtoNet
 
                     (int id, MemoryStream data) =
                         await packetReaderWriter.ReadNextPacketAsync(CancellationTokenSource.Token);
-                    if (packetDictionary.TryGetInputPacket(id, out Lazy<Packet> lazy))
+                    if (packetDictionary.TryGetInputPacket(id, out Packet packet))
                     {
-                        Packet packet = lazy.Value;
                         IMinecraftPrimitiveReader primitiveReader = new MinecraftPrimitiveReader(data);
                         packet.Read(primitiveReader);
                         if (!CheckPacket(packet))
                         {
                             return;
                         }
-
                         PacketReceivedEvent(packet);
                     }
 
@@ -168,6 +161,13 @@ namespace McProtoNet
         protected void LoginRejectedEvent(string reason)
         {
             OnLoginRejected?.Invoke(this, reason);
+        }
+
+        public virtual void Start()
+        {
+            MainTask =
+                 Task.Factory.StartNew(MainAction,
+                 TaskCreationOptions.LongRunning);
         }
     }
 }
