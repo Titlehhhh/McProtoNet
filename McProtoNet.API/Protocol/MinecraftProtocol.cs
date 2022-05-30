@@ -1,12 +1,11 @@
-﻿
-using Ionic.Zlib;
+﻿using Ionic.Zlib;
 using McProtoNet.API.IO;
 using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace McProtoNet.API.Protocol
 {
-    public sealed class PacketReaderWriter : IPacketReaderWriter
+    public sealed class MinecraftProtocol : IPacketProtocol
     {
         private const int ZERO_VARLENGTH = 1;//default(int).GetVarIntLength();
         private NetworkMinecraftStream netmcStream;
@@ -14,21 +13,20 @@ namespace McProtoNet.API.Protocol
         private int _compressionThreshold;
 
 
-
-        public PacketReaderWriter(NetworkMinecraftStream netmcStream)
+        public MinecraftProtocol(NetworkMinecraftStream netmcStream)
         {
             this.netmcStream = netmcStream;
         }
-        public PacketReaderWriter(NetworkStream networkStream)
+        public MinecraftProtocol(NetworkStream networkStream)
         {
             netmcStream = new NetworkMinecraftStream(networkStream);
         }
 
-        public PacketReaderWriter(Socket socket) : this(new NetworkStream(socket))
+        public MinecraftProtocol(Socket socket) : this(new NetworkStream(socket))
         {
 
         }
-        public PacketReaderWriter(TcpClient tcpClient) : this(tcpClient.GetStream())
+        public MinecraftProtocol(TcpClient tcpClient) : this(tcpClient.GetStream())
         {
 
         }
@@ -42,6 +40,7 @@ namespace McProtoNet.API.Protocol
 
         public async Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token)
         {
+
             try
             {
                 token.ThrowIfCancellationRequested();
@@ -78,16 +77,14 @@ namespace McProtoNet.API.Protocol
             {
                 throw;
             }
+
         }
 
 
         public async Task SendPacketAsync(Packet packet, int id, CancellationToken token = default)
         {
-            Trace.WriteLine("1: " + packet.GetType().Name);
-            if (id == 0x01)
-            {
 
-            }
+
             try
             {
                 ArgumentNullException.ThrowIfNull(packet, nameof(packet));
@@ -120,7 +117,7 @@ namespace McProtoNet.API.Protocol
             {
                 throw;
             }
-            Trace.WriteLine("2: " + packet.GetType().Name);
+
 
         }
         private async Task SendPacketWithoutCompressionAsync(Packet packet, int id, CancellationToken token)
@@ -140,8 +137,8 @@ namespace McProtoNet.API.Protocol
                 await netmcStream.WriteVarIntAsync(Packetlength + id.GetVarIntLength(), token);
                 await netmcStream.WriteVarIntAsync(id, token);
                 bufferStream.Position = 0;
-                bufferStream.CopyTo(netmcStream);
 
+                bufferStream.CopyTo(netmcStream);
                 netmcStream.Lock.Release();
             }
         }
@@ -184,14 +181,24 @@ namespace McProtoNet.API.Protocol
 
         public void SwitchEncryption(byte[] privateKey)
         {
+            netmcStream.Lock.Wait();
             netmcStream.SwitchEncryption(privateKey);
+            netmcStream.Lock.Release();
         }
 
         public void SwitchCompression(int threshold)
         {
+
             if (threshold < 0)
                 throw new ArgumentOutOfRangeException(nameof(threshold));
+            netmcStream.Lock.Wait();
             _compressionThreshold = threshold;
+            netmcStream.Lock.Release();
+        }
+
+        public bool Available()
+        {
+            return netmcStream.NetStream.DataAvailable;
         }
     }
 
