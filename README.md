@@ -4,21 +4,23 @@ Ru: Мульти-версионная библиотека для работы �
 En: Multi-version library for working with the Minecraft protocol, written in c#.
 # Пример кода
 ```
-using McProtoNet;
+using McProtoNet.API;
+using McProtoNet.API.Packets;
+using McProtoNet.API.Protocol;
+using McProtoNet.Protocol754;
+using System.Diagnostics;
+using System.Net.Sockets;
 
 Console.WriteLine("start");
-
-IClient client = new MinecraftClient754("TestBot", "192.168.1.153", 52029);
+TcpClient tcpClient = new TcpClient("192.168.1.153", 57883);
+IPacketReaderWriter client = new PacketReaderWiter(tcpClient.Client);
+ISession session = new Session754(client);
 
 client.OnPacketReceived += (s, packet) =>
 {
-    Console.WriteLine("Received: " + packet.GetType().Name);
+	
 };
-client.OnDisconnected += (s, reason) =>
-{
-    Console.WriteLine(reason);
-};
-client.Start();
 
-Console.ReadLine();
+Console.WriteLine(await session.Login());
+
 ```
