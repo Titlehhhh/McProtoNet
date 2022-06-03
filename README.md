@@ -1,3 +1,7 @@
+
+[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet.svg?style=flat-square)](https://www.nuget.org/packages/McProtoNet/)
+
+
 # McProtoNet
 
 [![NuGet version (Newtonsoft.Json)](https://img.shields.io/nuget/v/Newtonsoft.Json.svg?style=flat-square)](https://www.nuget.org/packages/Newtonsoft.Json/)
