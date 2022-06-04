@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
     {
         public PlayerAction Action { get; set; }
         public Point3_Int Position { get; set; }
-        public GeoBlockFace Face { get; set; }
+        public BlockFace Face { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Action);
@@ -26,7 +26,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 
         }
 
-        public ClientPlayerActionPacket(PlayerAction action, Point3_Int position, GeoBlockFace face)
+        public ClientPlayerActionPacket(PlayerAction action, Point3_Int position, BlockFace face)
         {
             Action = action;
             Position = position;

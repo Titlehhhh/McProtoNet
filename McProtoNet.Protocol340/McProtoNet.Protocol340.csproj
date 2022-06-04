@@ -15,4 +15,8 @@
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Data\" />
+  </ItemGroup>
+
 </Project>

@@ -116,13 +116,6 @@ namespace McProtoNet.Geometry
                              Square(other.Z - Z));
         }
 
-        public Vector3 Transform(Matrix matrix)
-        {
-            var x = (X * matrix.M11) + (Y * matrix.M21) + (Z * matrix.M31) + matrix.M41;
-            var y = (X * matrix.M12) + (Y * matrix.M22) + (Z * matrix.M32) + matrix.M42;
-            var z = (X * matrix.M13) + (Y * matrix.M23) + (Z * matrix.M33) + matrix.M43;
-            return new Vector3(x, y, z);
-        }
 
         /// <summary>
         /// Calculates the square of a num.
@@ -248,21 +241,7 @@ namespace McProtoNet.Geometry
                 a.Z - b.Z);
         }
 
-        public static Vector3 operator +(Vector3 a, Size b)
-        {
-            return new Vector3(
-                a.X + b.Width,
-                a.Y + b.Height,
-                a.Z + b.Depth);
-        }
-
-        public static Vector3 operator -(Vector3 a, Size b)
-        {
-            return new Vector3(
-                a.X - b.Width,
-                a.Y - b.Height,
-                a.Z - b.Depth);
-        }
+       
 
         public static Vector3 operator -(Vector3 a)
         {
@@ -381,10 +360,6 @@ namespace McProtoNet.Geometry
             return new Vector3(c.X, 0, c.Z);
         }
 
-        public static implicit operator Vector3(Size s)
-        {
-            return new Vector3(s.Width, s.Height, s.Depth);
-        }
         #endregion
 
         #region Constants

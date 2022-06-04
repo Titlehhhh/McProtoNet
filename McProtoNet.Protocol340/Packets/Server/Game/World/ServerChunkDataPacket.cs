@@ -1,5 +1,5 @@
-using McProtoNet.Protocol340.Data.World;
 
+using McProtoNet.Geometry;
 
 namespace McProtoNet.Protocol340.Packets.Server
 {
@@ -7,7 +7,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerChunkDataPacket : Packet
     {
-        public IChunkColumn Column { get; private set; }
+        public IEnumerable<(int, int)[,,]> Chunks { get; private set;  }
+
+        public int X { get; private set; }
+        public int Z { get; private set; }
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
@@ -15,8 +18,13 @@ namespace McProtoNet.Protocol340.Packets.Server
             int z = stream.ReadInt();
             bool chunksContinuous = stream.ReadBoolean();
             ushort chunkMask = (ushort)stream.ReadVarInt();
-            ChunkColumn column = new ChunkColumn(x, z);
-            for (int chunkY = 0; chunkY < column.SizeY; chunkY++)
+
+            X = x;
+            Z = z;
+
+            Chunks = new List<(int, int)[,,]>();
+
+            for (int chunkY = 0; chunkY < 16; chunkY++)
             {
                 if ((chunkMask & (1 << chunkY)) != 0)
                 {
@@ -39,18 +47,18 @@ namespace McProtoNet.Protocol340.Packets.Server
                     // Block IDs are packed in the array of 64-bits integers
                     ulong[] dataArray = stream.ReadULongArray();
 
-                    Chunk chunk = new Chunk();
+                    (int, int)[,,] chunk = new (int, int)[16, 16, 16];
 
                     if (dataArray.Length > 0)
                     {
                         int longIndex = 0;
                         int startOffset = 0 - bitsPerBlock;
 
-                        for (int blockY = 0; blockY < chunk.SizeY; blockY++)
+                        for (int blockY = 0; blockY < 16; blockY++)
                         {
-                            for (int blockZ = 0; blockZ < chunk.SizeZ; blockZ++)
+                            for (int blockZ = 0; blockZ < 16; blockZ++)
                             {
-                                for (int blockX = 0; blockX < chunk.SizeX; blockX++)
+                                for (int blockX = 0; blockX < 16; blockX++)
                                 {
                                     // NOTICE: In the future a single ushort may not store the entire block id;
                                     // the Block class may need to change if block state IDs go beyond 65535
@@ -93,7 +101,7 @@ namespace McProtoNet.Protocol340.Packets.Server
                                     {
                                         if (paletteLength <= blockId)
                                         {
-                                            int blockNumber = (blockY * chunk.SizeZ + blockZ) * chunk.SizeX + blockX;
+                                            int blockNumber = (blockY * 16 + blockZ) * 16 + blockX;
                                             throw new IndexOutOfRangeException(String.Format("Block ID {0} is outside Palette range 0-{1}! (bitsPerBlock: {2}, blockNumber: {3})",
                                                 blockId,
                                                 paletteLength - 1,
@@ -103,19 +111,21 @@ namespace McProtoNet.Protocol340.Packets.Server
 
                                         blockId = (ushort)palette[blockId];
                                     }
-                                    Point3_Int point = new Point3_Int(blockX, blockY, blockZ);
                                     // We have our block, save the block into the chunk
-                                    chunk.SetBlock(point, new Block340(blockId, point));
+                                    chunk[blockX, blockY, blockZ] = (blockId >> 4, blockId & 0x0F);
                                 }
                             }
                         }
+                        
                     }
-
+                    Chunks.Append(chunk);
 
                 }
+
+                
             }
 
-            Column = column;
+            
         }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
@@ -123,10 +133,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
         }
 
-        public ServerChunkDataPacket(IChunkColumn column)
-        {
-            Column = column;
-        }
+
 
         public ServerChunkDataPacket() { }
     }

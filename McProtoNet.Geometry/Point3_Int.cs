@@ -250,12 +250,7 @@
                                      (int)a.Z);
         }
 
-        public static explicit operator Point3_Int(Size s)
-        {
-            return new Point3_Int((int)s.Width,
-                                     (int)s.Height,
-                                     (int)s.Depth);
-        }
+        
 
         #endregion
 
