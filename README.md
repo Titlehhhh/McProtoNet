@@ -1,5 +1,6 @@
 
-[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet.svg?style=flat-square)](https://www.nuget.org/packages/McProtoNet/)
+[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet?style=flat-square)](https://www.nuget.org/packages/McProtoNet/)
+
 
 
 # McProtoNet
