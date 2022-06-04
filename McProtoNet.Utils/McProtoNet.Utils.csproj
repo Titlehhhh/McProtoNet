@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Библиотека с инструментами для McProtoNet</Description>
+    <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

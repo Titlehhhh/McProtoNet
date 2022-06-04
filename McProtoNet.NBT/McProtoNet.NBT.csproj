@@ -6,6 +6,7 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Description>Библиотека для работы с NBT</Description>
+		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
 	</PropertyGroup>
 
 </Project>

@@ -6,6 +6,8 @@
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Библиотека интерфейсов для McProtoNet</Description>
+    <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

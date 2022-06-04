@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Description>Геометрические класы для McProtoNet</Description>
+    <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
