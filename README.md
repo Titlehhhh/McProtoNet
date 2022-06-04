@@ -4,8 +4,6 @@
 
 # McProtoNet
 
-[![NuGet version (Newtonsoft.Json)](https://img.shields.io/nuget/v/Newtonsoft.Json.svg?style=flat-square)](https://www.nuget.org/packages/Newtonsoft.Json/)
-
 Ru: Мульти-версионная библиотека для работы с протоколом майнкрафт, написанная на c#.
 
 En: Multi-version library for working with the Minecraft protocol, written in c#.
