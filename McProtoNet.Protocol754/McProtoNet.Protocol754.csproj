@@ -7,6 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Пакеты и данные для версии майнкрафт протокола 754</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+	  <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
     <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
   </ItemGroup>

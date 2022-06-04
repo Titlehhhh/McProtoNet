@@ -1,8 +1,6 @@
 using McProtoNet;
 using McProtoNet._754;
-using McProtoNet.API;
-using McProtoNet.API.Packets;
-using McProtoNet.API.Protocol;
+using McProtoNet.Core;
 using McProtoNet.Protocol754;
 using System.Diagnostics;
 using System.Net.Sockets;

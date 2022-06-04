@@ -1,6 +1,6 @@
-﻿using McProtoNet.API;
-using McProtoNet.API.Packets;
-using McProtoNet.API.Protocol;
+﻿using McProtoNet.Core;
+using McProtoNet.Core.Packets;
+using McProtoNet.Core.Protocol;
 using McProtoNet.Protocol754;
 using McProtoNet.Protocol754.Packets;
 using McProtoNet.Protocol754.Packets.Client;

@@ -7,6 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Библиотека с инструментами для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+	  <Version>1.0.2</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -14,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.API\McProtoNet.API.csproj" />
+    <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
   </ItemGroup>
 
 </Project>
