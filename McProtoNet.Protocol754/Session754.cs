@@ -1,19 +1,8 @@
-﻿using McProtoNet.Core;
-using McProtoNet.Core.Packets;
-using McProtoNet.Core.Protocol;
-using McProtoNet.Protocol754;
-using McProtoNet.Protocol754.Packets;
-using McProtoNet.Protocol754.Packets.Client;
+﻿using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Protocol754.Packets.Server;
 using McProtoNet.Utils;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace McProtoNet._754
+namespace McProtoNet.Protocol754
 {
     public class Session754 : IDisposable, ISession
     {

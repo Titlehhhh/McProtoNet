@@ -1,13 +1,10 @@
-
-using McProtoNet.Geometry;
-
 namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
     public sealed class ServerChunkDataPacket : Packet
     {
-        public IEnumerable<(int, int)[,,]> Chunks { get; private set;  }
+        public IEnumerable<(int, int)[,,]> Chunks { get; private set; }
 
         public int X { get; private set; }
         public int Z { get; private set; }
@@ -116,16 +113,16 @@ namespace McProtoNet.Protocol340.Packets.Server
                                 }
                             }
                         }
-                        
+
                     }
                     Chunks.Append(chunk);
 
                 }
 
-                
+
             }
 
-            
+
         }
 
         public override void Write(IMinecraftPrimitiveWriter stream)

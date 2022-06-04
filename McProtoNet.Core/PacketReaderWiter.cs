@@ -1,9 +1,6 @@
-﻿using McProtoNet.Core;
-using McProtoNet.Core.IO;
+﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
-
-using System.Diagnostics;
 using System.Net.Sockets;
 using System.Threading.Tasks.Dataflow;
 

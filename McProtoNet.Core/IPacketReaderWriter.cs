@@ -1,7 +1,5 @@
-﻿using McProtoNet.Core;
-using McProtoNet.Core.Packets;
+﻿using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
-using System.Collections.Concurrent;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core
@@ -9,10 +7,10 @@ namespace McProtoNet.Core
 
     public interface IPacketListener
     {
-        void OnPacketReceived(IPacketReaderWriter client,Packet packet);
+        void OnPacketReceived(IPacketReaderWriter client, Packet packet);
         void OnPacketSent(IPacketReaderWriter client, Packet packet);
-        void OnPacketSend(IPacketReaderWriter client,Packet packet);
-        void OnDisconnect(IPacketReaderWriter client,string reason);
+        void OnPacketSend(IPacketReaderWriter client, Packet packet);
+        void OnDisconnect(IPacketReaderWriter client, string reason);
         void OnError(IPacketReaderWriter client, Exception exception);
     }
     public delegate void DisconnectedHandler(IPacketReaderWriter client);
@@ -22,10 +20,10 @@ namespace McProtoNet.Core
     public delegate void PacketSendHandler(IPacketReaderWriter client, Packet packet);
 
 
-    
+
     public interface IPacketReaderWriter : IDisposable
     {
-        Socket Client { get;  }
+        Socket Client { get; }
 
         bool Connected { get; }
 
@@ -37,7 +35,7 @@ namespace McProtoNet.Core
         bool EncryptionEnabled { get; }
         bool CompressionEnabled { get; }
 
-        
+
 
         event ErrorHandler OnError;
         event DisconnectedHandler OnConnectionLost;

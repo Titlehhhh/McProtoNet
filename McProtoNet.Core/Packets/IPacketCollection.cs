@@ -1,8 +1,8 @@
 ﻿namespace McProtoNet.Core.Packets
 {
     public interface IPacketCollection
-    {     
-        
+    {
+
 
         int TargetProtocolVersion { get; }
 

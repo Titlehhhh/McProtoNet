@@ -241,7 +241,7 @@ namespace McProtoNet.Geometry
                 a.Z - b.Z);
         }
 
-       
+
 
         public static Vector3 operator -(Vector3 a)
         {

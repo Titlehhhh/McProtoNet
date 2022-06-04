@@ -1,6 +1,5 @@
 ﻿using Ionic.Zlib;
 using McProtoNet.Core.IO;
-using System.Diagnostics;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol

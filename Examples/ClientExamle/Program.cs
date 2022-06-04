@@ -1,8 +1,5 @@
-using McProtoNet;
-using McProtoNet._754;
 using McProtoNet.Core;
 using McProtoNet.Protocol754;
-using System.Diagnostics;
 using System.Net.Sockets;
 
 Console.WriteLine("start");

@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Библиотека с инструментами для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-	  <Version>1.0.2</Version>
+	  <Version>1.0.3</Version>
   </PropertyGroup>
 
   <ItemGroup>
