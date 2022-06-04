@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.0.3</Version>
+    <Description>Библиотека, которая содержит все зависимости McProtoNet.
+
+Вы можете скачать эту библиотеку, когда вам нужно использвать все версии протокола.</Description>
+    <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
+    <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
+    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
+    <ProjectReference Include="..\McProtoNet.Protocol340\McProtoNet.Protocol340.csproj" />
+    <ProjectReference Include="..\McProtoNet.Protocol754\McProtoNet.Protocol754.csproj" />
+    <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
+  </ItemGroup>
+
+</Project>
