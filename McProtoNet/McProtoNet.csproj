@@ -14,7 +14,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
-    <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
     <ProjectReference Include="..\McProtoNet.Protocol340\McProtoNet.Protocol340.csproj" />
     <ProjectReference Include="..\McProtoNet.Protocol754\McProtoNet.Protocol754.csproj" />

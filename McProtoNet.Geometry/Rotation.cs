@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Geometry
+﻿using System;
+
+namespace McProtoNet.Geometry
 {
     public struct Rotation
     {

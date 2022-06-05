@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.NBT
+﻿using System;
+
+namespace McProtoNet.NBT
 {
     /// <summary> Exception thrown when an operation is attempted on an NbtReader that
     /// cannot recover from a previous parsing error. </summary>

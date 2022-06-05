@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Core.IO
+﻿using System;
+
+namespace McProtoNet.Core.IO
 {
     public interface IMinecraftPrimitiveReader
     {

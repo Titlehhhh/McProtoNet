@@ -4,11 +4,11 @@
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Description>Ядро McProtoNet</Description>
-		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-		
+		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>		
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -17,7 +17,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
 		<ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
 	</ItemGroup>
 

@@ -1,7 +1,10 @@
 ﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
+using System;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace McProtoNet.Core
@@ -14,14 +17,15 @@ namespace McProtoNet.Core
 
         private readonly BufferBlock<(Packet, int)> packetQueue;
 
-        private readonly CancellationTokenSource cancellationSource = new();
+        private readonly CancellationTokenSource cancellationSource = new CancellationTokenSource();
 
         private Task MainTask;
         private IPacketProvider packets;
 
         public PacketReaderWiter(Socket socket)
         {
-            ArgumentNullException.ThrowIfNull(socket, nameof(socket));
+            if (socket is null)
+                throw new ArgumentNullException(nameof(socket));
 
             Client = socket;
 

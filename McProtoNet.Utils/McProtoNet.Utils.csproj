@@ -9,10 +9,9 @@
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
 	
   </PropertyGroup>
-
+	
   <ItemGroup>
-    <PackageReference Include="Heijden.Dns" Version="2.0.0" />
-    <PackageReference Include="starksoft.aspen" Version="1.1.8" />
+    <PackageReference Include="Heijden.Dns.Portable" Version="2.0.19" />
   </ItemGroup>
 
   <ItemGroup>

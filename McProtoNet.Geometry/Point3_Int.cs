@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Geometry
+﻿using System;
+
+namespace McProtoNet.Geometry
 {
     /// <summary>
     /// Represents a tuple of 3D coordinates.
