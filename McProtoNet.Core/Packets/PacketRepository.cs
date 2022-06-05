@@ -2,7 +2,7 @@
 {
     public class PacketRepository : IPacketRepository
     {
-        private Dictionary<PacketCategory, IPacketProvider> AllPAckets;
+        public Dictionary<PacketCategory, IPacketProvider> AllPAckets { get; set; }
 
         public PacketRepository(Dictionary<PacketCategory, IPacketProvider> allPAckets)
         {

@@ -41,5 +41,10 @@ namespace McProtoNet.Core.Packets
             id = -1;
             return false;
         }
+
+        public bool TryGetPacket(int id, out Packet packet)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

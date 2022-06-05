@@ -7,7 +7,7 @@
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Description>Библиотека для работы с NBT</Description>
 		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-		<Version>1.0.3</Version>
+		
 	</PropertyGroup>
 
 </Project>

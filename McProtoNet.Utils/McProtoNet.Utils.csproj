@@ -7,11 +7,12 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Библиотека с инструментами для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-	  <Version>1.0.3</Version>
+	
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Heijden.Dns" Version="2.0.0" />
+    <PackageReference Include="starksoft.aspen" Version="1.1.8" />
   </ItemGroup>
 
   <ItemGroup>

@@ -16,8 +16,8 @@ namespace McProtoNet.Protocol754
 
         public Session754(IPacketReaderWriter client)
         {
+            this.packetRepository = new PacketRepository(p754.GetAllPackets(PacketSide.Client));
 
-            this.packetRepository = CreatePacketRepository();
             this.client = client;
             client.OnPacketReceived += Client_OnPacketReceived;
             client.OnPacketSent += Client_OnPacketSent;
@@ -26,30 +26,6 @@ namespace McProtoNet.Protocol754
             client.OnError += Client_OnError;
         }
 
-
-
-        private static IPacketRepository CreatePacketRepository()
-        {
-            IPacketProvider handskae =
-                new PacketProvider(new Dictionary<Type, int>()
-                {
-                    {typeof(HandShakePacket),0x00 }
-                }, new());
-            IPacketProvider login =
-                new PacketProvider(p754.GetClientPacketsByCategory(PacketCategory.Login),
-                p754.GetServerPacketsByCategory(PacketCategory.Login));
-            IPacketProvider game =
-                new PacketProvider(p754.GetClientPacketsByCategory(PacketCategory.Game),
-                p754.GetServerPacketsByCategory(PacketCategory.Game));
-
-            IPacketRepository repository = new PacketRepository(new Dictionary<PacketCategory, IPacketProvider>()
-            {
-                {PacketCategory.HandShake, handskae },
-                {PacketCategory.Login, login },
-                {PacketCategory.Game, game }
-            });
-            return repository;
-        }
 
         private PacketCategory SubProtocol
         {

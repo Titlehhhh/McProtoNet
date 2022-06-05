@@ -7,7 +7,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Пакеты и данные для версии майнкрафт протокола 754</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-	  <Version>1.0.3</Version>
+	
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
-﻿using Ionic.Zlib;
+﻿
+using Ionic.Zlib;
 using McProtoNet.Core.IO;
 using System.Net.Sockets;
 

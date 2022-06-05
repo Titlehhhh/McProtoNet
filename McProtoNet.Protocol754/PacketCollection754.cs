@@ -80,5 +80,35 @@ namespace McProtoNet.Protocol754
         {
             return ServerPackets[category];
         }
+
+        public Dictionary<PacketCategory, IPacketProvider> GetAllPackets( PacketSide side)
+        {
+           
+
+            var categories = new List<PacketCategory>
+                {
+                    PacketCategory.HandShake,
+                    PacketCategory.Status,
+                    PacketCategory.Login,
+                    PacketCategory.Game
+                };
+
+            if (side == PacketSide.Client)
+            {
+                
+                var all = categories
+                    .ToDictionary(k => k, v => (IPacketProvider)new PacketProvider(ClientPackets[v], ServerPackets[v]));
+
+                return all;
+            }
+            else 
+            {
+
+                var all = categories
+                    .ToDictionary(k => k, v => (IPacketProvider)new PacketProvider(ServerPackets[v], ClientPackets[v]));
+
+                return all;
+            }
+        }
     }
 }
