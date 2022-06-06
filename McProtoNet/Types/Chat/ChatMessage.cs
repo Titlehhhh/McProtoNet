@@ -8,6 +8,12 @@ namespace McProtoNet.Types.Chat
     [DataContract]
     public class ChatMessage
     {
+        [DataMember(Name= "translate")]
+        public string Translate { get; set; }
+
+        [DataMember(Name ="with")]
+        public ChatMessage With { get; set; }
+
         private static readonly DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ChatMessage));
         private List<ChatMessage> extra = new List<ChatMessage>();
 
