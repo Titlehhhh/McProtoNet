@@ -191,9 +191,9 @@ namespace McProtoNet.Core.Protocol
 
             if (threshold < 0)
                 throw new ArgumentOutOfRangeException(nameof(threshold));
-            netmcStream.Lock.Wait();
+            //netmcStream.Lock.Wait();
             _compressionThreshold = threshold;
-            netmcStream.Lock.Release();
+            //netmcStream.Lock.Release();
         }
 
         public bool Available()

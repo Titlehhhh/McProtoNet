@@ -52,10 +52,12 @@ namespace McProtoNet.Core
 
         private async Task MainLoop()
         {
-            try
+            while (Connected && !cancellationSource.IsCancellationRequested)
             {
-                while (Connected && !cancellationSource.IsCancellationRequested)
+                try
                 {
+
+
 
                     (int id, MemoryStream data) =
                      await packetProtocol.ReadNextPacketAsync(cancellationSource.Token);
@@ -68,16 +70,19 @@ namespace McProtoNet.Core
 
                         OnPacketReceived?.Invoke(this, packet);
                     }
+
+
+                }
+                catch (OperationCanceledException)
+                {
+
+                }
+                catch (Exception e)
+                {
+                    OnError?.Invoke(this, e);
                 }
             }
-            catch (OperationCanceledException)
-            {
 
-            }
-            catch (Exception e)
-            {
-                OnError?.Invoke(this, e);
-            }
         }
 
 

@@ -7,10 +7,13 @@ namespace McProtoNet.Protocol754
 
     public sealed class PacketCollection754 : IPacketCollection
     {
-        public static readonly Dictionary<PacketCategory, Dictionary<int, Type>> ClientPackets = new();
-        public static readonly Dictionary<PacketCategory, Dictionary<int, Type>> ServerPackets = new();
+        public static readonly Dictionary<PacketCategory, Dictionary<int, Type>> ClientPackets ;
+        public static readonly Dictionary<PacketCategory, Dictionary<int, Type>> ServerPackets ;
         static PacketCollection754()
         {
+ClientPackets = new();
+ServerPackets = new();
+
             Type tpacket = typeof(Packet);
             var list = new List<Type>();
             foreach (var item in Assembly.GetExecutingAssembly().GetTypes())
@@ -64,6 +67,7 @@ namespace McProtoNet.Protocol754
             {
                 {0x00, typeof(HandShakePacket) }
             });
+            ServerPackets.Add(PacketCategory.HandShake, new ());
 
 
 
@@ -88,7 +92,7 @@ namespace McProtoNet.Protocol754
             var categories = new List<PacketCategory>
                 {
                     PacketCategory.HandShake,
-                    PacketCategory.Status,
+                    //PacketCategory.Status,
                     PacketCategory.Login,
                     PacketCategory.Game
                 };
