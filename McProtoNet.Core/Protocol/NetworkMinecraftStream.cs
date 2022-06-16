@@ -37,7 +37,29 @@ namespace McProtoNet.Core.Protocol
             this.BaseStream = NetStream;
         }
 
-        public async Task<int> ReadVarIntAsync(CancellationToken token = default)
+        public int ReadVarInt()
+        {
+            int numRead = 0;
+            int result = 0;
+            byte read;
+            do
+            {
+
+                read = ReadUnsignedByte();
+
+                int value = read & 0b01111111;
+                result |= value << (7 * numRead);
+
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
+            return result;
+        }
+
+        public async ValueTask<int> ReadVarIntAsync(CancellationToken token = default)
         {
             try
             {
@@ -69,7 +91,7 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
-        public async Task WriteVarIntAsync(int value, CancellationToken token)
+        public async ValueTask WriteVarIntAsync(int value, CancellationToken token)
         {
             try
             {
@@ -93,10 +115,40 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
+        public void WriteVarInt(int val)
+        {
+            var unsigned = (uint)val;
+            do
+            {
+                var temp = (byte)(unsigned & 127);
+
+                unsigned >>= 7;
+
+                if (unsigned != 0)
+                    temp |= 128;
+
+                WriteUnsignedByte(temp);
+            }
+            while (unsigned != 0);
+        }
+
 
 
         #region Приватные
-        private async Task<byte> ReadUnsignedByteAsync(CancellationToken token = default)
+
+        private byte ReadUnsignedByte()
+        {
+            int b = ReadByte();
+            if (b == -1)
+                throw new InvalidOperationException("Stream end");
+            return (byte)b;
+        }
+        private void WriteUnsignedByte(byte val)
+        {
+            WriteByte(val);
+        }
+
+        private async ValueTask<byte> ReadUnsignedByteAsync(CancellationToken token = default)
         {
             try
             {
@@ -110,7 +162,7 @@ namespace McProtoNet.Core.Protocol
                 throw;
             }
         }
-        private async Task WriteUnsignedByteAsync(byte value, CancellationToken token)
+        private async ValueTask WriteUnsignedByteAsync(byte value, CancellationToken token)
         {
             try
             {

@@ -1,5 +1,10 @@
 <Project>
-	<PropertyGroup>				
-		<PackageVersion>1.2.3</PackageVersion>
-	</PropertyGroup>
+  <PropertyGroup>
+    <PackageVersion>1.2.3</PackageVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="System.IO.Pipelines">
+      <Version>6.0.3</Version>
+    </PackageVersion>
+  </ItemGroup>
 </Project>

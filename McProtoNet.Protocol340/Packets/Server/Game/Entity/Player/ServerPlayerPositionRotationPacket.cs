@@ -4,21 +4,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerPlayerPositionRotationPacket : Packet
     {
-        //this.x = in.readDouble();
-        //this.y = in.readDouble();
-        //this.z = in.readDouble();
-        //this.yaw = in.readFloat();
-        //this.pitch = in.readFloat();
-        //this.relative = new ArrayList<PositionElement>();
-        //int flags = in.readUnsignedByte();
-        //for(PositionElement element : PositionElement.values()) {
-        //int bit = 1 << MagicValues.value(Integer.class, element);
-        //if((flags & bit) == bit) {
-        //this.relative.add(element);
-        //}
-        //}
-        //
-        //this.teleportId = in.readVarInt();
+
+        private readonly PositionElement[] elements = Enum.GetValues(typeof(PositionElement))
+            .Cast<PositionElement>()
+            .ToArray();
 
         public double X { get; private set; }
         public double Y { get; private set; }
@@ -42,7 +31,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
             byte flags = stream.ReadUnsignedByte();
             List<PositionElement> relative = new();
-            foreach (PositionElement pos in Enum.GetValues(typeof(PositionElement)))
+            foreach (PositionElement pos in elements)
             {
                 var bit = 1 << (int)pos;
                 if ((flags & bit) == bit)

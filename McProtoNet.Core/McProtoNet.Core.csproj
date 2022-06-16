@@ -11,6 +11,7 @@
 		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>		
 	</PropertyGroup>
 
+	
 	<ItemGroup>
 	  <PackageReference Include="Ionic.Zlib.Core" Version="1.0.0" />
 	  <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
@@ -19,5 +20,14 @@
 	<ItemGroup>
 		<ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageVersion Update="System.IO.Pipelines">
+	    <Version>7.0.0-preview.5.22301.12</Version>
+	  </PackageVersion>
+	</ItemGroup>
+
+	
+
 
 </Project>

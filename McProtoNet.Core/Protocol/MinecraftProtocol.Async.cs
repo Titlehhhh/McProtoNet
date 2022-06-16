@@ -1,11 +1,13 @@
 ﻿
 using Ionic.Zlib;
 using McProtoNet.Core.IO;
+
 using System.Net.Sockets;
+
 
 namespace McProtoNet.Core.Protocol
 {
-    public sealed class MinecraftProtocol : IPacketProtocol
+    public sealed partial class MinecraftProtocol : IPacketProtocol
     {
         private const int ZERO_VARLENGTH = 1;//default(int).GetVarIntLength();
         private NetworkMinecraftStream netmcStream;
@@ -13,9 +15,11 @@ namespace McProtoNet.Core.Protocol
         private int _compressionThreshold;
 
 
+
         public MinecraftProtocol(NetworkMinecraftStream netmcStream)
         {
             this.netmcStream = netmcStream;
+           
         }
         public MinecraftProtocol(NetworkStream networkStream)
         {
@@ -200,6 +204,8 @@ namespace McProtoNet.Core.Protocol
         {
             return netmcStream.NetStream.DataAvailable;
         }
+
+        
     }
 
 
