@@ -54,9 +54,11 @@ namespace McProtoNet.Core.Protocol
 
                 netmcStream.WriteVarInt(Packetlength + id.GetVarIntLength());
                 netmcStream.WriteVarInt(id);
+                netmcStream.Flush();
                 bufferStream.Position = 0;
 
                 bufferStream.CopyTo(netmcStream);
+                netmcStream.Flush();
                 netmcStream.Lock.Release();
             }
         }
@@ -68,7 +70,9 @@ namespace McProtoNet.Core.Protocol
             netmcStream.WriteVarInt(fullSize);
             netmcStream.WriteVarInt(0);
             packetStream.Position = 0;
+            netmcStream.Flush();
             packetStream.CopyTo(netmcStream);
+            netmcStream.Flush();
             netmcStream.Lock.Release();
         }
 
@@ -90,7 +94,7 @@ namespace McProtoNet.Core.Protocol
                 netmcStream.WriteVarInt(to_Packetlength);
                 compressedStream.Position = 0;
                 compressedStream.CopyTo(netmcStream);
-
+                netmcStream.Flush();
                 netmcStream.Lock.Release();
             }
         }
@@ -102,8 +106,12 @@ namespace McProtoNet.Core.Protocol
 
             int read;
             byte[] buffer = new byte[len];
-            while ((read = netmcStream.Read(buffer, 0, buffer.Length)) != 0)
+            while (len != 0)
+            {
+                read = netmcStream.Read(buffer, 0, len);
                 dataStream.Write(buffer, 0, read);
+                len -= read;
+            }
 
             if (_compressionThreshold > 0)
             {
