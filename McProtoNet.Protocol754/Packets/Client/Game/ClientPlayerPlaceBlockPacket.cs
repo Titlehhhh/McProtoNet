@@ -36,7 +36,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 
         }
 
-        public ClientPlayerPlaceBlockPacket(Hand hand, Point3 position, BlockFace face, float cursorX, float cursorY, float cursorZ, bool insideBlock)
+        public ClientPlayerPlaceBlockPacket(Hand hand, Point3_Int position, BlockFace face, float cursorX, float cursorY, float cursorZ, bool insideBlock)
         {
             Hand = hand;
             Position = position;
