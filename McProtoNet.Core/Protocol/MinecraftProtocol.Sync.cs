@@ -102,16 +102,21 @@ namespace McProtoNet.Core.Protocol
         public (int, MemoryStream) ReadNextPacket()
         {
             int len = netmcStream.ReadVarInt();
-            MemoryStream dataStream = new MemoryStream();
 
-            int read;
+            MemoryStream dataStream = new MemoryStream();
             byte[] buffer = new byte[len];
-            while (len != 0)
+            int read = 0;
+            while(len > 0)
             {
                 read = netmcStream.Read(buffer, 0, len);
-                dataStream.Write(buffer, 0, read);
                 len -= read;
+                dataStream.Write(buffer,0, read);
             }
+            dataStream.Position = 0;
+            
+              
+            
+            
 
             if (_compressionThreshold > 0)
             {
