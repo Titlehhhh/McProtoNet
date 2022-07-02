@@ -12,6 +12,7 @@
 	
   <ItemGroup>
     <PackageReference Include="Heijden.Dns.Portable" Version="2.0.19" />
+    <PackageReference Include="StarkSoftProxy" Version="1.6.0" />
   </ItemGroup>
 
   <ItemGroup>

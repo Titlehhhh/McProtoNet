@@ -8,6 +8,14 @@
 Ru: Мульти-версионная библиотека для работы с протоколом майнкрафт, написанная на c#.
 
 En: Multi-version library for working with the Minecraft protocol, written in c#.
+
+## Поддерживаемые версии
+- [#] 1.12
+- [ ] 1.13
+- [ ] 1.14
+- [ ] 1.15
+- [#] 1.16
+
 # Пример кода
 ```
 using McProtoNet.Core;
