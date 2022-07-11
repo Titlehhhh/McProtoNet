@@ -1,4 +1,5 @@
-﻿using Starksoft.Net.Proxy;
+﻿using Starksoft.Aspen.Proxy;
+
 using System.Net.Sockets;
 
 namespace McProtoNet.Utils
