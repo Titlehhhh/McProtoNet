@@ -1,29 +1,28 @@
-﻿using Heijden.Dns.Portable;
+﻿using DnsClient;
 
 namespace McProtoNet.Utils
 {
     public class ServerResolver : IServerResolver
     {
-        public async Task<(string, ushort)> ResolveAsync(string host)
+        public async Task<SrvRecord> ResolveAsync(string host, CancellationToken cancellationToken = default)
         {
-            ushort port = 0;
-            var resolver = new Resolver();
-            
-            Heijden.DNS.Response response = await (new Resolver()).Query("_minecraft._tcp." + host, Heijden.DNS.QType.SRV);
-            Heijden.DNS.RecordSRV[] srvRecords = response.RecordsSRV;
-            if (srvRecords != null && srvRecords.Any())
+            LookupClient lookupClient = new();
+
+            var response = await lookupClient.QueryAsync(new DnsQuestion($"_minecraft._tcp.{host}", QueryType.SRV), cancellationToken);
+            if (!response.HasError)
             {
-                //Order SRV records by priority and weight, then randomly
-                Heijden.DNS.RecordSRV result = srvRecords
-                    .OrderBy(record => record.PRIORITY)
-                    .ThenByDescending(record => record.WEIGHT)
+                var result = response.Answers.SrvRecords()
+                    .OrderBy(record => record.Priority)
+                    .ThenByDescending(record => record.Weight)
                     .ThenBy(record => Guid.NewGuid())
                     .First();
-                string target = result.TARGET.Trim('.');
-                host = target;
-                port = result.PORT;
+                string target = result.Target.Value.Trim('.');
+                return new SrvRecord(target, result.Port);
             }
-            return (host, port);
+
+
+            throw new SrvNotFoundException();
+
         }
     }
 }

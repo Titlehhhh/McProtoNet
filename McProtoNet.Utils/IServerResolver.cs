@@ -1,7 +1,8 @@
 ﻿namespace McProtoNet.Utils
 {
+
     public interface IServerResolver
     {
-        Task<(string, ushort)> ResolveAsync(string host);
+        Task<SrvRecord> ResolveAsync(string host, CancellationToken cancellationToken = default);
     }
 }
