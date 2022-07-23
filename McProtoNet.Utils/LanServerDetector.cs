@@ -77,11 +77,8 @@ namespace McProtoNet.Utils
             try
             {
                 IPEndPoint ip = (IPEndPoint)endPoint;
-
                 string motd = ParseMotd(data);
-                var deb = ParseAddress(data);
-                Console.WriteLine("deb: " + deb);
-                ushort port = ushort.Parse(deb);
+                ushort port = ushort.Parse(ParseAddress(data));
                 ServerFinded?.Invoke(new LanServer(ip.Address.ToString(), port, motd));
             }
             catch (Exception e)
@@ -152,7 +149,7 @@ namespace McProtoNet.Utils
             {
                 return "missing no";
             }
-            
+
             return line.JavaSubStr(n + "[MOTD]".Length, n2);
         }
 
@@ -179,11 +176,11 @@ namespace McProtoNet.Utils
             {
                 return null;
             }
-            
+
             return line.JavaSubStr(n3 + "[AD]".Length, n4);
         }
     }
-    public static class JavaStringExt
+    internal static class JavaStringExt
     {
         public static string JavaSubStr(this string self, int startIndex, int endIndex)
         {
