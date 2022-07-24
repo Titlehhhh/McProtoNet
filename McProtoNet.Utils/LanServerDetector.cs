@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -23,7 +24,7 @@ namespace McProtoNet.Utils
         private EndPoint localEndPoint;
         private IPEndPoint localIPEndPoint;
         public LanServerDetector(int ttl)
-        {
+        {            
             udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             localIPEndPoint = new IPEndPoint(IPAddress.Any, Port);
@@ -45,7 +46,7 @@ namespace McProtoNet.Utils
             udpSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.MulticastTimeToLive, ttl);
 
             //join multicast group 
-            udpSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(IPAddress.Parse(Host), IPAddress.Any));
+            udpSocket.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, new MulticastOption(IPAddress.Parse(Host), IPAddress.Broadcast));
 
 
 
@@ -74,6 +75,7 @@ namespace McProtoNet.Utils
 
         private void Notify(string data, EndPoint endPoint)
         {
+            System.Diagnostics.Debug.WriteLine("n");
             try
             {
                 IPEndPoint ip = (IPEndPoint)endPoint;
@@ -222,4 +224,5 @@ namespace McProtoNet.Utils
             workSocket = sock;
         }
     }
+
 }

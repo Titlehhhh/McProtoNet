@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
     <ProjectReference Include="..\McProtoNet.Protocol754\McProtoNet.Protocol754.csproj" />
+    <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
   </ItemGroup>
 
 </Project>
