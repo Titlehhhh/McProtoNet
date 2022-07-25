@@ -6,7 +6,7 @@ namespace McProtoNet.Core.IO
 {
     public sealed class MinecraftPrimitiveWriter : IMinecraftPrimitiveWriter
     {
-        private readonly Stream BaseStream;
+        public Stream BaseStream { get; set; }
         public MinecraftPrimitiveWriter(Stream stream)
         {
             BaseStream = stream;
