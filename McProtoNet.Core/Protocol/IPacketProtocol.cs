@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Core.Protocol
 {
-    public interface IPacketProtocol : IDisposable
+    public interface IPacketProtocol : IDisposable, IAsyncDisposable
     {
         bool Available();
         void SwitchEncryption(byte[] privateKey);

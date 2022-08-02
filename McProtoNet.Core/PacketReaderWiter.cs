@@ -52,6 +52,7 @@ namespace McProtoNet.Core
 
         private async Task MainLoop()
         {
+            ThrowIfDisposed();
             while (Connected && !cancellationSource.IsCancellationRequested)
             {
                 try
@@ -97,6 +98,7 @@ namespace McProtoNet.Core
             get => packets;
             set
             {
+                ThrowIfDisposed();
                 if (value is null)
                     throw new ArgumentNullException();
                 packets = value;
@@ -111,21 +113,17 @@ namespace McProtoNet.Core
 
         public void Disconnect()
         {
+            ThrowIfDisposed();
             cancellationSource.Cancel();
             MainTask.Wait();
         }
 
-        public void Dispose()
-        {
-            cancellationSource.Dispose();
-            Client.Dispose();
-            GC.SuppressFinalize(this);
-        }
 
 
 
         public void SetCompressionThreshold(int threshold)
         {
+            ThrowIfDisposed();
             if (CompressionEnabled)
                 throw new InvalidOperationException("Сжатие уже включено");
             CompressionEnabled = true;
@@ -134,6 +132,7 @@ namespace McProtoNet.Core
 
         public void SetEncryption(byte[] privateKey)
         {
+            ThrowIfDisposed();
             if (EncryptionEnabled)
                 throw new InvalidOperationException("Шифрование уже включено");
             EncryptionEnabled = true;
@@ -142,18 +141,21 @@ namespace McProtoNet.Core
 
         public void Start()
         {
+            ThrowIfDisposed();
             MainTask = MainLoop();
         }
 
 
         public async Task DisconnectAsync()
         {
+            ThrowIfDisposed();
             cancellationSource.Cancel();
             await MainTask;
         }
 
         private async Task SendPacketActionAsync(Packet packet, int id)
         {
+            ThrowIfDisposed();
             if (Client.Connected)
             {
                 try
@@ -176,6 +178,7 @@ namespace McProtoNet.Core
 
         public async Task SendPacket(Packet packet)
         {
+            ThrowIfDisposed();
             if (Packets
                 .TryGetOutputId(packet.GetType(), out int id))
             {
@@ -185,11 +188,13 @@ namespace McProtoNet.Core
 
         public async Task SendPacket(Packet packet, int id)
         {
+            ThrowIfDisposed();
             await SendPacketActionAsync(packet, id);
         }
 
         public void QueuePacket(Packet packet)
         {
+            ThrowIfDisposed();
             if (Packets
                             .TryGetOutputId(packet.GetType(), out int id))
             {
@@ -199,7 +204,45 @@ namespace McProtoNet.Core
 
         public void QueuePacket(Packet packet, int id)
         {
+            ThrowIfDisposed();
             packetQueue.SendAsync((packet, id));
+        }
+
+
+        private bool _disposed = false;
+
+
+        public void Dispose()
+        {
+            Dispose(true);
+
+            GC.SuppressFinalize(this);
+        }
+
+        ~PacketReaderWiter()
+        {
+            Dispose(false);
+        }
+        private void ThrowIfDisposed()
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(PacketReaderWiter));
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                cancellationSource.Dispose();
+
+            }
+            
+            packetProtocol.Dispose();
+            Client.Dispose();
+            _disposed = true;
         }
     }
 }
