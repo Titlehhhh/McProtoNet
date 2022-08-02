@@ -22,7 +22,7 @@ namespace McProtoNet.Utils
             this.proxyPort = proxyPort;
             this.proxyType = proxyType;
         }
-        public ProxyTcpClientFactory(string proxyHost, ushort proxyPort, ProxyType proxyType,string login, string pass) :this(proxyHost, proxyPort, proxyType)
+        public ProxyTcpClientFactory(string proxyHost, ushort proxyPort, ProxyType proxyType, string login, string pass) : this(proxyHost, proxyPort, proxyType)
         {
             IsAuth = true;
             this.login = login;

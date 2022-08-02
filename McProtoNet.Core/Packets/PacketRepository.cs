@@ -8,11 +8,16 @@
         {
             AllPAckets = allPAckets;
         }
-
+        private bool _disposed = false;
         public void Dispose()
         {
+            if (_disposed)
+                return;
+            AllPAckets.Clear();
             AllPAckets = null;
+            _disposed = true;
             GC.SuppressFinalize(this);
+
         }
 
         public IPacketProvider GetPackets(PacketCategory category)

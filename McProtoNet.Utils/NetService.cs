@@ -1,11 +1,6 @@
 ﻿
 
 using Starksoft.Net.Proxy;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McProtoNet.Utils
 {
@@ -21,7 +16,7 @@ namespace McProtoNet.Utils
         }
         public void SetProxy(ProxyType type, string host, ushort port, string login, string pass)
         {
-            this.TcpTactory = new ProxyTcpClientFactory(host, port, type,login, pass);
+            this.TcpTactory = new ProxyTcpClientFactory(host, port, type, login, pass);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace McProtoNet.Geometry
+﻿namespace McProtoNet.Geometry
 {
     public struct Point2_Int : IEquatable<Point2_Int>
     {

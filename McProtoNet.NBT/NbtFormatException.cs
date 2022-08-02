@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace McProtoNet.NBT
+﻿namespace McProtoNet.NBT
 {
     /// <summary> Exception thrown when a format violation is detected while
     /// parsing or serializing an NBT file. </summary>

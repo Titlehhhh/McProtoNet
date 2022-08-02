@@ -1,8 +1,9 @@
 ﻿namespace McProtoNet.Core.Packets
 {
-    public interface IPacketCollection
+
+    public interface IPacketCollection : IDisposable
     {
-        Dictionary<PacketCategory, IPacketProvider> GetAllPackets( PacketSide side);
+        Dictionary<PacketCategory, IPacketProvider> GetAllPackets(PacketSide side);
 
         int TargetProtocolVersion { get; }
 

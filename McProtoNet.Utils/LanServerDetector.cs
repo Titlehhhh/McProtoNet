@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.NetworkInformation;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace McProtoNet.Utils
 {
@@ -24,7 +18,7 @@ namespace McProtoNet.Utils
         private EndPoint localEndPoint;
         private IPEndPoint localIPEndPoint;
         public LanServerDetector(int ttl)
-        {            
+        {
             udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             localIPEndPoint = new IPEndPoint(IPAddress.Any, Port);

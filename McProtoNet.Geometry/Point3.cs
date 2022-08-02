@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace McProtoNet.Geometry
+﻿namespace McProtoNet.Geometry
 {
     /// <summary>
     /// Represents a location into a Minecraft world

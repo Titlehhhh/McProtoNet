@@ -1,10 +1,7 @@
 ﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
-using System;
 using System.Net.Sockets;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 
 namespace McProtoNet.Core
@@ -239,7 +236,7 @@ namespace McProtoNet.Core
                 cancellationSource.Dispose();
 
             }
-            
+
             packetProtocol.Dispose();
             Client.Dispose();
             _disposed = true;
