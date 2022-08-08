@@ -201,7 +201,11 @@ namespace McProtoNet.Core.IO
 
         public byte[] ReadToEnd()
         {
-            throw new NotImplementedException();
+            using (var ms = new MemoryStream())
+            {
+                BaseStream.CopyTo(ms);
+                return ms.ToArray();
+            }
         }
 
     }
