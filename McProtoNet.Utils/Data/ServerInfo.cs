@@ -21,7 +21,7 @@ namespace McProtoNet.Utils
         {
             string header = $"Сервер версия {TargetVersion.StringVersion} {Players.OnlinePlayers}/{Players.MaxPlayers}";
             string desc = "Описание: \n" + Description.ToString();
-            string players = "Игроки:\n" + string.Join("\n", Players.PlayerList.Select(x => x.Nickname));
+            string players = "Игроки:\n" + string.Join("\n", Players.PlayerList.Select(x => x.Username));
             return header + "\n" + desc + "\n" + players;
         }
     }

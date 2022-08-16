@@ -3,27 +3,16 @@
 namespace McProtoNet.Core
 {
 
-    [DataContract]
+    
     public class GameProfile
     {
-        [DataMember(Name = "id")]
-        internal string uuid;
-        [DataMember(Name = "name")]
-        internal string nick;
+        public Guid UUID { get; private set; }
+        public string? Username { get; set; }
 
-
-        public string UUID { get; private set; }
-
-
-
-
-        public string Nickname { get; set; }
-
-
-        public GameProfile(string uUID, string nickname)
+        public GameProfile(Guid uUID, string? username)
         {
             UUID = uUID;
-            Nickname = nickname;
+            Username = username;
         }
     }
 }
