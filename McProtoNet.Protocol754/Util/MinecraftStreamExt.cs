@@ -1,4 +1,7 @@
-﻿namespace McProtoNet.Protocol754
+﻿using McProtoNet.NBT;
+using McProtoNet.Protocol754.Data.Window;
+
+namespace McProtoNet.Protocol754
 {
     public static class MinecraftStreamExt
     {
@@ -22,6 +25,27 @@
             long z = point.Z & POSITION_WRITE_SHIFT;
 
             writer.WriteLong(x << POSITION_X_SIZE | z << POSITION_Y_SIZE | y);
+        }
+
+
+        public static void WriteItem(this IMinecraftPrimitiveWriter writer, ItemStack? item)
+        {
+            writer.WriteBoolean(item != null);
+            if(item != null)
+            {
+                writer.WriteVarInt(item.Id);
+                writer.WriteByte(item.Amount);
+                writer.WriteNbtCompound(item.Nbt);
+            }
+        }
+
+        public static ItemStack? ReadItem(this IMinecraftPrimitiveReader reader)
+        {
+            bool present = reader.ReadBoolean();
+            if (!present)
+                return null;
+            int item = reader.ReadVarInt();
+            return new ItemStack(item, reader.ReadSignedByte(), reader.ReadNbt() as NbtCompound);
         }
     }
 }

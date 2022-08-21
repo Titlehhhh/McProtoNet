@@ -1,4 +1,5 @@
-﻿using System.Buffers.Binary;
+﻿using McProtoNet.NBT;
+using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
 
@@ -208,5 +209,10 @@ namespace McProtoNet.Core.IO
             }
         }
 
+        public NbtTag ReadNbt()
+        {
+            var nbtReader = new NbtReader(BaseStream);
+            return nbtReader.ReadAsTag();
+        }
     }
 }

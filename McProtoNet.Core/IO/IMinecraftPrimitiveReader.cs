@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Core.IO
+﻿using McProtoNet.NBT;
+
+namespace McProtoNet.Core.IO
 {
     public interface IMinecraftPrimitiveReader
     {
@@ -19,5 +21,6 @@
         ushort ReadUnsignedShort();
         int ReadVarInt();
         long ReadVarLong();
+        NbtTag ReadNbt();
     }
 }
