@@ -19,7 +19,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 
         }
 
-        public ClientCreativeInventoryActionPacket(short slot, ItemStack? item)
+        public ClientCreativeInventoryActionPacket(short slot, ItemStack item)
         {
             ArgumentNullException.ThrowIfNull(item, nameof(item));
             Slot = slot;

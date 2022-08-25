@@ -1,36 +1,32 @@
-using System.IO.Compression;
-
+﻿using System.IO.Compression;
 
 namespace McProtoNet.NBT
 {
-    /// <summary> DeflateStream wrapper that calculates Adler32 checksum of the written data,
-    /// to allow writing ZLib header (RFC-1950). </summary>
+    /// <summary>
+    /// DeflateStream wrapper that calculates Adler32 checksum of the written data,
+    /// to allow writing ZLib header (RFC-1950).
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
     internal sealed class ZLibStream : DeflateStream
     {
-        int adler32A = 1,
-            adler32B;
+        private int _adler32A = 1,
+            _adler32B;
 
-        const int ChecksumModulus = 65521;
+        private const int ChecksumModulus = 65521;
 
-        public int Checksum
-        {
-            get { return unchecked((adler32B * 65536) + adler32A); }
-        }
+        public int Checksum => unchecked(_adler32B * 65536 + _adler32A);
 
-
-        void UpdateChecksum(IList<byte> data, int offset, int length)
+        private void UpdateChecksum(IList<byte> data, int offset, int length)
         {
             for (int counter = 0; counter < length; ++counter)
             {
-                adler32A = (adler32A + (data[offset + counter])) % ChecksumModulus;
-                adler32B = (adler32B + adler32A) % ChecksumModulus;
+                _adler32A = (_adler32A + (data[offset + counter])) % ChecksumModulus;
+                _adler32B = (_adler32B + _adler32A) % ChecksumModulus;
             }
         }
 
-
         public ZLibStream(Stream stream, CompressionMode mode, bool leaveOpen)
             : base(stream, mode, leaveOpen) { }
-
 
         public override void Write(byte[] array, int offset, int count)
         {

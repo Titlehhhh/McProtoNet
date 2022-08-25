@@ -1,3 +1,5 @@
+using McProtoNet.Protocol754.Data.Window;
+
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
@@ -10,6 +12,8 @@ namespace McProtoNet.Protocol754.Packets.Client
         public byte Button { get; set; }
         public short ActionId { get; set; }
         public byte Mode { get; set; }
+
+        public ItemStack? ClickedItem { get; set; }
         // public WindowActionParam MyProperty { get;  set; }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
@@ -22,13 +26,24 @@ namespace McProtoNet.Protocol754.Packets.Client
             stream.WriteShort(ActionId);
             stream.WriteByte(0);
 
-            stream.WriteByte(0);
+            stream.WriteItem(ClickedItem);
 
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
+
+        public ClientWindowActionPacket(byte windowId, short slot, byte button, short actionId, byte mode, ItemStack? clickedItem)
+        {
+            WindowId = windowId;
+            Slot = slot;
+            Button = button;
+            ActionId = actionId;
+            Mode = mode;
+            ClickedItem = clickedItem;
+        }
+
         public ClientWindowActionPacket() { }
 
 

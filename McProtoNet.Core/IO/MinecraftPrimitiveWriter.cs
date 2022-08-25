@@ -200,30 +200,19 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public void WriteNbt(NbtTag nbt)
+        public void WriteNbt(NbtTag? nbt)
         {
             if (nbt != null)
-            {
-                var writer = new NbtWriter(BaseStream, nbt.Name);
+            {         
+                
+                var writer = new NbtWriter(BaseStream,"");
                 writer.WriteTag(nbt);
             }
             else
             {
                 WriteByte(0x00);
             }
-        }
-        public void WriteNbtCompound(NbtCompound compound)
-        {
-            if (compound != null)
-            {
-                var writer = new NbtWriter(BaseStream, compound.Name);
-                writer.WriteTag(compound);
-            }
-            else
-            {
-                WriteByte(0x00);
-            }
-        }
+        }        
 
         public void Write(byte[] buffer)
         {

@@ -211,7 +211,8 @@ namespace McProtoNet.Core.IO
 
         public NbtTag ReadNbt()
         {
-            var nbtReader = new NbtReader(BaseStream);
+            var nbtReader = new NbtReader(BaseStream, false);
+            
             return nbtReader.ReadAsTag();
         }
     }

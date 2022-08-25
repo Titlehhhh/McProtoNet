@@ -1,108 +1,101 @@
 ﻿using System.Diagnostics;
+// ReSharper disable InconsistentNaming
 
 namespace McProtoNet.NBT
 {
-    // Class used to count bytes read-from/written-to non-seekable streams.
+    /// <summary>
+    /// Class used to count bytes read-from/written-to non-seekable streams.
+    /// </summary>
     internal class ByteCountingStream : Stream
     {
-        readonly Stream baseStream;
+        private readonly Stream _baseStream;
 
-        // These are necessary to avoid counting bytes twice if ReadByte/WriteByte call Read/Write internally.
-        bool readingOneByte;
-        bool writingOneByte;
+        /// <summary>
+        /// Necessary to avoid counting bytes twice if ReadByte/WriteByte call Read/Write internally.
+        /// </summary>
+        private bool _readingOneByte, _writingOneByte;
 
-        // These are necessary to avoid counting bytes twice if Read/Write call ReadByte/WriteByte internally.
-        bool readingManyBytes;
-        bool writingManyBytes;
+        /// <summary>
+        /// Necessary to avoid counting bytes twice if Read/Write call ReadByte/WriteByte internally.
+        /// </summary>
+        private bool _readingManyBytes, _writingManyBytes;
 
 
         public ByteCountingStream(Stream stream)
         {
-            Debug.Assert(stream != null);
-            baseStream = stream;
+            Debug.Assert(true);
+            _baseStream = stream;
         }
 
 
         public override void Flush()
         {
-            baseStream.Flush();
+            _baseStream.Flush();
         }
 
 
         public override long Seek(long offset, SeekOrigin origin)
         {
-            return baseStream.Seek(offset, origin);
+            return _baseStream.Seek(offset, origin);
         }
 
 
         public override void SetLength(long value)
         {
-            baseStream.SetLength(value);
+            _baseStream.SetLength(value);
         }
 
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            readingManyBytes = true;
-            int bytesActuallyRead = baseStream.Read(buffer, offset, count);
-            readingManyBytes = false;
-            if (!readingOneByte) BytesRead += bytesActuallyRead;
+            _readingManyBytes = true;
+            int bytesActuallyRead = _baseStream.Read(buffer, offset, count);
+            _readingManyBytes = false;
+            if (!_readingOneByte) BytesRead += bytesActuallyRead;
             return bytesActuallyRead;
         }
 
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            writingManyBytes = true;
-            baseStream.Write(buffer, offset, count);
-            writingManyBytes = false;
-            if (!writingOneByte) BytesWritten += count;
+            _writingManyBytes = true;
+            _baseStream.Write(buffer, offset, count);
+            _writingManyBytes = false;
+            if (!_writingOneByte) BytesWritten += count;
         }
 
 
         public override int ReadByte()
         {
-            readingOneByte = true;
+            _readingOneByte = true;
             int value = base.ReadByte();
-            readingOneByte = false;
-            if (value >= 0 && !readingManyBytes) BytesRead++;
+            _readingOneByte = false;
+            if (value >= 0 && !_readingManyBytes) BytesRead++;
             return value;
         }
 
 
         public override void WriteByte(byte value)
         {
-            writingOneByte = true;
+            _writingOneByte = true;
             base.WriteByte(value);
-            writingOneByte = false;
-            if (!writingManyBytes) BytesWritten++;
+            _writingOneByte = false;
+            if (!_writingManyBytes) BytesWritten++;
         }
 
 
-        public override bool CanRead
-        {
-            get { return baseStream.CanRead; }
-        }
+        public override bool CanRead => _baseStream.CanRead;
 
-        public override bool CanSeek
-        {
-            get { return baseStream.CanSeek; }
-        }
+        public override bool CanSeek => _baseStream.CanSeek;
 
-        public override bool CanWrite
-        {
-            get { return baseStream.CanWrite; }
-        }
+        public override bool CanWrite => _baseStream.CanWrite;
 
-        public override long Length
-        {
-            get { return baseStream.Length; }
-        }
+        public override long Length => _baseStream.Length;
 
         public override long Position
         {
-            get { return baseStream.Position; }
-            set { baseStream.Position = value; }
+            get => _baseStream.Position;
+            set => _baseStream.Position = value;
         }
 
         public long BytesRead { get; private set; }

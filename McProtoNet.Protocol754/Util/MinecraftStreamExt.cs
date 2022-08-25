@@ -31,11 +31,11 @@ namespace McProtoNet.Protocol754
         public static void WriteItem(this IMinecraftPrimitiveWriter writer, ItemStack? item)
         {
             writer.WriteBoolean(item != null);
-            if(item != null)
+            if (item != null)
             {
                 writer.WriteVarInt(item.Id);
                 writer.WriteByte(item.Amount);
-                writer.WriteNbtCompound(item.Nbt);
+                writer.WriteNbt(item.Nbt);
             }
         }
 
@@ -45,7 +45,18 @@ namespace McProtoNet.Protocol754
             if (!present)
                 return null;
             int item = reader.ReadVarInt();
-            return new ItemStack(item, reader.ReadSignedByte(), reader.ReadNbt() as NbtCompound);
+
+            NbtCompound? nbt = null;
+            try
+            {
+                nbt = reader.ReadNbt() as NbtCompound;
+            }
+            catch
+            {
+
+            }
+
+            return new ItemStack(item, reader.ReadSignedByte(), nbt);
         }
     }
 }

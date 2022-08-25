@@ -1,6 +1,8 @@
 ﻿namespace McProtoNet.NBT
 {
-    // Represents state of a node in the NBT file tree, used by NbtWriter
+    /// <summary>
+    /// Represents state of a node in the NBT file tree, used by NbtWriter
+    /// </summary>
     internal sealed class NbtWriterNode
     {
         public NbtTagType ParentType;

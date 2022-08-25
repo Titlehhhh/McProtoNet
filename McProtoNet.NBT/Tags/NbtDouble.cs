@@ -1,58 +1,63 @@
 ﻿using System.Text;
 
-
-
 namespace McProtoNet.NBT
 {
-    /// <summary> A tag containing a double-precision floating point number. </summary>
+    /// <summary>
+    /// A tag containing a double-precision floating point number. 
+    /// </summary>
     public sealed class NbtDouble : NbtTag
     {
-        /// <summary> Type of this tag (Double). </summary>
-        public override NbtTagType TagType
-        {
-            get { return NbtTagType.Double; }
-        }
+        /// <summary>
+        /// Type of this tag (Double). 
+        /// </summary>
+        public override NbtTagType TagType => NbtTagType.Double;
 
-        /// <summary> Value/payload of this tag (a double-precision floating point number). </summary>
+        /// <summary>
+        /// Value/payload of this tag (a double-precision floating point number). 
+        /// </summary>
         public double Value { get; set; }
 
-
-        /// <summary> Creates an unnamed NbtDouble tag with the default value of 0. </summary>
+        /// <summary>
+        /// Creates an unnamed NbtDouble tag with the default value of 0. 
+        /// </summary>
         public NbtDouble() { }
 
-
-        /// <summary> Creates an unnamed NbtDouble tag with the given value. </summary>
+        /// <summary>
+        /// Creates an unnamed NbtDouble tag with the given value. 
+        /// </summary>
         /// <param name="value"> Value to assign to this tag. </param>
         public NbtDouble(double value)
-            : this(null, value) { }
+            : this(null!, value) { }
 
-
-        /// <summary> Creates an NbtDouble tag with the given name and the default value of 0. </summary>
+        /// <summary>
+        /// Creates an NbtDouble tag with the given name and the default value of 0. 
+        /// </summary>
         /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-        public NbtDouble(string tagName)
+        public NbtDouble(string? tagName)
             : this(tagName, 0) { }
 
-
-        /// <summary> Creates an NbtDouble tag with the given name and value. </summary>
+        /// <summary>
+        /// Creates an NbtDouble tag with the given name and value. 
+        /// </summary>
         /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
         /// <param name="value"> Value to assign to this tag. </param>
-        public NbtDouble(string tagName, double value)
+        public NbtDouble(string? tagName, double value)
         {
-            name = tagName;
+            Name = tagName;
             Value = value;
         }
 
-
-        /// <summary> Creates a copy of given NbtDouble tag. </summary>
+        /// <summary>
+        /// Creates a copy of given NbtDouble tag. 
+        /// </summary>
         /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="other"/> is <c>null</c>. </exception>
         public NbtDouble(NbtDouble other)
         {
             if (other == null) throw new ArgumentNullException(nameof(other));
-            name = other.name;
+            Name = other.Name;
             Value = other.Value;
         }
-
 
         internal override bool ReadTag(NbtBinaryReader readStream)
         {
@@ -65,12 +70,10 @@ namespace McProtoNet.NBT
             return true;
         }
 
-
         internal override void SkipTag(NbtBinaryReader readStream)
         {
             readStream.ReadDouble();
         }
-
 
         internal override void WriteTag(NbtBinaryWriter writeStream)
         {
@@ -80,19 +83,16 @@ namespace McProtoNet.NBT
             writeStream.Write(Value);
         }
 
-
         internal override void WriteData(NbtBinaryWriter writeStream)
         {
             writeStream.Write(Value);
         }
-
 
         /// <inheritdoc />
         public override object Clone()
         {
             return new NbtDouble(this);
         }
-
 
         internal override void PrettyPrint(StringBuilder sb, string indentString, int indentLevel)
         {
