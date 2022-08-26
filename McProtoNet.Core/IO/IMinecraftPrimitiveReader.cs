@@ -21,6 +21,6 @@ namespace McProtoNet.Core.IO
         ushort ReadUnsignedShort();
         int ReadVarInt();
         long ReadVarLong();
-        NbtTag ReadNbt();
+        NbtCompound ReadNbt();
     }
 }

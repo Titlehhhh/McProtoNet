@@ -35,7 +35,7 @@ namespace McProtoNet.Protocol754
             {
                 writer.WriteVarInt(item.Id);
                 writer.WriteByte(item.Amount);
-                writer.WriteNbt(item.Nbt);
+                writer.WriteNbt(item.Nbt, root: true);
             }
         }
 
@@ -46,17 +46,14 @@ namespace McProtoNet.Protocol754
                 return null;
             int item = reader.ReadVarInt();
 
+            var amount = reader.ReadSignedByte();
             NbtCompound? nbt = null;
-            try
-            {
-                nbt = reader.ReadNbt() as NbtCompound;
-            }
-            catch
-            {
+           
+                nbt = reader.ReadNbt();
+           
+            
 
-            }
-
-            return new ItemStack(item, reader.ReadSignedByte(), nbt);
+            return new ItemStack(item, amount, nbt);
         }
     }
 }

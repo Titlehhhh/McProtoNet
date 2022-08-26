@@ -12,8 +12,8 @@ namespace McProtoNet.Core.IO
         void WriteFloat(float value);
         void WriteInt(int value);
         void WriteLong(long value);
-        void WriteLongArray(long[] values);
-        void WriteNbt(NbtTag? nbt);        
+        void WriteLongArray(long[] values);       
+        void WriteNbt(NbtCompound? nbt, bool root = true);
         void WriteShort(short value);
         void WriteString(string value);
         void WriteUnsignedByte(byte value);

@@ -209,11 +209,11 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public NbtTag ReadNbt()
+        public NbtCompound ReadNbt()
         {
-            var nbtReader = new NbtReader(BaseStream, false);
-            
-            return nbtReader.ReadAsTag();
+            var nbtreader = new NbtReader(BaseStream);
+
+            return nbtreader.ReadAsTag() as NbtCompound;
         }
     }
 }

@@ -12,9 +12,9 @@ namespace McProtoNet.Protocol754.Data.Window
     {
         public int Id { get; private set; }
         public sbyte Amount { get; private set; }
-        public NbtTag? Nbt { get; private set; }
+        public NbtCompound? Nbt { get; private set; }
 
-        public ItemStack(int id, sbyte amount, NbtTag? nbt)
+        public ItemStack(int id, sbyte amount, NbtCompound? nbt)
         {            
             Id = id;
             Amount = amount;
