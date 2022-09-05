@@ -4,9 +4,9 @@ using McProtoNet.Protocol340.Packets.Client.Game;
 using McProtoNet.Protocol340.Packets.Server;
 
 
-namespace Ddos
+namespace McProtoNet.Protocol340
 {
-    internal class PacketCollection340 : AbstractPacketCollection
+    public class PacketCollection340 : AbstractPacketCollection
     {
         private readonly Dictionary<int, Type> sp = new Dictionary<int, Type>()
         {
