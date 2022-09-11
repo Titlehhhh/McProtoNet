@@ -4,12 +4,15 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerPlayerHealthPacket : Packet
     {
-        //this.health = in.readFloat();
-        //this.food = in.readVarInt();
-        //this.saturation = in.readFloat();
+        public float Health { get; private set; }
+        public float Food { get; private set; }
+        public float Saturation { get; private set; }
+        
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            Health = stream.ReadFloat();
+            Food = stream.ReadFloat();
+            Saturation = stream.ReadFloat();
         }
 
         public override void Write(IMinecraftPrimitiveWriter stream)

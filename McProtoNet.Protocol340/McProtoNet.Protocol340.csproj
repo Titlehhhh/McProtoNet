@@ -18,8 +18,4 @@
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Data\" />
-  </ItemGroup>
-
 </Project>
