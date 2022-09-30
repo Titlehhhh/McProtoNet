@@ -15,7 +15,10 @@ namespace McProtoNet.Core.IO
         sbyte ReadSignedByte();
         string ReadString(int maxLength = 32767);
         byte[] ReadByteArray();
+        byte[] ReadByteArray(int size);
         ulong[] ReadULongArray();
+        long[] ReadLongArray();
+
         byte ReadUnsignedByte();
         ulong ReadUnsignedLong();
         ushort ReadUnsignedShort();

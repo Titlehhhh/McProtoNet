@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol754.Data.Game
+﻿namespace McProtoNet.Protocol754.Data
 {
 
     public class PlayerListEntry

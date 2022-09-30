@@ -1,5 +1,5 @@
 ﻿
-namespace McProtoNet.Protocol754.Data.Entity.Player
+namespace McProtoNet.Protocol754.Data
 {
     public enum PlayerState
     {

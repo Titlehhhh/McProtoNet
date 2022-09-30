@@ -11,6 +11,14 @@
 		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>		
 	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	  <LangVersion>preview</LangVersion>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+	  <LangVersion>preview</LangVersion>
+	</PropertyGroup>
+
 	
 	<ItemGroup>
 	  <PackageReference Include="Ionic.Zlib.Core" Version="1.0.0" />

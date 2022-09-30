@@ -1,4 +1,4 @@
-using McProtoNet.Protocol754.Data.World.Map;
+using McProtoNet.Protocol754.Data;
 
 namespace McProtoNet.Protocol754.Packets.Server
 {

@@ -1,5 +1,5 @@
 ﻿using McProtoNet.NBT;
-using McProtoNet.Protocol754.Data.Window;
+using McProtoNet.Protocol754.Data;
 
 namespace McProtoNet.Protocol754
 {

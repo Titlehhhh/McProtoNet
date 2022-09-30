@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace McProtoNet.Protocol754.Data.World.Map
+namespace McProtoNet.Protocol754.Data
 {
     public struct MapIcon
     {

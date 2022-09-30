@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace McProtoNet.Protocol754.Data.Window
+namespace McProtoNet.Protocol754.Data
 {  
     
     public class ItemStack

@@ -30,6 +30,14 @@ namespace McProtoNet.Core.IO
             Span<ulong> result = MemoryMarshal.Cast<byte, ulong>(buffer);
             return result.ToArray();
         }
+        public long[] ReadLongArray()
+        {
+            int len = this.ReadVarInt();
+            Span<byte> buffer = stackalloc byte[len * 8];
+            BaseStream.Read(buffer);
+            Span<long> result = MemoryMarshal.Cast<byte, long>(buffer);
+            return result.ToArray();
+        }
         public byte ReadUnsignedByte()
         {
             Span<byte> buffer = stackalloc byte[1];
@@ -147,6 +155,12 @@ namespace McProtoNet.Core.IO
         {
             int len = ReadVarInt();
             Span<byte> buffer = stackalloc byte[len];
+            BaseStream.Read(buffer);
+            return buffer.ToArray();
+        }
+        public byte[] ReadByteArray(int size)
+        {
+            Span<byte> buffer = stackalloc byte[size];
             BaseStream.Read(buffer);
             return buffer.ToArray();
         }
