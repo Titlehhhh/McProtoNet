@@ -387,6 +387,28 @@ namespace McProtoNet.Core.Protocol
             }
             netmcStream = null;
         }
+
+        public void SendPacket(byte[] data, int id)
+        {
+            throw new NotImplementedException();
+            ThrowIfDisposed();
+            
+        }
+
+        public void SendPacket(MemoryStream data, int id)
+        {
+            throw new NotImplementedException();
+            ThrowIfDisposed();
+            data.Position = 0;
+            data.WriteVarInt(id);
+        }
+
+        public void SendPacket(Span<byte> data, int id)
+        {
+            throw new NotImplementedException();
+            ThrowIfDisposed();
+            
+        }
     }
 
 
