@@ -55,10 +55,8 @@ namespace McProtoNet.Core
                 try
                 {
 
-
-
-                    (int id, MemoryStream data) =
-                     await packetProtocol.ReadNextPacketAsync(cancellationSource.Token);
+                    (int id, MemoryStream data) = 
+                        await Task.Run(packetProtocol.ReadNextPacket, cancellationSource.Token);
 
                     if (Packets
                         .TryGetInputPacket(id, out Packet packet))

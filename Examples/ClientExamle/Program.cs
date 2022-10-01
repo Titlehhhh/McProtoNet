@@ -1,19 +1,35 @@
 using McProtoNet.Core;
-using McProtoNet.Protocol754;
+using McProtoNet.Protocol340;
+using McProtoNet.Protocol340.Packets.Client;
+using McProtoNet.Protocol340.Packets.Server;
 using System.Net.Sockets;
 
 Console.WriteLine("start");
 
-TcpClient tcpClient = new TcpClient("192.168.1.153", 57883);
-IPacketReaderWriter client = new PacketReaderWiter(tcpClient.Client);
-ISession session = new Session754(client);
+MinecraftClient340 client = new("TestBot", "192.168.0.3", 53632);
 
-client.OnPacketReceived += (s, packet) =>
+client.PacketSented += (s, p) =>
 {
-    //Trace.WriteLine("packet: " + packet.GetType().Name);
-
+    Console.WriteLine("send:"+p.GetType().Name);
 };
 
-Console.WriteLine(await session.Login());
+client.PacketReceived += (s, p) =>
+{    
+ //   Console.WriteLine(p.GetType().Name);
+    if(p is ServerKeepAlivePacket keepAlivePacket)
+    {
+        client.QueuePacket(new ClientKeepAlivePacket(keepAlivePacket.ID));
+    } else if (p is ServerBlockChangePacket changePacket)
+    {
+        Console.WriteLine("change: "+changePacket.Record.Position.ToString());
+    }
+};
+client.OnError += (session, err) =>
+{
+    Console.WriteLine("err: " + err);
+};
+Console.WriteLine("asd");
+client.Connect("192.168.0.3", 53632);
+Console.WriteLine("asd2");
 
 Console.ReadLine();
