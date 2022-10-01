@@ -249,6 +249,12 @@
                                      (int)a.Y,
                                      (int)a.Z);
         }
+        public static explicit operator Point3_Int(Point3 a)
+        {
+            return new Point3_Int((int)a.X,
+                                     (int)a.Y,
+                                     (int)a.Z);
+        }
 
 
 
