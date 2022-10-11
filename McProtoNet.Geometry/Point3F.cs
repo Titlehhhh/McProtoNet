@@ -1,33 +1,38 @@
-﻿namespace McProtoNet.Geometry
-{
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-    public struct Point3
+namespace McProtoNet.Geometry
+{
+    public struct Point3F
     {
 
-        public double X;
-        public double Y;
-        public double Z;
+        public float X;
+        public float Y;
+        public float Z;
 
-        public static Point3 Zero
+        public static Point3F Zero
         {
             get
             {
-                return new Point3(0, 0, 0);
+                return new Point3F(0, 0, 0);
             }
         }
-        public Point3(double x, double y, double z)
+        public Point3F(float x, float y, float z)
         {
             X = x;
             Y = y;
             Z = z;
         }
-        public Point3(double value)
+        public Point3F(float value)
         {
             X = Y = Z = value;
         }
 
 
-        public Point3(int chunkX, int chunkZ, int blockX, int blockY, int blockZ)
+        public Point3F(int chunkX, int chunkZ, int blockX, int blockY, int blockZ)
         {
             X = chunkX * 16 + blockX;
             Y = blockY;
@@ -100,7 +105,7 @@
         }
 
 
-        public double DistanceSquared(Point3 location)
+        public float DistanceSquared(Point3F location)
         {
             return ((X - location.X) * (X - location.X))
                  + ((Y - location.Y) * (Y - location.Y))
@@ -108,15 +113,15 @@
         }
 
 
-        public double Distance(Point3 location)
+        public float Distance(Point3F location)
         {
-            return Math.Sqrt(DistanceSquared(location));
+            return MathF.Sqrt(DistanceSquared(location));
         }
 
 
-        public Point3 EyesLocation()
+        public Point3F EyesLocation()
         {
-            return this + new Point3(0, 1.62, 0);
+            return this + new Point3F(0, 1.62f, 0);
         }
 
 
@@ -124,17 +129,17 @@
         {
             if (obj == null)
                 return false;
-            if (obj is Point3)
+            if (obj is Point3F)
             {
-                return ((int)this.X) == ((int)((Point3)obj).X)
-                    && ((int)this.Y) == ((int)((Point3)obj).Y)
-                    && ((int)this.Z) == ((int)((Point3)obj).Z);
+                return ((int)this.X) == ((int)((Point3F)obj).X)
+                    && ((int)this.Y) == ((int)((Point3F)obj).Y)
+                    && ((int)this.Z) == ((int)((Point3F)obj).Z);
             }
             return false;
         }
 
 
-        public static bool operator ==(Point3 loc1, Point3 loc2)
+        public static bool operator ==(Point3F loc1, Point3F loc2)
         {
             if (loc1 == null && loc2 == null)
                 return true;
@@ -143,7 +148,7 @@
             return loc1.Equals(loc2);
         }
 
-        public static bool operator !=(Point3 loc1, Point3 loc2)
+        public static bool operator !=(Point3F loc1, Point3F loc2)
         {
             if (loc1 == null && loc2 == null)
                 return true;
@@ -153,42 +158,38 @@
         }
 
 
-        public static Point3 operator +(Point3 loc1, Point3 loc2)
+        public static Point3F operator +(Point3F loc1, Point3F loc2)
         {
-            return new Point3
+            return new Point3F
             (
                 loc1.X + loc2.X,
                 loc1.Y + loc2.Y,
                 loc1.Z + loc2.Z
             );
         }
-        public static Point3 operator +(Point3 loc1, Vector3 vector)
+        public static Point3F operator +(Point3F loc1, Vector3F vector)
         {
-            return new Point3
+            return new Point3F
             (
                 loc1.X + vector.X,
                 loc1.Y + vector.Y,
                 loc1.Z + vector.Z
             );
         }
-        public static Point3 operator -(Point3 loc1, Vector3 vector)
+        public static Point3F operator -(Point3F loc1, Vector3F vector)
         {
-            return new Point3
+            return new Point3F
             (
                 loc1.X - vector.X,
                 loc1.Y - vector.Y,
                 loc1.Z - vector.Z
             );
         }
-        public static implicit operator Vector3(Point3 a)
-        {
-            return new Vector3(a.X, a.Y, a.Z);
-        }
 
 
-        public static Point3 operator -(Point3 loc1, Point3 loc2)
+        public static Point3F operator -(Point3F loc1, Point3F loc2)
         {
-            return new Point3
+            return new Point3F
             (
                 loc1.X - loc2.X,
                 loc1.Y - loc2.Y,
@@ -197,9 +198,9 @@
         }
 
 
-        public static Point3 operator *(Point3 loc, double val)
+        public static Point3F operator *(Point3F loc, float val)
         {
-            return new Point3
+            return new Point3F
             (
                 loc.X * val,
                 loc.Y * val,
@@ -207,9 +208,9 @@
             );
         }
 
-        public static Point3 operator /(Point3 loc, double val)
+        public static Point3F operator /(Point3F loc, float val)
         {
-            return new Point3
+            return new Point3F
             (
                 loc.X / val,
                 loc.Y / val,

@@ -23,6 +23,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Geometry", "McPr
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDOS", "..\DDOS\DDOS\DDOS.csproj", "{86B10AA0-9266-424E-B9B6-E8E0251CAD51}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BowBot", "..\BowBot\BowBot\BowBot.csproj", "{EDE55614-59CA-4EEC-8FE1-8868A49A399E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -237,6 +239,26 @@ Global
 		{86B10AA0-9266-424E-B9B6-E8E0251CAD51}.Release|x64.Build.0 = Release|Any CPU
 		{86B10AA0-9266-424E-B9B6-E8E0251CAD51}.Release|x86.ActiveCfg = Release|Any CPU
 		{86B10AA0-9266-424E-B9B6-E8E0251CAD51}.Release|x86.Build.0 = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|ARM.Build.0 = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|x64.Build.0 = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Debug|x86.Build.0 = Debug|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|ARM.ActiveCfg = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|ARM.Build.0 = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|ARM64.Build.0 = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|x64.ActiveCfg = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|x64.Build.0 = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|x86.ActiveCfg = Release|Any CPU
+		{EDE55614-59CA-4EEC-8FE1-8868A49A399E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

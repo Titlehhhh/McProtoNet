@@ -11,9 +11,9 @@
         {
             Vector = vector;
             double r = vector.Distance;
-            Yaw = (float)(-Math.Atan2(vector.X, vector.Y) / Math.PI * 180);
+            Yaw = (float)(-Math.Atan2(vector.X, vector.Z) / Math.PI * 180);
             if (Yaw < 0)
-                Yaw += 360;
+               Yaw += 360;
             Pitch = (float)(-Math.Asin(vector.Y / r) / Math.PI * 180);
         }
         public Rotation(float yaw, float pitch)

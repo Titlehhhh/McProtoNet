@@ -1,38 +1,42 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace McProtoNet.Geometry
 {
-    
     [StructLayout(LayoutKind.Explicit)]
-    public struct Vector3 : IEquatable<Vector3>
+    public struct Vector3F : IEquatable<Vector3F>
     {
         /// <summary>
         /// The X component of this vector.
         /// </summary>
         [FieldOffset(0)]
-        public double X;
+        public float X;
 
         /// <summary>
         /// The Y component of this vector.
         /// </summary>
         [FieldOffset(8)]
-        public double Y;
+        public float Y;
 
         /// <summary>
         /// The Z component of this vector.
         /// </summary>
         [FieldOffset(16)]
-        public double Z;
+        public float Z;
 
         /// <summary>
         /// Creates a new vector from the specified value.
         /// </summary>
         /// <param name="value">The value for the components of the vector.</param>
-        public Vector3(double value)
+        public Vector3F(float value)
         {
             X = Y = Z = value;
         }
-        public Vector3(Point3 location1, Point3 location2)
+        public Vector3F(Point3F location1, Point3F location2)
         {
             X = location2.X - location1.X;
             Y = location2.Y - location1.Y;
@@ -45,7 +49,7 @@ namespace McProtoNet.Geometry
         /// <param name="x">The X component of the vector.</param>
         /// <param name="y">The Y component of the vector.</param>
         /// <param name="z">The Z component of the vector.</param>
-        public Vector3(double x, double y, double z)
+        public Vector3F(float x, float y, float z)
         {
             X = x;
             Y = y;
@@ -56,7 +60,7 @@ namespace McProtoNet.Geometry
         /// Creates a new vector from copying another.
         /// </summary>
         /// <param name="v">The vector to copy.</param>
-        public Vector3(Vector3 v)
+        public Vector3F(Vector3F v)
         {
             X = v.X;
             Y = v.Y;
@@ -64,7 +68,7 @@ namespace McProtoNet.Geometry
         }
 
         /// <summary>
-        /// Converts this Vector3 to a string in the format &lt;x,y,z&gt;.
+        /// Converts this Vector3F to a string in the format &lt;x,y,z&gt;.
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -72,44 +76,44 @@ namespace McProtoNet.Geometry
             return string.Format("<{0},{1},{2}>", X, Y, Z);
         }
 
-        #region Math
+        #region MathF
 
         /// <summary>
-        /// Truncates the decimal component of each part of this Vector3.
+        /// Truncates the decimal component of each part of this Vector3F.
         /// </summary>
-        public Vector3 Floor()
+        public Vector3F Floor()
         {
-            return new Vector3(Math.Floor(X), Math.Floor(Y), Math.Floor(Z));
+            return new Vector3F(MathF.Floor(X), MathF.Floor(Y), MathF.Floor(Z));
         }
 
         /// <summary>
-        /// Rounds the decimal component of each part of this Vector3.
+        /// Rounds the decimal component of each part of this Vector3F.
         /// </summary>
-        public Vector3 Round()
+        public Vector3F Round()
         {
-            return new Vector3(Math.Round(X), Math.Round(Y), Math.Round(Z));
+            return new Vector3F(MathF.Round(X), MathF.Round(Y), MathF.Round(Z));
         }
 
         /// <summary>
         /// Clamps the vector to within the specified value.
         /// </summary>
         /// <param name="value">Value.</param>
-        public void Clamp(double value)
+        public void Clamp(float value)
         {
-            if (Math.Abs(X) > value)
+            if (MathF.Abs(X) > value)
                 X = value * (X < 0 ? -1 : 1);
-            if (Math.Abs(Y) > value)
+            if (MathF.Abs(Y) > value)
                 Y = value * (Y < 0 ? -1 : 1);
-            if (Math.Abs(Z) > value)
+            if (MathF.Abs(Z) > value)
                 Z = value * (Z < 0 ? -1 : 1);
         }
 
         /// <summary>
-        /// Calculates the distance between two Vector3 objects.
+        /// Calculates the distance between two Vector3F objects.
         /// </summary>
-        public double DistanceTo(Vector3 other)
+        public float DistanceTo(Vector3F other)
         {
-            return Math.Sqrt(Square(other.X - X) +
+            return MathF.Sqrt(Square(other.X - X) +
                              Square(other.Y - Y) +
                              Square(other.Z - Z));
         }
@@ -118,24 +122,24 @@ namespace McProtoNet.Geometry
         /// <summary>
         /// Calculates the square of a num.
         /// </summary>
-        private double Square(double num)
+        private float Square(float num)
         {
             return num * num;
         }
         public const float kEpsilon = 0.00001f;
-        public Vector3 Normalize()
+        public Vector3F Normalize()
         {
             if (Magnitude > kEpsilon)
                 return this / Magnitude;
             else
-                return Vector3.Zero;
+                return Vector3F.Zero;
         }
-        public float Magnitude => (float)Math.Sqrt(X * X + Y * Y + Z * Z);
+        public float Magnitude => (float)MathF.Sqrt(X * X + Y * Y + Z * Z);
 
         /// <summary>
-        /// Finds the distance of this vector from Vector3.Zero
+        /// Finds the distance of this vector from Vector3F.Zero
         /// </summary>
-        public double Distance
+        public float Distance
         {
             get
             {
@@ -149,12 +153,12 @@ namespace McProtoNet.Geometry
         /// <param name="value1">The first vector.</param>
         /// <param name="value2">The second vector.</param>
         /// <returns></returns>
-        public static Vector3 Min(Vector3 value1, Vector3 value2)
+        public static Vector3F Min(Vector3F value1, Vector3F value2)
         {
-            return new Vector3(
-                Math.Min(value1.X, value2.X),
-                Math.Min(value1.Y, value2.Y),
-                Math.Min(value1.Z, value2.Z)
+            return new Vector3F(
+                MathF.Min(value1.X, value2.X),
+                MathF.Min(value1.Y, value2.Y),
+                MathF.Min(value1.Z, value2.Z)
                 );
         }
 
@@ -164,19 +168,19 @@ namespace McProtoNet.Geometry
         /// <param name="value1">The first vector.</param>
         /// <param name="value2">The second vector.</param>
         /// <returns></returns>
-        public static Vector3 Max(Vector3 value1, Vector3 value2)
+        public static Vector3F Max(Vector3F value1, Vector3F value2)
         {
-            return new Vector3(
-                Math.Max(value1.X, value2.X),
-                Math.Max(value1.Y, value2.Y),
-                Math.Max(value1.Z, value2.Z)
+            return new Vector3F(
+                MathF.Max(value1.X, value2.X),
+                MathF.Max(value1.Y, value2.Y),
+                MathF.Max(value1.Z, value2.Z)
                 );
         }
 
         /// <summary>
         /// Calculates the dot product between two vectors.
         /// </summary>
-        public static double Dot(Vector3 value1, Vector3 value2)
+        public static float Dot(Vector3F value1, Vector3F value2)
         {
             return value1.X * value2.X + value1.Y * value2.Y + value1.Z * value2.Z;
         }
@@ -187,7 +191,7 @@ namespace McProtoNet.Geometry
         /// <param name="vector1">The first vector.</param>
         /// <param name="vector2">The second vector.</param>
         /// <returns>The cross product of two vectors.</returns>
-        public static Vector3 Cross(Vector3 vector1, Vector3 vector2)
+        public static Vector3F Cross(Vector3F vector1, Vector3F vector2)
         {
             Cross(ref vector1, ref vector2, out vector1);
             return vector1;
@@ -199,7 +203,7 @@ namespace McProtoNet.Geometry
         /// <param name="vector1">The first vector.</param>
         /// <param name="vector2">The second vector.</param>
         /// <param name="result">The cross product of two vectors as an output parameter.</param>
-        public static void Cross(ref Vector3 vector1, ref Vector3 vector2, out Vector3 result)
+        public static void Cross(ref Vector3F vector1, ref Vector3F vector2, out Vector3F result)
         {
             var x = vector1.Y * vector2.Z - vector2.Y * vector1.Z;
             var y = -(vector1.X * vector2.Z - vector2.X * vector1.Z);
@@ -213,27 +217,27 @@ namespace McProtoNet.Geometry
 
         #region Operators
 
-        public static bool operator !=(Vector3 a, Vector3 b)
+        public static bool operator !=(Vector3F a, Vector3F b)
         {
             return !a.Equals(b);
         }
 
-        public static bool operator ==(Vector3 a, Vector3 b)
+        public static bool operator ==(Vector3F a, Vector3F b)
         {
             return a.Equals(b);
         }
 
-        public static Vector3 operator +(Vector3 a, Vector3 b)
+        public static Vector3F operator +(Vector3F a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X + b.X,
                 a.Y + b.Y,
                 a.Z + b.Z);
         }
 
-        public static Vector3 operator -(Vector3 a, Vector3 b)
+        public static Vector3F operator -(Vector3F a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X - b.X,
                 a.Y - b.Y,
                 a.Z - b.Z);
@@ -241,121 +245,121 @@ namespace McProtoNet.Geometry
 
 
 
-        public static Vector3 operator -(Vector3 a)
+        public static Vector3F operator -(Vector3F a)
         {
-            return new Vector3(
+            return new Vector3F(
                 -a.X,
                 -a.Y,
                 -a.Z);
         }
 
-        public static Vector3 operator *(Vector3 a, Vector3 b)
+        public static Vector3F operator *(Vector3F a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X * b.X,
                 a.Y * b.Y,
                 a.Z * b.Z);
         }
 
-        public static Vector3 operator /(Vector3 a, Vector3 b)
+        public static Vector3F operator /(Vector3F a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X / b.X,
                 a.Y / b.Y,
                 a.Z / b.Z);
         }
 
-        public static Vector3 operator %(Vector3 a, Vector3 b)
+        public static Vector3F operator %(Vector3F a, Vector3F b)
         {
-            return new Vector3(a.X % b.X, a.Y % b.Y, a.Z % b.Z);
+            return new Vector3F(a.X % b.X, a.Y % b.Y, a.Z % b.Z);
         }
 
-        public static Vector3 operator +(Vector3 a, double b)
+        public static Vector3F operator +(Vector3F a, float b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X + b,
                 a.Y + b,
                 a.Z + b);
         }
 
-        public static Vector3 operator -(Vector3 a, double b)
+        public static Vector3F operator -(Vector3F a, float b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X - b,
                 a.Y - b,
                 a.Z - b);
         }
 
-        public static Vector3 operator *(Vector3 a, double b)
+        public static Vector3F operator *(Vector3F a, float b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X * b,
                 a.Y * b,
                 a.Z * b);
         }
 
-        public static Vector3 operator /(Vector3 a, double b)
+        public static Vector3F operator /(Vector3F a, float b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a.X / b,
                 a.Y / b,
                 a.Z / b);
         }
 
-        public static Vector3 operator %(Vector3 a, double b)
+        public static Vector3F operator %(Vector3F a, float b)
         {
-            return new Vector3(a.X % b, a.Y % b, a.Y % b);
+            return new Vector3F(a.X % b, a.Y % b, a.Y % b);
         }
 
-        public static Vector3 operator +(double a, Vector3 b)
+        public static Vector3F operator +(float a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a + b.X,
                 a + b.Y,
                 a + b.Z);
         }
 
-        public static Vector3 operator -(double a, Vector3 b)
+        public static Vector3F operator -(float a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a - b.X,
                 a - b.Y,
                 a - b.Z);
         }
 
-        public static Vector3 operator *(double a, Vector3 b)
+        public static Vector3F operator *(float a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a * b.X,
                 a * b.Y,
                 a * b.Z);
         }
 
-        public static Vector3 operator /(double a, Vector3 b)
+        public static Vector3F operator /(float a, Vector3F b)
         {
-            return new Vector3(
+            return new Vector3F(
                 a / b.X,
                 a / b.Y,
                 a / b.Z);
         }
 
-        public static Vector3 operator %(double a, Vector3 b)
+        public static Vector3F operator %(float a, Vector3F b)
         {
-            return new Vector3(a % b.X, a % b.Y, a % b.Y);
+            return new Vector3F(a % b.X, a % b.Y, a % b.Y);
         }
 
         #endregion
 
         #region Conversion operators
 
-        public static implicit operator Vector3(Point3_Int a)
+        public static implicit operator Vector3F(Point3_Int a)
         {
-            return new Vector3(a.X, a.Y, a.Z);
+            return new Vector3F(a.X, a.Y, a.Z);
         }
 
-        public static explicit operator Vector3(Point2_Int c)
+        public static explicit operator Vector3F(Point2_Int c)
         {
-            return new Vector3(c.X, 0, c.Z);
+            return new Vector3F(c.X, 0, c.Z);
         }
 
         #endregion
@@ -365,64 +369,64 @@ namespace McProtoNet.Geometry
         /// <summary>
         /// A vector with its components set to 0.0.
         /// </summary>
-        public static readonly Vector3 Zero = new Vector3(0);
+        public static readonly Vector3F Zero = new Vector3F(0);
 
         /// <summary>
         /// A vector with its components set to 1.0.
         /// </summary>
-        public static readonly Vector3 One = new Vector3(1);
+        public static readonly Vector3F One = new Vector3F(1);
 
 
         /// <summary>
         /// A vector that points upward.
         /// </summary>
-        public static readonly Vector3 Up = new Vector3(0, 1, 0);
+        public static readonly Vector3F Up = new Vector3F(0, 1, 0);
 
         /// <summary>
         /// A vector that points downward.
         /// </summary>
-        public static readonly Vector3 Down = new Vector3(0, -1, 0);
+        public static readonly Vector3F Down = new Vector3F(0, -1, 0);
 
         /// <summary>
         /// A vector that points to the left.
         /// </summary>
-        public static readonly Vector3 Left = new Vector3(-1, 0, 0);
+        public static readonly Vector3F Left = new Vector3F(-1, 0, 0);
 
         /// <summary>
         /// A vector that points to the right.
         /// </summary>
-        public static readonly Vector3 Right = new Vector3(1, 0, 0);
+        public static readonly Vector3F Right = new Vector3F(1, 0, 0);
 
         /// <summary>
         /// A vector that points backward.
         /// </summary>
-        public static readonly Vector3 Backwards = new Vector3(0, 0, -1);
+        public static readonly Vector3F Backwards = new Vector3F(0, 0, -1);
 
         /// <summary>
         /// A vector that points forward.
         /// </summary>
-        public static readonly Vector3 Forwards = new Vector3(0, 0, 1);
+        public static readonly Vector3F Forwards = new Vector3F(0, 0, 1);
 
 
         /// <summary>
         /// A vector that points to the east.
         /// </summary>
-        public static readonly Vector3 East = new Vector3(1, 0, 0);
+        public static readonly Vector3F East = new Vector3F(1, 0, 0);
 
         /// <summary>
         /// A vector that points to the west.
         /// </summary>
-        public static readonly Vector3 West = new Vector3(-1, 0, 0);
+        public static readonly Vector3F West = new Vector3F(-1, 0, 0);
 
         /// <summary>
         /// A vector that points to the north.
         /// </summary>
-        public static readonly Vector3 North = new Vector3(0, 0, -1);
+        public static readonly Vector3F North = new Vector3F(0, 0, -1);
 
         /// <summary>
         /// A vector that points to the south.
         /// </summary>
-        public static readonly Vector3 South = new Vector3(0, 0, 1);
+        public static readonly Vector3F South = new Vector3F(0, 0, 1);
 
         #endregion
 
@@ -431,7 +435,7 @@ namespace McProtoNet.Geometry
         /// </summary>
         /// <param name="other">The other vector.</param>
         /// <returns></returns>
-        public bool Equals(Vector3 other)
+        public bool Equals(Vector3F other)
         {
             return other.X.Equals(X) && other.Y.Equals(Y) && other.Z.Equals(Z);
         }
@@ -443,7 +447,7 @@ namespace McProtoNet.Geometry
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            return obj is Vector3 && Equals((Vector3)obj);
+            return obj is Vector3F && Equals((Vector3F)obj);
         }
 
         /// <summary>
