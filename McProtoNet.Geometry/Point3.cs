@@ -39,7 +39,7 @@
         {
             get
             {
-                return (int)Math.Floor(X / 16);
+                return (int)X >> 4;
             }
         }
 
@@ -48,7 +48,7 @@
         {
             get
             {
-                return (int)Math.Floor(Y / 16);
+                return (int)Y >> 4;
             }
         }
 
@@ -57,7 +57,7 @@
         {
             get
             {
-                return (int)Math.Floor(Z / 16);
+                return (int)Z >> 4;
             }
         }
 
@@ -66,7 +66,7 @@
         {
             get
             {
-                int ceil = (int)Y;
+                int ceil = (int)X;
                 return ceil & 15;
             }
         }
@@ -86,10 +86,11 @@
         {
             get
             {
-                int ceil = (int)Y;
+                int ceil = (int)Z;
                 return ceil & 15;
             }
         }
+
         public Point3_Int ChunkPos
         {
             get => new Point3_Int(ChunkX, ChunkY, ChunkZ);
