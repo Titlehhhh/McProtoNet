@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
     public sealed class ClientRequestPacket : Packet
     {
         public ClientRequest Request { get; set; }
-
+       
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Request);
@@ -27,6 +27,6 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         {
 
         }
-
+        
     }
 }

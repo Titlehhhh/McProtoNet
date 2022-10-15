@@ -8,7 +8,7 @@
         public Vector3 Vector { get; private set; }
         private const double RadToDeg = 57.29577951308232067679;
         public Rotation(Vector3 vector)
-        {
+        {         
             Vector = vector;
 
             double r = vector.Distance;

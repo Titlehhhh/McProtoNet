@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Server
     public sealed class ServerJoinGamePacket : Packet
     {
 
-
+        
 
         public GameMode GameMode { get; private set; }
 

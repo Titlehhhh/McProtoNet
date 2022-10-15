@@ -1,7 +1,13 @@
-﻿namespace McProtoNet.Core.Helpers
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace McProtoNet.Core.Helpers
 {
     public static class GuidExtensions
-    {
+    {        
         public static Guid ToLittleEndian(this Guid javaGuid)
         {
             byte[] net = new byte[16];
@@ -21,7 +27,7 @@
             return new Guid(net);
         }
 
-
+       
         public static Guid ToBigEndian(this Guid netGuid)
         {
             byte[] java = new byte[16];
@@ -41,7 +47,7 @@
             return new Guid(java);
         }
 
-
+       
         public static byte[] ToBigEndianBytes(this Guid netGuid)
         {
             byte[] java = new byte[16];

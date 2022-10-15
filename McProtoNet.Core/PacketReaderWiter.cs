@@ -55,7 +55,7 @@ namespace McProtoNet.Core
                 try
                 {
 
-                    (int id, MemoryStream data) =
+                    (int id, MemoryStream data) = 
                         await Task.Run(packetProtocol.ReadNextPacket, cancellationSource.Token);
 
                     if (Packets

@@ -29,13 +29,13 @@
                 return;
             if (disposing)
             {
-                foreach (var v in ClientPackets)
+                foreach(var v in ClientPackets)
                 {
                     v.Value.Clear();
                 }
                 ClientPackets.Clear();
 
-                foreach (var v in ServerPackets)
+                foreach(var v in ServerPackets)
                 {
                     v.Value.Clear();
                 }
@@ -47,7 +47,7 @@
         protected void ThrowIfDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException("PacketCollection" + TargetProtocolVersion);
+                throw new ObjectDisposedException("PacketCollection"+TargetProtocolVersion);
         }
     }
 }

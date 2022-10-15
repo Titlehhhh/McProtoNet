@@ -46,7 +46,7 @@ namespace McProtoNet.Protocol340.Packets.Server
                     palette[i] = stream.ReadVarInt();
 
                 }
-                uint valueMask = (uint)((1 << bitsPerBlock) - 1);
+                uint valueMask = (uint)((1L << bitsPerBlock) - 1);
 
                 ulong[] dataArray = stream.ReadULongArray();
 
@@ -63,28 +63,49 @@ namespace McProtoNet.Protocol340.Packets.Server
                         {
                             for (int x = 0; x < 16; x++)
                             {
-                                int num3 = (y * 16 + z) * 16 + x;
-                                int num4 = num3 * bitsPerBlock / 64;
-                                int num5 = num3 * bitsPerBlock % 64;
-                                int num6 = ((num3 + 1) * bitsPerBlock - 1) / 64;
-                                ushort num7;
-                                if (num4 == num6)
+                                uint blockId;
+
+                                startOffset += bitsPerBlock;
+                                bool overlap = false;
+
+                                if ((startOffset + bitsPerBlock) > 64)
                                 {
-                                    num7 = (ushort)((dataArray[num4] >> num5) & valueMask);
+
+                                    if (startOffset >= 64)
+                                    {
+                                        startOffset -= 64;
+                                        longIndex++;
+                                    }
+                                    else overlap = true;
+
+                                }
+
+                                if (overlap)
+                                {
+                                    int endOffset = 64 - startOffset;
+                                    blockId = (ushort)((dataArray[longIndex] >> startOffset | dataArray[longIndex + 1] << endOffset) & valueMask);
                                 }
                                 else
                                 {
-                                    int num8 = 64 - num5;
-                                    num7 = (ushort)(((dataArray[num4] >> num5) | (dataArray[num6] << num8)) & valueMask);
+                                    blockId = (ushort)((dataArray[longIndex] >> startOffset) & valueMask);
                                 }
+
                                 if (usePalette)
                                 {
-                                    num7 = (ushort)palette[num7];
+                                    if (paletteLength <= blockId)
+                                    {
+                                        int blockNumber = (y * 16 + z) * 16 + x;
+                                        throw new IndexOutOfRangeException(String.Format("Block ID {0} is outside Palette range 0-{1}! (bitsPerBlock: {2}, blockNumber: {3})",
+                                            blockId,
+                                            paletteLength - 1,
+                                            bitsPerBlock,
+                                            blockNumber));
+                                    }
+
+                                    blockId = (ushort)palette[blockId];
                                 }
-                                // blockId = (ushort)palette[num7];
 
-
-                                chunk[x, y, z] = new Block(num7);
+                                chunk[x, y, z] = new Block(blockId);
 
                             }
                         }

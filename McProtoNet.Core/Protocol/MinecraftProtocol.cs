@@ -393,7 +393,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-
+            
         }
 
         public void SendPacket(MemoryStream data, int id)
@@ -408,7 +408,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-
+            
         }
     }
 

@@ -1,5 +1,5 @@
-using McProtoNet.Protocol340.Data;
 using static McProtoNet.Protocol340.Constans;
+using McProtoNet.Protocol340.Data;
 
 namespace McProtoNet.Protocol340.Packets.Client.Game
 {
@@ -27,6 +27,6 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 
         }
 
-
+        
     }
 }

@@ -1,4 +1,5 @@
 using McProtoNet.Protocol754.Data;
+using McProtoNet.Protocol754.Data;
 
 namespace McProtoNet.Protocol754.Packets.Client
 {

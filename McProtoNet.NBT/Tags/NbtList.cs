@@ -222,7 +222,7 @@ namespace McProtoNet.NBT
         /// <returns> The tag with the specified key. </returns>
         /// <exception cref="ArgumentOutOfRangeException"> <paramref name="tagIndex"/> is not a valid index in the NbtList. </exception>
         /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
-
+        
         public T Get<T>(int tagIndex) where T : NbtTag
         {
             return (T)_tags[tagIndex];
@@ -247,7 +247,7 @@ namespace McProtoNet.NBT
         /// Copies all tags in this NbtList to an array. 
         /// </summary>
         /// <returns> Array of NbtTags. </returns>
-
+        
         // ReSharper disable ReturnTypeCanBeEnumerable.Global
         public NbtTag[] ToArray()
         {
@@ -261,7 +261,7 @@ namespace McProtoNet.NBT
         /// <typeparam name="T"> Type to cast every member of NbtList to. Must derive from NbtTag. </typeparam>
         /// <returns> Array of NbtTags cast to the desired type. </returns>
         /// <exception cref="InvalidCastException"> If contents of this list cannot be cast to the given type. </exception>
-
+        
         public T[] ToArray<T>() where T : NbtTag
         {
             var result = new T[_tags.Count];

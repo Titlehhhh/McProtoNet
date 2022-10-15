@@ -214,7 +214,7 @@ namespace McProtoNet.Core.IO
             {
                 if (root)
                 {
-                    foreach (var tag in nbt.Tags)
+                    foreach(var tag in nbt.Tags)
                     {
                         writer.WriteTag(tag);
                     }
@@ -222,11 +222,11 @@ namespace McProtoNet.Core.IO
                 else
                 {
                     writer.WriteTag(nbt);
-                }
+                }                
             }
             writer.EndCompound();
             writer.Finish();
-        }
+        }        
 
         public void Write(byte[] buffer)
         {

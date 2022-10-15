@@ -1,4 +1,5 @@
 using McProtoNet.Protocol340.Data;
+using McProtoNet.Protocol340.Data.World;
 using McProtoNet.Protocol340.Util;
 
 namespace McProtoNet.Protocol340.Packets.Server

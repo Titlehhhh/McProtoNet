@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WritePoint3_int(Position);
-            foreach (var line in Lines)
+            foreach(var line in Lines)
             {
                 stream.WriteString(line);
             }
@@ -23,7 +23,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         public ClientUpdateSignPacket(Point3_Int position, string[] lines)
         {
             Position = position;
-            Lines = new string[lines.Length];
+            Lines =new string[lines.Length];
 
             Array.Copy(lines, Lines, lines.Length);
         }

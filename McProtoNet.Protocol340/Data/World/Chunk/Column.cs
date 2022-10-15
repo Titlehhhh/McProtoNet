@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using McProtoNet.NBT;
+using System.Collections;
 
 namespace McProtoNet.Protocol340.Data.World.Chunk
 {

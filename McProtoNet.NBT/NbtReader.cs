@@ -575,7 +575,7 @@ namespace McProtoNet.NBT
         /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
         /// <exception cref="EndOfStreamException"> End of stream has been reached (no more tags can be read). </exception>
         /// <exception cref="InvalidOperationException"> Tag value has already been read, and CacheTagValues is false. </exception>
-
+        
         public NbtTag ReadAsTag()
         {
             switch (_state)
@@ -652,7 +652,7 @@ namespace McProtoNet.NBT
             return parent;
         }
 
-        private void AddToParent(NbtTag thisTag, NbtTag parent)
+        private void AddToParent( NbtTag thisTag,  NbtTag parent)
         {
             if (parent is NbtList parentAsList)
             {

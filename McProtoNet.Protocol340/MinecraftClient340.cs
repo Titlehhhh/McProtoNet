@@ -102,7 +102,7 @@ namespace McProtoNet.Protocol340
 
         public void Connect(string serverName = "localhost", ushort port = 25565)
         {
-
+            
 
             Task.Run(() =>
             {

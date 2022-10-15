@@ -57,7 +57,7 @@ namespace McProtoNet.Protocol340
 
         private void Client_OnError(IPacketReaderWriter client, Exception exception)
         {
-
+            
             UnRegisterEvents();
             taskCompletion.SetResult(false);
         }
@@ -170,7 +170,7 @@ namespace McProtoNet.Protocol340
 
         public void Close()
         {
-
+           
         }
     }
 }

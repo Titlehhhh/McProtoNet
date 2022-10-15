@@ -1,5 +1,5 @@
-using McProtoNet.Core.Helpers;
 using McProtoNet.Protocol754.Data;
+using McProtoNet.Core.Helpers;
 
 namespace McProtoNet.Protocol754.Packets.Server
 {

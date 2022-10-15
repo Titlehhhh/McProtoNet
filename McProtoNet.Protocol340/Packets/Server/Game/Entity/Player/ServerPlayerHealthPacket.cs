@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Health { get; private set; }
         public float Food { get; private set; }
         public float Saturation { get; private set; }
-
+        
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             Health = stream.ReadFloat();

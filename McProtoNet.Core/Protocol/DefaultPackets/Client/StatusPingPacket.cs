@@ -7,12 +7,12 @@ namespace McProtoNet
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+           
         }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
-
+          
         }
     }
 }
