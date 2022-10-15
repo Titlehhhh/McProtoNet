@@ -10,8 +10,8 @@ namespace McProtoNet.Protocol340
         #region Fields
         private readonly string sessionId;
         private readonly string nick;
-        private string host;
-        private ushort port;
+        private string _host;
+        private ushort _port;
 
 
         private readonly bool proxyUsed = false;
@@ -68,8 +68,8 @@ namespace McProtoNet.Protocol340
 
         public MinecraftClient340(string nick, string host, ushort port)
         {
-            this.host = host;
-            this.port = port;
+            this._host = host;
+            this._port = port;
             this.nick = nick;
             IsOnlineMode = false;
         }
@@ -77,8 +77,8 @@ namespace McProtoNet.Protocol340
         public MinecraftClient340(string nick, string host, ushort port, string proxyHost, ushort proxyPort, ProxyType proxyType)
         {
             this.nick = nick;
-            this.host = host;
-            this.port = port;
+            this._host = host;
+            this._port = port;
             this.proxyHost = proxyHost;
             this.proxyPort = proxyPort;
             this.proxyType = proxyType;
@@ -103,18 +103,19 @@ namespace McProtoNet.Protocol340
         public void Connect(string serverName = "localhost", ushort port = 25565)
         {
 
+
             Task.Run(() =>
             {
                 try
                 {
-                    if (port == 25565)
+                    if (_port == 25565)
                     {
                         try
                         {
                             IServerResolver resolver = new ServerResolver();
 
-                            var response = resolver.ResolveAsync(host).Result;
-                            host = response.Host;
+                            var response = resolver.ResolveAsync(_host).Result;
+                            _host = response.Host;
                             port = response.Port;
                         }
                         catch (SrvNotFoundException e)
@@ -147,9 +148,9 @@ namespace McProtoNet.Protocol340
             if (proxyUsed)
             {
                 return factory.CreateProxyClient(this.proxyType, this.proxyHost, this.proxyPort)
-                    .CreateConnection(host, port);
+                    .CreateConnection(_host, _port);
             }
-            return new TcpClient(host, port);
+            return new TcpClient(_host, _port);
         }
 
         private void InternalLogin(string serverName, ushort port)
@@ -247,7 +248,7 @@ namespace McProtoNet.Protocol340
                 return;
             _isClosed = true;
 
-            tcpClient.Close();
+            tcpClient?.Close();
 
             OnError?.Invoke(this, exception);
         }

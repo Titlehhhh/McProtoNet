@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace McProtoNet.Geometry
 {
@@ -360,6 +355,11 @@ namespace McProtoNet.Geometry
         public static explicit operator Vector3F(Point2_Int c)
         {
             return new Vector3F(c.X, 0, c.Z);
+        }
+
+        public static explicit operator Vector3F(Vector3 c)
+        {
+            return new Vector3F((float)c.X, (float)c.Y, (float)c.Z);
         }
 
         #endregion

@@ -21,7 +21,10 @@ namespace McProtoNet.Core.IO
 
         public void WriteULongArray(ulong[] value)
         {
-            throw new NotImplementedException();
+            WriteVarInt(value.Length);
+            byte[] raw = new byte[value.Length * 8];
+            Buffer.BlockCopy(value, 0, raw, 0, raw.Length);
+            BaseStream.Write(raw);
         }
 
         public void WriteByte(sbyte value)
@@ -211,7 +214,7 @@ namespace McProtoNet.Core.IO
             {
                 if (root)
                 {
-                    foreach(var tag in nbt.Tags)
+                    foreach (var tag in nbt.Tags)
                     {
                         writer.WriteTag(tag);
                     }
@@ -219,11 +222,11 @@ namespace McProtoNet.Core.IO
                 else
                 {
                     writer.WriteTag(nbt);
-                }                
+                }
             }
             writer.EndCompound();
             writer.Finish();
-        }        
+        }
 
         public void Write(byte[] buffer)
         {

@@ -47,11 +47,7 @@ namespace McProtoNet.Protocol754
             int item = reader.ReadVarInt();
 
             var amount = reader.ReadSignedByte();
-            NbtCompound? nbt = null;
-           
-                nbt = reader.ReadNbt();
-           
-            
+            NbtCompound? nbt = reader.ReadNbt();
 
             return new ItemStack(item, amount, nbt);
         }

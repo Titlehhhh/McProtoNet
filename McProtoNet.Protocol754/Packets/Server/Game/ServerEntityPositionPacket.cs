@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol754.Packets.Server
         {
 
         }
-        
+
         public ServerEntityPositionPacket() { }
     }
 }

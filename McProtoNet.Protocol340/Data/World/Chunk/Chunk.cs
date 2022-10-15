@@ -2,33 +2,27 @@
 {
     public class Chunk
     {
-        private BlockStorage blocks;
-        private NibbleArray3d blocklight;
-        private NibbleArray3d skylight;
+        private readonly Block[,,] blocks;
 
-        public Chunk(bool skylight) : this(new BlockStorage(), new NibbleArray3d(4096), skylight ? new NibbleArray3d(4096) : null)
-        {
-
-        }
-
-        public Chunk(BlockStorage blocks, NibbleArray3d blocklight, NibbleArray3d skylight)
+        public Chunk(Block[,,] blocks)
         {
             this.blocks = blocks;
-            this.blocklight = blocklight;
-            this.skylight = skylight;
         }
-
-        public BlockStorage Storage => this.blocks;
-        public NibbleArray3d? BlockLight => this.blocklight;
-        public NibbleArray3d? SkyLight => this.skylight;
-
-        public BlockState this[int x, int y, int z]
+        public Chunk(int size)
         {
-            get => Storage[x, y, z];
-            set => Storage[x, y, z] = value;
+            this.blocks = new Block[size,size,size];
         }
 
-        public bool IsEmpty => blocks.IsEmpty;
-
+        public Block this[int x, int y, int z]
+        {
+            get
+            {
+                return blocks[x,y,z];
+            }
+            set
+            {
+                blocks[x, y, z] = value;
+            }
+        }
     }
 }

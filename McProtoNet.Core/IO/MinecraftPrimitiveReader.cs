@@ -25,18 +25,23 @@ namespace McProtoNet.Core.IO
         public ulong[] ReadULongArray()
         {
             int len = this.ReadVarInt();
-            Span<byte> buffer = stackalloc byte[len * 8];
-            BaseStream.Read(buffer);
-            Span<ulong> result = MemoryMarshal.Cast<byte, ulong>(buffer);
-            return result.ToArray();
+
+            ulong[] result = new ulong[len];
+
+            for (int i = 0; i < len; i++)
+                result[i] = ReadULong();
+            return result;                      
+           
         }
+        
         public long[] ReadLongArray()
         {
             int len = this.ReadVarInt();
-            Span<byte> buffer = stackalloc byte[len * 8];
-            BaseStream.Read(buffer);
-            Span<long> result = MemoryMarshal.Cast<byte, long>(buffer);
-            return result.ToArray();
+
+            long[] result = new long[len];
+            for (int i = 0; i < len; i++)
+                result[i] = ReadLong();
+            return result;
         }
         public byte ReadUnsignedByte()
         {
@@ -103,7 +108,12 @@ namespace McProtoNet.Core.IO
             BaseStream.Read(buffer);
             return BinaryPrimitives.ReadInt64BigEndian(buffer);
         }
-
+        public ulong ReadULong()
+        {
+            Span<byte> buffer = stackalloc byte[8];
+            BaseStream.Read(buffer);
+            return BinaryPrimitives.ReadUInt64BigEndian(buffer);
+        }
 
 
 
@@ -223,11 +233,20 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public NbtCompound ReadNbt()
+        public NbtCompound? ReadNbt()
         {
             var nbtreader = new NbtReader(BaseStream);
+            NbtCompound? result = null;
+            try
+            {
+                result = (NbtCompound)nbtreader.ReadAsTag();
+            }
+            catch (NbtFormatException)
+            {
+                return null;
+            }
 
-            return nbtreader.ReadAsTag() as NbtCompound;
+            return result;
         }
     }
 }

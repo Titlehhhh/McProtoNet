@@ -1,4 +1,7 @@
-
 <Project>
-    
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk">
+      <Version>17.3.2</Version>
+    </PackageVersion>
+  </ItemGroup>
 </Project>

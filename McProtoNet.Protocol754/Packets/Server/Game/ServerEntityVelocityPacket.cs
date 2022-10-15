@@ -4,13 +4,22 @@ namespace McProtoNet.Protocol754.Packets.Server
     [PacketInfo(0x46, PacketCategory.Game, 754, PacketSide.Server)]
     public sealed class ServerEntityVelocityPacket : Packet
     {
+        public int EntityId { get; private set; }
+
+        public double MotionX { get; private set; }
+        public double MotionY { get; private set; }
+        public double MotionZ { get; private set; }
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
+            EntityId = stream.ReadVarInt();
 
+            MotionX = stream.ReadShort() / 8000D;
+            MotionY = stream.ReadShort() / 8000D;
+            MotionZ = stream.ReadShort() / 8000D;
         }
         public ServerEntityVelocityPacket() { }
     }

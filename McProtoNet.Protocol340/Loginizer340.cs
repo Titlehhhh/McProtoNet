@@ -3,7 +3,7 @@ using McProtoNet.Utils;
 
 namespace McProtoNet.Protocol340
 {
-    public sealed class Loginizer340 
+    public sealed class Loginizer340
     {
         private readonly MinecraftPrimitiveReader primitiveReader = new();
 

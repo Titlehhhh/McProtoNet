@@ -1,9 +1,7 @@
-﻿using System.Runtime.Serialization;
-
-namespace McProtoNet.Core
+﻿namespace McProtoNet.Core
 {
 
-    
+
     public class GameProfile
     {
         public Guid UUID { get; private set; }

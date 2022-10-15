@@ -5,6 +5,7 @@
     /// </summary>
     public struct Point3_Int : IEquatable<Point3_Int>
     {
+
         /// <summary>
         /// The X component of the coordinates.
         /// </summary>
@@ -65,6 +66,22 @@
         }
 
         #region Math
+
+
+        public Point3_Int ChunkBlock
+        {
+            get
+            {
+                return new Point3_Int(this.X & 15, this.Y & 15, this.Z & 15);
+            }
+        }
+        public Point3_Int Chunk
+        {
+            get
+            {
+                return new Point3_Int(this.X >> 4, this.Y >> 4, this.Z >> 4);
+            }
+        }
 
         /// <summary>
         /// Clamps the coordinates to within the specified value.
@@ -209,6 +226,7 @@
             return new Point3_Int(a.X % b, a.Y % b, a.Z % b);
         }
 
+
         public static Point3_Int operator +(int a, Point3_Int b)
         {
             return new Point3_Int(a + b.X, a + b.Y, a + b.Z);
@@ -233,6 +251,7 @@
         {
             return new Point3_Int(a % b.X, a % b.Y, a % b.Z);
         }
+
 
         #endregion
 

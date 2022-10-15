@@ -2,7 +2,7 @@
 
 namespace McProtoNet.Geometry
 {
-    
+
     [StructLayout(LayoutKind.Explicit)]
     public struct Vector3 : IEquatable<Vector3>
     {
@@ -357,6 +357,7 @@ namespace McProtoNet.Geometry
         {
             return new Vector3(c.X, 0, c.Z);
         }
+
 
         #endregion
 

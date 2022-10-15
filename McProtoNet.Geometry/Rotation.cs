@@ -6,15 +6,16 @@
         public float Pitch { get; private set; }
 
         public Vector3 Vector { get; private set; }
-
+        private const double RadToDeg = 57.29577951308232067679;
         public Rotation(Vector3 vector)
         {
             Vector = vector;
+
             double r = vector.Distance;
-            Yaw = (float)(-Math.Atan2(vector.X, vector.Z) / Math.PI * 180);
+            Yaw = (float)(-Math.Atan2(vector.X, vector.Z) * RadToDeg);
             if (Yaw < 0)
-               Yaw += 360;
-            Pitch = (float)(-Math.Asin(vector.Y / r) / Math.PI * 180);
+                Yaw += 360;
+            Pitch = (float)(-Math.Asin(vector.Y / r) * RadToDeg);
         }
         public Rotation(float yaw, float pitch)
         {

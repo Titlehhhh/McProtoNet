@@ -38,6 +38,7 @@ namespace McProtoNet.Core.Protocol
 
 
         #region Async
+        [Obsolete("Этот метод не рекомендуется использовать, из-за соображений производительности. Используйте ReadNextPacket()")]
         public async Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token)
         {
             ThrowIfDisposed();
@@ -79,7 +80,7 @@ namespace McProtoNet.Core.Protocol
             }
 
         }
-
+        [Obsolete("Этот метод не рекомендуется использовать, из-за соображений производительности. Используйте SendPacket()")]
         public async Task SendPacketAsync(Packet packet, int id, CancellationToken token = default)
         {
             ThrowIfDisposed();
@@ -392,7 +393,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-            
+
         }
 
         public void SendPacket(MemoryStream data, int id)
@@ -407,7 +408,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-            
+
         }
     }
 
