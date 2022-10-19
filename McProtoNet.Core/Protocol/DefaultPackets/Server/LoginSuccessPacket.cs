@@ -10,7 +10,7 @@ namespace McProtoNet.Core.Protocol
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            UUID = stream.ReadGuid();
+            UUID = stream.ReadUUID();
             Username = stream.ReadString();
         }
 

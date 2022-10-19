@@ -21,7 +21,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 
             for (int count = 0; count < Entries.Length; count++)
             {
-                Guid uuid = stream.ReadGuid().ToLittleEndian();
+                Guid uuid = stream.ReadUUID();
                 GameProfile profile;
                 if (this.Action == PlayerListEntryAction.ADD_PLAYER)
                 {

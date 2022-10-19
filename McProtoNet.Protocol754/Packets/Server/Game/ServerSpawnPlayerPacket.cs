@@ -21,7 +21,7 @@ namespace McProtoNet.Protocol754.Packets.Server
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             EntityId = stream.ReadVarInt();
-            UUID = stream.ReadGuid().ToLittleEndian();
+            UUID = stream.ReadUUID();
             X = stream.ReadDouble();
             Y = stream.ReadDouble();
             Z = stream.ReadDouble();

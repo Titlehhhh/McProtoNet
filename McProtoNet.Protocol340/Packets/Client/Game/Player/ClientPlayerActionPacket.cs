@@ -22,6 +22,13 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
             stream.WriteByte((sbyte)Face);
         }
 
+        public ClientPlayerActionPacket(PlayerAction action, Point3_Int position, BlockFace face)
+        {
+            Action = action;
+            Position = position;
+            Face = face;
+        }
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
 

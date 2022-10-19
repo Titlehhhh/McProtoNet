@@ -8,10 +8,14 @@ namespace McProtoNet.Core.IO
         bool ReadBoolean();
         double ReadDouble();
         float ReadFloat();
-        Guid ReadGuid();
+        Guid ReadUUID();
         int ReadInt();
         long ReadLong();
         short ReadShort();
+        /// <summary>
+        /// Equalent Java ReadByte();
+        /// </summary>
+        /// <returns></returns>
         sbyte ReadSignedByte();
         string ReadString(int maxLength = 32767);
         byte[] ReadByteArray();

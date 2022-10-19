@@ -1,4 +1,5 @@
-﻿using McProtoNet.NBT;
+﻿using McProtoNet.Core.Helpers;
+using McProtoNet.NBT;
 using System.Buffers.Binary;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -51,9 +52,13 @@ namespace McProtoNet.Core.IO
             return buffer[0];
         }
 
-        public Guid ReadGuid()
+        public Guid ReadUUID()
         {
-            return GuidFromTwoLong(ReadLong(), ReadLong());
+            Guid guid = GuidFromTwoLong(ReadLong(), ReadLong());
+            if (BitConverter.IsLittleEndian)
+                guid = guid.ToLittleEndian();
+
+            return guid;
         }
         private static unsafe Guid GuidFromTwoLong(long x, long y)
         {
