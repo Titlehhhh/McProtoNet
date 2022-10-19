@@ -18,7 +18,7 @@ namespace McProtoNet.Protocol340.Packets.Server
             for (int index = 0; index < this.Records.Length; index++)
             {
                 short pos = stream.ReadShort();
-                Block block = stream.ReadBlockState();
+                BlockState block = stream.ReadBlockState();
                 int x = (chunkX << 4) + (pos >> 12 & 15);
                 int y = pos & 255;
                 int z = (chunkZ << 4) + (pos >> 8 & 15);

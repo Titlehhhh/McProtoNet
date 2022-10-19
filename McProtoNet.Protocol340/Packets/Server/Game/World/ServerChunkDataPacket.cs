@@ -105,7 +105,7 @@ namespace McProtoNet.Protocol340.Packets.Server
                                     blockId = (ushort)palette[blockId];
                                 }
 
-                                chunk[x, y, z] = new Block(blockId);
+                                chunk[x, y, z] = new BlockState(blockId);
 
                             }
                         }

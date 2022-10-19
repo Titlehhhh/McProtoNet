@@ -31,10 +31,10 @@ namespace McProtoNet.Core.IO
 
             for (int i = 0; i < len; i++)
                 result[i] = ReadULong();
-            return result;                      
-           
+            return result;
+
         }
-        
+
         public long[] ReadLongArray()
         {
             int len = this.ReadVarInt();
@@ -54,18 +54,18 @@ namespace McProtoNet.Core.IO
 
         public Guid ReadUUID()
         {
-            Guid guid = GuidFromTwoLong(ReadLong(), ReadLong());
+            Guid guid = GuidFromTwoLong();
             if (BitConverter.IsLittleEndian)
                 guid = guid.ToLittleEndian();
-
+            //  else
+            //       guid = guid.ToBigEndian();
             return guid;
         }
-        private static unsafe Guid GuidFromTwoLong(long x, long y)
+        private Guid GuidFromTwoLong()
         {
-            long* ptr = stackalloc long[2];
-            ptr[0] = x;
-            ptr[1] = y;
-            return *(Guid*)ptr;
+            Span<byte> buffer = stackalloc byte[2 * 8];
+            BaseStream.Read(buffer);
+            return new Guid(buffer);
         }
 
         public bool ReadBoolean()

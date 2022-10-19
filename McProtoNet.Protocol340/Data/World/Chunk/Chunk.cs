@@ -2,18 +2,18 @@
 {
     public class Chunk
     {
-        private readonly Block[] blocks;
+        private readonly BlockState[] blocks;
 
-        public Chunk(Block[] blocks)
+        public Chunk(BlockState[] blocks)
         {
             this.blocks = blocks;
         }
         public Chunk(int size)
         {
-            this.blocks = new Block[size * size * size];
+            this.blocks = new BlockState[size * size * size];
         }
 
-        public Block this[int x, int y, int z]
+        public BlockState this[int x, int y, int z]
         {
             get
             {

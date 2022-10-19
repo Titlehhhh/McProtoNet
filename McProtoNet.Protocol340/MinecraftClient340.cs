@@ -5,6 +5,7 @@ using System.Net.Sockets;
 
 namespace McProtoNet.Protocol340
 {
+    public delegate void ConnectedHandler(MinecraftClient340 client);
     public sealed class MinecraftClient340
     {
         #region Fields
@@ -24,7 +25,7 @@ namespace McProtoNet.Protocol340
         private ProtocolMode mode;
         private IPacketProtocol client;
 
-
+        public event ConnectedHandler Connected;
         private TcpClient tcpClient;
 
         private readonly MinecraftPrimitiveReader reader = new();
@@ -130,6 +131,7 @@ namespace McProtoNet.Protocol340
 
                     InternalLogin(serverName, port);
                     Mode = ProtocolMode.Game;
+                    Connected?.Invoke(this);
                     StartGameMode();
                 }
                 catch (LoginRejectedException rej)
