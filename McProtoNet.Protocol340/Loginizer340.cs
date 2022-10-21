@@ -1,4 +1,5 @@
 ﻿using McProtoNet.Core.Packets;
+using McProtoNet.Protocol340.Packets.Server;
 using McProtoNet.Utils;
 
 namespace McProtoNet.Protocol340

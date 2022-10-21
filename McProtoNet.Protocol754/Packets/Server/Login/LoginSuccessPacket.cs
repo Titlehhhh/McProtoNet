@@ -1,8 +1,5 @@
-﻿using McProtoNet.Core.IO;
-
-namespace McProtoNet.Core.Protocol
+﻿namespace McProtoNet.Protocol754.Packets.Server
 {
-
     public sealed class LoginSuccessPacket : Packet
     {
         public Guid UUID { get; set; }
@@ -10,7 +7,7 @@ namespace McProtoNet.Core.Protocol
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            UUID = new Guid(stream.ReadString(36));
+            UUID = stream.ReadUUID();
             Username = stream.ReadString();
         }
 
