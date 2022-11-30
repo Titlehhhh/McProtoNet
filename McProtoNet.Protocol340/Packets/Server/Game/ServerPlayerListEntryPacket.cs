@@ -1,4 +1,3 @@
-using McProtoNet.Core.Helpers;
 using McProtoNet.Protocol340.Data;
 
 namespace McProtoNet.Protocol340.Packets.Server

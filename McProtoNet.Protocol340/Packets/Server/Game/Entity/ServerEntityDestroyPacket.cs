@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             EntityIds = new int[stream.ReadVarInt()];
-            for(int i = 0; i < EntityIds.Length; i++)
+            for (int i = 0; i < EntityIds.Length; i++)
             {
                 EntityIds[i] = stream.ReadVarInt();
             }

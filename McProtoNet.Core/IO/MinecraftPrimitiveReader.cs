@@ -1,12 +1,11 @@
 ﻿using McProtoNet.Core.Helpers;
 using McProtoNet.NBT;
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
 using System.Text;
 
 namespace McProtoNet.Core.IO
 {
-    public sealed class MinecraftPrimitiveReader : IMinecraftPrimitiveReader
+    public class MinecraftPrimitiveReader : IMinecraftPrimitiveReader
     {
         public Stream BaseStream { get; set; }
 
@@ -21,9 +20,9 @@ namespace McProtoNet.Core.IO
 
 
 
-        public sbyte ReadSignedByte() => (sbyte)this.ReadUnsignedByte();
+        public virtual sbyte ReadSignedByte() => (sbyte)this.ReadUnsignedByte();
 
-        public ulong[] ReadULongArray()
+        public virtual ulong[] ReadULongArray()
         {
             int len = this.ReadVarInt();
 
@@ -35,7 +34,7 @@ namespace McProtoNet.Core.IO
 
         }
 
-        public long[] ReadLongArray()
+        public virtual long[] ReadLongArray()
         {
             int len = this.ReadVarInt();
 
@@ -44,7 +43,7 @@ namespace McProtoNet.Core.IO
                 result[i] = ReadLong();
             return result;
         }
-        public byte ReadUnsignedByte()
+        public virtual byte ReadUnsignedByte()
         {
             Span<byte> buffer = stackalloc byte[1];
             BaseStream.Read(buffer);
@@ -52,7 +51,7 @@ namespace McProtoNet.Core.IO
             return buffer[0];
         }
 
-        public Guid ReadUUID()
+        public virtual Guid ReadUUID()
         {
             Guid guid = GuidFromTwoLong();
             if (BitConverter.IsLittleEndian)
@@ -68,7 +67,7 @@ namespace McProtoNet.Core.IO
             return new Guid(buffer);
         }
 
-        public bool ReadBoolean()
+        public virtual bool ReadBoolean()
         {
             return ReadUnsignedByte() == 0x01;
         }
@@ -76,7 +75,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public ushort ReadUnsignedShort()
+        public virtual ushort ReadUnsignedShort()
         {
             Span<byte> buffer = stackalloc byte[2];
             BaseStream.Read(buffer);
@@ -87,7 +86,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public short ReadShort()
+        public virtual short ReadShort()
         {
             Span<byte> buffer = stackalloc byte[2];
             BaseStream.Read(buffer);
@@ -97,7 +96,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public int ReadInt()
+        public virtual int ReadInt()
         {
             Span<byte> buffer = stackalloc byte[4];
             BaseStream.Read(buffer);
@@ -107,13 +106,13 @@ namespace McProtoNet.Core.IO
 
 
 
-        public long ReadLong()
+        public virtual long ReadLong()
         {
             Span<byte> buffer = stackalloc byte[8];
             BaseStream.Read(buffer);
             return BinaryPrimitives.ReadInt64BigEndian(buffer);
         }
-        public ulong ReadULong()
+        public virtual ulong ReadULong()
         {
             Span<byte> buffer = stackalloc byte[8];
             BaseStream.Read(buffer);
@@ -122,7 +121,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public ulong ReadUnsignedLong()
+        public virtual ulong ReadUnsignedLong()
         {
             Span<byte> buffer = stackalloc byte[8];
             BaseStream.Read(buffer);
@@ -132,7 +131,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public float ReadFloat()
+        public virtual float ReadFloat()
         {
             Span<byte> buffer = stackalloc byte[4];
             BaseStream.Read(buffer);
@@ -141,7 +140,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public double ReadDouble()
+        public virtual double ReadDouble()
         {
             Span<byte> buffer = stackalloc byte[8];
             BaseStream.Read(buffer);
@@ -150,7 +149,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public string ReadString(int maxLength = 32767)
+        public virtual string ReadString(int maxLength = 32767)
         {
             var length = ReadVarInt();
             byte[] buffer = new byte[length];
@@ -166,21 +165,21 @@ namespace McProtoNet.Core.IO
 
 
 
-        public byte[] ReadByteArray()
+        public virtual byte[] ReadByteArray()
         {
             int len = ReadVarInt();
             Span<byte> buffer = stackalloc byte[len];
             BaseStream.Read(buffer);
             return buffer.ToArray();
         }
-        public byte[] ReadByteArray(int size)
+        public virtual byte[] ReadByteArray(int size)
         {
             Span<byte> buffer = stackalloc byte[size];
             BaseStream.Read(buffer);
             return buffer.ToArray();
         }
 
-        public int ReadVarInt()
+        public virtual int ReadVarInt()
         {
             Span<byte> buffer = stackalloc byte[1];
 
@@ -204,7 +203,7 @@ namespace McProtoNet.Core.IO
 
             return result;
         }
-        public long ReadVarLong()
+        public virtual long ReadVarLong()
         {
             Span<byte> buffer = stackalloc byte[1];
 
@@ -229,7 +228,7 @@ namespace McProtoNet.Core.IO
             return result;
         }
 
-        public byte[] ReadToEnd()
+        public virtual byte[] ReadToEnd()
         {
             using (var ms = new MemoryStream())
             {
@@ -238,7 +237,7 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public NbtCompound? ReadNbt()
+        public virtual NbtCompound? ReadNbt()
         {
             var nbtreader = new NbtReader(BaseStream);
             NbtCompound? result = null;

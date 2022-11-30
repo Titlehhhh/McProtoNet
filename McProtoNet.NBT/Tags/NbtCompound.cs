@@ -81,7 +81,7 @@ namespace McProtoNet.NBT
         /// or given tag already has a Parent. </exception>
         public override NbtTag? this[string tagName]
         {
-            
+
             get => Get<NbtTag>(tagName);
             set
             {
@@ -210,7 +210,7 @@ namespace McProtoNet.NBT
         /// <param name="tagName"> Tag name to search for. May not be <c>null</c>. </param>
         /// <returns> true if a tag with given name was found; otherwise, false. </returns>
         /// <exception cref="ArgumentNullException"> <paramref name="tagName"/> is <c>null</c>. </exception>
-        
+
         public bool Contains(string tagName)
         {
             if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -478,7 +478,7 @@ namespace McProtoNet.NBT
         /// <returns> true if tag is found; otherwise, false. </returns>
         /// <param name="tag"> The object to locate in this NbtCompound. May not be <c>null</c>. </param>
         /// <exception cref="ArgumentNullException"> <paramref name="tag"/> is <c>null</c>. </exception>
-        
+
         public bool Contains(NbtTag tag)
         {
             if (tag == null) throw new ArgumentNullException(nameof(tag));

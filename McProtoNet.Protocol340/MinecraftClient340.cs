@@ -1,4 +1,5 @@
 ﻿using McProtoNet.Core.Packets;
+using McProtoNet.Core.Packets.DefaultPackets.Client;
 using McProtoNet.Utils;
 using Starksoft.Net.Proxy;
 using System.Net.Sockets;
@@ -103,7 +104,7 @@ namespace McProtoNet.Protocol340
 
         public void Connect(string serverName = "localhost", ushort port = 25565)
         {
-            
+
 
             Task.Run(() =>
             {

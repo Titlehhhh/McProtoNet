@@ -1,8 +1,7 @@
-﻿
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
 
-using McProtoNet.Core.IO;
-
-namespace McProtoNet.Core.Protocol
+namespace McProtoNet.Core.Packets.DefaultPackets.Client
 {
 
     public sealed class EncryptionResponsePacket : Packet

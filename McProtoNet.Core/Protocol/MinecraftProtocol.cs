@@ -349,7 +349,7 @@ namespace McProtoNet.Core.Protocol
         }
 
         private bool _disposed = false;
-        
+
         #region DisposeSync
         public void Dispose()
         {
@@ -390,7 +390,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-            
+
         }
 
         public void SendPacket(MemoryStream data, int id)
@@ -405,7 +405,7 @@ namespace McProtoNet.Core.Protocol
         {
             throw new NotImplementedException();
             ThrowIfDisposed();
-            
+
         }
     }
 

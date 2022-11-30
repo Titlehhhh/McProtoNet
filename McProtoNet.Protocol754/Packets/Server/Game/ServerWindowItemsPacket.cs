@@ -16,11 +16,11 @@ namespace McProtoNet.Protocol754.Packets.Server
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             WindowId = stream.ReadUnsignedByte();
-            
+
             Items = new ItemStack?[stream.ReadShort()];
             for (int i = 0; i < Items.Length; i++)
             {
-                
+
                 Items[i] = stream.ReadItem();
             }
         }

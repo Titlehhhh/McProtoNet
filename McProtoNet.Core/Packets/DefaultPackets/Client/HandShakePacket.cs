@@ -1,6 +1,7 @@
 ﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
 
-namespace McProtoNet.Core.Protocol
+namespace McProtoNet.Core.Packets.DefaultPackets.Client
 {
     public sealed class HandShakePacket : Packet
     {
@@ -19,7 +20,7 @@ namespace McProtoNet.Core.Protocol
 
         public HandShakePacket()
         {
-            
+
         }
 
         public override void Read(IMinecraftPrimitiveReader stream)

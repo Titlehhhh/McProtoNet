@@ -8,14 +8,14 @@ namespace McProtoNet.Protocol754.Packets.Client
     {
         public PlayerAction Action { get; set; }
 
-        public Point3_Int Position { get; set; }
+        public Vector3 Position { get; set; }
 
         public BlockFace Face { get; set; }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(Action);
-            stream.WritePoint3_int(Position);
+            stream.WritePosition(Position);
             stream.WriteUnsignedByte((byte)Face);
         }
         public override void Read(IMinecraftPrimitiveReader stream)
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         }
         public ClientPlayerActionPacket() { }
 
-        public ClientPlayerActionPacket(PlayerAction action, Point3_Int position, BlockFace face)
+        public ClientPlayerActionPacket(PlayerAction action, Vector3 position, BlockFace face)
         {
             Action = action;
             Position = position;

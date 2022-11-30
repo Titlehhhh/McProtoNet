@@ -1,4 +1,7 @@
 ﻿using McProtoNet.Core.Packets;
+using McProtoNet.Core.Packets.DefaultPackets;
+using McProtoNet.Core.Packets.DefaultPackets.Client;
+using McProtoNet.Core.Packets.DefaultPackets.Server;
 using McProtoNet.Protocol340.Packets.Client;
 using McProtoNet.Protocol340.Packets.Server;
 using McProtoNet.Utils;
@@ -57,7 +60,7 @@ namespace McProtoNet.Protocol340
 
         private void Client_OnError(IPacketReaderWriter client, Exception exception)
         {
-            
+
             UnRegisterEvents();
             taskCompletion.SetResult(false);
         }
@@ -170,7 +173,7 @@ namespace McProtoNet.Protocol340
 
         public void Close()
         {
-           
+
         }
     }
 }

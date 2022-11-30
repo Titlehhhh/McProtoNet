@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol340.Packets.Server
                 int x = (chunkX << 4) + (pos >> 12 & 15);
                 int y = pos & 255;
                 int z = (chunkZ << 4) + (pos >> 8 & 15);
-                Records[index] = new BlockChangeRecord(new Point3_Int(x, y, z), block);
+                Records[index] = new BlockChangeRecord(new Vector3(x, y, z), block);
             }
         }
 

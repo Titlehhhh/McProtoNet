@@ -1,4 +1,7 @@
-﻿using McProtoNet.Protocol754.Packets.Client;
+﻿using McProtoNet.Core.Packets.DefaultPackets;
+using McProtoNet.Core.Packets.DefaultPackets.Client;
+using McProtoNet.Core.Packets.DefaultPackets.Server;
+using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Protocol754.Packets.Server;
 using McProtoNet.Utils;
 

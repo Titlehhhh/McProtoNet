@@ -4,6 +4,7 @@ namespace McProtoNet.Core.IO
 {
     public interface IMinecraftPrimitiveReader
     {
+
         byte[] ReadToEnd();
         bool ReadBoolean();
         double ReadDouble();
@@ -28,6 +29,10 @@ namespace McProtoNet.Core.IO
         ushort ReadUnsignedShort();
         int ReadVarInt();
         long ReadVarLong();
-        NbtCompound ReadNbt();
+        /// <summary>
+        /// Read optional NBT
+        /// </summary>
+        /// <returns></returns>
+        NbtCompound? ReadNbt();
     }
 }

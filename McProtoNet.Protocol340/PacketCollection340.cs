@@ -1,4 +1,7 @@
 ﻿using McProtoNet.Core.Packets;
+using McProtoNet.Core.Packets.DefaultPackets;
+using McProtoNet.Core.Packets.DefaultPackets.Client;
+using McProtoNet.Core.Packets.DefaultPackets.Server;
 using McProtoNet.Protocol340.Packets.Client;
 using McProtoNet.Protocol340.Packets.Client.Game;
 using McProtoNet.Protocol340.Packets.Server;

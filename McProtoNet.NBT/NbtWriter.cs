@@ -767,7 +767,7 @@ namespace McProtoNet.NBT
         /// <param name="tag"> Tag to write. Must not be null. </param>
         /// <exception cref="NbtFormatException"> No more tags can be written -OR- given tag is unacceptable at this time. </exception>
         /// <exception cref="ArgumentNullException"> <paramref name="tag"/> is null </exception>
-        public void WriteTag( NbtTag tag)
+        public void WriteTag(NbtTag tag)
         {
             if (tag == null) throw new ArgumentNullException(nameof(tag));
             EnforceConstraints(tag.Name, tag.TagType);

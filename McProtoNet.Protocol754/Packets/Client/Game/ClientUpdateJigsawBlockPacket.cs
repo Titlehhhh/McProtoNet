@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
     [PacketInfo(0x29, PacketCategory.Game, 754, PacketSide.Client)]
     public sealed class ClientUpdateJigsawBlockPacket : Packet
     {
-        public Point3_Int Position { get; private set; }
+        public Vector3 Position { get; private set; }
         public string Name { get; private set; }
         public string Traget { get; private set; }
         public string Pool { get; private set; }
@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            //Position = (Point3_Int)stream.ReadVarInt();
+            //Position = (Vector3)stream.ReadVarInt();
             Name = stream.ReadString();
             Traget = stream.ReadString();
             Pool = stream.ReadString();
@@ -31,7 +31,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         }
         public ClientUpdateJigsawBlockPacket() { }
 
-        public ClientUpdateJigsawBlockPacket(Point3_Int Position, string Name, string Traget, string Pool, string FinalState, string JointType)
+        public ClientUpdateJigsawBlockPacket(Vector3 Position, string Name, string Traget, string Pool, string FinalState, string JointType)
         {
             this.Position = Position;
             this.Name = Name;

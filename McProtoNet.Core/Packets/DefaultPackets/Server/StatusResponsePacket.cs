@@ -1,6 +1,7 @@
 ﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
 
-namespace McProtoNet.Core.Protocol
+namespace McProtoNet.Core.Packets.DefaultPackets.Server
 {
     public sealed class StatusResponsePacket : Packet
     {

@@ -2,6 +2,6 @@
 
 namespace McProtoNet.Protocol340.Data
 {
-    public record class BlockChangeRecord(Point3_Int Position, BlockState State);
-    
+    public record class BlockChangeRecord(Vector3 Position, BlockState State);
+
 }

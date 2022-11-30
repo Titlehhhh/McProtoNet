@@ -14,7 +14,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         out.writeBoolean(this.insideBlock);
          */
         public Hand Hand { get; private set; }
-        public Point3_Int Position { get; private set; }
+        public Vector3 Position { get; private set; }
         public BlockFace Face { get; private set; }
         public float CursorX { get; private set; }
         public float CursorY { get; private set; }
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol754.Packets.Client
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(Hand);
-            stream.WritePoint3_int(Position);
+            stream.WritePosition(Position);
             stream.WriteFloat(CursorX);
             stream.WriteFloat(CursorY);
             stream.WriteFloat(CursorZ);
@@ -36,7 +36,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 
         }
 
-        public ClientPlayerPlaceBlockPacket(Hand hand, Point3_Int position, BlockFace face, float cursorX, float cursorY, float cursorZ, bool insideBlock)
+        public ClientPlayerPlaceBlockPacket(Hand hand, Vector3 position, BlockFace face, float cursorX, float cursorY, float cursorZ, bool insideBlock)
         {
             Hand = hand;
             Position = position;

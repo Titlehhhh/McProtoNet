@@ -4,7 +4,7 @@ using System.Text;
 
 namespace McProtoNet.Core.IO
 {
-    public sealed class MinecraftPrimitiveWriter : IMinecraftPrimitiveWriter
+    public class MinecraftPrimitiveWriter : IMinecraftPrimitiveWriter
     {
         public Stream BaseStream { get; set; }
         public MinecraftPrimitiveWriter(Stream stream)
@@ -12,14 +12,14 @@ namespace McProtoNet.Core.IO
             BaseStream = stream;
         }
 
-        public void WriteUnsignedLong(ulong value)
+        public virtual void WriteUnsignedLong(ulong value)
         {
             Span<byte> span = stackalloc byte[8];
             BinaryPrimitives.WriteUInt64BigEndian(span, value);
             BaseStream.Write(span);
         }
 
-        public void WriteULongArray(ulong[] value)
+        public virtual void WriteULongArray(ulong[] value)
         {
             WriteVarInt(value.Length);
             byte[] raw = new byte[value.Length * 8];
@@ -27,7 +27,7 @@ namespace McProtoNet.Core.IO
             BaseStream.Write(raw);
         }
 
-        public void WriteByte(sbyte value)
+        public virtual void WriteByte(sbyte value)
         {
             BaseStream.WriteByte((byte)value);
         }
@@ -35,7 +35,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteUnsignedByte(byte value)
+        public virtual void WriteUnsignedByte(byte value)
         {
             BaseStream.WriteByte(value);
         }
@@ -43,7 +43,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteBoolean(bool value)
+        public virtual void WriteBoolean(bool value)
         {
             BaseStream.WriteByte((byte)(value ? 0x01 : 0x00));
         }
@@ -51,7 +51,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteUnsignedShort(ushort value)
+        public virtual void WriteUnsignedShort(ushort value)
         {
             Span<byte> span = stackalloc byte[2];
             BinaryPrimitives.WriteUInt16BigEndian(span, value);
@@ -61,7 +61,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteShort(short value)
+        public virtual void WriteShort(short value)
         {
             Span<byte> span = stackalloc byte[2];
             BinaryPrimitives.WriteInt16BigEndian(span, value);
@@ -71,7 +71,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteInt(int value)
+        public virtual void WriteInt(int value)
         {
             Span<byte> span = stackalloc byte[4];
             BinaryPrimitives.WriteInt32BigEndian(span, value);
@@ -81,7 +81,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteLong(long value)
+        public virtual void WriteLong(long value)
         {
             Span<byte> span = stackalloc byte[8];
             BinaryPrimitives.WriteInt64BigEndian(span, value);
@@ -91,7 +91,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteFloat(float value)
+        public virtual void WriteFloat(float value)
         {
             Span<byte> span = stackalloc byte[4];
             BinaryPrimitives.WriteSingleBigEndian(span, value);
@@ -101,7 +101,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteDouble(double value)
+        public virtual void WriteDouble(double value)
         {
             Span<byte> span = stackalloc byte[8];
             BinaryPrimitives.WriteDoubleBigEndian(span, value);
@@ -111,7 +111,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteString(string value)
+        public virtual void WriteString(string value)
         {
             using var bytes = new RentedArray<byte>(Encoding.UTF8.GetByteCount(value));
             Encoding.UTF8.GetBytes(value, bytes.Span);
@@ -122,7 +122,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteVarInt(int value)
+        public virtual void WriteVarInt(int value)
         {
             var unsigned = (uint)value;
             do
@@ -138,12 +138,12 @@ namespace McProtoNet.Core.IO
             while (unsigned != 0);
         }
 
-        public void WriteVarInt(Enum value)
+        public virtual void WriteVarInt(Enum value)
         {
             WriteVarInt(Convert.ToInt32(value));
         }
 
-        public void WriteLongArray(long[] values)
+        public virtual void WriteLongArray(long[] values)
         {
             Span<byte> buffer = stackalloc byte[8];
             for (int i = 0; i < values.Length; i++)
@@ -158,7 +158,7 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteVarLong(long value)
+        public virtual void WriteVarLong(long value)
         {
             var unsigned = (ulong)value;
 
@@ -182,14 +182,14 @@ namespace McProtoNet.Core.IO
 
 
 
-        public void WriteByteArray(byte[] values)
+        public virtual void WriteByteArray(byte[] values)
         {
             WriteVarInt(values.Length);
             BaseStream.Write(values);
         }
 
 
-        public void WriteUuid(Guid value)
+        public virtual void WriteUuid(Guid value)
         {
             if (value == Guid.Empty)
             {
@@ -203,7 +203,7 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public void WriteNbt(NbtCompound? nbt, bool root = true)
+        public virtual void WriteNbt(NbtCompound? nbt, bool root = true)
         {
             string name = "";
             if (root && nbt.HasValue)
@@ -214,7 +214,7 @@ namespace McProtoNet.Core.IO
             {
                 if (root)
                 {
-                    foreach(var tag in nbt.Tags)
+                    foreach (var tag in nbt.Tags)
                     {
                         writer.WriteTag(tag);
                     }
@@ -222,13 +222,13 @@ namespace McProtoNet.Core.IO
                 else
                 {
                     writer.WriteTag(nbt);
-                }                
+                }
             }
             writer.EndCompound();
             writer.Finish();
-        }        
+        }
 
-        public void Write(byte[] buffer)
+        public virtual void Write(byte[] buffer)
         {
             BaseStream.Write(buffer);
         }

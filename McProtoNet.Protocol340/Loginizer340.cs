@@ -1,10 +1,13 @@
 ﻿using McProtoNet.Core.Packets;
+using McProtoNet.Core.Packets.DefaultPackets;
+using McProtoNet.Core.Packets.DefaultPackets.Client;
+using McProtoNet.Core.Packets.DefaultPackets.Server;
 using McProtoNet.Protocol340.Packets.Server;
 using McProtoNet.Utils;
 
 namespace McProtoNet.Protocol340
 {
-    public sealed class Loginizer340 
+    public sealed class Loginizer340
     {
         private readonly MinecraftPrimitiveReader primitiveReader = new();
 

@@ -2,5 +2,7 @@
   <PropertyGroup>
     <PackageVersion>1.6.0</PackageVersion>
   </PropertyGroup>
-  
+  <ItemGroup>
+    <PackageVersion Include="System.Runtime.Experimental" Version="6.0.0-preview.7.21377.19" />
+  </ItemGroup>
 </Project>

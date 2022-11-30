@@ -1,13 +1,5 @@
-﻿using McProtoNet.NBT;
-using McProtoNet.Protocol340.Data;
+﻿using McProtoNet.Protocol340.Data;
 using McProtoNet.Protocol340.Data.World.Chunk;
-using System;
-using System.Collections.Generic;
-using System.Data.Common;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McProtoNet.Protocol340.Util
 {
@@ -19,20 +11,20 @@ namespace McProtoNet.Protocol340.Util
         private static int POSITION_Z_SIZE = 38;
         private static int POSITION_Y_SHIFT = 0xFFF;
         private static int POSITION_WRITE_SHIFT = 0x3FFFFFF;
-        public static Point3_Int ReadPoint3_Int(this IMinecraftPrimitiveReader reader)
+        public static Vector3 ReadPosition(this IMinecraftPrimitiveReader reader)
         {
             long val = reader.ReadLong();
 
             int x = (int)(val >> POSITION_X_SIZE);
             int y = (int)((val >> POSITION_Y_SIZE) & POSITION_Y_SHIFT);
             int z = (int)((val << POSITION_Z_SIZE) >> POSITION_Z_SIZE);
-            return new Point3_Int(x, y, z);
+            return new Vector3(x, y, z);
         }
-        public static void WritePoint3_int(this IMinecraftPrimitiveWriter writer, Point3_Int point)
+        public static void WritePosition(this IMinecraftPrimitiveWriter writer, Vector3 point)
         {
-            long x = point.X & POSITION_WRITE_SHIFT;
-            long y = point.Y & POSITION_Y_SHIFT;
-            long z = point.Z & POSITION_WRITE_SHIFT;
+            long x = (int)point.X & POSITION_WRITE_SHIFT;
+            long y = (int)point.Y & POSITION_Y_SHIFT;
+            long z = (int)point.Z & POSITION_WRITE_SHIFT;
 
             writer.WriteLong(x << POSITION_X_SIZE | y << POSITION_Y_SIZE | z);
         }

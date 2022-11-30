@@ -4,13 +4,13 @@ namespace McProtoNet.Protocol754.Packets.Client
     [PacketInfo(0x2B, PacketCategory.Game, 754, PacketSide.Client)]
     public sealed class ClientUpdateSignPacket : Packet
     {
-        public Point3_Int Position { get; private set; }
+        public Vector3 Position { get; private set; }
         public string[] Lines { get; private set; }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
-            stream.WritePoint3_int(Position);
-            foreach(var line in Lines)
+            stream.WritePosition(Position);
+            foreach (var line in Lines)
             {
                 stream.WriteString(line);
             }
@@ -20,10 +20,10 @@ namespace McProtoNet.Protocol754.Packets.Client
 
         }
 
-        public ClientUpdateSignPacket(Point3_Int position, string[] lines)
+        public ClientUpdateSignPacket(Vector3 position, string[] lines)
         {
             Position = position;
-            Lines =new string[lines.Length];
+            Lines = new string[lines.Length];
 
             Array.Copy(lines, Lines, lines.Length);
         }
