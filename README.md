@@ -1,5 +1,5 @@
 
-[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet?style=flat-square)](https://www.nuget.org/packages/McProtoNet/)
+[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet?style=flat-square)](https://www.nuget.org/packages/McProtoNet/) 
 
 
 
@@ -12,13 +12,13 @@ En: Multi-version library for working with the Minecraft protocol, written in c#
 
 ## Поддерживаемые версии
 - [x] 1.12 (1.12.2, 340)
-- [x] 1.13 (1.13.2, 404)
-- [x] 1.14 (1.14.4, 498)
-- [x] 1.15 (1.15.2, 578)
-- [x] 1.16 (1.16.5, 754)
-- [x] 1.17 (1.17.1, 756)
-- [x] 1.18 (1.18.1, 758)
-- [x] 1.19 (1.19.2, 760)
+- [x] 1.13 (1.13.2, 404) Wait for update 1.7
+- [x] 1.14 (1.14.4, 498) Wait for update 1.7
+- [x] 1.15 (1.15.2, 578) Wait for update 1.7
+- [x] 1.16 (1.16.5, 754) 
+- [x] 1.17 (1.17.1, 756) Wait for update 1.7
+- [x] 1.18 (1.18.1, 758) Wait for update 1.7
+- [x] 1.19 (1.19.2, 760) Wait for update 1.7
 
 # Пример кода
 ```
