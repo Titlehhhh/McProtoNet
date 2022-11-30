@@ -19,6 +19,16 @@ namespace McProtoNet.Utils
         private IPEndPoint localIPEndPoint;
         public LanServerDetector(int ttl)
         {
+            //IPHostEntry HosyEntry = Dns.GetHostEntry((Dns.GetHostName()));
+            //if (HosyEntry.AddressList.Length > 0)
+            //{
+            //    foreach (IPAddress ip in HosyEntry.AddressList)
+            //    {
+            //        
+            //        strIP = ip.ToString();
+            //        cmbInterfaces.Items.Add(strIP);
+            //    }
+            //}     
             udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
 
             localIPEndPoint = new IPEndPoint(IPAddress.Any, Port);

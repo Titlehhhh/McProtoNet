@@ -17,6 +17,11 @@ namespace McProtoNet.Core.Protocol
             Port = port;
         }
 
+        public HandShakePacket()
+        {
+            
+        }
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             ProtocolVersion = stream.ReadVarInt();

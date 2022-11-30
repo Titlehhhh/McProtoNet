@@ -153,8 +153,8 @@ namespace McProtoNet.Core.IO
         public string ReadString(int maxLength = 32767)
         {
             var length = ReadVarInt();
-            Span<byte> buffer = stackalloc byte[length];
-            BaseStream.Read(buffer);
+            byte[] buffer = new byte[length];
+            BaseStream.Read(buffer, 0, length);
 
             var value = Encoding.UTF8.GetString(buffer);
             if (maxLength > 0 && value.Length > maxLength)

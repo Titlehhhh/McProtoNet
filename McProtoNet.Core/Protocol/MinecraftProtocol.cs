@@ -349,10 +349,7 @@ namespace McProtoNet.Core.Protocol
         }
 
         private bool _disposed = false;
-        ~MinecraftProtocol()
-        {
-            Dispose(false);
-        }
+        
         #region DisposeSync
         public void Dispose()
         {
@@ -368,7 +365,7 @@ namespace McProtoNet.Core.Protocol
 
             }
 
-            this.netmcStream.Dispose();
+            this.netmcStream?.Dispose();
 
             _disposed = true;
         }
