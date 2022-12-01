@@ -17,7 +17,7 @@ En: Multi-version library for working with the Minecraft protocol, written in c#
 - [x] 1.15 (1.15.2, 578) Wait for update 1.7
 - [x] 1.16 (1.16.5, 754) 
 - [x] 1.17 (1.17.1, 756) Wait for update 1.7
-- [x] 1.18 (1.18.1, 758) Wait for update 1.7
+- [x] 1.18 (1.18.2, 758) Wait for update 1.7
 - [x] 1.19 (1.19.2, 760) Wait for update 1.7
 
 # Пример кода
