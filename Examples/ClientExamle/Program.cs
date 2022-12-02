@@ -4,8 +4,12 @@ using McProtoNet.Protocol340.Packets.Server;
 
 Console.WriteLine("start");
 
-MinecraftClient340 client = new("TestBot", "192.168.0.3", 53632);
 
+Console.ReadLine();
+
+return;
+
+MinecraftClient340 client = new("TestBot", "192.168.0.3", 53632);
 
 client.PacketSented += (s, p) =>
 {
