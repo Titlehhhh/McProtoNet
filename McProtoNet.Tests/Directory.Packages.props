@@ -1,8 +1,6 @@
 <Project>
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="3.2.0" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk">
-      <Version>17.4.0</Version>
-    </PackageVersion>
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.4.0" />
   </ItemGroup>
 </Project>

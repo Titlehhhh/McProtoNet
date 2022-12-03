@@ -4,11 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="AngleSharp" Version="0.17.1" />
-    <PackageVersion Include="DnsClient" Version="1.7.0" />
-    <PackageVersion Include="IKVM" Version="8.3.3" />
-    <PackageVersion Include="IKVM.Maven.Sdk" Version="1.1.1" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
-    <PackageVersion Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-    <PackageVersion Include="System.Runtime.Experimental" Version="6.0.0-preview.7.21377.19" />
   </ItemGroup>
 </Project>

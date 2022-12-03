@@ -19,8 +19,8 @@
   </PropertyGroup>
 	
   <ItemGroup>
-    <PackageReference Include="DnsClient" Version="1.6.1" />
-    <PackageReference Include="StarkSoftProxy" Version="1.6.0" />
+    <PackageReference Include="DnsClient" Version="1.7.0"/>
+    <PackageReference Include="StarkSoftProxy" />
   </ItemGroup>
 
   <ItemGroup>
