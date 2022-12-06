@@ -1,11 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 	
   <PropertyGroup>
-	  <TargetFramework>net7.0</TargetFramework>
+	  <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
 	  <ImplicitUsings>enable</ImplicitUsings>
 	  <Nullable>enable</Nullable>
-    
-    
+
+	  <LangVersion>11</LangVersion>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Геометрические примитивы для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
