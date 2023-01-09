@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x23, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientSelectTradePacket : Packet
+    
+    public sealed class ClientSelectTradePacket : Packet<Protocol754>
     {
         public int Slot { get; private set; }
 

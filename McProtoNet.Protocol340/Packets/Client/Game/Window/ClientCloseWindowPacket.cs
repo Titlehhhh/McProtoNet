@@ -1,7 +1,7 @@
 namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
-    public sealed class ClientCloseWindowPacket : Packet
+    public sealed class ClientCloseWindowPacket : Packet<Protocol340>
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

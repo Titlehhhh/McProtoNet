@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x15, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientPlayerMovementPacket : Packet
+    
+    public sealed class ClientPlayerMovementPacket : Packet<Protocol754>
     {
         public bool OnGround { get; private set; }
 

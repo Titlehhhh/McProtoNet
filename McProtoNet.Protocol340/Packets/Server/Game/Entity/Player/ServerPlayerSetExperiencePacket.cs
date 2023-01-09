@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerSetExperiencePacket : Packet
+    public sealed class ServerPlayerSetExperiencePacket : Packet<Protocol340>
     {
         //this.experience = in.readFloat();
         //this.level = in.readVarInt();

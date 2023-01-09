@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x2D, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerOpenWindowPacket : Packet
+    
+    public sealed class ServerOpenWindowPacket : Packet<Protocol754>
     {
         public int Id { get; set; }
         public WindowType WinType { get; set; }

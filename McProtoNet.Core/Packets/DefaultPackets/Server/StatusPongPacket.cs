@@ -3,14 +3,14 @@ using McProtoNet.Core.Protocol;
 
 namespace McProtoNet.Core.Packets.DefaultPackets.Server
 {
-    public sealed class StatusPongPacket : Packet
+    public sealed class StatusPongPacket : IMinecraftPacket
     {
-        public override void Read(IMinecraftPrimitiveReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public override void Write(IMinecraftPrimitiveWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

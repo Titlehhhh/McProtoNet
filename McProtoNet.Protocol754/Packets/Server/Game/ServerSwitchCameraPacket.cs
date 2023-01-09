@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x3E, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerSwitchCameraPacket : Packet
+    
+    public sealed class ServerSwitchCameraPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

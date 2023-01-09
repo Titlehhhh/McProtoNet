@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnMobPacket : Packet
+    public sealed class ServerSpawnMobPacket : Packet<Protocol340>
     {
         public int EntityId { get; private set; }
         public Guid UUID { get; private set; }

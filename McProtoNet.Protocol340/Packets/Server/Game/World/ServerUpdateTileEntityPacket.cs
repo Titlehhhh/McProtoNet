@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerUpdateTileEntityPacket : Packet
+    public sealed class ServerUpdateTileEntityPacket : Packet<Protocol340>
     {
         //this.position = NetUtil.readPosition(in);
         //this.type = MagicValues.key(UpdatedTileType.class, in.readUnsignedByte());

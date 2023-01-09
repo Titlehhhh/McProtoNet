@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x2C, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientPlayerSwingArmPacket : Packet
+    
+    public sealed class ClientPlayerSwingArmPacket : Packet<Protocol754>
     {
         public Hand PlayerHand { get; private set; }
 

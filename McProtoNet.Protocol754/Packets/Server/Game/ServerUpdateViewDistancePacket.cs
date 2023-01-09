@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x41, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerUpdateViewDistancePacket : Packet
+    
+    public sealed class ServerUpdateViewDistancePacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientSteerBoatPacket : Packet
+    public sealed class ClientSteerBoatPacket : Packet<Protocol340>
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

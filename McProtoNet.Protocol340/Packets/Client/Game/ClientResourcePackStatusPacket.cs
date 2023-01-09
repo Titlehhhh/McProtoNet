@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientResourcePackStatusPacket : Packet
+    public sealed class ClientResourcePackStatusPacket : Packet<Protocol340>
     {
         public ResourcePackStatus Status { get; private set; }
 

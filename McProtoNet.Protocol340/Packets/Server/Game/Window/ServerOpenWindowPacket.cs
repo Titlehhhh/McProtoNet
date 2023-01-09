@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerOpenWindowPacket : Packet
+    public sealed class ServerOpenWindowPacket : Packet<Protocol340>
     {
         //this.windowId = in.readUnsignedByte();
         //this.type = MagicValues.key(WindowType.class, in.readString());

@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x25, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerMapDataPacket : Packet
+    
+    public sealed class ServerMapDataPacket : Packet<Protocol754>
     {
 
         public int MapId { get; set; }

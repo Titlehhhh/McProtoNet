@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x26, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerTradeListPacket : Packet
+    
+    public sealed class ServerTradeListPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

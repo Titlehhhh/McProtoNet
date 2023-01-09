@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x1F, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerKeepAlivePacket : Packet
+    
+    public sealed class ServerKeepAlivePacket : Packet<Protocol754>
     {
         public long PingID { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlaySoundPacket : Packet
+    public sealed class ServerPlaySoundPacket : Packet<Protocol340>
     {
         //String value = in.readString();
         //try {

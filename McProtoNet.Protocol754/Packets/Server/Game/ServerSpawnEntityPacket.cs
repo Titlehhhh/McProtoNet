@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x00, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerSpawnEntityPacket : Packet
+    
+    public sealed class ServerSpawnEntityPacket : Packet<Protocol754>
     {
         public int EntityId { get; private set; }
         public Guid UUID { get; private set; }

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityDestroyPacket : Packet
+    public sealed class ServerEntityDestroyPacket : Packet<Protocol340>
     {
         public int[] EntityIds { get; private set; }
 

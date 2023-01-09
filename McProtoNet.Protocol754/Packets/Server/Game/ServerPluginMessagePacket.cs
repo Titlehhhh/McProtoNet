@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x17, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerPluginMessagePacket : Packet
+    
+    public sealed class ServerPluginMessagePacket : Packet<Protocol754>
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }

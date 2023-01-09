@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x56, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerEntityTeleportPacket : Packet
+    
+    public sealed class ServerEntityTeleportPacket : Packet<Protocol754>
     {
         public int EntityId { get; private set; }
         public double X { get; private set; }

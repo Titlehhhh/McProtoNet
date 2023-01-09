@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerCombatPacket : Packet
+    public sealed class ServerCombatPacket : Packet<Protocol340>
     {
         //this.state = MagicValues.key(CombatState.class, in.readVarInt());
         //if(this.state == CombatState.END_COMBAT) {

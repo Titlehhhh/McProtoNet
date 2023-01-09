@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerExplosionPacket : Packet
+    public sealed class ServerExplosionPacket : Packet<Protocol340>
     {
         //this.x = in.readFloat();
         //this.y = in.readFloat();

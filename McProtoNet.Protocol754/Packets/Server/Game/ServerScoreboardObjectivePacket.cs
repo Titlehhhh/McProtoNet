@@ -1,16 +1,27 @@
+using McProtoNet.Protocol754.Data;
+
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x4A, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerScoreboardObjectivePacket : Packet
+    
+    public sealed class ServerScoreboardObjectivePacket : Packet<Protocol754>
     {
+        public string Name { get; set; }
+        public ObjectiveAction Action { get; set; }
+        public string? DisplayName { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            Name = stream.ReadString();
+            Action = (ObjectiveAction)stream.ReadSignedByte();
+            if(Action == ObjectiveAction.ADD || Action == ObjectiveAction.UPDATE)
+            {
+                DisplayName = stream.ReadString();
+                //TODO
+            }
         }
         public ServerScoreboardObjectivePacket() { }
     }

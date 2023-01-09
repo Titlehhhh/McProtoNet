@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBossBarPacket : Packet
+    public sealed class ServerBossBarPacket : Packet<Protocol340>
     {
         //this.uuid = in.readUUID();
         //this.action = MagicValues.key(BossBarAction.class, in.readVarInt());

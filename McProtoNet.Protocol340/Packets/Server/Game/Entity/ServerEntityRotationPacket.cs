@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityRotationPacket : Packet
+    public sealed class ServerEntityRotationPacket : Packet<Protocol340>
     {
         public int EntityId { get; private set; }
 

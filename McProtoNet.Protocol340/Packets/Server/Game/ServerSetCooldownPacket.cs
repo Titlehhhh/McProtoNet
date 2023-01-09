@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSetCooldownPacket : Packet
+    public sealed class ServerSetCooldownPacket : Packet<Protocol340>
     {
         //this.itemId = in.readVarInt();
         //this.cooldownTicks = in.readVarInt();

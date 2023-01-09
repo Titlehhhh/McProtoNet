@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnObjectPacket : Packet
+    public sealed class ServerSpawnObjectPacket : Packet<Protocol340>
     {
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();

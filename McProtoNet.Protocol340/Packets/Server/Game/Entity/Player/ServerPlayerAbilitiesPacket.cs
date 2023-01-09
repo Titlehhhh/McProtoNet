@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerAbilitiesPacket : Packet
+    public sealed class ServerPlayerAbilitiesPacket : Packet<Protocol340>
     {
         //byte flags = in.readByte();
         //this.invincible = (flags & 1) > 0;

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x19, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientPrepareCraftingGridPacket : Packet
+    
+    public sealed class ClientPrepareCraftingGridPacket : Packet<Protocol754>
     {
         public byte WindowId { get; private set; }
         public string RecipeId { get; private set; }

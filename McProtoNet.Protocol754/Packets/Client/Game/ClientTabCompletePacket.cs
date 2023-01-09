@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x06, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientTabCompletePacket : Packet
+    
+    public sealed class ClientTabCompletePacket : Packet<Protocol754>
     {
         public int TransactionId { get; private set; }
         public string Text { get; private set; }

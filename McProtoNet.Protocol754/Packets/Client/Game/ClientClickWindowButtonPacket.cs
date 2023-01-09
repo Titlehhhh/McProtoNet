@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x08, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientClickWindowButtonPacket : Packet
+    
+    public sealed class ClientClickWindowButtonPacket : Packet<Protocol754>
     {
         public byte WindowId { get; private set; }
         public byte ButtonId { get; private set; }

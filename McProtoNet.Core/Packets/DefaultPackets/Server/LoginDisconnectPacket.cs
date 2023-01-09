@@ -4,15 +4,15 @@ using McProtoNet.Core.Protocol;
 namespace McProtoNet.Core.Packets.DefaultPackets.Server
 {
 
-    public sealed class LoginDisconnectPacket : Packet
+    public sealed class LoginDisconnectPacket : IMinecraftPacket
     {
         public string Message { get; set; }
-        public override void Read(IMinecraftPrimitiveReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
             Message = stream.ReadString();
         }
 
-        public override void Write(IMinecraftPrimitiveWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteString(Message);
         }

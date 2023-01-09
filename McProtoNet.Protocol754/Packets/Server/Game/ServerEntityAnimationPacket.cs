@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x05, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerEntityAnimationPacket : Packet
+    
+    public sealed class ServerEntityAnimationPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

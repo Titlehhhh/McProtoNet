@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x04, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientRequestPacket : Packet
+    
+    public sealed class ClientRequestPacket : Packet<Protocol754>
     {
         public ClientRequest Request { get; private set; }
 

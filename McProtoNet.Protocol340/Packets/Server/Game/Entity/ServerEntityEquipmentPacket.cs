@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityEquipmentPacket : Packet
+    public sealed class ServerEntityEquipmentPacket : Packet<Protocol340>
     {
         //this.entityId = in.readVarInt();
         //this.slot = MagicValues.key(EquipmentSlot.class, in.readVarInt());

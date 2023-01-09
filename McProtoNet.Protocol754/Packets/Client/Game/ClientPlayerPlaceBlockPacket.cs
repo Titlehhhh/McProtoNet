@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x2E, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientPlayerPlaceBlockPacket : Packet
+    
+    public sealed class ClientPlayerPlaceBlockPacket : Packet<Protocol754>
     {
         /*
          * out.writeVarInt(MagicValues.value(Integer.class, this.hand));

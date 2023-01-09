@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x18, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientMoveItemToHotbarPacket : Packet
+    
+    public sealed class ClientMoveItemToHotbarPacket : Packet<Protocol754>
     {
         public int Slot { get; private set; }
 

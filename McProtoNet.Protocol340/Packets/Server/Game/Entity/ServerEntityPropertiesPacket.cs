@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityPropertiesPacket : Packet
+    public sealed class ServerEntityPropertiesPacket : Packet<Protocol340>
     {
         //this.entityId = in.readVarInt();
         //this.attributes = new ArrayList<Attribute>();

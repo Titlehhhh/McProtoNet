@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x05, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientSettingsPacket : Packet
+    
+    public sealed class ClientSettingsPacket : Packet<Protocol754>
     {
         public string Locale { get; set; }
         public byte RenderDistance { get; set; }

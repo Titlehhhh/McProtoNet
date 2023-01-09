@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x3B, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerMultiBlockChangePacket : Packet
+    
+    public sealed class ServerMultiBlockChangePacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

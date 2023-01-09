@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x39, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerRespawnPacket : Packet
+    
+    public sealed class ServerRespawnPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

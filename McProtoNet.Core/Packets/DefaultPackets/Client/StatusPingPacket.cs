@@ -3,14 +3,14 @@ using McProtoNet.Core.Protocol;
 
 namespace McProtoNet.Core.Packets.DefaultPackets.Client
 {
-    public sealed class StatusPingPacket : Packet
+    public sealed class StatusPingPacket : IMinecraftPacket
     {
-        public override void Read(IMinecraftPrimitiveReader stream)
+        public void Read(IMinecraftPrimitiveReader stream)
         {
 
         }
 
-        public override void Write(IMinecraftPrimitiveWriter stream)
+        public void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x2D, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientSpectatePacket : Packet
+    
+    public sealed class ClientSpectatePacket : Packet<Protocol754>
     {
 
 

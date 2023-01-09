@@ -81,7 +81,7 @@ namespace McProtoNet.Core.Protocol
 
         }
         [Obsolete("Этот метод не рекомендуется использовать, из-за соображений производительности. Используйте SendPacket()")]
-        public async Task SendPacketAsync(Packet packet, int id, CancellationToken token = default)
+        public async Task SendPacketAsync(IOutputPacket packet, int id, CancellationToken token = default)
         {
             ThrowIfDisposed();
 
@@ -121,7 +121,7 @@ namespace McProtoNet.Core.Protocol
 
         }
 
-        private async Task SendPacketWithoutCompressionAsync(Packet packet, int id, CancellationToken token)
+        private async Task SendPacketWithoutCompressionAsync(IOutputPacket packet, int id, CancellationToken token)
         {
             ThrowIfDisposed();
             using (MemoryStream bufferStream = new MemoryStream())
@@ -201,7 +201,7 @@ namespace McProtoNet.Core.Protocol
         #endregion
 
         #region Sync
-        public void SendPacket(Packet packet, int id)
+        public void SendPacket(IOutputPacket packet, int id)
         {
             ThrowIfDisposed();
             if (_compressionThreshold > 0)
@@ -230,7 +230,7 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
-        private void SendPacketWithoutCompression(Packet packet, int id)
+        private void SendPacketWithoutCompression(IOutputPacket packet, int id)
         {
             ThrowIfDisposed();
             using (MemoryStream bufferStream = new MemoryStream())

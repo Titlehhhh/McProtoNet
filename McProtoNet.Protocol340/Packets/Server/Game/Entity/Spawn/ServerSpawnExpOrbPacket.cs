@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnExpOrbPacket : Packet
+    public sealed class ServerSpawnExpOrbPacket : Packet<Protocol340>
     {
         public int EntityId { get; private set; }
         public double X { get; private set; }

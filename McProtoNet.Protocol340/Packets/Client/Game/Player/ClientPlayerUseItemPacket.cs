@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerUseItemPacket : Packet
+    public sealed class ClientPlayerUseItemPacket : Packet<Protocol340>
     {
         public Hand PlayerHand { get; private set; }
 

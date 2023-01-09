@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x10, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientKeepAlivePacket : Packet
+    
+    public sealed class ClientKeepAlivePacket : Packet<Protocol754>
     {
         public long PingId { get; private set; }
 

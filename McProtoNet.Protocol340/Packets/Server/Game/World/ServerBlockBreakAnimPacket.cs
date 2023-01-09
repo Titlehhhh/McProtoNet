@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBlockBreakAnimPacket : Packet
+    public sealed class ServerBlockBreakAnimPacket : Packet<Protocol340>
     {
         //this.breakerEntityId = in.readVarInt();
         //this.position = NetUtil.readPosition(in);

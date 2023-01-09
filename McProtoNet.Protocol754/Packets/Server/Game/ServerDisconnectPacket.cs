@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x19, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerDisconnectPacket : Packet
+    
+    public sealed class ServerDisconnectPacket : Packet<Protocol754>
     {
         public string Message { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

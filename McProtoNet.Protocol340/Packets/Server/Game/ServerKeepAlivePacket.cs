@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerKeepAlivePacket : Packet
+    public sealed class ServerKeepAlivePacket : Packet<Protocol340>
     {
         public long ID { get; set; }
 

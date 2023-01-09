@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x13, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerWindowItemsPacket : Packet
+    
+    public sealed class ServerWindowItemsPacket : Packet<Protocol754>
     {
         public byte WindowId { get; private set; }
         public ItemStack?[] Items { get; private set; }

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x2B, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientUpdateSignPacket : Packet
+    
+    public sealed class ClientUpdateSignPacket : Packet<Protocol754>
     {
         public Vector3 Position { get; private set; }
         public string[] Lines { get; private set; }

@@ -1,7 +1,7 @@
 ﻿
 namespace McProtoNet.Protocol340.Packets.Server
 {
-    public sealed class LoginSuccessPacket : Packet
+    public sealed class LoginSuccessPacket : Packet<Protocol340>
     {
         public Guid UUID { get; set; }
         public string Username { get; set; }

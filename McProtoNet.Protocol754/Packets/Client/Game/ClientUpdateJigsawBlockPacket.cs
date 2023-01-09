@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x29, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientUpdateJigsawBlockPacket : Packet
+    
+    public sealed class ClientUpdateJigsawBlockPacket : Packet<Protocol754>
     {
         public Vector3 Position { get; private set; }
         public string Name { get; private set; }

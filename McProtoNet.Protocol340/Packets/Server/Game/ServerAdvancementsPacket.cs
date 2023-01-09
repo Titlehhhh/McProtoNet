@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerAdvancementsPacket : Packet
+    public sealed class ServerAdvancementsPacket : Packet<Protocol340>
     {
         //this.reset = in.readBoolean();
         //

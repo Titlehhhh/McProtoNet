@@ -1,16 +1,21 @@
+using McProtoNet.Protocol754.Data;
+
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x43, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerDisplayScoreboardPacket : Packet
+    
+    public sealed class ServerDisplayScoreboardPacket : Packet<Protocol754>
     {
+        public ScoreboardPosition Position { get; set; }
+        public string Name { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
 
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            Position = (ScoreboardPosition)stream.ReadSignedByte();
+            Name = stream.ReadString();
         }
         public ServerDisplayScoreboardPacket() { }
     }

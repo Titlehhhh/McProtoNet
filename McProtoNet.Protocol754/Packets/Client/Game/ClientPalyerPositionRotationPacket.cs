@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x13, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientPlayerPositionRotationPacket : Packet
+    
+    public sealed class ClientPlayerPositionRotationPacket : Packet<Protocol754>
     {
         public double X { get; private set; }
         public double Y { get; private set; }

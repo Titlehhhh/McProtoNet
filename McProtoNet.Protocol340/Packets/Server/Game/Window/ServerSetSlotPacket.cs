@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSetSlotPacket : Packet
+    public sealed class ServerSetSlotPacket : Packet<Protocol340>
     {
         //this.windowId = in.readUnsignedByte();
         //this.slot = in.readShort();

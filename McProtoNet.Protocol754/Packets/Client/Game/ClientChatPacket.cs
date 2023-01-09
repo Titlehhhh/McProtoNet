@@ -3,8 +3,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x03, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientChatPacket : Packet
+    
+    public sealed class ClientChatPacket : Packet<Protocol754>
     {
         public string Message { get; private set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientRequestPacket : Packet
+    public sealed class ClientRequestPacket : Packet<Protocol340>
     {
         public ClientRequest Request { get; set; }
 

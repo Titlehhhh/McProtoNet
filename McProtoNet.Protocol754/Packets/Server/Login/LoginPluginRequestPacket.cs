@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Server
 {
-    [PacketInfo(0x04, PacketCategory.Login, 754, PacketSide.Server)]
-    public sealed class LoginPluginRequestPacket : Packet
+    
+    public sealed class LoginPluginRequestPacket : Packet<Protocol754>
     {
         public int MessageID { get; set; }
         public string Channel { get; set; }

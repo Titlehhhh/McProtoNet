@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnPositionPacket : Packet
+    public sealed class ServerSpawnPositionPacket : Packet<Protocol340>
     {
         public Vector3 Position { get; private set; }
         //this.position = NetUtil.readPosition(in);

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x27, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientUpdateCommandBlockMinecartPacket : Packet
+    
+    public sealed class ClientUpdateCommandBlockMinecartPacket : Packet<Protocol754>
     {
         public int EntityId { get; private set; }
         public string Command { get; private set; }

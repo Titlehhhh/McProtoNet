@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x11, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerConfirmTransactionPacket : Packet
+    
+    public sealed class ServerConfirmTransactionPacket : Packet<Protocol754>
     {
         public byte WindowId { get; private set; }
         public ushort ActionId { get; private set; }

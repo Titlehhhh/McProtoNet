@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x32, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerPlayerListEntryPacket : Packet
+    
+    public sealed class ServerPlayerListEntryPacket : Packet<Protocol754>
     {
         public PlayerListEntryAction Action { get; set; }
         public PlayerListEntry[] Entries { get; set; }

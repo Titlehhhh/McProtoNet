@@ -7,9 +7,9 @@ namespace McProtoNet.Core.Packets
     public class PacketProvider : IPacketProvider
     {
         private readonly Dictionary<Type, int> _outPackets;
-        private readonly Dictionary<int, Packet> _inPackets;
+        private readonly Dictionary<int, IInputPacket> _inPackets;
 
-        public PacketProvider(Dictionary<Type, int> outPackets, Dictionary<int, Packet> inPackets)
+        public PacketProvider(Dictionary<Type, int> outPackets, Dictionary<int, IInputPacket> inPackets)
         {
             _outPackets = outPackets;
             _inPackets = inPackets;
@@ -19,10 +19,10 @@ namespace McProtoNet.Core.Packets
             this._outPackets = outPackets.ToDictionary(k => k.Value, v => v.Key);
 
 
-            this._inPackets = inPackets.ToDictionary(k => k.Key, v => (Packet)Activator.CreateInstance(v.Value));
+            this._inPackets = inPackets.ToDictionary(k => k.Key, v => (IInputPacket)Activator.CreateInstance(v.Value));
         }
 
-        public bool TryGetInputPacket(int id, out Packet packet)
+        public bool TryGetInputPacket(int id, out IInputPacket packet)
         {
             if (_inPackets.TryGetValue(id, out packet))
             {
@@ -42,9 +42,5 @@ namespace McProtoNet.Core.Packets
             return false;
         }
 
-        public bool TryGetPacket(int id, out Packet packet)
-        {
-            throw new NotImplementedException();
-        }
     }
 }

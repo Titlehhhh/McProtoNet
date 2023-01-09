@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x1C, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerUnloadChunkPacket : Packet
+    
+    public sealed class ServerUnloadChunkPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

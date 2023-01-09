@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerPositionRotationPacket : Packet
+    public sealed class ServerPlayerPositionRotationPacket : Packet<Protocol340>
     {
 
         private readonly PositionElement[] elements = Enum.GetValues(typeof(PositionElement))

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    [PacketInfo(0x1F, PacketCategory.Game, 754, PacketSide.Client)]
-    public sealed class ClientDisplayedRecipePacket : Packet
+    
+    public sealed class ClientDisplayedRecipePacket : Packet<Protocol754>
     {
         public string RecipeId { get; private set; }
 

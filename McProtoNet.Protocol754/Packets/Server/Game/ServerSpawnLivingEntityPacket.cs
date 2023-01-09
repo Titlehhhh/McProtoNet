@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    [PacketInfo(0x02, PacketCategory.Game, 754, PacketSide.Server)]
-    public sealed class ServerSpawnLivingEntityPacket : Packet
+    
+    public sealed class ServerSpawnLivingEntityPacket : Packet<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

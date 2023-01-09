@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityPositionRotationPacket : Packet
+    public sealed class ServerEntityPositionRotationPacket : Packet<Protocol340>
     {
         public int EntityId { get; private set; }
         public double DeltaX { get; private set; }

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerTeamPacket : Packet
+    public sealed class ServerTeamPacket : Packet<Protocol340>
     {
         //this.name = in.readString();
         //this.action = MagicValues.key(TeamAction.class, in.readByte());

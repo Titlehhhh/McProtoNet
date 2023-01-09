@@ -8,9 +8,9 @@ namespace McProtoNet.Geometry
     {
         [FieldOffset(8)]
         public double X;
-        [FieldOffset(8)]
+        [FieldOffset(16)]
         public double Y;
-        [FieldOffset(8)]
+        [FieldOffset(24)]
         public double Z;
         public Vector3(double value)
         {

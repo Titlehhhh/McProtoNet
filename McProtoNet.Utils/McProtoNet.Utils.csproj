@@ -13,7 +13,7 @@
 	
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.7.0" />
-    <PackageReference Include="StarkSoftProxy" />
+    <PackageReference Include="StarkSoftProxy" Version="1.6.0" />
   </ItemGroup>
 
   <ItemGroup>

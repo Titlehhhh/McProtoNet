@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerListDataPacket : Packet
+    public sealed class ServerPlayerListDataPacket : Packet<Protocol340>
     {
         //this.header = Message.fromString(in.readString());
         //this.footer = Message.fromString(in.readString());
