@@ -4,16 +4,16 @@ using McProtoNet.Core.Protocol;
 namespace McProtoNet.Core.Packets.DefaultPackets.Server
 {
 
-    public sealed class LoginSetCompressionPacket : IMinecraftPacket
+    public sealed class LoginSetCompressionPacket : Packet
     {
         public int Threshold { get; set; }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             Threshold = stream.ReadVarInt();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(Threshold);
         }

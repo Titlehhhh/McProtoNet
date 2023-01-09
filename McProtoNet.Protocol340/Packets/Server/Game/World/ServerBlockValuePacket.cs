@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBlockValuePacket : Packet<Protocol340>
+    public sealed class ServerBlockValuePacket : Packet 
     {
         //this.position = NetUtil.readPosition(in);
         //int type = in.readUnsignedByte();

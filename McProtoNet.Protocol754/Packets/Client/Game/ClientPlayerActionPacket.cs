@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerActionPacket : Packet<Protocol754>
+    public sealed class ClientPlayerActionPacket : Packet 
     {
         public PlayerAction Action { get; set; }
 

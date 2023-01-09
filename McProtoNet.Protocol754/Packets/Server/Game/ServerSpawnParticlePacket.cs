@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerSpawnParticlePacket : Packet<Protocol754>
+    public sealed class ServerSpawnParticlePacket : Packet 
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

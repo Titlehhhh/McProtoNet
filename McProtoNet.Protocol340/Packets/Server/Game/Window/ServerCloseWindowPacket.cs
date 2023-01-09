@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerCloseWindowPacket : Packet<Protocol340>
+    public sealed class ServerCloseWindowPacket : Packet
     {
         //this.windowId = in.readUnsignedByte();
         public override void Read(IMinecraftPrimitiveReader stream)

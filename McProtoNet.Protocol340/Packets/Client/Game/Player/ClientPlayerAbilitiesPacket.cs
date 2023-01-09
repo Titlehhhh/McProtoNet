@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerAbilitiesPacket : Packet<Protocol340>
+    public sealed class ClientPlayerAbilitiesPacket : Packet 
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

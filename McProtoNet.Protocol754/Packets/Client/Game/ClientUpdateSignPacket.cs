@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientUpdateSignPacket : Packet<Protocol754>
+    public sealed class ClientUpdateSignPacket : Packet 
     {
         public Vector3 Position { get; private set; }
         public string[] Lines { get; private set; }

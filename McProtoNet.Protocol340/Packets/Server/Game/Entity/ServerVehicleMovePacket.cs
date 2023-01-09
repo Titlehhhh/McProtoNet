@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerVehicleMovePacket : Packet<Protocol340>
+    public sealed class ServerVehicleMovePacket : Packet
     {
         //this.x = in.readDouble();
         //this.y = in.readDouble();

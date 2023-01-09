@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerChangeHeldItemPacket : Packet<Protocol754>
+    public sealed class ClientPlayerChangeHeldItemPacket : Packet 
     {
         public short Slot { get; private set; }
 

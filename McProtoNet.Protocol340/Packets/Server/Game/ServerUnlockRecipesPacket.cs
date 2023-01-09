@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerUnlockRecipesPacket : Packet<Protocol340>
+    public sealed class ServerUnlockRecipesPacket : Packet
     {
         //this.action = MagicValues.key(UnlockRecipesAction.class, in.readVarInt());
         //

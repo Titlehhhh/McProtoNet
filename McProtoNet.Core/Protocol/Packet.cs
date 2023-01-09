@@ -10,11 +10,8 @@ namespace McProtoNet.Core.Protocol
     {
         public abstract void Read(IMinecraftPrimitiveReader stream);
     }
-    public interface IMinecraftPacket : IOutputPacket, IInputPacket
-    {
-    }
 
-    public abstract class Packet<TProto> : IMinecraftPacket where TProto : IProtocol
+    public abstract class Packet : IOutputPacket, IInputPacket
     {
         public abstract void Read(IMinecraftPrimitiveReader stream);
 

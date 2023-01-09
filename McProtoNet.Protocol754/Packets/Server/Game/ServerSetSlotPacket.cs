@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerSetSlotPacket : Packet<Protocol754>
+    public sealed class ServerSetSlotPacket : Packet 
     {
         public byte WindowId { get; private set; }
         public short Slot { get; private set; }

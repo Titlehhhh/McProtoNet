@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerUseItemPacket : Packet<Protocol754>
+    public sealed class ClientPlayerUseItemPacket : Packet 
     {
         public Hand PlayerHand { get; private set; }
 

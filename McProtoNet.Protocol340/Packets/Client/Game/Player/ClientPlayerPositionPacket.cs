@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerPositionPacket : Packet<Protocol340>
+    public sealed class ClientPlayerPositionPacket : Packet 
     {
         public double X { get; set; }
         public double Y { get; set; }

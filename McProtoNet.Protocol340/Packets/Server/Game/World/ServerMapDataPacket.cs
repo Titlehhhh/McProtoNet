@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerMapDataPacket : Packet<Protocol340>
+    public sealed class ServerMapDataPacket : Packet
     {
         //this.mapId = in.readVarInt();
         //this.scale = in.readByte();

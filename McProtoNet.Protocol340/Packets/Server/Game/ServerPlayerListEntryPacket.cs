@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerListEntryPacket : Packet<Protocol340>
+    public sealed class ServerPlayerListEntryPacket : Packet 
     {
         public PlayerListEntryAction Action { get; private set; }
         public PlayerListEntry[] Entries { get; private set; }

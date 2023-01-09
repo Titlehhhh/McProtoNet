@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerUseBedPacket : Packet<Protocol340>
+    public sealed class ServerPlayerUseBedPacket : Packet 
     {
         //this.entityId = in.readVarInt();
         //this.position = NetUtil.readPosition(in);

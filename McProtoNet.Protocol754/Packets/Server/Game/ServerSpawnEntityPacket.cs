@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerSpawnEntityPacket : Packet<Protocol754>
+    public sealed class ServerSpawnEntityPacket : Packet 
     {
         public int EntityId { get; private set; }
         public Guid UUID { get; private set; }

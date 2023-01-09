@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityRemoveEffectPacket : Packet<Protocol340>
+    public sealed class ServerEntityRemoveEffectPacket : Packet 
     {
         //this.entityId = in.readVarInt();
         //this.effect = MagicValues.key(Effect.class, in.readUnsignedByte());

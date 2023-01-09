@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerMultiBlockChangePacket : Packet<Protocol340>
+    public sealed class ServerMultiBlockChangePacket : Packet
     {
         public BlockChangeRecord[] Records { get; private set; }
 

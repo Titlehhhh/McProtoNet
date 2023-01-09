@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityAnimationPacket : Packet<Protocol340>
+    public sealed class ServerEntityAnimationPacket : Packet
     {
         //this.entityId = in.readVarInt();
         //this.animation = MagicValues.key(Animation.class, in.readUnsignedByte());

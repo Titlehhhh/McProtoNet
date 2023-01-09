@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerTitlePacket : Packet<Protocol754>
+    public sealed class ServerTitlePacket : Packet 
     {
         public TitleAction Action { get; set; }
         public string Title { get; set; }

@@ -4,7 +4,7 @@ using McProtoNet.Core.Protocol;
 namespace McProtoNet.Core.Packets.DefaultPackets.Client
 {
 
-    public sealed class EncryptionResponsePacket : IMinecraftPacket
+    public sealed class EncryptionResponsePacket : Packet
     {
         public byte[] SharedKey { get; private set; }
         public byte[] VerifyToken { get; private set; }
@@ -15,13 +15,13 @@ namespace McProtoNet.Core.Packets.DefaultPackets.Client
             VerifyToken = verifyToken;
         }
 
-        public  void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteByteArray(SharedKey);
             stream.WriteByteArray(VerifyToken);
         }
 
-        public  void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             SharedKey = stream.ReadByteArray();
             VerifyToken = stream.ReadByteArray();

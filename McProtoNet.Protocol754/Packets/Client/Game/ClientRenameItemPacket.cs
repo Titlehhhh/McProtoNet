@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientRenameItemPacket : Packet<Protocol754>
+    public sealed class ClientRenameItemPacket : Packet 
     {
         public string Name { get; private set; }
 

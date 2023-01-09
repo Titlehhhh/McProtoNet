@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerChunkDataPacket : Packet<Protocol340>
+    public sealed class ServerChunkDataPacket : Packet
     {
         public int CurrentDimension { get; set; }
 

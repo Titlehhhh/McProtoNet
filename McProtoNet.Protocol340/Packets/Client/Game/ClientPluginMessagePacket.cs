@@ -3,7 +3,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPluginMessagePacket : Packet<Protocol340>
+    public sealed class ClientPluginMessagePacket : Packet 
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }

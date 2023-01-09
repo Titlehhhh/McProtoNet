@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerChatPacket : Packet<Protocol754>
+    public sealed class ServerChatPacket : Packet 
     {
         public string Message { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

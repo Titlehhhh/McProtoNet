@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientTeleportConfirmPacket : Packet<Protocol340>
+    public sealed class ClientTeleportConfirmPacket : Packet 
     {
         public int ID { get; set; }
 

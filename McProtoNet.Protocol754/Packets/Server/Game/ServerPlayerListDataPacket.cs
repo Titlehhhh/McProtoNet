@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerPlayerListDataPacket : Packet<Protocol754>
+    public sealed class ServerPlayerListDataPacket : Packet 
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

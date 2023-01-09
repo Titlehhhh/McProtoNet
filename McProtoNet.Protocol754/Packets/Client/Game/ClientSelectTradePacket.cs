@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientSelectTradePacket : Packet<Protocol754>
+    public sealed class ClientSelectTradePacket : Packet 
     {
         public int Slot { get; private set; }
 

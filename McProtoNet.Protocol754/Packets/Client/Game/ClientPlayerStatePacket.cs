@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerStatePacket : Packet<Protocol754>
+    public sealed class ClientPlayerStatePacket : Packet 
     {
         public int EntityId { get; set; }
         public PlayerState State { get; set; }

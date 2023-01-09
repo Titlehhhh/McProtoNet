@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerPositionPacket : Packet<Protocol754>
+    public sealed class ClientPlayerPositionPacket : Packet 
     {
         public double X { get; private set; }
         public double Y { get; private set; }

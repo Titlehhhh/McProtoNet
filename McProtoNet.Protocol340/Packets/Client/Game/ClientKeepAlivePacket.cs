@@ -1,6 +1,6 @@
 namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class ClientKeepAlivePacket : Packet<Protocol340>
+    public sealed class ClientKeepAlivePacket : Packet 
     {
         public long ID { get; set; }
         //out.writeLong(this.id);

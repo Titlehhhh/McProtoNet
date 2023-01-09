@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientWindowActionPacket : Packet<Protocol754>
+    public sealed class ClientWindowActionPacket : Packet 
     {
         public byte WindowId { get; set; }
         public short Slot { get; set; }

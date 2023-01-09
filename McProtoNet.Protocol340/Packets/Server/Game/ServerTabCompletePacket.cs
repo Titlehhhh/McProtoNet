@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerTabCompletePacket : Packet<Protocol340>
+    public sealed class ServerTabCompletePacket : Packet
     {
         //this.matches = new String[in.readVarInt()];
         //for(int index = 0; index < this.matches.length; index++) {

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerEntityHeadLookPacket : Packet<Protocol754>
+    public sealed class ServerEntityHeadLookPacket : Packet 
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

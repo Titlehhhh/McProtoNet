@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerScoreboardObjectivePacket : Packet<Protocol754>
+    public sealed class ServerScoreboardObjectivePacket : Packet 
     {
         public string Name { get; set; }
         public ObjectiveAction Action { get; set; }

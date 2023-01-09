@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientTeleportConfirmPacket : Packet<Protocol754>
+    public sealed class ClientTeleportConfirmPacket : Packet 
     {
         public int Id { get; private set; }
 

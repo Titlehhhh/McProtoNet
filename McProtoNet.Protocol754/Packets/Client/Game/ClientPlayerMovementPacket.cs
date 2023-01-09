@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientPlayerMovementPacket : Packet<Protocol754>
+    public sealed class ClientPlayerMovementPacket : Packet 
     {
         public bool OnGround { get; private set; }
 

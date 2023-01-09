@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientUpdateCommandBlockPacket : Packet<Protocol754>
+    public sealed class ClientUpdateCommandBlockPacket : Packet 
     {
 
 

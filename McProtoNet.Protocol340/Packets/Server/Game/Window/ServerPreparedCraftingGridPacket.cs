@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPreparedCraftingGridPacket : Packet<Protocol340>
+    public sealed class ServerPreparedCraftingGridPacket : Packet
     {
         //this.windowId = in.readByte();
         //this.recipeId = in.readVarInt();

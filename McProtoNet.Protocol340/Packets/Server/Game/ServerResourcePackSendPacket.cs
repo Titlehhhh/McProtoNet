@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerResourcePackSendPacket : Packet<Protocol340>
+    public sealed class ServerResourcePackSendPacket : Packet
     {
         //this.url = in.readString();
         //this.hash = in.readString();

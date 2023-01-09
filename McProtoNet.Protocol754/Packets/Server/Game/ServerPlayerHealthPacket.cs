@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerPlayerHealthPacket : Packet<Protocol754>
+    public sealed class ServerPlayerHealthPacket : Packet 
     {
         public float Health { get; private set; }
         public int Food { get; private set; }

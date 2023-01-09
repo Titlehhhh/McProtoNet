@@ -3,7 +3,7 @@ using McProtoNet.Core.Protocol;
 
 namespace McProtoNet.Core.Packets.DefaultPackets.Client
 {
-    public sealed class HandShakePacket : IMinecraftPacket
+    public sealed class HandShakePacket : Packet
     {
         public HandShakeIntent Intent { get; private set; }
         public int ProtocolVersion { get; private set; }
@@ -23,7 +23,7 @@ namespace McProtoNet.Core.Packets.DefaultPackets.Client
 
         }
 
-        public void Read(IMinecraftPrimitiveReader stream)
+        public override void Read(IMinecraftPrimitiveReader stream)
         {
             ProtocolVersion = stream.ReadVarInt();
             Host = stream.ReadString();
@@ -31,7 +31,7 @@ namespace McProtoNet.Core.Packets.DefaultPackets.Client
             Intent = (HandShakeIntent)stream.ReadVarInt();
         }
 
-        public void Write(IMinecraftPrimitiveWriter stream)
+        public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt(ProtocolVersion);
             stream.WriteString(Host);

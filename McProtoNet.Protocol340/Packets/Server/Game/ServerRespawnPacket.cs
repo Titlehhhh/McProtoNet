@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerRespawnPacket : Packet<Protocol340>
+    public sealed class ServerRespawnPacket : Packet
     {
         //this.dimension = in.readInt();
         //this.difficulty = MagicValues.key(Difficulty.class, in.readUnsignedByte());

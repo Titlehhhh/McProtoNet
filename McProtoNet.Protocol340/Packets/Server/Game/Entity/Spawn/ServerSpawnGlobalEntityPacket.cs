@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnGlobalEntityPacket : Packet<Protocol340>
+    public sealed class ServerSpawnGlobalEntityPacket : Packet
     {
         public int EntityId { get; private set; }
         public sbyte EntityType { get; private set; }

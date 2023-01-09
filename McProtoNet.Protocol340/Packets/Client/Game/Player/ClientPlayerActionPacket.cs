@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerActionPacket : Packet<Protocol340>
+    public sealed class ClientPlayerActionPacket : Packet 
     {
         public PlayerAction Action { get; set; }
         public Vector3 Position { get; set; }

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerNotifyClientPacket : Packet<Protocol340>
+    public sealed class ServerNotifyClientPacket : Packet
     {
         //this.notification = MagicValues.key(ClientNotification.class, in.readUnsignedByte());
         //float value = in.readFloat();

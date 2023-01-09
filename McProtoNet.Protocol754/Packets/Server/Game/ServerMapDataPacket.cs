@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerMapDataPacket : Packet<Protocol754>
+    public sealed class ServerMapDataPacket : Packet 
     {
 
         public int MapId { get; set; }

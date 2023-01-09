@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerWorldBorderPacket : Packet<Protocol340>
+    public sealed class ServerWorldBorderPacket : Packet
     {
         //this.action = MagicValues.key(WorldBorderAction.class, in.readVarInt());
         //if(this.action == WorldBorderAction.SET_SIZE) {

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerOpenWindowPacket : Packet<Protocol754>
+    public sealed class ServerOpenWindowPacket : Packet 
     {
         public int Id { get; set; }
         public WindowType WinType { get; set; }

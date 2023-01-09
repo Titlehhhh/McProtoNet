@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerStatisticsPacket : Packet<Protocol340>
+    public sealed class ServerStatisticsPacket : Packet
     {
         //int length = in.readVarInt();
         //for(int index = 0; index < length; index++) {

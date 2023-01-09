@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerDisplayScoreboardPacket : Packet<Protocol754>
+    public sealed class ServerDisplayScoreboardPacket : Packet 
     {
         public ScoreboardPosition Position { get; set; }
         public string Name { get; set; }

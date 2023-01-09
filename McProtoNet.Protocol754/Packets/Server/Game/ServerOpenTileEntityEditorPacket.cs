@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerOpenTileEntityEditorPacket : Packet<Protocol754>
+    public sealed class ServerOpenTileEntityEditorPacket : Packet 
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerEntityTeleportPacket : Packet<Protocol754>
+    public sealed class ServerEntityTeleportPacket : Packet 
     {
         public int EntityId { get; private set; }
         public double X { get; private set; }

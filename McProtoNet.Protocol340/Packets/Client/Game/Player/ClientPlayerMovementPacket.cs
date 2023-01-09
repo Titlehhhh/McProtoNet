@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerMovementPacket : Packet<Protocol340>
+    public sealed class ClientPlayerMovementPacket : Packet 
     {
         public bool OnGround { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

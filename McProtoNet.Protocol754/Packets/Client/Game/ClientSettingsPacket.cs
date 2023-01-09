@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
     
-    public sealed class ClientSettingsPacket : Packet<Protocol754>
+    public sealed class ClientSettingsPacket : Packet 
     {
         public string Locale { get; set; }
         public byte RenderDistance { get; set; }

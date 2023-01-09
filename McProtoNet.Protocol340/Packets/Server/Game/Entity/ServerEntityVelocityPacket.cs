@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityVelocityPacket : Packet<Protocol340>
+    public sealed class ServerEntityVelocityPacket : Packet
     {
         public int EntityId { get; private set; }
         public double MotionX { get; private set; }

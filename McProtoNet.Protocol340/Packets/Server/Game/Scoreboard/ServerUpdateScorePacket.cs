@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerUpdateScorePacket : Packet<Protocol340>
+    public sealed class ServerUpdateScorePacket : Packet
     {
         //this.entry = in.readString();
         //this.action = MagicValues.key(ScoreboardAction.class, in.readVarInt());

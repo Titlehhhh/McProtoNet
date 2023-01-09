@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerPluginMessagePacket : Packet<Protocol754>
+    public sealed class ServerPluginMessagePacket : Packet 
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerTitlePacket : Packet<Protocol340>
+    public sealed class ServerTitlePacket : Packet
     {
         //this.action = MagicValues.key(TitleAction.class, in.readVarInt());
         //switch(this.action) {
