@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientEditBookPacket : Packet 
+
+    public sealed class ClientEditBookPacket : MinecraftPacket<Protocol754>
     {
 
 

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerEntityTeleportPacket : Packet 
+
+    public sealed class ServerEntityTeleportPacket : MinecraftPacket<Protocol754>
     {
         public int EntityId { get; private set; }
         public double X { get; private set; }

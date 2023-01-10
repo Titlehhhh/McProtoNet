@@ -12,7 +12,8 @@ namespace McProtoNet.Utils
         [DataMember(Name = "online")]
         public int OnlinePlayers { get; set; }
 
-        [DataMember(Name = "sample")]
+        //[DataMember(Name = "sample")]
+        [IgnoreDataMember]
         public GameProfile[] PlayerList { get; set; }
         public PlayerInfo()
         {

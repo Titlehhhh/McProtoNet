@@ -1,11 +1,23 @@
 using McProtoNet.Protocol754.Data;
-using Org.BouncyCastle.Utilities;
 
 namespace McProtoNet.Protocol754.Packets.Server
+
+/* Необъединенное слияние из проекта "McProtoNet.Protocol754 (net6.0)"
+До:
 {
 
     
-    public sealed class ServerTitlePacket : Packet 
+    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754> 
+После:
+{
+
+
+    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754> 
+*/
+{
+
+
+    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754>
     {
         public TitleAction Action { get; set; }
         public string Title { get; set; }

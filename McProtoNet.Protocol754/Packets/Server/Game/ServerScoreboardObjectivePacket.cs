@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerScoreboardObjectivePacket : Packet 
+
+    public sealed class ServerScoreboardObjectivePacket : MinecraftPacket<Protocol754>
     {
         public string Name { get; set; }
         public ObjectiveAction Action { get; set; }
@@ -17,7 +17,7 @@ namespace McProtoNet.Protocol754.Packets.Server
         {
             Name = stream.ReadString();
             Action = (ObjectiveAction)stream.ReadSignedByte();
-            if(Action == ObjectiveAction.ADD || Action == ObjectiveAction.UPDATE)
+            if (Action == ObjectiveAction.ADD || Action == ObjectiveAction.UPDATE)
             {
                 DisplayName = stream.ReadString();
                 //TODO

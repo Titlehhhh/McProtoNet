@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerCombatPacket : Packet 
+
+    public sealed class ServerCombatPacket : MinecraftPacket<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

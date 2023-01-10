@@ -22,19 +22,20 @@ namespace McProtoNet.Core.Packets
             this._inPackets = inPackets.ToDictionary(k => k.Key, v => (IInputPacket)Activator.CreateInstance(v.Value));
         }
 
-        public bool TryGetInputPacket(int id, out IInputPacket packet)
+        public bool TryGetInputPacket<TPack>(int id, out MinecraftPacket<TPack> packet) where TPack : IProtocol, new()
         {
-            if (_inPackets.TryGetValue(id, out packet))
+            if (_inPackets.TryGetValue(id, out IInputPacket pack))
             {
+                packet = (MinecraftPacket<TPack>)pack;
                 return true;
             }
             packet = null;
             return false;
         }
 
-        public bool TryGetOutputId(Type Tpacket, out int id)
+        public bool TryGetOutputId(IOutputPacket packet, out int id)
         {
-            if (_outPackets.TryGetValue(Tpacket, out id))
+            if (_outPackets.TryGetValue(packet.GetType(), out id))
             {
                 return true;
             }

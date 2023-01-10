@@ -2,9 +2,11 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerUseItemPacket : Packet 
+    public sealed class ClientPlayerUseItemPacket : MinecraftPacket<Protocol340>
     {
         public Hand PlayerHand { get; private set; }
+
+        
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

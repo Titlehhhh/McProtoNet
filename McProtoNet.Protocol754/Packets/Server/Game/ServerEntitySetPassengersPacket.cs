@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerEntitySetPassengersPacket : Packet 
+
+    public sealed class ServerEntitySetPassengersPacket : MinecraftPacket<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerJoinGamePacket : Packet
+    public sealed class ServerJoinGamePacket : MinecraftPacket<Protocol340>
     {
 
 
@@ -18,6 +18,8 @@ namespace McProtoNet.Protocol340.Packets.Server
         public byte MaxPlayers { get; private set; }
         public string WorldType { get; private set; }
         public bool ReducedDebugInfo { get; private set; }
+
+        
 
         //this.entityId = in.readInt();
         //int gamemode = in.readUnsignedByte();

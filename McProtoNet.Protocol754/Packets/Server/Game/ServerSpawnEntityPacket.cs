@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerSpawnEntityPacket : Packet 
+
+    public sealed class ServerSpawnEntityPacket : MinecraftPacket<Protocol754>
     {
         public int EntityId { get; private set; }
         public Guid UUID { get; private set; }

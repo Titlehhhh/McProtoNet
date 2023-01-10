@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerStopSoundPacket : Packet 
+
+    public sealed class ServerStopSoundPacket : MinecraftPacket<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

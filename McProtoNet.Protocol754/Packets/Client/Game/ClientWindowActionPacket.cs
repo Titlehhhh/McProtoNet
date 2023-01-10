@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientWindowActionPacket : Packet 
+
+    public sealed class ClientWindowActionPacket : MinecraftPacket<Protocol754>
     {
         public byte WindowId { get; set; }
         public short Slot { get; set; }

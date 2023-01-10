@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayEffectPacket : Packet
+    public sealed class ServerPlayEffectPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.effect = MagicValues.key(WorldEffect.class, in.readInt());
         //this.position = NetUtil.readPosition(in);
         //int value = in.readInt();

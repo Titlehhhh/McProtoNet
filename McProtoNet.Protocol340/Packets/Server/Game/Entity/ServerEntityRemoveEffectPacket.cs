@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityRemoveEffectPacket : Packet 
+    public sealed class ServerEntityRemoveEffectPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.effect = MagicValues.key(Effect.class, in.readUnsignedByte());
         public override void Read(IMinecraftPrimitiveReader stream)

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerConfirmTransactionPacket : Packet
+    public sealed class ServerConfirmTransactionPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.windowId = in.readUnsignedByte();
         //this.actionId = in.readShort();
         //this.accepted = in.readBoolean();

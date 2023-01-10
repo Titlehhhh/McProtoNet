@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientPlayerMovementPacket : Packet 
+
+    public sealed class ClientPlayerMovementPacket : MinecraftPacket<Protocol754>
     {
         public bool OnGround { get; private set; }
 

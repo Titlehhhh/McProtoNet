@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientEntityNBTRequestPacket : Packet 
+
+    public sealed class ClientEntityNBTRequestPacket : MinecraftPacket<Protocol754>
     {
 
 

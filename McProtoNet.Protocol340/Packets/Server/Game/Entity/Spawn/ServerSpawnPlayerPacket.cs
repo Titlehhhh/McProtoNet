@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnPlayerPacket : Packet
+    public sealed class ServerSpawnPlayerPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
         public Guid UUID { get; private set; }
@@ -11,6 +11,8 @@ namespace McProtoNet.Protocol340.Packets.Server
         public double Z { get; private set; }
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
+
+        
 
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();

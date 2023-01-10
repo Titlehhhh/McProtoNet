@@ -3,6 +3,7 @@ using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.IO;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
+using System.Buffers.Binary;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
@@ -240,7 +241,7 @@ namespace McProtoNet.Core.Protocol
         }
 
         public override void Write(byte[] buffer, int offset, int count)
-        {
+        {            
             BaseStream.Write(buffer, offset, count);
         }
         public new void Dispose()

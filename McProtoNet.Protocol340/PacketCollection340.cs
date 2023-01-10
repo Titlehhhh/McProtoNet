@@ -1,7 +1,4 @@
 ﻿using McProtoNet.Core.Packets;
-using McProtoNet.Core.Packets.DefaultPackets;
-using McProtoNet.Core.Packets.DefaultPackets.Client;
-using McProtoNet.Core.Packets.DefaultPackets.Server;
 using McProtoNet.Protocol340.Packets.Client;
 using McProtoNet.Protocol340.Packets.Client.Game;
 using McProtoNet.Protocol340.Packets.Server;
@@ -160,17 +157,17 @@ namespace McProtoNet.Protocol340
                 {0x00, typeof(HandShakePacket) }
             });
             ServerPackets.Add(PacketCategory.HandShake, new());
-        }
 
-
-        public override int TargetProtocolVersion
-        {
-            get
+            ClientPackets.Add(PacketCategory.Status, new Dictionary<int, Type>()
             {
-                ThrowIfDisposed();
-                return 340;
-            }
+
+            });
+            ServerPackets.Add(PacketCategory.Status, new Dictionary<int, Type>()
+            {
+
+            });
         }
+
 
         public override Dictionary<int, Type> GetClientPacketsByCategory(PacketCategory category)
         {
@@ -191,7 +188,7 @@ namespace McProtoNet.Protocol340
             var categories = new List<PacketCategory>
                 {
                     PacketCategory.HandShake,
-                    //PacketCategory.Status,
+                    PacketCategory.Status,
                     PacketCategory.Login,
                     PacketCategory.Game
                 };

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerWorldBorderPacket : Packet
+    public sealed class ServerWorldBorderPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.action = MagicValues.key(WorldBorderAction.class, in.readVarInt());
         //if(this.action == WorldBorderAction.SET_SIZE) {
         //this.radius = in.readDouble();

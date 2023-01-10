@@ -2,9 +2,12 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerMovementPacket : Packet 
+    public sealed class ClientPlayerMovementPacket : MinecraftPacket<Protocol340>
     {
         public bool OnGround { get; set; }
+
+        
+
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteBoolean(OnGround);

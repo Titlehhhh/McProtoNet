@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerEntityRemoveEffectPacket : Packet 
+
+    public sealed class ServerEntityRemoveEffectPacket : MinecraftPacket<Protocol754>
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

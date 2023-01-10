@@ -1,10 +1,7 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Server
+﻿namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    public sealed class LoginSetCompressionPacket : Packet
+    public sealed class LoginSetCompressionPacket : MinecraftPacket<Protocol754>
     {
         public int Threshold { get; set; }
 

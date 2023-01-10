@@ -2,10 +2,13 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPluginMessagePacket : Packet
+    public sealed class ServerPluginMessagePacket : MinecraftPacket<Protocol340>
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }
+
+        
+
         public ServerPluginMessagePacket()
         {
 

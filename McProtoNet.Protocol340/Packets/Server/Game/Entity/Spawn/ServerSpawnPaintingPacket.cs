@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnPaintingPacket : Packet
+    public sealed class ServerSpawnPaintingPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();
         //this.paintingType = MagicValues.key(PaintingType.class, in.readString());

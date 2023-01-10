@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerPositionRotationPacket : Packet 
+    public sealed class ClientPlayerPositionRotationPacket : MinecraftPacket<Protocol340>
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -11,6 +11,8 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         public float Pitch { get; set; }
 
         public bool OnGround { get; set; }
+
+        
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

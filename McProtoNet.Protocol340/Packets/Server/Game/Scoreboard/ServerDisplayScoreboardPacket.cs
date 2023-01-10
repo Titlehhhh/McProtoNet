@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerDisplayScoreboardPacket : Packet
+    public sealed class ServerDisplayScoreboardPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.position = MagicValues.key(ScoreboardPosition.class, in.readByte());
         //this.name = in.readString();
         public override void Read(IMinecraftPrimitiveReader stream)

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerVehicleMovePacket : Packet
+    public sealed class ServerVehicleMovePacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.x = in.readDouble();
         //this.y = in.readDouble();
         //this.z = in.readDouble();

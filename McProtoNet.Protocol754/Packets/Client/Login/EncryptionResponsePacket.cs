@@ -1,10 +1,7 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Client
+﻿namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    public sealed class EncryptionResponsePacket : Packet
+    public sealed class EncryptionResponsePacket : MinecraftPacket<Protocol754>
     {
         public byte[] SharedKey { get; private set; }
         public byte[] VerifyToken { get; private set; }

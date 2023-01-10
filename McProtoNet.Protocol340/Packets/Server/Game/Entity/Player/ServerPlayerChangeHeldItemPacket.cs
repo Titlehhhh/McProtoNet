@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerChangeHeldItemPacket : Packet
+    public sealed class ServerPlayerChangeHeldItemPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.slot = in.readByte();
         public override void Read(IMinecraftPrimitiveReader stream)
         {

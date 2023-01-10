@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientPlayerActionPacket : Packet 
+
+    public sealed class ClientPlayerActionPacket : MinecraftPacket<Protocol754>
     {
         public PlayerAction Action { get; set; }
 

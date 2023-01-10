@@ -4,10 +4,12 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerListEntryPacket : Packet 
+    public sealed class ServerPlayerListEntryPacket : MinecraftPacket<Protocol340>
     {
         public PlayerListEntryAction Action { get; private set; }
         public PlayerListEntry[] Entries { get; private set; }
+
+        
 
         //this.action = MagicValues.key(PlayerListEntryAction.class, in.readVarInt());
         //this.entries = new PlayerListEntry[in.readVarInt()];

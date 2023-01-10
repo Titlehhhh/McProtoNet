@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityPositionRotationPacket : Packet 
+    public sealed class ServerEntityPositionRotationPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
         public double DeltaX { get; private set; }
@@ -11,6 +11,8 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
+
+        
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

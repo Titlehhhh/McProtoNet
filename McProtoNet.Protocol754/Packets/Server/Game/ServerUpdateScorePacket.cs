@@ -1,11 +1,23 @@
 using McProtoNet.Protocol754.Data;
-using System;
 
 namespace McProtoNet.Protocol754.Packets.Server
+
+/* Необъединенное слияние из проекта "McProtoNet.Protocol754 (net6.0)"
+До:
 {
 
     
-    public sealed class ServerUpdateScorePacket : Packet 
+    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754> 
+После:
+{
+
+
+    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754> 
+*/
+{
+
+
+    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754>
     {
         public string Entry { get; set; }
         public ScoreboardAction Action { get; set; }

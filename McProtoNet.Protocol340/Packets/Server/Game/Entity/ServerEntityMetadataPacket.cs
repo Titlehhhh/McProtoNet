@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityMetadataPacket : Packet 
+    public sealed class ServerEntityMetadataPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.metadata = NetUtil.readEntityMetadata(in);
         public override void Read(IMinecraftPrimitiveReader stream)

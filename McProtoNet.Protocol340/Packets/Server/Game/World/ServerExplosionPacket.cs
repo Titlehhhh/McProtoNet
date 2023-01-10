@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerExplosionPacket : Packet 
+    public sealed class ServerExplosionPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.x = in.readFloat();
         //this.y = in.readFloat();
         //this.z = in.readFloat();

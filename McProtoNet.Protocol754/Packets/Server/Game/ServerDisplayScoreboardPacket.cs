@@ -3,8 +3,8 @@ using McProtoNet.Protocol754.Data;
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerDisplayScoreboardPacket : Packet 
+
+    public sealed class ServerDisplayScoreboardPacket : MinecraftPacket<Protocol754>
     {
         public ScoreboardPosition Position { get; set; }
         public string Name { get; set; }

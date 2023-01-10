@@ -5,11 +5,14 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerActionPacket : Packet 
+    public sealed class ClientPlayerActionPacket : MinecraftPacket<Protocol340>
     {
         public PlayerAction Action { get; set; }
         public Vector3 Position { get; set; }
         public BlockFace Face { get; set; }
+
+         
+
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             stream.WriteVarInt((int)Action);

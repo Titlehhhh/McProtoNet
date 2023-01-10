@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnObjectPacket : Packet
+    public sealed class ServerSpawnObjectPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();
         //this.type = MagicValues.key(ObjectType.class, in.readByte());

@@ -4,13 +4,15 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerChunkDataPacket : Packet
+    public sealed class ServerChunkDataPacket : MinecraftPacket<Protocol340>
     {
         public int CurrentDimension { get; set; }
 
         public int X { get; private set; }
         public int Z { get; private set; }
         public ChunkColumn Column { get; private set; }
+
+         
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

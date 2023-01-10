@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerListDataPacket : Packet 
+    public sealed class ServerPlayerListDataPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.header = Message.fromString(in.readString());
         //this.footer = Message.fromString(in.readString());
         public override void Read(IMinecraftPrimitiveReader stream)

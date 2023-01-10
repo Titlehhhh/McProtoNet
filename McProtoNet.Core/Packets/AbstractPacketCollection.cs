@@ -2,8 +2,6 @@
 {
     public abstract class AbstractPacketCollection : IPacketCollection
     {
-        public abstract int TargetProtocolVersion { get; }
-
         public readonly Dictionary<PacketCategory, Dictionary<int, Type>> ClientPackets = new();
         public readonly Dictionary<PacketCategory, Dictionary<int, Type>> ServerPackets = new();
 
@@ -47,7 +45,7 @@
         protected void ThrowIfDisposed()
         {
             if (_disposed)
-                throw new ObjectDisposedException("PacketCollection" + TargetProtocolVersion);
+                throw new ObjectDisposedException("PacketCollection");
         }
     }
 }

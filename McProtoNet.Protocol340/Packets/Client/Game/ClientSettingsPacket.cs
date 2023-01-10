@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientSettingsPacket : Packet 
+    public sealed class ClientSettingsPacket : MinecraftPacket<Protocol340>
     {
         public string Locale { get; set; }
         public byte RenderDistance { get; set; }
@@ -12,6 +12,8 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         public bool UseChatColors { get; set; }
         public List<SkinPart> VisibleParts { get; set; }
         public HandPreference MainHand { get; set; }
+
+        
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

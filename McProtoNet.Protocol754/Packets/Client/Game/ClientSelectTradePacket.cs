@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientSelectTradePacket : Packet 
+
+    public sealed class ClientSelectTradePacket : MinecraftPacket<Protocol754>
     {
         public int Slot { get; private set; }
 

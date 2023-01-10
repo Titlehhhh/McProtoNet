@@ -5,9 +5,11 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBlockChangePacket : Packet 
+    public sealed class ServerBlockChangePacket : MinecraftPacket<Protocol340>
     {
         public BlockChangeRecord Record { get; set; }
+
+         
 
         //this.record = new BlockChangeRecord(NetUtil.readPosition(in), NetUtil.readBlockState(in));
         public override void Read(IMinecraftPrimitiveReader stream)

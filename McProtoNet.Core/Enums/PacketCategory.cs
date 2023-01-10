@@ -2,8 +2,8 @@
 {
     public enum PacketCategory
     {
-        Status,
         HandShake,
+        Status,        
         Login,
         Game
     }

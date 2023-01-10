@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientTabCompletePacket : Packet 
+
+    public sealed class ClientTabCompletePacket : MinecraftPacket<Protocol754>
     {
         public int TransactionId { get; private set; }
         public string Text { get; private set; }

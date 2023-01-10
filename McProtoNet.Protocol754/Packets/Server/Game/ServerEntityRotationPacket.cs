@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerEntityRotationPacket : Packet 
+
+    public sealed class ServerEntityRotationPacket : MinecraftPacket<Protocol754>
     {
         public int EntityId { get; private set; }
 

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientPlayerPositionRotationPacket : Packet 
+
+    public sealed class ClientPlayerPositionRotationPacket : MinecraftPacket<Protocol754>
     {
         public double X { get; private set; }
         public double Y { get; private set; }

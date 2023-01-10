@@ -2,9 +2,12 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerChangeHeldItemPacket : Packet 
+    public sealed class ClientPlayerChangeHeldItemPacket : MinecraftPacket<Protocol340>
     {
         public short Slot { get; private set; }
+
+        
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
 

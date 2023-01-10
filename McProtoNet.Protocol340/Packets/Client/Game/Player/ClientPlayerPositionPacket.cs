@@ -2,12 +2,14 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerPositionPacket : Packet 
+    public sealed class ClientPlayerPositionPacket : MinecraftPacket<Protocol340>
     {
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
         public bool OnGround { get; set; }
+
+        
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

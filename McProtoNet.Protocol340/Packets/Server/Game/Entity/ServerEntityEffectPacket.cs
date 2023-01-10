@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityEffectPacket : Packet
+    public sealed class ServerEntityEffectPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.effect = MagicValues.key(Effect.class, in.readByte());
         //this.amplifier = in.readByte();

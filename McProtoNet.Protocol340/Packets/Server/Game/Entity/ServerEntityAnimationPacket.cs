@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityAnimationPacket : Packet
+    public sealed class ServerEntityAnimationPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.animation = MagicValues.key(Animation.class, in.readUnsignedByte());
         public override void Read(IMinecraftPrimitiveReader stream)

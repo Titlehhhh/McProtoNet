@@ -1,9 +1,6 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Server
+﻿namespace McProtoNet.Protocol340.Packets.Server
 {
-    public sealed class StatusPongPacket : Packet
+    public sealed class StatusPongPacket : MinecraftPacket
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

@@ -1,14 +1,13 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Client
+﻿namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class HandShakePacket : Packet
+    public sealed class HandShakePacket : MinecraftPacket<Protocol340>
     {
         public HandShakeIntent Intent { get; private set; }
         public int ProtocolVersion { get; private set; }
         public string Host { get; private set; }
         public ushort Port { get; private set; }
+
+        
 
         public HandShakePacket(HandShakeIntent handShakeIntent, int protocolVersion, string host, ushort port)
         {

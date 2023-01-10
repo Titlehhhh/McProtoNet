@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerMapDataPacket : Packet
+    public sealed class ServerMapDataPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.mapId = in.readVarInt();
         //this.scale = in.readByte();
         //this.trackingPosition = in.readBoolean();

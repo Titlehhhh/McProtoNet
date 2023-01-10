@@ -44,7 +44,7 @@ namespace McProtoNet.Core.IO
 
 
         public virtual void WriteBoolean(bool value)
-        {
+        {            
             BaseStream.WriteByte((byte)(value ? 0x01 : 0x00));
         }
 
@@ -116,6 +116,7 @@ namespace McProtoNet.Core.IO
             using var bytes = new RentedArray<byte>(Encoding.UTF8.GetByteCount(value));
             Encoding.UTF8.GetBytes(value, bytes.Span);
             WriteVarInt(bytes.Length);
+            
             BaseStream.Write(bytes.Span);
         }
 

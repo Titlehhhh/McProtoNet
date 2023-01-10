@@ -1,9 +1,11 @@
 namespace McProtoNet.Protocol340.Packets.Server
 {
 
-    public sealed class ServerChatMessagePacket : Packet
+    public sealed class ServerChatMessagePacket : MinecraftPacket<Protocol340>
     {
         public string Message { get; private set; }
+
+         
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

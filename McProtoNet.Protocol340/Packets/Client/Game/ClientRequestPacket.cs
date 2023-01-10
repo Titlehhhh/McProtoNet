@@ -4,9 +4,11 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientRequestPacket : Packet 
+    public sealed class ClientRequestPacket : MinecraftPacket<Protocol340>
     {
         public ClientRequest Request { get; set; }
+
+         
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

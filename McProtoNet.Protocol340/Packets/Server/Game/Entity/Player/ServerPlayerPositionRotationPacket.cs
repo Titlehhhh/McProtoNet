@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerPositionRotationPacket : Packet 
+    public sealed class ServerPlayerPositionRotationPacket : MinecraftPacket<Protocol340>
     {
 
         private readonly PositionElement[] elements = Enum.GetValues(typeof(PositionElement))
@@ -19,6 +19,8 @@ namespace McProtoNet.Protocol340.Packets.Server
         public IList<PositionElement> Relative { get; private set; }
 
         public int TeleportId { get; private set; }
+
+         
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

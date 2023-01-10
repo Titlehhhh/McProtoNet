@@ -1,9 +1,6 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Server
+﻿namespace McProtoNet.Protocol340.Packets.Server
 {
-    public sealed class EncryptionRequestPacket : Packet
+    public sealed class EncryptionRequestPacket : MinecraftPacket
     {
         public string ServerId { get; private set; }
         public byte[] PublicKey { get; private set; }

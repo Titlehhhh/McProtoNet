@@ -1,9 +1,6 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Client
+﻿namespace McProtoNet.Protocol754.Packets.Client
 {
-    public sealed class StatusPingPacket : Packet
+    public sealed class StatusQueryPacket : MinecraftPacket<Protocol754>
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

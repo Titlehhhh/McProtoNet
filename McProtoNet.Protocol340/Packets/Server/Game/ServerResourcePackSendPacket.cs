@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerResourcePackSendPacket : Packet
+    public sealed class ServerResourcePackSendPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.url = in.readString();
         //this.hash = in.readString();
         public override void Read(IMinecraftPrimitiveReader stream)

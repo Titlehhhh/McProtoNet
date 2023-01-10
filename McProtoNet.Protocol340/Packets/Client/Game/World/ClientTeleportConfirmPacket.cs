@@ -2,9 +2,11 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientTeleportConfirmPacket : Packet 
+    public sealed class ClientTeleportConfirmPacket : MinecraftPacket<Protocol340>
     {
         public int ID { get; set; }
+
+        
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

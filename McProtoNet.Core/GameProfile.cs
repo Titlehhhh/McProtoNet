@@ -1,15 +1,19 @@
-﻿namespace McProtoNet.Core
+﻿using System.Runtime.Serialization;
+
+namespace McProtoNet.Core
 {
 
-
+    [DataContract]
     public class GameProfile
     {
-        public Guid UUID { get; private set; }
+        [DataMember(Name ="id")]
+        public string UUID { get;  set; }
+        [DataMember(Name = "name")]
         public string? Username { get; set; }
 
         public GameProfile(Guid uUID, string? username)
         {
-            UUID = uUID;
+            UUID = uUID.ToString();
             Username = username;
         }
     }

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientAdvancementTabPacket : Packet 
+
+    public sealed class ClientAdvancementTabPacket : MinecraftPacket<Protocol754>
     {
 
 

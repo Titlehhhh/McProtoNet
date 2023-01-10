@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityTeleportPacket : Packet 
+    public sealed class ServerEntityTeleportPacket : MinecraftPacket<Protocol340>
     {
 
         public int EntityId { get; private set; }
@@ -13,6 +13,8 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
+
+        
 
         //this.entityId = in.readVarInt();
         //this.x = in.readDouble();

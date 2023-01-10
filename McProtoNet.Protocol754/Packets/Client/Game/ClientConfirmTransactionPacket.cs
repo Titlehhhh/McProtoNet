@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientConfirmTransactionPacket : Packet 
+
+    public sealed class ClientConfirmTransactionPacket : MinecraftPacket<Protocol754>
     {
         public byte WindowId { get; private set; }
         public ushort ActionId { get; private set; }

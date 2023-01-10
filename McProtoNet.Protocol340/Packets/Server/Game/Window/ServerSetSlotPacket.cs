@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSetSlotPacket : Packet
+    public sealed class ServerSetSlotPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.windowId = in.readUnsignedByte();
         //this.slot = in.readShort();
         //this.item = NetUtil.readItem(in);

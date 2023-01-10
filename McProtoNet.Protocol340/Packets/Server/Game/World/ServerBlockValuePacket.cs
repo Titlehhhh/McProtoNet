@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBlockValuePacket : Packet 
+    public sealed class ServerBlockValuePacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.position = NetUtil.readPosition(in);
         //int type = in.readUnsignedByte();
         //int value = in.readUnsignedByte();

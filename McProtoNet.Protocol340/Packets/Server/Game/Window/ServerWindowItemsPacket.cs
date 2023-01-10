@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerWindowItemsPacket : Packet
+    public sealed class ServerWindowItemsPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.windowId = in.readUnsignedByte();
         //this.items = new ItemStack[in.readShort()];
         //for(int index = 0; index < this.items.length; index++) {

@@ -2,13 +2,16 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityPositionPacket : Packet 
+    public sealed class ServerEntityPositionPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
         public double DeltaX { get; private set; }
         public double DeltaY { get; private set; }
         public double DeltaZ { get; private set; }
         public bool OnGround { get; private set; }
+
+         
+
         //protected ServerEntityPositionPacket() {
         //this.pos = true;
         //}

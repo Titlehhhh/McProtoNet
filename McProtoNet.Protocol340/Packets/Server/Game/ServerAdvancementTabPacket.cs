@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerAdvancementTabPacket : Packet 
+    public sealed class ServerAdvancementTabPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //if(in.readBoolean()) {
         //this.tabId = in.readString();
         //} else {

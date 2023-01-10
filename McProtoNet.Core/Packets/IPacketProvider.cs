@@ -4,7 +4,7 @@ namespace McProtoNet.Core.Packets
 {
     public interface IPacketProvider
     {
-        bool TryGetInputPacket(int id, out IInputPacket packet);
-        bool TryGetOutputId(Type Tpacket, out int id);
+        bool TryGetInputPacket<TPack>(int id, out MinecraftPacket<TPack> packet) where TPack : IProtocol, new();
+        bool TryGetOutputId(IOutputPacket Tpacket, out int id);
     }
 }

@@ -1,11 +1,9 @@
-﻿using McProtoNet.Core.Packets.DefaultPackets;
-using McProtoNet.Core.Packets.DefaultPackets.Client;
-using McProtoNet.Core.Packets.DefaultPackets.Server;
-using McProtoNet.Protocol754.Packets.Client;
+﻿using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Protocol754.Packets.Server;
 
 namespace McProtoNet.Protocol754
 {
+
     public sealed class PacketCollection754 : AbstractPacketCollection
     {
 
@@ -191,15 +189,6 @@ namespace McProtoNet.Protocol754
             });
         }
 
-        public override int TargetProtocolVersion
-        {
-            get
-            {
-                ThrowIfDisposed();
-                return 754;
-            }
-        }
-
         public override Dictionary<int, Type> GetClientPacketsByCategory(PacketCategory category)
         {
             ThrowIfDisposed();
@@ -220,7 +209,7 @@ namespace McProtoNet.Protocol754
             var categories = new List<PacketCategory>
                 {
                     PacketCategory.HandShake,
-                    //PacketCategory.Status,
+                    PacketCategory.Status,
                     PacketCategory.Login,
                     PacketCategory.Game
                 };

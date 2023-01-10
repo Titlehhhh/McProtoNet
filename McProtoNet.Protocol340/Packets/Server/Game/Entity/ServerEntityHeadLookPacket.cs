@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityHeadLookPacket : Packet 
+    public sealed class ServerEntityHeadLookPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.headYaw = in.readByte() * 360 / 256f;
         public override void Read(IMinecraftPrimitiveReader stream)

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientUpdateSignPacket : Packet 
+
+    public sealed class ClientUpdateSignPacket : MinecraftPacket<Protocol754>
     {
         public Vector3 Position { get; private set; }
         public string[] Lines { get; private set; }

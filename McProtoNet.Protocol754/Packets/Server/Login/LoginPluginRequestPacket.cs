@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Server
 {
-    
-    public sealed class LoginPluginRequestPacket : Packet 
+
+    public sealed class LoginPluginRequestPacket : MinecraftPacket<Protocol754>
     {
         public int MessageID { get; set; }
         public string Channel { get; set; }

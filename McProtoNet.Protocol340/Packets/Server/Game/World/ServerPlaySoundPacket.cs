@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlaySoundPacket : Packet
+    public sealed class ServerPlaySoundPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //String value = in.readString();
         //try {
         //this.sound = MagicValues.key(BuiltinSound.class, value);

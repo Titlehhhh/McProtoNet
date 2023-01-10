@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientUpdateJigsawBlockPacket : Packet 
+
+    public sealed class ClientUpdateJigsawBlockPacket : MinecraftPacket<Protocol754>
     {
         public Vector3 Position { get; private set; }
         public string Name { get; private set; }

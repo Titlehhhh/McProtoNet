@@ -1,8 +1,11 @@
 namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class ClientKeepAlivePacket : Packet 
+    public sealed class ClientKeepAlivePacket : MinecraftPacket<Protocol340>
     {
         public long ID { get; set; }
+
+         
+
         //out.writeLong(this.id);
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

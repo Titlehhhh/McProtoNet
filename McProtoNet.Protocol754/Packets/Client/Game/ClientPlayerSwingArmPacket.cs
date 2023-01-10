@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientPlayerSwingArmPacket : Packet 
+
+    public sealed class ClientPlayerSwingArmPacket : MinecraftPacket<Protocol754>
     {
         public Hand PlayerHand { get; private set; }
 

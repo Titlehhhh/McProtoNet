@@ -2,12 +2,14 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityVelocityPacket : Packet
+    public sealed class ServerEntityVelocityPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
         public double MotionX { get; private set; }
         public double MotionY { get; private set; }
         public double MotionZ { get; private set; }
+
+        
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnParticlePacket : Packet
+    public sealed class ServerSpawnParticlePacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.particle = MagicValues.key(Particle.class, in.readInt());
         //this.longDistance = in.readBoolean();
         //this.x = in.readFloat();

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityPropertiesPacket : Packet 
+    public sealed class ServerEntityPropertiesPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.entityId = in.readVarInt();
         //this.attributes = new ArrayList<Attribute>();
         //int length = in.readInt();

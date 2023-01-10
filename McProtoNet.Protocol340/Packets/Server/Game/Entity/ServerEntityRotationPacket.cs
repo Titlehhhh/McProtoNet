@@ -2,13 +2,16 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityRotationPacket : Packet 
+    public sealed class ServerEntityRotationPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
 
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
+
+        
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
             EntityId = stream.ReadVarInt();

@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerScoreboardObjectivePacket : Packet
+    public sealed class ServerScoreboardObjectivePacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.name = in.readString();
         //this.action = MagicValues.key(ObjectiveAction.class, in.readByte());
         //if(this.action == ObjectiveAction.ADD || this.action == ObjectiveAction.UPDATE) {

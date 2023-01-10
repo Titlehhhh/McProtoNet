@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPreparedCraftingGridPacket : Packet
+    public sealed class ServerPreparedCraftingGridPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.windowId = in.readByte();
         //this.recipeId = in.readVarInt();
         public override void Read(IMinecraftPrimitiveReader stream)

@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientPlayerChangeHeldItemPacket : Packet 
+
+    public sealed class ClientPlayerChangeHeldItemPacket : MinecraftPacket<Protocol754>
     {
         public short Slot { get; private set; }
 

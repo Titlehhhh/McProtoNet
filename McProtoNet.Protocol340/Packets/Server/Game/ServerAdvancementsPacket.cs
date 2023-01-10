@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerAdvancementsPacket : Packet 
+    public sealed class ServerAdvancementsPacket : MinecraftPacket<Protocol340>
     {
+        
+
         //this.reset = in.readBoolean();
         //
         //this.advancements = new ArrayList<>();

@@ -3,10 +3,12 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPluginMessagePacket : Packet 
+    public sealed class ClientPluginMessagePacket : MinecraftPacket<Protocol340>
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }
+
+        
 
         public ClientPluginMessagePacket()
         {

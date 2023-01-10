@@ -1,10 +1,7 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Client
+﻿namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    public sealed class LoginStartPacket : Packet
+    public sealed class LoginStartPacket : MinecraftPacket<Protocol754>
     {
         public string Nickname { get; private set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

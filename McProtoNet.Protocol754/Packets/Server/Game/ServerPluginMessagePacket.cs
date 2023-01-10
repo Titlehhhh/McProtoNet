@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    
-    public sealed class ServerPluginMessagePacket : Packet 
+
+    public sealed class ServerPluginMessagePacket : MinecraftPacket<Protocol754>
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }

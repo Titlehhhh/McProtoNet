@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerStatisticsPacket : Packet
+    public sealed class ServerStatisticsPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //int length = in.readVarInt();
         //for(int index = 0; index < length; index++) {
         //String value = in.readString();

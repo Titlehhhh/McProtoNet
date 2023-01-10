@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientGenerateStructuresPacket : Packet 
+
+    public sealed class ClientGenerateStructuresPacket : MinecraftPacket<Protocol754>
     {
 
 

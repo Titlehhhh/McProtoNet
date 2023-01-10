@@ -6,9 +6,11 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerMultiBlockChangePacket : Packet
+    public sealed class ServerMultiBlockChangePacket : MinecraftPacket<Protocol340>
     {
         public BlockChangeRecord[] Records { get; private set; }
+
+        
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

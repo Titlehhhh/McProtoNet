@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientClickWindowButtonPacket : Packet 
+
+    public sealed class ClientClickWindowButtonPacket : MinecraftPacket<Protocol754>
     {
         public byte WindowId { get; private set; }
         public byte ButtonId { get; private set; }

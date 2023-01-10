@@ -1,10 +1,9 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Protocol;
-
-namespace McProtoNet.Core.Packets.DefaultPackets.Client
+﻿namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class StatusQueryPacket : Packet
+    public sealed class StatusQueryPacket : MinecraftPacket<Protocol340>
     {
+        
+
         public override void Read(IMinecraftPrimitiveReader stream)
         {
 

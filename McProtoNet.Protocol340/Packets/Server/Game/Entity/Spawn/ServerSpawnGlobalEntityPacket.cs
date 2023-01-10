@@ -2,13 +2,15 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnGlobalEntityPacket : Packet
+    public sealed class ServerSpawnGlobalEntityPacket : MinecraftPacket<Protocol340>
     {
         public int EntityId { get; private set; }
         public sbyte EntityType { get; private set; }
         public double X { get; private set; }
         public double Y { get; private set; }
         public double Z { get; private set; }
+
+        
 
         //this.entityId = in.readVarInt();
         //this.type = MagicValues.key(GlobalEntityType.class, in.readByte());

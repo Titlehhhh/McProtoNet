@@ -1,8 +1,8 @@
 namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    
-    public sealed class ClientDisplayedRecipePacket : Packet 
+
+    public sealed class ClientDisplayedRecipePacket : MinecraftPacket<Protocol754>
     {
         public string RecipeId { get; private set; }
 

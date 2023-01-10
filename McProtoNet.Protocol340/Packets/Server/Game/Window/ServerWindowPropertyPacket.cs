@@ -2,8 +2,10 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerWindowPropertyPacket : Packet
+    public sealed class ServerWindowPropertyPacket : MinecraftPacket<Protocol340>
     {
+         
+
         //this.windowId = in.readUnsignedByte();
         //this.property = in.readShort();
         //this.value = in.readShort();
