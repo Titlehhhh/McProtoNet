@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace McProtoNet.Types.Chat
+namespace McProtoNet.Utils
 {
     public readonly struct ChatColor
     {

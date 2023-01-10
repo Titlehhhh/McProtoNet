@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace McProtoNet.Types.Chat;
+namespace McProtoNet.Utils;
 
 public class StringToBoolConverter : JsonConverter<bool>
 {

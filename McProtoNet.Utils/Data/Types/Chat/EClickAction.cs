@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Types.Chat
+﻿namespace McProtoNet.Utils
 {
     public enum EClickAction
     {

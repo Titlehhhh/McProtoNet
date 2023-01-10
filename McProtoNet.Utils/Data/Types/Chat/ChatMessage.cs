@@ -3,7 +3,7 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.Json;
 
-namespace McProtoNet.Types.Chat
+namespace McProtoNet.Utils
 {
     [DataContract]
     public class ChatMessage

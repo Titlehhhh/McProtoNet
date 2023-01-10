@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace McProtoNet.Types.Chat
+namespace McProtoNet.Utils
 {
     [DataContract]
     public class ClickComponent
