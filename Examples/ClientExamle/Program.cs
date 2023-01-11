@@ -1,7 +1,7 @@
 using Examples;
 using McProtoNet;
 using McProtoNet.Core;
-using McProtoNet.Core.Packets.DefaultPackets.Server.Status;
+using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
 using McProtoNet.Protocol754;
 using McProtoNet.Protocol754.Packets.Client;
@@ -16,56 +16,98 @@ using System.Text;
 
 namespace Example;
 
-public class Pr
+public class Program
 {
     public static void Main()
     {
-        MinecraftServer754 server754 = new MinecraftServer754(25565);
-        server754.Start();
+        ClientExample();
+
         Console.ReadLine();
     }
 
-    
-
-
-    private static async void ClientExample()
+    private static void ClientExample()
     {
-        string host = "testhost";
-        ushort port = 25565;
-
-        // IServerResolver serverResolver = new ServerResolver();
-
-        //  var result = await serverResolver.ResolveAsync(host);
-        // host = result.Host;
-        // port = result.Port;
-
-        TcpClient tcpClient = new TcpClient(host, port);
-
-        PacketListener<Protocol754> packetListener = new PacketListener<Protocol754>(tcpClient, PacketSide.Client);
-
-        packetListener.CurrentCategory = PacketCategory.HandShake;
-        packetListener.PacketReceived += PacketListener_PacketReceived;
-
-        packetListener.OnError += PacketListener_OnError;
-
-        packetListener.SendPacket(new HandShakePacket(HandShakeIntent.STATUS, 754, host, port));
-        packetListener.CurrentCategory = PacketCategory.Status;
-        packetListener.SendPacket(new StatusQueryPacket());
-        packetListener.Start();
+        MinecraftClient minecraftClient = new MinecraftClient();
+        minecraftClient.Start("192.168.0.2", 25565);
     }
 
-    private static void PacketListener_OnError(PacketListener<Protocol754> sender, Exception exception)
-    {
-        Console.WriteLine("err: " + exception);
-    }
 
-    private static void PacketListener_PacketReceived(PacketListener<Protocol754> sender, MinecraftPacket<Protocol754> packet)
+}
+
+public class MinecraftClient
+{
+    private IPacketReaderWriter packetReaderWriter;
+    private PacketCategory currentCategory;
+
+    private CancellationTokenSource CTS = new();
+    private static readonly IPacketCollection p754 = new PacketCollection754();
+
+    public MinecraftClient()
     {
-        if (packet is StatusResponsePacket r)
+
+    }
+    public void Start(string host, ushort port)
+    {
+        Thread thread = new Thread(() => OnStart(host, port))
         {
-            File.WriteAllText("test.json", r.JsonResponse);
-        }
+            IsBackground = true
+        };
+        thread.Start();
+    }
+    private void OnStart(string host, ushort port)
+    {
+        TcpClient tcpClient = new TcpClient();
+        using (CTS.Token.Register(tcpClient.Close))
+        {
+            tcpClient.Connect(host, port);
+            using (IMinecraftProtocol mc_proto = new MinecraftProtocol(tcpClient, true))
+            {
+                try
+                {
+                    currentCategory = PacketCategory.HandShake;
+                    using (IPacketProvider handshakePackets = new PacketProvider(p754.ClientPackets[currentCategory], p754.ServerPackets[currentCategory]))
+                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, handshakePackets, false))
+                    {
+                        packetReaderWriter.SendPacket(new HandShakePacket(HandShakeIntent.STATUS, 754, "", 2665));
+                    }
 
+                    using (IPacketProvider handshakePackets = new PacketProvider(p754.ClientPackets[PacketCategory.Login], p754.ServerPackets[PacketCategory.HandShake]))
+                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, handshakePackets, false))
+                    {
+                        packetReaderWriter.SendPacket(new LoginStartPacket("Nick"));
+                        bool loginSucc = true;
+                        while (loginSucc)
+                        {
+                            MinecraftPacket packet = packetReaderWriter.ReadNextPacket();
+                            loginSucc = HandleLogin(packetReaderWriter, packet);
+                        }
+                    }
+                    using (IPacketProvider gamePackets = new PacketProvider(p754.ClientPackets[PacketCategory.Login], p754.ServerPackets[PacketCategory.HandShake]))
+                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, gamePackets, false))
+                    {
+                        packetReaderWriter.SendPacket(new LoginStartPacket());
+                        bool loginSucc = true;
+                        while (loginSucc)
+                        {
+                            MinecraftPacket packet = packetReaderWriter.ReadNextPacket();
+                            HandleGame(packetReaderWriter, packet);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("error: " + e);
+                }
+            }
+
+        }
+    }
+    private void HandleGame(IPacketReaderWriter sender, MinecraftPacket packet)
+    {
+        Console.WriteLine("RecPAck: " + packet.GetType().Name);
+    }
+    private bool HandleLogin(IPacketReaderWriter sender, MinecraftPacket packet)
+    {
         if (packet is EncryptionRequestPacket encryption)
         {
             var RSAService = CryptoHandler.DecodeRSAPublicKey(encryption.PublicKey);
@@ -79,24 +121,18 @@ public class Pr
         }
         else if (packet is LoginSuccessPacket)
         {
-            sender.CurrentCategory = PacketCategory.Game;
-        }
-        else if (packet is ServerJoinGamePacket)
-        {
-
+            return true;
         }
         else if (packet is LoginSetCompressionPacket compression)
         {
             sender.SwitchCompression(compression.Threshold);
         }
-        else if (packet is ServerKeepAlivePacket keepAlivePacket)
+        else if (packet is LoginDisconnectPacket disconnect)
         {
-            sender.SendPacket(new ClientKeepAlivePacket(keepAlivePacket.PingID));
+            throw new LoginRejectedException(disconnect.Message);
         }
-        else if (packet is ServerDisconnectPacket dis)
-        {
-            Console.WriteLine("Dis: " + dis.Message);
-        }
+        return false;
     }
 }
+
 

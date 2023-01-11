@@ -1,7 +1,7 @@
 namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
-    public sealed class ClientChatPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientChatPacket : MinecraftPacket
     {
         
 

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnPositionPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerSpawnPositionPacket : MinecraftPacket
     {
         public Vector3 Position { get; private set; }
 

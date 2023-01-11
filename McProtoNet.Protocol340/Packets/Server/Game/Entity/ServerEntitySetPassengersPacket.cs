@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntitySetPassengersPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerEntitySetPassengersPacket : MinecraftPacket
     {
          
 

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSetSlotPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerSetSlotPacket : MinecraftPacket
     {
          
 

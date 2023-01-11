@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityTeleportPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerEntityTeleportPacket : MinecraftPacket
     {
 
         public int EntityId { get; private set; }

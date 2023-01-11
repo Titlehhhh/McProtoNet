@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityVelocityPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerEntityVelocityPacket : MinecraftPacket
     {
         public int EntityId { get; private set; }
         public double MotionX { get; private set; }

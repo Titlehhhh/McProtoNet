@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerPlayerUseBedPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerPlayerUseBedPacket : MinecraftPacket
     {
         
 

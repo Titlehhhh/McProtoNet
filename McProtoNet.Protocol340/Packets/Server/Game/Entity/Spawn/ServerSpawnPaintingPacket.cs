@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerSpawnPaintingPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerSpawnPaintingPacket : MinecraftPacket
     {
         
 

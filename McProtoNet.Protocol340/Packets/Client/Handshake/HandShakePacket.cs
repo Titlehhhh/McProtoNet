@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class HandShakePacket : MinecraftPacket<Protocol340>
+    public sealed class HandShakePacket : MinecraftPacket
     {
         public HandShakeIntent Intent { get; private set; }
         public int ProtocolVersion { get; private set; }

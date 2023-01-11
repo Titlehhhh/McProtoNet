@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientWindowActionPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientWindowActionPacket : MinecraftPacket
     {
          
 

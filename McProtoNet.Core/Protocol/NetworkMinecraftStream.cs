@@ -68,7 +68,7 @@ namespace McProtoNet.Core.Protocol
             do
             {
                 token.ThrowIfCancellationRequested();
-                read = await this.ReadUnsignedByteAsync(token);
+                read = await this.ReadUnsignedByteAsync(token).ConfigureAwait(false);
 
                 int value = read & 0b01111111;
                 result |= value << (7 * numRead);
@@ -106,14 +106,14 @@ namespace McProtoNet.Core.Protocol
         {
             token.ThrowIfCancellationRequested();
             var buffer = new byte[1];
-            await this.ReadAsync(buffer, token);
+            await this.ReadAsync(buffer, token).ConfigureAwait(false);
             return buffer[0];
 
         }
         private async ValueTask WriteUnsignedByteAsync(byte value, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await WriteAsync(new[] { value }, token);
+            await WriteAsync(new[] { value }, token).ConfigureAwait(false);
         }
         private IBufferedCipher EncryptCipher { get; set; }
         private IBufferedCipher DecryptCipher { get; set; }
@@ -142,6 +142,10 @@ namespace McProtoNet.Core.Protocol
         public override void Flush()
         {
             BaseStream.Flush();
+        }
+        public override Task FlushAsync(CancellationToken cancellationToken)
+        {
+            return BaseStream.FlushAsync(cancellationToken);
         }
 
         public override int Read(byte[] buffer, int offset, int count)
@@ -200,8 +204,6 @@ namespace McProtoNet.Core.Protocol
         public new void Dispose()
         {
             NetStream.Dispose();
-
-
         }
     }
 }

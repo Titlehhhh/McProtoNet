@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol340.Packets.Client
 {
 
-    public sealed class EncryptionResponsePacket : MinecraftPacket<Protocol340>
+    public sealed class EncryptionResponsePacket : MinecraftPacket
     {
         public byte[] SharedKey { get; private set; }
         public byte[] VerifyToken { get; private set; }

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerDisconnectPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerDisconnectPacket : MinecraftPacket
     {
 
         public string Message { get; private set; }

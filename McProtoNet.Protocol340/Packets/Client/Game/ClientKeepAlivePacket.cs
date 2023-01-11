@@ -1,6 +1,6 @@
 namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class ClientKeepAlivePacket : MinecraftPacket<Protocol340>
+    public sealed class ClientKeepAlivePacket : MinecraftPacket
     {
         public long ID { get; set; }
 

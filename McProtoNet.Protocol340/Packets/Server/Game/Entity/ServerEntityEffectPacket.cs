@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerEntityEffectPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerEntityEffectPacket : MinecraftPacket
     {
         
 

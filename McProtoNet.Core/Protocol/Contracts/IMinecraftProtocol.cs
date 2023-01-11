@@ -10,9 +10,11 @@ namespace McProtoNet.Core.Protocol
         //Task SendPacketAsync(IOutputPacket packet, int id, CancellationToken token = default);
         // Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token = default);
 
-        //void SendPacket(IOutputPacket packet, int id);
+       // void SendPacket(IOutputPacket packet, int id);
         void SendPacket(MemoryStream data, int id);
+        
         Task SendPacketAsync(MemoryStream memoryStream, int id, CancellationToken cancellationToken = default);
+        
         //void SendPacket(MemoryStream data, int id);
         //void SendPacket(Span<byte> data, int id);
         (int, MemoryStream) ReadNextPacket();

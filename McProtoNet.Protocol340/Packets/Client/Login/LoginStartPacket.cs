@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol340.Packets.Client
 {
 
-    public sealed class LoginStartPacket : MinecraftPacket<Protocol340>
+    public sealed class LoginStartPacket : MinecraftPacket
     {
         public string Nickname { get; private set; }
 

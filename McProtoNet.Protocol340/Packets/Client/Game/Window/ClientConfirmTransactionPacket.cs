@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientConfirmTransactionPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientConfirmTransactionPacket : MinecraftPacket
     {
          
 

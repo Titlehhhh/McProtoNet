@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Protocol340.Packets.Client
 {
-    public sealed class StatusQueryPacket : MinecraftPacket<Protocol340>
+    public sealed class StatusQueryPacket : MinecraftPacket
     {
         
 

@@ -6,7 +6,7 @@ using McProtoNet.Protocol340.Packets.Server;
 
 namespace McProtoNet.Protocol340
 {
-    public class PacketCollection340 : AbstractPacketCollection
+    public class PacketCollection340 : PacketCollection
     {
         private readonly Dictionary<int, Type> sp = new Dictionary<int, Type>()
         {
@@ -131,9 +131,8 @@ namespace McProtoNet.Protocol340
 
         };
 
-        public PacketCollection340()
+        public PacketCollection340() : base()
         {
-            ThrowIfDisposed();
             ClientPackets.Add(PacketCategory.Game, cp);
             ServerPackets.Add(PacketCategory.Game, sp);
 
@@ -152,36 +151,12 @@ namespace McProtoNet.Protocol340
 
                 });
 
-            ClientPackets.Add(PacketCategory.HandShake, new Dictionary<int, Type>()
-            {
-                {0x00, typeof(HandShakePacket) }
-            });
-            ServerPackets.Add(PacketCategory.HandShake, new());
-
-            ClientPackets.Add(PacketCategory.Status, new Dictionary<int, Type>()
-            {
-
-            });
-            ServerPackets.Add(PacketCategory.Status, new Dictionary<int, Type>()
-            {
-
-            });
         }
 
 
-        public override Dictionary<int, Type> GetClientPacketsByCategory(PacketCategory category)
-        {
-            ThrowIfDisposed();
-            return ClientPackets[category];
-        }
 
-        public override Dictionary<int, Type> GetServerPacketsByCategory(PacketCategory category)
-        {
-            ThrowIfDisposed();
-            return ServerPackets[category];
-        }
 
-        public override Dictionary<PacketCategory, IPacketProvider> GetAllPackets(PacketSide side)
+        public Dictionary<PacketCategory, IPacketProvider> GetAllPackets(PacketSide side)
         {
             ThrowIfDisposed();
 

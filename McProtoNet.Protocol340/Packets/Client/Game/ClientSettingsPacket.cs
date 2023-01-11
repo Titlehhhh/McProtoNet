@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientSettingsPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientSettingsPacket : MinecraftPacket
     {
         public string Locale { get; set; }
         public byte RenderDistance { get; set; }

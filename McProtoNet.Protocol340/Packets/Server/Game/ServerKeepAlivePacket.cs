@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerKeepAlivePacket : MinecraftPacket<Protocol340>
+    public sealed class ServerKeepAlivePacket : MinecraftPacket
     {
         public long ID { get; set; }
 

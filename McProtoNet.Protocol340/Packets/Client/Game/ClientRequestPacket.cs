@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientRequestPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientRequestPacket : MinecraftPacket
     {
         public ClientRequest Request { get; set; }
 

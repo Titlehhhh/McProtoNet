@@ -11,5 +11,6 @@ namespace McProtoNet.Core.Protocol
         public Task SendPacketAsync(MinecraftPacket packet, CancellationToken cancellationToken = default);
         public void SendPacket(MinecraftPacket packet);
     }
+
 }
 

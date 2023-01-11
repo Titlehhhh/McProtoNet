@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerUnloadChunkPacket : MinecraftPacket<Protocol340>
+    public sealed class ServerUnloadChunkPacket : MinecraftPacket
     {
         public int X { get; set; }
         public int Z { get; set; }

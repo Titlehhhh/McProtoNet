@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientTabCompletePacket : MinecraftPacket<Protocol340>
+    public sealed class ClientTabCompletePacket : MinecraftPacket
     {
         
 

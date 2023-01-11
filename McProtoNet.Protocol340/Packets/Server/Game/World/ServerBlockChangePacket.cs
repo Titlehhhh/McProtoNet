@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 {
 
 
-    public sealed class ServerBlockChangePacket : MinecraftPacket<Protocol340>
+    public sealed class ServerBlockChangePacket : MinecraftPacket
     {
         public BlockChangeRecord Record { get; set; }
 

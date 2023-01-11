@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerChangeHeldItemPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientPlayerChangeHeldItemPacket : MinecraftPacket
     {
         public short Slot { get; private set; }
 

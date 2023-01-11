@@ -2,13 +2,13 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
 
-    public sealed class ClientPlayerStatePacket : MinecraftPacket<Protocol340>
+    public sealed class ClientPlayerStatePacket : MinecraftPacket
     {
         
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            MemoryStream ms = null;
         }
 
         //out.writeVarInt(this.entityId);

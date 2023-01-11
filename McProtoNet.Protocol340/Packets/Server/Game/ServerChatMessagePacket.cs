@@ -1,7 +1,7 @@
 namespace McProtoNet.Protocol340.Packets.Server
 {
 
-    public sealed class ServerChatMessagePacket : MinecraftPacket<Protocol340>
+    public sealed class ServerChatMessagePacket : MinecraftPacket
     {
         public string Message { get; private set; }
 

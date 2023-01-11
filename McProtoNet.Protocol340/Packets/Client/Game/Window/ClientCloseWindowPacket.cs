@@ -1,7 +1,7 @@
 namespace McProtoNet.Protocol340.Packets.Client.Game
 {
 
-    public sealed class ClientCloseWindowPacket : MinecraftPacket<Protocol340>
+    public sealed class ClientCloseWindowPacket : MinecraftPacket
     {
          
 
