@@ -1,6 +1,9 @@
-﻿namespace McProtoNet.Protocol754.Packets.Server
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
+
+namespace McProtoNet.Core
 {
-    public sealed class StatusResponsePacket : MinecraftPacket<Protocol754>
+    public sealed class StatusResponsePacket : MinecraftPacket
     {
         public string JsonResponse { get; private set; }
 

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientPlayerPlaceBlockPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientPlayerPlaceBlockPacket : MinecraftPacket
     {
         /*
          * out.writeVarInt(MagicValues.value(Integer.class, this.hand));

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerPlayerListEntryPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerPlayerListEntryPacket : MinecraftPacket
     {
         public PlayerListEntryAction Action { get; set; }
         public PlayerListEntry[] Entries { get; set; }

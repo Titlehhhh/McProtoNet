@@ -4,27 +4,12 @@ using McProtoNet.Protocol754.Packets.Server;
 namespace McProtoNet.Protocol754
 {
 
-    public sealed class PacketCollection754 : AbstractPacketCollection
+    public sealed class PacketCollection754 : PacketCollection
     {
 
-        public PacketCollection754()
+        public PacketCollection754() : base()
         {
-            ClientPackets.Add(PacketCategory.Status, new()
-            {
-                {0x00, typeof(StatusQueryPacket) },
-                {0x01, typeof(StatusPingPacket) }
-            });
-            ServerPackets.Add(PacketCategory.Status, new()
-            {
-                {0x00, typeof(StatusResponsePacket) },
-                {0x01, typeof(StatusPongPacket) }
-            });
-            ClientPackets.Add(PacketCategory.HandShake, new()
-            {
-                {0, typeof(HandShakePacket) }
-            });
-            ServerPackets.Add(PacketCategory.HandShake, new());
-
+            
             ClientPackets.Add(PacketCategory.Login, new()
             {
                 { 0x00, typeof(LoginStartPacket) },
@@ -189,19 +174,8 @@ namespace McProtoNet.Protocol754
             });
         }
 
-        public override Dictionary<int, Type> GetClientPacketsByCategory(PacketCategory category)
-        {
-            ThrowIfDisposed();
-            return ClientPackets[category];
-        }
 
-        public override Dictionary<int, Type> GetServerPacketsByCategory(PacketCategory category)
-        {
-            ThrowIfDisposed();
-            return ServerPackets[category];
-        }
-
-        public override Dictionary<PacketCategory, IPacketProvider> GetAllPackets(PacketSide side)
+        public  Dictionary<PacketCategory, IPacketProvider> GetAllPackets(PacketSide side)
         {
             ThrowIfDisposed();
 

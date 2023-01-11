@@ -7,17 +7,17 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754> 
+    public sealed class ServerUpdateScorePacket : MinecraftPacket 
 После:
 {
 
 
-    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754> 
+    public sealed class ServerUpdateScorePacket : MinecraftPacket 
 */
 {
 
 
-    public sealed class ServerUpdateScorePacket : MinecraftPacket<Protocol754>
+    public sealed class ServerUpdateScorePacket : MinecraftPacket
     {
         public string Entry { get; set; }
         public ScoreboardAction Action { get; set; }

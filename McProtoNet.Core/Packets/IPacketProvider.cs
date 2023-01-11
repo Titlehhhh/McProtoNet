@@ -2,9 +2,9 @@
 
 namespace McProtoNet.Core.Packets
 {
-    public interface IPacketProvider
+    public interface IPacketProvider : IDisposable
     {
-        bool TryGetInputPacket<TPack>(int id, out MinecraftPacket<TPack> packet) where TPack : IProtocol, new();
+        bool TryGetInputPacket(int id, out IInputPacket packet);
         bool TryGetOutputId(IOutputPacket Tpacket, out int id);
     }
 }

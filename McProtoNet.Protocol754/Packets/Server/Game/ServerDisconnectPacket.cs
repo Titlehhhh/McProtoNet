@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerDisconnectPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerDisconnectPacket : MinecraftPacket
     {
         public string Message { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

@@ -1,6 +1,9 @@
-﻿namespace McProtoNet.Protocol754.Packets.Client
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
+
+namespace McProtoNet.Core
 {
-    public sealed class HandShakePacket : MinecraftPacket<Protocol754>
+    public sealed class HandShakePacket : MinecraftPacket
     {
         public HandShakeIntent Intent { get; private set; }
         public int ProtocolVersion { get; private set; }

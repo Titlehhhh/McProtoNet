@@ -1,14 +1,13 @@
-﻿using System.Runtime.Serialization;
+﻿using Newtonsoft.Json;
 
 namespace McProtoNet.Utils
 {
-    [DataContract]
     public class ClickComponent
     {
-        [DataMember(Name = "action")]
+        [JsonProperty(PropertyName = "action", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public EClickAction Action { get; set; }
 
-        [DataMember(Name = "value")]
+        [JsonProperty(PropertyName = "value", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public string Value { get; set; }
 
         public string Translate { get; set; }

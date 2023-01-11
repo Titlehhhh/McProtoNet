@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientPrepareCraftingGridPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientPrepareCraftingGridPacket : MinecraftPacket
     {
         public byte WindowId { get; private set; }
         public string RecipeId { get; private set; }

@@ -2,7 +2,7 @@
 {
     public enum GameMode
     {
-        UNKNOWN = 255,
+        UNKNOWN = -1,
         SURVIVAL = 0,
         CREATIVE = 1,
         ADVENTURE = 2,

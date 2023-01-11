@@ -1,6 +1,9 @@
-﻿namespace McProtoNet.Protocol754.Packets.Client
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
+
+namespace McProtoNet.Core
 {
-    public sealed class StatusPingPacket : MinecraftPacket<Protocol754>
+    public sealed class StatusPingPacket : MinecraftPacket
     {
         public long PayLoad { get; set; }
 

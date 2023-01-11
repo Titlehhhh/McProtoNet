@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientMoveItemToHotbarPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientMoveItemToHotbarPacket : MinecraftPacket
     {
         public int Slot { get; private set; }
 

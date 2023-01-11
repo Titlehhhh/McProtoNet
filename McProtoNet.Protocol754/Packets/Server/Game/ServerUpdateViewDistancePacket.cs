@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerUpdateViewDistancePacket : MinecraftPacket<Protocol754>
+    public sealed class ServerUpdateViewDistancePacket : MinecraftPacket
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

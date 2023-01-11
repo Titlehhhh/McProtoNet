@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientSetBeaconEffectPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientSetBeaconEffectPacket : MinecraftPacket
     {
         public int PrimaryEffect { get; private set; }
         public int SecondaryEffect { get; private set; }

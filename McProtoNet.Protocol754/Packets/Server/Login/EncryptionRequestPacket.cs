@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Server
 {
-    public sealed class EncryptionRequestPacket : MinecraftPacket<Protocol754>
+    public sealed class EncryptionRequestPacket : MinecraftPacket
     {
         public string ServerId { get; private set; }
         public byte[] PublicKey { get; private set; }

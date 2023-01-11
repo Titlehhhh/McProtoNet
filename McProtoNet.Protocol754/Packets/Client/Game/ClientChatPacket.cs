@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientChatPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientChatPacket : MinecraftPacket
     {
         public string Message { get; private set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

@@ -1,6 +1,9 @@
-﻿namespace McProtoNet.Protocol754.Packets.Client
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
+
+namespace McProtoNet.Core
 {
-    public sealed class StatusQueryPacket : MinecraftPacket<Protocol754>
+    public sealed class StatusQueryPacket : MinecraftPacket
     {
         public override void Read(IMinecraftPrimitiveReader stream)
         {

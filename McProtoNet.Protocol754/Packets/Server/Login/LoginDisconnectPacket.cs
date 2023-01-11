@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    public sealed class LoginDisconnectPacket : MinecraftPacket<Protocol754>
+    public sealed class LoginDisconnectPacket : MinecraftPacket
     {
         public string Message { get; set; }
         public override void Read(IMinecraftPrimitiveReader stream)

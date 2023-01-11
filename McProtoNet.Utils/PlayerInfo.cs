@@ -14,7 +14,7 @@ namespace McProtoNet.Utils
         public int MaxPlayers { get; set; }
 
 
-        [DataMember(Name = "sample")]        
+        [DataMember(Name = "sample")]
         public GameProfile[] PlayerList { get; set; }
         public PlayerInfo()
         {

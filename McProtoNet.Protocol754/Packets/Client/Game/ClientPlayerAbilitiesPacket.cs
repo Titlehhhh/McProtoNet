@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientPlayerAbilitiesPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientPlayerAbilitiesPacket : MinecraftPacket
     {
 
 

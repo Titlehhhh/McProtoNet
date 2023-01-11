@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerPreparedCraftingGridPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerPreparedCraftingGridPacket : MinecraftPacket
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

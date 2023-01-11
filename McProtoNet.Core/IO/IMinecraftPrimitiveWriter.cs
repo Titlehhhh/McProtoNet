@@ -6,6 +6,10 @@ namespace McProtoNet.Core.IO
     {
         void Write(byte[] buffer);
         void WriteBoolean(bool value);
+        /// <summary>
+        /// Java WriteByte
+        /// </summary>
+        /// <param name="value"></param>
         void WriteByte(sbyte value);
         void WriteByteArray(byte[] values);
         void WriteDouble(double value);

@@ -1,29 +1,30 @@
 ﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
+using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
 {
-    public sealed class PacketReaderWriter<TPack> : IPacketReaderWriter<TPack> where TPack : IProtocol, new()
+    public sealed class PacketReaderWriter : IPacketReaderWriter
     {
-        public IProtocol Protocol { get; } = new TPack();
-
-        public IPacketRepository PacketRepository { get; }
 
         private IMinecraftProtocol minecraftProtocol;
-        public PacketReaderWriter(PacketSide side, IMinecraftProtocol minecraftProtocol)
+        private IPacketProvider packets;
+
+        public PacketReaderWriter(IMinecraftProtocol minecraftProtocol, IPacketProvider packets)
         {
-            PacketRepository = new PacketRepository(Protocol.PacketCollection.GetAllPackets(side));
             this.minecraftProtocol = minecraftProtocol;
+            this.packets = packets;
         }
+
         private MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
-        public MinecraftPacket<TPack> ReadNextPacket(PacketCategory category)
+        public MinecraftPacket ReadNextPacket()
         {
             (int id, MemoryStream data) = minecraftProtocol.ReadNextPacket();
-            if (PacketRepository.GetPackets(category).TryGetInputPacket(id, out MinecraftPacket<TPack> packet))
+            if (packets.TryGetInputPacket(id, out IInputPacket packet))
             {
                 reader.BaseStream = data;
                 packet.Read(reader);
-                return packet;
+                return (MinecraftPacket)packet;
             }
             else
             {
@@ -32,9 +33,9 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
-        public void SendPacket(MinecraftPacket<TPack> packet, PacketCategory category)
+        public void SendPacket(MinecraftPacket packet)
         {
-            bool ok = this.PacketRepository.GetPackets(category).TryGetOutputId(packet, out int id);
+            bool ok = packets.TryGetOutputId(packet, out int id);
             if (ok)
             {
                 using (MemoryStream data = new MemoryStream())
@@ -42,7 +43,7 @@ namespace McProtoNet.Core.Protocol
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(data);
                     packet.Write(writer);
                     minecraftProtocol.SendPacket(data, id);
-                    
+
                 }
             }
             else
@@ -50,12 +51,33 @@ namespace McProtoNet.Core.Protocol
                 throw new InvalidOperationException($"Output Packet {id} notFound");
             }
         }
+        ~PacketReaderWriter()
+        {
+            Dispose();
+        }
+        private bool disposed = false;
 
         public void Dispose()
         {
-
+            if (disposed)
+                return;
+            disposed = true;
+            minecraftProtocol?.Dispose();
+            minecraftProtocol = null;
+            packets?.Dispose();
+            packets = null;
+            GC.SuppressFinalize(this);
         }
 
+        public void SwitchEncryption(byte[] privateKey)
+        {
+            minecraftProtocol.SwitchEncryption(privateKey);
+        }
+
+        public void SwitchCompression(int threshold)
+        {
+            minecraftProtocol.SwitchCompression(threshold);
+        }
     }
 }
 

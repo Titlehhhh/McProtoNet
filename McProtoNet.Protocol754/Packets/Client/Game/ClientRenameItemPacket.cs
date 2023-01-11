@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientRenameItemPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientRenameItemPacket : MinecraftPacket
     {
         public string Name { get; private set; }
 

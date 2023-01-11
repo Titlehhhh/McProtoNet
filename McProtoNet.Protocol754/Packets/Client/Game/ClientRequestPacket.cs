@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientRequestPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientRequestPacket : MinecraftPacket
     {
         public ClientRequest Request { get; private set; }
 

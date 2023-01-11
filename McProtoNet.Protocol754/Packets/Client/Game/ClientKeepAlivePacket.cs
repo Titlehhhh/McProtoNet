@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientKeepAlivePacket : MinecraftPacket<Protocol754>
+    public sealed class ClientKeepAlivePacket : MinecraftPacket
     {
         public long PingId { get; private set; }
 

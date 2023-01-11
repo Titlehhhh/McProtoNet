@@ -1,34 +1,28 @@
 ﻿using McProtoNet.Core;
-using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
-using System.Collections.ObjectModel;
-using System.Net;
 using System.Net.Sockets;
 
 namespace McProtoNet
 {
-    public delegate void PacketReceivedHandler<TPack>(PacketListener<TPack> sender, MinecraftPacket<TPack> packet) where TPack : IProtocol, new();
-    public delegate void OnErrorHandler<TPack>(PacketListener<TPack> sender, Exception exception) where TPack : IProtocol, new();
-    public class PacketListener<TProto> : IDisposable where TProto : IProtocol, new()
+
+    public class PacketListener: IDisposable
     {
-        private IMinecraftProtocol minecraftProtocol;
-        private IPacketReaderWriter<TProto> packetReaderWriter;
-        public PacketCategory CurrentCategory { get; set; }
+        
+        private IPacketReaderWriter packetReaderWriter;
         public void SwitchEncryption(byte[] key)
         {
-            minecraftProtocol.SwitchEncryption(key);
+            packetReaderWriter.SwitchEncryption(key);
         }
         public void SwitchCompression(int threshold)
         {
-            minecraftProtocol.SwitchCompression(threshold);
+            packetReaderWriter.SwitchCompression(threshold);
         }
-        private TcpClient tcpClient;
-        public PacketListener(TcpClient tcpClient, PacketSide side)
+
+        public PacketListener(IPacketReaderWriter packetReaderWriter)
         {
-            this.tcpClient = tcpClient;
-            minecraftProtocol = new MinecraftProtocol(tcpClient);
-            packetReaderWriter = new PacketReaderWriter<TProto>(side, minecraftProtocol);
+            this.packetReaderWriter = packetReaderWriter;
         }
+
         private Thread netThread;
         private CancellationTokenSource CTS = new();
         public void Start()
@@ -43,30 +37,44 @@ namespace McProtoNet
                 while (!CTS.IsCancellationRequested)
                 {
 
-                    MinecraftPacket<TProto> packet = packetReaderWriter.ReadNextPacket(CurrentCategory);
-                    this.PacketReceived?.Invoke(this, packet);
+                    MinecraftPacket packet = packetReaderWriter.ReadNextPacket();
+                    //this.PacketReceived?.Invoke(this, packet);
 
                 }
             }
             catch (Exception e)
             {
-                OnError?.Invoke(this, e);
+                if (!CTS.IsCancellationRequested)
+                    //OnError?.Invoke(this, e);
             }
         }
-        public void SendPacket(MinecraftPacket<TProto> packet)
+        public void SendPacket(MinecraftPacket packet)
         {
-            packetReaderWriter.SendPacket(packet, CurrentCategory);
+            packetReaderWriter.SendPacket(packet);
         }
         public void Stop()
-        {
-            CTS.Cancel();
+        {            
+            CTS.Cancel();           
+            netThread.Join();
+            Dispose();
         }
-
+        private bool disposed = false;
         public void Dispose()
         {
-            minecraftProtocol.Dispose();
-            packetReaderWriter.Dispose();
-            CTS.Dispose();
+            if (disposed)
+                return;
+            disposed = true;
+            tcpClient?.Dispose();
+            minecraftProtocol?.Dispose();
+            packetReaderWriter?.Dispose();
+            CTS?.Dispose();
+            netThread = null;
+            minecraftProtocol = null;
+            packetReaderWriter = null;
+            tcpClient = null;
+            CTS = null;
+
+            GC.SuppressFinalize(this);
         }
 
         public event PacketReceivedHandler<TProto> PacketReceived;

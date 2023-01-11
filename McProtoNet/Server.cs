@@ -4,34 +4,61 @@ using System.Net.Sockets;
 
 namespace McProtoNet
 {
-    public delegate void ClientConnectedHandler<TProto>(IClient<TProto> client) where TProto : IProtocol, new();
-    public class Server<TProto> : IDisposable where TProto : IProtocol, new()
+    public class Server<TProto> : IDisposable, IServer<TProto> where TProto : IProtocol, new()
     {
-        private List<Client<TProto>> Clients = new List<Client<TProto>>();
-
+        public event ClientConnectedHandler<TProto> ClientConnected;
+        public event ServerOnErrorHandler<TProto> OnError;
+        public event ServerStartedHandler<TProto> ServerStarted;
+        public event ServerStopedHandler<TProto> ServerStoped;
         private TcpListener server;
         private CancellationTokenSource CTS = new();
-        public event ClientConnectedHandler<TProto> ClientConnected;
+
         public Server(ushort port)
         {
             server = new TcpListener(IPAddress.Any, port);
-            CTS.Token.Register(() =>
-            {
-                server.Stop();
-            });
         }
         public async void Start()
         {
+
             server.Start();
-            while (!CTS.IsCancellationRequested)
+            CTS.Token.Register(() =>
             {
-                TcpClient tcpClient = await server.AcceptTcpClientAsync();
-                var addres = tcpClient.Client.RemoteEndPoint;                
-                var listener = new PacketListener<TProto>(tcpClient, PacketSide.Server);
-                IClient<TProto> newClient = new Client<TProto>(addres, listener);
-                this.ClientConnected?.Invoke(newClient);
+                server.Stop();
+                this.ServerStoped?.Invoke(this);
+            });
+            this.ServerStarted?.Invoke(this);
+            try
+            {
+                while (!CTS.IsCancellationRequested)
+                {
+                    TcpClient tcpClient = await server.AcceptTcpClientAsync();
+
+                    var addres = tcpClient.Client.RemoteEndPoint;
+                    var listener = new PacketListener<TProto>(tcpClient, PacketSide.Server);
+                    IClient<TProto> newClient = new Client<TProto>(addres, listener);
+
+                    CTS.Token.Register(() =>
+                    {
+                        newClient.Disconnect();
+                        newClient.Dispose();
+                    });
+                    this.ClientConnected?.Invoke(newClient);
+                }
+            }
+            catch (Exception e)
+            {
+                if (!CTS.IsCancellationRequested)
+                {
+                    this.OnError?.Invoke(this, e);
+                }
             }
         }
+
+        public void Stop()
+        {
+            CTS.Cancel();
+        }
+
         public void Dispose()
         {
 

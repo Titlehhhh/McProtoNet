@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerEntityPositionRotationPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerEntityPositionRotationPacket : MinecraftPacket
     {
         public int EntityId { get; private set; }
         public double DeltaX { get; private set; }

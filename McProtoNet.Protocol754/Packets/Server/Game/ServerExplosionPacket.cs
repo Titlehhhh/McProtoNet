@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerExplosionPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerExplosionPacket : MinecraftPacket
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol754.Packets.Server
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            
         }
         public ServerExplosionPacket() { }
     }

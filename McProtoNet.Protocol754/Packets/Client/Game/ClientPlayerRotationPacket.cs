@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientPlayerRotationPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientPlayerRotationPacket : MinecraftPacket
     {
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }

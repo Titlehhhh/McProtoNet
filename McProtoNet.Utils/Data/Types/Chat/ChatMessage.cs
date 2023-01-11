@@ -1,70 +1,50 @@
-﻿using System.Runtime.Serialization;
-using System.Runtime.Serialization.Json;
-using System.Text;
-using System.Text.Json;
+﻿using Newtonsoft.Json;
 
 namespace McProtoNet.Utils
 {
-    [DataContract]
     public class ChatMessage
     {
-        [DataMember(Name = "translate")]
-        public string Translate { get; set; }
+        [JsonProperty(PropertyName = "translate", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public string? Translate { get; set; }
 
-        [DataMember(Name = "with")]
-        public ChatMessage With { get; set; }
+        [JsonProperty(PropertyName = "with", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public ChatMessage? With { get; set; }
 
-        private static readonly DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ChatMessage));
-        private List<ChatMessage> extra = new List<ChatMessage>();
-
-        [DataMember(Name = "text")]
+        [JsonProperty(PropertyName = "text", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public string Text { get; set; }
 
-        [DataMember(Name = "color")]
-        public string Color { get; set; }
+        [JsonProperty(PropertyName = "color", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public string? Color { get; set; }
 
-        [DataMember(Name = "bold")]
+        [JsonProperty(PropertyName = "bold", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public bool Bold { get; set; }
 
-        [DataMember(Name = "italic")]
+        [JsonProperty(PropertyName = "italic", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public bool Italic { get; set; }
 
-        [DataMember(Name = "underlined")]
+        [JsonProperty(PropertyName = "underlined", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public bool Underlined { get; set; }
 
-        [DataMember(Name = "strikethrough")]
+        [JsonProperty(PropertyName = "strikethrough", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public bool Strikethrough { get; set; }
 
-        [DataMember(Name = "obfuscated")]
+        [JsonProperty(PropertyName = "obfuscated", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
         public bool Obfuscated { get; set; }
 
-        [DataMember(Name = "insertion")]
-        public string Insertion { get; set; }
+        [JsonProperty(PropertyName = "insertion", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public string? Insertion { get; set; }
 
         //TODO
         //[IgnoreDataMember]
-        [DataMember(Name = "clickEvent")]
-        public ClickComponent ClickEvent { get; set; }
+        [JsonProperty(PropertyName = "clickEvent", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public ClickComponent? ClickEvent { get; set; }
         //TODO
         // [IgnoreDataMember]
-        [DataMember(Name = "hoverEvent")]
-        public HoverComponent HoverEvent { get; set; }
+        [JsonProperty(PropertyName = "hoverEvent", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public HoverComponent? HoverEvent { get; set; }
 
-        [DataMember(Name = "extra", EmitDefaultValue = true)]
-        public List<ChatMessage> Extra
-        {
-            get
-            {
-                if (extra == null)
-                    extra = new List<ChatMessage>();
-                return extra;
-            }
-            set
-            {
-                if (value != null)
-                    extra = value;
-            }
-        }
+        [JsonProperty(PropertyName = "extra", DefaultValueHandling = DefaultValueHandling.Ignore, NullValueHandling = NullValueHandling.Ignore)]
+        public List<ChatMessage>? Extra { get; set; }
         public IEnumerable<ChatMessage> Extras => GetExtras();
 
         public IEnumerable<ChatMessage> GetExtras()
@@ -203,16 +183,16 @@ namespace McProtoNet.Utils
 
         public static ChatMessage Parse(string json)
         {
-            return (ChatMessage)serializer.ReadObject(new MemoryStream(Encoding.UTF8.GetBytes(json)));
+            return (ChatMessage)JsonConvert.DeserializeObject(json);
         }
         public override string ToString()
         {
-            return string.Join("", Extra.Select(x => x.Text));
+            return JsonConvert.SerializeObject(this);
         }
 
 
         public static ChatMessage Empty => Simple(string.Empty);
 
-        public string ToString(JsonSerializerOptions options) => JsonSerializer.Serialize(this, options);
+
     }
 }

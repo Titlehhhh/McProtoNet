@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientLockDifficultyPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientLockDifficultyPacket : MinecraftPacket
     {
 
 

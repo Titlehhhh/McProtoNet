@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Client
 {
 
 
-    public sealed class ClientWindowActionPacket : MinecraftPacket<Protocol754>
+    public sealed class ClientWindowActionPacket : MinecraftPacket
     {
         public byte WindowId { get; set; }
         public short Slot { get; set; }

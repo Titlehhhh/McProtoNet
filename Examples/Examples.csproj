@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3"/>
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +25,12 @@
     <ProjectReference Include="..\McProtoNet.Protocol754\McProtoNet.Protocol754.csproj" />
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
     <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ServerIcon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerEntityCollectItemPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerEntityCollectItemPacket : MinecraftPacket
     {
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

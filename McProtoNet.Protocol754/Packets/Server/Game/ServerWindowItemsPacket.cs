@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerWindowItemsPacket : MinecraftPacket<Protocol754>
+    public sealed class ServerWindowItemsPacket : MinecraftPacket
     {
         public byte WindowId { get; private set; }
         public ItemStack?[] Items { get; private set; }

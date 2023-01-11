@@ -62,76 +62,29 @@ namespace McProtoNet.Core.Protocol
 
         public async ValueTask<int> ReadVarIntAsync(CancellationToken token = default)
         {
-            try
-            {
-
-
-                int numRead = 0;
-                int result = 0;
-                byte read;
-                do
-                {
-
-                    read = await this.ReadUnsignedByteAsync(token);
-
-                    int value = read & 0b01111111;
-                    result |= value << (7 * numRead);
-
-                    numRead++;
-                    if (numRead > 5)
-                    {
-                        throw new InvalidOperationException("VarInt is too big");
-                    }
-                } while ((read & 0b10000000) != 0);
-
-                return result;
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public async ValueTask WriteVarIntAsync(int value, CancellationToken token)
-        {
-            try
-            {
-                var unsigned = (uint)value;
-                do
-                {
-                    var temp = (byte)(unsigned & 127);
-
-                    unsigned >>= 7;
-
-                    if (unsigned != 0)
-                        temp |= 128;
-
-                    await WriteUnsignedByteAsync(temp, token);
-                }
-                while (unsigned != 0);
-            }
-            catch
-            {
-                throw;
-            }
-        }
-
-        public void WriteVarInt(int val)
-        {
-            var unsigned = (uint)val;
+            int numRead = 0;
+            int result = 0;
+            byte read;
             do
             {
-                var temp = (byte)(unsigned & 127);
+                token.ThrowIfCancellationRequested();
+                read = await this.ReadUnsignedByteAsync(token);
 
-                unsigned >>= 7;
+                int value = read & 0b01111111;
+                result |= value << (7 * numRead);
 
-                if (unsigned != 0)
-                    temp |= 128;
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
 
-                WriteUnsignedByte(temp);
-            }
-            while (unsigned != 0);
+            return result;
+
         }
+
+
 
 
 
@@ -151,29 +104,16 @@ namespace McProtoNet.Core.Protocol
 
         private async ValueTask<byte> ReadUnsignedByteAsync(CancellationToken token = default)
         {
-            try
-            {
-                token.ThrowIfCancellationRequested();
-                var buffer = new byte[1];
-                await this.ReadAsync(buffer, token);
-                return buffer[0];
-            }
-            catch
-            {
-                throw;
-            }
+            token.ThrowIfCancellationRequested();
+            var buffer = new byte[1];
+            await this.ReadAsync(buffer, token);
+            return buffer[0];
+
         }
         private async ValueTask WriteUnsignedByteAsync(byte value, CancellationToken token)
         {
-            try
-            {
-                token.ThrowIfCancellationRequested();
-                await WriteAsync(new[] { value }, token);
-            }
-            catch
-            {
-                throw;
-            }
+            token.ThrowIfCancellationRequested();
+            await WriteAsync(new[] { value }, token);
         }
         private IBufferedCipher EncryptCipher { get; set; }
         private IBufferedCipher DecryptCipher { get; set; }
@@ -229,6 +169,10 @@ namespace McProtoNet.Core.Protocol
         {
             return BaseStream.ReadAsync(buffer, cancellationToken);
         }
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return BaseStream.ReadAsync(buffer, offset, count, cancellationToken);
+        }
 
         public override long Seek(long offset, SeekOrigin origin)
         {
@@ -241,9 +185,18 @@ namespace McProtoNet.Core.Protocol
         }
 
         public override void Write(byte[] buffer, int offset, int count)
-        {            
+        {
             BaseStream.Write(buffer, offset, count);
         }
+        public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            return BaseStream.WriteAsync(buffer, offset, count, cancellationToken);
+        }
+        public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            return BaseStream.WriteAsync(buffer, cancellationToken);
+        }
+
         public new void Dispose()
         {
             NetStream.Dispose();

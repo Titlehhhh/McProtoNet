@@ -17,16 +17,15 @@ namespace McProtoNet.Core.Packets
         public PacketProvider(Dictionary<int, Type> outPackets, Dictionary<int, Type> inPackets)
         {
             this._outPackets = outPackets.ToDictionary(k => k.Value, v => v.Key);
-
-
             this._inPackets = inPackets.ToDictionary(k => k.Key, v => (IInputPacket)Activator.CreateInstance(v.Value));
         }
 
-        public bool TryGetInputPacket<TPack>(int id, out MinecraftPacket<TPack> packet) where TPack : IProtocol, new()
+
+        public bool TryGetInputPacket(int id, out IInputPacket packet)
         {
             if (_inPackets.TryGetValue(id, out IInputPacket pack))
             {
-                packet = (MinecraftPacket<TPack>)pack;
+                packet = pack;
                 return true;
             }
             packet = null;
@@ -41,6 +40,18 @@ namespace McProtoNet.Core.Packets
             }
             id = -1;
             return false;
+        }
+
+
+        bool disposed = false;
+        public void Dispose()
+        {
+            if (disposed)
+                return;
+            disposed = true;
+            _outPackets.Clear();
+            _inPackets.Clear();
+            GC.SuppressFinalize(this);
         }
 
     }

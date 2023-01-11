@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Client
 {
 
-    public sealed class EncryptionResponsePacket : MinecraftPacket<Protocol754>
+    public sealed class EncryptionResponsePacket : MinecraftPacket
     {
         public byte[] SharedKey { get; private set; }
         public byte[] VerifyToken { get; private set; }

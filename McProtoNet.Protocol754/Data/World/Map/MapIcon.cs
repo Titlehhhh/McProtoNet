@@ -3,12 +3,12 @@
     public struct MapIcon
     {
         public MapIconType IconType { get; private set; }
-        public int X { get; private set; }
-        public int Z { get; private set; }
-        public int IconRotation { get; private set; }
-        public string DisplayName { get; private set; }
+        public byte X { get; private set; }
+        public byte Z { get; private set; }
+        public byte IconRotation { get; private set; }
+        public string? DisplayName { get; private set; }
 
-        public MapIcon(MapIconType iconType, int x, int z, int iconRotation, string displayName)
+        public MapIcon(MapIconType iconType, byte x, byte z, byte iconRotation, string? displayName = null)
         {
             IconType = iconType;
             X = x;

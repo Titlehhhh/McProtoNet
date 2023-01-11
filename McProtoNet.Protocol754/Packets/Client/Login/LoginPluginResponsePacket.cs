@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Client
 {
     [PacketInfo(0x02, PacketCategory.Login, 740, PacketSide.Client)]
-    public sealed class LoginPluginResponsePacket : MinecraftPacket<Protocol754>
+    public sealed class LoginPluginResponsePacket : MinecraftPacket
     {
         public int MessageID { get; set; }
         public byte[] Data { get; set; }

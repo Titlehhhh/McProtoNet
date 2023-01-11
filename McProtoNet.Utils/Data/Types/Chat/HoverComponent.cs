@@ -1,8 +1,5 @@
-﻿using System.Runtime.Serialization;
-
-namespace McProtoNet.Utils
+﻿namespace McProtoNet.Utils
 {
-    [DataContract]
     public class HoverComponent
     {
         public EHoverAction Action { get; set; }

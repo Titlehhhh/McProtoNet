@@ -1,14 +1,16 @@
+using Examples;
 using McProtoNet;
 using McProtoNet.Core;
+using McProtoNet.Core.Packets.DefaultPackets.Server.Status;
 using McProtoNet.Core.Protocol;
 using McProtoNet.Protocol754;
 using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Protocol754.Packets.Server;
 using McProtoNet.Utils;
 using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.Formats.Jpeg;
 using SixLabors.ImageSharp.Formats.Png;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Runtime.Serialization.Json;
 using System.Text;
 
@@ -18,97 +20,12 @@ public class Pr
 {
     public static void Main()
     {
-        Info = "";
-
-        string path = "ServerIcon.png";
-
-        Image img = Image.Load(path);
-        
-        var icon = img.ToBase64String(PngFormat.Instance);
-        
-
-        ServerInfo serverInfo = new ServerInfo()
-        {
-            Description = ChatMessage.Simple("Сосите хуй"),
-            Icon = icon,
-            Players = new PlayerInfo
-            {
-                MaxPlayers = 1000,
-                OnlinePlayers = 7,
-                PlayerList = new GameProfile[]
-                {
-                    new GameProfile(Guid.NewGuid(), "Title_")
-                },
-
-
-            },
-            TargetVersion = new VersionInfo("1.16.5", 754)
-        };
-
-        Info = serverInfo.ToString();
-
-        Server<Protocol754> server = new Server<Protocol754>(25565);
-        server.ClientConnected += Server_ClientConnected;
-        server.Start();
-
+        MinecraftServer754 server754 = new MinecraftServer754(25565);
+        server754.Start();
         Console.ReadLine();
     }
 
-    private static void Server_ClientConnected(IClient<Protocol754> client)
-    {
-        Console.WriteLine("NewClient: " + client.Address);
-        client.Listener.PacketReceived += Listener_PacketReceived;
-        client.Listener.OnError += Listener_OnError;
-        client.Listener.Start();
-    }
-
-
-    private static void Listener_OnError(PacketListener<Protocol754> sender, Exception exception)
-    {
-        Console.WriteLine("err: " + exception);
-    }
-    private static string Info = "";
-    private static DataContractJsonSerializer serializer = new DataContractJsonSerializer(typeof(ServerInfo));
-    private static void Listener_PacketReceived(PacketListener<Protocol754> sender, MinecraftPacket<Protocol754> packet)
-    {
-        Console.WriteLine("RecPack: " + packet.GetType().Name);
-        if (sender.CurrentCategory == PacketCategory.HandShake)
-        {
-            if (packet is HandShakePacket handShake)
-            {
-                if (handShake.Intent == HandShakeIntent.STATUS)
-                {
-                    Console.WriteLine("GetStatus");
-                    sender.CurrentCategory = PacketCategory.Status;
-                }
-                else
-                {
-                    sender.CurrentCategory = PacketCategory.Login;
-                }
-            }
-        }
-        else if (sender.CurrentCategory == PacketCategory.Status)
-        {
-            if (packet is StatusQueryPacket)
-            {
-                string json = Info;
-                var response = new StatusResponsePacket(json);
-
-                Console.WriteLine("Category: " + sender.CurrentCategory);
-
-
-                sender.SendPacket(response);
-
-
-
-            }
-            else if (packet is StatusPingPacket ping)
-            {
-                var pong = new StatusPongPacket(ping.PayLoad);
-                sender.SendPacket(pong);
-            }
-        }
-    }
+    
 
 
     private static async void ClientExample()
@@ -116,11 +33,11 @@ public class Pr
         string host = "testhost";
         ushort port = 25565;
 
-        IServerResolver serverResolver = new ServerResolver();
+        // IServerResolver serverResolver = new ServerResolver();
 
-        var result = await serverResolver.ResolveAsync(host);
-        host = result.Host;
-        port = result.Port;
+        //  var result = await serverResolver.ResolveAsync(host);
+        // host = result.Host;
+        // port = result.Port;
 
         TcpClient tcpClient = new TcpClient(host, port);
 
@@ -144,6 +61,10 @@ public class Pr
 
     private static void PacketListener_PacketReceived(PacketListener<Protocol754> sender, MinecraftPacket<Protocol754> packet)
     {
+        if (packet is StatusResponsePacket r)
+        {
+            File.WriteAllText("test.json", r.JsonResponse);
+        }
 
         if (packet is EncryptionRequestPacket encryption)
         {

@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Protocol754.Packets.Server
 {
 
-    public sealed class LoginSetCompressionPacket : MinecraftPacket<Protocol754>
+    public sealed class LoginSetCompressionPacket : MinecraftPacket
     {
         public int Threshold { get; set; }
 

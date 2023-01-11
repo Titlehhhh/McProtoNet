@@ -1,7 +1,8 @@
 ﻿
 using Ionic.Zlib;
+using McProtoNet.Core.IO;
+using System.IO;
 using System.Net.Sockets;
-
 
 namespace McProtoNet.Core.Protocol
 {
@@ -17,170 +18,16 @@ namespace McProtoNet.Core.Protocol
         public MinecraftProtocol(NetworkMinecraftStream netmcStream)
         {
             this.netmcStream = netmcStream;
-
         }
-        public MinecraftProtocol(NetworkStream networkStream)
-        {
-            netmcStream = new NetworkMinecraftStream(networkStream);
-        }
+        public MinecraftProtocol(NetworkStream networkStream) : this(new NetworkMinecraftStream(networkStream))
+        { }
 
         public MinecraftProtocol(Socket socket) : this(new NetworkStream(socket))
-        {
-
-        }
+        { }
         public MinecraftProtocol(TcpClient tcpClient) : this(tcpClient.GetStream())
-        {
-
-        }
+        { }
 
 
-
-        //#region Async
-        //[Obsolete("Этот метод не рекомендуется использовать, из-за соображений производительности. Используйте ReadNextPacket()")]
-        //public async Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token)
-        //{
-        //    ThrowIfDisposed();
-        //    try
-        //    {
-        //        token.ThrowIfCancellationRequested();
-        //        int len = await netmcStream.ReadVarIntAsync(token);
-        //        token.ThrowIfCancellationRequested();
-        //        // Console.WriteLine("len " + len);
-        //        byte[] receivedata = new byte[len];
-        //        await netmcStream.ReadAsync(receivedata.AsMemory(0, len), token);
-
-
-        //        var dataStream = new MemoryStream(receivedata);
-
-        //        if (_compressionThreshold > 0)
-        //        {
-
-        //            int sizeUncompressed = dataStream.ReadVarInt();
-        //            if (sizeUncompressed != 0)
-        //            {
-        //                ZlibStream zlibStream = new ZlibStream(dataStream, CompressionMode.Decompress);
-        //                byte[] uncompressdata = new byte[sizeUncompressed];
-        //                zlibStream.Read(uncompressdata, 0, sizeUncompressed);
-        //                zlibStream.Close();
-        //                zlibStream.Dispose();
-        //                dataStream = new MemoryStream(uncompressdata);
-        //            }
-
-        //        }
-
-        //        int id = dataStream.ReadVarInt();
-
-        //        return (id, dataStream);
-        //    }
-        //    catch
-        //    {
-        //        throw;
-        //    }
-
-        //}
-        //[Obsolete("Этот метод не рекомендуется использовать, из-за соображений производительности. Используйте SendPacket()")]
-        //public async Task SendPacketAsync(IOutputPacket packet, int id, CancellationToken token = default)
-        //{
-        //    ThrowIfDisposed();
-
-        //    try
-        //    {
-        //        ArgumentNullException.ThrowIfNull(packet, nameof(packet));
-        //        if (_compressionThreshold > 0)
-        //        {
-        //            using (MemoryStream bufferStream = new MemoryStream())
-        //            {
-        //                IMinecraftPrimitiveWriter packetStream = new MinecraftPrimitiveWriter(bufferStream);
-        //                packetStream.WriteVarInt(id);
-        //                packet.Write(packetStream);
-
-        //                int to_Packetlength = (int)bufferStream.Length;
-
-        //                if (to_Packetlength >= _compressionThreshold)
-        //                {
-        //                    await SendLongPacketAsync(bufferStream, to_Packetlength, token);
-        //                }
-        //                else
-        //                {
-        //                    await SendShortPacketAsync(bufferStream, token);
-        //                }
-        //            }
-        //        }
-        //        else
-        //        {
-        //            await SendPacketWithoutCompressionAsync(packet, id, token);
-        //        }
-        //    }
-        //    catch
-        //    {
-        //        throw;
-        //    }
-
-
-        //}
-
-        //private async Task SendPacketWithoutCompressionAsync(IOutputPacket packet, int id, CancellationToken token)
-        //{
-        //    ThrowIfDisposed();
-        //    using (MemoryStream bufferStream = new MemoryStream())
-        //    {
-        //        IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(bufferStream);
-
-
-        //        packet.Write(writer);
-
-
-        //        int Packetlength = (int)bufferStream.Length;
-
-        //        await netmcStream.Lock.WaitAsync(token);
-
-        //        await netmcStream.WriteVarIntAsync(Packetlength + id.GetVarIntLength(), token);
-        //        await netmcStream.WriteVarIntAsync(id, token);
-        //        bufferStream.Position = 0;
-
-        //        bufferStream.CopyTo(netmcStream);
-        //        netmcStream.Lock.Release();
-        //    }
-        //}
-
-        //private async Task SendLongPacketAsync(Stream packetStream, int to_Packetlength, CancellationToken token)
-        //{
-        //    ThrowIfDisposed();
-        //    using (MemoryStream compressedStream = new MemoryStream())
-        //    {
-        //        using (ZlibStream stream = new ZlibStream(compressedStream, CompressionMode.Compress))
-        //        {
-        //            packetStream.Position = 0;
-        //            packetStream.CopyTo(stream);
-        //        }
-
-        //        int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
-
-        //        await netmcStream.Lock.WaitAsync(token);
-
-        //        await netmcStream.WriteVarIntAsync(fullSize, token);
-        //        await netmcStream.WriteVarIntAsync(to_Packetlength, token);
-        //        compressedStream.Position = 0;
-        //        compressedStream.CopyTo(netmcStream);
-
-        //        netmcStream.Lock.Release();
-        //    }
-        //}
-
-        //private async Task SendShortPacketAsync(Stream packetStream, CancellationToken token)
-        //{
-        //    ThrowIfDisposed();
-        //    int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
-        //    await netmcStream.Lock.WaitAsync(token);
-        //    await netmcStream.WriteVarIntAsync(fullSize, token);
-        //    await netmcStream.WriteVarIntAsync(0, token);
-        //    packetStream.Position = 0;
-        //    packetStream.CopyTo(netmcStream);
-        //    netmcStream.Lock.Release();
-        //}
-
-
-        //#endregion
 
         public void SwitchEncryption(byte[] privateKey)
         {
@@ -199,11 +46,135 @@ namespace McProtoNet.Core.Protocol
             _compressionThreshold = threshold;
             //netmcStream.Lock.Release();
         }
+        #region Async
+        public async Task<(int, MemoryStream)> ReadNextPacketAsync(CancellationToken token)
+        {
+            ThrowIfDisposed();
+            try
+            {
+                token.ThrowIfCancellationRequested();
+                int len = await netmcStream.ReadVarIntAsync(token);
+                token.ThrowIfCancellationRequested();
+                // Console.WriteLine("len " + len);
+                byte[] receivedata = new byte[len];
+                await netmcStream.ReadAsync(receivedata.AsMemory(0, len), token);
 
+
+                var dataStream = new MemoryStream(receivedata);
+
+                if (_compressionThreshold > 0)
+                {
+
+                    int sizeUncompressed = dataStream.ReadVarInt();
+                    if (sizeUncompressed != 0)
+                    {
+                        ZlibStream zlibStream = new ZlibStream(dataStream, CompressionMode.Decompress);
+                        byte[] uncompressdata = new byte[sizeUncompressed];
+                        zlibStream.Read(uncompressdata, 0, sizeUncompressed);
+                        zlibStream.Close();
+                        zlibStream.Dispose();
+                        dataStream = new MemoryStream(uncompressdata);
+                    }
+
+                }
+
+                int id = dataStream.ReadVarInt();
+
+                return (id, dataStream);
+            }
+            catch
+            {
+                throw;
+            }
+
+        }
+        public async Task SendPacketAsync(MemoryStream packet, int id, CancellationToken token = default)
+        {
+            using (MemoryStream bufferStream = new MemoryStream())
+            {
+                await bufferStream.WriteVarIntAsync(id, token);
+                packet.Position = 0;
+                await packet.CopyToAsync(bufferStream, token);
+
+                if (_compressionThreshold > 0)
+                {
+                    int to_Packetlength = (int)bufferStream.Length;
+
+                    if (to_Packetlength >= _compressionThreshold)
+                    {
+                        await SendLongPacketAsync(bufferStream, to_Packetlength, token);
+                    }
+                    else
+                    {
+                        await SendShortPacketAsync(bufferStream, token);
+                    }
+
+                }
+                else
+                {
+                    await SendPacketWithoutCompressionAsync(bufferStream, id, token);
+                }
+            }
+        }
+
+        private async Task SendPacketWithoutCompressionAsync(MemoryStream packet, int id, CancellationToken token)
+        {
+            ThrowIfDisposed();
+            await netmcStream.Lock.WaitAsync(token);
+            int Packetlength = (int)packet.Length;
+
+            await netmcStream.WriteVarIntAsync(Packetlength, token);
+
+            packet.Position = 0;
+            await packet.CopyToAsync(netmcStream, token);
+            netmcStream.Lock.Release();
+
+        }
+
+        private async Task SendLongPacketAsync(Stream packetStream, int to_Packetlength, CancellationToken token)
+        {
+            using (MemoryStream compressedStream = new MemoryStream())
+            {
+                using (ZlibStream stream = new ZlibStream(compressedStream, CompressionMode.Compress))
+                {
+                    packetStream.Position = 0;
+                    await packetStream.CopyToAsync(stream, token);
+                }
+
+                int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
+
+                await netmcStream.Lock.WaitAsync(token);
+
+                await netmcStream.WriteVarIntAsync(fullSize, token);
+                await netmcStream.WriteVarIntAsync(to_Packetlength, token);
+
+                compressedStream.Position = 0;
+                await compressedStream.CopyToAsync(netmcStream, token);
+
+                netmcStream.Lock.Release();
+            }
+        }
+
+        private async Task SendShortPacketAsync(Stream packetStream, CancellationToken token)
+        {
+            ThrowIfDisposed();
+            int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
+            await netmcStream.Lock.WaitAsync(token);
+            await netmcStream.WriteVarIntAsync(fullSize, token);
+            await netmcStream.WriteVarIntAsync(0, token);
+            packetStream.Position = 0;
+            packetStream.CopyTo(netmcStream);
+            netmcStream.Lock.Release();
+        }
+
+
+        #endregion
         #region Sync
         public void SendPacket(MemoryStream packet, int id)
         {
+
             ThrowIfDisposed();
+
             if (_compressionThreshold > 0)
             {
                 using (MemoryStream bufferStream = new MemoryStream())
@@ -228,6 +199,7 @@ namespace McProtoNet.Core.Protocol
             {
                 SendPacketWithoutCompression(packet, id);
             }
+
         }
 
         private void SendPacketWithoutCompression(MemoryStream packet, int id)
@@ -291,13 +263,14 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
+
         public (int, MemoryStream) ReadNextPacket()
         {
             ThrowIfDisposed();
             int len = netmcStream.ReadVarInt();
 
             MemoryStream dataStream = new MemoryStream();
-            
+
             byte[] buffer = new byte[len];
             int read;
             while (len > 0)
@@ -345,43 +318,31 @@ namespace McProtoNet.Core.Protocol
             if (_disposed)
                 throw new ObjectDisposedException(nameof(MinecraftProtocol));
         }
-
+        ~MinecraftProtocol()
+        {
+            Dispose();
+        }
         private bool _disposed = false;
 
-        #region DisposeSync
         public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-        private void Dispose(bool disposing)
         {
             if (_disposed)
                 return;
-            if (disposing)
-            {
-
-            }
-
-            this.netmcStream?.Dispose();
-
             _disposed = true;
-        }
-        #endregion
-
-        public async ValueTask DisposeAsync()
-        {
-            await DisposeAsyncCore().ConfigureAwait(false);
-            Dispose(false);
-            GC.SuppressFinalize(true);
-        }
-        private async ValueTask DisposeAsyncCore()
-        {
             if (netmcStream is not null)
             {
-                await netmcStream.DisposeAsync().ConfigureAwait(false);
+                try
+                {
+                    netmcStream.Close();
+                }
+                catch { }
+                netmcStream.Dispose();
+
+                netmcStream = null;
             }
-            netmcStream = null;
+
+
+            GC.SuppressFinalize(this);
         }
 
 

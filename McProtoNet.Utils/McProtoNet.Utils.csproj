@@ -13,6 +13,7 @@
 	
   <ItemGroup>
     <PackageReference Include="DnsClient" Version="1.7.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2"/>
     <PackageReference Include="StarkSoftProxy" Version="1.6.0" />
   </ItemGroup>
 

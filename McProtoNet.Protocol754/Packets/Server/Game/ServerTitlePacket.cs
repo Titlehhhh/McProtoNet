@@ -7,17 +7,17 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
     
-    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754> 
+    public sealed class ServerTitlePacket : MinecraftPacket 
 После:
 {
 
 
-    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754> 
+    public sealed class ServerTitlePacket : MinecraftPacket 
 */
 {
 
 
-    public sealed class ServerTitlePacket : MinecraftPacket<Protocol754>
+    public sealed class ServerTitlePacket : MinecraftPacket
     {
         public TitleAction Action { get; set; }
         public string Title { get; set; }
