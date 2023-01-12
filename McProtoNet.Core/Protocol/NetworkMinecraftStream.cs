@@ -8,12 +8,10 @@ using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
 {
-    /// <summary>
-    ///  <see cref="System.Net.Sockets.NetworkStream"/> 5d
-    /// </summary>
+
     public sealed class NetworkMinecraftStream : Stream, IDisposable
     {
-        public NetworkStream NetStream { get; private set; }
+        public NetworkStream NetStream => (NetworkStream)BaseStream;
 
         public bool EncryptionEnabled { get; private set; } = false;
 
@@ -34,9 +32,17 @@ namespace McProtoNet.Core.Protocol
         {
             ArgumentNullException.ThrowIfNull(networkStream, nameof(networkStream));
 
-            NetStream = networkStream;
-            this.BaseStream = NetStream;
+
+            this.BaseStream = networkStream;
         }
+        public NetworkMinecraftStream(Stream stream)
+        {
+            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
+
+
+            this.BaseStream = stream;
+        }
+
 
         public int ReadVarInt()
         {
@@ -136,7 +142,7 @@ namespace McProtoNet.Core.Protocol
             DecryptCipher = new BufferedBlockCipher(new CfbBlockCipher(new AesEngine(), 8));
             DecryptCipher.Init(false, new ParametersWithIV(new KeyParameter(privatekey), privatekey, 0, 16));
 
-            this.BaseStream = new CipherStream(NetStream, DecryptCipher, EncryptCipher);
+            this.BaseStream = new CipherStream(BaseStream, DecryptCipher, EncryptCipher);
         }
 
         public override void Flush()
@@ -200,10 +206,11 @@ namespace McProtoNet.Core.Protocol
         {
             return BaseStream.WriteAsync(buffer, cancellationToken);
         }
-
-        public new void Dispose()
+        protected override void Dispose(bool disposing)
         {
-            NetStream.Dispose();
+            BaseStream.Dispose();
+            base.Dispose(disposing);
         }
+
     }
 }

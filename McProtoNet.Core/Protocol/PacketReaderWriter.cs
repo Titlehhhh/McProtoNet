@@ -1,4 +1,4 @@
-﻿1using McProtoNet.Core.IO;
+﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
 using System.Net.Sockets;
 

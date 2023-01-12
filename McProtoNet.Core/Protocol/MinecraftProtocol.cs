@@ -24,10 +24,10 @@ namespace McProtoNet.Core.Protocol
             : this(new NetworkMinecraftStream(networkStream), disposedStream)
         { }
 
-        public MinecraftProtocol(Socket socket, bool disposedStream) 
+        public MinecraftProtocol(Socket socket, bool disposedStream)
             : this(new NetworkStream(socket), disposedStream)
         { }
-        public MinecraftProtocol(TcpClient tcpClient, bool disposedStream) 
+        public MinecraftProtocol(TcpClient tcpClient, bool disposedStream)
             : this(tcpClient.GetStream(), disposedStream)
         { }
 
@@ -335,9 +335,9 @@ namespace McProtoNet.Core.Protocol
             if (_disposed)
                 return;
             _disposed = true;
-            if(_disposedStream)
+            if (_disposedStream)
             {
-                if(netmcStream!=null)
+                if (netmcStream != null)
                 {
                     netmcStream.Close();
                     netmcStream.Dispose();
