@@ -21,4 +21,4 @@ You can also use the library to write a server.
 - [x] 1.19 (1.19.2, 760) In the future.
 
 
-Client/Server Example: 
+Client/Server Example: https://github.com/Titlehhhh/McProtoNet.Examples
