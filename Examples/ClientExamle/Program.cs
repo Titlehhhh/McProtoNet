@@ -36,11 +36,9 @@ public class Program
 
 public class MinecraftClient
 {
-    private IPacketReaderWriter packetReaderWriter;
     private PacketCategory currentCategory;
-
     private CancellationTokenSource CTS = new();
-    private static readonly IPacketCollection p754 = new PacketCollection754();
+    private static readonly IPacketFactory p754 = new PacketFactory754();
 
     public MinecraftClient()
     {
@@ -54,59 +52,76 @@ public class MinecraftClient
         };
         thread.Start();
     }
-    private void OnStart(string host, ushort port)
+    private async void OnStart(string host, ushort port)
     {
         TcpClient tcpClient = new TcpClient();
-        using (CTS.Token.Register(tcpClient.Close))
+
+        tcpClient.Connect(host, port);
+        IMinecraftProtocol mc_proto = new MinecraftProtocol(tcpClient, true);
+        CTS.Token.Register(mc_proto.Dispose);
+
+        try
         {
-            tcpClient.Connect(host, port);
-            using (IMinecraftProtocol mc_proto = new MinecraftProtocol(tcpClient, true))
-            {
-                try
-                {
-                    currentCategory = PacketCategory.HandShake;
-                    using (IPacketProvider handshakePackets = new PacketProvider(p754.ClientPackets[currentCategory], p754.ServerPackets[currentCategory]))
-                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, handshakePackets, false))
-                    {
-                        packetReaderWriter.SendPacket(new HandShakePacket(HandShakeIntent.STATUS, 754, "", 2665));
-                    }
+            await HandShake(mc_proto);
+            await Login(mc_proto);
+            Game(mc_proto);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("error: " + e);
+        }
 
-                    using (IPacketProvider handshakePackets = new PacketProvider(p754.ClientPackets[PacketCategory.Login], p754.ServerPackets[PacketCategory.HandShake]))
-                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, handshakePackets, false))
-                    {
-                        packetReaderWriter.SendPacket(new LoginStartPacket("Nick"));
-                        bool loginSucc = true;
-                        while (loginSucc)
-                        {
-                            MinecraftPacket packet = packetReaderWriter.ReadNextPacket();
-                            loginSucc = HandleLogin(packetReaderWriter, packet);
-                        }
-                    }
-                    using (IPacketProvider gamePackets = new PacketProvider(p754.ClientPackets[PacketCategory.Login], p754.ServerPackets[PacketCategory.HandShake]))
-                    using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, gamePackets, false))
-                    {
-                        packetReaderWriter.SendPacket(new LoginStartPacket());
-                        bool loginSucc = true;
-                        while (loginSucc)
-                        {
-                            MinecraftPacket packet = packetReaderWriter.ReadNextPacket();
-                            HandleGame(packetReaderWriter, packet);
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("error: " + e);
-                }
-            }
 
+
+    }
+
+
+    private async Task HandShake(IMinecraftProtocol mc_proto)
+    {
+        currentCategory = PacketCategory.HandShake;
+        using (IPacketProvider handshakePackets = p754.CreateProvider(currentCategory, PacketSide.Client))
+        using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, handshakePackets, false))
+        {
+            await packetReaderWriter.SendPacketAsync(
+                new HandShakePacket(HandShakeIntent.LOGIN, 754, "", 25565), CTS.Token);
+
+            Console.WriteLine("SendHand");
         }
     }
+    private async Task Login(IMinecraftProtocol mc_proto)
+    {
+        currentCategory = PacketCategory.Login;
+        using (IPacketProvider loginPackets = p754.CreateProvider(currentCategory, PacketSide.Client))
+        using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, loginPackets, false))
+        {
+            await packetReaderWriter.SendPacketAsync(new LoginStartPacket("Nick"), CTS.Token);
+            bool loginSucc = false;
+            while (!loginSucc)
+            {
+                MinecraftPacket packet = await packetReaderWriter.ReadNextPacketAsync(CTS.Token);
+                loginSucc = await HandleLogin(packetReaderWriter, packet);
+            }
+        }
+    }
+    private async void Game(IMinecraftProtocol mc_proto)
+    {
+        currentCategory = PacketCategory.Game;
+        using (IPacketProvider gamePackets = p754.CreateProvider(currentCategory, PacketSide.Client))
+        using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(mc_proto, gamePackets, false))
+        {
+            while (true)
+            {
+                MinecraftPacket packet = await packetReaderWriter.ReadNextPacketAsync(CTS.Token);
+                HandleGame(packetReaderWriter, packet);
+            }
+        }
+    }
+
     private void HandleGame(IPacketReaderWriter sender, MinecraftPacket packet)
     {
         Console.WriteLine("RecPAck: " + packet.GetType().Name);
     }
-    private bool HandleLogin(IPacketReaderWriter sender, MinecraftPacket packet)
+    private async Task<bool> HandleLogin(IPacketReaderWriter sender, MinecraftPacket packet)
     {
         if (packet is EncryptionRequestPacket encryption)
         {
@@ -115,16 +130,18 @@ public class MinecraftClient
             var key_enc = RSAService.Encrypt(privateKey, false);
             var token_enc = RSAService.Encrypt(encryption.VerifyToken, false);
             var response = new EncryptionResponsePacket(key_enc, token_enc);
-            sender.SendPacket(response);
+            await sender.SendPacketAsync(response, CTS.Token);
             sender.SwitchEncryption(privateKey);
-
+            Console.WriteLine("Encrypt");
         }
         else if (packet is LoginSuccessPacket)
         {
+            Console.WriteLine("LoginSucc");
             return true;
         }
         else if (packet is LoginSetCompressionPacket compression)
         {
+            Console.WriteLine("Compr");
             sender.SwitchCompression(compression.Threshold);
         }
         else if (packet is LoginDisconnectPacket disconnect)

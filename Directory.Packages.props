@@ -1,9 +1,5 @@
 <Project>
   <PropertyGroup>
-    <PackageVersion>1.6.3</PackageVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageVersion Include="AngleSharp" Version="0.17.1" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
+    <PackageVersion>1.7.0</PackageVersion>
+  </PropertyGroup>  
 </Project>
