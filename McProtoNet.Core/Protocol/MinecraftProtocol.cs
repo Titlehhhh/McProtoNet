@@ -1,7 +1,8 @@
 ﻿
-using Ionic.Zlib;
+//using Ionic.Zlib;
 using McProtoNet.Core.IO;
 using System.IO;
+using System.IO.Compression;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
@@ -9,6 +10,7 @@ namespace McProtoNet.Core.Protocol
     public sealed class MinecraftProtocol : IMinecraftProtocol
     {
         private const int ZERO_VARLENGTH = 1;//default(int).GetVarIntLength();
+        private readonly byte[] ZERO_VARINT = { 0 };
         private NetworkMinecraftStream netmcStream;
 
         private int _compressionThreshold;
@@ -73,7 +75,7 @@ namespace McProtoNet.Core.Protocol
                     int sizeUncompressed = dataStream.ReadVarInt();
                     if (sizeUncompressed != 0)
                     {
-                        ZlibStream zlibStream = new ZlibStream(dataStream, CompressionMode.Decompress);
+                        ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress);
                         byte[] uncompressdata = new byte[sizeUncompressed];
                         await zlibStream.ReadAsync(uncompressdata, 0, sizeUncompressed, token).ConfigureAwait(false);
                         zlibStream.Close();
@@ -141,7 +143,7 @@ namespace McProtoNet.Core.Protocol
         {
             using (MemoryStream compressedStream = new MemoryStream())
             {
-                using (ZlibStream stream = new ZlibStream(compressedStream, CompressionMode.Compress))
+                using (ZLibStream stream = new ZLibStream(compressedStream, CompressionMode.Compress))
                 {
                     packetStream.Position = 0;
                     await packetStream.CopyToAsync(stream, token).ConfigureAwait(false);
@@ -180,32 +182,56 @@ namespace McProtoNet.Core.Protocol
         {
 
             ThrowIfDisposed();
+            netmcStream.Lock.Wait();
 
             if (_compressionThreshold > 0)
             {
-                using (MemoryStream bufferStream = new MemoryStream())
+                Span<byte> idData = stackalloc byte[5];
+
+                int idLen = id.GetVarIntLength(idData);
+
+
+                int fullSize = idLen + (int)packet.Length;
+
+                if (fullSize >= _compressionThreshold)
                 {
+                    using (MemoryStream compressedPacket = new MemoryStream())
+                    using (ZLibStream zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress))
+                    {
+                        packet.Position = 0;
+                        zlibStream.Write(idData.Slice(0, idLen));
+                        packet.CopyTo(zlibStream);
+
+
+
+                        int comperssPacketLen = (int)compressedPacket.Length + fullSize.GetVarIntLength();
+                        netmcStream.WriteVarInt(comperssPacketLen);
+                        netmcStream.WriteVarInt(fullSize);
+
+                        compressedPacket.Position = 0;
+                        compressedPacket.CopyTo(netmcStream);
+
+                    }
+                }
+                else
+                {
+                    fullSize++;
+
+                    netmcStream.WriteVarInt(fullSize);
+                    netmcStream.Write(ZERO_VARINT);
+                    netmcStream.Write(idData.Slice(0, idLen));
                     packet.Position = 0;
-                    bufferStream.WriteVarInt(id);
-                    packet.CopyTo(bufferStream);
+                    packet.CopyTo(netmcStream);
 
-                    int to_Packetlength = (int)bufferStream.Length;
-
-                    if (to_Packetlength >= _compressionThreshold)
-                    {
-                        SendLongPacket(bufferStream, to_Packetlength);
-                    }
-                    else
-                    {
-                        SendShortPacket(bufferStream);
-                    }
+                   
                 }
             }
             else
             {
                 SendPacketWithoutCompression(packet, id);
             }
-
+            netmcStream.Flush();
+            netmcStream.Lock.Release();
         }
 
         private void SendPacketWithoutCompression(MemoryStream packet, int id)
@@ -213,21 +239,19 @@ namespace McProtoNet.Core.Protocol
             ThrowIfDisposed();
             // packet.Write(writer);
             int Packetlength = (int)packet.Length;
-            netmcStream.Lock.Wait();
 
+            byte[] idData = new byte[5];
+            int len = id.GetVarIntLength(idData);
             //Записываем длину всего пакета
-            netmcStream.WriteVarInt(Packetlength + id.GetVarIntLength());
+            netmcStream.WriteVarInt(Packetlength + len);
             //Записываем ID пакета
-            netmcStream.WriteVarInt(id);
-            netmcStream.Flush();
+            netmcStream.Write(idData, 0, len);
 
             packet.Position = 0;
             //Все данные пакета перекидваем в интернет
             packet.CopyTo(netmcStream);
 
-            netmcStream.Flush();
 
-            netmcStream.Lock.Release();
 
         }
 
@@ -235,22 +259,19 @@ namespace McProtoNet.Core.Protocol
         {
             ThrowIfDisposed();
             int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
-            netmcStream.Lock.Wait();
-            netmcStream.WriteVarInt(fullSize);
-            netmcStream.WriteVarInt(0);
+
             packetStream.Position = 0;
-            netmcStream.Flush();
+
             packetStream.CopyTo(netmcStream);
-            netmcStream.Flush();
-            netmcStream.Lock.Release();
+
         }
 
-        private void SendLongPacket(MemoryStream packetStream, int to_Packetlength)
+        private void SendLongPacket(MemoryStream packetStream, int to_Packetlength, ReadOnlySpan<byte> id)
         {
             ThrowIfDisposed();
             using (MemoryStream compressedStream = new MemoryStream())
             {
-                using (ZlibStream stream = new ZlibStream(compressedStream, CompressionMode.Compress))
+                using (ZLibStream stream = new ZLibStream(compressedStream, CompressionMode.Compress))
                 {
                     packetStream.Position = 0;
                     packetStream.CopyTo(stream);
@@ -258,14 +279,13 @@ namespace McProtoNet.Core.Protocol
 
                 int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
 
-                netmcStream.Lock.Wait();
+
 
                 netmcStream.WriteVarInt(fullSize);
                 netmcStream.WriteVarInt(to_Packetlength);
                 compressedStream.Position = 0;
                 compressedStream.CopyTo(netmcStream);
-                netmcStream.Flush();
-                netmcStream.Lock.Release();
+
             }
         }
 
@@ -297,7 +317,7 @@ namespace McProtoNet.Core.Protocol
                 int sizeUncompressed = dataStream.ReadVarInt();
                 if (sizeUncompressed != 0)
                 {
-                    ZlibStream zlibStream = new ZlibStream(dataStream, CompressionMode.Decompress);
+                    ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress);
                     byte[] uncompressdata = new byte[sizeUncompressed];
                     zlibStream.Read(uncompressdata, 0, sizeUncompressed);
                     zlibStream.Close();

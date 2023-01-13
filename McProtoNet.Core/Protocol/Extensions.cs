@@ -14,8 +14,44 @@
 
             return amount;
         }
+        public static int GetVarIntLength(this int value, byte[] data)
+        {
+            var unsigned = (uint)value;
 
+            int len = 0;
+            do
+            {
+                var temp = (byte)(unsigned & 127);
+                unsigned >>= 7;
 
+                if (unsigned != 0)
+                    temp |= 128;
+
+                data[len++] = temp;
+            }
+            while (unsigned != 0);
+            return len;
+        }
+
+        public static int GetVarIntLength(this int value, Span<byte> data)
+        {
+            var unsigned = (uint)value;
+
+            int len = 0;
+            do
+            {
+                var temp = (byte)(unsigned & 127);
+                unsigned >>= 7;
+
+                if (unsigned != 0)
+                    temp |= 128;
+
+                data[len++] = temp;
+            }
+            while (unsigned != 0);
+            return len;
+        }
+        
         public static int ReadVarInt(this Stream stream)
         {
             byte[] buff = new byte[1];
