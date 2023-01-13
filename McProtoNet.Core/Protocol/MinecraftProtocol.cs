@@ -4,6 +4,7 @@ using McProtoNet.Core.IO;
 using System.IO;
 using System.IO.Compression;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 
 namespace McProtoNet.Core.Protocol
 {
@@ -233,7 +234,7 @@ namespace McProtoNet.Core.Protocol
             netmcStream.Flush();
             netmcStream.Lock.Release();
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void SendPacketWithoutCompression(MemoryStream packet, int id)
         {
             ThrowIfDisposed();
@@ -255,40 +256,7 @@ namespace McProtoNet.Core.Protocol
 
         }
 
-        private void SendShortPacket(MemoryStream packetStream)
-        {
-            ThrowIfDisposed();
-            int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
-
-            packetStream.Position = 0;
-
-            packetStream.CopyTo(netmcStream);
-
-        }
-
-        private void SendLongPacket(MemoryStream packetStream, int to_Packetlength, ReadOnlySpan<byte> id)
-        {
-            ThrowIfDisposed();
-            using (MemoryStream compressedStream = new MemoryStream())
-            {
-                using (ZLibStream stream = new ZLibStream(compressedStream, CompressionMode.Compress))
-                {
-                    packetStream.Position = 0;
-                    packetStream.CopyTo(stream);
-                }
-
-                int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
-
-
-
-                netmcStream.WriteVarInt(fullSize);
-                netmcStream.WriteVarInt(to_Packetlength);
-                compressedStream.Position = 0;
-                compressedStream.CopyTo(netmcStream);
-
-            }
-        }
-
+       
 
         public (int, MemoryStream) ReadNextPacket()
         {

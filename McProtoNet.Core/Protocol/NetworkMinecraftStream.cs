@@ -155,19 +155,8 @@ namespace McProtoNet.Core.Protocol
         }
 
         public override int Read(byte[] buffer, int offset, int count)
-        {
-            try
-            {
-                return BaseStream.Read(buffer, offset, count);
-            }
-            catch (IOException e)
-            {
-                throw;
-            }
-            catch
-            {
-                throw;
-            }
+        {            
+            return BaseStream.Read(buffer, offset, count);
         }
         /// <summary>
         /// asd
