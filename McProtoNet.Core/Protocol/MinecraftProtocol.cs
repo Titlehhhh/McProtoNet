@@ -97,85 +97,86 @@ namespace McProtoNet.Core.Protocol
         }
         public async Task SendPacketAsync(MemoryStream packet, int id, CancellationToken token = default)
         {
-            using (MemoryStream bufferStream = new MemoryStream())
+
+            ThrowIfDisposed();
+            await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
+
+            if (_compressionThreshold > 0)
             {
-                await bufferStream.WriteVarIntAsync(id, token).ConfigureAwait(false);
-                packet.Position = 0;
-                await packet.CopyToAsync(bufferStream, token).ConfigureAwait(false);
+                byte[] idData = new byte[5];
 
-                if (_compressionThreshold > 0)
+                int idLen = id.GetVarIntLength(idData);
+
+
+                int uncompressedSize = idLen + (int)packet.Length;
+                if (uncompressedSize >= _compressionThreshold)
                 {
-                    int to_Packetlength = (int)bufferStream.Length;
 
-                    if (to_Packetlength >= _compressionThreshold)
+                    using (var compressedPacket = new MemoryStream())
+                    using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress))
                     {
-                        await SendLongPacketAsync(bufferStream, to_Packetlength, token).ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        await SendShortPacketAsync(bufferStream, token).ConfigureAwait(false);
+                        await zlibStream.WriteAsync(idData.AsMemory(0, idLen), token).ConfigureAwait(false);
+                        packet.Position = 0;
+                        await packet.CopyToAsync(zlibStream, token).ConfigureAwait(false);
+                        await zlibStream.FlushAsync(token);//<--- Bug Fix
+
+                        int uncompressedSizeLength = uncompressedSize.GetVarIntLength();
+
+                        int fullSize = uncompressedSizeLength + (int)compressedPacket.Length;
+
+
+
+                        await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
+
+                        await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
+
+                        compressedPacket.Position = 0;
+                        await compressedPacket.CopyToAsync(netmcStream, token).ConfigureAwait(false);
                     }
 
                 }
                 else
                 {
-                    await SendPacketWithoutCompressionAsync(bufferStream, id, token).ConfigureAwait(false);
+                    uncompressedSize++;
+
+                    await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
+                    await netmcStream.WriteAsync(ZERO_VARINT, token).ConfigureAwait(false);
+                    await netmcStream.WriteAsync(idData.AsMemory(0, idLen), token).ConfigureAwait(false);
+                    packet.Position = 0;
+                    await packet.CopyToAsync(netmcStream).ConfigureAwait(false);
+
+
                 }
             }
-            await netmcStream.FlushAsync(token).ConfigureAwait(false);
+            else
+            {
+                await SendPacketWithoutCompressionAsync(packet, id, token).ConfigureAwait(false);
+            }
+            await netmcStream.FlushAsync(token);
+            netmcStream.Lock.Release();
         }
 
         private async Task SendPacketWithoutCompressionAsync(MemoryStream packet, int id, CancellationToken token)
         {
             ThrowIfDisposed();
-            await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
+            // packet.Write(writer);
             int Packetlength = (int)packet.Length;
 
-            await netmcStream.WriteVarIntAsync(Packetlength, token).ConfigureAwait(false);
+            byte[] idData = new byte[5];
+            int len = id.GetVarIntLength(idData);
+            //Записываем длину всего пакета
+            await netmcStream.WriteVarIntAsync(Packetlength + len, token);
+            //Записываем ID пакета
+            await netmcStream.WriteAsync(idData, 0, len, token);
 
             packet.Position = 0;
-            await packet.CopyToAsync(netmcStream, token).ConfigureAwait(false);
-            netmcStream.Lock.Release();
+            //Все данные пакета перекидваем в интернет
+            await packet.CopyToAsync(netmcStream, token);
+
 
         }
 
-        private async Task SendLongPacketAsync(Stream packetStream, int to_Packetlength, CancellationToken token)
-        {
-            using (MemoryStream compressedStream = new MemoryStream())
-            {
-                using (ZLibStream stream = new ZLibStream(compressedStream, CompressionMode.Compress))
-                {
-                    packetStream.Position = 0;
-                    await packetStream.CopyToAsync(stream, token).ConfigureAwait(false);
-                }
 
-                int fullSize = (int)packetStream.Length + to_Packetlength.GetVarIntLength();
-
-                await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
-
-                await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
-                await netmcStream.WriteVarIntAsync(to_Packetlength, token).ConfigureAwait(false);
-
-                compressedStream.Position = 0;
-                await compressedStream.CopyToAsync(netmcStream, token).ConfigureAwait(false);
-
-                netmcStream.Lock.Release();
-            }
-        }
-
-        private async Task SendShortPacketAsync(Stream packetStream, CancellationToken token)
-        {
-            ThrowIfDisposed();
-            int fullSize = (int)packetStream.Length + ZERO_VARLENGTH;
-            await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
-            await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
-            await netmcStream.WriteVarIntAsync(0, token).ConfigureAwait(false);
-            packetStream.Position = 0;
-            await packetStream.CopyToAsync(netmcStream, token).ConfigureAwait(false);
-            netmcStream.Lock.Release();
-        }
-
-        
         #endregion
         #region Sync
         public void SendPacket(MemoryStream packet, int id)
@@ -202,7 +203,7 @@ namespace McProtoNet.Core.Protocol
                         packet.Position = 0;
                         packet.CopyTo(zlibStream);
                         zlibStream.Flush();//<--- Bug Fix
-                        
+
                         int uncompressedSizeLength = uncompressedSize.GetVarIntLength();
 
                         int fullSize = uncompressedSizeLength + (int)compressedPacket.Length;
@@ -286,7 +287,7 @@ namespace McProtoNet.Core.Protocol
                 if (sizeUncompressed != 0)
                 {
 
-                   ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress);
+                    ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress);
                     byte[] uncompressdata = new byte[sizeUncompressed];
                     zlibStream.Read(uncompressdata, 0, sizeUncompressed);
                     zlibStream.Close();

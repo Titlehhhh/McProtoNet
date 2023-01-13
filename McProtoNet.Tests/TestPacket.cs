@@ -14,17 +14,6 @@ namespace McProtoNet.Tests
 {
     public class TestPacket : MinecraftPacket
     {
-        private MemoryStream ms;
-
-        public TestPacket(MemoryStream ms)
-        {
-            this.ms = ms;
-        }
-        public TestPacket()
-        {
-
-        }
-
         public byte[] VeryData { get; set; } = new byte[1000];
 
         public override void Read(IMinecraftPrimitiveReader stream)
@@ -36,10 +25,9 @@ namespace McProtoNet.Tests
         {
             //  Trace.WriteLine("ms.pos: " + ms.Position);
             stream.WriteVarInt(VeryData.Length);
-            WriteArr("VarIntLen:", ms.ToArray());
+           
             //  Trace.WriteLine("ms.pos: " + ms.Position);
             stream.Write(VeryData);
-            WriteArr("Bytes:", ms.ToArray());
             //  Trace.WriteLine("ms.pos: " + ms.Position);
         }
         public override bool Equals(object? obj)

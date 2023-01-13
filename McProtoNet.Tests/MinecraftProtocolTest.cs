@@ -29,18 +29,11 @@ namespace McProtoNet.Tests
             using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
             {
                 protocol.SwitchCompression(256);
-                using var test = new MemoryStream();
 
-                TestPacket excepted = new TestPacket(test);
+                TestPacket excepted = new TestPacket();
 
 
-                WriteArr("до:", test.ToArray());
-                IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(test);
-                excepted.Write(writer);
-
-                WriteArr("после:", test.ToArray());
-                protocol.SendPacket(test, 0x00);
-                WriteArr("FullData:", ms.ToArray());
+                packetReaderWriter.SendPacket(excepted);
                 ms.Position = 0;
 
                 TestPacket actual = (TestPacket)packetReaderWriter.ReadNextPacket();
