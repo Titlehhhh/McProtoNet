@@ -1,8 +1,10 @@
-﻿using McProtoNet.Core.Packets;
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,25 +21,38 @@ namespace McProtoNet.Tests
                 {0x00, typeof(TestPacket) }
             };
             Random rand = new Random();
-            for (int i = 0; i < 5; i++)
+
+            using (MemoryStream ms = new MemoryStream())
+            using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+            using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
+            using (IPacketProvider packs = new PacketProvider(packets, packets))
+            using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
             {
-                using (MemoryStream ms = new MemoryStream())
-                using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
-                using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
-                using (IPacketProvider packs = new PacketProvider(packets, packets))
-                using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
-                {
-                    TestPacket excepted = new TestPacket();
-                    excepted.MyProperty1 = i;
+                protocol.SwitchCompression(256);
+                using var test = new MemoryStream();
 
-                    packetReaderWriter.SendPacket(excepted);
-                    ms.Position = 0;
+                TestPacket excepted = new TestPacket(test);
 
-                    TestPacket actual = (TestPacket)packetReaderWriter.ReadNextPacket();
 
-                    Assert.AreEqual(excepted, actual, "Пакеты не совпадают");
-                }
+                WriteArr("до:", test.ToArray());
+                IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(test);
+                excepted.Write(writer);
+
+                WriteArr("после:", test.ToArray());
+                protocol.SendPacket(test, 0x00);
+                WriteArr("FullData:", ms.ToArray());
+                ms.Position = 0;
+
+                TestPacket actual = (TestPacket)packetReaderWriter.ReadNextPacket();
+
+
+                Assert.AreEqual(excepted, actual, "Пакеты не совпадают");
             }
+
+        }
+        public static void WriteArr(string mess, byte[] b)
+        {
+            Trace.WriteLine($"{mess} {{ {string.Join(", ", b)} }}");
         }
 
         [TestMethod]
@@ -58,8 +73,8 @@ namespace McProtoNet.Tests
                     using (IPacketProvider packs = new PacketProvider(packets, packets))
                     using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
                     {
+                        protocol.SwitchCompression(256);
                         TestPacket excepted = new TestPacket();
-                        excepted.MyProperty1 = i;
 
                         await packetReaderWriter.SendPacketAsync(excepted);
                         ms.Position = 0;

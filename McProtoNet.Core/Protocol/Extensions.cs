@@ -81,8 +81,8 @@
         public static void WriteVarInt(this Stream stream, int value)
         {
             var unsigned = (uint)value;
-            byte[] data = new byte[5];
-            int len = 0;
+          //  byte[] data = new byte[5];
+          //  int len = 0;
             do
             {
                 var temp = (byte)(unsigned & 127);
@@ -91,11 +91,12 @@
                 if (unsigned != 0)
                     temp |= 128;
 
-                data[len++] = temp;
+                stream.WriteByte(temp);
+                //data[len++] = temp;
             }
             while (unsigned != 0);
 
-            stream.Write(data, 0, len);
+          //  stream.Write(data, 0, len);
         }
         public static Task WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
         {

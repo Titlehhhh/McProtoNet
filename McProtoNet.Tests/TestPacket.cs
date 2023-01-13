@@ -5,31 +5,42 @@ using McProtoNet.Core.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using static McProtoNet.Tests.MinecraftProtocolTest;
 
 namespace McProtoNet.Tests
 {
     public class TestPacket : MinecraftPacket
     {
-        public int MyProperty1 { get; set; } = 56;
-        public int MyProperty2 { get; set; } = 67;
-        public int MyProperty3 { get; set; } = 87;
-        public byte MyProperty4 { get; set; } = 89;
+        private MemoryStream ms;
+
+        public TestPacket(MemoryStream ms)
+        {
+            this.ms = ms;
+        }
+        public TestPacket()
+        {
+
+        }
+
+        public byte[] VeryData { get; set; } = new byte[1000];
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            MyProperty1 = stream.ReadInt();
-            MyProperty2 = stream.ReadInt();
-            MyProperty3 = stream.ReadInt();
-            MyProperty4 = stream.ReadUnsignedByte();
+            VeryData = stream.ReadByteArray();
         }
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
-            stream.WriteInt(MyProperty1);
-            stream.WriteInt(MyProperty2);
-            stream.WriteInt(MyProperty3);
-            stream.WriteUnsignedByte(MyProperty4);
+            //  Trace.WriteLine("ms.pos: " + ms.Position);
+            stream.WriteVarInt(VeryData.Length);
+            WriteArr("VarIntLen:", ms.ToArray());
+            //  Trace.WriteLine("ms.pos: " + ms.Position);
+            stream.Write(VeryData);
+            WriteArr("Bytes:", ms.ToArray());
+            //  Trace.WriteLine("ms.pos: " + ms.Position);
         }
         public override bool Equals(object? obj)
         {
@@ -41,10 +52,7 @@ namespace McProtoNet.Tests
         }
         private bool Equals(TestPacket p)
         {
-            return this.MyProperty1 == p.MyProperty1
-                && this.MyProperty2 == p.MyProperty2
-                && this.MyProperty3 == p.MyProperty3
-                && this.MyProperty4 == p.MyProperty4;
+            return VeryData.SequenceEqual(p.VeryData);
         }
     }
 }

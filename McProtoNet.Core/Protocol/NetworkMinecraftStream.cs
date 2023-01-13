@@ -15,7 +15,7 @@ namespace McProtoNet.Core.Protocol
 
         public bool EncryptionEnabled { get; private set; } = false;
 
-        private Stream BaseStream;
+        internal Stream BaseStream;
 
         public override bool CanRead => BaseStream.CanRead;
 

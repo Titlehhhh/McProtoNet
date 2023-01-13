@@ -1,6 +1,7 @@
 ﻿using McProtoNet.Core.Helpers;
 using McProtoNet.NBT;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Text;
 
 namespace McProtoNet.Core.IO
@@ -167,16 +168,13 @@ namespace McProtoNet.Core.IO
 
         public virtual byte[] ReadByteArray()
         {
-            int len = ReadVarInt();
-            Span<byte> buffer = stackalloc byte[len];
-            BaseStream.Read(buffer);
-            return buffer.ToArray();
+            return ReadByteArray(ReadVarInt());
         }
         public virtual byte[] ReadByteArray(int size)
         {
-            Span<byte> buffer = stackalloc byte[size];
-            BaseStream.Read(buffer);
-            return buffer.ToArray();
+            byte[] data = new byte[size];
+            BaseStream.Read(data);
+            return data;
         }
 
         public virtual int ReadVarInt()
@@ -232,6 +230,7 @@ namespace McProtoNet.Core.IO
         {
             using (var ms = new MemoryStream())
             {
+
                 BaseStream.CopyTo(ms);
                 return ms.ToArray();
             }
