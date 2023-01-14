@@ -51,7 +51,7 @@
             while (unsigned != 0);
             return len;
         }
-        
+
         public static int ReadVarInt(this Stream stream)
         {
             byte[] buff = new byte[1];
@@ -78,11 +78,61 @@
             return result;
         }
 
+        public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
+        {
+            byte[] buff = new byte[1];
+
+            int numRead = 0;
+            int result = 0;
+            byte read;
+            do
+            {
+                await stream.ReadAsync(buff,token);
+                read = buff[0];
+
+
+                int value = read & 0b01111111;
+                result |= value << 7 * numRead;
+
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
+
+            return result;
+        }
+        public static int ReadVarInt(this Stream stream, out byte len)
+        {
+            byte[] buff = new byte[1];
+
+            int numRead = 0;
+            int result = 0;
+            byte read;
+            do
+            {
+                stream.Read(buff, 0, 1);
+                read = buff[0];
+
+
+                int value = read & 0b01111111;
+                result |= value << 7 * numRead;
+
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
+            len = (byte)numRead;
+            return result;
+        }
         public static void WriteVarInt(this Stream stream, int value)
         {
             var unsigned = (uint)value;
-          //  byte[] data = new byte[5];
-          //  int len = 0;
+            //  byte[] data = new byte[5];
+            //  int len = 0;
             do
             {
                 var temp = (byte)(unsigned & 127);
@@ -96,7 +146,7 @@
             }
             while (unsigned != 0);
 
-          //  stream.Write(data, 0, len);
+            //  stream.Write(data, 0, len);
         }
         public static Task WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
         {

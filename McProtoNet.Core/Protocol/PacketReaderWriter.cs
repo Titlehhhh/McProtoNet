@@ -28,6 +28,7 @@ namespace McProtoNet.Core.Protocol
                 if (packets.TryGetInputPacket(id, out IInputPacket packet))
                 {
                     reader.BaseStream = data;
+
                     packet.Read(reader);
                     return (MinecraftPacket)packet;
                 }
@@ -42,6 +43,7 @@ namespace McProtoNet.Core.Protocol
             if (packets.TryGetInputPacket(id, out IInputPacket packet))
             {
                 reader.BaseStream = data;
+
                 packet.Read(reader);
                 return (MinecraftPacket)packet;
             }
@@ -62,6 +64,7 @@ namespace McProtoNet.Core.Protocol
                 {
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                     packet.Write(writer);
+                    ms.Position = 0;
                     await minecraftProtocol.SendPacketAsync(ms, id, cancellationToken);
                 }
             }
@@ -80,6 +83,7 @@ namespace McProtoNet.Core.Protocol
                 {
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(data);
                     packet.Write(writer);
+                    data.Position = 0;
                     minecraftProtocol.SendPacket(data, id);
 
                 }

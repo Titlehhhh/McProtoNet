@@ -65,6 +65,30 @@ namespace McProtoNet.Core.Protocol
             } while ((read & 0b10000000) != 0);
             return result;
         }
+        public int ReadVarInt(out byte len)
+        {
+
+
+            int numRead = 0;
+            int result = 0;
+            byte read;
+            do
+            {
+
+                read = ReadUnsignedByte();
+
+                int value = read & 0b01111111;
+                result |= value << (7 * numRead);
+
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
+            len = (byte)numRead;
+            return result;
+        }
 
         public async ValueTask<int> ReadVarIntAsync(CancellationToken token = default)
         {
@@ -89,7 +113,29 @@ namespace McProtoNet.Core.Protocol
             return result;
 
         }
+        public async ValueTask<(int, int)> ReadVarIntAndLenAsync(CancellationToken token = default)
+        {
+            int numRead = 0;
+            int result = 0;
+            byte read;
+            do
+            {
+                token.ThrowIfCancellationRequested();
+                read = await this.ReadUnsignedByteAsync(token).ConfigureAwait(false);
 
+                int value = read & 0b01111111;
+                result |= value << (7 * numRead);
+
+                numRead++;
+                if (numRead > 5)
+                {
+                    throw new InvalidOperationException("VarInt is too big");
+                }
+            } while ((read & 0b10000000) != 0);
+
+            return (result, numRead);
+
+        }
 
 
 
@@ -155,7 +201,7 @@ namespace McProtoNet.Core.Protocol
         }
 
         public override int Read(byte[] buffer, int offset, int count)
-        {            
+        {
             return BaseStream.Read(buffer, offset, count);
         }
         /// <summary>

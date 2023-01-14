@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using static McProtoNet.Tests.MinecraftProtocolTest;
 
 namespace McProtoNet.Tests
 {
@@ -24,10 +23,10 @@ namespace McProtoNet.Tests
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
             //  Trace.WriteLine("ms.pos: " + ms.Position);
-            stream.WriteVarInt(VeryData.Length);
-           
+            //stream.WriteVarInt(VeryData.Length);
+            stream.WriteByteArray(VeryData);
             //  Trace.WriteLine("ms.pos: " + ms.Position);
-            stream.Write(VeryData);
+            //stream.Write(VeryData);
             //  Trace.WriteLine("ms.pos: " + ms.Position);
         }
         public override bool Equals(object? obj)

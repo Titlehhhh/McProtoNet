@@ -11,10 +11,10 @@ using System.Threading.Tasks;
 namespace McProtoNet.Tests
 {
     [TestClass]
-    public class MinecraftProtocolTest
+    public class PacketReaderWriterTest
     {
         [TestMethod]
-        public void TestReadWriteSync()
+        public void TestReadWriteWithCompressionSync()
         {
             Dictionary<int, Type> packets = new Dictionary<int, Type>
             {
@@ -29,6 +29,36 @@ namespace McProtoNet.Tests
             using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
             {
                 protocol.SwitchCompression(256);
+
+                TestPacket excepted = new TestPacket();
+
+
+                packetReaderWriter.SendPacket(excepted);
+                ms.Position = 0;
+
+                TestPacket actual = (TestPacket)packetReaderWriter.ReadNextPacket();
+
+
+                Assert.AreEqual(excepted, actual, "Пакеты не совпадают");
+            }
+
+        }
+        [TestMethod]
+        public void TestReadWriteWithoutCompressionSync()
+        {
+            Dictionary<int, Type> packets = new Dictionary<int, Type>
+            {
+                {0x00, typeof(TestPacket) }
+            };
+            Random rand = new Random();
+
+            using (MemoryStream ms = new MemoryStream())
+            using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+            using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
+            using (IPacketProvider packs = new PacketProvider(packets, packets))
+            using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
+            {
+               // protocol.SwitchCompression(256);
 
                 TestPacket excepted = new TestPacket();
 
