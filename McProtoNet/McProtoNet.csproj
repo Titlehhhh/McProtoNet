@@ -19,9 +19,4 @@
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <Folder Include="EventArgs\" />
-  </ItemGroup>
-
 </Project>
