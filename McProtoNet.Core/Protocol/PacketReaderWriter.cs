@@ -18,7 +18,7 @@ namespace McProtoNet.Core.Protocol
             _disposeProtocol = disposeProtocol;
         }
 
-        private MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
+
 
         public async Task<MinecraftPacket> ReadNextPacketAsync(CancellationToken cancellationToken = default)
         {
@@ -27,6 +27,7 @@ namespace McProtoNet.Core.Protocol
             {
                 if (packets.TryGetInputPacket(id, out IInputPacket packet))
                 {
+                    MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
                     reader.BaseStream = data;
 
                     packet.Read(reader);
@@ -42,6 +43,7 @@ namespace McProtoNet.Core.Protocol
             (int id, MemoryStream data) = minecraftProtocol.ReadNextPacket();
             if (packets.TryGetInputPacket(id, out IInputPacket packet))
             {
+                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
                 reader.BaseStream = data;
 
                 packet.Read(reader);

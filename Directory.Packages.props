@@ -2,4 +2,7 @@
   <PropertyGroup>
     <PackageVersion>1.7.1</PackageVersion>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="DotNetZip" Version="1.16.0" />
+  </ItemGroup>
 </Project>
