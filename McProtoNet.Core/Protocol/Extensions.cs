@@ -4,7 +4,7 @@ namespace McProtoNet.Core.Protocol
 {
     public static class Extensions
     {
-        
+
         public static int GetVarIntLength(this int val)
         {
             int amount = 0;
@@ -177,7 +177,20 @@ namespace McProtoNet.Core.Protocol
             while (totalRead < length)
             {
                 int read = stream.Read(buffer.Slice(totalRead));
-                
+
+
+                totalRead += read;
+            }
+
+            return totalRead;
+        }
+        public static async ValueTask<int> ReadToEndAsync(this Stream stream, Memory<byte> buffer, int length, CancellationToken token)
+        {
+            int totalRead = 0;
+            while (totalRead < length)
+            {
+                int read = await stream.ReadAsync(buffer.Slice(totalRead), token);
+
 
                 totalRead += read;
             }
