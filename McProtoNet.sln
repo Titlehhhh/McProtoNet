@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "McProtoNet.Protocol760", "M
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator", "SourceGenerator\SourceGenerator.csproj", "{088DFCBD-5562-4FBC-B8FA-A8B35FE8542F}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MinecraftProxy", "..\Проекты\MinecraftProxy\MinecraftProxy\MinecraftProxy.csproj", "{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -347,6 +349,26 @@ Global
 		{088DFCBD-5562-4FBC-B8FA-A8B35FE8542F}.Release|x64.Build.0 = Release|Any CPU
 		{088DFCBD-5562-4FBC-B8FA-A8B35FE8542F}.Release|x86.ActiveCfg = Release|Any CPU
 		{088DFCBD-5562-4FBC-B8FA-A8B35FE8542F}.Release|x86.Build.0 = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|ARM.Build.0 = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|ARM64.ActiveCfg = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|ARM64.Build.0 = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|x64.Build.0 = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Debug|x86.Build.0 = Debug|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|ARM.ActiveCfg = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|ARM.Build.0 = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|ARM64.ActiveCfg = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|ARM64.Build.0 = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|x64.ActiveCfg = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|x64.Build.0 = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|x86.ActiveCfg = Release|Any CPU
+		{2E3F7DE8-3B7F-4EAA-8843-36DC7D5EDF96}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

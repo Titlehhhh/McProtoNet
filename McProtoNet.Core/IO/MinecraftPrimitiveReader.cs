@@ -1,4 +1,5 @@
 ﻿using McProtoNet.Core.Helpers;
+using McProtoNet.Core.Protocol;
 using McProtoNet.NBT;
 using System.Buffers.Binary;
 using System.Diagnostics;
@@ -173,7 +174,7 @@ namespace McProtoNet.Core.IO
         public virtual byte[] ReadByteArray(int size)
         {
             byte[] data = new byte[size];
-            BaseStream.Read(data);
+            BaseStream.ReadToEnd(data, size);
             return data;
         }
 

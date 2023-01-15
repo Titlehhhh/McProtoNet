@@ -31,7 +31,12 @@ namespace McProtoNet.Protocol754.Packets.Client
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            WindowId = stream.ReadUnsignedByte();
+            Slot = stream.ReadShort();
+            stream.ReadUnsignedByte();
+            ActionId = stream.ReadShort();
+            stream.ReadUnsignedByte();
+            ClickedItem = stream.ReadItem();
         }
 
         public ClientWindowActionPacket(byte windowId, short slot, byte button, short actionId, byte mode, ItemStack? clickedItem)

@@ -46,6 +46,7 @@ namespace McProtoNet.Core.Protocol
 
         public int ReadVarInt()
         {
+            return BaseStream.ReadVarInt();
             int numRead = 0;
             int result = 0;
             byte read;

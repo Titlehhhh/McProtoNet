@@ -13,6 +13,10 @@ namespace McProtoNet.Tests
     [TestClass]
     public class MinecraftProtocolSyncTest
     {
+        private static void WA(string m, byte[] a)
+        {
+            Debug.WriteLine($"{a}{string.Join(", ", a)}");
+        }
         [TestMethod("Тест MinecraftProtocol со сжатием (короткий пакет)")]
         public void TestReadWriteWithCompressionShort()
         {
@@ -26,6 +30,7 @@ namespace McProtoNet.Tests
                 protocol.SwitchCompression(256);
 
                 byte[] before = new byte[100];
+                
                 rand.NextBytes(before);
                 int id = rand.Next(0, 100);
 
@@ -34,13 +39,14 @@ namespace McProtoNet.Tests
                     protocol.SendPacket(data, id);
 
                 }
+
                 ms.Position = 0;
 
 
                 (int afterId, MemoryStream readStream) = protocol.ReadNextPacket();
 
                 byte[] after = readStream.ToArray();
-
+                
                 CollectionAssert.AreEqual(before, after, "Пакеты не совпадают");
 
 
@@ -56,10 +62,13 @@ namespace McProtoNet.Tests
             using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
             using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
             {
+               
                 protocol.SwitchCompression(256);
 
                 byte[] before = new byte[1000];
+
                 rand.NextBytes(before);
+                WA("до: ", before);
                 int id = rand.Next(0, 100);
 
                 using (MemoryStream data = new MemoryStream(before))
@@ -69,7 +78,8 @@ namespace McProtoNet.Tests
                 ms.Position = 0;
                 (int afterId, MemoryStream readStream) = protocol.ReadNextPacket();
                 byte[] after = readStream.ToArray();
-
+                WA("после: ", after);
+                Assert.AreEqual(id, afterId, "Айди не совпадают");
                 CollectionAssert.AreEqual(before, after, "Пакеты не совпадают");
             }
 

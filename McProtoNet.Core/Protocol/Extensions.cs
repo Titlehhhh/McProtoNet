@@ -1,8 +1,10 @@
-﻿namespace McProtoNet.Core.Protocol
+﻿using System.Runtime.CompilerServices;
+
+namespace McProtoNet.Core.Protocol
 {
     public static class Extensions
     {
-
+        
         public static int GetVarIntLength(this int val)
         {
             int amount = 0;
@@ -61,7 +63,7 @@
             byte read;
             do
             {
-                stream.Read(buff, 0, 1);
+                while (stream.Read(buff, 0, 1) == 0) ;
                 read = buff[0];
 
 
@@ -87,7 +89,7 @@
             byte read;
             do
             {
-                await stream.ReadAsync(buff,token);
+                await stream.ReadAsync(buff, token);
                 read = buff[0];
 
 
@@ -103,7 +105,7 @@
 
             return result;
         }
-        public static int ReadVarInt(this Stream stream, out byte len)
+        public static int ReadVarInt(this Stream stream, out int len)
         {
             byte[] buff = new byte[1];
 
@@ -112,6 +114,7 @@
             byte read;
             do
             {
+
                 stream.Read(buff, 0, 1);
                 read = buff[0];
 
@@ -165,6 +168,21 @@
             }
             while (unsigned != 0);
             return stream.WriteAsync(data, 0, len, token);
+        }
+
+
+        public static int ReadToEnd(this Stream stream, Span<byte> buffer, int length)
+        {
+            int totalRead = 0;
+            while (totalRead < length)
+            {
+                int read = stream.Read(buffer.Slice(totalRead));
+                
+
+                totalRead += read;
+            }
+
+            return totalRead;
         }
     }
 }

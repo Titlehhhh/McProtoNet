@@ -15,7 +15,7 @@
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
-            stream.WriteString(UUID.ToString());
+            stream.WriteUuid(UUID);
             stream.WriteString(Username);
         }
 

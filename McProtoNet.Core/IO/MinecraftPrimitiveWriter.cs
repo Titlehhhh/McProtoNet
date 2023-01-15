@@ -1,5 +1,7 @@
-﻿using McProtoNet.NBT;
+﻿using McProtoNet.Core.Protocol;
+using McProtoNet.NBT;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Text;
 
 namespace McProtoNet.Core.IO
@@ -44,7 +46,7 @@ namespace McProtoNet.Core.IO
 
 
         public virtual void WriteBoolean(bool value)
-        {            
+        {
             BaseStream.WriteByte((byte)(value ? 0x01 : 0x00));
         }
 
@@ -113,11 +115,9 @@ namespace McProtoNet.Core.IO
 
         public virtual void WriteString(string value)
         {
-            using var bytes = new RentedArray<byte>(Encoding.UTF8.GetByteCount(value));
-            Encoding.UTF8.GetBytes(value, bytes.Span);
+            byte[] bytes = Encoding.UTF8.GetBytes(value);
             WriteVarInt(bytes.Length);
-            
-            BaseStream.Write(bytes.Span);
+            BaseStream.Write(bytes);
         }
 
 
