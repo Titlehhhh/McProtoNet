@@ -1,14 +1,9 @@
 ﻿using McProtoNet.Core.IO;
 using System.Diagnostics;
 using System.IO;
-
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-//using System.IO.Compression;
-//using Ionic.Zlib;
-
-using ZLibStream = System.IO.Compression.ZLibStream;
-using CompressionMode = System.IO.Compression.CompressionMode;
+using System.IO.Compression;
 
 namespace McProtoNet.Core.Protocol
 {
