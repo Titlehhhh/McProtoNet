@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerEntityCollectItemPacket : MinecraftPacket
     {
-        
+
 
         //this.collectedEntityId = in.readVarInt();
         //this.collectorEntityId = in.readVarInt();

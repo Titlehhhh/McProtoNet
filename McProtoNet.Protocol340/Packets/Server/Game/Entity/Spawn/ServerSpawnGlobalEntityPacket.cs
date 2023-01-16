@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public double Y { get; private set; }
         public double Z { get; private set; }
 
-        
+
 
         //this.entityId = in.readVarInt();
         //this.type = MagicValues.key(GlobalEntityType.class, in.readByte());

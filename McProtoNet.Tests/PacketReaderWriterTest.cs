@@ -1,5 +1,4 @@
-﻿using McProtoNet.Core.IO;
-using McProtoNet.Core.Packets;
+﻿using McProtoNet.Core.Packets;
 using McProtoNet.Core.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -58,7 +57,7 @@ namespace McProtoNet.Tests
             using (IPacketProvider packs = new PacketProvider(packets, packets))
             using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
             {
-               // protocol.SwitchCompression(256);
+                // protocol.SwitchCompression(256);
 
                 TestPacket excepted = new TestPacket();
 

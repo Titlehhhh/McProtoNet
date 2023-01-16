@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 
     public sealed class ClientVehicleMovePacket : MinecraftPacket
     {
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

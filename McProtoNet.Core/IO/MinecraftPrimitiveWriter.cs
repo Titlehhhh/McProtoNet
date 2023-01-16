@@ -1,7 +1,5 @@
-﻿using McProtoNet.Core.Protocol;
-using McProtoNet.NBT;
+﻿using McProtoNet.NBT;
 using System.Buffers.Binary;
-using System.Diagnostics;
 using System.Text;
 
 namespace McProtoNet.Core.IO

@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Server
     {
         public Vector3 Position { get; private set; }
 
-         
+
 
         //this.position = NetUtil.readPosition(in);
         public override void Read(IMinecraftPrimitiveReader stream)

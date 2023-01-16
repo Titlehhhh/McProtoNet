@@ -17,7 +17,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public double MotionY { get; private set; }
         public double MotionZ { get; private set; }
 
-        
+
 
         //TODO METADATA
 

@@ -3,7 +3,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 
     public sealed class ClientChatPacket : MinecraftPacket
     {
-        
+
 
         public string Message { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

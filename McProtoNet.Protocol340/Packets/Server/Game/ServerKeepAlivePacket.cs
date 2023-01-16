@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol340.Packets.Server
     {
         public long ID { get; set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

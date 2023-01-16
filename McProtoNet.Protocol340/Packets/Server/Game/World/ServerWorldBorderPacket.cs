@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerWorldBorderPacket : MinecraftPacket
     {
-         
+
 
         //this.action = MagicValues.key(WorldBorderAction.class, in.readVarInt());
         //if(this.action == WorldBorderAction.SET_SIZE) {

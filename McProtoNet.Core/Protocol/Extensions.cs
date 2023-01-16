@@ -1,6 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-
-namespace McProtoNet.Core.Protocol
+﻿namespace McProtoNet.Core.Protocol
 {
     public static class Extensions
     {

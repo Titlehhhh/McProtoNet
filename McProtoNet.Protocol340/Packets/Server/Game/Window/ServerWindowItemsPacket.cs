@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerWindowItemsPacket : MinecraftPacket
     {
-        
+
 
         //this.windowId = in.readUnsignedByte();
         //this.items = new ItemStack[in.readShort()];

@@ -26,7 +26,7 @@ namespace McProtoNet.Protocol754.Packets.Server
             FullChunk = stream.ReadBoolean();
             PrimaryBitMask = stream.ReadVarInt();
             Heightmaps = stream.ReadNbt();
-            if(stream.ReadBoolean())
+            if (stream.ReadBoolean())
             {
                 Biomes = new int[stream.ReadVarInt()];
                 for (int i = 0; i < Biomes.Length; i++)
@@ -35,7 +35,7 @@ namespace McProtoNet.Protocol754.Packets.Server
                 }
             }
             Data = stream.ReadByteArray();
-           // BlockEntities = new NbtList(,);
+            // BlockEntities = new NbtList(,);
         }
 
         public ServerChunkDataPacket() { }

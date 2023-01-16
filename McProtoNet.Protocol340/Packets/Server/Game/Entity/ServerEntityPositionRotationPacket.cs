@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Pitch { get; private set; }
         public bool OnGround { get; private set; }
 
-        
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

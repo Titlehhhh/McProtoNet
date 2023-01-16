@@ -6,7 +6,7 @@ namespace McProtoNet.Utils
     public class CryptoHandler
     {
         public static RSACryptoServiceProvider DecodeRSAPublicKey(byte[] x509key)
-        {            
+        {
             /* Code from StackOverflow no. 18091460 */
 
             byte[] SeqOID = { 0x2A, 0x86, 0x48, 0x86, 0xF7, 0x0D, 0x01, 0x01, 0x01 };

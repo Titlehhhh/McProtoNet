@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public Guid UUID { get; set; }
         public string Username { get; set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

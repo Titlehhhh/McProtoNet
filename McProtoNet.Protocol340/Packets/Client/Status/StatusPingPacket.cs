@@ -2,7 +2,7 @@
 {
     public sealed class StatusPingPacket : MinecraftPacket
     {
-        
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

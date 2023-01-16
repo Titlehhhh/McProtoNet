@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerNotifyClientPacket : MinecraftPacket
     {
-         
+
 
         //this.notification = MagicValues.key(ClientNotification.class, in.readUnsignedByte());
         //float value = in.readFloat();

@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public PlayerListEntryAction Action { get; private set; }
         public PlayerListEntry[] Entries { get; private set; }
 
-        
+
 
         //this.action = MagicValues.key(PlayerListEntryAction.class, in.readVarInt());
         //this.entries = new PlayerListEntry[in.readVarInt()];

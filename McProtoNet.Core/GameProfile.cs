@@ -6,8 +6,8 @@ namespace McProtoNet.Core
     [DataContract]
     public class GameProfile
     {
-        [DataMember(Name ="id")]
-        public string UUID { get;  set; }
+        [DataMember(Name = "id")]
+        public string UUID { get; set; }
         [DataMember(Name = "name")]
         public string? Username { get; set; }
 

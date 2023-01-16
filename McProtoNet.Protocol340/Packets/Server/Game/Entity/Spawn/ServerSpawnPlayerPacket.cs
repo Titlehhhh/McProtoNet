@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Yaw { get; private set; }
         public float Pitch { get; private set; }
 
-        
+
 
         //this.entityId = in.readVarInt();
         //this.uuid = in.readUUID();

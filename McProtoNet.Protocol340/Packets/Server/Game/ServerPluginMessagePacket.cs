@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public string Channel { get; set; }
         public byte[] Data { get; set; }
 
-        
+
 
         public ServerPluginMessagePacket()
         {

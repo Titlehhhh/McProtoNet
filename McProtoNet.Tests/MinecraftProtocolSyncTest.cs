@@ -1,12 +1,8 @@
-﻿using McProtoNet.Core.Packets;
-using McProtoNet.Core.Protocol;
+﻿using McProtoNet.Core.Protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace McProtoNet.Tests
 {
@@ -30,7 +26,7 @@ namespace McProtoNet.Tests
                 protocol.SwitchCompression(256);
 
                 byte[] before = new byte[100];
-                
+
                 rand.NextBytes(before);
                 int id = rand.Next(0, 100);
 
@@ -45,8 +41,19 @@ namespace McProtoNet.Tests
 
                 (int afterId, MemoryStream readStream) = protocol.ReadNextPacket();
 
+
+                /* Необъединенное слияние из проекта "McProtoNet.Tests (net7.0)"
+                До:
+                                byte[] after = readStream.ToArray();
+
+                                CollectionAssert.AreEqual(before, after, "Пакеты не совпадают");
+                После:
+                                byte[] after = readStream.ToArray();
+
+                                CollectionAssert.AreEqual(before, after, "Пакеты не совпадают");
+                */
                 byte[] after = readStream.ToArray();
-                
+
                 CollectionAssert.AreEqual(before, after, "Пакеты не совпадают");
 
 
@@ -62,7 +69,7 @@ namespace McProtoNet.Tests
             using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
             using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
             {
-               
+
                 protocol.SwitchCompression(256);
 
                 byte[] before = new byte[1000];

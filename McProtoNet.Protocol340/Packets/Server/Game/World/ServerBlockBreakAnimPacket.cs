@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerBlockBreakAnimPacket : MinecraftPacket
     {
-         
+
 
         //this.breakerEntityId = in.readVarInt();
         //this.position = NetUtil.readPosition(in);

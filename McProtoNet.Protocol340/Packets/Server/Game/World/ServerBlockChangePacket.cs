@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol340.Packets.Server
     {
         public BlockChangeRecord Record { get; set; }
 
-         
+
 
         //this.record = new BlockChangeRecord(NetUtil.readPosition(in), NetUtil.readBlockState(in));
         public override void Read(IMinecraftPrimitiveReader stream)

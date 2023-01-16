@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerSetCooldownPacket : MinecraftPacket
     {
-         
+
 
         //this.itemId = in.readVarInt();
         //this.cooldownTicks = in.readVarInt();

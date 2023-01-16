@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerPlayerAbilitiesPacket : MinecraftPacket
     {
-        
+
 
         //byte flags = in.readByte();
         //this.invincible = (flags & 1) > 0;

@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public double Z { get; private set; }
         public short Experience { get; private set; }
 
-         
+
 
         //this.entityId = in.readVarInt();
         //this.x = in.readDouble();

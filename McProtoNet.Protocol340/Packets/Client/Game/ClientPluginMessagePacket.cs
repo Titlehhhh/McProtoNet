@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         public string Channel { get; set; }
         public byte[] Data { get; set; }
 
-        
+
 
         public ClientPluginMessagePacket()
         {

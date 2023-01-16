@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol340.Packets.Server
     {
         public int[] EntityIds { get; private set; }
 
-        
+
 
         //this.entityIds = new int[in.readVarInt()];
         //for(int index = 0; index < this.entityIds.length; index++) {

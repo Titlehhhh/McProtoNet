@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerEntitySetPassengersPacket : MinecraftPacket
     {
-         
+
 
         //this.entityId = in.readVarInt();
         //this.passengerIds = new int[in.readVarInt()];

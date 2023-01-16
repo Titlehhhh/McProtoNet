@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerPlaySoundPacket : MinecraftPacket
     {
-         
+
 
         //String value = in.readString();
         //try {

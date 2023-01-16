@@ -3,7 +3,7 @@
     public enum PacketCategory
     {
         HandShake,
-        Status,        
+        Status,
         Login,
         Game
     }

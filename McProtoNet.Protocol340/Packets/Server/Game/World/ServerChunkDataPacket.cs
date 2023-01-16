@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public int Z { get; private set; }
         public ChunkColumn Column { get; private set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerUpdateScorePacket : MinecraftPacket
     {
-        
+
 
         //this.entry = in.readString();
         //this.action = MagicValues.key(ScoreboardAction.class, in.readVarInt());

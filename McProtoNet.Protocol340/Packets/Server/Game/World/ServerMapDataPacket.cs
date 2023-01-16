@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerMapDataPacket : MinecraftPacket
     {
-        
+
 
         //this.mapId = in.readVarInt();
         //this.scale = in.readByte();

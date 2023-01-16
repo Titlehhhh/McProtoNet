@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
     {
         public ResourcePackStatus Status { get; private set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

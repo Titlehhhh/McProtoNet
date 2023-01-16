@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerUpdateTimePacket : MinecraftPacket
     {
-         
+
 
         //this.age = in.readLong();
         //this.time = in.readLong();

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerTeamPacket : MinecraftPacket
     {
-        
+
 
         //this.name = in.readString();
         //this.action = MagicValues.key(TeamAction.class, in.readByte());

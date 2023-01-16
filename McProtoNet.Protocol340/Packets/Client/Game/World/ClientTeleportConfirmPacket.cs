@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
     {
         public int ID { get; set; }
 
-        
+
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

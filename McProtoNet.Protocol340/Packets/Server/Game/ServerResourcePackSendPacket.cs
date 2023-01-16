@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerResourcePackSendPacket : MinecraftPacket
     {
-         
+
 
         //this.url = in.readString();
         //this.hash = in.readString();

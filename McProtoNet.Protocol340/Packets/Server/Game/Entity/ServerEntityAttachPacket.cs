@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerEntityAttachPacket : MinecraftPacket
     {
-        
+
 
         //this.entityId = in.readInt();
         //this.attachedToId = in.readInt();

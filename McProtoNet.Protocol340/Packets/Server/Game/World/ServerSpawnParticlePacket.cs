@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerSpawnParticlePacket : MinecraftPacket
     {
-         
+
 
         //this.particle = MagicValues.key(Particle.class, in.readInt());
         //this.longDistance = in.readBoolean();

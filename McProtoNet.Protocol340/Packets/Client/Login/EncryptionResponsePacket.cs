@@ -6,7 +6,7 @@
         public byte[] SharedKey { get; private set; }
         public byte[] VerifyToken { get; private set; }
 
-        
+
 
         public EncryptionResponsePacket(byte[] sharedKey, byte[] verifyToken)
         {

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerScoreboardObjectivePacket : MinecraftPacket
     {
-         
+
 
         //this.name = in.readString();
         //this.action = MagicValues.key(ObjectiveAction.class, in.readByte());

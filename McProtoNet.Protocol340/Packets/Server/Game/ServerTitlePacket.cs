@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerTitlePacket : MinecraftPacket
     {
-         
+
 
         //this.action = MagicValues.key(TitleAction.class, in.readVarInt());
         //switch(this.action) {

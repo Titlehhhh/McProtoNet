@@ -35,14 +35,14 @@ namespace McProtoNet.Protocol754.Packets.Server
                 }
             }
             stream.WriteUnsignedByte(Data.Columns);
-            if(Data.Columns>0)
+            if (Data.Columns > 0)
             {
                 stream.WriteUnsignedByte(Data.Rows);
                 stream.WriteUnsignedByte(Data.X);
                 stream.WriteUnsignedByte(Data.Y);
                 stream.WriteByteArray(Data.Data);
             }
-            
+
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {

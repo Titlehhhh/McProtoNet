@@ -1,5 +1,4 @@
-﻿using McProtoNet.Core.Packets;
-using McProtoNet.Protocol754.Packets.Client;
+﻿using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Protocol754.Packets.Server;
 
 namespace McProtoNet.Protocol754
@@ -178,7 +177,7 @@ namespace McProtoNet.Protocol754
             }
             return (outPackets, inPackets);
         }
-        
+
 
     }
 }

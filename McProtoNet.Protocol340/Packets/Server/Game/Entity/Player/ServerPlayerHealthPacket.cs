@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public float Food { get; private set; }
         public float Saturation { get; private set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

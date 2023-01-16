@@ -7,7 +7,7 @@
         public string Host { get; private set; }
         public ushort Port { get; private set; }
 
-        
+
 
         public HandShakePacket(HandShakeIntent handShakeIntent, int protocolVersion, string host, ushort port)
         {

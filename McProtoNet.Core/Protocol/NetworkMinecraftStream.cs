@@ -3,7 +3,6 @@ using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.IO;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
-using System.Buffers.Binary;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
@@ -244,6 +243,7 @@ namespace McProtoNet.Core.Protocol
         }
         protected override void Dispose(bool disposing)
         {
+            Lock.Dispose();
             BaseStream.Dispose();
             base.Dispose(disposing);
         }

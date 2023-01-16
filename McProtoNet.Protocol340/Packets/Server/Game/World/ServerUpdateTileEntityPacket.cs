@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerUpdateTileEntityPacket : MinecraftPacket
     {
-         
+
 
         //this.position = NetUtil.readPosition(in);
         //this.type = MagicValues.key(UpdatedTileType.class, in.readUnsignedByte());

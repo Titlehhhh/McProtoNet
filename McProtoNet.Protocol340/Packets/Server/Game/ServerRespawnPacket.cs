@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerRespawnPacket : MinecraftPacket
     {
-        
+
 
         //this.dimension = in.readInt();
         //this.difficulty = MagicValues.key(Difficulty.class, in.readUnsignedByte());

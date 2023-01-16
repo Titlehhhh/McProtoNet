@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
 
         public bool OnGround { get; set; }
 
-        
+
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

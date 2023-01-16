@@ -19,7 +19,7 @@ namespace McProtoNet.Core.Packets
             this._outPackets = outPackets.ToDictionary(k => k.Value, v => v.Key);
             this._inPackets = inPackets.ToDictionary(k => k.Key, v => (IInputPacket)Activator.CreateInstance(v.Value));
         }
-        
+
 
 
         public bool TryGetInputPacket(int id, out IInputPacket packet)

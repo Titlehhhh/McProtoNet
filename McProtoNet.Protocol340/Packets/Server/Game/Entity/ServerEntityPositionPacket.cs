@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public double DeltaZ { get; private set; }
         public bool OnGround { get; private set; }
 
-         
+
 
         //protected ServerEntityPositionPacket() {
         //this.pos = true;

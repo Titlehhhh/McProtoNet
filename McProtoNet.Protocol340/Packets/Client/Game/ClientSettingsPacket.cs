@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         public List<SkinPart> VisibleParts { get; set; }
         public HandPreference MainHand { get; set; }
 
-        
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

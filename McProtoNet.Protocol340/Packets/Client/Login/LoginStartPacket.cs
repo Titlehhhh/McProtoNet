@@ -5,7 +5,7 @@
     {
         public string Nickname { get; private set; }
 
-        
+
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

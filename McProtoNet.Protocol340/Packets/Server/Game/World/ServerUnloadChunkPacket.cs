@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public int X { get; set; }
         public int Z { get; set; }
 
-        
+
 
         public ServerUnloadChunkPacket()
         {

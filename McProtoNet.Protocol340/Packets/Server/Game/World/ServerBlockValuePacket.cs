@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerBlockValuePacket : MinecraftPacket
     {
-         
+
 
         //this.position = NetUtil.readPosition(in);
         //int type = in.readUnsignedByte();

@@ -19,7 +19,7 @@ namespace McProtoNet.Protocol340.Packets.Server
         public string WorldType { get; private set; }
         public bool ReducedDebugInfo { get; private set; }
 
-        
+
 
         //this.entityId = in.readInt();
         //int gamemode = in.readUnsignedByte();

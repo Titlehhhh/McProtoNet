@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerUnlockRecipesPacket : MinecraftPacket
     {
-        
+
 
         //this.action = MagicValues.key(UnlockRecipesAction.class, in.readVarInt());
         //

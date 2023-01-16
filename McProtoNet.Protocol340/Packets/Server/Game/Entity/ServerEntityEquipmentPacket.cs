@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerEntityEquipmentPacket : MinecraftPacket
     {
-        
+
 
         //this.entityId = in.readVarInt();
         //this.slot = MagicValues.key(EquipmentSlot.class, in.readVarInt());

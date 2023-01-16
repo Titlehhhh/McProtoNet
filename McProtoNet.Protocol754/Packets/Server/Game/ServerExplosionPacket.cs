@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol754.Packets.Server
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-            
+
         }
         public ServerExplosionPacket() { }
     }

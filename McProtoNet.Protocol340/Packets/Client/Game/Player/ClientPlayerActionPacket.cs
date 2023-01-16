@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
         public Vector3 Position { get; set; }
         public BlockFace Face { get; set; }
 
-         
+
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

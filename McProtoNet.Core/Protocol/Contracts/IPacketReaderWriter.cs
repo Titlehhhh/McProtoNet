@@ -1,6 +1,4 @@
-﻿using McProtoNet.Core.Packets;
-
-namespace McProtoNet.Core.Protocol
+﻿namespace McProtoNet.Core.Protocol
 {
     public interface IPacketReaderWriter : IDisposable
     {

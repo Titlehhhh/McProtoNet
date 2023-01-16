@@ -20,7 +20,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
         public int TeleportId { get; private set; }
 
-         
+
 
         public override void Read(IMinecraftPrimitiveReader stream)
         {

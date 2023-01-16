@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerAdvancementsPacket : MinecraftPacket
     {
-        
+
 
         //this.reset = in.readBoolean();
         //

@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerPlayerUseBedPacket : MinecraftPacket
     {
-        
+
 
         //this.entityId = in.readVarInt();
         //this.position = NetUtil.readPosition(in);

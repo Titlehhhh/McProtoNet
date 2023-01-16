@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol340.Packets.Client.Game
     {
         public ClientRequest Request { get; set; }
 
-         
+
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {

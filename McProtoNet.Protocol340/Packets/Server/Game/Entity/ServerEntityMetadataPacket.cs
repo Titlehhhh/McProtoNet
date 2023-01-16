@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
     public sealed class ServerEntityMetadataPacket : MinecraftPacket
     {
-        
+
 
         //this.entityId = in.readVarInt();
         //this.metadata = NetUtil.readEntityMetadata(in);

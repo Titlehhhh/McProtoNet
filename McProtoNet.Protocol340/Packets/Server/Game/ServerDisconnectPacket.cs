@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol340.Packets.Server
 
         public string Message { get; private set; }
 
-         
+
 
         //this.message = Message.fromString(in.readString());
         public override void Read(IMinecraftPrimitiveReader stream)

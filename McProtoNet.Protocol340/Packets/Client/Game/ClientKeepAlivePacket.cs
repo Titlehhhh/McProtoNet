@@ -4,7 +4,7 @@ namespace McProtoNet.Protocol340.Packets.Client
     {
         public long ID { get; set; }
 
-         
+
 
         //out.writeLong(this.id);
         public override void Write(IMinecraftPrimitiveWriter stream)
