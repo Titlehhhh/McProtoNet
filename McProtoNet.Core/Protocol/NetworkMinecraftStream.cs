@@ -243,8 +243,8 @@ namespace McProtoNet.Core.Protocol
         }
         protected override void Dispose(bool disposing)
         {
-            Lock.Dispose();
             BaseStream.Dispose();
+            Lock.Dispose();            
             base.Dispose(disposing);
         }
 
