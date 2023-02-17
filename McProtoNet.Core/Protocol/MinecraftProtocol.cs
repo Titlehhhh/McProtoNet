@@ -102,18 +102,11 @@ namespace McProtoNet.Core.Protocol
 
                 int id = await netmcStream.ReadVarIntAsync(token);
                 len -= id.GetVarIntLength() + 1;
-                MemoryStream dataStream = new MemoryStream();
+
 
                 byte[] buffer = new byte[len];
-                int read;
-                while (len > 0)
-                {
-                    read = await netmcStream.ReadAsync(buffer, 0, len, token);
-                    len -= read;
-                    dataStream.Write(buffer, 0, read);
-                }
-                dataStream.Position = 0;
-                return (id, dataStream);
+                await netmcStream.ReadToEndAsync(buffer, len, token);
+                return (id, new MemoryStream(buffer));
             }
 
         }
@@ -336,7 +329,7 @@ namespace McProtoNet.Core.Protocol
                 netmcStream.ReadToEnd(net_data, len);
 
                 using (MemoryStream ms = new MemoryStream(net_data))
-                using (ZLibStream zlibStream = new ZLibStream(ms, CompressionMode.Decompress, true))
+                using (ZLibStream zlibStream = new ZLibStream(ms, CompressionMode.Decompress))
                 {
 
                     int id = zlibStream.ReadVarInt();

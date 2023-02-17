@@ -1,6 +1,5 @@
-﻿namespace McProtoNet.Protocol754.Packets.Client
+﻿namespace McProtoNet.Protocol756.Packets.Client
 {
-    
     public sealed class LoginPluginResponsePacket : MinecraftPacket
     {
         public int MessageID { get; set; }
@@ -36,3 +35,4 @@
         }
     }
 }
+

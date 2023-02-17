@@ -1,9 +1,12 @@
-﻿using McProtoNet.NBT;
-using McProtoNet.Protocol754.Data;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace McProtoNet.Protocol754
+namespace McProtoNet.Protocol756
 {
-    public static class MinecraftStreamExt
+    public static class Extensions
     {
         private const int POSITION_X_SIZE = 38;
         private const int POSITION_Y_SIZE = 12;
@@ -25,31 +28,6 @@ namespace McProtoNet.Protocol754
             long z = (int)point.Z & POSITION_WRITE_SHIFT;
 
             writer.WriteLong(x << POSITION_X_SIZE | z << POSITION_Y_SIZE | y);
-        }
-
-
-        public static void WriteItem(this IMinecraftPrimitiveWriter writer, ItemStack? item)
-        {
-            writer.WriteBoolean(item != null);
-            if (item != null)
-            {
-                writer.WriteVarInt(item.Id);
-                writer.WriteByte(item.Amount);
-                writer.WriteNbt(item.Nbt, root: true);
-            }
-        }
-
-        public static ItemStack? ReadItem(this IMinecraftPrimitiveReader reader)
-        {
-            bool present = reader.ReadBoolean();
-            if (!present)
-                return null;
-            int item = reader.ReadVarInt();
-
-            var amount = reader.ReadSignedByte();
-            NbtCompound? nbt = reader.ReadOptionalNbt();
-
-            return new ItemStack(item, amount, nbt);
         }
     }
 }

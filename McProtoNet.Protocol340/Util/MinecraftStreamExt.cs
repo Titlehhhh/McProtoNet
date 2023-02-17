@@ -132,7 +132,7 @@ namespace McProtoNet.Protocol340.Util
                         //value = readBlockState(in);
                         break;
                     case MetadataType.NBT_TAG:
-                        value = reader.ReadNbt();
+                        value = reader.ReadOptionalNbt();
                         break;
                     default:
                         throw new Exception("Unknown metadata type id: " + typeId);

@@ -33,6 +33,6 @@ namespace McProtoNet.Core.IO
         /// Read optional NBT
         /// </summary>
         /// <returns></returns>
-        NbtCompound? ReadNbt();
+        NbtCompound? ReadOptionalNbt();
     }
 }

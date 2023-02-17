@@ -2,6 +2,7 @@
 using McProtoNet.Core.Protocol;
 using McProtoNet.NBT;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Text;
 
 namespace McProtoNet.Core.IO
@@ -179,6 +180,7 @@ namespace McProtoNet.Core.IO
 
         public virtual int ReadVarInt()
         {
+            return BaseStream.ReadVarInt();
             Span<byte> buffer = stackalloc byte[1];
 
             int numRead = 0;
@@ -236,16 +238,17 @@ namespace McProtoNet.Core.IO
             }
         }
 
-        public virtual NbtCompound? ReadNbt()
+        public virtual NbtCompound? ReadOptionalNbt()
         {
-            var nbtreader = new NbtReader(BaseStream);
+            var nbtreader = new NbtReader(BaseStream,true);
             NbtCompound? result = null;
             try
             {
                 result = (NbtCompound)nbtreader.ReadAsTag();
             }
-            catch (NbtFormatException)
+            catch (NbtFormatException e)
             {
+                Debug.WriteLine("nbtExc: "+e);
                 return null;
             }
 

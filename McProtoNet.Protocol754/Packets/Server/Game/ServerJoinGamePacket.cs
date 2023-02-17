@@ -1,5 +1,6 @@
 using McProtoNet.NBT;
 using McProtoNet.Protocol754.Data;
+using System.Diagnostics;
 
 namespace McProtoNet.Protocol754.Packets.Server
 {
@@ -15,8 +16,8 @@ namespace McProtoNet.Protocol754.Packets.Server
         public GameMode PreviousGamemode { get; set; }
         public int WorldCount { get; set; }
         public string[] WorldNames { get; set; }
-        public NbtCompound DimensionCodec { get; set; }
-        public NbtCompound Dimension { get; set; }
+        public NbtCompound? DimensionCodec { get; set; }
+        public NbtCompound? Dimension { get; set; }
         public string WorldName { get; set; }
         public long HashedSeed { get; set; }
         public int MaxPlayers { get; set; }
@@ -33,31 +34,60 @@ namespace McProtoNet.Protocol754.Packets.Server
             stream.WriteUnsignedByte((byte)this.GameMode);
             stream.WriteByte((sbyte)PreviousGamemode);
             stream.WriteVarInt(this.WorldCount);
-            foreach (string worldName in this.WorldNames)
-                stream.WriteString(worldName);
-            //NBT.Write(stream, this.dimensionCodec);
+            if (WorldNames is not null)
+            {
+                foreach (string worldName in this.WorldNames)
+                    stream.WriteString(worldName);
+            }
+
             stream.WriteNbt(this.DimensionCodec);
-            //NBT.Write(stream, this.dimension);
             stream.WriteNbt(this.Dimension);
-            //    stream.WriteString(this.worldName);
             stream.WriteString(this.WorldName);
-            //    stream.WriteLong(this.hashedSeed);
+
             stream.WriteLong(this.HashedSeed);
-            //    stream.WriteVarInt(this.maxPlayers);
+
             stream.WriteVarInt(MaxPlayers);
-            //    stream.WriteVarInt(this.viewDistance);
+
             stream.WriteVarInt(ViewDistance);
-            //    stream.WriteBoolean(this.reducedDebugInfo);
+
             stream.WriteBoolean(ReducedDebugInfo);
-            //    stream.WriteBoolean(this.enableRespawnScreen);
+
             stream.WriteBoolean(EnableRespawnScreen);
-            //    stream.WriteBoolean(this.debug);
+
             stream.WriteBoolean(Debug);
-            //    stream.WriteBoolean(this.flat);
+
             stream.WriteBoolean(Flat);
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
+            EntityId = stream.ReadInt();
+            Hardcore = stream.ReadBoolean();
+            GameMode = (GameMode)(stream.ReadUnsignedByte());
+            PreviousGamemode = (GameMode)stream.ReadUnsignedByte();
+            WorldCount = stream.ReadVarInt();
+            WorldNames = new string[WorldCount];
+            for (int i = 0; i < WorldCount; i++)
+            {
+                WorldNames[i] = stream.ReadString();
+            }
+
+
+            DimensionCodec = stream.ReadOptionalNbt();
+
+
+            Dimension = stream.ReadOptionalNbt();
+
+            WorldName = stream.ReadString();
+
+            HashedSeed = stream.ReadLong();
+
+            MaxPlayers = stream.ReadVarInt();
+
+            ViewDistance = stream.ReadVarInt();
+            ReducedDebugInfo = stream.ReadBoolean();
+            EnableRespawnScreen = stream.ReadBoolean();
+            Debug = stream.ReadBoolean();
+            Flat = stream.ReadBoolean();
 
         }
         public ServerJoinGamePacket() { }

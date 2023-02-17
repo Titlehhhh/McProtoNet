@@ -9,6 +9,7 @@ namespace McProtoNet.Utils
         public async Task<ServerInfo> GetServerInfoAsync(string host, ushort port)
         {
             TcpClient tcpClient = TcpTactory.CreateTcpClient(host, port);
+
             throw new NotImplementedException();
         }
     }
