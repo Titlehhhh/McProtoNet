@@ -11,3 +11,4 @@ Shema.vsdx
 /ReleaseBuild.bat
 /SourceGenerator
 /McProtoNet.Protocol754/Properties/PublishProfiles/FolderProfile.pubxml.user
+/Legacy/Legacy.csproj
