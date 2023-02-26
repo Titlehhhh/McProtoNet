@@ -1,18 +1,20 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using Org.BouncyCastle.Bcpg;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.IO;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
+using System;
 using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
 {
-
-    public sealed class NetworkMinecraftStream : Stream, IDisposable
+   
+    public sealed class MinecraftStream : Stream, IDisposable
     {
-        public NetworkStream NetStream => (NetworkStream)BaseStream;
-
+        
         public bool EncryptionEnabled { get; private set; } = false;
+        
 
         internal Stream BaseStream;
 
@@ -27,17 +29,10 @@ namespace McProtoNet.Core.Protocol
         public override long Position { get => BaseStream.Position; set => BaseStream.Position = value; }
         public SemaphoreSlim Lock { get; } = new SemaphoreSlim(1, 1);
 
-        public NetworkMinecraftStream(NetworkStream networkStream)
-        {
-            ArgumentNullException.ThrowIfNull(networkStream, nameof(networkStream));
-
-
-            this.BaseStream = networkStream;
-        }
-        public NetworkMinecraftStream(Stream stream)
+        
+        public MinecraftStream(Stream stream)
         {
             ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-
 
             this.BaseStream = stream;
         }
@@ -46,49 +41,8 @@ namespace McProtoNet.Core.Protocol
         public int ReadVarInt()
         {
             return BaseStream.ReadVarInt();
-            int numRead = 0;
-            int result = 0;
-            byte read;
-            do
-            {
-
-                read = ReadUnsignedByte();
-
-                int value = read & 0b01111111;
-                result |= value << (7 * numRead);
-
-                numRead++;
-                if (numRead > 5)
-                {
-                    throw new InvalidOperationException("VarInt is too big");
-                }
-            } while ((read & 0b10000000) != 0);
-            return result;
         }
-        public int ReadVarInt(out byte len)
-        {
-
-
-            int numRead = 0;
-            int result = 0;
-            byte read;
-            do
-            {
-
-                read = ReadUnsignedByte();
-
-                int value = read & 0b01111111;
-                result |= value << (7 * numRead);
-
-                numRead++;
-                if (numRead > 5)
-                {
-                    throw new InvalidOperationException("VarInt is too big");
-                }
-            } while ((read & 0b10000000) != 0);
-            len = (byte)numRead;
-            return result;
-        }
+      
 
         public async ValueTask<int> ReadVarIntAsync(CancellationToken token = default)
         {
@@ -155,7 +109,7 @@ namespace McProtoNet.Core.Protocol
         }
 
         private async ValueTask<byte> ReadUnsignedByteAsync(CancellationToken token = default)
-        {
+        {            
             token.ThrowIfCancellationRequested();
             var buffer = new byte[1];
             await this.ReadAsync(buffer, token).ConfigureAwait(false);
@@ -190,7 +144,58 @@ namespace McProtoNet.Core.Protocol
 
             this.BaseStream = new CipherStream(BaseStream, DecryptCipher, EncryptCipher);
         }
-
+        public override int Read(Span<byte> buffer)
+        {
+            return BaseStream.Read(buffer);            
+        }
+        public override void Write(ReadOnlySpan<byte> buffer)
+        {
+             BaseStream.Write(buffer);
+        }
+        public override void CopyTo(Stream destination, int bufferSize)
+        {
+            BaseStream.CopyTo(destination, bufferSize);            
+        }
+        public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
+        {
+            return BaseStream.CopyToAsync(destination, bufferSize, cancellationToken);            
+        }
+        public override int ReadByte()
+        {
+            return BaseStream.ReadByte();          
+        }
+        public override int EndRead(IAsyncResult asyncResult)
+        {
+            return BaseStream.EndRead(asyncResult);          
+        }
+        public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            return BaseStream.BeginRead(buffer, offset, count, callback, state);
+        }
+        public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback, object? state)
+        {
+            return BaseStream.BeginWrite(buffer, offset, count, callback, state);
+        }
+        public override void EndWrite(IAsyncResult asyncResult)
+        {
+            BaseStream.EndWrite(asyncResult);
+        }
+        public override void Close()
+        {
+            BaseStream.Close();
+        }
+        public override ValueTask DisposeAsync()
+        {
+            return BaseStream.DisposeAsync();
+        }
+        public override bool Equals(object? obj)
+        {
+            return BaseStream.Equals(obj);
+        }
+        public override int GetHashCode()
+        {
+            return BaseStream.GetHashCode();
+        }        
         public override void Flush()
         {
             BaseStream.Flush();
@@ -228,7 +233,10 @@ namespace McProtoNet.Core.Protocol
         {
             BaseStream.SetLength(value);
         }
-
+        public override void WriteByte(byte value)
+        {           
+            BaseStream.WriteByte(value);
+        }
         public override void Write(byte[] buffer, int offset, int count)
         {
             BaseStream.Write(buffer, offset, count);
@@ -250,3 +258,5 @@ namespace McProtoNet.Core.Protocol
 
     }
 }
+
+

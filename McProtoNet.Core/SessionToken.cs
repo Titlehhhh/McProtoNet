@@ -1,4 +1,6 @@
-﻿namespace McProtoNet
+﻿
+
+namespace McProtoNet
 {
     public struct SessionToken
     {

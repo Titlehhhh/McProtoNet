@@ -10,7 +10,6 @@ namespace McProtoNet.Protocol754.Packets.Server
 
         public float Yaw { get; set; }
         public float Pitch { get; set; }
-        public bool OnGround { get; set; }
         public byte Flags { get; private set; }
         public int TeleportId { get; set; }
         public override void Write(IMinecraftPrimitiveWriter stream)

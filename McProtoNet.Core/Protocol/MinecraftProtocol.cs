@@ -10,13 +10,13 @@ namespace McProtoNet.Core.Protocol
         private readonly byte[] ZERO_VARINT = { 0 };
 
 
-        private NetworkMinecraftStream netmcStream;
+        private MinecraftStream netmcStream;
 
         private int _compressionThreshold;
 
 
         private readonly bool _disposedStream;
-        public MinecraftProtocol(NetworkMinecraftStream netmcStream, bool disposedStream)
+        public MinecraftProtocol(MinecraftStream netmcStream, bool disposedStream)
         {
 
 
@@ -24,7 +24,7 @@ namespace McProtoNet.Core.Protocol
             _disposedStream = disposedStream;
         }
         public MinecraftProtocol(NetworkStream networkStream, bool disposedStream)
-            : this(new NetworkMinecraftStream(networkStream), disposedStream)
+            : this(new MinecraftStream(networkStream), disposedStream)
         { }
 
         public MinecraftProtocol(Socket socket, bool disposedStream)
@@ -115,62 +115,68 @@ namespace McProtoNet.Core.Protocol
         {
 
             ThrowIfDisposed();
-            await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
-
-            if (_compressionThreshold > 0)
+            try
             {
+                await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
 
-
-                byte[] idData = new byte[5];
-
-                int idLen = id.GetVarIntLength(idData);
-
-
-                int uncompressedSize = idLen + (int)packet.Length;
-                if (uncompressedSize >= _compressionThreshold)
+                if (_compressionThreshold > 0)
                 {
 
-                    using (var compressedPacket = new MemoryStream())
+
+                    byte[] idData = new byte[5];
+
+                    int idLen = id.GetVarIntLength(idData);
+
+
+                    int uncompressedSize = idLen + (int)packet.Length;
+                    if (uncompressedSize >= _compressionThreshold)
                     {
-                        using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress, true))
+
+                        using (var compressedPacket = new MemoryStream())
                         {
-                            await zlibStream.WriteVarIntAsync(id);
-                            await packet.CopyToAsync(zlibStream, token).ConfigureAwait(false);
+                            using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress, true))
+                            {
+                                await zlibStream.WriteVarIntAsync(id);
+                                await packet.CopyToAsync(zlibStream, token).ConfigureAwait(false);
+                            }
+                            int uncompressedSizeLength = uncompressedSize.GetVarIntLength();
+
+                            int fullSize = uncompressedSizeLength + (int)compressedPacket.Length;
+
+
+
+                            await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
+
+                            await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
+
+                            compressedPacket.Position = 0;
+                            await compressedPacket.CopyToAsync(netmcStream, token).ConfigureAwait(false);
+
                         }
-                        int uncompressedSizeLength = uncompressedSize.GetVarIntLength();
-
-                        int fullSize = uncompressedSizeLength + (int)compressedPacket.Length;
-
-
-
-                        await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        uncompressedSize++;
 
                         await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
+                        await netmcStream.WriteAsync(ZERO_VARINT, token).ConfigureAwait(false);
+                        await netmcStream.WriteAsync(idData.AsMemory(0, idLen), token).ConfigureAwait(false);
 
-                        compressedPacket.Position = 0;
-                        await compressedPacket.CopyToAsync(netmcStream, token).ConfigureAwait(false);
+                        await packet.CopyToAsync(netmcStream).ConfigureAwait(false);
+
 
                     }
                 }
                 else
                 {
-                    uncompressedSize++;
-
-                    await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
-                    await netmcStream.WriteAsync(ZERO_VARINT, token).ConfigureAwait(false);
-                    await netmcStream.WriteAsync(idData.AsMemory(0, idLen), token).ConfigureAwait(false);
-
-                    await packet.CopyToAsync(netmcStream).ConfigureAwait(false);
-
-
+                    await SendPacketWithoutCompressionAsync(packet, id, token).ConfigureAwait(false);
                 }
+                await netmcStream.FlushAsync(token);
             }
-            else
+            finally
             {
-                await SendPacketWithoutCompressionAsync(packet, id, token).ConfigureAwait(false);
+                netmcStream.Lock.Release();
             }
-            await netmcStream.FlushAsync(token);
-            netmcStream.Lock.Release();
         }
 
         private async Task SendPacketWithoutCompressionAsync(MemoryStream packet, int id, CancellationToken token)
@@ -202,6 +208,7 @@ namespace McProtoNet.Core.Protocol
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public void SendPacket(MemoryStream packet, int id)
         {
+            Dumper.Dump("Packet: " + id);
             try
             {
                 ThrowIfDisposed();
@@ -269,6 +276,7 @@ namespace McProtoNet.Core.Protocol
             finally
             {
                 netmcStream.Lock.Release();
+                Dumper.Dump("endPacket: ");
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -293,7 +301,7 @@ namespace McProtoNet.Core.Protocol
 
         }
         #endregion
-        static Random rand = new();
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public (int, MemoryStream) ReadNextPacket()
         {
@@ -367,11 +375,7 @@ namespace McProtoNet.Core.Protocol
         }
         #endregion
 
-        public bool Available()
-        {
-            ThrowIfDisposed();
-            return netmcStream.NetStream.DataAvailable;
-        }
+        
 
         private void ThrowIfDisposed()
         {

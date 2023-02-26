@@ -32,30 +32,24 @@ namespace McProtoNet.Core.IO
             BaseStream.WriteByte((byte)value);
         }
 
-
-
-
         public virtual void WriteUnsignedByte(byte value)
         {
             BaseStream.WriteByte(value);
         }
-
-
-
 
         public virtual void WriteBoolean(bool value)
         {
             BaseStream.WriteByte((byte)(value ? 0x01 : 0x00));
         }
 
-
-
-
         public virtual void WriteUnsignedShort(ushort value)
         {
-            Span<byte> span = stackalloc byte[2];
-            BinaryPrimitives.WriteUInt16BigEndian(span, value);
-            BaseStream.Write(span);
+            // Span<byte> span = stackalloc byte[2];
+            // BinaryPrimitives.WriteUInt16BigEndian(span, value);
+            // BaseStream.Write(span);
+            byte[] theShort = BitConverter.GetBytes(value);
+            Array.Reverse(theShort);
+            BaseStream.Write(theShort);
         }
 
 
@@ -122,7 +116,7 @@ namespace McProtoNet.Core.IO
 
 
         public virtual void WriteVarInt(int value)
-        {
+        {            
             var unsigned = (uint)value;
             do
             {

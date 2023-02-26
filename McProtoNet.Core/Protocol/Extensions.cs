@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Core.Protocol
+﻿using McProtoNet.Core.IO;
+
+namespace McProtoNet.Core.Protocol
 {
     public static class Extensions
     {
@@ -55,7 +57,6 @@
         public static int ReadVarInt(this Stream stream)
         {
             byte[] buff = new byte[1];
-
             int numRead = 0;
             int result = 0;
             byte read;
@@ -132,8 +133,8 @@
         public static void WriteVarInt(this Stream stream, int value)
         {
             var unsigned = (uint)value;
-            //  byte[] data = new byte[5];
-            //  int len = 0;
+            Span<byte> data = stackalloc byte[5];
+              int len = 0;
             do
             {
                 var temp = (byte)(unsigned & 127);
@@ -142,12 +143,11 @@
                 if (unsigned != 0)
                     temp |= 128;
 
-                stream.WriteByte(temp);
-                //data[len++] = temp;
+                //stream.WriteByte(temp);
+                data[len++] = temp;
             }
             while (unsigned != 0);
-
-            //  stream.Write(data, 0, len);
+            stream.Write(data.Slice(0, len));
         }
         public static Task WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
         {
@@ -194,6 +194,29 @@
             }
 
             return totalRead;
+        }
+
+        public static void SendPacket(this IMinecraftProtocol proto, MinecraftPacket pack, int id)
+        {
+
+            using (MemoryStream ms = new())
+            {
+                IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
+                pack.Write(writer);
+                ms.Position = 0;
+                proto.SendPacket(ms, id);
+            }
+        }
+        public static async ValueTask SendPacketAsync(this IMinecraftProtocol proto, MinecraftPacket pack, int id)
+        {
+
+            using (MemoryStream ms = new())
+            {
+                IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
+                pack.Write(writer);
+                ms.Position = 0;
+                await proto.SendPacketAsync(ms, id);
+            }
         }
     }
 }

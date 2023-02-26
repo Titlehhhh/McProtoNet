@@ -9,8 +9,7 @@ namespace McProtoNet.Protocol756.Packets.Server
         public double Z { get; set; }
 
         public float Yaw { get; set; }
-        public float Pitch { get; set; }
-        public bool OnGround { get; set; }
+        public float Pitch { get; set; }       
         public byte Flags { get; private set; }
         public int TeleportId { get; set; }
         public bool DismountVehicle { get; set; }

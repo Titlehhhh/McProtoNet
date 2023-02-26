@@ -2,7 +2,6 @@
 {
     public interface IMinecraftProtocol : IDisposable
     {
-        bool Available();
         void SwitchEncryption(byte[] privateKey);
         void SwitchCompression(int threshold);
         //Task SendPacketAsync(IOutputPacket packet, int id, CancellationToken token = default);

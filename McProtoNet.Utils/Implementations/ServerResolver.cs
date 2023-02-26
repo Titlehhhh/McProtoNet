@@ -9,7 +9,7 @@ namespace McProtoNet.Utils
             LookupClient lookupClient = new();
 
             var response = await lookupClient.QueryAsync(new DnsQuestion($"_minecraft._tcp.{host}", QueryType.SRV), cancellationToken);
-            if (!response.HasError)
+            if (response.HasError != true && response.Answers.SrvRecords().Any())
             {
                 var result = response.Answers.SrvRecords()
                     .OrderBy(record => record.Priority)

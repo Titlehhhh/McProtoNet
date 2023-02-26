@@ -22,7 +22,7 @@ namespace McProtoNet.Tests
             Random rand = new Random();
 
             using (MemoryStream ms = new MemoryStream())
-            using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+            using (MinecraftStream netmc = new MinecraftStream(ms))
             using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
             using (IPacketProvider packs = new PacketProvider(packets, packets))
             using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
@@ -52,7 +52,7 @@ namespace McProtoNet.Tests
             Random rand = new Random();
 
             using (MemoryStream ms = new MemoryStream())
-            using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+            using (MinecraftStream netmc = new MinecraftStream(ms))
             using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
             using (IPacketProvider packs = new PacketProvider(packets, packets))
             using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))
@@ -90,7 +90,7 @@ namespace McProtoNet.Tests
                 for (int i = 0; i < 5; i++)
                 {
                     using (MemoryStream ms = new MemoryStream())
-                    using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+                    using (MinecraftStream netmc = new MinecraftStream(ms))
                     using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
                     using (IPacketProvider packs = new PacketProvider(packets, packets))
                     using (IPacketReaderWriter packetReaderWriter = new PacketReaderWriter(protocol, packs, true))

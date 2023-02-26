@@ -17,7 +17,7 @@ namespace McProtoNet.Tests
                 Random rand = new Random();
 
                 using (MemoryStream ms = new MemoryStream())
-                using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+                using (MinecraftStream netmc = new MinecraftStream(ms))
                 using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
                 {
                     protocol.SwitchCompression(256);
@@ -46,7 +46,7 @@ namespace McProtoNet.Tests
                 Random rand = new Random();
 
                 using (MemoryStream ms = new MemoryStream())
-                using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+                using (MinecraftStream netmc = new MinecraftStream(ms))
                 using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
                 {
                     protocol.SwitchCompression(256);
@@ -77,7 +77,7 @@ namespace McProtoNet.Tests
                 Random rand = new Random();
 
                 using (MemoryStream ms = new MemoryStream())
-                using (NetworkMinecraftStream netmc = new NetworkMinecraftStream(ms))
+                using (MinecraftStream netmc = new MinecraftStream(ms))
                 using (IMinecraftProtocol protocol = new MinecraftProtocol(netmc, true))
                 {
                     byte[] before = new byte[1000];
