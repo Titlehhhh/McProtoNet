@@ -5,7 +5,7 @@
 
 
 # McProtoNet
-McProtoNet is a low-level library for working with the Minecraft protocol, written in the c# programming language. You can't use it to create a full-fledged bot, it only helps you to properly write a Minecraft package to the stream. 
+McProtoNet is a low-level library for working with the Minecraft protocol, written in the c# programming language. You can't use it to create a full-fledged bot, it only helps you to properly write a Minecraft packet to the stream. 
 
 You can also use the library to write a server.
 
