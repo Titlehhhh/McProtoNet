@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace McProtoNet.Protocol756.Packets.Client
 {
 
@@ -14,10 +16,14 @@ namespace McProtoNet.Protocol756.Packets.Client
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
-
+            Channel = stream.ReadString();
+            Data = stream.ReadToEnd();
         }
         public ClientPluginMessagePacket() { }
-
+        public override string ToString()
+        {
+            return $"Channel: {Channel} Data: {Encoding.UTF8.GetString(Data)}";
+        }
 
     }
 }

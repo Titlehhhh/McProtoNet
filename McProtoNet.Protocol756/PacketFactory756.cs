@@ -57,6 +57,7 @@ namespace McProtoNet.Protocol756
                     { 0x11, typeof(ClientPlayerPositionPacket) },
                     { 0x12, typeof(ClientPlayerPositionRotationPacket) },
                     { 0x13, typeof(ClientPlayerRotationPacket) },
+                    { 0x14, typeof(ClientPlayerMovementPacket) },
                     //{ 0x15, typeof(ClientPlayerMovementPacket) },
                     //{ 0x16, typeof(ClientVehicleMovePacket) },
                     //{ 0x17, typeof(ClientSteerBoatPacket) },
@@ -141,6 +142,8 @@ namespace McProtoNet.Protocol756
                     //{ 0x32, typeof(ServerPlayerListEntryPacket) },
                     //{ 0x33, typeof(ServerPlayerFacingPacket) },
                     { 0x38, typeof(ServerPlayerPositionRotationPacket) },
+                    { 0x32, typeof(ServerPlayerAbilitiesPacket) },
+                    
                     //{ 0x35, typeof(ServerUnlockRecipesPacket) },
                     //{ 0x36, typeof(ServerEntityDestroyPacket) },
                     //{ 0x37, typeof(ServerEntityRemoveEffectPacket) },

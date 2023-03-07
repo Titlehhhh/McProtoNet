@@ -177,31 +177,11 @@ namespace McProtoNet.Core.IO
             BaseStream.ReadToEnd(data, size);
             return data;
         }
-
+       
         public virtual int ReadVarInt()
         {
             return BaseStream.ReadVarInt();
-            Span<byte> buffer = stackalloc byte[1];
-
-            int numRead = 0;
-            int result = 0;
-            byte read;
-            do
-            {
-                BaseStream.Read(buffer);
-                read = buffer[0];
-
-                int value = read & 0b01111111;
-                result |= value << (7 * numRead);
-
-                numRead++;
-                if (numRead > 5)
-                {
-                    throw new InvalidOperationException("VarInt is too big");
-                }
-            } while ((read & 0b10000000) != 0);
-
-            return result;
+          
         }
         public virtual long ReadVarLong()
         {

@@ -53,7 +53,8 @@ namespace McProtoNet.Core.Protocol
             while (unsigned != 0);
             return len;
         }
-
+        private static int SEGMENT_BITS = 0x7F;
+        private static int CONTINUE_BIT = 0x80;
         public static int ReadVarInt(this Stream stream)
         {
             byte[] buff = new byte[1];
@@ -62,7 +63,7 @@ namespace McProtoNet.Core.Protocol
             byte read;
             do
             {
-                while (stream.Read(buff, 0, 1) == 0) ;
+                stream.Read(buff, 0, 1);
                 read = buff[0];
 
 
@@ -134,7 +135,7 @@ namespace McProtoNet.Core.Protocol
         {
             var unsigned = (uint)value;
             Span<byte> data = stackalloc byte[5];
-              int len = 0;
+            int len = 0;
             do
             {
                 var temp = (byte)(unsigned & 127);

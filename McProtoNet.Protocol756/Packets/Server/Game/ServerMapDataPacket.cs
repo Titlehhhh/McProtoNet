@@ -15,7 +15,7 @@ namespace McProtoNet.Protocol756.Packets.Server
 
         public override void Write(IMinecraftPrimitiveWriter stream)
         {
-            throw new AbandonedMutexException("hui");
+            //throw new AbandonedMutexException("hui");
         }
         public override void Read(IMinecraftPrimitiveReader stream)
         {
@@ -25,21 +25,23 @@ namespace McProtoNet.Protocol756.Packets.Server
 
             this.Locked = stream.ReadBoolean();
             this.TrackingPosition = stream.ReadBoolean();
-            this.Icons = new MapIcon[stream.ReadVarInt()];
-            for (int index = 0; index < this.Icons.Length; index++)
-            {
-                var type = (MapIconType)stream.ReadVarInt();
-                byte x = stream.ReadUnsignedByte();
-                byte z = stream.ReadUnsignedByte();
-                byte rotation = stream.ReadUnsignedByte();
-                string? displayName = null;
-                if (stream.ReadBoolean())
+            bool hasIcons = stream.ReadBoolean();
+            this.Icons = new MapIcon[hasIcons ? stream.ReadVarInt() : 0];
+            if (hasIcons)
+                for (int index = 0; index < this.Icons.Length; index++)
                 {
-                    displayName = stream.ReadString();
-                }
+                    var type = (MapIconType)stream.ReadVarInt();
+                    byte x = stream.ReadUnsignedByte();
+                    byte z = stream.ReadUnsignedByte();
+                    byte rotation = stream.ReadUnsignedByte();
+                    string? displayName = null;
+                    if (stream.ReadBoolean())
+                    {
+                        displayName = stream.ReadString();
+                    }
 
-                this.Icons[index] = new MapIcon(type, x, z, rotation, displayName);
-            }
+                    this.Icons[index] = new MapIcon(type, x, z, rotation, displayName);
+                }
 
             byte columns = stream.ReadUnsignedByte();
             if (columns > 0)

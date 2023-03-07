@@ -7,6 +7,11 @@ namespace McProtoNet.Core.Protocol
         public abstract void Read(IMinecraftPrimitiveReader stream);
 
         public abstract void Write(IMinecraftPrimitiveWriter stream);
+
+        public override string ToString()
+        {
+            return "";
+        }
     }
 
 }

@@ -20,5 +20,9 @@ namespace McProtoNet.Protocol756.Packets.Client
         {
             this.Id = Id;
         }
+        public override string ToString()
+        {
+            return $"Id: {Id}";
+        }
     }
 }

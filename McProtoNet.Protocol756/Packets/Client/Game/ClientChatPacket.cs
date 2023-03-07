@@ -22,6 +22,10 @@ namespace McProtoNet.Protocol756.Packets.Client
         }
 
         public ClientChatPacket() { }
+        public override string ToString()
+        {
+            return "Message: "+Message;
+        }
     }
 }
 

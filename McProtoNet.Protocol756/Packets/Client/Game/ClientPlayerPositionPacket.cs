@@ -32,5 +32,9 @@ namespace McProtoNet.Protocol756.Packets.Client
             this.Z = Z;
             this.OnGround = OnGround;
         }
+        public override string ToString()
+        {
+            return $"X: {X} Y: {Y} Z:{Z} OnGround:{OnGround}";
+        }
     }
 }

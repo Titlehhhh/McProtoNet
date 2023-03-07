@@ -6,11 +6,12 @@ namespace McProtoNet.Geometry
     [StructLayout(LayoutKind.Explicit)]
     public struct Vector3 : IEquatable<Vector3>
     {
-        [FieldOffset(8)]
+        [FieldOffset(0)]
+
         public double X;
-        [FieldOffset(16)]
+        [FieldOffset(8)]
         public double Y;
-        [FieldOffset(24)]
+        [FieldOffset(16)]
         public double Z;
         public Vector3(double value)
         {

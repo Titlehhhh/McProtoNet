@@ -40,5 +40,9 @@ namespace McProtoNet.Protocol756.Packets.Client
             this.Pitch = Pitch;
             this.OnGround = OnGround;
         }
+        public override string ToString()
+        {
+            return $"X: {X} Y: {Y} Z:{Z} Yaw:{Yaw} Pitch: {Pitch} OnGround:{OnGround}";
+        }
     }
 }

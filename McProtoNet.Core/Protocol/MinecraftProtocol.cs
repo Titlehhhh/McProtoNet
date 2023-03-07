@@ -208,7 +208,7 @@ namespace McProtoNet.Core.Protocol
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public void SendPacket(MemoryStream packet, int id)
         {
-            Dumper.Dump("Packet: " + id);
+           
             try
             {
                 ThrowIfDisposed();
@@ -276,7 +276,7 @@ namespace McProtoNet.Core.Protocol
             finally
             {
                 netmcStream.Lock.Release();
-                Dumper.Dump("endPacket: ");
+               
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
