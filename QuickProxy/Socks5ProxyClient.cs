@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.ComponentModel;
 using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace QuickProxy
 {
@@ -375,7 +376,7 @@ namespace QuickProxy
                 HandleProxyCommandError(response, destinationHost, destinationPort);
         }
 
-        private void HandleProxyCommandError(byte[] response, string destinationHost, int destinationPort)
+        private void HandleProxyCommandError(Span<byte> response, string destinationHost, int destinationPort)
         {
             string proxyErrorText;
             byte replyCode = response[1];
@@ -572,39 +573,48 @@ namespace QuickProxy
                 }
             }
         }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static void CreateRequest(Span<byte> buffer, byte[] destAddr, byte command, byte addressType, byte[] destPort)
+        {
+            buffer[0] = SOCKS5_VERSION_NUMBER;
+            buffer[1] = command;
+            buffer[2] = SOCKS5_RESERVED;
+            buffer[3] = addressType;
+            buffer = buffer.Slice(4);
+            destAddr.CopyTo(buffer);
+            buffer.Slice(destAddr.Length);
+            destPort.CopyTo(buffer);
+        }
 
-        private async ValueTask SendCommandAsync(byte command, string destinationHost, int destinationPort, CancellationToken token)
+        private async ValueTask SendCommandAsync(byte command, string destinationHost, ushort destinationPort, CancellationToken token)
         {
             NetworkStream stream = _tcpClient.GetStream();
 
             byte addressType = GetDestAddressType(destinationHost);
             byte[] destAddr = GetDestAddressBytes(addressType, destinationHost);
+
             byte[] destPort = GetDestPortBytes(destinationPort);
 
+            int len = 4 + destAddr.Length + 2;
+            Memory<byte> request = MemoryPool<byte>.Shared.Rent(len).Memory;
 
-            byte[] request = new byte[4 + destAddr.Length + 2];
-            request[0] = SOCKS5_VERSION_NUMBER;
-            request[1] = command;
-            request[2] = SOCKS5_RESERVED;
-            request[3] = addressType;
-            destAddr.CopyTo(request, 4);
-            destPort.CopyTo(request, 4 + destAddr.Length);
+            CreateRequest(request.Span, destAddr, command, addressType, destPort);
 
             // send connect request.
-            await stream.WriteAsync(request, 0, request.Length, token);
+            await stream.WriteAsync(request.Slice(0, len), token);
 
 
 
-            byte[] response = new byte[255];
+            Memory<byte> response = MemoryPool<byte>.Shared.Rent(255).Memory;
 
             // read proxy server response
-            var responseSize = await stream.ReadAsync(response, 0, response.Length, token);
+            var responseSize = await stream.ReadAsync(response.Slice(0, 255), token);
 
-            byte replyCode = response[1];
+            byte replyCode = response.Span[1];
 
             //  evaluate the reply code for an error condition
             if (responseSize < 2 || replyCode != SOCKS5_CMD_REPLY_SUCCEEDED)
-                HandleProxyCommandError(response, destinationHost, destinationPort);
+                HandleProxyCommandError(response.Span, destinationHost, destinationPort);
         }
 
         #endregion

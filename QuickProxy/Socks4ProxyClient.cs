@@ -178,21 +178,20 @@ namespace QuickProxy
             if (userId == null)
                 userId = "";
 
-            byte[] destIp = GetIPAddressBytes(destinationHost);
-            byte[] destPort = GetDestinationPortBytes(destinationPort);
-            byte[] userIdBytes = ASCIIEncoding.ASCII.GetBytes(userId);
-            byte[] request = new byte[9 + userIdBytes.Length];
+            proxy.ReadTimeout = 15000;
+            if (userId == null)
+                userId = "";
+            int len = userId.Length + 9;
+            Span<byte> request = MemoryPool<byte>.Shared.Rent(len).Memory;
 
-            //  set the bits on the request byte array
-            request[0] = SOCKS4_VERSION_NUMBER;
-            request[1] = command;
-            destPort.CopyTo(request, 2);
-            destIp.CopyTo(request, 4);
-            userIdBytes.CopyTo(request, 8);
-            request[8 + userIdBytes.Length] = 0x00;  // null (byte with all zeros) terminator for userId
+            byte[] destIp = await GetIPAddressBytesAsync(destinationHost, cancellation);
 
-            // send the connect request
-            proxy.Write(request, 0, request.Length);
+
+            WriteRequest(request.Span, command, destinationPort, destIp, userId);
+
+
+            await proxy.WriteAsync(request.Slice(0, len), cancellation);
+
 
 
 
@@ -226,19 +225,12 @@ namespace QuickProxy
         }
 
 
-        internal byte[] GetDestinationPortBytes(int value)
-        {
-            byte[] array = new byte[2];
-            array[0] = Convert.ToByte(value / 256);
-            array[1] = Convert.ToByte(value % 256);
-            return array;
-        }
         private static void GetDestinationPortBytes(ushort value, Span<byte> buffer)
         {
             BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
         }
 
-        internal void HandleProxyCommandError(byte[] response, string destinationHost, int destinationPort)
+        internal void HandleProxyCommandError(Span<byte> response, string destinationHost, int destinationPort)
         {
 
             if (response == null)
@@ -248,18 +240,13 @@ namespace QuickProxy
             byte replyCode = response[1];
 
             //  extract the ip v4 address (4 bytes)
-            byte[] ipBytes = new byte[4];
-            for (int i = 0; i < 4; i++)
-                ipBytes[i] = response[i + 4];
+            //byte[] ipBytes = new byte[4];
+            //for (int i = 0; i < 4; i++)
+            //    ipBytes[i] = response[i + 4];
 
             //  convert the ip address to an IPAddress object
-            IPAddress ipAddr = new IPAddress(ipBytes);
-
-            //  extract the port number big endian (2 bytes)
-            byte[] portBytes = new byte[2];
-            portBytes[0] = response[3];
-            portBytes[1] = response[2];
-            Int16 port = BitConverter.ToInt16(portBytes, 0);
+            IPAddress ipAddr = new IPAddress(response.Slice(4,4));
+            ushort port = BinaryPrimitives.ReadUInt16BigEndian(response.Slice(3, 2));
 
             // translate the reply code error number to human readable text
             string proxyErrorText;
@@ -368,22 +355,7 @@ namespace QuickProxy
 
             WriteRequest(request.Span, command, destinationPort, destIp, userId);
 
-            //byte[] destPort = GetDestinationPortBytes(destinationPort);
-            //byte[] userIdBytes = ASCIIEncoding.ASCII.GetBytes(userId);
-            //byte[] request = new byte[9 + userIdBytes.Length];
-
-            ////  set the bits on the request byte array
-            //request[0] = SOCKS4_VERSION_NUMBER;
-            //request[1] = command;
-            //destPort.CopyTo(request, 2);
-            //destIp.CopyTo(request, 4);
-            //userIdBytes.CopyTo(request, 8);
-            //request[8 + userIdBytes.Length] = 0x00;  // null (byte with all zeros) terminator for userId
-
-
-
-
-            // send the connect request
+           
             await proxy.WriteAsync(request.Slice(0, len), cancellation);
 
 
