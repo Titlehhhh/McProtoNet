@@ -172,7 +172,7 @@ namespace QuickProxy
         }
 
 
-        internal virtual void SendCommand(NetworkStream proxy, byte command, string destinationHost, int destinationPort, string userId)
+        internal virtual void SendCommand(NetworkStream proxy, byte command, string destinationHost, ushort destinationPort, string userId)
         {
 
             if (userId == null)
@@ -182,15 +182,15 @@ namespace QuickProxy
             if (userId == null)
                 userId = "";
             int len = userId.Length + 9;
-            Span<byte> request = MemoryPool<byte>.Shared.Rent(len).Memory;
+            Span<byte> request = ArrayPool<byte>.Shared.Rent(len);
 
-            byte[] destIp = await GetIPAddressBytesAsync(destinationHost, cancellation);
-
-
-            WriteRequest(request.Span, command, destinationPort, destIp, userId);
+            byte[] destIp = GetIPAddressBytes(destinationHost);
 
 
-            await proxy.WriteAsync(request.Slice(0, len), cancellation);
+            WriteRequest(request, command, destinationPort, destIp, userId);
+
+
+            proxy.Write(request.Slice(0, len));
 
 
 
@@ -225,12 +225,12 @@ namespace QuickProxy
         }
 
 
-        private static void GetDestinationPortBytes(ushort value, Span<byte> buffer)
+        protected static void GetDestinationPortBytes(ushort value, Span<byte> buffer)
         {
             BinaryPrimitives.WriteUInt16BigEndian(buffer, value);
         }
 
-        internal void HandleProxyCommandError(Span<byte> response, string destinationHost, int destinationPort)
+        internal void HandleProxyCommandError(Span<byte> response, string destinationHost, ushort destinationPort)
         {
 
             if (response == null)
@@ -245,7 +245,7 @@ namespace QuickProxy
             //    ipBytes[i] = response[i + 4];
 
             //  convert the ip address to an IPAddress object
-            IPAddress ipAddr = new IPAddress(response.Slice(4,4));
+            IPAddress ipAddr = new IPAddress(response.Slice(4, 4));
             ushort port = BinaryPrimitives.ReadUInt16BigEndian(response.Slice(3, 2));
 
             // translate the reply code error number to human readable text
@@ -355,7 +355,7 @@ namespace QuickProxy
 
             WriteRequest(request.Span, command, destinationPort, destIp, userId);
 
-           
+
             await proxy.WriteAsync(request.Slice(0, len), cancellation);
 
 

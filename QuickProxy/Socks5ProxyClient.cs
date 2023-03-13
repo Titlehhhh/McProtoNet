@@ -376,7 +376,7 @@ namespace QuickProxy
                 HandleProxyCommandError(response, destinationHost, destinationPort);
         }
 
-        private void HandleProxyCommandError(Span<byte> response, string destinationHost, int destinationPort)
+        private void HandleProxyCommandError(Span<byte> response, string destinationHost, ushort destinationPort)
         {
             string proxyErrorText;
             byte replyCode = response[1];

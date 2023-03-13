@@ -83,7 +83,10 @@ namespace QuickProxy
                 userId = "";
 
             byte[] destIp = { 0, 0, 0, 1 };  // build the invalid ip address as specified in the 4a protocol
-            byte[] destPort = GetDestinationPortBytes(destinationPort);
+            byte[] destPort = new byte[2];
+
+            GetDestinationPortBytes(destinationPort, destPort);
+
             byte[] userIdBytes = ASCIIEncoding.ASCII.GetBytes(userId);
             byte[] hostBytes = ASCIIEncoding.ASCII.GetBytes(destinationHost);
             byte[] request = new byte[10 + userIdBytes.Length + hostBytes.Length];
@@ -112,14 +115,15 @@ namespace QuickProxy
                 HandleProxyCommandError(response, destinationHost, destinationPort);
         }
 
-        internal override void SendCommand(NetworkStream proxy, byte command, string destinationHost, int destinationPort, string userId)
+        internal override void SendCommand(NetworkStream proxy, byte command, string destinationHost, ushort destinationPort, string userId)
         {
 
             if (userId == null)
                 userId = "";
 
             byte[] destIp = { 0, 0, 0, 1 };  // build the invalid ip address as specified in the 4a protocol
-            byte[] destPort = GetDestinationPortBytes(destinationPort);
+            byte[] destPort = new byte[2];
+            GetDestinationPortBytes(destinationPort, destPort);
             byte[] userIdBytes = ASCIIEncoding.ASCII.GetBytes(userId);
             byte[] hostBytes = ASCIIEncoding.ASCII.GetBytes(destinationHost);
             byte[] request = new byte[10 + userIdBytes.Length + hostBytes.Length];
