@@ -52,7 +52,7 @@ namespace McProtoNet.Core.Protocol
             do
             {
                 token.ThrowIfCancellationRequested();
-                read = await this.ReadUnsignedByteAsync(token).ConfigureAwait(false);
+                read = await this.ReadUnsignedByteAsync(token);
 
                 int value = read & 0b01111111;
                 result |= value << (7 * numRead);
@@ -112,7 +112,7 @@ namespace McProtoNet.Core.Protocol
         {            
             token.ThrowIfCancellationRequested();
             var buffer = new byte[1];
-            await this.ReadAsync(buffer, token).ConfigureAwait(false);
+            await this.ReadAsync(buffer, token);
             return buffer[0];
 
         }
