@@ -59,7 +59,7 @@ namespace McProtoNet.Core.Protocol
         {
             ThrowIfDisposed();
 
-            int len = netmcStream.ReadVarInt();
+            int len = await netmcStream.ReadVarIntAsync(token);
             if (_compressionThreshold <= 0)
             {
 
@@ -78,7 +78,7 @@ namespace McProtoNet.Core.Protocol
 
                 len -= sizeUncompressed.GetVarIntLength();
                 byte[] net_data = new byte[len];
-                netmcStream.ReadToEnd(net_data, len);
+                await netmcStream.ReadToEndAsync(net_data, len, token);
                 using (MemoryStream dataStream = new MemoryStream(net_data))
                 using (ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress))
                 {
@@ -208,7 +208,7 @@ namespace McProtoNet.Core.Protocol
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public void SendPacket(MemoryStream packet, int id)
         {
-           
+
             try
             {
                 ThrowIfDisposed();
@@ -276,7 +276,7 @@ namespace McProtoNet.Core.Protocol
             finally
             {
                 netmcStream.Lock.Release();
-               
+
             }
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
@@ -301,7 +301,7 @@ namespace McProtoNet.Core.Protocol
 
         }
         #endregion
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public (int, MemoryStream) ReadNextPacket()
         {
@@ -375,7 +375,7 @@ namespace McProtoNet.Core.Protocol
         }
         #endregion
 
-        
+
 
         private void ThrowIfDisposed()
         {
