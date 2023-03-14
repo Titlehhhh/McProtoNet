@@ -4,6 +4,7 @@ using BenchmarkDotNet.Running;
 using System.Buffers;
 using System.Buffers.Binary;
 using System.Globalization;
+using System.Net;
 using System.Text;
 
 namespace McProtoNet.Benchmark
@@ -13,6 +14,7 @@ namespace McProtoNet.Benchmark
         public static void Main()
         {
             ushort port = 1243;
+
 
             Span<byte> bytes = stackalloc byte[2];
 
