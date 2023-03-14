@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Utils
 {
-    public class Rcon : NetService, IDisposable
+    public class Rcon :  IDisposable
     {
         private readonly string host;
         private readonly ushort port;
