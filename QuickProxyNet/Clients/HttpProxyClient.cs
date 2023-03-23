@@ -98,11 +98,13 @@ namespace QuickProxyNet
             cancellationToken.ThrowIfCancellationRequested();
 
             var command = GetConnectCommand(host, port, ProxyCredentials);
-            var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.Connect(ProxyHost, ProxyPort);
+           // var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
 
             try
             {
-                Send(socket, command, 0, command.Length, cancellationToken);
+                socket.Send(command);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
                 var builder = new StringBuilder();
@@ -114,7 +116,7 @@ namespace QuickProxyNet
                     // read until we consume the end of the headers (it's ok if we read some of the content)
                     do
                     {
-                        int nread = Receive(socket, buffer, 0, BufferSize, cancellationToken);
+                        int nread = socket.Receive(buffer, 0, BufferSize, SocketFlags.None);
                         int index = 0;
 
                         if (TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))
@@ -144,13 +146,16 @@ namespace QuickProxyNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken).ConfigureAwait(false);
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            
+          await  socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
+          //  var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
             var command = GetConnectCommand(host, port, ProxyCredentials);
             int index;
 
             try
             {
-                await SendAsync(socket, command, 0, command.Length, cancellationToken).ConfigureAwait(false);
+                await socket.SendAsync(command.AsMemory(), SocketFlags.None, cancellationToken);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
                 var builder = new StringBuilder();
@@ -162,7 +167,7 @@ namespace QuickProxyNet
                     // read until we consume the end of the headers (it's ok if we read some of the content)
                     do
                     {
-                        int nread = await ReceiveAsync(socket, buffer, 0, BufferSize, cancellationToken).ConfigureAwait(false);
+                        int nread = await socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
                         index = 0;
 
                         if (TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))

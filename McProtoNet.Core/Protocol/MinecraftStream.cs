@@ -75,7 +75,7 @@ namespace McProtoNet.Core.Protocol
             do
             {
                 token.ThrowIfCancellationRequested();
-                read = await this.ReadUnsignedByteAsync(token).ConfigureAwait(false);
+                read = await this.ReadUnsignedByteAsync(token);
 
                 int value = read & 0b01111111;
                 result |= value << (7 * numRead);
@@ -119,7 +119,7 @@ namespace McProtoNet.Core.Protocol
         private async ValueTask WriteUnsignedByteAsync(byte value, CancellationToken token)
         {
             token.ThrowIfCancellationRequested();
-            await WriteAsync(new[] { value }, token).ConfigureAwait(false);
+            await WriteAsync(new[] { value }, token);
         }
         private IBufferedCipher EncryptCipher { get; set; }
         private IBufferedCipher DecryptCipher { get; set; }

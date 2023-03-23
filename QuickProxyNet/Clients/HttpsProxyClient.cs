@@ -114,8 +114,9 @@ namespace QuickProxyNet
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+            socket.Connect(ProxyHost, ProxyPort);
             var ssl = new SslStream(new NetworkStream(socket, true), false, ValidateRemoteCertificate);
 
             try
@@ -176,14 +177,15 @@ namespace QuickProxyNet
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken).ConfigureAwait(false);
+            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
             var ssl = new SslStream(new NetworkStream(socket, true), false, ValidateRemoteCertificate);
 
             try
             {
 #if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                await ssl.AuthenticateAsClientAsync(GetSslClientAuthenticationOptions(host, ValidateRemoteCertificate), cancellationToken).ConfigureAwait(false);
+                await ssl.AuthenticateAsClientAsync(GetSslClientAuthenticationOptions(host, ValidateRemoteCertificate), cancellationToken);
 #else
 				await ssl.AuthenticateAsClientAsync (host, ClientCertificates, SslProtocols, CheckCertificateRevocation).ConfigureAwait (false);
 #endif
@@ -199,7 +201,7 @@ namespace QuickProxyNet
 
             try
             {
-                await ssl.WriteAsync(command, 0, command.Length, cancellationToken).ConfigureAwait(false);
+                await ssl.WriteAsync(command, 0, command.Length, cancellationToken);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
                 var builder = new StringBuilder();

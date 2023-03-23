@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using System.Net.Sockets;
 
 namespace QuickProxyNet
 {
@@ -68,121 +67,7 @@ namespace QuickProxyNet
                 throw new ArgumentOutOfRangeException(nameof(timeout));
         }
 
-        static void AsyncOperationCompleted(object sender, SocketAsyncEventArgs args)
-        {
-            var tcs = (TaskCompletionSource<bool>)args.UserToken;
 
-            if (args.SocketError == SocketError.Success)
-            {
-                tcs.TrySetResult(true);
-                return;
-            }
-
-            tcs.TrySetException(new SocketException((int)args.SocketError));
-        }
-
-        internal static void Send(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            if (cancellationToken.CanBeCanceled)
-            {
-                var tcs = new TaskCompletionSource<bool>();
-
-                using (var registration = cancellationToken.Register(() => tcs.TrySetCanceled(), false))
-                {
-                    using (var args = new SocketAsyncEventArgs())
-                    {
-                        args.Completed += AsyncOperationCompleted;
-                        args.SetBuffer(buffer, offset, length);
-                        args.AcceptSocket = socket;
-                        args.UserToken = tcs;
-
-                        if (!socket.SendAsync(args))
-                            AsyncOperationCompleted(null, args);
-
-                        tcs.Task.GetAwaiter().GetResult();
-                        return;
-                    }
-                }
-            }
-
-            SocketUtils.Poll(socket, SelectMode.SelectWrite, cancellationToken);
-
-            socket.Send(buffer, offset, length, SocketFlags.None);
-        }
-
-        internal static async Task SendAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            using (var registration = cancellationToken.Register(() => tcs.TrySetCanceled(), false))
-            {
-                using (var args = new SocketAsyncEventArgs())
-                {
-                    args.Completed += AsyncOperationCompleted;
-                    args.SetBuffer(buffer, offset, length);
-                    args.AcceptSocket = socket;
-                    args.UserToken = tcs;
-
-                    if (!socket.SendAsync(args))
-                        AsyncOperationCompleted(null, args);
-
-                    await tcs.Task.ConfigureAwait(false);
-                }
-            }
-        }
-
-        internal static int Receive(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            if (cancellationToken.CanBeCanceled)
-            {
-                var tcs = new TaskCompletionSource<bool>();
-
-                using (var registration = cancellationToken.Register(() => tcs.TrySetCanceled(), false))
-                {
-                    using (var args = new SocketAsyncEventArgs())
-                    {
-                        args.Completed += AsyncOperationCompleted;
-                        args.SetBuffer(buffer, offset, length);
-                        args.AcceptSocket = socket;
-                        args.UserToken = tcs;
-
-                        if (!socket.ReceiveAsync(args))
-                            AsyncOperationCompleted(null, args);
-
-                        tcs.Task.GetAwaiter().GetResult();
-
-                        return args.BytesTransferred;
-                    }
-                }
-            }
-
-            SocketUtils.Poll(socket, SelectMode.SelectRead, cancellationToken);
-
-            return socket.Receive(buffer, offset, length, SocketFlags.None);
-        }
-
-        internal static async Task<int> ReceiveAsync(Socket socket, byte[] buffer, int offset, int length, CancellationToken cancellationToken)
-        {
-            var tcs = new TaskCompletionSource<bool>();
-
-            using (var registration = cancellationToken.Register(() => tcs.TrySetCanceled(), false))
-            {
-                using (var args = new SocketAsyncEventArgs())
-                {
-                    args.Completed += AsyncOperationCompleted;
-                    args.SetBuffer(buffer, offset, length);
-                    args.AcceptSocket = socket;
-                    args.UserToken = tcs;
-
-                    if (!socket.ReceiveAsync(args))
-                        AsyncOperationCompleted(null, args);
-
-                    await tcs.Task.ConfigureAwait(false);
-
-                    return args.BytesTransferred;
-                }
-            }
-        }
 
         public abstract Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
 
@@ -220,7 +105,7 @@ namespace QuickProxyNet
                 {
                     try
                     {
-                        return await ConnectAsync(host, port, linked.Token).ConfigureAwait(false);
+                        return await ConnectAsync(host, port, linked.Token);
                     }
                     catch (OperationCanceledException)
                     {

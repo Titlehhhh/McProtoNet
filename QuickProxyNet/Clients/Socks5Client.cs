@@ -108,8 +108,8 @@ namespace QuickProxyNet
         Socks5AuthMethod NegotiateAuthMethod(Socket socket, CancellationToken cancellationToken, params Socks5AuthMethod[] methods)
         {
             var buffer = GetNegotiateAuthMethodCommand(methods);
-
-            Send(socket, buffer, 0, buffer.Length, cancellationToken);
+            socket.Send(buffer);
+            //Send(socket, buffer, 0, buffer.Length, cancellationToken);
 
             // +-----+--------+
             // | VER | METHOD |
@@ -119,7 +119,7 @@ namespace QuickProxyNet
             int nread, n = 0;
             do
             {
-                if ((nread = Receive(socket, buffer, 0 + n, 2 - n, cancellationToken)) > 0)
+                if ((nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None)) > 0)
                     n += nread;
             } while (n < 2);
 
@@ -128,11 +128,11 @@ namespace QuickProxyNet
             return (Socks5AuthMethod)buffer[1];
         }
 
-        async Task<Socks5AuthMethod> NegotiateAuthMethodAsync(Socket socket, CancellationToken cancellationToken, params Socks5AuthMethod[] methods)
+        async ValueTask<Socks5AuthMethod> NegotiateAuthMethodAsync(Socket socket, CancellationToken cancellationToken, params Socks5AuthMethod[] methods)
         {
             var buffer = GetNegotiateAuthMethodCommand(methods);
-
-            await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+            await socket.SendAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+            // await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken);
 
             // +-----+--------+
             // | VER | METHOD |
@@ -142,7 +142,7 @@ namespace QuickProxyNet
             int nread, n = 0;
             do
             {
-                if ((nread = await ReceiveAsync(socket, buffer, 0 + n, 2 - n, cancellationToken).ConfigureAwait(false)) > 0)
+                if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken)) > 0)
                     n += nread;
             } while (n < 2);
 
@@ -185,13 +185,13 @@ namespace QuickProxyNet
         {
             var buffer = GetAuthenticateCommand();
 
-            Send(socket, buffer, 0, buffer.Length, cancellationToken);
+            socket.Send(buffer, SocketFlags.None);
 
             int nread, n = 0;
 
             do
             {
-                if ((nread = Receive(socket, buffer, 0 + n, 2 - n, cancellationToken)) > 0)
+                if ((nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None)) > 0)
                     n += nread;
             } while (n < 2);
 
@@ -199,17 +199,17 @@ namespace QuickProxyNet
                 throw new AuthenticationException("Failed to authenticate with SOCKS5 proxy server.");
         }
 
-        async Task AuthenticateAsync(Socket socket, CancellationToken cancellationToken)
+        async ValueTask AuthenticateAsync(Socket socket, CancellationToken cancellationToken)
         {
             var buffer = GetAuthenticateCommand();
 
-            await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+            await socket.SendAsync(buffer, SocketFlags.None, cancellationToken);
 
             int nread, n = 0;
 
             do
             {
-                if ((nread = await ReceiveAsync(socket, buffer, 0 + n, 2 - n, cancellationToken).ConfigureAwait(false)) > 0)
+                if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken)) > 0)
                     n += nread;
             } while (n < 2);
 
@@ -285,8 +285,9 @@ namespace QuickProxyNet
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+            socket.Connect(ProxyHost, ProxyPort);
             var addrType = GetAddressType(host, out var ip);
             byte[] domain = null;
 
@@ -315,7 +316,7 @@ namespace QuickProxyNet
 
                 var buffer = GetConnectCommand(addrType, domain, ip, port, out int n);
 
-                Send(socket, buffer, 0, n, cancellationToken);
+                socket.Send(buffer);
 
                 // +-----+-----+-------+------+----------+----------+
                 // | VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
@@ -330,7 +331,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = Receive(socket, buffer, 0 + n, need - n, cancellationToken)) > 0)
+                    if ((nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None)) > 0)
                         n += nread;
                 } while (n < need);
 
@@ -338,7 +339,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = Receive(socket, buffer, 0 + n, need - n, cancellationToken)) > 0)
+                    if ((nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None)) > 0)
                         n += nread;
                 } while (n < need);
 
@@ -361,8 +362,9 @@ namespace QuickProxyNet
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken).ConfigureAwait(false);
+            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
             var addrType = GetAddressType(host, out var ip);
             byte[] domain = null;
 
@@ -374,14 +376,14 @@ namespace QuickProxyNet
                 Socks5AuthMethod method;
 
                 if (ProxyCredentials != null)
-                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.UserPassword, Socks5AuthMethod.Anonymous).ConfigureAwait(false);
+                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.UserPassword, Socks5AuthMethod.Anonymous);
                 else
-                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.Anonymous).ConfigureAwait(false);
+                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.Anonymous);
 
                 switch (method)
                 {
                     case Socks5AuthMethod.UserPassword:
-                        await AuthenticateAsync(socket, cancellationToken).ConfigureAwait(false);
+                        await AuthenticateAsync(socket, cancellationToken);
                         break;
                     case Socks5AuthMethod.Anonymous:
                         break;
@@ -391,7 +393,7 @@ namespace QuickProxyNet
 
                 var buffer = GetConnectCommand(addrType, domain, ip, port, out int n);
 
-                await SendAsync(socket, buffer, 0, n, cancellationToken).ConfigureAwait(false);
+                await socket.SendAsync(buffer.AsMemory(0, n), SocketFlags.None, cancellationToken);
 
                 // +-----+-----+-------+------+----------+----------+
                 // | VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
@@ -406,7 +408,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = await ReceiveAsync(socket, buffer, 0 + n, need - n, cancellationToken).ConfigureAwait(false)) > 0)
+                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken)) > 0)
                         n += nread;
                 } while (n < need);
 
@@ -414,7 +416,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = await ReceiveAsync(socket, buffer, 0 + n, need - n, cancellationToken).ConfigureAwait(false)) > 0)
+                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken)) > 0)
                         n += nread;
                 } while (n < need);
 

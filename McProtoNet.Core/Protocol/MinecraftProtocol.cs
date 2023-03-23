@@ -117,7 +117,7 @@ namespace McProtoNet.Core.Protocol
             ThrowIfDisposed();
             try
             {
-                await netmcStream.Lock.WaitAsync(token).ConfigureAwait(false);
+                await netmcStream.Lock.WaitAsync(token);
 
                 if (_compressionThreshold > 0)
                 {
@@ -137,7 +137,7 @@ namespace McProtoNet.Core.Protocol
                             using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress, true))
                             {
                                 await zlibStream.WriteVarIntAsync(id);
-                                await packet.CopyToAsync(zlibStream, token).ConfigureAwait(false);
+                                await packet.CopyToAsync(zlibStream, token);
                             }
                             int uncompressedSizeLength = uncompressedSize.GetVarIntLength();
 
@@ -145,12 +145,12 @@ namespace McProtoNet.Core.Protocol
 
 
 
-                            await netmcStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
+                            await netmcStream.WriteVarIntAsync(fullSize, token);
 
-                            await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
+                            await netmcStream.WriteVarIntAsync(uncompressedSize, token);
 
                             compressedPacket.Position = 0;
-                            await compressedPacket.CopyToAsync(netmcStream, token).ConfigureAwait(false);
+                            await compressedPacket.CopyToAsync(netmcStream, token);
 
                         }
                     }
@@ -158,18 +158,18 @@ namespace McProtoNet.Core.Protocol
                     {
                         uncompressedSize++;
 
-                        await netmcStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
-                        await netmcStream.WriteAsync(ZERO_VARINT, token).ConfigureAwait(false);
-                        await netmcStream.WriteAsync(idData.AsMemory(0, idLen), token).ConfigureAwait(false);
+                        await netmcStream.WriteVarIntAsync(uncompressedSize, token);
+                        await netmcStream.WriteAsync(ZERO_VARINT, token);
+                        await netmcStream.WriteAsync(idData.AsMemory(0, idLen), token);
 
-                        await packet.CopyToAsync(netmcStream).ConfigureAwait(false);
+                        await packet.CopyToAsync(netmcStream);
 
 
                     }
                 }
                 else
                 {
-                    await SendPacketWithoutCompressionAsync(packet, id, token).ConfigureAwait(false);
+                    await SendPacketWithoutCompressionAsync(packet, id, token);
                 }
                 await netmcStream.FlushAsync(token);
             }

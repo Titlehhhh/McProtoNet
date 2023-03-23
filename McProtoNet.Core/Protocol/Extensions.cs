@@ -150,7 +150,7 @@ namespace McProtoNet.Core.Protocol
             while (unsigned != 0);
             stream.Write(data.Slice(0, len));
         }
-        public static Task WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
+        public static async ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
         {
             var unsigned = (uint)value;
             byte[] data = new byte[5];
@@ -166,7 +166,7 @@ namespace McProtoNet.Core.Protocol
                 data[len++] = temp;
             }
             while (unsigned != 0);
-            return stream.WriteAsync(data, 0, len, token);
+           await   stream.WriteAsync(data, 0, len, token);
         }
 
 

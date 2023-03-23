@@ -68,11 +68,11 @@ namespace QuickProxyNet
             return Resolve(host, ipAddresses);
         }
 
-        static async Task<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
+        static async ValueTask<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            var ipAddresses = await Dns.GetHostAddressesAsync(host).ConfigureAwait(false);
+            var ipAddresses = await Dns.GetHostAddressesAsync(host);
 
             return Resolve(host, ipAddresses);
         }
@@ -137,15 +137,15 @@ namespace QuickProxyNet
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+            socket.Connect(ProxyHost, ProxyPort);
 
             try
             {
                 var buffer = GetConnectCommand(domain, addr, port);
 
-                Send(socket, buffer, 0, buffer.Length, cancellationToken);
-
+                socket.Send(buffer);
                 // +-----+-----+----------+----------+
                 // | VER | REP | BND.PORT | BND.ADDR |
                 // +-----+-----+----------+----------+
@@ -155,7 +155,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = Receive(socket, buffer, 0 + n, 8 - n, cancellationToken)) > 0)
+                    if ((nread = socket.Receive(buffer, 0 + n, 8 - n, SocketFlags.None)) > 0)
                         n += nread;
                 } while (n < 8);
 
@@ -191,7 +191,7 @@ namespace QuickProxyNet
                 }
                 else
                 {
-                    ip = await ResolveAsync(host, cancellationToken).ConfigureAwait(false);
+                    ip = await ResolveAsync(host, cancellationToken);
                     addr = ip.GetAddressBytes();
                 }
             }
@@ -204,14 +204,15 @@ namespace QuickProxyNet
             }
 
             cancellationToken.ThrowIfCancellationRequested();
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken).ConfigureAwait(false);
+            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
 
             try
             {
                 var buffer = GetConnectCommand(domain, addr, port);
-
-                await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken).ConfigureAwait(false);
+                await socket.SendAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+                // await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken);
 
                 // +-----+-----+----------+----------+
                 // | VER | REP | BND.PORT | BND.ADDR |
@@ -222,7 +223,7 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = await ReceiveAsync(socket, buffer, 0 + n, 8 - n, cancellationToken).ConfigureAwait(false)) > 0)
+                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 8 - n), SocketFlags.None, cancellationToken)) > 0)
                         n += nread;
                 } while (n < 8);
 
