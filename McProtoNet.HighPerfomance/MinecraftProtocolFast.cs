@@ -113,9 +113,9 @@ namespace McProtoNet.HighPerfomance
         private ReadOnlySequence<byte> ReadPacket(ReadOnlySequence<byte> buffer, int len)
         {
             SequenceReader<byte> reader = new SequenceReader<byte>(buffer);
-            reader.TryReadExact(len, out var data);
+            reader.TryRead(out var data);
 
-            ParseData(data);
+            //ParseData(new ReadOnlySequence<byte>());
             //TryReadVarInt(reader, out int id, out _);
 
             // Console.WriteLine("Read id: " + id);
@@ -170,9 +170,16 @@ namespace McProtoNet.HighPerfomance
             if (_disposed)
                 return;
             _disposed = true;
-            CTS.Cancel();
-            CTS.Dispose();
-            _baseStream.Dispose();
+            CTS?.Cancel();
+            CTS?.Dispose();
+            CTS = null;
+            _pipeReader.Complete();
+            _pipeWriter.Complete();
+            _baseStream?.Dispose();
+            _baseStream = null;
+            _pipe = null;
+            _pipeReader = null;
+            _pipeWriter = null;
             GC.SuppressFinalize(this);
         }
     }

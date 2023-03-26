@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
 
 	<ItemGroup>
+		<PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" />
 		<PackageReference Include="System.IO.Pipelines" Version="7.0.0" />
 	</ItemGroup>
 
