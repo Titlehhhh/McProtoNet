@@ -186,6 +186,7 @@ namespace McProtoNet.Core.Protocol
         }
         public override ValueTask DisposeAsync()
         {
+            Lock.Dispose();
             return BaseStream.DisposeAsync();
         }
         public override bool Equals(object? obj)
@@ -249,6 +250,7 @@ namespace McProtoNet.Core.Protocol
         {
             return BaseStream.WriteAsync(buffer, cancellationToken);
         }
+        
         protected override void Dispose(bool disposing)
         {
             BaseStream.Dispose();

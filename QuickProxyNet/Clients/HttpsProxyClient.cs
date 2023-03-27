@@ -184,11 +184,8 @@ namespace QuickProxyNet
 
             try
             {
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 await ssl.AuthenticateAsClientAsync(GetSslClientAuthenticationOptions(host, ValidateRemoteCertificate), cancellationToken);
-#else
-				await ssl.AuthenticateAsClientAsync (host, ClientCertificates, SslProtocols, CheckCertificateRevocation).ConfigureAwait (false);
-#endif
+
             }
             catch (Exception ex)
             {

@@ -1,50 +1,58 @@
-﻿using Org.BouncyCastle.Asn1.BC;
-using System;
+﻿using System;
 using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Reflection.PortableExecutable;
+using System.Threading;
 
 namespace McProtoNet.HighPerfomance
 {
 
-    public class MinecraftProtocolFast : IDisposable
+    public class MinecraftProtocolFast : IDisposable, IAsyncDisposable
     {
         private Stream _baseStream;
         private bool _compressionEnabled;
 
+        public event Action<ReadOnlySequence<byte>> OnReceived;
 
-        private Pipe _pipe;
         private PipeReader _pipeReader;
         private PipeWriter _pipeWriter;
-        public MinecraftProtocolFast(Stream baseStream)
+
+        public MinecraftProtocolFast(Stream baseStream, PipeReader pipeReader, PipeWriter pipeWriter)
         {
             _baseStream = baseStream;
-            _pipe = new Pipe();
-            _pipeReader = _pipe.Reader;
-            _pipeWriter = _pipe.Writer;
+            _pipeReader = pipeReader;
+            _pipeWriter = pipeWriter;
         }
-        private CancellationTokenSource CTS = new();
-
-        public Task Start()
+        public MinecraftProtocolFast(Stream baseStream)
         {
-            Task fill = FillPipeAsync();
-            Task read = ReadPipeAsync();
+            Pipe pipe = new Pipe();
+            _baseStream = baseStream;
+            _pipeReader = pipe.Reader;
+            _pipeWriter = pipe.Writer;
+        }
+
+        
+
+        public Task Start(CancellationToken cancellationToken)
+        {
+            Task fill = FillPipeAsync(cancellationToken);
+            Task read = ReadPipeAsync(cancellationToken);
 
             return Task.WhenAll(fill, read);
         }
 
-        private async Task FillPipeAsync()
+        private async Task FillPipeAsync(CancellationToken cancellationToken)
         {
             const int minimumBufferSize = 512;
 
-            while (!CTS.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 Memory<byte> memory = _pipeWriter.GetMemory(minimumBufferSize);
                 try
                 {
-                    int bytesRead = await _baseStream.ReadAsync(memory, CTS.Token);
+                    int bytesRead = await _baseStream.ReadAsync(memory, cancellationToken);
                     if (bytesRead == 0)
                     {
                         break;
@@ -57,7 +65,7 @@ namespace McProtoNet.HighPerfomance
                     break;
                 }
                 // Make the data available to the PipeReader
-                FlushResult result = await _pipeWriter.FlushAsync(CTS.Token);
+                FlushResult result = await _pipeWriter.FlushAsync(cancellationToken);
 
                 if (result.IsCompleted)
                 {
@@ -66,35 +74,26 @@ namespace McProtoNet.HighPerfomance
             }
 
 
+            await _pipeWriter.CompleteAsync();
+
         }
-        private async Task ReadPipeAsync()
+        private async Task ReadPipeAsync(CancellationToken cancellationToken)
         {
-            while (!CTS.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
 
 
-                ReadResult result = await _pipeReader.ReadAsync(CTS.Token);
+                ReadResult result = await _pipeReader.ReadAsync(cancellationToken);
 
 
                 ReadOnlySequence<byte> buffer = result.Buffer;
-
-                //Обработка данных
-                //while (true)
-                {
-                    if (TryReadVarInt(buffer, out int length, out int len))
+                buffer = buffer.Slice(0);
+                if (false)
+                    while (TryReadPacket(ref buffer, out var packet))
                     {
-                        buffer = buffer.Slice(len);
-                        if (buffer.Length < length)
-                            break;
-                        buffer = ReadPacket(buffer, length);
-
-                    }
-                    else
-                    {
-                        break;
+                        this?.OnReceived(packet);
                     }
 
-                }
                 _pipeReader.AdvanceTo(buffer.Start, buffer.End);
                 // Tell the PipeReader how much of the buffer we have consumed
 
@@ -107,9 +106,11 @@ namespace McProtoNet.HighPerfomance
                 }
             }
 
-            // Mark the PipeReader as complete
-            _pipeReader.Complete();
+
+            await _pipeReader.CompleteAsync();
         }
+
+
         private ReadOnlySequence<byte> ReadPacket(ReadOnlySequence<byte> buffer, int len)
         {
             SequenceReader<byte> reader = new SequenceReader<byte>(buffer);
@@ -122,10 +123,21 @@ namespace McProtoNet.HighPerfomance
 
             return buffer.Slice(len);
         }
-        private void ParseData(ReadOnlySequence<byte> data)
+
+        private bool TryReadPacket(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> packet)
         {
-            TryReadVarInt(data, out int comprSize, out _);
-            //Console.WriteLine("asdasd: " + comprSize);
+            if (TryReadVarInt(buffer, out int len, out int varintLen))
+            {
+                buffer = buffer.Slice(varintLen);
+                packet = buffer.Slice(0, len);
+                buffer = buffer.Slice(len);
+                return true;
+            }
+            else
+            {
+                packet = default;
+                return false;
+            }
         }
 
         private bool TryReadVarInt(ReadOnlySequence<byte> buffer, out int result, out int len)
@@ -170,17 +182,21 @@ namespace McProtoNet.HighPerfomance
             if (_disposed)
                 return;
             _disposed = true;
-            CTS?.Cancel();
-            CTS?.Dispose();
-            CTS = null;
+            
             _pipeReader.Complete();
             _pipeWriter.Complete();
             _baseStream?.Dispose();
             _baseStream = null;
-            _pipe = null;
+            // _pipe = null;
             _pipeReader = null;
             _pipeWriter = null;
             GC.SuppressFinalize(this);
+        }
+
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return ValueTask.CompletedTask;
         }
     }
 }

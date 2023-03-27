@@ -406,7 +406,11 @@ namespace McProtoNet.Core.Protocol
             GC.SuppressFinalize(this);
         }
 
-
+        public ValueTask DisposeAsync()
+        {
+            Dispose();
+            return ValueTask.CompletedTask;
+        }
     }
 
 

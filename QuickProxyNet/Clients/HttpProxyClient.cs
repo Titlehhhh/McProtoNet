@@ -100,7 +100,7 @@ namespace QuickProxyNet
             var command = GetConnectCommand(host, port, ProxyCredentials);
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             socket.Connect(ProxyHost, ProxyPort);
-           // var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+            // var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
 
             try
             {
@@ -147,9 +147,9 @@ namespace QuickProxyNet
             cancellationToken.ThrowIfCancellationRequested();
 
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            
-          await  socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
-          //  var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
+
+            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
+            //  var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
             var command = GetConnectCommand(host, port, ProxyCredentials);
             int index;
 
@@ -185,7 +185,7 @@ namespace QuickProxyNet
             catch
             {
                 if (socket.Connected)
-                    socket.Disconnect(false);
+                    await socket.DisconnectAsync(false);
                 socket.Dispose();
                 throw;
             }

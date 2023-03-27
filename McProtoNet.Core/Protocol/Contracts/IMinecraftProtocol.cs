@@ -1,6 +1,6 @@
 ﻿namespace McProtoNet.Core.Protocol
 {
-    public interface IMinecraftProtocol : IDisposable
+    public interface IMinecraftProtocol : IDisposable, IAsyncDisposable
     {
         void SwitchEncryption(byte[] privateKey);
         void SwitchCompression(int threshold);
