@@ -17,7 +17,7 @@ namespace McProtoNet.Core.IO
         }
         public MinecraftPrimitiveReader()
         {
-
+            
         }
 
 

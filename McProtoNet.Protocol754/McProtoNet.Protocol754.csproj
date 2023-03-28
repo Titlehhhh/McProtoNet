@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Zalupa\McProtoNet.NBT\McProtoNet.NBT.csproj" />
+    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
     <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
   </ItemGroup>
