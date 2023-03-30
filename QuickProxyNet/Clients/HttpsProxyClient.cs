@@ -11,11 +11,8 @@ namespace QuickProxyNet
 
     public class HttpsProxyClient : ProxyClient
     {
-#if NET48 || NET5_0_OR_GREATER
         const SslProtocols DefaultSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
-#else
-		const SslProtocols DefaultSslProtocols = SslProtocols.Tls12 | (SslProtocols) 12288;
-#endif
+
         const int BufferSize = 4096;
 
         public HttpsProxyClient(string host, int port) : base(host, port)
@@ -33,13 +30,10 @@ namespace QuickProxyNet
             get; set;
         }
 
-#if NET5_0_OR_GREATER
-
         public CipherSuitesPolicy SslCipherSuitesPolicy
         {
             get; set;
         }
-#endif
 
         public X509CertificateCollection ClientCertificates
         {
@@ -69,12 +63,12 @@ namespace QuickProxyNet
             if (ServerCertificateValidationCallback != null)
             {
                 valid = ServerCertificateValidationCallback(ProxyHost, certificate, chain, sslPolicyErrors);
-#if !NETSTANDARD1_3 && !NETSTANDARD1_6
+
             }
             else if (ServicePointManager.ServerCertificateValidationCallback != null)
             {
                 valid = ServicePointManager.ServerCertificateValidationCallback(ProxyHost, certificate, chain, sslPolicyErrors);
-#endif
+
             }
             else
             {
@@ -90,8 +84,6 @@ namespace QuickProxyNet
             return valid;
         }
 
-#if NET5_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-
         SslClientAuthenticationOptions GetSslClientAuthenticationOptions(string host, RemoteCertificateValidationCallback remoteCertificateValidationCallback)
         {
             return new SslClientAuthenticationOptions
@@ -99,15 +91,14 @@ namespace QuickProxyNet
                 CertificateRevocationCheckMode = CheckCertificateRevocation ? X509RevocationMode.Online : X509RevocationMode.NoCheck,
                 ApplicationProtocols = new List<SslApplicationProtocol> { SslApplicationProtocol.Http11 },
                 RemoteCertificateValidationCallback = remoteCertificateValidationCallback,
-#if NET5_0_OR_GREATER
+
                 CipherSuitesPolicy = SslCipherSuitesPolicy,
-#endif
+
                 ClientCertificates = ClientCertificates,
                 EnabledSslProtocols = SslProtocols,
                 TargetHost = host
             };
         }
-#endif
 
         public override Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -121,11 +112,8 @@ namespace QuickProxyNet
 
             try
             {
-#if NET5_0_OR_GREATER
                 ssl.AuthenticateAsClient(GetSslClientAuthenticationOptions(host, ValidateRemoteCertificate));
-#else
-				ssl.AuthenticateAsClient (host, ClientCertificates, SslProtocols, CheckCertificateRevocation);
-#endif
+
             }
             catch (Exception ex)
             {

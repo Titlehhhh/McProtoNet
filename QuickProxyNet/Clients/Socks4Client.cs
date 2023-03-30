@@ -237,7 +237,7 @@ namespace QuickProxyNet
             catch
             {
                 if (socket.Connected)
-                    socket.Disconnect(false);
+                    await socket.DisconnectAsync(false);
 
                 socket.Dispose();
                 throw;
