@@ -71,7 +71,7 @@ namespace QuickProxyNet
 
         public abstract Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
 
-        public abstract Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
+       
 
         public virtual Stream Connect(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -94,6 +94,8 @@ namespace QuickProxyNet
                 }
             }
         }
+
+        public abstract Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
 
         public async virtual Task<Stream> ConnectAsync(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken))
         {
