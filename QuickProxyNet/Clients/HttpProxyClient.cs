@@ -146,13 +146,10 @@ namespace QuickProxyNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
-            //  var socket = await SocketUtils.ConnectAsync(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
             var command = GetConnectCommand(host, port, ProxyCredentials);
-            int index;
-
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
+           
             try
             {
                 await socket.SendAsync(command.AsMemory(), SocketFlags.None, cancellationToken);
@@ -167,8 +164,10 @@ namespace QuickProxyNet
                     // read until we consume the end of the headers (it's ok if we read some of the content)
                     do
                     {
-                        int nread = await socket.ReceiveAsync(buffer, SocketFlags.None, cancellationToken);
-                        index = 0;
+                        int nread = await socket.ReceiveAsync(buffer.AsMemory(0, BufferSize), SocketFlags.None, cancellationToken);
+                        if (nread <= 0)
+                            throw new EndOfStreamException();
+                        int index = 0;
 
                         if (TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))
                             break;

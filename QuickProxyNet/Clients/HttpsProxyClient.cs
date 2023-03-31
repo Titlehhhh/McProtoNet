@@ -139,6 +139,8 @@ namespace QuickProxyNet
                     do
                     {
                         int nread = ssl.Read(buffer, 0, BufferSize);
+                        if (nread <= 0)
+                            throw new EndOfStreamException();
                         int index = 0;
 
                         if (HttpProxyClient.TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))
@@ -199,6 +201,8 @@ namespace QuickProxyNet
                     do
                     {
                         int nread = ssl.Read(buffer, 0, BufferSize);
+                        if (nread <= 0)
+                            throw new EndOfStreamException();
                         int index = 0;
 
                         if (HttpProxyClient.TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))

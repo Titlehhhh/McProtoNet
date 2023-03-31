@@ -119,7 +119,10 @@ namespace QuickProxyNet
             int nread, n = 0;
             do
             {
-                if ((nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None)) > 0)
+                nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None);
+                if (nread <= 0)
+                    throw new Exception();
+                if (nread > 0)
                     n += nread;
             } while (n < 2);
 
@@ -142,7 +145,10 @@ namespace QuickProxyNet
             int nread, n = 0;
             do
             {
-                if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken)) > 0)
+                nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
+                if (nread <= 0)
+                    throw new Exception();
+                if (nread > 0)
                     n += nread;
             } while (n < 2);
 
@@ -191,8 +197,10 @@ namespace QuickProxyNet
 
             do
             {
-                if ((nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None)) > 0)
-                    n += nread;
+                nread = socket.Receive(buffer, 0 + n, 2 - n, SocketFlags.None);
+                if (nread <= 0)
+                    throw new EndOfStreamException();
+                n += nread;
             } while (n < 2);
 
             if (buffer[1] != (byte)Socks5Reply.Success)
@@ -209,8 +217,11 @@ namespace QuickProxyNet
 
             do
             {
-                if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken)) > 0)
-                    n += nread;
+                nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
+                if (nread <= 0)
+                    throw new EndOfStreamException();
+
+                n += nread;
             } while (n < 2);
 
             if (buffer[1] != (byte)Socks5Reply.Success)
@@ -331,16 +342,21 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None)) > 0)
-                        n += nread;
+                    nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None);
+                    if (nread <= 0)
+                        throw new EndOfStreamException();
+
+                    n += nread;
                 } while (n < need);
 
                 need = ProcessPartialConnectResponse(host, port, buffer);
 
                 do
                 {
-                    if ((nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None)) > 0)
-                        n += nread;
+                    nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None);
+                    if (nread <= 0)
+                        throw new EndOfStreamException();
+                    n += nread;
                 } while (n < need);
 
                 // TODO: do we care about BND.ADDR and BND.PORT?
@@ -408,16 +424,20 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken)) > 0)
-                        n += nread;
+                    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken);
+                    if (nread <= 0)
+                        throw new EndOfStreamException();
+                    n += nread;
                 } while (n < need);
 
                 need = ProcessPartialConnectResponse(host, port, buffer);
 
                 do
                 {
-                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken)) > 0)
-                        n += nread;
+                    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken);
+                    if (nread <= 0)
+                        throw new EndOfStreamException();
+                    n += nread;
                 } while (n < need);
 
                 // TODO: do we care about BND.ADDR and BND.PORT?

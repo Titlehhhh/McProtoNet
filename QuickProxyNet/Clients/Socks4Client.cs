@@ -155,8 +155,9 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = socket.Receive(buffer, 0 + n, 8 - n, SocketFlags.None)) > 0)
-                        n += nread;
+                    if ((nread = socket.Receive(buffer, 0 + n, 8 - n, SocketFlags.None)) <= 0)
+                        throw new EndOfStreamException();
+                    n += nread;
                 } while (n < 8);
 
                 if (buffer[1] != (byte)Socks4Reply.RequestGranted)
@@ -223,8 +224,12 @@ namespace QuickProxyNet
 
                 do
                 {
-                    if ((nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 8 - n), SocketFlags.None, cancellationToken)) > 0)
-                        n += nread;
+                    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 8 - n), SocketFlags.None, cancellationToken);
+                    if (nread <= 0)
+                        throw new EndOfStreamException();
+
+
+                    n += nread;
                 } while (n < 8);
 
                 if (buffer[1] != (byte)Socks4Reply.RequestGranted)
