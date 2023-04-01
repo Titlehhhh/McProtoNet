@@ -63,7 +63,10 @@ namespace McProtoNet.Core.Protocol
             byte read;
             do
             {
-                stream.Read(buff, 0, 1);
+                if (stream.Read(buff, 0, 1) <= 0)
+                {
+                    throw new EndOfStreamException();
+                }
                 read = buff[0];
 
 
@@ -89,7 +92,10 @@ namespace McProtoNet.Core.Protocol
             byte read;
             do
             {
-                await stream.ReadAsync(buff, token);
+                if (await stream.ReadAsync(buff, token) <= 0)
+                {
+                    throw new EndOfStreamException();
+                }
                 read = buff[0];
 
 
@@ -115,7 +121,8 @@ namespace McProtoNet.Core.Protocol
             do
             {
 
-                stream.Read(buff, 0, 1);
+                if (stream.Read(buff, 0, 1) <= 0)
+                    throw new EndOfStreamException();
                 read = buff[0];
 
 
@@ -166,7 +173,7 @@ namespace McProtoNet.Core.Protocol
                 data[len++] = temp;
             }
             while (unsigned != 0);
-           await   stream.WriteAsync(data, 0, len, token);
+            await stream.WriteAsync(data, 0, len, token);
         }
 
 
@@ -176,7 +183,8 @@ namespace McProtoNet.Core.Protocol
             while (totalRead < length)
             {
                 int read = stream.Read(buffer.Slice(totalRead));
-
+                if (read <= 0)
+                    throw new EndOfStreamException();
 
                 totalRead += read;
             }
@@ -189,7 +197,8 @@ namespace McProtoNet.Core.Protocol
             while (totalRead < length)
             {
                 int read = await stream.ReadAsync(buffer.Slice(totalRead), token);
-
+                if (read <= 0)
+                    throw new EndOfStreamException();
 
                 totalRead += read;
             }
