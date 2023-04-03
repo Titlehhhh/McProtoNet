@@ -131,10 +131,10 @@ namespace QuickProxyNet
             return (Socks5AuthMethod)buffer[1];
         }
 
-        async ValueTask<Socks5AuthMethod> NegotiateAuthMethodAsync(Socket socket, CancellationToken cancellationToken, params Socks5AuthMethod[] methods)
+        async ValueTask<Socks5AuthMethod> NegotiateAuthMethodAsync(NetworkStream stream, CancellationToken cancellationToken, params Socks5AuthMethod[] methods)
         {
             var buffer = GetNegotiateAuthMethodCommand(methods);
-            await socket.SendAsync(buffer.AsMemory(), SocketFlags.None, cancellationToken);
+            await stream.WriteAsync(buffer.AsMemory(), cancellationToken);
             // await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken);
 
             // +-----+--------+
@@ -143,14 +143,16 @@ namespace QuickProxyNet
             // |  1  |   1    |
             // +-----+--------+
             int nread, n = 0;
-            do
-            {
-                nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
-                if (nread <= 0)
-                    throw new Exception();
-                if (nread > 0)
-                    n += nread;
-            } while (n < 2);
+
+            await stream.ReadToEndAsync(buffer.AsMemory(0, 2), 2, cancellationToken);
+            //do
+            //{
+            //    nread = await stream.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
+            //    if (nread <= 0)
+            //        throw new Exception();
+            //    if (nread > 0)
+            //        n += nread;
+            //} while (n < 2);
 
             VerifySocksVersion(buffer[0]);
 
@@ -207,22 +209,23 @@ namespace QuickProxyNet
                 throw new AuthenticationException("Failed to authenticate with SOCKS5 proxy server.");
         }
 
-        async ValueTask AuthenticateAsync(Socket socket, CancellationToken cancellationToken)
+        async ValueTask AuthenticateAsync(NetworkStream stream, CancellationToken cancellationToken)
         {
             var buffer = GetAuthenticateCommand();
 
-            await socket.SendAsync(buffer, SocketFlags.None, cancellationToken);
+            await stream.WriteAsync(buffer.AsMemory(), cancellationToken);
 
             int nread, n = 0;
 
-            do
-            {
-                nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
-                if (nread <= 0)
-                    throw new EndOfStreamException();
+            await stream.ReadToEndAsync(buffer.AsMemory(0, 2), 2, cancellationToken);
+            //do
+            //{
+            //    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
+            //    if (nread <= 0)
+            //        throw new EndOfStreamException();
 
-                n += nread;
-            } while (n < 2);
+            //    n += nread;
+            //} while (n < 2);
 
             if (buffer[1] != (byte)Socks5Reply.Success)
                 throw new AuthenticationException("Failed to authenticate with SOCKS5 proxy server.");
@@ -291,115 +294,47 @@ namespace QuickProxyNet
             }
         }
 
-        public override Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ValidateArguments(host, port);
-
-            cancellationToken.ThrowIfCancellationRequested();
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            socket.Connect(ProxyHost, ProxyPort);
-            var addrType = GetAddressType(host, out var ip);
-            byte[] domain = null;
-
-            if (addrType == Socks5AddressType.Domain)
-                domain = Encoding.UTF8.GetBytes(host);
-
-            try
-            {
-                Socks5AuthMethod method;
-
-                if (ProxyCredentials != null)
-                    method = NegotiateAuthMethod(socket, cancellationToken, Socks5AuthMethod.UserPassword, Socks5AuthMethod.Anonymous);
-                else
-                    method = NegotiateAuthMethod(socket, cancellationToken, Socks5AuthMethod.Anonymous);
-
-                switch (method)
-                {
-                    case Socks5AuthMethod.UserPassword:
-                        Authenticate(socket, cancellationToken);
-                        break;
-                    case Socks5AuthMethod.Anonymous:
-                        break;
-                    default:
-                        throw new ProxyProtocolException("Failed to negotiate authentication method with the proxy server.");
-                }
-
-                var buffer = GetConnectCommand(addrType, domain, ip, port, out int n);
-
-                socket.Send(buffer);
-
-                // +-----+-----+-------+------+----------+----------+
-                // | VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
-                // +-----+-----+-------+------+----------+----------+
-                // |  1  |  1  | X'00' |  1   | Variable |    2     |
-                // +-----+-----+-------+------+----------+----------+
-
-                // Note: We know we'll need at least 4 bytes of header + a minimum of 1 byte
-                // to determine the length of the BND.ADDR field if ATYP is a domain.
-                int nread, need = 5;
-                n = 0;
-
-                do
-                {
-                    nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None);
-                    if (nread <= 0)
-                        throw new EndOfStreamException();
-
-                    n += nread;
-                } while (n < need);
-
-                need = ProcessPartialConnectResponse(host, port, buffer);
-
-                do
-                {
-                    nread = socket.Receive(buffer, 0 + n, need - n, SocketFlags.None);
-                    if (nread <= 0)
-                        throw new EndOfStreamException();
-                    n += nread;
-                } while (n < need);
-
-                // TODO: do we care about BND.ADDR and BND.PORT?
-
-                return new NetworkStream(socket, true);
-            }
-            catch
-            {
-                if (socket.Connected)
-                    socket.Disconnect(false);
-
-                socket.Dispose();
-                throw;
-            }
-        }
-
         public override async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
+
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
+
+
+
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
-            var addrType = GetAddressType(host, out var ip);
-            byte[] domain = null;
-
-            if (addrType == Socks5AddressType.Domain)
-                domain = Encoding.UTF8.GetBytes(host);
 
             try
             {
+                await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
+            }
+            catch
+            {
+                socket.Dispose();
+                throw;
+            }
+            NetworkStream networkStream = new NetworkStream(socket, true);
+            try
+            {
+
+                var addrType = GetAddressType(host, out var ip);
+                byte[] domain = null;
+
+                if (addrType == Socks5AddressType.Domain)
+                    domain = Encoding.UTF8.GetBytes(host);
+
                 Socks5AuthMethod method;
 
                 if (ProxyCredentials != null)
-                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.UserPassword, Socks5AuthMethod.Anonymous);
+                    method = await NegotiateAuthMethodAsync(networkStream, cancellationToken, Socks5AuthMethod.UserPassword, Socks5AuthMethod.Anonymous);
                 else
-                    method = await NegotiateAuthMethodAsync(socket, cancellationToken, Socks5AuthMethod.Anonymous);
+                    method = await NegotiateAuthMethodAsync(networkStream, cancellationToken, Socks5AuthMethod.Anonymous);
 
                 switch (method)
                 {
                     case Socks5AuthMethod.UserPassword:
-                        await AuthenticateAsync(socket, cancellationToken);
+                        await AuthenticateAsync(networkStream, cancellationToken);
                         break;
                     case Socks5AuthMethod.Anonymous:
                         break;
@@ -409,49 +344,23 @@ namespace QuickProxyNet
 
                 var buffer = GetConnectCommand(addrType, domain, ip, port, out int n);
 
-                await socket.SendAsync(buffer.AsMemory(0, n), SocketFlags.None, cancellationToken);
+                await networkStream.WriteAsync(buffer.AsMemory(0, n), cancellationToken);
 
-                // +-----+-----+-------+------+----------+----------+
-                // | VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
-                // +-----+-----+-------+------+----------+----------+
-                // |  1  |  1  | X'00' |  1   | Variable |    2     |
-                // +-----+-----+-------+------+----------+----------+
+                int need = 5;
 
-                // Note: We know we'll need at least 4 bytes of header + a minimum of 1 byte
-                // to determine the length of the BND.ADDR field if ATYP is a domain.
-                int nread, need = 5;
-                n = 0;
+                await networkStream.ReadToEndAsync(buffer.AsMemory(0, need), need, cancellationToken);
 
-                do
-                {
-                    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken);
-                    if (nread <= 0)
-                        throw new EndOfStreamException();
-                    n += nread;
-                } while (n < need);
 
                 need = ProcessPartialConnectResponse(host, port, buffer);
-
-                do
-                {
-                    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, need - n), SocketFlags.None, cancellationToken);
-                    if (nread <= 0)
-                        throw new EndOfStreamException();
-                    n += nread;
-                } while (n < need);
-
-                // TODO: do we care about BND.ADDR and BND.PORT?
-
-                return new NetworkStream(socket, true);
+                await networkStream.ReadToEndAsync(buffer.AsMemory(0, need), need, cancellationToken);
             }
             catch
             {
-                if (socket.Connected)
-                    await socket.DisconnectAsync(false);
-
-                socket.Dispose();
+                networkStream.Dispose();
                 throw;
             }
+            return networkStream;
+
         }
     }
 }

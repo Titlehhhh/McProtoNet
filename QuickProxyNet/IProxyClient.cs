@@ -12,11 +12,8 @@ namespace QuickProxyNet
 
         IPEndPoint LocalEndPoint { get; set; }
 
-        Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
-
-        Stream Connect(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken));
 
         Task<Stream> ConnectAsync(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken));
     }

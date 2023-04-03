@@ -67,34 +67,6 @@ namespace QuickProxyNet
                 throw new ArgumentOutOfRangeException(nameof(timeout));
         }
 
-
-
-        public abstract Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
-
-       
-
-        public virtual Stream Connect(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ValidateArguments(host, port, timeout);
-
-            using (var ts = new CancellationTokenSource(timeout))
-            {
-                using (var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, ts.Token))
-                {
-                    try
-                    {
-                        return Connect(host, port, linked.Token);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        if (!cancellationToken.IsCancellationRequested)
-                            throw new TimeoutException();
-                        throw;
-                    }
-                }
-            }
-        }
-
         public abstract Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken));
 
         public async virtual Task<Stream> ConnectAsync(string host, int port, int timeout, CancellationToken cancellationToken = default(CancellationToken))

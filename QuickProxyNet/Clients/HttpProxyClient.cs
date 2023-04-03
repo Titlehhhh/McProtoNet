@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace QuickProxyNet
@@ -17,7 +18,7 @@ namespace QuickProxyNet
         public HttpProxyClient(string host, int port, NetworkCredential credentials) : base(host, port, credentials)
         {
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         internal static byte[] GetConnectCommand(string host, int port, NetworkCredential proxyCredentials)
         {
             var builder = new StringBuilder();
@@ -34,7 +35,7 @@ namespace QuickProxyNet
 
             return Encoding.UTF8.GetBytes(builder.ToString());
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         internal static bool TryConsumeHeaders(StringBuilder builder, byte[] buffer, ref int index, int count, ref bool newLine)
         {
             int endIndex = index + count;
@@ -64,22 +65,9 @@ namespace QuickProxyNet
 
             return endOfHeaders;
         }
-
-        internal static void ValidateHttpResponse(StringBuilder builder, string host, int port)
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+        internal static void ValidateHttpResponse(string response, string host, int port)
         {
-            int index = 0;
-
-            while (builder[index] != '\n')
-                index++;
-
-            if (index > 0 && builder[index - 1] == '\r')
-                index--;
-
-            // trim everything beyond the "HTTP/1.1 200 ..." part of the response
-            builder.Length = index;
-
-            var response = builder.ToString();
-
             if (response.Length >= 15 && response.StartsWith("HTTP/1.", StringComparison.OrdinalIgnoreCase) &&
                 (response[7] == '1' || response[7] == '0') && response[8] == ' ' &&
                 response[9] == '2' && response[10] == '0' && response[11] == '0' &&
@@ -91,55 +79,7 @@ namespace QuickProxyNet
             throw new ProxyProtocolException(string.Format(CultureInfo.InvariantCulture, "Failed to connect to {0}:{1}: {2}", host, port, response));
         }
 
-        public override Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ValidateArguments(host, port);
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-            var command = GetConnectCommand(host, port, ProxyCredentials);
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            socket.Connect(ProxyHost, ProxyPort);
-            // var socket = SocketUtils.Connect(ProxyHost, ProxyPort, LocalEndPoint, cancellationToken);
-
-            try
-            {
-                socket.Send(command);
-
-                var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
-                var builder = new StringBuilder();
-
-                try
-                {
-                    var newline = false;
-
-                    // read until we consume the end of the headers (it's ok if we read some of the content)
-                    do
-                    {
-                        int nread = socket.Receive(buffer, 0, BufferSize, SocketFlags.None);
-                        int index = 0;
-
-                        if (TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))
-                            break;
-                    } while (true);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
-
-                ValidateHttpResponse(builder, host, port);
-                return new NetworkStream(socket, true);
-            }
-            catch
-            {
-                if (socket.Connected)
-                    socket.Disconnect(false);
-                socket.Dispose();
-                throw;
-            }
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             ValidateArguments(host, port);
@@ -147,12 +87,17 @@ namespace QuickProxyNet
             cancellationToken.ThrowIfCancellationRequested();
 
             var command = GetConnectCommand(host, port, ProxyCredentials);
+
+
+
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
             await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
-           
+            var networkStream = new NetworkStream(socket, true);
+
             try
             {
-                await socket.SendAsync(command.AsMemory(), SocketFlags.None, cancellationToken);
+                await networkStream.WriteAsync(command.AsMemory(), cancellationToken);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
                 var builder = new StringBuilder();
@@ -161,10 +106,10 @@ namespace QuickProxyNet
                 {
                     var newline = false;
 
-                    // read until we consume the end of the headers (it's ok if we read some of the content)
+
                     do
                     {
-                        int nread = await socket.ReceiveAsync(buffer.AsMemory(0, BufferSize), SocketFlags.None, cancellationToken);
+                        int nread = await networkStream.ReadAsync(buffer.AsMemory(0, BufferSize), cancellationToken);
                         if (nread <= 0)
                             throw new EndOfStreamException();
                         int index = 0;
@@ -178,13 +123,23 @@ namespace QuickProxyNet
                     ArrayPool<byte>.Shared.Return(buffer);
                 }
 
-                ValidateHttpResponse(builder, host, port);
-                return new NetworkStream(socket, true);
+
+                int index1 = 0;
+
+                while (builder[index1] != '\n')
+                    index1++;
+
+                if (index1 > 0 && builder[index1 - 1] == '\r')
+                    index1--;
+
+                // trim everything beyond the "HTTP/1.1 200 ..." part of the response
+                builder.Length = index1;
+
+                ValidateHttpResponse(builder.ToString(), host, port);
+                return networkStream;
             }
             catch
             {
-                if (socket.Connected)
-                    await socket.DisconnectAsync(false);
                 socket.Dispose();
                 throw;
             }

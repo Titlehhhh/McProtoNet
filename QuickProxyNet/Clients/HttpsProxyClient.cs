@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Runtime.CompilerServices;
 using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -52,7 +53,7 @@ namespace QuickProxyNet
 
         // Note: This is used by SslHandshakeException to build the exception message.
         SslCertificateValidationInfo sslValidationInfo;
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
             bool valid;
@@ -83,7 +84,7 @@ namespace QuickProxyNet
 
             return valid;
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         SslClientAuthenticationOptions GetSslClientAuthenticationOptions(string host, RemoteCertificateValidationCallback remoteCertificateValidationCallback)
         {
             return new SslClientAuthenticationOptions
@@ -99,76 +100,14 @@ namespace QuickProxyNet
                 TargetHost = host
             };
         }
-
-        public override Stream Connect(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            ValidateArguments(host, port);
-
-            cancellationToken.ThrowIfCancellationRequested();
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
-            socket.Connect(ProxyHost, ProxyPort);
-            var ssl = new SslStream(new NetworkStream(socket, true), false, ValidateRemoteCertificate);
-
-            try
-            {
-                ssl.AuthenticateAsClient(GetSslClientAuthenticationOptions(host, ValidateRemoteCertificate));
-
-            }
-            catch (Exception ex)
-            {
-                ssl.Dispose();
-
-                throw SslHandshakeException.Create(ref sslValidationInfo, ex, false, "HTTP", host, port, 443, 80);
-            }
-
-            var command = HttpProxyClient.GetConnectCommand(host, port, ProxyCredentials);
-
-            try
-            {
-                ssl.Write(command, 0, command.Length);
-
-                var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
-                var builder = new StringBuilder();
-
-                try
-                {
-                    var newline = false;
-
-                    // read until we consume the end of the headers (it's ok if we read some of the content)
-                    do
-                    {
-                        int nread = ssl.Read(buffer, 0, BufferSize);
-                        if (nread <= 0)
-                            throw new EndOfStreamException();
-                        int index = 0;
-
-                        if (HttpProxyClient.TryConsumeHeaders(builder, buffer, ref index, nread, ref newline))
-                            break;
-                    } while (true);
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(buffer);
-                }
-
-                HttpProxyClient.ValidateHttpResponse(builder, host, port);
-                return ssl;
-            }
-            catch
-            {
-                ssl.Dispose();
-                throw;
-            }
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             ValidateArguments(host, port);
 
             cancellationToken.ThrowIfCancellationRequested();
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+            
             await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
             var ssl = new SslStream(new NetworkStream(socket, true), false, ValidateRemoteCertificate);
 
@@ -188,7 +127,7 @@ namespace QuickProxyNet
 
             try
             {
-                await ssl.WriteAsync(command, 0, command.Length, cancellationToken);
+                await ssl.WriteAsync(command.AsMemory(0, command.Length), cancellationToken);
 
                 var buffer = ArrayPool<byte>.Shared.Rent(BufferSize);
                 var builder = new StringBuilder();
@@ -197,10 +136,10 @@ namespace QuickProxyNet
                 {
                     var newline = false;
 
-                    // read until we consume the end of the headers (it's ok if we read some of the content)
+
                     do
                     {
-                        int nread = ssl.Read(buffer, 0, BufferSize);
+                        int nread = await ssl.ReadAsync(buffer, 0, BufferSize);
                         if (nread <= 0)
                             throw new EndOfStreamException();
                         int index = 0;
@@ -213,8 +152,18 @@ namespace QuickProxyNet
                 {
                     ArrayPool<byte>.Shared.Return(buffer);
                 }
+                int index1 = 0;
 
-                HttpProxyClient.ValidateHttpResponse(builder, host, port);
+                while (builder[index1] != '\n')
+                    index1++;
+
+                if (index1 > 0 && builder[index1 - 1] == '\r')
+                    index1--;
+
+                // trim everything beyond the "HTTP/1.1 200 ..." part of the response
+                builder.Length = index1;
+
+                HttpProxyClient.ValidateHttpResponse(builder.ToString(), host, port);
                 return ssl;
             }
             catch
