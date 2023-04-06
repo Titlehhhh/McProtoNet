@@ -92,7 +92,7 @@ namespace McProtoNet.HighPerfomance
         private async Task ReadPipeAsync(CancellationToken cancellationToken)
         {
             ReadZlib = new ZLibStream(_pipeReader.AsStream(), CompressionMode.Decompress);
-         
+
             Stream stream = _pipeReader.AsStream();
 
             int debugCount = 0;
@@ -141,17 +141,15 @@ namespace McProtoNet.HighPerfomance
                 var data = ArrayPool<byte>.Shared.Rent(sizeUncompressed);
                 try
                 {
-                    var result = MSmanager.GetStream(data.AsSpan(0, sizeUncompressed));
-
                     int id = await ReadZlib.ReadVarIntAsync(token);
 
                     sizeUncompressed -= id.GetVarIntLength();
 
 
-                    await ReadZlib.CopyToAsync(result, len);
+                    await ReadZlib.ReadAsync(data);
 
-                    result.Position = 0;
-                    return new Packet(id, result);
+
+                    return new Packet(id, MSmanager.GetStream(data.AsSpan(0, sizeUncompressed)));
 
                 }
                 finally
