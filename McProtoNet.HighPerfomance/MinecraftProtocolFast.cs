@@ -146,7 +146,7 @@ namespace McProtoNet.HighPerfomance
                     sizeUncompressed -= id.GetVarIntLength();
 
 
-                    await ReadZlib.ReadAsync(data);
+                    await ReadZlib.ReadAsync(data.AsMemory(0, sizeUncompressed));
 
 
                     return new Packet(id, MSmanager.GetStream(data.AsSpan(0, sizeUncompressed)));
