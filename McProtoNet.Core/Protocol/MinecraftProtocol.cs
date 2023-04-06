@@ -82,7 +82,6 @@ namespace McProtoNet.Core.Protocol
                 using (MemoryStream dataStream = new MemoryStream(net_data))
                 using (ZLibStream zlibStream = new ZLibStream(dataStream, CompressionMode.Decompress))
                 {
-
                     int id = await zlibStream.ReadVarIntAsync(token);
                     sizeUncompressed -= id.GetVarIntLength();
                     byte[] unc_data = new byte[sizeUncompressed];
@@ -110,6 +109,7 @@ namespace McProtoNet.Core.Protocol
             }
 
         }
+
         #region Send        
         public async Task SendPacketAsync(MemoryStream packet, int id, CancellationToken token = default)
         {

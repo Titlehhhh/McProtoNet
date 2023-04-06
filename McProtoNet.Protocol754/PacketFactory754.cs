@@ -117,7 +117,7 @@ namespace McProtoNet.Protocol754
                     { 0x21, typeof(ServerPlayEffectPacket) },
                     { 0x22, typeof(ServerSpawnParticlePacket) },
                     { 0x23, typeof(ServerUpdateLightPacket) },
-                    { 0x24, typeof(ServerJoinGamePacket) },
+                    { 36, typeof(ServerJoinGamePacket) },
                     { 0x25, typeof(ServerMapDataPacket) },
                     { 0x26, typeof(ServerTradeListPacket) },
                     { 0x27, typeof(ServerEntityPositionPacket) },

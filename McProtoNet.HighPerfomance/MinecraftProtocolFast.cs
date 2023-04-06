@@ -1,6 +1,12 @@
-﻿using System;
+﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
+using Microsoft.IO;
+using Org.BouncyCastle.Asn1.Cms;
+using System;
 using System.Buffers;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.IO.Pipelines;
 using System.Net.Sockets;
 using System.Reflection.PortableExecutable;
@@ -8,32 +14,37 @@ using System.Threading;
 
 namespace McProtoNet.HighPerfomance
 {
-
     public class MinecraftProtocolFast : IDisposable, IAsyncDisposable
     {
-        private Stream _baseStream;
-        private bool _compressionEnabled;
 
-        public event Action<ReadOnlySequence<byte>> OnReceived;
+        private static readonly RecyclableMemoryStreamManager MSmanager = new RecyclableMemoryStreamManager();
+
+        private Stream _baseStream;
+        private int _compressionThreshold;
+
+        public event Action<Packet> OnReceived;
 
         private PipeReader _pipeReader;
         private PipeWriter _pipeWriter;
 
-        public MinecraftProtocolFast(Stream baseStream, PipeReader pipeReader, PipeWriter pipeWriter)
+        public MinecraftProtocolFast(Stream baseStream, PipeReader pipeReader, PipeWriter pipeWriter, int compressionThreshold)
         {
             _baseStream = baseStream;
             _pipeReader = pipeReader;
             _pipeWriter = pipeWriter;
+            _compressionThreshold = compressionThreshold;
         }
-        public MinecraftProtocolFast(Stream baseStream)
+        public MinecraftProtocolFast(Stream baseStream, int compressionThreshold)
         {
             Pipe pipe = new Pipe();
+
             _baseStream = baseStream;
             _pipeReader = pipe.Reader;
             _pipeWriter = pipe.Writer;
+            _compressionThreshold = compressionThreshold;
         }
 
-        
+
 
         public Task Start(CancellationToken cancellationToken)
         {
@@ -77,37 +88,168 @@ namespace McProtoNet.HighPerfomance
             await _pipeWriter.CompleteAsync();
 
         }
+        private ZLibStream ReadZlib;
         private async Task ReadPipeAsync(CancellationToken cancellationToken)
         {
+            ReadZlib = new ZLibStream(_pipeReader.AsStream(), CompressionMode.Decompress);
+            Stream stream = _pipeReader.AsStream();
+
+            int debugCount = 0;
+
             while (!cancellationToken.IsCancellationRequested)
             {
+                var d = await ReadNextPacketAsync(stream, cancellationToken);
+                OnReceived?.Invoke(d);
+
+                //int len = await stream.ReadVarIntAsync(cancellationToken);
+                //int id = -1;
+                //if (_compressionThreshold <= 0)
+                //{
+
+                //    id = await stream.ReadVarIntAsync();
+                //    len -= id.GetVarIntLength();
+                //    var memory = ArrayPool<byte>.Shared.Rent(len);
+                //    try
+                //    {
+                //        await stream.ReadToEndAsync(memory.AsMemory(0, len), len, cancellationToken);
+
+                //        var data = MSmanager.GetStream(memory.AsSpan(0, len));
+
+                //        OnReceived?.Invoke(new Packet(id, data));
+                //    }
+                //    finally
+                //    {
+                //        ArrayPool<byte>.Shared.Return(memory);
+                //    }
+                //    continue;
+                //}
+
+                //{
+                //    int sizeUncompressed = await stream.ReadVarIntAsync(cancellationToken);
+                //    if (sizeUncompressed > 0)
+                //    {
+                //        len -= sizeUncompressed.GetVarIntLength();
 
 
-                ReadResult result = await _pipeReader.ReadAsync(cancellationToken);
+
+                //        id = await ReadZlib.ReadVarIntAsync(cancellationToken);
+                //        sizeUncompressed -= id.GetVarIntLength();
+
+                //        var uncompressedData = ArrayPool<byte>.Shared.Rent(sizeUncompressed);
+                //        try
+                //        {
+
+                //            int bytes =
+                //                await ReadZlib.ReadToEndAsync(
+                //                    uncompressedData.AsMemory(0, sizeUncompressed),
+                //                    sizeUncompressed,
+                //                    cancellationToken);
+
+                //            if (bytes <= 0)
+                //                break;
+
+                //            var data = MSmanager.GetStream(uncompressedData.AsSpan(0, sizeUncompressed));
+
+                //            OnReceived?.Invoke(new Packet(id, data));
+
+                //        }
+                //        finally
+                //        {
+                //            ArrayPool<byte>.Shared.Return(uncompressedData);
+                //        }
+                //        continue;
+                //    }
+
+                //    id = await stream.ReadVarIntAsync();
+                //    len -= id.GetVarIntLength() + 1;
+                //    var memory = ArrayPool<byte>.Shared.Rent(len);
+                //    try
+                //    {
+                //        await stream.ReadToEndAsync(memory.AsMemory(0, len), len, cancellationToken);
+
+                //        var data = MSmanager.GetStream(memory.AsSpan(0, len));
+
+                //        OnReceived?.Invoke(new Packet(id, data));
+                //    }
+                //    finally
+                //    {
+                //        ArrayPool<byte>.Shared.Return(memory);
+                //    }
+
+                //}
+
+                //debugCount++;
+
+            }
+            await _pipeReader.CompleteAsync();
 
 
-                ReadOnlySequence<byte> buffer = result.Buffer;
-                buffer = buffer.Slice(0);
-                if (false)
-                    while (TryReadPacket(ref buffer, out var packet))
-                    {
-                        this?.OnReceived(packet);
-                    }
+        }
 
-                _pipeReader.AdvanceTo(buffer.Start, buffer.End);
-                // Tell the PipeReader how much of the buffer we have consumed
+        public async Task<Packet> ReadNextPacketAsync(Stream stream, CancellationToken token)
+        {
+            //ThrowIfDisposed();
 
+            int len = await stream.ReadVarIntAsync(token);
+            if (_compressionThreshold <= 0)
+            {
 
-
-                // Stop reading if there's no more data coming
-                if (result.IsCompleted)
+                int id = await stream.ReadVarIntAsync(token);
+                len -= id.GetVarIntLength();
+                var data = ArrayPool<byte>.Shared.Rent(len);
+                try
                 {
-                    break;
+                    // byte[] data = new byte[len];
+                    await stream.ReadToEndAsync(data, len, token);
+
+                    return new Packet(id, MSmanager.GetStream(data.AsSpan(0, len)));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(data);
                 }
             }
 
+            int sizeUncompressed = await stream.ReadVarIntAsync(token);
+            if (sizeUncompressed > 0)
+            {
 
-            await _pipeReader.CompleteAsync();
+                len -= sizeUncompressed.GetVarIntLength();
+                var data = ArrayPool<byte>.Shared.Rent(sizeUncompressed);
+                try
+                {
+                    var result = MSmanager.GetStream(data.AsSpan(0, sizeUncompressed));
+
+                    int id = await ReadZlib.ReadVarIntAsync(token);
+
+                    sizeUncompressed -= id.GetVarIntLength();
+
+
+                    await ReadZlib.CopyToAsync(result, len);
+
+                    result.Position = 0;
+                    return new Packet(id, result);
+
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(data);
+                }
+
+
+            }
+
+            {
+
+                int id = await stream.ReadVarIntAsync(token);
+                len -= id.GetVarIntLength() + 1;
+
+
+                byte[] buffer = new byte[len];
+                await stream.ReadToEndAsync(buffer, len, token);
+                return new Packet(id, new MemoryStream(buffer));
+            }
+
         }
 
 
@@ -182,7 +324,7 @@ namespace McProtoNet.HighPerfomance
             if (_disposed)
                 return;
             _disposed = true;
-            
+
             _pipeReader.Complete();
             _pipeWriter.Complete();
             _baseStream?.Dispose();
