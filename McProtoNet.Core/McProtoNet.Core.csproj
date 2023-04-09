@@ -15,6 +15,7 @@
 
 
 	<ItemGroup>
+	  <PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2"/>
 	  <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" />
 	</ItemGroup>

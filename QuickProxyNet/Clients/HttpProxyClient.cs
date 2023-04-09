@@ -9,6 +9,10 @@ namespace QuickProxyNet
 {
     public class HttpProxyClient : ProxyClient
     {
+      
+
+        public override ProxyType Type => ProxyType.HTTP;
+
         const int BufferSize = 4096;
 
         public HttpProxyClient(string host, int port) : base(host, port)
@@ -86,14 +90,15 @@ namespace QuickProxyNet
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var command = GetConnectCommand(host, port, ProxyCredentials);
-
-
-
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
             await socket.ConnectAsync(ProxyHost, ProxyPort, cancellationToken);
             var networkStream = new NetworkStream(socket, true);
+            var command = GetConnectCommand(host, port, ProxyCredentials);
+
+
+
+            
 
             try
             {

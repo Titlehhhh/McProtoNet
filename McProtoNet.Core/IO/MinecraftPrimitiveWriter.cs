@@ -7,6 +7,10 @@ namespace McProtoNet.Core.IO
     public class MinecraftPrimitiveWriter : IMinecraftPrimitiveWriter
     {
         public Stream BaseStream { get; set; }
+        public MinecraftPrimitiveWriter()
+        {
+
+        }
         public MinecraftPrimitiveWriter(Stream stream)
         {
             BaseStream = stream;

@@ -24,6 +24,8 @@ namespace QuickProxyNet
             get; set;
         }
 
+        public override ProxyType Type => ProxyType.SOCKS4;
+
         enum Socks4Command : byte
         {
             Connect = 0x01,
@@ -69,13 +71,14 @@ namespace QuickProxyNet
         //    return Resolve(host, ipAddresses);
         //}
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        static async ValueTask<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
+        static async Task<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             var ipAddresses = await Dns.GetHostAddressesAsync(host);
 
             return Resolve(host, ipAddresses);
+
         }
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         byte[] GetConnectCommand(byte[] domain, byte[] addr, int port)
@@ -110,37 +113,14 @@ namespace QuickProxyNet
             return buffer;
         }
 
+
+
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             byte[] addr, domain = null;
 
             ValidateArguments(host, port);
-
-            if (!IPAddress.TryParse(host, out var ip))
-            {
-                if (IsSocks4a)
-                {
-                    domain = Encoding.UTF8.GetBytes(host);
-                    addr = InvalidIPAddress;
-                }
-                else
-                {
-                    ip = await ResolveAsync(host, cancellationToken);
-                    addr = ip.GetAddressBytes();
-                }
-            }
-            else
-            {
-                if (ip.AddressFamily != AddressFamily.InterNetwork)
-                    throw new ArgumentException("The specified host address must be IPv4.", nameof(host));
-
-                addr = ip.GetAddressBytes();
-            }
-
-            cancellationToken.ThrowIfCancellationRequested();
-
-
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
@@ -151,6 +131,32 @@ namespace QuickProxyNet
                 socket.Dispose();
                 throw;
             }
+            if (IPAddress.TryParse(host, out var ip))
+            {
+                if (ip.AddressFamily != AddressFamily.InterNetwork)
+                    throw new ArgumentException("The specified host address must be IPv4.", nameof(host));
+
+                addr = ip.GetAddressBytes();
+            }
+            else
+            {
+                if (IsSocks4a)
+                {
+                    domain = Encoding.UTF8.GetBytes(host);
+                    addr = InvalidIPAddress;
+                }
+                else
+                {
+
+                    ip = await ResolveAsync(host, cancellationToken);
+                    addr = ip.GetAddressBytes();
+                }
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+
+
             NetworkStream result = new NetworkStream(socket, true);
             try
             {
@@ -172,7 +178,7 @@ namespace QuickProxyNet
             }
             catch
             {
-                result.Dispose();
+                await result.DisposeAsync();
                 throw;
             }
         }

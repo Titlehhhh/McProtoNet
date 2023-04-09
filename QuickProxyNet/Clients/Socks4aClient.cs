@@ -6,8 +6,10 @@ namespace QuickProxyNet
 {
     public class Socks4aClient : Socks4Client
     {
+        public new ProxyType Type => ProxyType.SOCKS4;
         public Socks4aClient(string host, int port) : base(host, port)
         {
+          
             IsSocks4a = true;
         }
 

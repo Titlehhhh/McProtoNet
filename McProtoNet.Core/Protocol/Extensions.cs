@@ -206,7 +206,7 @@ namespace McProtoNet.Core.Protocol
             return totalRead;
         }
 
-        public static void SendPacket(this IMinecraftProtocol proto, MinecraftPacket pack, int id)
+        public static void SendPacket(this IMinecraftPacketSender proto, MinecraftPacket pack, int id)
         {
 
             using (MemoryStream ms = new())
@@ -214,18 +214,18 @@ namespace McProtoNet.Core.Protocol
                 IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                 pack.Write(writer);
                 ms.Position = 0;
-                proto.SendPacket(ms, id);
+                proto.SendPacket(new(id, ms));
             }
         }
+
         public static async ValueTask SendPacketAsync(this IMinecraftProtocol proto, MinecraftPacket pack, int id, CancellationToken cancellationToken = default)
         {
-
             using (MemoryStream ms = new())
             {
                 IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                 pack.Write(writer);
                 ms.Position = 0;
-                await proto.SendPacketAsync(ms, id, cancellationToken);
+                await proto.SendPacketAsync(new(id, ms), cancellationToken);
             }
         }
     }

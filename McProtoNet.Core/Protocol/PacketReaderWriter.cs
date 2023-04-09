@@ -5,53 +5,54 @@ namespace McProtoNet.Core.Protocol
 {
     public sealed class PacketReaderWriter : IPacketReaderWriter
     {
-
+        private MinecraftStream minecraftStream;
         private IMinecraftProtocol minecraftProtocol;
         private IPacketProvider packets;
         private bool _disposeProtocol;
 
-        public PacketReaderWriter(IMinecraftProtocol minecraftProtocol, IPacketProvider packets, bool disposeProtocol)
+        public PacketReaderWriter(IMinecraftProtocol minecraftProtocol, IPacketProvider packets, bool disposeProtocol, MinecraftStream minecraftStream)
         {
             this.minecraftProtocol = minecraftProtocol;
             this.packets = packets;
             _disposeProtocol = disposeProtocol;
+            this.minecraftStream = minecraftStream;
         }
 
 
 
         public async Task<MinecraftPacket> ReadNextPacketAsync(CancellationToken cancellationToken = default)
         {
-            (int id, MemoryStream data) = await minecraftProtocol.ReadNextPacketAsync(cancellationToken);
-            using (data)
+            Packet readData = await minecraftProtocol.ReadNextPacketAsync(cancellationToken);
+            using (readData.Data)
             {
-                if (packets.TryGetInputPacket(id, out IInputPacket packet))
+                if (packets.TryGetInputPacket(readData.Id, out IInputPacket packet))
                 {
                     MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
-                    reader.BaseStream = data;
+                    reader.BaseStream = readData.Data;
 
                     packet.Read(reader);
                     return (MinecraftPacket)packet;
                 }
             }
-            throw new InvalidOperationException($"Input Packet {id} notFound");
+            throw new InvalidOperationException($"Input Packet {readData.Id} notFound");
         }
 
 
         public MinecraftPacket ReadNextPacket()
         {
-            (int id, MemoryStream data) = minecraftProtocol.ReadNextPacket();
-            if (packets.TryGetInputPacket(id, out IInputPacket packet))
+            Packet readData = minecraftProtocol.ReadNextPacket();
+            if (packets.TryGetInputPacket(readData.Id, out IInputPacket packet))
             {
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
-                reader.BaseStream = data;
+                reader.BaseStream = readData.Data;
 
                 packet.Read(reader);
                 return (MinecraftPacket)packet;
             }
             else
             {
-                data.Dispose();
-                throw new InvalidOperationException($"Input Packet {id} notFound");
+                readData.Data.Dispose();
+                throw new InvalidOperationException($"Input Packet {readData.Id} notFound");
             }
         }
         public async Task SendPacketAsync(MinecraftPacket packet, CancellationToken cancellationToken = default)
@@ -66,7 +67,7 @@ namespace McProtoNet.Core.Protocol
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                     packet.Write(writer);
                     ms.Position = 0;
-                    await minecraftProtocol.SendPacketAsync(ms, id, cancellationToken);
+                    await minecraftProtocol.SendPacketAsync(new (id, ms), cancellationToken);
                 }
             }
             else
@@ -85,7 +86,7 @@ namespace McProtoNet.Core.Protocol
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(data);
                     packet.Write(writer);
                     data.Position = 0;
-                    minecraftProtocol.SendPacket(data, id);
+                    minecraftProtocol.SendPacket(new(id, data));
 
                 }
             }
@@ -117,7 +118,7 @@ namespace McProtoNet.Core.Protocol
 
         public void SwitchEncryption(byte[] privateKey)
         {
-            minecraftProtocol.SwitchEncryption(privateKey);
+            minecraftStream.SwitchEncryption(privateKey);
         }
 
         public void SwitchCompression(int threshold)

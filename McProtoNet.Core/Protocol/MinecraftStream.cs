@@ -9,7 +9,6 @@ using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
 {
-   
     public sealed class MinecraftStream : Stream, IDisposable
     {
         

@@ -4,6 +4,8 @@ namespace QuickProxyNet
 {
     public abstract class ProxyClient : IProxyClient
     {
+        public abstract ProxyType Type { get; }
+
         protected ProxyClient(string host, int port)
         {
             if (host == null)

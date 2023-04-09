@@ -10,6 +10,8 @@ namespace QuickProxyNet
 
         int ProxyPort { get; }
 
+        ProxyType Type { get; }
+
         IPEndPoint LocalEndPoint { get; set; }
 
 

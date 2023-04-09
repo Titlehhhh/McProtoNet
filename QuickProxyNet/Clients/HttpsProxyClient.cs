@@ -12,6 +12,8 @@ namespace QuickProxyNet
 
     public class HttpsProxyClient : ProxyClient
     {
+
+
         const SslProtocols DefaultSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13;
 
         const int BufferSize = 4096;
@@ -50,6 +52,8 @@ namespace QuickProxyNet
         {
             get; set;
         }
+
+        public override ProxyType Type =>ProxyType.HTTPS;
 
         // Note: This is used by SslHandshakeException to build the exception message.
         SslCertificateValidationInfo sslValidationInfo;

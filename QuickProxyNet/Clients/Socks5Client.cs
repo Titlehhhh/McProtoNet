@@ -8,6 +8,8 @@ namespace QuickProxyNet
 {
     public class Socks5Client : SocksClient
     {
+        public override ProxyType Type => ProxyType.SOCKS5;
+
         public Socks5Client(string host, int port) : base(5, host, port)
         {
         }
@@ -135,24 +137,10 @@ namespace QuickProxyNet
         {
             var buffer = GetNegotiateAuthMethodCommand(methods);
             await stream.WriteAsync(buffer.AsMemory(), cancellationToken);
-            // await SendAsync(socket, buffer, 0, buffer.Length, cancellationToken);
-
-            // +-----+--------+
-            // | VER | METHOD |
-            // +-----+--------+
-            // |  1  |   1    |
-            // +-----+--------+
-            int nread, n = 0;
+           
 
             await stream.ReadToEndAsync(buffer.AsMemory(0, 2), 2, cancellationToken);
-            //do
-            //{
-            //    nread = await stream.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
-            //    if (nread <= 0)
-            //        throw new Exception();
-            //    if (nread > 0)
-            //        n += nread;
-            //} while (n < 2);
+           
 
             VerifySocksVersion(buffer[0]);
 
@@ -218,14 +206,7 @@ namespace QuickProxyNet
             int nread, n = 0;
 
             await stream.ReadToEndAsync(buffer.AsMemory(0, 2), 2, cancellationToken);
-            //do
-            //{
-            //    nread = await socket.ReceiveAsync(buffer.AsMemory(0 + n, 2 - n), SocketFlags.None, cancellationToken);
-            //    if (nread <= 0)
-            //        throw new EndOfStreamException();
-
-            //    n += nread;
-            //} while (n < 2);
+           
 
             if (buffer[1] != (byte)Socks5Reply.Success)
                 throw new AuthenticationException("Failed to authenticate with SOCKS5 proxy server.");
@@ -233,11 +214,7 @@ namespace QuickProxyNet
 
         byte[] GetConnectCommand(Socks5AddressType addrType, byte[] domain, IPAddress ip, int port, out int n)
         {
-            // +----+-----+-------+------+----------+----------+
-            // |VER | CMD |  RSV  | ATYP | DST.ADDR | DST.PORT |
-            // +----+-----+-------+------+----------+----------+
-            // | 1  |  1  | X'00' |  1   | Variable |    2     |
-            // +----+-----+-------+------+----------+----------+
+            
             var buffer = new byte[4 + 257 + 2];
             byte[] addr;
 
@@ -278,11 +255,7 @@ namespace QuickProxyNet
             if (buffer[1] != (byte)Socks5Reply.Success)
                 throw new ProxyProtocolException(string.Format(CultureInfo.InvariantCulture, "Failed to connect to {0}:{1}: {2}", host, port, GetFailureReason(buffer[1])));
 
-            // +-----+-----+-------+------+----------+----------+
-            // | VER | REP |  RSV  | ATYP | BND.ADDR | BND.PORT |
-            // +-----+-----+-------+------+----------+----------+
-            // |  1  |  1  | X'00' |  1   | Variable |    2     |
-            // +-----+-----+-------+------+----------+----------+
+          
             var addrType = (Socks5AddressType)buffer[3];
 
             switch (addrType)
