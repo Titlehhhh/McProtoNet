@@ -1,6 +1,7 @@
 ﻿using McProtoNet.Core.IO;
+using McProtoNet.Core.Protocol;
 
-namespace McProtoNet.Core.Protocol
+namespace McProtoNet.Core
 {
     public static class Extensions
     {
@@ -206,7 +207,7 @@ namespace McProtoNet.Core.Protocol
             return totalRead;
         }
 
-        public static void SendPacket(this IMinecraftPacketSender proto, MinecraftPacket pack, int id)
+        public static void SendPacket(this IMinecraftPacketSender proto, IOutputPacket pack, int id)
         {
 
             using (MemoryStream ms = new())
@@ -218,7 +219,7 @@ namespace McProtoNet.Core.Protocol
             }
         }
 
-        public static async ValueTask SendPacketAsync(this IMinecraftProtocol proto, MinecraftPacket pack, int id, CancellationToken cancellationToken = default)
+        public static async Task SendPacketAsync(this IMinecraftPacketSender proto, IOutputPacket pack, int id, CancellationToken cancellationToken = default)
         {
             using (MemoryStream ms = new())
             {

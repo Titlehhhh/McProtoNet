@@ -17,6 +17,12 @@ namespace McProtoNet.Geometry
         {
             X = Y = Z = value;
         }
+        public Vector3(Vector3 from,Vector3 to)
+        {
+            X = to.X - from.X;
+            Y = to.Y - from.Y;
+            Z = to.Z - from.Z;
+        }
 
         public Vector3(double x, double y, double z)
         {

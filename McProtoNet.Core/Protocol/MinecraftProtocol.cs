@@ -1,5 +1,5 @@
 ﻿using McProtoNet.Core.IO;
-using Microsoft.IO;
+
 using System.Buffers;
 using System.IO;
 using System.IO.Compression;
@@ -80,6 +80,11 @@ namespace McProtoNet.Core.Protocol
         {
             Sender.SwitchCompression(threshold);
             Reader.SwitchCompression(threshold);
+        }
+
+        public void SwitchEncryption(byte key)
+        {
+           
         }
     }
 
