@@ -31,8 +31,12 @@ namespace McProtoNet.Core.Protocol
         
         public MinecraftStream(Stream stream)
         {
-            ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-
+#if NETSTANDARD2_0
+            if(stream is null)
+                throw new ArgumentNullException(nameof(stream));
+#else
+			ArgumentNullException.ThrowIfNull(stream, nameof(stream));
+#endif
             this.BaseStream = stream;
         }
 

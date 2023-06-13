@@ -137,6 +137,7 @@ namespace McProtoNet.Core.IO
         {
             Span<byte> buffer = stackalloc byte[4];
             BaseStream.Read(buffer);
+           
             return BinaryPrimitives.ReadSingleBigEndian(buffer);
         }
 
