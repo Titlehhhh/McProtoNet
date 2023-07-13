@@ -182,7 +182,7 @@ namespace McProtoNet.Core.Protocol
         {
             if (_disposed)
                 return;
-            _disposed = true;
+          
             fastStream?.Dispose();
             fastStream = null;
             if (disposeStream)
@@ -193,7 +193,8 @@ namespace McProtoNet.Core.Protocol
                     _baseStream = null;
                 }
             }
-            GC.SuppressFinalize(this);
+			_disposed = true;
+			GC.SuppressFinalize(this);
         }
 
         public async ValueTask DisposeAsync()
