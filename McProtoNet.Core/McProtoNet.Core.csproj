@@ -20,12 +20,4 @@
 		<PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" />
 		
 	</ItemGroup>
-
-
-
-
-	<ItemGroup>
-	  <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
-	  <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
-	</ItemGroup>
 </Project>
