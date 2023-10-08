@@ -46,11 +46,10 @@ namespace McProtoNet.MultiVersion
 		MinecraftClientCore _core;
 		Pipe pipe;
 
-		public MinecraftClient(ILogger logger)
+		public MinecraftClient()
 		{
 			pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
-			CreateEvents();
-			_logger = logger;
+			CreateEvents();		
 
 		}
 		private IPacketPallete CreatePallete()
@@ -128,9 +127,9 @@ namespace McProtoNet.MultiVersion
 			return workTask.GetAwaiter();
 		}
 
-		public async Task Login()
+		public async Task Login(Serilog.ILogger logger)
 		{
-
+			_logger = logger;
 
 			_startDisconnect = false;
 			ValidateConfig();
