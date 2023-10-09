@@ -158,7 +158,7 @@ namespace McProtoNet.MultiVersion
 		private bool _startDisconnect = false;
 		public void Disconnect()
 		{
-			if (_startDisconnect = true)
+			if (_startDisconnect)
 				return;
 			_startDisconnect = true;			
 			_core.Dispose();
