@@ -1,10 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Nullable>enable</Nullable>
+    <Nullable>enable</Nullable>    
   </PropertyGroup>
 
   <ItemGroup>
@@ -23,4 +23,9 @@
     <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
     <ProjectReference Include="..\QuickProxyNet\QuickProxyNet.csproj" />
   </ItemGroup>
+
+	<Target Name="PublishNuGetLocally" AfterTargets="Pack">
+		<Exec Command="nuget add $(SolutionDir)\bin\$(Configuration)\$(PackageId).$(PackageVersion).nupkg -Source I:\LocalNuget"/>
+
+	</Target>
 </Project>
