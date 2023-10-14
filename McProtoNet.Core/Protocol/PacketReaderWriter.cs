@@ -1,5 +1,6 @@
 ﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Packets;
+using Microsoft.IO;
 
 namespace McProtoNet.Core.Protocol
 {
@@ -55,6 +56,8 @@ namespace McProtoNet.Core.Protocol
                 throw new InvalidOperationException($"Input Packet {readData.Id} notFound");
             }
         }
+
+        static RecyclableMemoryStreamManager streamManager = new();
         public async Task SendPacketAsync(MinecraftPacket packet, CancellationToken cancellationToken = default)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -62,7 +65,7 @@ namespace McProtoNet.Core.Protocol
 
             if (ok)
             {
-                using (MemoryStream ms = new MemoryStream())
+                using (MemoryStream ms = streamManager.GetStream())
                 {
                     IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                     packet.Write(writer);

@@ -46,6 +46,7 @@ namespace McProtoNet.MultiVersion
 		MinecraftClientCore _core;
 		Pipe pipe;
 
+
 		public MinecraftClient()
 		{
 			pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
@@ -89,7 +90,7 @@ namespace McProtoNet.MultiVersion
 				Config.Username,
 				Config.Host,
 				Config.Port,
-				null,
+				Config.Proxy,
 				CreatePallete(),
 				this.pipe,
 				this._logger);
@@ -145,7 +146,7 @@ namespace McProtoNet.MultiVersion
 
 				State = ClientState.Login;
 				workTask = await _core.Login(OnPacket);
-
+				State = ClientState.Play;
 			}
 			catch (Exception e) when (e is not OperationCanceledException)
 			{
@@ -161,7 +162,7 @@ namespace McProtoNet.MultiVersion
 			if (_startDisconnect)
 				return;
 			_startDisconnect = true;			
-			_core.Dispose();
+			_core?.Dispose();
 		}
 
 

@@ -7,6 +7,8 @@ using System.Text;
 
 namespace QuickProxyNet
 {
+
+
     public class Socks4Client : SocksClient
     {
         static readonly byte[] InvalidIPAddress = { 0, 0, 0, 1 };
@@ -70,10 +72,15 @@ namespace QuickProxyNet
 
         //    return Resolve(host, ipAddresses);
         //}
+
+        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        static async Task<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
+        static async ValueTask<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
+
+
 
             var ipAddresses = await Dns.GetHostAddressesAsync(host);
 
@@ -113,13 +120,14 @@ namespace QuickProxyNet
             return buffer;
         }
 
-
+        
+        
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         public override async Task<Stream> ConnectAsync(string host, int port, CancellationToken cancellationToken = default(CancellationToken))
         {
             byte[] addr, domain = null;
-
+           
             ValidateArguments(host, port);
             var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try

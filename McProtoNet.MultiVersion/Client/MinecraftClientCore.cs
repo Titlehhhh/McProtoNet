@@ -140,11 +140,14 @@ namespace McProtoNet.MultiVersion
 				await LoginCore(CTS.Token);
 			}
 
+			
 
-			Task fill = FillPipeAsync(CTS.Token);
+			//Task fill = FillPipeAsync(CTS.Token);
 			Task read = ReadPipeAsync(CTS.Token, packetReceived);
 
-			return Task.WhenAll(fill, read);
+
+
+			return read;
 		}
 		private async ValueTask LoginCore(CancellationToken cancellation)
 		{
@@ -208,6 +211,7 @@ namespace McProtoNet.MultiVersion
 		{
 			PacketReader = new MinecraftPacketReader(minecraftStream, false);
 			PacketReader.SwitchCompression(threshold);
+
 			while (!cancellationToken.IsCancellationRequested)
 			{
 				using (var packet = await PacketReader.ReadNextPacketAsync(cancellationToken))
@@ -257,7 +261,7 @@ namespace McProtoNet.MultiVersion
 				return tcp.GetStream();
 			}
 			_logger.Information($"Подключение к {_proxy.Type} прокси {_proxy.ProxyHost}:{_proxy.ProxyPort}");
-			return await _proxy.ConnectAsync(_host, _port, 10000, cancellation);
+			return await _proxy.ConnectAsync(_host, _port, cancellation);
 		}
 
 

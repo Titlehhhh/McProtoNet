@@ -41,11 +41,12 @@ namespace McProtoNet.MultiVersion
 
 		public ValueTask SendChat(string text )
 		{
-			return SendPacket(w =>
+			return SendPacket( w =>
 			{
 				w.WriteString(text);
 			}, PacketOut.ChatMessage );
 		}
+		
 
 		public ValueTask SendAction(int type, Vector3 position, BlockFace face )
 		{

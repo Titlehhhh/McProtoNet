@@ -1,5 +1,6 @@
 ﻿using McProtoNet.Core.IO;
 using McProtoNet.Core.Protocol;
+using Microsoft.IO;
 
 namespace McProtoNet.Core
 {
@@ -207,10 +208,12 @@ namespace McProtoNet.Core
             return totalRead;
         }
 
-        public static void SendPacket(this IMinecraftPacketSender proto, IOutputPacket pack, int id)
+		static RecyclableMemoryStreamManager streamManager = new();
+
+		public static void SendPacket(this IMinecraftPacketSender proto, IOutputPacket pack, int id)
         {
 
-            using (MemoryStream ms = new())
+            using (MemoryStream ms = streamManager.GetStream())
             {
                 IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                 pack.Write(writer);
@@ -221,7 +224,7 @@ namespace McProtoNet.Core
 
         public static async Task SendPacketAsync(this IMinecraftPacketSender proto, IOutputPacket pack, int id, CancellationToken cancellationToken = default)
         {
-            using (MemoryStream ms = new())
+            using (MemoryStream ms = streamManager.GetStream())
             {
                 IMinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter(ms);
                 pack.Write(writer);

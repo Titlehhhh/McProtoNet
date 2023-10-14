@@ -1,6 +1,7 @@
 ﻿using McProtoNet.Core.Helpers;
 using McProtoNet.Core.Protocol;
 using McProtoNet.NBT;
+using Microsoft.IO;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Text;
@@ -208,10 +209,10 @@ namespace McProtoNet.Core.IO
 
             return result;
         }
-
+        static RecyclableMemoryStreamManager streamManager = new();
         public virtual byte[] ReadToEnd()
         {
-            using (var ms = new MemoryStream())
+            using (var ms = streamManager.GetStream())
             {
 
                 BaseStream.CopyTo(ms);
