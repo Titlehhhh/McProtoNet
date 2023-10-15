@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
@@ -55,38 +56,37 @@ namespace QuickProxyNet
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         static IPAddress Resolve(string host, IPAddress[] ipAddresses)
         {
-            for (int i = 0; i < ipAddresses.Length; i++)
-            {
-                if (ipAddresses[i].AddressFamily == AddressFamily.InterNetwork)
-                    return ipAddresses[i];
-            }
+            
 
             throw new ArgumentException($"Could not resolve a suitable IPv4 address for '{host}'.", nameof(host));
         }
 
-        //static IPAddress Resolve(string host, CancellationToken cancellationToken)
-        //{
-        //    cancellationToken.ThrowIfCancellationRequested();
 
-        //    var ipAddresses = Dns.GetHostAddresses(host);
-
-        //    return Resolve(host, ipAddresses);
-        //}
-
-        
+        static ConcurrentDictionary<string, byte[]> _cache = new();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        static async ValueTask<IPAddress> ResolveAsync(string host, CancellationToken cancellationToken)
+        static async ValueTask<byte[]> ResolveAsync(string host, CancellationToken cancellationToken)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-
+            if (_cache.TryGetValue(host, out var bytes))
+                return bytes;
 
             var ipAddresses = await Dns.GetHostAddressesAsync(host);
 
-            return Resolve(host, ipAddresses);
+			for (int i = 0; i < ipAddresses.Length; i++)
+			{
+                if (ipAddresses[i].AddressFamily == AddressFamily.InterNetwork)
+                {
+                    var ip = ipAddresses[i].GetAddressBytes();
 
-        }
+                    _cache[host] = ip;
+                }
+			}
+
+            throw new Exception();
+
+		}
         [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
         byte[] GetConnectCommand(byte[] domain, byte[] addr, int port)
         {
@@ -156,8 +156,8 @@ namespace QuickProxyNet
                 else
                 {
 
-                    ip = await ResolveAsync(host, cancellationToken);
-                    addr = ip.GetAddressBytes();
+					addr = await ResolveAsync(host, cancellationToken);
+                    
                 }
             }
 

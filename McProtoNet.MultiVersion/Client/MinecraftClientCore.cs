@@ -32,7 +32,7 @@ namespace McProtoNet.MultiVersion
 
 		private CancellationTokenSource CTS = new();
 
-		public MinecraftClientCore(MinecraftVersion protocol, string nick, string host, ushort port, IProxyClient? proxy, IPacketPallete packetPallete,  ILogger logger)
+		public MinecraftClientCore(MinecraftVersion protocol, string nick, string host, ushort port, IProxyClient? proxy, IPacketPallete packetPallete, ILogger logger)
 		{
 			_protocol = protocol;
 			_nick = nick;
@@ -51,7 +51,7 @@ namespace McProtoNet.MultiVersion
 
 
 		#endregion
-	
+
 		#region StateFields
 		Stream tcp;
 		private MinecraftStream minecraftStream;
@@ -63,7 +63,7 @@ namespace McProtoNet.MultiVersion
 
 		internal async Task Connect()
 		{
-			
+
 
 			tcp = await CreateTcp(CTS.Token);
 			minecraftStream = new MinecraftStream(tcp);
@@ -215,7 +215,7 @@ namespace McProtoNet.MultiVersion
 			{
 
 				TcpClient tcp = new TcpClient();
-			
+
 				_logger.Information("Подключение");
 				await tcp.ConnectAsync(_host, _port, cancellation);
 				return tcp.GetStream();
@@ -303,7 +303,7 @@ namespace McProtoNet.MultiVersion
 				PacketReader.Dispose();
 			}
 			PacketReader = null;
-		
+
 			_proxy = null;
 			_packetPallete = null;
 			_disposed = true;
@@ -327,9 +327,9 @@ namespace McProtoNet.MultiVersion
 		{
 			if (_disposed) return;
 
-			if (pipe is { })
+			//if (pipe is { })
 			{
-				pipe = null;
+			//	pipe = null;
 			}
 			if (PacketSender is { })
 			{
@@ -341,27 +341,20 @@ namespace McProtoNet.MultiVersion
 				await PacketReader.DisposeAsync();
 			}
 			PacketReader = null;
-			
-
-
-
-
-
 			_proxy = null;
 			_packetPallete = null;
 			_disposed = true;
 			reader = null;
 			_logger = null;
 
-			if (CTS is { })
+
+			if (!CTS.IsCancellationRequested)
 			{
-				if (!CTS.IsCancellationRequested)
-				{
-					await CTS.CancelAsync();
-				}
-				CTS.Dispose();
+				await CTS.CancelAsync();
 			}
-			CTS = null;
+			CTS.Dispose();
+
+
 
 			GC.SuppressFinalize(this);
 		}
