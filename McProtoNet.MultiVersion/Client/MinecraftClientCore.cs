@@ -32,7 +32,7 @@ namespace McProtoNet.MultiVersion
 
 		private CancellationTokenSource CTS = new();
 
-		public MinecraftClientCore(MinecraftVersion protocol, string nick, string host, ushort port, IProxyClient? proxy, IPacketPallete packetPallete, Pipe pipe, ILogger logger)
+		public MinecraftClientCore(MinecraftVersion protocol, string nick, string host, ushort port, IProxyClient? proxy, IPacketPallete packetPallete,  ILogger logger)
 		{
 			_protocol = protocol;
 			_nick = nick;
@@ -40,7 +40,7 @@ namespace McProtoNet.MultiVersion
 			_port = port;
 			_proxy = proxy;
 			_packetPallete = packetPallete;
-			this.pipe = pipe;
+			//this.pipe = pipe;
 			_logger = logger;
 		}
 
@@ -48,47 +48,10 @@ namespace McProtoNet.MultiVersion
 		private int threshold;
 		private SubProtocol _subProtocol;
 
-		public void Dispose()
-		{
-			if (_disposed) return;
 
-			if (pipe is { })
-			{
-				pipe = null;
-			}
-			if (PacketSender is { })
-			{
-				PacketSender.Dispose();
-			}
-			PacketSender = null;
-			if (PacketReader is { })
-			{
-				PacketReader.Dispose();
-			}
-			PacketReader = null;
-			disposables.Dispose();
-			_proxy = null;
-			_packetPallete = null;
-			_disposed = true;
-			reader = null;
-			_logger = null;
 
-			if (CTS is { })
-			{
-				if (!CTS.IsCancellationRequested)
-				{
-					CTS.Cancel();
-				}
-				CTS.Dispose();
-			}
-			CTS = null;
-
-			GC.SuppressFinalize(this);
-
-		}
-		private CompositeDisposable disposables = new();
 		#endregion
-
+	
 		#region StateFields
 		Stream tcp;
 		private MinecraftStream minecraftStream;
@@ -100,16 +63,13 @@ namespace McProtoNet.MultiVersion
 
 		internal async Task Connect()
 		{
-			disposables.Add(semaphore);
+			
 
 			tcp = await CreateTcp(CTS.Token);
 			minecraftStream = new MinecraftStream(tcp);
 			PacketSender = new MinecraftPacketSender(minecraftStream, true);
 
 
-			disposables.Add(tcp);
-			disposables.Add(minecraftStream);
-			disposables.Add(PacketSender);
 		}
 		internal async Task HandShake()
 		{
@@ -125,7 +85,7 @@ namespace McProtoNet.MultiVersion
 
 
 		}
-		internal async Task<Task> Login( OnPacketReceived packetReceived)
+		internal async Task<Task> Login(OnPacketReceived packetReceived)
 		{
 			CTS.Token.ThrowIfCancellationRequested();
 
@@ -140,7 +100,7 @@ namespace McProtoNet.MultiVersion
 				await LoginCore(CTS.Token);
 			}
 
-			
+
 
 			//Task fill = FillPipeAsync(CTS.Token);
 			Task read = ReadPipeAsync(CTS.Token, packetReceived);
@@ -255,7 +215,7 @@ namespace McProtoNet.MultiVersion
 			{
 
 				TcpClient tcp = new TcpClient();
-				disposables.Add(tcp);
+			
 				_logger.Information("Подключение");
 				await tcp.ConnectAsync(_host, _port, cancellation);
 				return tcp.GetStream();
@@ -325,13 +285,85 @@ namespace McProtoNet.MultiVersion
 		}
 		bool _disposed;
 
-
-		public ValueTask DisposeAsync()
+		public void Dispose()
 		{
+			if (_disposed) return;
+
+			if (pipe is { })
+			{
+				pipe = null;
+			}
+			if (PacketSender is { })
+			{
+				PacketSender.Dispose();
+			}
+			PacketSender = null;
+			if (PacketReader is { })
+			{
+				PacketReader.Dispose();
+			}
+			PacketReader = null;
+		
+			_proxy = null;
+			_packetPallete = null;
+			_disposed = true;
+			reader = null;
+			_logger = null;
+
+			if (CTS is { })
+			{
+				if (!CTS.IsCancellationRequested)
+				{
+					CTS.Cancel();
+				}
+				CTS.Dispose();
+			}
+			CTS = null;
+
+			GC.SuppressFinalize(this);
+
+		}
+		public async ValueTask DisposeAsync()
+		{
+			if (_disposed) return;
+
+			if (pipe is { })
+			{
+				pipe = null;
+			}
+			if (PacketSender is { })
+			{
+				await PacketSender.DisposeAsync();
+			}
+			PacketSender = null;
+			if (PacketReader is { })
+			{
+				await PacketReader.DisposeAsync();
+			}
+			PacketReader = null;
+			
 
 
-			this.Dispose();
-			return ValueTask.CompletedTask;
+
+
+
+			_proxy = null;
+			_packetPallete = null;
+			_disposed = true;
+			reader = null;
+			_logger = null;
+
+			if (CTS is { })
+			{
+				if (!CTS.IsCancellationRequested)
+				{
+					await CTS.CancelAsync();
+				}
+				CTS.Dispose();
+			}
+			CTS = null;
+
+			GC.SuppressFinalize(this);
 		}
 	}
 }

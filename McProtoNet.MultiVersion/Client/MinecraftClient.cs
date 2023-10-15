@@ -43,14 +43,14 @@ namespace McProtoNet.MultiVersion
 		public ClientConfig Config { get; set; } = new();
 
 		private MinecraftVersion _protocol;
-		MinecraftClientCore _core;
-		Pipe pipe;
+	private volatile	MinecraftClientCore _core;
+	//	Pipe pipe;
 
 
 		public MinecraftClient()
 		{
-			pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
-			CreateEvents();		
+		//	pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
+			CreateEvents();
 
 		}
 		private IPacketPallete CreatePallete()
@@ -92,17 +92,13 @@ namespace McProtoNet.MultiVersion
 				Config.Port,
 				Config.Proxy,
 				CreatePallete(),
-				this.pipe,
+			//	this.pipe,
 				this._logger);
 
 		}
-		private void RemoveCore()
+		private async void RemoveCore()
 		{
-			if (_core is { })
-			{
-				_core.Dispose();
-			}
-			_core = null;
+			Interlocked.Exchange(ref _core, null)?.DisposeAsync();
 		}
 		private void ValidateConfig()
 		{
@@ -157,12 +153,13 @@ namespace McProtoNet.MultiVersion
 
 		}
 		private bool _startDisconnect = false;
-		public void Disconnect()
+		public async void Disconnect()
 		{
 			if (_startDisconnect)
 				return;
-			_startDisconnect = true;			
-			_core?.Dispose();
+			_startDisconnect = true;
+			if (_core is not null)
+				await _core.DisposeAsync();
 		}
 
 
@@ -180,18 +177,18 @@ namespace McProtoNet.MultiVersion
 
 			if (_disposed) return;
 
-			
+
 
 			if (_core is { })
 			{
 				_core.Dispose();
 			}
 
-			if (pipe is { })
+		//	if (pipe is { })
 			{
 
 			}
-			pipe = null;
+			//pipe = null;
 
 			_disposed = true;
 
