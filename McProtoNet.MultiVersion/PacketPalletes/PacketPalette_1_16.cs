@@ -1,8 +1,10 @@
-﻿namespace McProtoNet.MultiVersion
+﻿using System.Collections.Concurrent;
+
+namespace McProtoNet.MultiVersion
 {
     public class PacketPalette_1_16 : IPacketPallete
     {
-        private readonly Dictionary<int, PacketIn> typeIn = new()
+        private readonly ConcurrentDictionary<int, PacketIn> typeIn = new( new Dictionary<int, PacketIn>()
         {
            { 0x00, PacketIn.SpawnEntity },
             { 0x01, PacketIn.SpawnExperienceOrb },
@@ -96,9 +98,9 @@
             { 0x59, PacketIn.EntityEffect },
             { 0x5A, PacketIn.DeclareRecipes },
             { 0x5B, PacketIn.Tags },
-        };
+        });
 
-        private readonly Dictionary<PacketOut, int> typeOut = new()
+        private readonly ConcurrentDictionary<PacketOut, int> typeOut = new( new Dictionary<PacketOut, int>()
         {
            { PacketOut.TeleportConfirm, 0x00 },
             { PacketOut.QueryBlockNBT, 0x01 },
@@ -147,7 +149,7 @@
             { PacketOut.Spectate, 0x2C },
             { PacketOut.PlayerBlockPlacement, 0x2D },
             { PacketOut.UseItem, 0x2E },
-        };
+        });
 
         public int GetOut(PacketOut packet)
         {

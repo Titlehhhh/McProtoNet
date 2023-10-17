@@ -122,7 +122,7 @@ namespace QuickProxyNet
             }
             catch (Exception ex)
             {
-                ssl.Dispose();
+               await ssl.DisposeAsync();
 
                 throw SslHandshakeException.Create(ref sslValidationInfo, ex, false, "HTTP", host, port, 443, 80);
             }
@@ -172,7 +172,7 @@ namespace QuickProxyNet
             }
             catch
             {
-                ssl.Dispose();
+                await ssl.DisposeAsync();
                 throw;
             }
         }

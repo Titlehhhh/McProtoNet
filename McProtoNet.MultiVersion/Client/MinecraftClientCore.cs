@@ -66,6 +66,7 @@ namespace McProtoNet.MultiVersion
 
 
 			tcp = await CreateTcp(CTS.Token);
+			
 			minecraftStream = new MinecraftStream(tcp);
 			PacketSender = new MinecraftPacketSender(minecraftStream, true);
 
@@ -243,9 +244,11 @@ namespace McProtoNet.MultiVersion
 		static RecyclableMemoryStreamManager streamManager = new();
 		MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
 
+
+
 		public async ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, int id)
 		{
-			await semaphore.WaitAsync().ConfigureAwait(false);
+			await semaphore.WaitAsync();
 			try
 			{
 				using (MemoryStream ms = streamManager.GetStream())

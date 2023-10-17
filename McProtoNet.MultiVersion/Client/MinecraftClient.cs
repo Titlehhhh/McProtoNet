@@ -43,16 +43,19 @@ namespace McProtoNet.MultiVersion
 		public ClientConfig Config { get; set; } = new();
 
 		private MinecraftVersion _protocol;
-	private volatile	MinecraftClientCore _core;
-	//	Pipe pipe;
+		private volatile MinecraftClientCore _core;
+		//	Pipe pipe;
 
 
 		public MinecraftClient()
 		{
-		//	pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
+			//	pipe = new Pipe(new PipeOptions(useSynchronizationContext: false));
 			CreateEvents();
 
 		}
+
+		private static IPacketPallete _cache754 = new PacketPalette_1_16();
+
 		private IPacketPallete CreatePallete()
 		{
 			IPacketPallete? packetPallete = null;
@@ -65,7 +68,9 @@ namespace McProtoNet.MultiVersion
 			else if (Config.Version <= MinecraftVersion.MC_1_15_2_Version)
 				packetPallete = new PacketPalette_1_15();
 			else if (Config.Version <= MinecraftVersion.MC_1_16_1_Version)
-				packetPallete = new PacketPalette_1_16();
+			{
+				packetPallete = _cache754;
+			}
 			else if (Config.Version <= MinecraftVersion.MC_1_16_5_Version)
 				packetPallete = new PacketPalette_1_16_2();
 			else if (Config.Version <= MinecraftVersion.MC_1_17_1_Version)
@@ -92,7 +97,7 @@ namespace McProtoNet.MultiVersion
 				Config.Port,
 				Config.Proxy,
 				CreatePallete(),
-			//	this.pipe,
+				//	this.pipe,
 				this._logger);
 
 		}
@@ -184,7 +189,7 @@ namespace McProtoNet.MultiVersion
 				_core.Dispose();
 			}
 
-		//	if (pipe is { })
+			//	if (pipe is { })
 			{
 
 			}
