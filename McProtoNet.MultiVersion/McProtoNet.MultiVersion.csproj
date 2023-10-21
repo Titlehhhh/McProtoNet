@@ -25,8 +25,4 @@
     <ProjectReference Include="..\QuickProxyNet\QuickProxyNet.csproj" />
   </ItemGroup>
 
-	<Target Name="PublishNuGetLocally" AfterTargets="Pack">
-		<Exec Command="nuget add $(SolutionDir)\bin\$(Configuration)\$(PackageId).$(PackageVersion).nupkg -Source I:\LocalNuget"/>
-
-	</Target>
 </Project>

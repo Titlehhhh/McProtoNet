@@ -1,7 +1,7 @@
 <Project>
-  <PropertyGroup>
-    <PackageVersion>1.7.3</PackageVersion>
-  </PropertyGroup>
+	<PropertyGroup>
+		<PackageVersion>$([System.DateTime]::Now.ToString(yyyy.MM.dd.mm))</PackageVersion>
+	</PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
     <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.13.5" />

@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<LangVersion>11</LangVersion>
+		<LangVersion>11</LangVersion>		
 		<PublishAot>true</PublishAot>
 	</PropertyGroup>
 
@@ -14,8 +14,4 @@
 	</ItemGroup>
 
 
-	<Target Name="PublishNuGetLocally" AfterTargets="Pack">
-		<Exec Command="nuget add $(SolutionDir)\bin\$(Configuration)\$(PackageId).$(PackageVersion).nupkg -Source I:\LocalNuget"/>
-
-	</Target>
 </Project>
