@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <Nullable>enable</Nullable>
 	  <LangVersion>11</LangVersion>
     <IsPackable>false</IsPackable>
@@ -15,12 +15,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
-    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
-    <ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
   </ItemGroup>
 
 </Project>

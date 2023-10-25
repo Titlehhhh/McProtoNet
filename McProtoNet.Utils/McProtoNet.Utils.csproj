@@ -1,11 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	
   <PropertyGroup>
-    <TargetFrameworks>net8.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-	  <PublishAot>true</PublishAot>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Description>Библиотека с инструментами для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
 	  <LangVersion>11</LangVersion>
@@ -20,8 +18,6 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
-    <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
-    <ProjectReference Include="..\QuickProxyNet\QuickProxyNet.csproj" />
   </ItemGroup>
 
 </Project>
