@@ -1,92 +1,86 @@
-﻿using McProtoNet.Core.IO;
-
-using System.Buffers;
-using System.IO;
-using System.IO.Compression;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
+﻿using System.Net.Sockets;
 
 namespace McProtoNet.Core.Protocol
 {
 
-    public sealed class MinecraftProtocol : IMinecraftProtocol
-    {
+	public sealed class MinecraftProtocol : IMinecraftProtocol
+	{
 
-        public MinecraftProtocol(TcpClient tcpClient)
-        {
+		public MinecraftProtocol(TcpClient tcpClient)
+		{
 
-        }
+		}
 
-        private Stream _baseStream;
+		private Stream _baseStream;
 
-        private IMinecraftPacketReader Reader;
-        private IMinecraftPacketSender Sender;
-        
-        public MinecraftProtocol(Stream baseStream, bool disposeStream)
-        {
-            _baseStream = baseStream;
-            Reader = new MinecraftPacketReader(_baseStream, disposeStream);
-            Sender = new MinecraftPacketSender(_baseStream, disposeStream);
-        }
+		private IMinecraftPacketReader Reader;
+		private IMinecraftPacketSender Sender;
 
-        ~MinecraftProtocol()
-        {
-            Dispose();
-        }
+		public MinecraftProtocol(Stream baseStream, bool disposeStream)
+		{
+			_baseStream = baseStream;
+			Reader = new MinecraftPacketReader(_baseStream, disposeStream);
+			Sender = new MinecraftPacketSender(_baseStream, disposeStream);
+		}
 
-        private bool _disposed = false;
-        public void Dispose()
-        {
-            if (_disposed)
-                return;
-            _disposed = true;
-            
-            Reader?.Dispose();
-            Sender?.Dispose();
-            Reader = null;
-            Sender = null;
+		~MinecraftProtocol()
+		{
+			Dispose();
+		}
 
-            GC.SuppressFinalize(this);
-        }
+		private bool _disposed = false;
+		public void Dispose()
+		{
+			if (_disposed)
+				return;
+			_disposed = true;
 
-        public ValueTask DisposeAsync()
-        {
-            Dispose();
+			Reader?.Dispose();
+			Sender?.Dispose();
+			Reader = null;
+			Sender = null;
 
-            return ValueTask.CompletedTask;
-        }
+			GC.SuppressFinalize(this);
+		}
 
-        public void SendPacket(Packet packet)
-        {
-            Sender.SendPacket(packet);
-        }
+		public ValueTask DisposeAsync()
+		{
+			Dispose();
 
-        public ValueTask SendPacketAsync(Packet packet, CancellationToken cancellationToken = default)
-        {
-            return Sender.SendPacketAsync(packet, cancellationToken);
-        }
+			return ValueTask.CompletedTask;
+		}
 
-        public Packet ReadNextPacket()
-        {
-            return Reader.ReadNextPacket();
-        }
+		public void SendPacket(Packet packet)
+		{
+			Sender.SendPacket(packet);
+		}
 
-        public ValueTask<Packet> ReadNextPacketAsync(CancellationToken cancellationToken = default)
-        {
-            return Reader.ReadNextPacketAsync(cancellationToken);
-        }
+		public ValueTask SendPacketAsync(Packet packet, CancellationToken cancellationToken = default)
+		{
+			return Sender.SendPacketAsync(packet, cancellationToken);
+		}
 
-        public void SwitchCompression(int threshold)
-        {
-            Sender.SwitchCompression(threshold);
-            Reader.SwitchCompression(threshold);
-        }
+		public Packet ReadNextPacket()
+		{
+			return Reader.ReadNextPacket();
+		}
 
-        public void SwitchEncryption(byte key)
-        {
-           
-        }
-    }
+		public ValueTask<Packet> ReadNextPacketAsync(CancellationToken cancellationToken = default)
+		{
+			return Reader.ReadNextPacketAsync(cancellationToken);
+		}
+
+		public void SwitchCompression(int threshold)
+		{
+			Sender.SwitchCompression(threshold);
+			Reader.SwitchCompression(threshold);
+		}
+
+		public void SwitchEncryption(byte key)
+		{
+
+		}
+	}
 
 
 }

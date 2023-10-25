@@ -1,8 +1,4 @@
-﻿using McProtoNet.Core;
-using McProtoNet.Core.IO;
-using McProtoNet.Geometry;
-using McProtoNet.MultiVersion.Client;
-using McProtoNet.MultiVersion.Events;
+﻿using McProtoNet.MultiVersion.Client;
 
 
 namespace McProtoNet.MultiVersion

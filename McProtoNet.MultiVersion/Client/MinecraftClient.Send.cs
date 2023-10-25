@@ -2,53 +2,46 @@
 using McProtoNet.Core.IO;
 using McProtoNet.Core.Protocol;
 using McProtoNet.Geometry;
-using Microsoft.IO;
-using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McProtoNet.MultiVersion
 {
 	public partial class MinecraftClient : IMinecraftClientEvents, IMinecraftClientActions
 	{
-		public ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, PacketOut id )
+		public ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, PacketOut id)
 		{
 			if (_core is null)
 				return ValueTask.CompletedTask;
 
 
 
-			return _core.SendPacket(action, id );
+			return _core.SendPacket(action, id);
 		}
 
-		public ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, int id )
+		public ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, int id)
 		{
 			if (_core is null)
 				return ValueTask.CompletedTask;
 
-			return _core.SendPacket(action, id );
+			return _core.SendPacket(action, id);
 		}
 		private ValueTask SendPacketAsync(IOutputPacket packet, int id)
 		{
 			if (_core is null)
 				return ValueTask.CompletedTask;
 
-			return _core.SendPacketAsync(packet, id );
+			return _core.SendPacketAsync(packet, id);
 		}
 
-		public ValueTask SendChat(string text )
+		public ValueTask SendChat(string text)
 		{
-			return SendPacket( w =>
+			return SendPacket(w =>
 			{
 				w.WriteString(text);
-			}, PacketOut.ChatMessage );
+			}, PacketOut.ChatMessage);
 		}
-		
 
-		public ValueTask SendAction(int type, Vector3 position, BlockFace face )
+
+		public ValueTask SendAction(int type, Vector3 position, BlockFace face)
 		{
 			return SendPacket(w =>
 			{
@@ -57,9 +50,9 @@ namespace McProtoNet.MultiVersion
 				w.WriteVarInt(face);
 				if (_protocol >= MinecraftVersion.MC_1_19_Version)
 					w.WriteVarInt(0);
-			}, PacketOut.PlayerAction );
+			}, PacketOut.PlayerAction);
 		}
-		public ValueTask SendPositionRotation(double x, double y, double z, float yaw, float pitch, bool onGround )
+		public ValueTask SendPositionRotation(double x, double y, double z, float yaw, float pitch, bool onGround)
 		{
 			return this.SendPacket(w =>
 			{
@@ -69,10 +62,10 @@ namespace McProtoNet.MultiVersion
 				w.WriteFloat(yaw);
 				w.WriteFloat(pitch);
 				w.WriteBoolean(onGround);
-			}, PacketOut.PlayerPositionRotation );
+			}, PacketOut.PlayerPositionRotation);
 
 		}
-		public ValueTask SendPosition(double x, double y, double z, bool onGround )
+		public ValueTask SendPosition(double x, double y, double z, bool onGround)
 		{
 			return this.SendPacket(w =>
 			{
@@ -81,39 +74,39 @@ namespace McProtoNet.MultiVersion
 				w.WriteDouble(z);
 
 				w.WriteBoolean(onGround);
-			}, PacketOut.PlayerPosition );
+			}, PacketOut.PlayerPosition);
 
 		}
-		public ValueTask SendRotation(float yaw, float pitch, bool onGround )
+		public ValueTask SendRotation(float yaw, float pitch, bool onGround)
 		{
 			return this.SendPacket(w =>
 			{
 				w.WriteFloat(yaw);
 				w.WriteFloat(pitch);
 				w.WriteBoolean(onGround);
-			}, PacketOut.PlayerRotation );
+			}, PacketOut.PlayerRotation);
 
 		}
 
-		public ValueTask SendTeleportConfirm(int id )
+		public ValueTask SendTeleportConfirm(int id)
 		{
 			return this.SendPacket(w =>
 			{
 				w.WriteVarInt(id);
-			}, PacketOut.TeleportConfirm );
+			}, PacketOut.TeleportConfirm);
 		}
 
 
-		public ValueTask SendPluginMessage(string channel, byte[] data )
+		public ValueTask SendPluginMessage(string channel, byte[] data)
 		{
 			return this.SendPacket(w =>
 			{
 				w.WriteString(channel);
 				w.Write(data);
-			}, PacketOut.PluginMessage );
+			}, PacketOut.PluginMessage);
 		}
 
-		public ValueTask SendSettings(string language, byte viewDistance, byte chatMode, bool chatColors, byte skinParts, byte mainHand )
+		public ValueTask SendSettings(string language, byte viewDistance, byte chatMode, bool chatColors, byte skinParts, byte mainHand)
 		{
 			return this.SendPacket(w =>
 			{
@@ -134,7 +127,7 @@ namespace McProtoNet.MultiVersion
 				if (_protocol >= MinecraftVersion.MC_1_18_1_Version)
 					w.WriteUnsignedByte(1); // 1.18 and above - Allow server listings
 
-			}, PacketOut.ClientSettings );
+			}, PacketOut.ClientSettings);
 		}
 
 

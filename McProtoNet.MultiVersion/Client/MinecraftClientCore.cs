@@ -3,13 +3,11 @@ using McProtoNet.Core.IO;
 using McProtoNet.Core.Protocol;
 using McProtoNet.Protocol754.Packets.Client;
 using McProtoNet.Utils;
-using System.Net.Sockets;
-using QuickProxyNet;
-using System.IO.Pipelines;
-using System.Reactive.Disposables;
 using Microsoft.IO;
-using System.Runtime.CompilerServices;
+using QuickProxyNet;
 using Serilog;
+using System.IO.Pipelines;
+using System.Net.Sockets;
 
 namespace McProtoNet.MultiVersion
 {
@@ -66,7 +64,7 @@ namespace McProtoNet.MultiVersion
 
 
 			tcp = await CreateTcp(CTS.Token);
-			
+
 			minecraftStream = new MinecraftStream(tcp);
 			PacketSender = new MinecraftPacketSender(minecraftStream, true);
 
@@ -332,7 +330,7 @@ namespace McProtoNet.MultiVersion
 
 			//if (pipe is { })
 			{
-			//	pipe = null;
+				//	pipe = null;
 			}
 			if (PacketSender is { })
 			{

@@ -1,11 +1,11 @@
 ﻿namespace McProtoNet.MultiVersion
 {
-    public enum SubProtocol
-    {
-        HandShake,
-        Login,
-        Game
-    }
-    
+	public enum SubProtocol
+	{
+		HandShake,
+		Login,
+		Game
+	}
+
 
 }

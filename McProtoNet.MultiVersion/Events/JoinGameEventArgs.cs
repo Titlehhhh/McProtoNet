@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.MultiVersion.Events
 {
-    public class JoinGameEventArgs : EventArgs
-    {
+	public class JoinGameEventArgs : EventArgs
+	{
 
-    }
+	}
 }

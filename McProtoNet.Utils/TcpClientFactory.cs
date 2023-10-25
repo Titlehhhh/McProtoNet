@@ -1,12 +1,10 @@
-﻿using System.Net.Sockets;
-
-namespace McProtoNet.Utils
+﻿namespace McProtoNet.Utils
 {
-    //public class TcpClientFactory : ITcpClientFactory
-    //{
-    //    public TcpClient CreateTcpClient(string host, ushort port)
-    //    {
-    //        return new TcpClient(host, port);
-    //    }
-    //}
+	//public class TcpClientFactory : ITcpClientFactory
+	//{
+	//    public TcpClient CreateTcpClient(string host, ushort port)
+	//    {
+	//        return new TcpClient(host, port);
+	//    }
+	//}
 }

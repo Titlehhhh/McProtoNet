@@ -2,17 +2,17 @@ namespace McProtoNet.Protocol754.Packets.Server
 {
 
 
-    public sealed class ServerTradeListPacket : MinecraftPacket
-    {
-        public override void Write(IMinecraftPrimitiveWriter stream)
-        {
+	public sealed class ServerTradeListPacket : MinecraftPacket
+	{
+		public override void Write(IMinecraftPrimitiveWriter stream)
+		{
 
-        }
-        public override void Read(IMinecraftPrimitiveReader stream)
-        {
+		}
+		public override void Read(IMinecraftPrimitiveReader stream)
+		{
 
-        }
-        public ServerTradeListPacket() { }
-    }
+		}
+		public ServerTradeListPacket() { }
+	}
 }
 

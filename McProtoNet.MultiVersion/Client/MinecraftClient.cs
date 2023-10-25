@@ -1,18 +1,7 @@
-﻿using McProtoNet.MultiVersion.Events;
-using McProtoNet.Geometry;
-using Org.BouncyCastle.Crypto.Digests;
-using System.IO;
-using System.ComponentModel.DataAnnotations;
-using System.Net.Http.Headers;
-using System.Reflection.PortableExecutable;
-using System.Threading;
-using Microsoft.IO;
-using System.Runtime.InteropServices.JavaScript;
-using Stateless;
-using McProtoNet.MultiVersion.Client;
-using System.Runtime.CompilerServices;
-using System.IO.Pipelines;
+﻿using McProtoNet.MultiVersion.Client;
 using Serilog;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.CompilerServices;
 
 namespace McProtoNet.MultiVersion
 {

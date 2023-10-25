@@ -6,22 +6,22 @@ namespace McProtoNet.Utils;
 
 public class DefaultEnumConverter : JsonConverter
 {
-    public static readonly Regex pattern = new(@"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+");
+	public static readonly Regex pattern = new(@"[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+");
 
-    public override bool CanConvert(Type objectType)
-    {
-        throw new NotImplementedException();
-    }
+	public override bool CanConvert(Type objectType)
+	{
+		throw new NotImplementedException();
+	}
 
-    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
+	public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+	{
+		throw new NotImplementedException();
+	}
 
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
+	public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+	{
+		throw new NotImplementedException();
+	}
 }
 //public override bool CanConvert(Type typeToConvert) => typeToConvert.IsEnum && typeToConvert == typeof(T);
 

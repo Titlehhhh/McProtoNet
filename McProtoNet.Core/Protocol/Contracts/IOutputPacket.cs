@@ -2,8 +2,8 @@
 
 namespace McProtoNet.Core.Protocol
 {
-    public interface IOutputPacket
-    {
-        public abstract void Write(IMinecraftPrimitiveWriter stream);
-    }
+	public interface IOutputPacket
+	{
+		public abstract void Write(IMinecraftPrimitiveWriter stream);
+	}
 }

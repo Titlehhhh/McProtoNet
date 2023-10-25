@@ -227,7 +227,7 @@ namespace McProtoNet.Core.Protocol
 
 		public void Dispose()
 		{
-			
+
 			if (_disposed)
 				return;
 			if (semaphore is not null)

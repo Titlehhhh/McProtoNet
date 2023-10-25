@@ -1,12 +1,12 @@
 ﻿namespace McProtoNet.Core
 {
-    public enum PacketCategory
-    {
-        HandShake,
-        Status,
-        Login,
-        Game
-    }
+	public enum PacketCategory
+	{
+		HandShake,
+		Status,
+		Login,
+		Game
+	}
 
 
 }

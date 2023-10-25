@@ -1,9 +1,9 @@
 ﻿namespace McProtoNet.Core
 {
-    public enum PacketSide
-    {
-        Client,
-        Server
-    }
+	public enum PacketSide
+	{
+		Client,
+		Server
+	}
 
 }
