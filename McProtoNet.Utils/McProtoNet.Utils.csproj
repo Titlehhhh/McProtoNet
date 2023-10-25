@@ -20,7 +20,6 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
-    <ProjectReference Include="..\McProtoNet.Geometry\McProtoNet.Geometry.csproj" />
     <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
     <ProjectReference Include="..\QuickProxyNet\QuickProxyNet.csproj" />
   </ItemGroup>
