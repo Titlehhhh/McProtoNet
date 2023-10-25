@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0</TargetFrameworks>
+		<TargetFrameworks>net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		
@@ -14,17 +14,13 @@
 		<PackageReference Include="Microsoft.IO.RecyclableMemoryStream" Version="2.3.2" />
 		<PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageReference Include="ConfigureAwait.Fody" Version="3.3.2" />
-		
+		<PackageReference Include="QuickProxyNet" Version="0.1.4" />
 
 	</ItemGroup>
 	<ItemGroup>
-	  <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
+		<ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
 	</ItemGroup>
-	<ItemGroup>
-	  <Reference Include="QuickProxyNet">
-	    <HintPath>..\..\..\..\source\repos\QuickProxyNet\artifacts\nuget\QuickProxyNet.dll</HintPath>
-	  </Reference>
-	</ItemGroup>
+
 
 
 </Project>
