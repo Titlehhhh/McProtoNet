@@ -80,6 +80,7 @@
             "enum": [
               "Clean",
               "Compile",
+              "LocalNuget",
               "Pack",
               "Restore"
             ]
@@ -97,6 +98,7 @@
             "enum": [
               "Clean",
               "Compile",
+              "LocalNuget",
               "Pack",
               "Restore"
             ]
