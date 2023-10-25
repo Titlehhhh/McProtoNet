@@ -1,10 +1,7 @@
 <Project>
 	<PropertyGroup>
 		
-		<PackageVersion>$([System.DateTime]::Now.ToString(yyyy.MM.dd.mm))</PackageVersion>
-		<!--
-		<PackageVersion>99.0.0</PackageVersion>
-		-->
+		
 	</PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
