@@ -1,5 +1,5 @@
  
-[![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet?style=flat-square)](https://www.nuget.org/packages/McProtoNet/) 
+[![Discord Banner](https://img.shields.io/badge/discord-join%20chat-46BC99)](https://discord.gg/HVDzx4rCgg) [![NuGet version (McProtoNet)](https://img.shields.io/nuget/v/McProtoNet?style=flat-square)](https://www.nuget.org/packages/McProtoNet/) 
 
 
 
