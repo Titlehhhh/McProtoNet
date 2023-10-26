@@ -69,15 +69,15 @@ class Build : NukeBuild
 	  .Executes(() =>
 	  {
 
-		  DeleteDirectory(NugetDirectory);
+		  NugetDirectory.DeleteDirectory();
 
-		  string json = System.Text.Json.JsonSerializer.Serialize(this.GitVersion, new JsonSerializerOptions
-		  {
-			   WriteIndented = true
-		  });
+		  //string json = System.Text.Json.JsonSerializer.Serialize(this.GitVersion, new JsonSerializerOptions
+		  //{
+		  //  WriteIndented = true
+		  //});
 
-		  using var sw = new StreamWriter("version.json");
-		  sw.WriteLine(json);
+		  //using var sw = new StreamWriter("version.json");
+		  //sw.WriteLine(json);
 
 
 		  //if (Int32.TryParse(GitVersion.CommitsSinceVersionSource, out commitNum))
@@ -100,10 +100,9 @@ class Build : NukeBuild
 			.SetProject(Solution.GetProject("McProtoNet"))
 			.SetConfiguration(Configuration)
 			.EnableNoBuild()
-			.EnableNoRestore()			
+			.EnableNoRestore()
 			.SetVersion(NuGetVersionCustom)
-			//.SetDescription("EFcore based Outbox for Eventfully")
-			//.SetPackageTags("messaging servicebus cqrs distributed azureservicebus efcore ddd microservice outbox")
+			.SetAuthors("Titlehhhh")
 			.SetNoDependencies(true)
 			.SetOutputDirectory(ArtifactsDirectory / "nuget"));
 
@@ -111,10 +110,9 @@ class Build : NukeBuild
 				.SetProject(Solution.GetProject("McProtoNet.Core"))
 				.SetConfiguration(Configuration)
 				.EnableNoBuild()
+				.SetAuthors("Titlehhhh")
 				.EnableNoRestore()
 				.SetVersion(NuGetVersionCustom)
-				//.SetDescription("EFcore based Outbox for Eventfully")
-				//.SetPackageTags("messaging servicebus cqrs distributed azureservicebus efcore ddd microservice outbox")
 				.SetNoDependencies(true)
 				.SetOutputDirectory(ArtifactsDirectory / "nuget"));
 
@@ -123,10 +121,9 @@ class Build : NukeBuild
 				.SetProject(Solution.GetProject("McProtoNet.NBT"))
 				.SetConfiguration(Configuration)
 				.EnableNoBuild()
+				.SetAuthors("Titlehhhh")
 				.EnableNoRestore()
 				.SetVersion(NuGetVersionCustom)
-				//.SetDescription("EFcore based Outbox for Eventfully")
-				//.SetPackageTags("messaging servicebus cqrs distributed azureservicebus efcore ddd microservice outbox")
 				.SetNoDependencies(true)
 				.SetOutputDirectory(ArtifactsDirectory / "nuget"));
 
@@ -135,10 +132,9 @@ class Build : NukeBuild
 				.SetProject(Solution.GetProject("McProtoNet.Utils"))
 				.SetConfiguration(Configuration)
 				.EnableNoBuild()
+				.SetAuthors("Titlehhhh")
 				.EnableNoRestore()
 				.SetVersion(NuGetVersionCustom)
-				//.SetDescription("EFcore based Outbox for Eventfully")
-				//.SetPackageTags("messaging servicebus cqrs distributed azureservicebus efcore ddd microservice outbox")
 				.SetNoDependencies(true)
 				.SetOutputDirectory(ArtifactsDirectory / "nuget"));
 
@@ -146,7 +142,7 @@ class Build : NukeBuild
 
 
 	Target LocalNuget => _ => _
-	  .DependsOn(Pack)	  
+	  .DependsOn(Pack)
 	  .Requires(() => Configuration.Equals(Configuration.Debug))
 	  .Executes(() =>
 	  {
@@ -155,12 +151,32 @@ class Build : NukeBuild
 				  // .Where(x => !x.EndsWith("symbols.nupkg"))
 				  .ForEach(x =>
 				  {
-
 					  DotNetNuGetPush(s => s
 						  .SetTargetPath(x)
 						  .SetSource("I:\\LocalNuget")
 					  );
 				  });
 	  });
+
+
+	Target Push => _ => _
+	  .DependsOn(Pack)
+	  .Requires(() => NugetApiUrl)
+	  .Requires(() => NugetApiKey)
+	  .Requires(() => Configuration.Equals(Configuration.Release))
+	  .Executes(() =>
+	  {
+		  NugetDirectory.GlobFiles("*.nupkg")
+				  .NotEmpty()
+				  .ForEach(x =>
+				  {
+					  DotNetNuGetPush(s => s
+						  .SetTargetPath(x)
+						  .SetSource(NugetApiUrl)
+						  .SetApiKey(NugetApiKey)
+					  );
+				  });
+	  });
+
 
 }
