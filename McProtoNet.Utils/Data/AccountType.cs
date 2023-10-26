@@ -1,8 +1,8 @@
 ﻿namespace McProtoNet.Utils
 {
-    public enum AccountType
-    {
-        Microsoft,
-        Mojang
-    }
+	public enum AccountType
+	{
+		Microsoft,
+		Mojang
+	}
 }

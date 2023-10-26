@@ -1,4 +1,5 @@
-﻿using System.IO.Compression;
+﻿using Microsoft.IO;
+using System.IO.Compression;
 using System.Runtime.CompilerServices;
 
 namespace McProtoNet.Core.Protocol
@@ -21,6 +22,7 @@ namespace McProtoNet.Core.Protocol
 		private readonly byte[] ZERO_VARINT = { 0 };
 		private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 
+		static RecyclableMemoryStreamManager streamManager = new();
 		public void SendPacket(Packet packet)
 		{
 			semaphore.Wait();
@@ -45,7 +47,7 @@ namespace McProtoNet.Core.Protocol
 					if (uncompressedSize >= _compressionThreshold)
 					{
 
-						using (var compressedPacket = new MemoryStream())
+						using (var compressedPacket = streamManager.GetStream())
 						{
 							using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress, true))
 							{
@@ -121,7 +123,7 @@ namespace McProtoNet.Core.Protocol
 			ThrowIfDisposed();
 			int id = packet.Id;
 			var data = packet.Data;
-			await semaphore.WaitAsync(token);
+			//await semaphore.WaitAsync(token);
 			try
 			{
 
@@ -139,7 +141,7 @@ namespace McProtoNet.Core.Protocol
 					if (uncompressedSize >= _compressionThreshold)
 					{
 
-						using (var compressedPacket = new MemoryStream())
+						using (var compressedPacket = streamManager.GetStream())
 						{
 							using (var zlibStream = new ZLibStream(compressedPacket, CompressionMode.Compress, true))
 							{
@@ -182,7 +184,7 @@ namespace McProtoNet.Core.Protocol
 			}
 			finally
 			{
-				semaphore.Release();
+				//semaphore.Release();
 			}
 		}
 
@@ -225,7 +227,7 @@ namespace McProtoNet.Core.Protocol
 
 		public void Dispose()
 		{
-			Console.WriteLine("DsipMPS");
+
 			if (_disposed)
 				return;
 			if (semaphore is not null)

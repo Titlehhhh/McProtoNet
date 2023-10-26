@@ -1,7 +1,7 @@
 ﻿namespace McProtoNet.Core.Packets
 {
-    public interface IPacketRepository : IDisposable
-    {
-        IPacketProvider GetPackets(PacketCategory category);
-    }
+	public interface IPacketRepository : IDisposable
+	{
+		IPacketProvider GetPackets(PacketCategory category);
+	}
 }

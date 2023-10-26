@@ -1,9 +1,9 @@
 ﻿namespace McProtoNet.Core
 {
-    public enum DisconnectType
-    {
-        InGameKick,
-        LoginRejected,
-        ConnectionLost
-    }
+	public enum DisconnectType
+	{
+		InGameKick,
+		LoginRejected,
+		ConnectionLost
+	}
 }
