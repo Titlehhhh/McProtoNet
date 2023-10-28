@@ -10,7 +10,7 @@ namespace McProtoNet
 		public ushort Port { get; set; }
 
 		//TODO AuthInfo
-		
+
 		public IProxyClient? Proxy { get; set; }
 	}
 }

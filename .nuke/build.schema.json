@@ -82,6 +82,7 @@
               "Compile",
               "LocalNuget",
               "Pack",
+              "Push",
               "Restore"
             ]
           }
@@ -100,6 +101,7 @@
               "Compile",
               "LocalNuget",
               "Pack",
+              "Push",
               "Restore"
             ]
           }
