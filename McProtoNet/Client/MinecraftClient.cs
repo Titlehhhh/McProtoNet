@@ -109,16 +109,23 @@ namespace McProtoNet
 				//ToDO login
 			}
 		}
-		private Task? workTask;
+		private TaskCompletionSource workTask;
 		public TaskAwaiter GetAwaiter()
 		{
 			if (workTask is null)
-				return default;
-			return workTask.GetAwaiter();
+			{
+				return Task.CompletedTask.GetAwaiter();
+			}
+			return workTask.Task.GetAwaiter();
 		}
 
 		public async Task Login(Serilog.ILogger logger)
 		{
+			if (workTask is not null)
+			{
+				workTask.TrySetResult();
+			}
+			workTask = new();
 			_logger = logger;
 
 			_startDisconnect = false;
@@ -134,22 +141,51 @@ namespace McProtoNet
 				await _core.HandShake();
 
 				State = ClientState.Login;
-				workTask = await _core.Login(OnPacket);
+				var t = await _core.Login(OnPacket);
+
 				State = ClientState.Play;
+
+				WaitTask(t);
+
+				
+
+				
 			}
 			catch (Exception e) when (e is not OperationCanceledException)
 			{
+				workTask.TrySetException(e);
+				State = ClientState.Failed;
 				_logger.Error(e, "Во время запуска клиента произошла ошибка");
 				throw e;
+			}
+			catch (TaskCanceledException cancel)
+			{
+
 			}
 
 
 		}
+
+		private async void WaitTask(Task t)
+		{
+			try
+			{
+				await t;
+			}
+			catch(Exception e)
+			{
+				this.State = ClientState.Failed;
+				workTask.TrySetException(e);
+			}
+		}
+
+
 		private bool _startDisconnect = false;
 		public async void Disconnect()
 		{
 			if (_startDisconnect)
 				return;
+			workTask?.TrySetCanceled();
 			_startDisconnect = true;
 			if (_core is not null)
 				await _core.DisposeAsync();

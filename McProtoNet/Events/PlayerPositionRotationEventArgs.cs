@@ -3,27 +3,17 @@
 
 	public class PlayerPositionRotationEventArgs : EventArgs
 	{
-		public double X { get; }
-		public double Y { get; }
-		public double Z { get; }
+		public double X { get; internal set; }
+		public double Y { get; internal set; }
+		public double Z { get; internal set; }
 
-		public float Yaw { get; }
-		public float Pitch { get; }
+		public float Yaw { get; internal set; }
+		public float Pitch { get; internal set; }
 
-		public byte Flags { get; }
-		public int TeleportId { get; }
+		public byte Flags { get; internal set; }
+		public int TeleportId { get; internal set; }
 
-		public PlayerPositionRotationEventArgs(double x, double y, double z, float yaw, float pitch, byte flags, int teleportId)
-		{
-			X = x;
-			Y = y;
-			Z = z;
-			Yaw = yaw;
-			Pitch = pitch;
-
-			Flags = flags;
-			TeleportId = teleportId;
-		}
+		
 
 		public Vector3 GetPosition(Vector3 current)
 		{

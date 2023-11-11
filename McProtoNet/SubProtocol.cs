@@ -6,5 +6,4 @@
 		Login,
 		Game
 	}
-
 }

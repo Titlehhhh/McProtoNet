@@ -2,21 +2,13 @@
 {
 	public class MapDataEventArgs : EventArgs
 	{
-		public int MapId { get; }
-		public byte Scale { get; }
-		public bool TrackingPosition { get; }
-		public bool Locked { get; }
-		public MapIcon[] Icons { get; }
-		public MapData? Data { get; }
+		public int MapId { get; internal set; }
+		public byte Scale { get; internal set; }
+		public bool TrackingPosition { get; internal set; }
+		public bool Locked { get; internal set; }
+		public MapIcon[] Icons { get; internal set; }
+		public MapData? Data { get; internal set; } = new();
 
-		public MapDataEventArgs(int mapId, byte scale, bool trackingPosition, bool locked, MapIcon[] icons, MapData? data)
-		{
-			MapId = mapId;
-			Scale = scale;
-			TrackingPosition = trackingPosition;
-			Locked = locked;
-			Icons = icons;
-			Data = data;
-		}
+		
 	}
 }

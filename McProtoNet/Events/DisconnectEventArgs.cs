@@ -2,11 +2,8 @@
 {
 	public class DisconnectEventArgs : EventArgs
 	{
-		public string Reason { get; }
+		public string Reason { get; internal set; }
 
-		public DisconnectEventArgs(string reason)
-		{
-			Reason = reason;
-		}
+		
 	}
 }

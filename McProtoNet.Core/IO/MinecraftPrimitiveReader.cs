@@ -1,5 +1,6 @@
 ﻿using McProtoNet.Core.Helpers;
 using McProtoNet.NBT;
+using Microsoft.Extensions.ObjectPool;
 using Microsoft.IO;
 using System.Buffers.Binary;
 using System.Diagnostics;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace McProtoNet.Core.IO
 {
-	public class MinecraftPrimitiveReader : IMinecraftPrimitiveReader
+	public class MinecraftPrimitiveReader : IMinecraftPrimitiveReader, IResettable
 	{
 		public Stream BaseStream { get; set; }
 
@@ -234,6 +235,12 @@ namespace McProtoNet.Core.IO
 			}
 
 			return result;
+		}
+
+		public bool TryReset()
+		{
+			BaseStream = null;
+			return true;
 		}
 	}
 }

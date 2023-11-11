@@ -2,26 +2,17 @@
 {
 	public class EntityPositionRotationEventArgs : EventArgs
 	{
-		public int EntityId { get; private set; }
-		public double DeltaX { get; }
-		public double DeltaY { get; }
-		public double DeltaZ { get; }
+		public int EntityId { get; internal set; }
+		public double DeltaX { get; internal set; }
+		public double DeltaY { get; internal set; }
+		public double DeltaZ { get; internal set; }
 
-		public byte Yaw { get; }
-		public byte Pitch { get; }
+		public byte Yaw { get; internal set; }
+		public byte Pitch { get; internal set; }
 
-		public bool OnGround { get; private set; }
+		public bool OnGround { get; internal set; }
 
-		public EntityPositionRotationEventArgs(int entityId, double deltaX, double deltaY, double deltaZ, byte yaw, byte pitch, bool onGround)
-		{
-			EntityId = entityId;
-			DeltaX = deltaX;
-			DeltaY = deltaY;
-			DeltaZ = deltaZ;
-			Yaw = yaw;
-			Pitch = pitch;
-			OnGround = onGround;
-		}
+		
 
 		public Vector3 GetVector()
 		{

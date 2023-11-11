@@ -2,26 +2,17 @@
 {
 	public class EntityTeleportEventArgs : EventArgs
 	{
-		public int EntityId { get; private set; }
-		public double X { get; }
-		public double Y { get; }
-		public double Z { get; }
+		public int EntityId { get; internal set; }
+		public double X { get; internal set; }
+		public double Y { get; internal set; }
+		public double Z { get; internal set; }
 
-		public byte Yaw { get; private set; }
-		public byte Pitch { get; private set; }
+		public byte Yaw { get; internal set; }
+		public byte Pitch { get; internal set; }
 
-		public bool OnGround { get; private set; }
+		public bool OnGround { get; internal set; }
 
-		public EntityTeleportEventArgs(int entityId, double x, double y, double z, byte yaw, byte pitch, bool onGround)
-		{
-			EntityId = entityId;
-			X = x;
-			Y = y;
-			Z = z;
-			Yaw = yaw;
-			Pitch = pitch;
-			OnGround = onGround;
-		}
+		
 
 		public Vector3 GetVector()
 		{

@@ -63,20 +63,38 @@ namespace McProtoNet
 		public IObservable<SpawnPlayerEventArgs> OnSpawnPlayer => _spawnPlayerEvent;
 
 
-
-		private async Task OnPacket(IMinecraftPrimitiveReader reader, PacketIn id, CancellationToken cancellation)
+		private void OnPacket(IMinecraftPrimitiveReader reader, PacketIn id, CancellationToken cancellation)
 		{
 
 
 			if (id == PacketIn.Disconnect)
 			{
 				string reason = reader.ReadString();
-				_disconnectEvent.OnNext(new DisconnectEventArgs(reason));
+				var dis = PacketPool.DisconnectEventPool.Get();
+				try
+				{
+					dis.Reason = reason;
+
+					_disconnectEvent.OnNext(dis);
+				}
+				finally
+				{
+					PacketPool.DisconnectEventPool.Return(dis);
+				}
 				throw new DisconnectException(reason);
 			}
 			if (id == PacketIn.JoinGame)
 			{
-				_joinGameEvent.OnNext(new JoinGameEventArgs());
+				var join = PacketPool.JoinGamePacketPool.Get();
+
+				try
+				{
+					_joinGameEvent.OnNext(join);
+				}
+				finally
+				{
+					PacketPool.JoinGamePacketPool.Return(join);
+				}
 			}
 			else if (id == PacketIn.MapData)
 			{
@@ -173,17 +191,17 @@ namespace McProtoNet
 					mapCoulmnX = reader.ReadUnsignedByte();
 					mapRowZ = reader.ReadUnsignedByte();
 					colors = reader.ReadByteArray();
-					data = new MapData(columnsUpdated, rowsUpdated, mapCoulmnX, mapRowZ, colors);
+					//data = new MapData(columnsUpdated, rowsUpdated, mapCoulmnX, mapRowZ, colors);
 				}
 
-				var eventArgs = new MapDataEventArgs(mapid, scale, trackingPosition, locked, icons, data);
+				//var eventArgs = new MapDataEventArgs(mapid, scale, trackingPosition, locked, icons, data);
 
-				_mapDataEvent.OnNext(eventArgs);
+				//_mapDataEvent.OnNext(eventArgs);
 			}
 			else if (id == PacketIn.KeepAlive)
 			{
 				long pingId = reader.ReadLong();
-				await SendPacket(w => w.WriteLong(pingId), PacketOut.KeepAlive);
+				SendPacket(w => w.WriteLong(pingId), PacketOut.KeepAlive);
 			}
 			else if (id == PacketIn.PlayerPositionRotation)
 			{
@@ -196,93 +214,136 @@ namespace McProtoNet
 				var flags = reader.ReadUnsignedByte();
 				var teleportId = reader.ReadVarInt();
 
-				var events = new PlayerPositionRotationEventArgs(x, y, z, yaw, pitch, flags, teleportId);
-				_playerPositionRotationEvent.OnNext(events);
+				//var events = new PlayerPositionRotationEventArgs(x, y, z, yaw, pitch, flags, teleportId);
+
+
+				var packet = PacketPool.PlayerPositionRotationPacketPool.Get();
+				try
+				{
+
+
+					packet.X = x;
+					packet.Y = y;
+					packet.Z = z;
+					packet.Yaw = yaw;
+					packet.Pitch = pitch;
+					packet.Flags = flags;
+					packet.TeleportId = teleportId;
+
+					_playerPositionRotationEvent.OnNext(packet);
+				}
+				finally
+				{
+					PacketPool.PlayerPositionRotationPacketPool.Return(packet);
+				}
+
 
 			}
 			else if (id == PacketIn.Respawn)
 			{
-				_respawnEvent.OnNext(new RespawnEventArgs());
+				var respawn = PacketPool.RespawnPacketPool.Get();
+
+				try
+				{
+
+
+					_respawnEvent.OnNext(respawn);
+				}
+				finally
+				{
+					PacketPool.RespawnPacketPool.Return(respawn);
+				}
 			}
 			else if (id == PacketIn.ChatMessage)
 			{
 				string message = reader.ReadString();
-				_chatEvent.OnNext(new ChatMessageEventArgs(message));
+
+				var chatPacket = PacketPool.ChatPacketPool.Get();
+
+				try
+				{
+					chatPacket.Message = message;
+					_chatEvent.OnNext(chatPacket);
+				}
+				finally
+				{
+					PacketPool.ChatPacketPool.Return(chatPacket);
+				}
 			}
 			else if (id == PacketIn.SpawnEntity)
 			{
-				int entityID = reader.ReadVarInt();
-				Guid entityUUID = reader.ReadUUID();
+				//int entityID = reader.ReadVarInt();
+				//Guid entityUUID = reader.ReadUUID();
 
-				int entityType = reader.ReadVarInt();
-
-
-
-				Double entityX, entityY, entityZ;
-
-
-				entityX = reader.ReadDouble(); // X
-				entityY = reader.ReadDouble(); // Y
-				entityZ = reader.ReadDouble(); // Z
+				//int entityType = reader.ReadVarInt();
 
 
 
-				int metadata = -1;
-				bool hasData = false;
-				byte entityPitch, entityYaw;
+				//Double entityX, entityY, entityZ;
 
 
-				entityPitch = reader.ReadUnsignedByte(); // Pitch
-				entityYaw = reader.ReadUnsignedByte(); // Yaw
+				//entityX = reader.ReadDouble(); // X
+				//entityY = reader.ReadDouble(); // Y
+				//entityZ = reader.ReadDouble(); // Z
 
 
-				entityYaw = reader.ReadUnsignedByte(); // Head Yaw
 
-				reader.ReadVarInt();
+				//int metadata = -1;
+				//bool hasData = false;
+				//byte entityPitch, entityYaw;
 
 
-				reader.ReadShort();
-				reader.ReadShort();
-				reader.ReadShort();
+				//entityPitch = reader.ReadUnsignedByte(); // Pitch
+				//entityYaw = reader.ReadUnsignedByte(); // Yaw
+
+
+				//entityYaw = reader.ReadUnsignedByte(); // Head Yaw
+
+				//reader.ReadVarInt();
+
+
+				//reader.ReadShort();
+				//reader.ReadShort();
+				//reader.ReadShort();
 
 			}
 			else if (id == PacketIn.SpawnPlayer)
 			{
-				int EntityID = reader.ReadVarInt();
-				Guid UUID = reader.ReadUUID();
+				//int EntityID = reader.ReadVarInt();
+				//Guid UUID = reader.ReadUUID();
 
-				double x, y, z;
+				//double x, y, z;
 
-				x = reader.ReadDouble();
-				y = reader.ReadDouble();
-				z = reader.ReadDouble();
+				//x = reader.ReadDouble();
+				//y = reader.ReadDouble();
+				//z = reader.ReadDouble();
 
 
-				byte Yaw = reader.ReadUnsignedByte();
-				byte Pitch = reader.ReadUnsignedByte();
+				//byte Yaw = reader.ReadUnsignedByte();
+				//byte Pitch = reader.ReadUnsignedByte();
 
-				Vector3 playerPosition = new(x, y, z);
+				//Vector3 playerPosition = new(x, y, z);
 
 
 			}
 			else if (id == PacketIn.EntityPosition)
 			{
 
-				int EntityID = reader.ReadVarInt();
+				//int EntityID = reader.ReadVarInt();
 
-				Double DeltaX, DeltaY, DeltaZ;
+				//Double DeltaX, DeltaY, DeltaZ;
 
-				DeltaX = Convert.ToDouble(reader.ReadShort());
-				DeltaY = Convert.ToDouble(reader.ReadShort());
-				DeltaZ = Convert.ToDouble(reader.ReadShort());
+				//DeltaX = Convert.ToDouble(reader.ReadShort());
+				//DeltaY = Convert.ToDouble(reader.ReadShort());
+				//DeltaZ = Convert.ToDouble(reader.ReadShort());
 
 
-				bool OnGround = reader.ReadBoolean();
-				DeltaX = DeltaX / (128 * 32);
-				DeltaY = DeltaY / (128 * 32);
-				DeltaZ = DeltaZ / (128 * 32);
+				//bool OnGround = reader.ReadBoolean();
+				//DeltaX = DeltaX / (128 * 32);
+				//DeltaY = DeltaY / (128 * 32);
+				//DeltaZ = DeltaZ / (128 * 32);
 
-				var args = new EntityPositionEventArgs(EntityID, DeltaX, DeltaY, DeltaZ, OnGround);
+				//var args = new EntityPositionEventArgs(EntityID, DeltaX, DeltaY, DeltaZ, OnGround);
 
 			}
 			else if (id == PacketIn.EntityRotation)
@@ -291,25 +352,25 @@ namespace McProtoNet
 			}
 			else if (id == PacketIn.EntityPositionRotation)
 			{
-				int EntityID = reader.ReadVarInt();
+				//int EntityID = reader.ReadVarInt();
 
-				Double DeltaX, DeltaY, DeltaZ;
-
-
-				DeltaX = Convert.ToDouble(reader.ReadShort());
-				DeltaY = Convert.ToDouble(reader.ReadShort());
-				DeltaZ = Convert.ToDouble(reader.ReadShort());
+				//Double DeltaX, DeltaY, DeltaZ;
 
 
+				//DeltaX = Convert.ToDouble(reader.ReadShort());
+				//DeltaY = Convert.ToDouble(reader.ReadShort());
+				//DeltaZ = Convert.ToDouble(reader.ReadShort());
 
-				byte _yaw = reader.ReadUnsignedByte();
-				byte _pitch = reader.ReadUnsignedByte();
-				bool OnGround = reader.ReadBoolean();
-				DeltaX = DeltaX / (128 * 32);
-				DeltaY = DeltaY / (128 * 32);
-				DeltaZ = DeltaZ / (128 * 32);
 
-				var args = new EntityPositionRotationEventArgs(EntityID, DeltaX, DeltaY, DeltaZ, _yaw, _pitch, OnGround);
+
+				//byte _yaw = reader.ReadUnsignedByte();
+				//byte _pitch = reader.ReadUnsignedByte();
+				//bool OnGround = reader.ReadBoolean();
+				//DeltaX = DeltaX / (128 * 32);
+				//DeltaY = DeltaY / (128 * 32);
+				//DeltaZ = DeltaZ / (128 * 32);
+
+				//var args = new EntityPositionRotationEventArgs(EntityID, DeltaX, DeltaY, DeltaZ, _yaw, _pitch, OnGround);
 
 
 			}
@@ -329,7 +390,7 @@ namespace McProtoNet
 				byte EntityPitch = reader.ReadUnsignedByte();
 				bool OnGround = reader.ReadBoolean();
 
-				var args = new EntityTeleportEventArgs(EntityID, x, y, z, EntityYaw, EntityPitch, OnGround);
+				//var args = new EntityTeleportEventArgs(EntityID, x, y, z, EntityYaw, EntityPitch, OnGround);
 
 			}
 

@@ -7,10 +7,11 @@ using QuickProxyNet;
 using Serilog;
 using System.IO.Pipelines;
 using System.Net.Sockets;
+using System.Reflection.PortableExecutable;
 
 namespace McProtoNet
 {
-	internal delegate Task OnPacketReceived(MinecraftPrimitiveReader reader, PacketIn id, CancellationToken cancellation);
+	internal delegate void OnPacketReceived(MinecraftPrimitiveReader reader, PacketIn id, CancellationToken cancellation);
 
 	internal class MinecraftClientCore : IDisposable, IAsyncDisposable
 	{
@@ -41,7 +42,7 @@ namespace McProtoNet
 			_logger = logger;
 		}
 
-		private MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader();
+
 		private int threshold;
 		private SubProtocol _subProtocol;
 
@@ -99,9 +100,6 @@ namespace McProtoNet
 			{
 				await LoginCore(CTS.Token);
 			}
-
-
-
 			//Task fill = FillPipeAsync(CTS.Token);
 			Task read = ReadPipeAsync(CTS.Token, packetReceived);
 
@@ -116,15 +114,26 @@ namespace McProtoNet
 			{
 				using (Packet readData = await PacketReader.ReadNextPacketAsync(cancellation))
 				{
-					reader.BaseStream = readData.Data;
-					ok = await HandleLogin(readData.Id);
+					var reader = Performance.Readers.Get();
+					try
+					{
+						reader.BaseStream = readData.Data;
+
+
+						ok = await HandleLogin(reader, readData.Id);
+					}
+					finally
+					{
+						Performance.Readers.Return(reader);
+					}
 				}
 
 			} while (!ok);
 
 		}
-		private async Task<bool> HandleLogin(int id)
+		private async Task<bool> HandleLogin(MinecraftPrimitiveReader reader, int id)
 		{
+
 			if (id == 0x02)
 			{
 				_subProtocol = SubProtocol.Game;
@@ -161,14 +170,16 @@ namespace McProtoNet
 			}
 			else
 			{
-				throw new Exception("unkown packet: " + id);
+				throw new Exception("Unkown packet: " + id);
 			}
+
 			return false;
 		}
 
 
 		private async Task ReadPipeAsync(CancellationToken cancellationToken, OnPacketReceived packetReceived)
 		{
+
 			PacketReader = new MinecraftPacketReader(minecraftStream, false);
 			PacketReader.SwitchCompression(threshold);
 
@@ -179,12 +190,26 @@ namespace McProtoNet
 					if (_packetPallete.TryGetIn(packet.Id, out var packetIn))
 					{
 						packet.Data.Position = 0;
-						reader.BaseStream = packet.Data;
 
-						await packetReceived.Invoke(reader, packetIn, cancellationToken);
+						var reader = Performance.Readers.Get();
+
+						try
+						{
+
+
+
+							reader.BaseStream = packet.Data;
+
+							packetReceived.Invoke(reader, packetIn, cancellationToken);
+						}
+						finally
+						{
+							Performance.Readers.Return(reader);
+						}
 					}
 				}
 			}
+
 		}
 		private async Task FillPipeAsync(CancellationToken cancellationToken)
 		{
@@ -221,7 +246,7 @@ namespace McProtoNet
 				return tcp.GetStream();
 			}
 			_logger.Information($"Подключение к {_proxy.Type} прокси {_proxy.ProxyHost}:{_proxy.ProxyPort}");
-			return await _proxy.ConnectAsync(_host, _port, cancellation);
+			return await _proxy.ConnectAsync(_host, _port, 10000, cancellation);
 		}
 
 
@@ -241,8 +266,6 @@ namespace McProtoNet
 		}
 		private SemaphoreSlim semaphore = new SemaphoreSlim(1, 1);
 		static RecyclableMemoryStreamManager streamManager = new();
-		MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
-
 
 
 		public async ValueTask SendPacket(Action<IMinecraftPrimitiveWriter> action, int id)
@@ -252,10 +275,21 @@ namespace McProtoNet
 			{
 				using (MemoryStream ms = streamManager.GetStream())
 				{
-					writer.BaseStream = ms;
-					action(writer);
-					ms.Position = 0;
+					var writer = Performance.Writers.Get();
+					try
+					{
+
+
+						writer.BaseStream = ms;
+						action(writer);
+						ms.Position = 0;
+					}
+					finally
+					{
+						Performance.Writers.Return(writer);
+					}
 					await PacketSender.SendPacketAsync(new(id, ms), CTS.Token);
+
 				}
 			}
 			catch { }
@@ -271,10 +305,19 @@ namespace McProtoNet
 			{
 				using (MemoryStream ms = streamManager.GetStream())
 				{
-					writer.BaseStream = ms;
+					var writer = Performance.Writers.Get();
+					try
+					{
 
-					packet.Write(writer);
+						writer.BaseStream = ms;
 
+						packet.Write(writer);
+
+					}
+					finally
+					{
+						Performance.Writers.Return(writer);
+					}
 					ms.Position = 0;
 					await PacketSender.SendPacketAsync(new(id, ms), CTS.Token);
 				}
@@ -309,7 +352,7 @@ namespace McProtoNet
 			_proxy = null;
 			_packetPallete = null;
 			_disposed = true;
-			reader = null;
+
 			_logger = null;
 
 			if (CTS is { })
@@ -346,7 +389,7 @@ namespace McProtoNet
 			_proxy = null;
 			_packetPallete = null;
 			_disposed = true;
-			reader = null;
+
 			_logger = null;
 
 

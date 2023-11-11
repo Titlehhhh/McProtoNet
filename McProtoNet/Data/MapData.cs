@@ -2,19 +2,12 @@
 {
 	public class MapData
 	{
-		public byte Columns { get; private set; }
-		public byte Rows { get; private set; }
-		public byte X { get; private set; }
-		public byte Y { get; private set; }
-		public byte[] Data { get; private set; }
+		public byte Columns { get; internal set; }
+		public byte Rows { get; internal set; }
+		public byte X { get; internal set; }
+		public byte Y { get; internal set; }
+		public byte[] Data { get; internal set; }
 
-		public MapData(byte columns, byte rows, byte x, byte y, byte[] data)
-		{
-			Columns = columns;
-			Rows = rows;
-			X = x;
-			Y = y;
-			Data = data;
-		}
+		
 	}
 }

@@ -1,21 +1,9 @@
 ﻿namespace McProtoNet.Events
 {
-
-	public class SpawnEntityEventArgs : EventArgs
-	{
-		public int Id { get; private set; }
-		public Guid UUID { get; private set; }
-
-		public int MyProperty { get; private set; }
-
-	}
 	public class ChatMessageEventArgs : EventArgs
 	{
-		public string Message { get; private set; }
+		public string Message { get; internal set; }
 
-		public ChatMessageEventArgs(string message)
-		{
-			Message = message;
-		}
+		
 	}
 }
