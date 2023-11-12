@@ -1,8 +1,9 @@
 <Project>
-	<PropertyGroup>
-		
-		
+	<PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+		<PackageOutputPath>$(SolutionDir)artifacts\DebugLocalNuGet</PackageOutputPath>
+		<PackageVersion>1.8.1-local.$([System.DateTime]::Now.ToString("yyyy.MM.dd.HHmmss"))</PackageVersion>
 	</PropertyGroup>
+	
   <ItemGroup>
     <PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
     <PackageVersion Include="BenchmarkDotNet.Annotations" Version="0.13.5" />

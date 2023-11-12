@@ -4,7 +4,8 @@
 		<TargetFrameworks>net8.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		
+		<GeneratePackageObBuild>True</GeneratePackageObBuild>
+
 		<LangVersion>latest</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>		
 		<Description>Ядро McProtoNet</Description>
@@ -18,7 +19,9 @@
 
 	</ItemGroup>
 	<ItemGroup>
+		
 		<ProjectReference Include="..\..\..\..\QuickProxyNet\QuickProxyNet\QuickProxyNet.csproj" />
+		
 		<ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj" />
 	</ItemGroup>
 

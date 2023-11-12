@@ -5,16 +5,17 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		
+
 		<LangVersion>11</LangVersion>
 		
 		<Description>High-performance library for working with the minecraft protocol</Description>
 		<RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-		<PackageTags>minecraft bot reactive perfomance</PackageTags>
+		<PackageTags>minecraft bot reactive performance</PackageTags>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 	</PropertyGroup>
 
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\..\..\QuickProxyNet\QuickProxyNet\QuickProxyNet.csproj" />
+	<ItemGroup>		
 		<ProjectReference Include="..\McProtoNet.Core\McProtoNet.Core.csproj" />
 		<ProjectReference Include="..\McProtoNet.Utils\McProtoNet.Utils.csproj" />
 	</ItemGroup>

@@ -3,7 +3,8 @@
 		<TargetFrameworks>netstandard2.0</TargetFrameworks>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
-		
+		<GeneratePackageObBuild>True</GeneratePackageObBuild>
+
 		<LangVersion>11</LangVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		

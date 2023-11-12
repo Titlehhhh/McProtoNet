@@ -4,7 +4,9 @@
     <TargetFrameworks>net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Description>Библиотека с инструментами для McProtoNet</Description>
+	  <GeneratePackageObBuild>True</GeneratePackageObBuild>
+
+	  <Description>Библиотека с инструментами для McProtoNet</Description>
     <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
 	  <LangVersion>11</LangVersion>
   </PropertyGroup>

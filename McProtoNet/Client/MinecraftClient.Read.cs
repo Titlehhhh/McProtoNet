@@ -272,39 +272,50 @@ namespace McProtoNet
 			}
 			else if (id == PacketIn.SpawnEntity)
 			{
-				//int entityID = reader.ReadVarInt();
-				//Guid entityUUID = reader.ReadUUID();
+				int entityID = reader.ReadVarInt();
+				Guid entityUUID = reader.ReadUUID();
 
-				//int entityType = reader.ReadVarInt();
-
-
-
-				//Double entityX, entityY, entityZ;
-
-
-				//entityX = reader.ReadDouble(); // X
-				//entityY = reader.ReadDouble(); // Y
-				//entityZ = reader.ReadDouble(); // Z
+				int entityType = reader.ReadVarInt();
 
 
 
-				//int metadata = -1;
-				//bool hasData = false;
-				//byte entityPitch, entityYaw;
+				Double entityX, entityY, entityZ;
 
 
-				//entityPitch = reader.ReadUnsignedByte(); // Pitch
-				//entityYaw = reader.ReadUnsignedByte(); // Yaw
+				entityX = reader.ReadDouble(); // X
+				entityY = reader.ReadDouble(); // Y
+				entityZ = reader.ReadDouble(); // Z
 
 
-				//entityYaw = reader.ReadUnsignedByte(); // Head Yaw
 
-				//reader.ReadVarInt();
+				int metadata = -1;
+				bool hasData = false;
+				byte entityPitch, entityYaw;
 
 
-				//reader.ReadShort();
-				//reader.ReadShort();
-				//reader.ReadShort();
+				entityPitch = reader.ReadUnsignedByte(); // Pitch
+				entityYaw = reader.ReadUnsignedByte(); // Yaw
+
+
+				entityYaw = reader.ReadUnsignedByte(); // Head Yaw
+
+				reader.ReadVarInt();
+
+
+				reader.ReadShort();
+				reader.ReadShort();
+				reader.ReadShort();
+
+				var spawnEntity = PacketPool.SpawnEntityPacketPool.Get();
+				try
+				{
+					spawnEntity.Id = entityID;
+					spawnEntity.UUID = entityUUID;
+				}
+				catch
+				{
+
+				}
 
 			}
 			else if (id == PacketIn.SpawnPlayer)
