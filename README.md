@@ -24,19 +24,19 @@ McProtoNet is currently under active development, so some features are not stabl
 
 
 <ul style="list-style-type: none; padding-left: 0;">
-    <li style="vertical-align: middle">
-        <img valign="middle" src="assets/performance.svg" alt="Icon 1" style="width: 25px;vertical-align: middle; margin-right: 8px;">
-        <strong valign="middle" style="vertical-align: middle">High-performance</strong>
+    <li valign="middle" style="vertical-align: middle">
+        <img src="assets/performance.svg" alt="Icon 1" style="width: 25px;vertical-align: middle; margin-right: 8px;">
+        <strong style="vertical-align: middle">High-performance</strong>
     </li>
-    <li style="margin-top: 12px">
+    <li valign="middle" style="margin-top: 12px">
         <img src="assets/async.svg" alt="Icon 2" style="width: 25px; vertical-align: middle; margin-right: 8px">
         <strong style="vertical-align: middle">Async API</strong>
     </li>
-    <li style="margin-top: 12px">
+    <li valign="middle" style="margin-top: 12px">
         <img src="assets/multiversion.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
         <strong style="vertical-align: middle">Multi-Version</strong> (1.12.2-1.21.2)
     </li>
-    <li style="margin-top: 12px">
+    <li valign="middle" style="margin-top: 12px">
         <img src="assets/nbt.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
         <strong style="vertical-align: middle">NBT Parsing</strong>
     </li>
