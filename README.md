@@ -26,19 +26,19 @@ McProtoNet is currently under active development, so some features are not stabl
 <ul style="list-style-type: none; padding-left: 0;">
     <li>
         <img src="assets/performance.svg" alt="Icon 1" style="width: 25px; vertical-align: middle; margin-right: 8px;">
-        <strong>High-performance</strong>
+        <strong style="vertical-align: middle">High-performance</strong>
     </li>
     <li style="margin-top: 12px">
         <img src="assets/async.svg" alt="Icon 2" style="width: 25px; vertical-align: middle; margin-right: 8px">
-        <strong>Async API</strong>
+        <strong style="vertical-align: middle">Async API</strong>
     </li>
     <li style="margin-top: 12px">
         <img src="assets/multiversion.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
-        <strong>Multi-Version</strong> (1.12.2-1.21.2)
+        <strong style="vertical-align: middle">Multi-Version</strong> (1.12.2-1.21.2)
     </li>
     <li style="margin-top: 12px">
         <img src="assets/nbt.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
-        <strong>NBT Parsing</strong>
+        <strong style="vertical-align: middle">NBT Parsing</strong>
     </li>
 </ul>
 
