@@ -10,6 +10,7 @@ namespace McProtoNet.Net;
 internal sealed class MinecraftPacketPipeReader
 {
     private readonly PipeReader pipeReader;
+    private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
 
     public MinecraftPacketPipeReader(PipeReader pipeReader)
     {
@@ -155,11 +156,11 @@ internal sealed class MinecraftPacketPipeReader
                 mainData = data.Slice(len);
             }
 
-            MemoryOwner<byte> gg = ArrayPool<byte>.Shared.ToAllocator()
-                .AllocateExactly((int)mainData.Length);
-            mainData.ToArray().AsSpan().CopyTo(gg.Span);
+            //MemoryOwner<byte> bytes = s_allocator.AllocateExactly((int)mainData.Length);
 
-            return new InputPacket(id, gg);
+            //mainData.CopyTo(bytes.Span);
+
+            return new InputPacket(id, default);
         }
         finally
         {

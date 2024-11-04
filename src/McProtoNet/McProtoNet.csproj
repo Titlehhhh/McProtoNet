@@ -9,9 +9,14 @@
         <Description>High-performance library for working with the minecraft protocol</Description>
         <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
         <PackageTags>minecraft bot reactive performance</PackageTags>
+        
     </PropertyGroup>
-
     <ItemGroup>
+        <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+    </ItemGroup>
+    <ItemGroup>
+        
+        
         <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2"/>
         <PackageReference Include="DotNext.IO" Version="5.14.0" />
         <PackageReference Include="DotNext.Threading" Version="5.15.0" />
