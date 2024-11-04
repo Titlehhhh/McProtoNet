@@ -25,7 +25,7 @@ McProtoNet is currently under active development, so some features are not stabl
 
 <ul style="list-style-type: none; padding-left: 0;">
     <li style="vertical-align: middle">
-        <img src="assets/performance.svg" alt="Icon 1" style="width: 25px;vertical-align: middle; margin-right: 8px;">
+        <img valign="middle" src="assets/performance.svg" alt="Icon 1" style="width: 25px;vertical-align: middle; margin-right: 8px;">
         <strong style="vertical-align: middle">High-performance</strong>
     </li>
     <li style="margin-top: 12px">
