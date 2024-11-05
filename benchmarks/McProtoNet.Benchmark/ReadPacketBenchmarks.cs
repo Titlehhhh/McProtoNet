@@ -75,8 +75,11 @@ public class ReadPacketBenchmarks
 
         var reader = new MinecraftPacketPipeReader(PipeReader.Create(fs));
         reader.CompressionThreshold = CompressionThreshold;
-        await foreach (var inputPacket in reader.ReadPacketsAsync())
+        for (int i = 0; i < PacketsCount; i++)
         {
+            var inputPacket = await reader.ReadPacketAsync();
+            
+            
             inputPacket.Dispose();
         }
     }

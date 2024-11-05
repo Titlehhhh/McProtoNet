@@ -282,7 +282,7 @@ internal sealed class MinecraftClientLogin
 
     private static OutputPacket CreateDefaultClientInformation(int protocolVersion)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = protocolVersion switch
@@ -309,7 +309,7 @@ internal sealed class MinecraftClientLogin
 
     private static OutputPacket CreateZeroKnownPacks(int protocolVersion)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = protocolVersion switch
@@ -328,7 +328,7 @@ internal sealed class MinecraftClientLogin
 
     private static OutputPacket CreateFinishConfig(int id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(id);
@@ -348,7 +348,7 @@ internal sealed class MinecraftClientLogin
             >= 766 and <= 767 => 0x06
         };
 
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(packetId);
@@ -372,7 +372,7 @@ internal sealed class MinecraftClientLogin
 
     private static ClientBoundResourcePackPacket ReadResourcePack(InputPacket packet)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+        scoped var reader = new MinecraftPrimitiveReader(packet.Data);
         string url = reader.ReadString();
         Guid uuid = Guid.Empty;
         return new ClientBoundResourcePackPacket(uuid, url);
@@ -380,7 +380,7 @@ internal sealed class MinecraftClientLogin
 
     private static ClientBoundResourcePackPacket ReadPushResourcePack(InputPacket packet)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+        scoped var reader = new MinecraftPrimitiveReader(packet.Data);
         Guid uuid = reader.ReadUUID();
         string url = reader.ReadString();
         return new ClientBoundResourcePackPacket(uuid, url);
@@ -388,13 +388,13 @@ internal sealed class MinecraftClientLogin
 
     private static string ReadLoginDisconnect(InputPacket packet)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+        scoped var reader = new MinecraftPrimitiveReader(packet.Data);
         return reader.ReadString();
     }
 
     private static void ThrowConfigDisconnect(int protocolVersion, InputPacket packet)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+        scoped var reader = new MinecraftPrimitiveReader(packet.Data);
         if (protocolVersion < 765)
         {
             throw new ConfigurationDisconnectException(reader.ReadString());
@@ -407,7 +407,7 @@ internal sealed class MinecraftClientLogin
 
     private static OutputPacket PingPong(int protocolVersion, InputPacket packet)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = protocolVersion switch
@@ -427,7 +427,7 @@ internal sealed class MinecraftClientLogin
 
     private static OutputPacket CreateKeepAlive(int protocolVersion, long id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = protocolVersion switch
@@ -447,19 +447,19 @@ internal sealed class MinecraftClientLogin
 
     private static int ReadThreshold(InputPacket p)
     {
-        scoped MinecraftPrimitiveSpanReader r = new MinecraftPrimitiveSpanReader(p.Data);
+        scoped MinecraftPrimitiveReader r = new MinecraftPrimitiveReader(p.Data);
         return r.ReadVarInt();
     }
 
     private static long ReadKeepAlive(InputPacket p)
     {
-        scoped MinecraftPrimitiveSpanReader r = new MinecraftPrimitiveSpanReader(p.Data);
+        scoped MinecraftPrimitiveReader r = new MinecraftPrimitiveReader(p.Data);
         return r.ReadSignedLong();
     }
 
     private static ClientboundConfigurationPluginMessagePacket ReadConfigPluginMessagePacket(InputPacket packet)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+        scoped var reader = new MinecraftPrimitiveReader(packet.Data);
         var id = reader.ReadString();
         var data = reader.ReadRestBuffer();
 
@@ -468,7 +468,7 @@ internal sealed class MinecraftClientLogin
 
     private static EncryptionBeginPacket ReadEncryptionPacket(InputPacket inputPacket, int protocolVersion)
     {
-        scoped var reader = new MinecraftPrimitiveSpanReader(inputPacket.Data);
+        scoped var reader = new MinecraftPrimitiveReader(inputPacket.Data);
         var serverId = reader.ReadString();
         var len = reader.ReadVarInt();
         var publicKey = reader.ReadBuffer(len);
@@ -516,7 +516,7 @@ internal sealed class MinecraftClientLogin
     {
         if (options.Username.Length > 16) throw new ArgumentOutOfRangeException();
 
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
 
         try
         {
@@ -530,36 +530,36 @@ internal sealed class MinecraftClientLogin
         }
     }
 
-    private static void FillLoginStartPacket(ref MinecraftPrimitiveSpanWriter spanWriter, LoginOptions options)
+    private static void FillLoginStartPacket(ref MinecraftPrimitiveWriter writer, LoginOptions options)
     {
-        spanWriter.WriteVarInt(0x00); // Packet Id
+        writer.WriteVarInt(0x00); // Packet Id
 
         //spanWriter.WriteString(options.Username);
 
         if (options.ProtocolVersion < 759)
         {
-            spanWriter.WriteString(options.Username);
+            writer.WriteString(options.Username);
         }
         else if (options.ProtocolVersion < 760)
         {
-            spanWriter.WriteString(options.Username);
-            spanWriter.WriteBoolean(false);
+            writer.WriteString(options.Username);
+            writer.WriteBoolean(false);
         }
         else if (options.ProtocolVersion < 761)
         {
-            spanWriter.WriteString(options.Username);
-            spanWriter.WriteBoolean(false);
-            spanWriter.WriteBoolean(false);
+            writer.WriteString(options.Username);
+            writer.WriteBoolean(false);
+            writer.WriteBoolean(false);
         }
         else if (options.ProtocolVersion < 764)
         {
-            spanWriter.WriteString(options.Username);
-            spanWriter.WriteBoolean(false);
+            writer.WriteString(options.Username);
+            writer.WriteBoolean(false);
         }
         else
         {
-            spanWriter.WriteString(options.Username);
-            spanWriter.WriteUUID(Guid.NewGuid());
+            writer.WriteString(options.Username);
+            writer.WriteUUID(Guid.NewGuid());
         }
     }
 

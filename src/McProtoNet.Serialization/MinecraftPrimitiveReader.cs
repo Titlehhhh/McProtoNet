@@ -15,8 +15,9 @@ namespace McProtoNet.Serialization;
 ///     Represents stack-allocated reader for primitive types of Minecraft
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public ref partial struct MinecraftPrimitiveSpanReader
+public ref partial struct MinecraftPrimitiveReader
 {
+    
     private SpanReader<byte> _reader;
     private bool disposed;
     public ReadOnlySpan<byte> Span => _reader.Span;
@@ -33,14 +34,20 @@ public ref partial struct MinecraftPrimitiveSpanReader
     
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MinecraftPrimitiveSpanReader(ReadOnlySpan<byte> data)
+    public MinecraftPrimitiveReader(ReadOnlySpan<byte> data)
     {
-        _reader = new SpanReader<byte>(data);
+        //_reader = new SpanReader<byte>(data);
     }
 
-    public MinecraftPrimitiveSpanReader(ReadOnlyMemory<byte> data) : this(data.Span)
+    public MinecraftPrimitiveReader(ReadOnlyMemory<byte> data) : this(data.Span)
     {
     }
+
+    public MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
+    {
+        
+    }
+    
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
     {
@@ -57,7 +64,7 @@ public ref partial struct MinecraftPrimitiveSpanReader
     private void CheckDisposed()
     {
         if (disposed)
-            throw new ObjectDisposedException(nameof(MinecraftPrimitiveSpanWriter));
+            throw new ObjectDisposedException(nameof(MinecraftPrimitiveWriter));
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

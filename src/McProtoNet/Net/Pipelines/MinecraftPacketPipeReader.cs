@@ -1,9 +1,12 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
+using DotNext;
 using DotNext.Buffers;
+using DotNext.IO.Pipelines;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
+using LengthFormat = DotNext.IO.LengthFormat;
 
 namespace McProtoNet.Net;
 
@@ -19,6 +22,72 @@ internal sealed class MinecraftPacketPipeReader
     }
 
     public int CompressionThreshold { get; set; }
+
+
+    private static void DecompressMemory(ReadOnlySpan<byte> compressed, Span<byte> decompressed)
+    {
+        scoped var decompressor = new ZlibDecompressor();
+        try
+        {
+            var result = decompressor.Decompress(
+                compressed,
+                decompressed,
+                out var written);
+
+            if (result != OperationStatus.Done)
+                throw new Exception("Zlib: " + result);
+        }
+        finally
+        {
+            decompressor.Dispose();
+        }
+    }
+
+    public async ValueTask<InputPacket> ReadPacketAsync(CancellationToken cancellationToken = default)
+    {
+        MemoryOwner<byte> data = default;
+        try
+        {
+            data =
+                await pipeReader.ReadAsync(LengthFormat.Compressed, s_allocator, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            data.Dispose();
+            await pipeReader.CompleteAsync(e).ConfigureAwait(false);
+            throw;
+        }
+
+        if (data.Length == 0)
+        {
+            data.Dispose();
+        }
+
+        if (CompressionThreshold == -1)
+        {
+            return new InputPacket(data);
+        }
+
+        int sizeUncomressed = data.Span.ReadVarInt(out int offset);
+        if (sizeUncomressed == 0)
+        {
+            return new InputPacket(data, offset: 1);
+        }
+
+        try
+        {
+            Memory<byte> compressed = data.Memory.Slice(offset);
+
+            MemoryOwner<byte> decompressed = s_allocator.AllocateExactly(sizeUncomressed);
+            DecompressMemory(compressed.Span, decompressed.Span);
+
+            return new InputPacket(decompressed);
+        }
+        finally
+        {
+            data.Dispose();
+        }
+    }
 
     public async IAsyncEnumerable<InputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -39,9 +108,6 @@ internal sealed class MinecraftPacketPipeReader
             }
 
             var buffer = result.Buffer;
-            var consumed = buffer.Start;
-            var examined = buffer.End;
-
             if (result.IsCompleted) break;
 
             if (result.IsCanceled) break;
@@ -75,8 +141,7 @@ internal sealed class MinecraftPacketPipeReader
         if (buffer.Length < 1) return false; // Недостаточно данных для чтения заголовка пакета
 
         int length;
-        int bytesRead;
-        if (!reader.TryReadVarInt(out length, out bytesRead)) return false; // Невозможно прочитать длину заголовка
+        if (!reader.TryReadVarInt(out length, out _)) return false; // Невозможно прочитать длину заголовка
 
 
         if (length > reader.Remaining) return false; // Недостаточно данных для чтения полного пакета
@@ -95,77 +160,21 @@ internal sealed class MinecraftPacketPipeReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private InputPacket Decompress(in ReadOnlySequence<byte> data)
     {
-        byte[]? rented = null;
-        try
+        if (CompressionThreshold == -1)
         {
-            var id = -1;
-            ReadOnlySequence<byte> mainData = default;
-
-            if (CompressionThreshold > 0)
-            {
-                data.TryReadVarInt(out var sizeUncompressed, out var len);
-
-
-                var compressed = data.Slice(len);
-                if (sizeUncompressed > 0)
-                {
-                    if (sizeUncompressed < CompressionThreshold)
-                        throw new Exception("Размер несжатого пакета меньше порога сжатия.");
-
-                    var decompressed = ArrayPool<byte>.Shared.Rent(sizeUncompressed);
-                    rented = decompressed;
-
-
-                    using scoped var decompressor = new ZlibDecompressor();
-                    if (compressed.IsSingleSegment)
-                    {
-                        var result = decompressor.Decompress(
-                            compressed.FirstSpan,
-                            decompressed.AsSpan(0, sizeUncompressed),
-                            out var written);
-
-                        if (result != OperationStatus.Done)
-                            throw new Exception("Zlib: " + result);
-
-
-                        id = decompressed.AsSpan().ReadVarInt(out len);
-
-
-                        mainData = new ReadOnlySequence<byte>(decompressed, len, sizeUncompressed - len);
-                    }
-                    else
-                    {
-                        mainData = DecompressMultiSegment(compressed, decompressed, decompressor, sizeUncompressed,
-                            out id);
-                    }
-                }
-                else if (sizeUncompressed == 0)
-                {
-                    compressed.TryReadVarInt(out id, out len);
-                    mainData = compressed.Slice(len);
-                }
-                else
-                {
-                    throw new InvalidOperationException($"sizeUncompressed negative: {sizeUncompressed}");
-                }
-            }
-            else
-            {
-                data.TryReadVarInt(out id, out var len);
-
-                mainData = data.Slice(len);
-            }
-
-            //MemoryOwner<byte> bytes = s_allocator.AllocateExactly((int)mainData.Length);
-
-            //mainData.CopyTo(bytes.Span);
-
-            return new InputPacket(id, default);
+            return new InputPacket(data);
         }
-        finally
+
+        data.TryReadVarInt(out var sizeUncompressed, out var len);
+
+        if (sizeUncompressed == 0)
         {
-            if (rented is not null) ArrayPool<byte>.Shared.Return(rented);
+            return new InputPacket(data.Slice(1));
         }
+        
+        
+
+        throw new Exception();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

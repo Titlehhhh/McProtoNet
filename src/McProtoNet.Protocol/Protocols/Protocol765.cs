@@ -188,7 +188,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendTeleportConfirm(int teleportId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x00);
@@ -204,7 +204,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendQueryBlockNbt(int transactionId, Position location)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x01);
@@ -222,7 +222,7 @@ public sealed class Protocol_765 : ProtocolBase
     public ValueTask SendChatMessage(string message, long timestamp, long salt, byte[]? signature, int offset,
         byte[] acknowledged)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x05);
@@ -254,7 +254,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSetDifficulty(byte newDifficulty)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x02);
@@ -270,7 +270,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendMessageAcknowledgement(int count)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x03);
@@ -286,7 +286,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendEditBook(int hand, string[] pages, string? title)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x11);
@@ -319,7 +319,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendQueryEntityNbt(int transactionId, int entityId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x12);
@@ -336,7 +336,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendPickItem(int slot)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1d);
@@ -352,7 +352,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendNameItem(string name)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x27);
@@ -368,7 +368,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSelectTrade(int slot)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2a);
@@ -384,7 +384,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSetBeaconEffect(int? primaryEffect, int? secondaryEffect)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2b);
@@ -419,7 +419,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendUpdateCommandBlock(Position location, string command, int mode, byte flags)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2d);
@@ -438,7 +438,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendUpdateCommandBlockMinecart(int entityId, string command, bool trackOutput)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2e);
@@ -458,7 +458,7 @@ public sealed class Protocol_765 : ProtocolBase
         sbyte offsetY, sbyte offsetZ, sbyte sizeX, sbyte sizeY, sbyte sizeZ, int mirror, int rotation,
         string metadata, float integrity, int seed, byte flags)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x31);
@@ -489,7 +489,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendTabComplete(int transactionId, string text)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x0a);
@@ -506,7 +506,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendClientCommand(int actionId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x08);
@@ -523,7 +523,7 @@ public sealed class Protocol_765 : ProtocolBase
     public ValueTask SendSettings(string locale, sbyte viewDistance, int chatFlags, bool chatColors, byte skinParts,
         int mainHand, bool enableTextFiltering, bool enableServerListing)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x09);
@@ -546,7 +546,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendEnchantItem(sbyte windowId, sbyte enchantment)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x0c);
@@ -563,7 +563,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendCloseWindow(byte windowId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x0e);
@@ -579,7 +579,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendCustomPayload(string channel, byte[] data)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x10);
@@ -596,7 +596,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendGenerateStructure(Position location, int levels, bool keepJigsaws)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x14);
@@ -614,7 +614,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendKeepAlive(long keepAliveId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x15);
@@ -630,7 +630,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendLockDifficulty(bool locked)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x16);
@@ -646,7 +646,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendPosition(double x, double y, double z, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x17);
@@ -665,7 +665,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendPositionLook(double x, double y, double z, float yaw, float pitch, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x18);
@@ -686,7 +686,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendLook(float yaw, float pitch, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x19);
@@ -704,7 +704,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendFlying(bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1a);
@@ -720,7 +720,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendVehicleMove(double x, double y, double z, float yaw, float pitch)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1b);
@@ -740,7 +740,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSteerBoat(bool leftPaddle, bool rightPaddle)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1c);
@@ -757,7 +757,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendCraftRecipeRequest(sbyte windowId, string recipe, bool makeAll)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1f);
@@ -775,7 +775,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendAbilities(sbyte flags)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x20);
@@ -791,7 +791,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendBlockDig(int status, Position location, sbyte face, int sequence)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x21);
@@ -810,7 +810,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendEntityAction(int entityId, int actionId, int jumpBoost)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x22);
@@ -828,7 +828,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSteerVehicle(float sideways, float forward, byte jump)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x23);
@@ -846,7 +846,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendDisplayedRecipe(string recipeId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x26);
@@ -862,7 +862,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendRecipeBook(int bookId, bool bookOpen, bool filterActive)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x25);
@@ -880,7 +880,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendResourcePackReceive(Guid uuid, int result)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x28);
@@ -897,7 +897,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendHeldItemSlot(short slotId)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2c);
@@ -913,7 +913,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSetCreativeSlot(short slot, Slot? item)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x2f);
@@ -931,7 +931,7 @@ public sealed class Protocol_765 : ProtocolBase
     public ValueTask SendUpdateJigsawBlock(Position location, string name, string target, string pool,
         string finalState, string jointType, int selectionPriority, int placementPriority)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x30);
@@ -955,7 +955,7 @@ public sealed class Protocol_765 : ProtocolBase
     public ValueTask SendUpdateSign(Position location, bool isFrontText, string text1, string text2, string text3,
         string text4)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x32);
@@ -976,7 +976,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendArmAnimation(int hand)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x33);
@@ -992,7 +992,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSpectate(Guid target)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x34);
@@ -1009,7 +1009,7 @@ public sealed class Protocol_765 : ProtocolBase
     public ValueTask SendBlockPlace(int hand, Position location, int direction, float cursorX, float cursorY,
         float cursorZ, bool insideBlock, int sequence)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x35);
@@ -1032,7 +1032,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendUseItem(int hand, int sequence)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x36);
@@ -1049,7 +1049,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendPong(int id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x24);
@@ -1065,7 +1065,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendChatSessionUpdate(Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x06);
@@ -1086,7 +1086,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendChunkBatchReceived(float chunksPerTick)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x07);
@@ -1102,7 +1102,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendConfigurationAcknowledged()
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x0b);
@@ -1117,7 +1117,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendPingRequest(long id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x1e);
@@ -1133,7 +1133,7 @@ public sealed class Protocol_765 : ProtocolBase
 
     public ValueTask SendSetSlotState(int slotId, int windowId, bool state)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             writer.WriteVarInt(0x0f);
@@ -1156,7 +1156,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x01:
                 if (_onspawn_entity.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var objectUUID = reader.ReadUUID();
                     var type = reader.ReadVarInt();
@@ -1178,7 +1178,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x02:
                 if (_onspawn_entity_experience_orb.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var x = reader.ReadDouble();
                     var y = reader.ReadDouble();
@@ -1192,7 +1192,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x03:
                 if (_onanimation.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var animation = reader.ReadUnsignedByte();
                     _onanimation.OnNext(new PacketAnimation(entityId, animation));
@@ -1202,7 +1202,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x06:
                 if (_onblock_break_animation.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var location = reader.ReadPosition();
                     var destroyStage = reader.ReadSignedByte();
@@ -1214,7 +1214,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x07:
                 if (_ontile_entity_data.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var location = reader.ReadPosition();
                     var action = reader.ReadVarInt();
                     var nbtData = reader.ReadOptionalNbt(false);
@@ -1225,7 +1225,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x08:
                 if (_onblock_action.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var location = reader.ReadPosition();
                     var byte1 = reader.ReadUnsignedByte();
                     var byte2 = reader.ReadUnsignedByte();
@@ -1237,7 +1237,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x09:
                 if (_onblock_change.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var location = reader.ReadPosition();
                     var type = reader.ReadVarInt();
                     _onblock_change.OnNext(new PacketBlockChange(location, type));
@@ -1247,7 +1247,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x0b:
                 if (_ondifficulty.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var difficulty = reader.ReadUnsignedByte();
                     var difficultyLocked = reader.ReadBoolean();
                     _ondifficulty.OnNext(new PacketDifficulty(difficulty, difficultyLocked));
@@ -1257,7 +1257,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x0c:
                 if (_onchunk_batch_finished.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var batchSize = reader.ReadVarInt();
                     _onchunk_batch_finished.OnNext(new PacketChunkBatchFinished(batchSize));
                 }
@@ -1266,7 +1266,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x0d:
                 if (_onchunk_batch_start.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     _onchunk_batch_start.OnNext(new PacketChunkBatchStart());
                 }
 
@@ -1274,7 +1274,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6b:
                 if (_onnbt_query_response.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var transactionId = reader.ReadVarInt();
                     var nbt = reader.ReadOptionalNbt(false);
                     _onnbt_query_response.OnNext(new PacketNbtQueryResponse(transactionId, nbt));
@@ -1284,7 +1284,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x12:
                 if (_onclose_window.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadUnsignedByte();
                     _onclose_window.OnNext(new PacketCloseWindow(windowId));
                 }
@@ -1293,7 +1293,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x31:
                 if (_onopen_window.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadVarInt();
                     var inventoryType = reader.ReadVarInt();
                     var windowTitle = reader.ReadNbt(true);
@@ -1304,7 +1304,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x14:
                 if (_oncraft_progress_bar.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadUnsignedByte();
                     var property = reader.ReadSignedShort();
                     var value = reader.ReadSignedShort();
@@ -1315,7 +1315,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x15:
                 if (_onset_slot.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadSignedByte();
                     var stateId = reader.ReadVarInt();
                     var slot = reader.ReadSignedShort();
@@ -1327,7 +1327,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x16:
                 if (_onset_cooldown.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var itemID = reader.ReadVarInt();
                     var cooldownTicks = reader.ReadVarInt();
                     _onset_cooldown.OnNext(new PacketSetCooldown(itemID, cooldownTicks));
@@ -1337,7 +1337,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x17:
                 if (_onchat_suggestions.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var action = reader.ReadVarInt();
                     var tempArrayLength_1_0 = reader.ReadVarInt();
                     var tempArray_1_0 = new string[tempArrayLength_1_0];
@@ -1355,7 +1355,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x18:
                 if (_oncustom_payload.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var channel = reader.ReadString();
                     var data = reader.ReadRestBuffer();
                     _oncustom_payload.OnNext(new PacketCustomPayload(channel, data));
@@ -1365,7 +1365,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x1b:
                 if (_onkick_disconnect.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var reason = reader.ReadNbt(true);
                     _onkick_disconnect.OnNext(new PacketKickDisconnect(reason));
                 }
@@ -1374,7 +1374,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x1d:
                 if (_onentity_status.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadSignedInt();
                     var entityStatus = reader.ReadSignedByte();
                     _onentity_status.OnNext(new PacketEntityStatus(entityId, entityStatus));
@@ -1384,7 +1384,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x1f:
                 if (_onunload_chunk.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var chunkZ = reader.ReadSignedInt();
                     var chunkX = reader.ReadSignedInt();
                     _onunload_chunk.OnNext(new PacketUnloadChunk(chunkZ, chunkX));
@@ -1394,7 +1394,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x20:
                 if (_ongame_state_change.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var reason = reader.ReadUnsignedByte();
                     var gameMode = reader.ReadFloat();
                     _ongame_state_change.OnNext(new PacketGameStateChange(reason, gameMode));
@@ -1404,7 +1404,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x21:
                 if (_onopen_horse_window.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadUnsignedByte();
                     var nbSlots = reader.ReadVarInt();
                     var entityId = reader.ReadSignedInt();
@@ -1415,7 +1415,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x24:
                 if (_onkeep_alive.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var keepAliveId = reader.ReadSignedLong();
                     _onkeep_alive.OnNext(new PacketKeepAlive(keepAliveId));
                 }
@@ -1424,7 +1424,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x26:
                 if (_onworld_event.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var effectId = reader.ReadSignedInt();
                     var location = reader.ReadPosition();
                     var data = reader.ReadSignedInt();
@@ -1436,7 +1436,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x2c:
                 if (_onrel_entity_move.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var dX = reader.ReadSignedShort();
                     var dY = reader.ReadSignedShort();
@@ -1449,7 +1449,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x2d:
                 if (_onentity_move_look.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var dX = reader.ReadSignedShort();
                     var dY = reader.ReadSignedShort();
@@ -1465,7 +1465,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x2e:
                 if (_onentity_look.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var yaw = reader.ReadSignedByte();
                     var pitch = reader.ReadSignedByte();
@@ -1477,7 +1477,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x2f:
                 if (_onvehicle_move.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var x = reader.ReadDouble();
                     var y = reader.ReadDouble();
                     var z = reader.ReadDouble();
@@ -1490,7 +1490,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x30:
                 if (_onopen_book.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var hand = reader.ReadVarInt();
                     _onopen_book.OnNext(new PacketOpenBook(hand));
                 }
@@ -1499,7 +1499,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x32:
                 if (_onopen_sign_entity.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var location = reader.ReadPosition();
                     var isFrontText = reader.ReadBoolean();
                     _onopen_sign_entity.OnNext(new PacketOpenSignEntity(location, isFrontText));
@@ -1509,7 +1509,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x35:
                 if (_oncraft_recipe_response.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var windowId = reader.ReadSignedByte();
                     var recipe = reader.ReadString();
                     _oncraft_recipe_response.OnNext(new PacketCraftRecipeResponse(windowId, recipe));
@@ -1519,7 +1519,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x36:
                 if (_onabilities.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var flags = reader.ReadSignedByte();
                     var flyingSpeed = reader.ReadFloat();
                     var walkingSpeed = reader.ReadFloat();
@@ -1530,7 +1530,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x38:
                 if (_onend_combat_event.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var duration = reader.ReadVarInt();
                     _onend_combat_event.OnNext(new PacketEndCombatEvent(duration));
                 }
@@ -1539,7 +1539,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x39:
                 if (_onenter_combat_event.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     _onenter_combat_event.OnNext(new PacketEnterCombatEvent());
                 }
 
@@ -1547,7 +1547,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x3a:
                 if (_ondeath_combat_event.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var playerId = reader.ReadVarInt();
                     var message = reader.ReadNbt(true);
                     _ondeath_combat_event.OnNext(new PacketDeathCombatEvent(playerId, message));
@@ -1557,7 +1557,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x3e:
                 if (_onposition.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var x = reader.ReadDouble();
                     var y = reader.ReadDouble();
                     var z = reader.ReadDouble();
@@ -1572,7 +1572,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x40:
                 if (_onentity_destroy.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var tempArrayLength_0_0 = reader.ReadVarInt();
                     var tempArray_0_0 = new int[tempArrayLength_0_0];
                     for (var i_0_0 = 0; i_0_0 < tempArrayLength_0_0; i_0_0++)
@@ -1589,7 +1589,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x41:
                 if (_onremove_entity_effect.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var effectId = reader.ReadVarInt();
                     _onremove_entity_effect.OnNext(new PacketRemoveEntityEffect(entityId, effectId));
@@ -1599,7 +1599,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x42:
                 if (_onreset_score.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityName = reader.ReadString();
                     string? objectiveName = null;
                     if (reader.ReadBoolean()) objectiveName = reader.ReadString();
@@ -1611,7 +1611,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x46:
                 if (_onentity_head_rotation.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var headYaw = reader.ReadSignedByte();
                     _onentity_head_rotation.OnNext(new PacketEntityHeadRotation(entityId, headYaw));
@@ -1621,7 +1621,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x50:
                 if (_oncamera.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var cameraId = reader.ReadVarInt();
                     _oncamera.OnNext(new PacketCamera(cameraId));
                 }
@@ -1630,7 +1630,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x51:
                 if (_onheld_item_slot.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var slot = reader.ReadSignedByte();
                     _onheld_item_slot.OnNext(new PacketHeldItemSlot(slot));
                 }
@@ -1639,7 +1639,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x52:
                 if (_onupdate_view_position.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var chunkX = reader.ReadVarInt();
                     var chunkZ = reader.ReadVarInt();
                     _onupdate_view_position.OnNext(new PacketUpdateViewPosition(chunkX, chunkZ));
@@ -1649,7 +1649,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x53:
                 if (_onupdate_view_distance.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var viewDistance = reader.ReadVarInt();
                     _onupdate_view_distance.OnNext(new PacketUpdateViewDistance(viewDistance));
                 }
@@ -1658,7 +1658,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x55:
                 if (_onscoreboard_display_objective.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var position = reader.ReadVarInt();
                     var name = reader.ReadString();
                     _onscoreboard_display_objective.OnNext(new PacketScoreboardDisplayObjective(position, name));
@@ -1668,7 +1668,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x57:
                 if (_onattach_entity.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadSignedInt();
                     var vehicleId = reader.ReadSignedInt();
                     _onattach_entity.OnNext(new PacketAttachEntity(entityId, vehicleId));
@@ -1678,7 +1678,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x58:
                 if (_onentity_velocity.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var velocityX = reader.ReadSignedShort();
                     var velocityY = reader.ReadSignedShort();
@@ -1690,7 +1690,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x5a:
                 if (_onexperience.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var experienceBar = reader.ReadFloat();
                     var level = reader.ReadVarInt();
                     var totalExperience = reader.ReadVarInt();
@@ -1701,7 +1701,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x5b:
                 if (_onupdate_health.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var health = reader.ReadFloat();
                     var food = reader.ReadVarInt();
                     var foodSaturation = reader.ReadFloat();
@@ -1712,7 +1712,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x5d:
                 if (_onset_passengers.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var tempArrayLength_1_0 = reader.ReadVarInt();
                     var tempArray_1_0 = new int[tempArrayLength_1_0];
@@ -1730,7 +1730,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x54:
                 if (_onspawn_position.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var location = reader.ReadPosition();
                     var angle = reader.ReadFloat();
                     _onspawn_position.OnNext(new PacketSpawnPosition(location, angle));
@@ -1740,7 +1740,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x62:
                 if (_onupdate_time.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var age = reader.ReadSignedLong();
                     var time = reader.ReadSignedLong();
                     _onupdate_time.OnNext(new PacketUpdateTime(age, time));
@@ -1750,7 +1750,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x69:
                 if (_onsystem_chat.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var content = reader.ReadNbt(true);
                     var isActionBar = reader.ReadBoolean();
                     _onsystem_chat.OnNext(new PacketSystemChat(content, isActionBar));
@@ -1760,7 +1760,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6a:
                 if (_onplayerlist_header.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var header = reader.ReadNbt(true);
                     var footer = reader.ReadNbt(true);
                     _onplayerlist_header.OnNext(new PacketPlayerlistHeader(header, footer));
@@ -1770,7 +1770,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6c:
                 if (_oncollect.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var collectedEntityId = reader.ReadVarInt();
                     var collectorEntityId = reader.ReadVarInt();
                     var pickupItemCount = reader.ReadVarInt();
@@ -1781,7 +1781,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6d:
                 if (_onentity_teleport.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var x = reader.ReadDouble();
                     var y = reader.ReadDouble();
@@ -1796,7 +1796,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x48:
                 if (_onselect_advancement_tab.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     string? id = null;
                     if (reader.ReadBoolean()) id = reader.ReadString();
 
@@ -1807,7 +1807,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x49:
                 if (_onserver_data.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var motd = reader.ReadNbt(true);
                     byte[]? iconBytes = null;
                     if (reader.ReadBoolean())
@@ -1824,7 +1824,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x05:
                 if (_onacknowledge_player_digging.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var sequenceId = reader.ReadVarInt();
                     _onacknowledge_player_digging.OnNext(new PacketAcknowledgePlayerDigging(sequenceId));
                 }
@@ -1833,7 +1833,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x0f:
                 if (_onclear_titles.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var reset = reader.ReadBoolean();
                     _onclear_titles.OnNext(new PacketClearTitles(reset));
                 }
@@ -1842,7 +1842,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x23:
                 if (_oninitialize_world_border.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var x = reader.ReadDouble();
                     var z = reader.ReadDouble();
                     var oldDiameter = reader.ReadDouble();
@@ -1859,7 +1859,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4a:
                 if (_onaction_bar.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var text = reader.ReadNbt(false);
                     _onaction_bar.OnNext(new PacketActionBar(text));
                 }
@@ -1868,7 +1868,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4b:
                 if (_onworld_border_center.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var x = reader.ReadDouble();
                     var z = reader.ReadDouble();
                     _onworld_border_center.OnNext(new PacketWorldBorderCenter(x, z));
@@ -1878,7 +1878,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4c:
                 if (_onworld_border_lerp_size.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var oldDiameter = reader.ReadDouble();
                     var newDiameter = reader.ReadDouble();
                     var speed = reader.ReadVarInt();
@@ -1890,7 +1890,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4d:
                 if (_onworld_border_size.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var diameter = reader.ReadDouble();
                     _onworld_border_size.OnNext(new PacketWorldBorderSize(diameter));
                 }
@@ -1899,7 +1899,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4e:
                 if (_onworld_border_warning_delay.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var warningTime = reader.ReadVarInt();
                     _onworld_border_warning_delay.OnNext(new PacketWorldBorderWarningDelay(warningTime));
                 }
@@ -1908,7 +1908,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x4f:
                 if (_onworld_border_warning_reach.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var warningBlocks = reader.ReadVarInt();
                     _onworld_border_warning_reach.OnNext(new PacketWorldBorderWarningReach(warningBlocks));
                 }
@@ -1917,7 +1917,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x33:
                 if (_onping.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var id = reader.ReadSignedInt();
                     _onping.OnNext(new PacketPing(id));
                 }
@@ -1926,7 +1926,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x34:
                 if (_onping_response.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var id = reader.ReadSignedLong();
                     _onping_response.OnNext(new PacketPingResponse(id));
                 }
@@ -1935,7 +1935,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x61:
                 if (_onset_title_subtitle.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var text = reader.ReadNbt(false);
                     _onset_title_subtitle.OnNext(new PacketSetTitleSubtitle(text));
                 }
@@ -1944,7 +1944,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x63:
                 if (_onset_title_text.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var text = reader.ReadNbt(false);
                     _onset_title_text.OnNext(new PacketSetTitleText(text));
                 }
@@ -1953,7 +1953,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x64:
                 if (_onset_title_time.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var fadeIn = reader.ReadSignedInt();
                     var stay = reader.ReadSignedInt();
                     var fadeOut = reader.ReadSignedInt();
@@ -1964,7 +1964,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x60:
                 if (_onsimulation_distance.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var distance = reader.ReadVarInt();
                     _onsimulation_distance.OnNext(new PacketSimulationDistance(distance));
                 }
@@ -1973,7 +1973,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x22:
                 if (_onhurt_animation.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var entityId = reader.ReadVarInt();
                     var yaw = reader.ReadFloat();
                     _onhurt_animation.OnNext(new PacketHurtAnimation(entityId, yaw));
@@ -1983,7 +1983,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x67:
                 if (_onstart_configuration.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     _onstart_configuration.OnNext(new PacketStartConfiguration());
                 }
 
@@ -1991,7 +1991,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6e:
                 if (_onset_ticking_state.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var tickRate = reader.ReadFloat();
                     var isFrozen = reader.ReadBoolean();
                     _onset_ticking_state.OnNext(new PacketSetTickingState(tickRate, isFrozen));
@@ -2001,7 +2001,7 @@ public sealed class Protocol_765 : ProtocolBase
             case 0x6f:
                 if (_onstep_tick.HasObservers)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     var tickSteps = reader.ReadVarInt();
                     _onstep_tick.OnNext(new PacketStepTick(tickSteps));
                 }

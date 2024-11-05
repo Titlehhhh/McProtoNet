@@ -12,7 +12,7 @@ public class CommandNode
 
     public string? Name { get; }
 
-    public static CommandNode Read(MinecraftPrimitiveSpanReader spanReader)
+    public static CommandNode Read(MinecraftPrimitiveReader reader)
     {
         //var flags = new CommandNodeFlags(reader.ReadUnsignedByte());
 

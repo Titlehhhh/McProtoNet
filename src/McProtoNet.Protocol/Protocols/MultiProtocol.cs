@@ -404,7 +404,7 @@ public sealed class MultiProtocol : ProtocolBase
                 };
                 if (packet.Id == chatPacket)
                 {
-                    scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                    scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                     if (ProtocolVersion < 765)
                     {
                     }
@@ -416,13 +416,13 @@ public sealed class MultiProtocol : ProtocolBase
 
             if (keepAlive == packet.Id)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 //_onKeepAlive.OnNext(new KeepAlivePacket(reader.ReadSignedLong()));
                 _ = SendKeepAlive(reader.ReadSignedLong());
             }
             else if (disconnect == packet.Id)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 if (ProtocolVersion >= 765)
                 {
                     NbtTag? nbt = null;
@@ -445,7 +445,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == loginPlay)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 int id = reader.ReadSignedInt();
                 _onLoginPacket.OnNext(new LoginPacket(id));
                 if (ProtocolVersion < 477)
@@ -482,7 +482,7 @@ public sealed class MultiProtocol : ProtocolBase
             else if (packet.Id == spawnEntity)
             {
                 return;
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 var entityId = reader.ReadVarInt();
                 var objectUUID = reader.ReadUUID();
 
@@ -526,7 +526,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == pushResourcePack)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 Guid uuid = reader.ReadUUID();
                 _onResourcePack.OnNext(new ResourcePackPacket(uuid));
             }
@@ -540,7 +540,7 @@ public sealed class MultiProtocol : ProtocolBase
             if (packet.Id == 0x3E)
             {
                 return;
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
 
                 PlayerInfoUpdateActions actions =
                     (PlayerInfoUpdateActions)reader.ReadSignedByte();
@@ -616,7 +616,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == 0x40)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 var x = reader.ReadDouble();
                 var y = reader.ReadDouble();
                 var z = reader.ReadDouble();
@@ -628,7 +628,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == 0x2E)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 var entityId = reader.ReadVarInt();
                 var dX = reader.ReadSignedShort();
                 var dY = reader.ReadSignedShort();
@@ -638,7 +638,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == 0x2F)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 var entityId = reader.ReadVarInt();
                 var dX = reader.ReadSignedShort();
                 var dY = reader.ReadSignedShort();
@@ -650,7 +650,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == 0x70)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 var entityId = reader.ReadVarInt();
                 var x = reader.ReadDouble();
                 var y = reader.ReadDouble();
@@ -662,7 +662,7 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == 0x2C)
             {
-                scoped var reader = new MinecraftPrimitiveSpanReader(packet.Data);
+                scoped var reader = new MinecraftPrimitiveReader(packet.Data);
                 int mapId = reader.ReadVarInt();
                 sbyte scale = reader.ReadSignedByte();
                 bool locked = reader.ReadBoolean();
@@ -708,7 +708,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendResourcePack(int action, Guid uuid)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -748,7 +748,7 @@ public sealed class MultiProtocol : ProtocolBase
     public ValueTask SendClientInformation(string locale, sbyte viewDistance, int chatMode, bool chatColors, byte skin,
         int mainHand, bool enableTextFiltering, bool allowServerListings)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -792,7 +792,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendCommandSuggestionsRequest(int id, string command, bool assumeCommand, Position? lookAt)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -840,7 +840,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendPosition(double x, double y, double z, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -876,7 +876,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendTeleportConfirm(int id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -896,7 +896,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendPositionLook(double x, double y, double z, float yaw, float pitch, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -934,7 +934,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendLook(float yaw, float pitch, bool onGround)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             int packetId = ProtocolVersion switch
@@ -969,7 +969,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendChatPacket(string message)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             var id = ProtocolVersion switch
@@ -1022,7 +1022,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendKeepAlive(long id)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             var packetId = ProtocolVersion switch
@@ -1055,7 +1055,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendPlayerAction(int status, Position location, byte face, int sequence)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             var packetId = ProtocolVersion switch
@@ -1094,7 +1094,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public ValueTask SendUseItem(int hand, int sequence, float yaw, float pitch)
     {
-        scoped var writer = new MinecraftPrimitiveSpanWriter();
+        scoped var writer = new MinecraftPrimitiveWriter();
         try
         {
             var packetId = ProtocolVersion switch

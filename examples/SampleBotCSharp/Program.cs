@@ -2,6 +2,7 @@
 
 using McProtoNet.Client;
 using McProtoNet.MultiVersionProtocol;
+using ZlibNGSharpMinimal.Inflate;
 
 internal class Program
 {
@@ -9,6 +10,8 @@ internal class Program
 
     public static async Task Main(string[] args)
     {
+        using ZngInflater inflater = new();
+        inflater.Inflate(new byte[100], new byte[100]);
         MinecraftClient client = new MinecraftClient()
         {
             ConnectTimeout = TimeSpan.FromSeconds(30),

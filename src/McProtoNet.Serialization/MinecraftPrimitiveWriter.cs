@@ -14,13 +14,13 @@ namespace McProtoNet.Serialization;
 ///     Represents stack-allocated writer for primitive types of Minecraft
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public ref struct MinecraftPrimitiveSpanWriter
+public ref struct MinecraftPrimitiveWriter
 {
     private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
 
     private BufferWriterSlim<byte> writerSlim = new(64, s_allocator);
 
-    public MinecraftPrimitiveSpanWriter()
+    public MinecraftPrimitiveWriter()
     {
     }
 
@@ -131,8 +131,9 @@ public ref struct MinecraftPrimitiveSpanWriter
         WriteVarInt(value.Value);
     }
 
-
+#if RELEASE
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
     public void WriteVarInt(int value)
     {
         CheckDisposed();
@@ -226,7 +227,7 @@ public ref struct MinecraftPrimitiveSpanWriter
     private void CheckDisposed()
     {
         if (disposed)
-            throw new ObjectDisposedException(nameof(MinecraftPrimitiveSpanWriter));
+            throw new ObjectDisposedException(nameof(MinecraftPrimitiveWriter));
     }
 
     private bool disposed;

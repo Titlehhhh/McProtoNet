@@ -13,6 +13,7 @@
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+        <InternalsVisibleTo Include="McProtoNet.Tests"/>
     </ItemGroup>
     <ItemGroup>
         

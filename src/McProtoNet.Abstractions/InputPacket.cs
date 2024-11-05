@@ -20,11 +20,18 @@ public readonly struct InputPacket : IDisposable
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public InputPacket(MemoryOwner<byte> owner)
+    public InputPacket(MemoryOwner<byte> owner, int offset =0)
     {
         this.owner = owner;
-        Id = ReadVarInt(owner.Span, out int offset);
-        Data = this.owner.Memory.Slice(offset);
+        Memory<byte> mainData = this.owner.Memory.Slice(offset);
+        
+        Id = ReadVarInt(mainData.Span, out int offsetId);
+        Data = mainData.Slice(offsetId);
+    }
+
+    public InputPacket(ReadOnlySequence<byte> data)
+    {
+        
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

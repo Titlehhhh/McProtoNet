@@ -1,90 +1,66 @@
-﻿namespace McProtoNet.Tests;
-//[TestClass]
-//public class PipelinesTests
-//{
+﻿using System;
+using System.Buffers;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Pipelines;
+using System.Threading;
+using System.Threading.Tasks;
+using DotNext.Buffers;
+using McProtoNet.Abstractions;
+using McProtoNet.Net;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-//	[TestMethod]
-//	public async Task WriterCancelTest()
-//	{
-//		using ZlibCompressor compressor = new(5);
+namespace McProtoNet.Tests;
 
-//		MinecraftPacketReaderNew reader = new();
+[TestClass]
+public class PipelinesTests
+{
+    [TestMethod]
+    public async Task Test()
+    {
+        Random r = new Random(73);
+        var writer = new MinecraftPacketSender();
+        List<byte[]> packets = new List<byte[]>();
+        writer.SwitchCompression(CompressionThreshold);
 
-//		Pipe pipe = new Pipe();
+        var allocator = ArrayPool<byte>.Shared.ToAllocator();
+        using (var fs = File.OpenWrite("data.bin"))
+        {
+            writer.BaseStream = fs;
 
-//		MinecraftPacketPipeWriter writer = new(pipe.Writer, compressor);
+            for (int i = 0; i < PacketsCount; i++)
+            {
+                var buffer = allocator.AllocateExactly(PacketLenght);
+                r.NextBytes(buffer.Span.Slice(5));
 
-//		byte[] data = new byte[100];
+                OutputPacket packet = new OutputPacket(buffer);
 
-//		await Assert.ThrowsExceptionAsync<OperationCanceledException>(async () =>
-//		{
-//			await writer.SendPacketAsync(data, new CancellationToken(canceled: true));
-//		});
-//	}
+                packets.Add(packet.Span.Slice(1).ToArray());
+                await writer.SendAndDisposeAsync(packet, new CancellationToken());
+            }
+        }
 
-//	[TestMethod("Не читать пакеты после отмены")]
-//	public async Task WriterCompleteTest()
-//	{
-//		var pool = new TestMemoryPool();
-//		var pipe1 = new Pipe(
-//			new PipeOptions(
-//				pool,
-//				readerScheduler: PipeScheduler.Inline,
-//				writerScheduler: PipeScheduler.Inline,
-//				useSynchronizationContext: false
-//			));
+        await using var fs1 = File.OpenRead("data.bin");
 
-//		var pipe2 = new Pipe(
-//			new PipeOptions(
-//				pool,
-//				readerScheduler: PipeScheduler.Inline,
-//				writerScheduler: PipeScheduler.Inline,
-//				useSynchronizationContext: false
-//			));
+        var reader = new MinecraftPacketPipeReader(PipeReader.Create(fs1));
+        reader.CompressionThreshold = CompressionThreshold;
 
-//		IDuplexPipe duplex = new DuplexPipe(pipe2.Reader, pipe1.Writer);
+        for (int i = 0; i < PacketsCount; i++)
+        {
+            var inputPacket = await reader.ReadPacketAsync();
 
-//		MinecraftProtocolPipeHandler pipeHandler = new MinecraftProtocolPipeHandler(duplex, 0);
+            byte[] expected = packets[i];
 
-//		bool read = false;
+            byte[] actual = inputPacket.Data.ToArray();
 
-//		byte[] data = new byte[10];
-//		Random.Shared.NextBytes(data.AsSpan(1));
+            CollectionAssert.AreEqual(expected, actual, $"Packet #{i}");
 
-//		using MinecraftPacketSenderNew sender = new MinecraftPacketSenderNew();
-//		sender.SwitchCompression(0);
-//		sender.BaseStream = pipe2.Writer.AsStream(true);
-//		for (int i = 0; i < 2; i++)
-//		{
-//			await sender.SendPacketAsync(new PacketOut(0, 10, data, null));
-//		}
+            inputPacket.Dispose();
+        }
+    }
 
-//		Task task = Task.Run(async () =>
-//		{
-//			pipeHandler.OnPacket.Subscribe(p =>
-//			{
-//				pipe2.Writer.Complete();
+    public int PacketLenght { get; set; } = 165;
+    public int CompressionThreshold { get; set; } = 128;
 
-//				Assert.IsFalse(read);
-
-//				read = true;
-
-//				CollectionAssert.AreEqual(data.AsSpan(1).ToArray(), p.Data.ToArray());
-//			}, onError: (ex) =>
-//			{
-//				Assert.IsTrue(false, "OnPacket.OnError: " + ex.Message);
-//			}, onCompleted: () =>
-//			{
-
-//			});
-
-//			await pipeHandler.StartListenAsync();
-//		});
-
-//		await task;
-
-//		Assert.IsTrue(read);
-
-//	}
-
-//}
+    public int PacketsCount { get; set; } = 10;
+}
