@@ -59,14 +59,18 @@ public class ZlibBench
     {
     }
 
+    private static MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
+
     [Benchmark]
     public void LibDeflateTest()
     {
-        scoped var compressedTemp = DataLength <= 256
-            ? new SpanOwner<byte>(stackalloc byte[DataLength])
-            : new SpanOwner<byte>(DataLength);
+        //MemoryOwner<byte> tempBuffer = s_allocator.AllocateExactly(DataLength);
+        
+         scoped var compressedTemp = DataLength <= 256
+             ? new SpanOwner<byte>(stackalloc byte[DataLength])
+             : new SpanOwner<byte>(DataLength);
 
-        scoped SpanWriter<byte> sWriter = new SpanWriter<byte>();
+        scoped SpanWriter<byte> sWriter = new SpanWriter<byte>(compressedTemp.Span);
         sWriter.Write(compressed1);
         sWriter.Write(compressed2);
 
