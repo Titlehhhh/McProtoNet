@@ -7,43 +7,9 @@ using ZlibNGSharpMinimal.Inflate;
 
 internal class Program
 {
-    private static byte[] Compress(byte[] data)
+    public static Task Main(string[] args)
     {
-        MemoryStream ms = new MemoryStream();
-        using (ZLibStream zLibStream = new ZLibStream(ms, CompressionLevel.SmallestSize, true))
-        {
-            zLibStream.Write(data);
-        }
-
-        return ms.ToArray();
-    }
-
-    private static byte[] CreateData(int size)
-    {
-        byte[] res = new byte[size];
-        for (int i = 0; i < res.Length; i++)
-            res[i] = (byte)(i % 8);
-
-        return res;
-    }
-
-    public static void Main(string[] args)
-    {
-        Thread thread = new Thread(() =>
-        {
-            Random r = new Random(27);
-            byte[] data = CreateData(500);
-
-
-            byte[] compressed = Compress(data);
-
-            byte[] outTest = new byte[500];
-            var decompressor = LibDeflateCache.RentDecompressor();
-
-            decompressor.Decompress(compressed, outTest, out _);
-        });
-
-        
+        return NewMethod();
     }
 
     private static async Task NewMethod()
