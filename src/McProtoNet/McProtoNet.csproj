@@ -9,11 +9,13 @@
         <Description>High-performance library for working with the minecraft protocol</Description>
         <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
         <PackageTags>minecraft bot reactive performance</PackageTags>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
+        <InternalsVisibleTo Include="SampleBotCSharp"/>
     </ItemGroup>
     <ItemGroup>
         

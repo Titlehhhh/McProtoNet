@@ -5,6 +5,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using DotNext;
 using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Net;
@@ -15,6 +16,12 @@ namespace McProtoNet.Tests;
 [TestClass]
 public class PipelinesTests
 {
+    private static void RandomData(Span<byte> input)
+    {
+        for (int i = 0; i < input.Length; i++)
+            input[i] = (byte)(i % 8);
+    }
+
     [TestMethod]
     public async Task Test()
     {
@@ -24,43 +31,50 @@ public class PipelinesTests
         writer.SwitchCompression(CompressionThreshold);
 
         var allocator = ArrayPool<byte>.Shared.ToAllocator();
-        using (var fs = File.OpenWrite("data.bin"))
-        {
-            writer.BaseStream = fs;
 
-            for (int i = 0; i < PacketsCount; i++)
-            {
-                var buffer = allocator.AllocateExactly(PacketLenght);
-                r.NextBytes(buffer.Span.Slice(5));
+        MemoryStream ms = new MemoryStream();
 
-                OutputPacket packet = new OutputPacket(buffer);
-
-                packets.Add(packet.Span.Slice(1).ToArray());
-                await writer.SendAndDisposeAsync(packet, new CancellationToken());
-            }
-        }
-
-        await using var fs1 = File.OpenRead("data.bin");
-
-        var reader = new MinecraftPacketPipeReader(PipeReader.Create(fs1));
-        reader.CompressionThreshold = CompressionThreshold;
+        writer.BaseStream = ms;
 
         for (int i = 0; i < PacketsCount; i++)
         {
-            var inputPacket = await reader.ReadPacketAsync();
+            var buffer = allocator.AllocateExactly(r.Next(50, 500));
 
-            byte[] expected = packets[i];
+            //r.NextBytes();
+            RandomData(buffer.Span.Slice(5));
 
-            byte[] actual = inputPacket.Data.ToArray();
 
-            CollectionAssert.AreEqual(expected, actual, $"Packet #{i}");
+            OutputPacket packet = new OutputPacket(buffer);
 
-            inputPacket.Dispose();
+            packets.Add(packet.Span.Slice(1).ToArray());
+            await writer.SendAndDisposeAsync(packet, new CancellationToken());
+        }
+
+
+        ms.Position = 0;
+
+        var reader = new MinecraftPacketPipeReader(PipeReader.Create(ms));
+        reader.CompressionThreshold = CompressionThreshold;
+        int count = 0;
+        await foreach (var packet in reader.ReadPacketsAsync())
+        {
+            byte[] expected = packets[count];
+
+            byte[] actual = packet.MainData;
+
+            CollectionAssert.AreEqual(expected, actual, $"Packet #{count}");
+
+            packet.Dispose();
+            count++;
+            if (count >= PacketsCount)
+            {
+                break;
+            }
         }
     }
 
-    public int PacketLenght { get; set; } = 165;
+
     public int CompressionThreshold { get; set; } = 128;
 
-    public int PacketsCount { get; set; } = 10;
+    public int PacketsCount { get; set; } = 1000;
 }

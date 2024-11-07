@@ -11,12 +11,21 @@ using McProtoNet.Net;
 
 namespace McProtoNet.Benchmark;
 
+[Config(typeof(AntiVirusFriendlyConfig))]
 [MemoryDiagnoser]
 public class ReadPacketBenchmarks
 {
-    [Params(1_000_000)] public int PacketsCount = 1_000_000;
+    [Params(3_000_000)] public int PacketsCount;
 
-    [Params(-1, 128)] public int CompressionThreshold = 1_000_000;
+    [Params(-1, 128)] public int CompressionThreshold;
+
+    private Stream ms;
+
+    private static void RandomData(Span<byte> input)
+    {
+        for (int i = 0; i < input.Length; i++)
+            input[i] = (byte)(i % 8);
+    }
 
     [GlobalSetup]
     public async Task Setup()
@@ -27,34 +36,35 @@ public class ReadPacketBenchmarks
         writer.SwitchCompression(CompressionThreshold);
 
         var allocator = ArrayPool<byte>.Shared.ToAllocator();
-        using (var fs = File.OpenWrite("data.bin"))
+
+        writer.BaseStream = ms;
+
+        for (int i = 0; i < PacketsCount; i++)
         {
-            writer.BaseStream = fs;
+            var buffer = allocator.AllocateExactly(r.Next(20, 200));
+            RandomData(buffer.Span.Slice(5));
 
-            for (int i = 0; i < PacketsCount; i++)
-            {
-                var buffer = allocator.AllocateExactly(r.Next(20, 200));
-                r.NextBytes(buffer.Span.Slice(5));
+            OutputPacket packet = new OutputPacket(buffer);
 
-                OutputPacket packet = new OutputPacket(buffer);
-
-                await writer.SendAndDisposeAsync(packet, new CancellationToken());
-            }
+            await writer.SendAndDisposeAsync(packet, new CancellationToken());
         }
     }
 
     [GlobalCleanup]
     public void Cleanup()
     {
+        ms.Dispose();
     }
 
     [Benchmark]
-    public async Task ReadPackets()
+    public async Task ReadPacketsStandart()
     {
-        await using var fs = File.OpenRead("data.bin");
+       
+        ms.Position = 0;
+
         var reader = new MinecraftPacketReader();
         reader.EnableCompression(CompressionThreshold);
-        reader.BaseStream = fs;
+        reader.BaseStream = ms;
         for (int i = 0; i < PacketsCount; i++)
         {
             InputPacket packet = await reader.ReadNextPacketAsync();
@@ -68,80 +78,27 @@ public class ReadPacketBenchmarks
         }
     }
 
+   
+
     [Benchmark]
     public async Task ReadPacketsWithPipeLines()
     {
-        await using var fs = File.OpenRead("data.bin");
-
-        var reader = new MinecraftPacketPipeReader(PipeReader.Create(fs));
+       
+        ms.Position = 0;
+        
+        var reader = new MinecraftPacketPipeReader(PipeReader.Create(ms));
         reader.CompressionThreshold = CompressionThreshold;
-        for (int i = 0; i < PacketsCount; i++)
+        int count = 0;
+        await foreach (var packet in reader.ReadPacketsAsync())
         {
-            var inputPacket = await reader.ReadPacketAsync();
-            
-            
-            inputPacket.Dispose();
+            packet.Dispose();
+            count++;
+            if (count == PacketsCount)
+                break;
         }
     }
 
 
-    public static async ValueTask<int> ReadVarIntAsync(Stream stream, CancellationToken token = default)
-    {
-        var buff = ArrayPool<byte>.Shared.Rent(1);
-        Memory<byte> memory = buff.AsMemory(0, 1);
-        try
-        {
-            var numRead = 0;
-            var result = 0;
-            byte read;
-            do
-            {
-                await stream.ReadExactlyAsync(memory, token);
-
-                read = buff[0];
 
 
-                var value = read & 0b01111111;
-                result |= value << (7 * numRead);
-
-                numRead++;
-                if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
-            } while ((read & 0b10000000) != 0);
-
-            return result;
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buff);
-        }
-    }
-
-
-    public static ValueTask WriteVarIntAsync(Stream stream, int value, CancellationToken token = default)
-    {
-        var unsigned = (uint)value;
-
-
-        var data = ArrayPool<byte>.Shared.Rent(5);
-        try
-        {
-            var len = 0;
-            do
-            {
-                token.ThrowIfCancellationRequested();
-                var temp = (byte)(unsigned & 127);
-                unsigned >>= 7;
-
-                if (unsigned != 0)
-                    temp |= 128;
-                data[len++] = temp;
-            } while (unsigned != 0);
-
-            return stream.WriteAsync(data.AsMemory(0, len), token);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(data);
-        }
-    }
 }

@@ -1,17 +1,53 @@
-﻿
-
+﻿using System.Buffers;
+using System.IO.Compression;
 using McProtoNet.Client;
 using McProtoNet.MultiVersionProtocol;
+using McProtoNet.Net.Zlib;
 using ZlibNGSharpMinimal.Inflate;
 
 internal class Program
 {
-    
-
-    public static async Task Main(string[] args)
+    private static byte[] Compress(byte[] data)
     {
-        using ZngInflater inflater = new();
-        inflater.Inflate(new byte[100], new byte[100]);
+        MemoryStream ms = new MemoryStream();
+        using (ZLibStream zLibStream = new ZLibStream(ms, CompressionLevel.SmallestSize, true))
+        {
+            zLibStream.Write(data);
+        }
+
+        return ms.ToArray();
+    }
+
+    private static byte[] CreateData(int size)
+    {
+        byte[] res = new byte[size];
+        for (int i = 0; i < res.Length; i++)
+            res[i] = (byte)(i % 8);
+
+        return res;
+    }
+
+    public static void Main(string[] args)
+    {
+        Thread thread = new Thread(() =>
+        {
+            Random r = new Random(27);
+            byte[] data = CreateData(500);
+
+
+            byte[] compressed = Compress(data);
+
+            byte[] outTest = new byte[500];
+            var decompressor = LibDeflateCache.RentDecompressor();
+
+            decompressor.Decompress(compressed, outTest, out _);
+        });
+
+        
+    }
+
+    private static async Task NewMethod()
+    {
         MinecraftClient client = new MinecraftClient()
         {
             ConnectTimeout = TimeSpan.FromSeconds(30),
@@ -130,5 +166,4 @@ internal class Program
 
         await Task.Delay(-1);
     }
-
 }

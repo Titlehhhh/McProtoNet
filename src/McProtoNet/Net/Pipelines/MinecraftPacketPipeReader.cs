@@ -43,51 +43,7 @@ internal sealed class MinecraftPacketPipeReader
         }
     }
 
-    public async ValueTask<InputPacket> ReadPacketAsync(CancellationToken cancellationToken = default)
-    {
-        MemoryOwner<byte> data = default;
-        try
-        {
-            data =
-                await pipeReader.ReadAsync(LengthFormat.Compressed, s_allocator, cancellationToken);
-        }
-        catch (Exception e)
-        {
-            data.Dispose();
-            await pipeReader.CompleteAsync(e).ConfigureAwait(false);
-            throw;
-        }
-
-        if (data.Length == 0)
-        {
-            data.Dispose();
-        }
-
-        if (CompressionThreshold == -1)
-        {
-            return new InputPacket(data);
-        }
-
-        int sizeUncomressed = data.Span.ReadVarInt(out int offset);
-        if (sizeUncomressed == 0)
-        {
-            return new InputPacket(data, offset: 1);
-        }
-
-        try
-        {
-            Memory<byte> compressed = data.Memory.Slice(offset);
-
-            MemoryOwner<byte> decompressed = s_allocator.AllocateExactly(sizeUncomressed);
-            DecompressMemory(compressed.Span, decompressed.Span);
-
-            return new InputPacket(decompressed);
-        }
-        finally
-        {
-            data.Dispose();
-        }
-    }
+   
 
     public async IAsyncEnumerable<InputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -117,8 +73,6 @@ internal sealed class MinecraftPacketPipeReader
             {
                 while (TryReadPacket(ref buffer, out var packet))
                 {
-                    //consumed = buffer.Start;
-                    //examined = consumed;
                     yield return Decompress(packet);
                 }
             }
@@ -127,6 +81,8 @@ internal sealed class MinecraftPacketPipeReader
                 pipeReader.AdvanceTo(buffer.Start, buffer.End);
             }
         }
+
+        await pipeReader.CompleteAsync();
     }
 
 
@@ -171,40 +127,10 @@ internal sealed class MinecraftPacketPipeReader
         {
             return new InputPacket(data.Slice(1));
         }
-        
-        
 
-        throw new Exception();
+
+        return new InputPacket(data.Slice(len).Decompress(sizeUncompressed));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private ReadOnlySequence<byte> DecompressMultiSegment(ReadOnlySequence<byte> compressed, byte[] decompressed,
-        scoped ZlibDecompressor decompressor, int sizeUncompressed, out int id)
-    {
-        var compressedLength = (int)compressed.Length;
-
-        using scoped var compressedTemp = compressedLength <= 256
-            ? new SpanOwner<byte>(stackalloc byte[compressedLength])
-            : new SpanOwner<byte>(compressedLength);
-
-        scoped var decompressedSpan = decompressed.AsSpan(0, sizeUncompressed);
-
-        scoped var compressedTempSpan = compressedTemp.Span;
-
-
-        compressed.CopyTo(compressedTempSpan);
-
-
-        var result = decompressor.Decompress(
-            compressedTempSpan,
-            decompressedSpan,
-            out var written);
-
-        if (result != OperationStatus.Done)
-            throw new Exception("Zlib: " + sizeUncompressed);
-
-        id = decompressedSpan.ReadVarInt(out var len);
-
-        return new ReadOnlySequence<byte>(decompressed, len, sizeUncompressed - len);
-    }
+    
 }

@@ -5,17 +5,14 @@ using McProtoNet.Net.Zlib;
 
 namespace McProtoNet.Net;
 
-public sealed class MinecraftPacketSender 
+public sealed class MinecraftPacketSender
 {
     private static readonly byte[] ZERO_VARINT = { 0 };
 
 
-   
-
-    private int _compressionThreshold=-1;
+    private int _compressionThreshold = -1;
     public Stream BaseStream { get; set; }
 
-    
 
     public ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
     {
@@ -25,31 +22,25 @@ public sealed class MinecraftPacketSender
 
             if (uncompressedSize >= _compressionThreshold)
             {
-                var compressor = new ZlibCompressor(4);
-                //var compressor = LibDeflateCache.RentCompressor();
+                //var compressor = new ZlibCompressor(4);
+                var compressor = LibDeflateCache.RentCompressor();
+
+                var length = compressor.GetBound(uncompressedSize);
+                var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
                 try
                 {
-                    var length = compressor.GetBound(uncompressedSize);
-                    var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
-                    try
-                    {
-                        var bytesCompress = compressor.Compress(data.Span, compressedBuffer.AsSpan(0, length));
-                        var compressedLength = bytesCompress;
+                    var bytesCompress = compressor.Compress(data.Span, compressedBuffer.AsSpan(0, length));
+                    var compressedLength = bytesCompress;
 
-                        var fullSize = compressedLength + uncompressedSize.GetVarIntLength();
+                    var fullSize = compressedLength + uncompressedSize.GetVarIntLength();
 
 
-                        return SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, token);
-                    }
-                    catch
-                    {
-                        ArrayPool<byte>.Shared.Return(compressedBuffer);
-                        throw;
-                    }
+                    return SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, token);
                 }
-                finally
+                catch
                 {
-                    compressor.Dispose();
+                    ArrayPool<byte>.Shared.Return(compressedBuffer);
+                    throw;
                 }
             }
 

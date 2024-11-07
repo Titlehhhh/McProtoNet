@@ -13,6 +13,7 @@ public sealed class MinecraftPacketReader
 
     private int _compressionThreshold = -1;
 
+
     public Stream BaseStream { get; set; }
 
     public void Dispose()
@@ -92,19 +93,15 @@ public sealed class MinecraftPacketReader
 
     private static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
     {
-        var decompressor = new ZlibDecompressor();
-        try
-        {
-            var status = decompressor.Decompress(
-                bufferCompress,
-                uncompress, out var written);
+        var decompressor = LibDeflateCache.RentDecompressor();
+        var status = decompressor.Decompress(
+            bufferCompress,
+            uncompress, out var written);
+        
+        if(written != uncompress.Length)
+            throw new Exception("Written not equal uncompress buffer length");
 
-            if (status != OperationStatus.Done) throw new Exception("Decompress Error");
-        }
-        finally
-        {
-            decompressor.Dispose();
-        }
+        if (status != OperationStatus.Done) throw new Exception("Decompress Error");
     }
 
 

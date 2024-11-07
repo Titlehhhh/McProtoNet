@@ -4,7 +4,7 @@ using McProtoNet.Net.Zlib.Native;
 
 namespace McProtoNet.Net.Zlib;
 
-public class ZlibCompressorHeapAlloc
+public class ZlibCompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr compressor;
 
@@ -71,9 +71,18 @@ public class ZlibCompressorHeapAlloc
         static void ThrowHelperObjectDisposed() => throw new ObjectDisposedException(nameof(ZlibCompressor));
     }
 
+    private bool disposed;
+
+    ~ZlibCompressorHeapAlloc()
+    {
+        Dispose();
+    }
 
     public void Dispose()
     {
+        if (disposed)
+            return;
+        disposed = true;
         Compression.libdeflate_free_compressor(compressor);
     }
 }

@@ -9,5 +9,9 @@
     <ItemGroup>
         <PackageReference Include="DotNext" Version="5.14.0" />
     </ItemGroup>
+    <ItemGroup>
+        <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+        <InternalsVisibleTo Include="McProtoNet.Tests"/>
+    </ItemGroup>
 
 </Project>
