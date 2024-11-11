@@ -40,6 +40,10 @@ McProtoNet is currently under active development, so some features are not stabl
         <img valign="middle" src="assets/nbt.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
         <strong valign="middle"  style="vertical-align: middle">NBT Parsing</strong>
     </li>
+    <li>
+        <img valign="middle" src="assets/cracked.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
+        <strong valign="middle" style="vertical-align: middle">Connect ot cracked servers</strong>
+    </li>
 </ul>
 
 ## 🚀 Getting started
