@@ -8,11 +8,11 @@ public struct Position
 
     public int Z { get; }
 
-    public Position(int x, int z, int y)
+    public Position(int x, int y, int z)
     {
         X = x;
-        Z = z;
         Y = y;
+        Z = z;
     }
 
     public override string ToString()

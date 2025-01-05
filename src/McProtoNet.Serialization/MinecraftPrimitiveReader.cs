@@ -36,16 +36,16 @@ public ref partial struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MinecraftPrimitiveReader(ReadOnlySpan<byte> data)
     {
-        //_reader = new SpanReader<byte>(data);
+        _reader = new SpanReader<byte>(data);
     }
 
     public MinecraftPrimitiveReader(ReadOnlyMemory<byte> data) : this(data.Span)
     {
     }
 
-    public MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
+    internal MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
     {
-        
+        throw new NotImplementedException();
     }
     
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -105,7 +105,7 @@ public sealed class MinecraftPacketReader
     }
 
 
-    public void EnableCompression(int threshold)
+    public void SwitchCompression(int threshold)
     {
         _compressionThreshold = threshold;
     }

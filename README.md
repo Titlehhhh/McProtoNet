@@ -55,6 +55,3 @@ You can use the library in two different ways
 ### Build source code
 
 
-## Zero-allocation
-
-![](assets/bench.png)

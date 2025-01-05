@@ -44,27 +44,15 @@ internal sealed class MinecraftClientLogin
             reader.BaseStream = mainStream;
             StateChanged?.Invoke(MinecraftClientState.Handshaking);
             var handshake = CreateHandshake(options.Host, options.Port, options.ProtocolVersion);
-            try
-            {
-                await sender.SendPacketAsync(handshake, cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                handshake.Dispose();
-            }
+
+            await sender.SendAndDisposeAsync(handshake, cancellationToken).ConfigureAwait(false);
 
 
             StateChanged?.Invoke(MinecraftClientState.Login);
 
             var loginStart = CreateLoginStart(options);
-            try
-            {
-                await sender.SendPacketAsync(loginStart, cancellationToken).ConfigureAwait(false);
-            }
-            finally
-            {
-                loginStart.Dispose();
-            }
+
+            await sender.SendAndDisposeAsync(loginStart, cancellationToken).ConfigureAwait(false);
 
 
             var threshold = 0;
@@ -121,7 +109,7 @@ internal sealed class MinecraftClientLogin
 
 
                             threshold = ReadThreshold(inputPacket);
-                            reader.EnableCompression(threshold);
+                            reader.SwitchCompression(threshold);
                             sender.SwitchCompression(threshold);
 
                             break;

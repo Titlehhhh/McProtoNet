@@ -4,8 +4,10 @@ namespace McProtoNet.Protocol;
 
 public static class Extensions
 {
+    // TODO ProtocolVersion
     public static Position ReadPosition(this ref MinecraftPrimitiveReader reader)
     {
+        
         var locEncoded = reader.ReadSignedLong();
 
 
@@ -34,6 +36,7 @@ public static class Extensions
         return new Position(x, z, y);
     }
 
+    // TODO ProtocolVersion
     public static void WritePosition(this scoped ref MinecraftPrimitiveWriter writer, Position position)
     {
         var a = (((ulong)position.X & 0x3FFFFFF) << 38) |

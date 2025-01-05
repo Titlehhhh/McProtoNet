@@ -309,7 +309,7 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
 
         _packetSender = packetSender;
 
-        packetReader.EnableCompression(loginizationResult.CompressionThreshold);
+        packetReader.SwitchCompression(loginizationResult.CompressionThreshold);
 
         try
         {
@@ -350,6 +350,7 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
         }
         finally
         {
+            packetReader.BaseStream?.Dispose();
             packetReader.BaseStream = null;
         }
     }

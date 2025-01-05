@@ -2,9 +2,13 @@
 using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Engines;
+using DotNetty.Common.Utilities;
 using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Net;
@@ -19,7 +23,6 @@ public class ReadPacketBenchmarks
 
     [Params(-1, 128)] public int CompressionThreshold;
 
-    private Stream ms;
 
     private static void RandomData(Span<byte> input)
     {
@@ -27,9 +30,13 @@ public class ReadPacketBenchmarks
             input[i] = (byte)(i % 8);
     }
 
+    private Stream _mainStream;
+    
     [GlobalSetup]
     public async Task Setup()
     {
+        MemoryStream ms = new MemoryStream();
+        _mainStream = ms;
         Random r = new Random(73);
         var writer = new MinecraftPacketSender();
 
@@ -48,23 +55,27 @@ public class ReadPacketBenchmarks
 
             await writer.SendAndDisposeAsync(packet, new CancellationToken());
         }
+
+
+       
     }
 
     [GlobalCleanup]
     public void Cleanup()
     {
-        ms.Dispose();
     }
 
-    [Benchmark]
-    public async Task ReadPacketsStandart()
-    {
-       
-        ms.Position = 0;
 
+
+    
+
+
+    [Benchmark]
+    public async Task ReadPacketsStreaming()
+    {
         var reader = new MinecraftPacketReader();
-        reader.EnableCompression(CompressionThreshold);
-        reader.BaseStream = ms;
+        reader.SwitchCompression(CompressionThreshold);
+        reader.BaseStream = _mainStream;
         for (int i = 0; i < PacketsCount; i++)
         {
             InputPacket packet = await reader.ReadNextPacketAsync();
@@ -78,15 +89,11 @@ public class ReadPacketBenchmarks
         }
     }
 
-   
 
     [Benchmark]
     public async Task ReadPacketsWithPipeLines()
     {
-       
-        ms.Position = 0;
-        
-        var reader = new MinecraftPacketPipeReader(PipeReader.Create(ms));
+        var reader = new MinecraftPacketPipeReader(PipeReader.Create(_mainStream));
         reader.CompressionThreshold = CompressionThreshold;
         int count = 0;
         await foreach (var packet in reader.ReadPacketsAsync())
@@ -97,8 +104,4 @@ public class ReadPacketBenchmarks
                 break;
         }
     }
-
-
-
-
 }
