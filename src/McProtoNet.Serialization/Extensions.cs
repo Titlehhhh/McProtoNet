@@ -129,5 +129,40 @@ public static class ReadArraysSIMDExtensions
         }
         return ints.ToArray();
     }
+    
+    public static float[] ReadArrayFloatBigEndian(this MinecraftPrimitiveReader reader, int length)
+    {
+        if (reader.RemainingCount < length)
+        {
+            throw new InsufficientMemoryException();
+        }
+
+        ReadOnlySpan<byte> bytes = reader.Read(sizeof(int) * length);
+        if (BitConverter.IsLittleEndian)
+        {
+            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
+            float[] result = new float[length];
+            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
+            return result;
+        }
+        return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
+    }
+    public static double[] ReadArrayDoubleBigEndian(this MinecraftPrimitiveReader reader, int length)
+    {
+        if (reader.RemainingCount < length)
+        {
+            throw new InsufficientMemoryException();
+        }
+
+        ReadOnlySpan<byte> bytes = reader.Read(sizeof(long) * length);
+        if (BitConverter.IsLittleEndian)
+        {
+            ReadOnlySpan<long> ints = MemoryMarshal.Cast<byte, long>(bytes);
+            double[] result = new double[length];
+            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
+            return result;
+        }
+        return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
+    }
 
 }

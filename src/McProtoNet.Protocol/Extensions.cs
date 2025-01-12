@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol;
 public static class Extensions
 {
     // TODO ProtocolVersion
-    public static Position ReadPosition(this ref MinecraftPrimitiveReader reader)
+    public static Position ReadPosition(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         
         var locEncoded = reader.ReadSignedLong();
@@ -36,8 +36,18 @@ public static class Extensions
         return new Position(x, z, y);
     }
 
+    public static Vector2 ReadVector2(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        throw new NotImplementedException();
+    }
+
+    public static Vector3F64 ReadVector3F64(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        throw new NotImplementedException();
+    }
+
     // TODO ProtocolVersion
-    public static void WritePosition(this scoped ref MinecraftPrimitiveWriter writer, Position position)
+    public static void WritePosition(this scoped ref MinecraftPrimitiveWriter writer, Position position, int protocolVersion)
     {
         var a = (((ulong)position.X & 0x3FFFFFF) << 38) |
                 (((ulong)position.Z & 0x3FFFFFF) << 12) |
@@ -48,9 +58,19 @@ public static class Extensions
         writer.WriteUnsignedLong(a);
         //writer.WriteBuffer(g);
     }
+    
+    public static void WriteVector2(this scoped ref MinecraftPrimitiveWriter writer, Vector2 rotation, int protocolVersion)
+    {
+        throw new NotImplementedException();
+    }
+    
+    public static void WriteVector3F64(this scoped ref MinecraftPrimitiveWriter writer, Vector3F64 rotation, int protocolVersion)
+    {
+        throw new NotImplementedException();
+    }
 
 
-    public static void WriteSlot(this ref MinecraftPrimitiveWriter writer, Slot? slot)
+    public static void WriteSlot(this ref MinecraftPrimitiveWriter writer, Slot? slot,int protocolVersion)
     {
         if (slot is null)
         {
@@ -69,7 +89,7 @@ public static class Extensions
     {
         if (reader.ReadBoolean())
             return new Slot(reader.ReadVarInt(), reader.ReadSignedByte(),
-                reader.ReadOptionalNbt(protocolVersion < 764));
+                reader.ReadOptionalNbtTag(protocolVersion < 764));
 
         return null;
     }

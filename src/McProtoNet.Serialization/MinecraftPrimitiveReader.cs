@@ -214,18 +214,18 @@ public ref partial struct MinecraftPrimitiveReader
         return _reader.Read(length).ToArray();
     }
 
-    public NbtTag? ReadOptionalNbt(bool readRootTag)
+    public NbtTag? ReadOptionalNbtTag(bool readRootTag)
     {
         if (ReadBoolean())
         {
-            return ReadNbt(readRootTag);
+            return ReadNbtTag(readRootTag);
         }
 
         return null;
     }
 
 
-    public NbtTag ReadNbt(bool readRootTag)
+    public NbtTag ReadNbtTag(bool readRootTag)
     {
         NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);
         NbtTag result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);

@@ -389,7 +389,7 @@ internal sealed class MinecraftClientLogin
         }
         else
         {
-            throw new ConfigurationDisconnectException(reader.ReadNbt(protocolVersion < 764).ToString());
+            throw new ConfigurationDisconnectException(reader.ReadNbtTag(protocolVersion < 764).ToString());
         }
     }
 

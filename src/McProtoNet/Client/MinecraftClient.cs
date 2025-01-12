@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net.Sockets;
+using System.Reactive.Subjects;
 using DotNext;
 using DotNext.Threading;
 using McProtoNet.Abstractions;
@@ -438,6 +439,8 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
     #region Events
 
     public event PacketHandler? PacketReceived;
+
+    public IObservable<InputPacket> OnPacket => throw new NotImplementedException();
     public event EventHandler<StateEventArgs> StateChanged;
     public event EventHandler<DisconnectedEventArgs> Disconnected;
 
@@ -447,7 +450,7 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
 
     #region Properties
 
-    int IPacketBroker.ProtocolVersion => this.Version;
+    public int ProtocolVersion => this.Version;
     public string Host { get; set; }
     public ushort Port { get; set; } = 25565;
 

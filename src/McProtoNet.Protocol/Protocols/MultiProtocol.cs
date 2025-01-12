@@ -428,7 +428,7 @@ public sealed class MultiProtocol : ProtocolBase
                     NbtTag? nbt = null;
                     try
                     {
-                        nbt = reader.ReadNbt(ProtocolVersion < 764);
+                        nbt = reader.ReadNbtTag(ProtocolVersion < 764);
                     }
                     catch (NotImplementedException)
                     {
@@ -606,7 +606,7 @@ public sealed class MultiProtocol : ProtocolBase
 
                     if (actions.HasFlag(PlayerInfoUpdateActions.UpdateDisplayName))
                     {
-                        reader.ReadOptionalNbt(false);
+                        reader.ReadOptionalNbtTag(false);
                     }
 
                     entries[uuid] = entry;
@@ -678,7 +678,7 @@ public sealed class MultiProtocol : ProtocolBase
                         sbyte x = reader.ReadSignedByte();
                         sbyte z = reader.ReadSignedByte();
                         sbyte direction = reader.ReadSignedByte();
-                        NbtTag? displayName = reader.ReadOptionalNbt(false);
+                        NbtTag? displayName = reader.ReadOptionalNbtTag(false);
                         icons[i] = new MapIcon(type, x, z, direction, displayName);
                     }
                 }
@@ -817,7 +817,7 @@ public sealed class MultiProtocol : ProtocolBase
                 if (lookAt is not null)
                 {
                     writer.WriteBoolean(true);
-                    writer.WritePosition(lookAt.Value);
+                    writer.WritePosition(lookAt.Value, ProtocolVersion);
                 }
 
                 writer.WriteBoolean(false);
@@ -1077,7 +1077,7 @@ public sealed class MultiProtocol : ProtocolBase
             };
             writer.WriteVarInt(packetId); // Packet Id
             writer.WriteVarInt(status);
-            writer.WritePosition(location);
+            writer.WritePosition(location, ProtocolVersion);
             writer.WriteUnsignedByte(face);
             if (ProtocolVersion >= 759)
             {

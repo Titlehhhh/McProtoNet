@@ -20,3 +20,11 @@ public struct Position
         return $"X: {X}, Y: {Y}, Z:{Z}";
     }
 }
+
+public class Vector3F64
+{
+}
+
+public class Vector2
+{
+}

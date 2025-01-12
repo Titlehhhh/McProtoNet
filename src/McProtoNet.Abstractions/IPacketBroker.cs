@@ -5,6 +5,7 @@ public interface IPacketBroker
     ValueTask SendPacket(ReadOnlyMemory<byte> data);
 
     event PacketHandler PacketReceived;
+    IObservable<InputPacket> OnPacket { get; }
 
     event EventHandler<StateEventArgs> StateChanged;
 

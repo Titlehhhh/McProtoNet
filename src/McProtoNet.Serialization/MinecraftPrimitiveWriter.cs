@@ -248,4 +248,6 @@ public ref struct MinecraftPrimitiveWriter
        
         writerSlim.Dispose();
     }
+
+    
 }
