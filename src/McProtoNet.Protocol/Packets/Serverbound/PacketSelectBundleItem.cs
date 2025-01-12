@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int SlotId { get; set; }
         public int SelectedItemIndex { get; set; }
 
-        internal sealed class V768_769 : SelectBundleItemPacket
+        public sealed class V768_769 : SelectBundleItemPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

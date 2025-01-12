@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int ChunkX { get; set; }
         public int ChunkZ { get; set; }
 
-        internal sealed class V477_769 : UpdateViewPositionPacket
+        public sealed class V477_769 : UpdateViewPositionPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

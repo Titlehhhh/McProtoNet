@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int TransactionId { get; set; }
         public NbtTag? Nbt { get; set; }
 
-        internal sealed class V393_763 : NbtQueryResponsePacket
+        public sealed class V393_763 : NbtQueryResponsePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V764_769 : NbtQueryResponsePacket
+        public sealed class V764_769 : NbtQueryResponsePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

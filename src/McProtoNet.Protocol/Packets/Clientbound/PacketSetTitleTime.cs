@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int Stay { get; set; }
         public int FadeOut { get; set; }
 
-        internal sealed class V755_769 : SetTitleTimePacket
+        public sealed class V755_769 : SetTitleTimePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

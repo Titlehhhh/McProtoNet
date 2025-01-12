@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public string EntityName { get; set; }
         public string? ObjectiveName { get; set; }
 
-        internal sealed class V765_769 : ResetScorePacket
+        public sealed class V765_769 : ResetScorePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

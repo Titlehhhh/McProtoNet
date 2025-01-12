@@ -81,9 +81,9 @@ namespace McProtoNet.Protocol.ServerboundPackets
             if (V340_758.SupportedVersion(protocolVersion))
                 V340_758.SerializeInternal(ref writer, protocolVersion, Hand);
             else if (V759_766.SupportedVersion(protocolVersion))
-                V759_766.SerializeInternal(ref writer, protocolVersion, Hand, default);
+                V759_766.SerializeInternal(ref writer, protocolVersion, Hand, 0);
             else if (V767_769.SupportedVersion(protocolVersion))
-                V767_769.SerializeInternal(ref writer, protocolVersion, Hand, default, default);
+                V767_769.SerializeInternal(ref writer, protocolVersion, Hand, 0, default);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.UseItem), protocolVersion);
         }

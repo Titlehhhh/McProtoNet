@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public double X { get; set; }
         public double Z { get; set; }
 
-        internal sealed class V755_769 : WorldBorderCenterPacket
+        public sealed class V755_769 : WorldBorderCenterPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

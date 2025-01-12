@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public int Slot { get; set; }
 
-        internal sealed class V393_769 : SelectTradePacket
+        public sealed class V393_769 : SelectTradePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

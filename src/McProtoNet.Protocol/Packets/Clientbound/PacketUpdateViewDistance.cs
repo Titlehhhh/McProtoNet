@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int ViewDistance { get; set; }
 
-        internal sealed class V477_769 : UpdateViewDistancePacket
+        public sealed class V477_769 : UpdateViewDistancePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

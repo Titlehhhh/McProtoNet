@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int EntityId { get; set; }
         public bool IncludeData { get; set; }
 
-        internal sealed class V769 : PickItemFromEntityPacket
+        public sealed class V769 : PickItemFromEntityPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

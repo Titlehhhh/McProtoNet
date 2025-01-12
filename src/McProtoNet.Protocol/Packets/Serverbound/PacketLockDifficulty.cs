@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public bool Locked { get; set; }
 
-        internal sealed class V477_769 : LockDifficultyPacket
+        public sealed class V477_769 : LockDifficultyPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

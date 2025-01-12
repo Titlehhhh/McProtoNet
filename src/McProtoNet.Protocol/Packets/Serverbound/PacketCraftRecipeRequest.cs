@@ -86,11 +86,11 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V340.SupportedVersion(protocolVersion))
-                V340.SerializeInternal(ref writer, protocolVersion, 0, default, MakeAll);
+                V340.SerializeInternal(ref writer, protocolVersion, 0, 0, MakeAll);
             else if (V351_767.SupportedVersion(protocolVersion))
-                V351_767.SerializeInternal(ref writer, protocolVersion, 0, default, MakeAll);
+                V351_767.SerializeInternal(ref writer, protocolVersion, 0, string.Empty, MakeAll);
             else if (V768_769.SupportedVersion(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, default, default, MakeAll);
+                V768_769.SerializeInternal(ref writer, protocolVersion, default, 0, MakeAll);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.CraftRecipeRequest), protocolVersion);
         }

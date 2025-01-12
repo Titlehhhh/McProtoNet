@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public byte[] Signature { get; set; }
         public byte[] MessageHash { get; set; }
 
-        internal sealed class V760 : MessageHeaderPacket
+        public sealed class V760 : MessageHeaderPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

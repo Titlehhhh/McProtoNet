@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public long[] Sample { get; set; }
         public int Type { get; set; }
 
-        internal sealed class V766_769 : DebugSamplePacket
+        public sealed class V766_769 : DebugSamplePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

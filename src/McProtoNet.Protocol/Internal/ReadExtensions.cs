@@ -118,17 +118,16 @@ public static class ReadExtensions
         }
     }
 
-    public static byte[] ReadBuffer(this MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
+    public static byte[] ReadBuffer(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
     {
         int len = reader.ReadLength(lengthFormat);
         return reader.ReadBuffer(len);
     }
 
-    public static T[] ReadArray<T>(this MinecraftPrimitiveReader reader, LengthFormat lengthFormat,
+    public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, int len,
         ReadDelegate<T> readDelegate)
 
     {
-        int len = reader.ReadLength(lengthFormat);
         if (len == 0)
             return [];
 
@@ -191,6 +190,14 @@ public static class ReadExtensions
         }
 
         return arr;
+    }
+
+    public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat,
+        ReadDelegate<T> readDelegate)
+
+    {
+        int len = reader.ReadLength(lengthFormat);
+        return ReadArray<T>(ref reader, len, readDelegate);
     }
 
     public static T? ReadOptional<T>(this MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)

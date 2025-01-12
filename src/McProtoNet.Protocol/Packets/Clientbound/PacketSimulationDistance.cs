@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int Distance { get; set; }
 
-        internal sealed class V757_769 : SimulationDistancePacket
+        public sealed class V757_769 : SimulationDistancePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

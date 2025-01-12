@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public bool Reset { get; set; }
 
-        internal sealed class V755_769 : ClearTitlesPacket
+        public sealed class V755_769 : ClearTitlesPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public short Action { get; set; }
         public bool Accepted { get; set; }
 
-        internal sealed class V340_754 : TransactionPacket
+        public sealed class V340_754 : TransactionPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

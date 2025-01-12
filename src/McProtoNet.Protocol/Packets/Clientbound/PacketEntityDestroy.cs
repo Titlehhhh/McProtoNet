@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int[] EntityIds { get; set; }
 
-        internal sealed class V340_754 : EntityDestroyPacket
+        public sealed class V340_754 : EntityDestroyPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V756_769 : EntityDestroyPacket
+        public sealed class V756_769 : EntityDestroyPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

@@ -18,7 +18,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public float Pitch { get; set; }
         public bool OnGround { get; set; }
 
-        internal sealed class V768_769 : SyncEntityPositionPacket
+        public sealed class V768_769 : SyncEntityPositionPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

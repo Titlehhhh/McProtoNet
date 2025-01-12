@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int EntityId { get; set; }
         public Position Location { get; set; }
 
-        internal sealed class V340_404 : BedPacket
+        public sealed class V340_404 : BedPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

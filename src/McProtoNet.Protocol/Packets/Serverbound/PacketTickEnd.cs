@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
 {
     public class TickEndPacket : IClientPacket
     {
-        internal sealed class V768_769 : TickEndPacket
+        public sealed class V768_769 : TickEndPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public float TickRate { get; set; }
         public bool IsFrozen { get; set; }
 
-        internal sealed class V765_769 : SetTickingStatePacket
+        public sealed class V765_769 : SetTickingStatePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

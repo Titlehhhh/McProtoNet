@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public float Forward { get; set; }
         public byte Jump { get; set; }
 
-        internal sealed class V340_767 : SteerVehiclePacket
+        public sealed class V340_767 : SteerVehiclePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

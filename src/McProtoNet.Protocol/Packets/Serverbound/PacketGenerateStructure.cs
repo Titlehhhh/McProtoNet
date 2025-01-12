@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int Levels { get; set; }
         public bool KeepJigsaws { get; set; }
 
-        internal sealed class V734_769 : GenerateStructurePacket
+        public sealed class V734_769 : GenerateStructurePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

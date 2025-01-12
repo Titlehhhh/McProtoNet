@@ -70,7 +70,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             if (V340_762.SupportedVersion(protocolVersion))
                 V340_762.SerializeInternal(ref writer, protocolVersion, Location, Text1, Text2, Text3, Text4);
             else if (V763_769.SupportedVersion(protocolVersion))
-                V763_769.SerializeInternal(ref writer, protocolVersion, Location, default, Text1, Text2, Text3, Text4);
+                V763_769.SerializeInternal(ref writer, protocolVersion, Location, false, Text1, Text2, Text3, Text4);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.UpdateSign), protocolVersion);
         }

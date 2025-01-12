@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int Mode { get; set; }
         public byte Flags { get; set; }
 
-        internal sealed class V393_769 : UpdateCommandBlockPacket
+        public sealed class V393_769 : UpdateCommandBlockPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

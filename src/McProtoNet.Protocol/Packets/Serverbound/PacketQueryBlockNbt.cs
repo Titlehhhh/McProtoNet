@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int TransactionId { get; set; }
         public Position Location { get; set; }
 
-        internal sealed class V393_769 : QueryBlockNbtPacket
+        public sealed class V393_769 : QueryBlockNbtPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

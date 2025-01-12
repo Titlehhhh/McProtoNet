@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public int Type { get; set; }
 
-        internal sealed class V766_769 : DebugSampleSubscriptionPacket
+        public sealed class V766_769 : DebugSampleSubscriptionPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

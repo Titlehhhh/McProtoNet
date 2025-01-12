@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int QueryId { get; set; }
         public string? Message { get; set; }
 
-        internal sealed class V759_760 : ChatPreviewPacket
+        public sealed class V759_760 : ChatPreviewPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public string Command { get; set; }
         public bool TrackOutput { get; set; }
 
-        internal sealed class V393_769 : UpdateCommandBlockMinecartPacket
+        public sealed class V393_769 : UpdateCommandBlockMinecartPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

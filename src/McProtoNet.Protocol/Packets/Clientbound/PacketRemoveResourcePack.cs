@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public Guid? Uuid { get; set; }
 
-        internal sealed class V765_767 : RemoveResourcePackPacket
+        public sealed class V765_767 : RemoveResourcePackPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

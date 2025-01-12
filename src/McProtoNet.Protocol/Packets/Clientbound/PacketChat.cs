@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public string Message { get; set; }
         public sbyte Position { get; set; }
 
-        internal sealed class V340_710 : ChatPacket
+        public sealed class V340_710 : ChatPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V734_758 : ChatPacket
+        public sealed class V734_758 : ChatPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

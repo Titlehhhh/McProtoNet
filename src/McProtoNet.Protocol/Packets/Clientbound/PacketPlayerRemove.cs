@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public Guid[] Players { get; set; }
 
-        internal sealed class V761_769 : PlayerRemovePacket
+        public sealed class V761_769 : PlayerRemovePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

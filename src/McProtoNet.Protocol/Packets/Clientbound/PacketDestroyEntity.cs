@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int EntityId { get; set; }
 
-        internal sealed class V755 : DestroyEntityPacket
+        public sealed class V755 : DestroyEntityPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

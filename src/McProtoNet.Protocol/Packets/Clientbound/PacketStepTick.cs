@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int TickSteps { get; set; }
 
-        internal sealed class V765_769 : StepTickPacket
+        public sealed class V765_769 : StepTickPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

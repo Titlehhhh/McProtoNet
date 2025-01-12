@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int SourceDirectId { get; set; }
         public Vector3F64? SourcePosition { get; set; }
 
-        internal sealed class V762_769 : DamageEventPacket
+        public sealed class V762_769 : DamageEventPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

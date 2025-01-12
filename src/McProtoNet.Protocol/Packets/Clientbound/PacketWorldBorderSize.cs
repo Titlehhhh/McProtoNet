@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public double Diameter { get; set; }
 
-        internal sealed class V755_769 : WorldBorderSizePacket
+        public sealed class V755_769 : WorldBorderSizePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

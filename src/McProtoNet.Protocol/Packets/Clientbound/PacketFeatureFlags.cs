@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public string[] Features { get; set; }
 
-        internal sealed class V761_763 : FeatureFlagsPacket
+        public sealed class V761_763 : FeatureFlagsPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

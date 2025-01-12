@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public long Id { get; set; }
 
-        internal sealed class V764_769 : PingResponsePacket
+        public sealed class V764_769 : PingResponsePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

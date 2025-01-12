@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int Duration { get; set; }
 
-        internal sealed class V755_762 : EndCombatEventPacket
+        public sealed class V755_762 : EndCombatEventPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -25,7 +25,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             public int EntityId { get; set; }
         }
 
-        internal sealed class V763_769 : EndCombatEventPacket
+        public sealed class V763_769 : EndCombatEventPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

@@ -15,7 +15,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public float Volume { get; set; }
         public float Pitch { get; set; }
 
-        internal sealed class V340_758 : NamedSoundEffectPacket
+        public sealed class V340_758 : NamedSoundEffectPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -34,7 +34,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V759_760 : NamedSoundEffectPacket
+        public sealed class V759_760 : NamedSoundEffectPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

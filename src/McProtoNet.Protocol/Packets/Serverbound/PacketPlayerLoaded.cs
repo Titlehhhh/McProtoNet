@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
 {
     public class PlayerLoadedPacket : IClientPacket
     {
-        internal sealed class V769 : PlayerLoadedPacket
+        public sealed class V769 : PlayerLoadedPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

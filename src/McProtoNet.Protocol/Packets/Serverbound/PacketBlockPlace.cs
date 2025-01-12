@@ -131,11 +131,11 @@ namespace McProtoNet.Protocol.ServerboundPackets
             if (V340_404.SupportedVersion(protocolVersion))
                 V340_404.SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY, CursorZ);
             else if (V477_758.SupportedVersion(protocolVersion))
-                V477_758.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, default);
+                V477_758.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false);
             else if (V759_767.SupportedVersion(protocolVersion))
-                V759_767.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, default, default);
+                V759_767.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false, 0);
             else if (V768_769.SupportedVersion(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, default, default, default);
+                V768_769.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false, false, 0);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.BlockPlace), protocolVersion);
         }

@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public short Action { get; set; }
         public bool Accepted { get; set; }
 
-        internal sealed class V340_754 : TransactionPacket
+        public sealed class V340_754 : TransactionPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

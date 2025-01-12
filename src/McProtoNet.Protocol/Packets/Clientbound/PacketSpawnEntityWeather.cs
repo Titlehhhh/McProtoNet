@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public double Y { get; set; }
         public double Z { get; set; }
 
-        internal sealed class V340_710 : SpawnEntityWeatherPacket
+        public sealed class V340_710 : SpawnEntityWeatherPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

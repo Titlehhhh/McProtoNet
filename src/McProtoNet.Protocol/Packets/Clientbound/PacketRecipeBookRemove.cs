@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int[] RecipeIds { get; set; }
 
-        internal sealed class V768_769 : RecipeBookRemovePacket
+        public sealed class V768_769 : RecipeBookRemovePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

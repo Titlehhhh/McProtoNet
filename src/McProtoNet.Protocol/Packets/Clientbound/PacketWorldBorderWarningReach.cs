@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int WarningBlocks { get; set; }
 
-        internal sealed class V755_769 : WorldBorderWarningReachPacket
+        public sealed class V755_769 : WorldBorderWarningReachPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

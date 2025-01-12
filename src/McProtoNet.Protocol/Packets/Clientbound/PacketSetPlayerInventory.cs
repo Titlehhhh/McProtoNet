@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int SlotId { get; set; }
         public Slot? Contents { get; set; }
 
-        internal sealed class V768_769 : SetPlayerInventoryPacket
+        public sealed class V768_769 : SetPlayerInventoryPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

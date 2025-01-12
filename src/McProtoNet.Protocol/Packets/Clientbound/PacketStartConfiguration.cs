@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
 {
     public abstract class StartConfigurationPacket : IServerPacket
     {
-        internal sealed class V764_769 : StartConfigurationPacket
+        public sealed class V764_769 : StartConfigurationPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

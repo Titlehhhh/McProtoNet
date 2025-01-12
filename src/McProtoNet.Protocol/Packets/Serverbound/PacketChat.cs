@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public string Message { get; set; }
 
-        internal sealed class V340_758 : ChatPacket
+        public sealed class V340_758 : ChatPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

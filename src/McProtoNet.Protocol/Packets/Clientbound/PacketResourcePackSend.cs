@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public string Url { get; set; }
         public string Hash { get; set; }
 
-        internal sealed class V340_754 : ResourcePackSendPacket
+        public sealed class V340_754 : ResourcePackSendPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V755_764 : ResourcePackSendPacket
+        public sealed class V755_764 : ResourcePackSendPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

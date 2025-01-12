@@ -16,7 +16,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public bool SmokerGuiOpen { get; set; }
         public bool SmokerFilteringCraftable { get; set; }
 
-        internal sealed class V768_769 : RecipeBookSettingsPacket
+        public sealed class V768_769 : RecipeBookSettingsPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

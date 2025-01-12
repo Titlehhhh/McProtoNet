@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public bool ShouldDisplayChatPreview { get; set; }
 
-        internal sealed class V759_760 : ShouldDisplayChatPreviewPacket
+        public sealed class V759_760 : ShouldDisplayChatPreviewPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

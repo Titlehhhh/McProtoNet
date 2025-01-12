@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public float Yaw { get; set; }
         public float Pitch { get; set; }
 
-        internal sealed class V768_769 : PlayerRotationPacket
+        public sealed class V768_769 : PlayerRotationPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

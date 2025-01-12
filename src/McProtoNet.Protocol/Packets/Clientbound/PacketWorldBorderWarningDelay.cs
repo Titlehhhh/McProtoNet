@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int WarningTime { get; set; }
 
-        internal sealed class V755_769 : WorldBorderWarningDelayPacket
+        public sealed class V755_769 : WorldBorderWarningDelayPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

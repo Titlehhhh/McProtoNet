@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public int Id { get; set; }
 
-        internal sealed class V755_769 : PongPacket
+        public sealed class V755_769 : PongPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

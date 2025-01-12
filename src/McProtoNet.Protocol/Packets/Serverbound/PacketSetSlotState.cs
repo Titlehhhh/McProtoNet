@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int WindowId { get; set; }
         public bool State { get; set; }
 
-        internal sealed class V765_767 : SetSlotStatePacket
+        public sealed class V765_767 : SetSlotStatePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -31,7 +31,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V768_769 : SetSlotStatePacket
+        public sealed class V768_769 : SetSlotStatePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

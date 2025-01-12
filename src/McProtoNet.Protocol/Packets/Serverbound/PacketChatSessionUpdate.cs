@@ -12,7 +12,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public byte[] PublicKey { get; set; }
         public byte[] Signature { get; set; }
 
-        internal sealed class V761_765 : ChatSessionUpdatePacket
+        public sealed class V761_765 : ChatSessionUpdatePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -35,7 +35,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V766_769 : ChatSessionUpdatePacket
+        public sealed class V766_769 : ChatSessionUpdatePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

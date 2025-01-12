@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
 {
     public class ConfigurationAcknowledgedPacket : IClientPacket
     {
-        internal sealed class V764_769 : ConfigurationAcknowledgedPacket
+        public sealed class V764_769 : ConfigurationAcknowledgedPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

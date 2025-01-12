@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public Slot? Contents { get; set; }
 
-        internal sealed class V768_769 : SetCursorItemPacket
+        public sealed class V768_769 : SetCursorItemPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

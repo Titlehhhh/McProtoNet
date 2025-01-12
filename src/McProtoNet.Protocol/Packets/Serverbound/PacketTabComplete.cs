@@ -63,9 +63,9 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V340.SupportedVersion(protocolVersion))
-                V340.SerializeInternal(ref writer, protocolVersion, Text, default, default);
+                V340.SerializeInternal(ref writer, protocolVersion, Text, false, null);
             else if (V351_769.SupportedVersion(protocolVersion))
-                V351_769.SerializeInternal(ref writer, protocolVersion, default, Text);
+                V351_769.SerializeInternal(ref writer, protocolVersion, 0, Text);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.TabComplete), protocolVersion);
         }

@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public int TransactionId { get; set; }
         public int EntityId { get; set; }
 
-        internal sealed class V393_769 : QueryEntityNbtPacket
+        public sealed class V393_769 : QueryEntityNbtPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

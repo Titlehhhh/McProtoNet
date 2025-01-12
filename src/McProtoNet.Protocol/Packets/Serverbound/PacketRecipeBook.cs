@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public bool BookOpen { get; set; }
         public bool FilterActive { get; set; }
 
-        internal sealed class V751_769 : RecipeBookPacket
+        public sealed class V751_769 : RecipeBookPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

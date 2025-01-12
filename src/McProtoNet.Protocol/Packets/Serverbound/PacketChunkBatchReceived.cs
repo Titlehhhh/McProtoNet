@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public float ChunksPerTick { get; set; }
 
-        internal sealed class V764_769 : ChunkBatchReceivedPacket
+        public sealed class V764_769 : ChunkBatchReceivedPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

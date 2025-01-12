@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int BatchSize { get; set; }
 
-        internal sealed class V764_769 : ChunkBatchFinishedPacket
+        public sealed class V764_769 : ChunkBatchFinishedPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

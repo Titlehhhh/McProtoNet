@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
 {
     public abstract class EnterCombatEventPacket : IServerPacket
     {
-        internal sealed class V755_769 : EnterCombatEventPacket
+        public sealed class V755_769 : EnterCombatEventPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

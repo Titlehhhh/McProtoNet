@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public string Name { get; set; }
 
-        internal sealed class V393_769 : NameItemPacket
+        public sealed class V393_769 : NameItemPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

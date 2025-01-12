@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int EntityId { get; set; }
         public float Yaw { get; set; }
 
-        internal sealed class V762_769 : HurtAnimationPacket
+        public sealed class V762_769 : HurtAnimationPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

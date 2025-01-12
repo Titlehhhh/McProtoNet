@@ -102,11 +102,11 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V477_578.SupportedVersion(protocolVersion))
-                V477_578.SerializeInternal(ref writer, protocolVersion, Location, default, default, FinalState);
+                V477_578.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, FinalState);
             else if (V709_764.SupportedVersion(protocolVersion))
-                V709_764.SerializeInternal(ref writer, protocolVersion, Location, default, default, default, FinalState, default);
+                V709_764.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, string.Empty, FinalState, string.Empty);
             else if (V765_769.SupportedVersion(protocolVersion))
-                V765_769.SerializeInternal(ref writer, protocolVersion, Location, default, default, default, FinalState, default, default, default);
+                V765_769.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, string.Empty, FinalState, string.Empty, 0, 0);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPacket.UpdateJigsawBlock), protocolVersion);
         }

@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
 {
     public abstract class ChunkBatchStartPacket : IServerPacket
     {
-        internal sealed class V764_769 : ChunkBatchStartPacket
+        public sealed class V764_769 : ChunkBatchStartPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

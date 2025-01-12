@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public int Action { get; set; }
         public string[] Entries { get; set; }
 
-        internal sealed class V760_769 : ChatSuggestionsPacket
+        public sealed class V760_769 : ChatSuggestionsPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

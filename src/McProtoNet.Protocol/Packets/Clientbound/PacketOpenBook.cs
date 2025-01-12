@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public int Hand { get; set; }
 
-        internal sealed class V477_769 : OpenBookPacket
+        public sealed class V477_769 : OpenBookPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

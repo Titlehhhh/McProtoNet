@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public bool Forced { get; set; }
         public NbtTag? PromptMessage { get; set; }
 
-        internal sealed class V765_767 : AddResourcePackPacket
+        public sealed class V765_767 : AddResourcePackPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
