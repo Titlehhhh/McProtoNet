@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public Position Location { get; set; }
         public sbyte Face { get; set; }
 
-        internal sealed class V340_758 : BlockDigPacket
+        public sealed class V340_758 : BlockDigPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -31,7 +31,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V759_769 : BlockDigPacket
+        public sealed class V759_769 : BlockDigPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

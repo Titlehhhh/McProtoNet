@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public float Yaw { get; set; }
         public float Pitch { get; set; }
 
-        internal sealed class V340_768 : VehicleMovePacket
+        public sealed class V340_768 : VehicleMovePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -35,7 +35,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V769 : VehicleMovePacket
+        public sealed class V769 : VehicleMovePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

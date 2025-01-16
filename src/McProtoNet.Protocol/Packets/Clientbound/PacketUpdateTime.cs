@@ -10,7 +10,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
         public long Age { get; set; }
         public long Time { get; set; }
 
-        internal sealed class V340_767 : UpdateTimePacket
+        public sealed class V340_767 : UpdateTimePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V768_769 : UpdateTimePacket
+        public sealed class V768_769 : UpdateTimePacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

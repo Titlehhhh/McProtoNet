@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public int Result { get; set; }
 
-        internal sealed class V340_764 : ResourcePackReceivePacket
+        public sealed class V340_764 : ResourcePackReceivePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -27,7 +27,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V765_769 : ResourcePackReceivePacket
+        public sealed class V765_769 : ResourcePackReceivePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

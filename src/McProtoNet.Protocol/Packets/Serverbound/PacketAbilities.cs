@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public sbyte Flags { get; set; }
 
-        internal sealed class V340_710 : AbilitiesPacket
+        public sealed class V340_710 : AbilitiesPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -32,7 +32,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             public float WalkingSpeed { get; set; }
         }
 
-        internal sealed class V734_769 : AbilitiesPacket
+        public sealed class V734_769 : AbilitiesPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

@@ -14,7 +14,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public float CursorY { get; set; }
         public float CursorZ { get; set; }
 
-        internal sealed class V340_404 : BlockPlacePacket
+        public sealed class V340_404 : BlockPlacePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -37,7 +37,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V477_758 : BlockPlacePacket
+        public sealed class V477_758 : BlockPlacePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -63,7 +63,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             public bool InsideBlock { get; set; }
         }
 
-        internal sealed class V759_767 : BlockPlacePacket
+        public sealed class V759_767 : BlockPlacePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -91,7 +91,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             public int Sequence { get; set; }
         }
 
-        internal sealed class V768_769 : BlockPlacePacket
+        public sealed class V768_769 : BlockPlacePacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

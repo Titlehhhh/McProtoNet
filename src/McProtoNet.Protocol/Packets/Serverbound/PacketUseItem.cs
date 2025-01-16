@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
     {
         public int Hand { get; set; }
 
-        internal sealed class V340_758 : UseItemPacket
+        public sealed class V340_758 : UseItemPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -27,7 +27,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V759_766 : UseItemPacket
+        public sealed class V759_766 : UseItemPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -48,7 +48,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             public int Sequence { get; set; }
         }
 
-        internal sealed class V767_769 : UseItemPacket
+        public sealed class V767_769 : UseItemPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

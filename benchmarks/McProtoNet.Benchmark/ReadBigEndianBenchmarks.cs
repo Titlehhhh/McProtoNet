@@ -53,21 +53,17 @@ public class ReadBigEndianBenchmarks
     public long[] SimdRead()
     {
         Span<long> numbers = MemoryMarshal.Cast<byte, long>(TestArr);
-        long[] source = new long[Count];
-        if (BitConverter.IsLittleEndian)
+
+        //if (BitConverter.IsLittleEndian)
+        {
+            long[] source = new long[Count];
             BinaryPrimitives.ReverseEndianness(numbers, source);
-        return source;
+            return source;
+        }
+
+        return numbers.ToArray();
     }
 
-    [Benchmark]
-    public long[] SimdReadUnsafe()
-    {
-        Span<long> numbers = MemoryMarshal.Cast<byte, long>(TestArr);
-        long[] source = new long[Count];
-        if (BitConverter.IsLittleEndian)
-            BinaryPrimitivesTest.ReverseEndianness(numbers, source);
-        return source;
-    }
 
     public Vector128<byte> A128;
     public Vector128<byte> B128;

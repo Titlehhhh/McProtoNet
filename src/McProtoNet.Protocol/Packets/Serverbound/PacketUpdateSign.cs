@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
         public string Text3 { get; set; }
         public string Text4 { get; set; }
 
-        internal sealed class V340_762 : UpdateSignPacket
+        public sealed class V340_762 : UpdateSignPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
@@ -35,7 +35,7 @@ namespace McProtoNet.Protocol.ServerboundPackets
             }
         }
 
-        internal sealed class V763_769 : UpdateSignPacket
+        public sealed class V763_769 : UpdateSignPacket
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {

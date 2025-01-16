@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public Position Location { get; set; }
 
-        internal sealed class V340_754 : SpawnPositionPacket
+        public sealed class V340_754 : SpawnPositionPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V755_769 : SpawnPositionPacket
+        public sealed class V755_769 : SpawnPositionPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

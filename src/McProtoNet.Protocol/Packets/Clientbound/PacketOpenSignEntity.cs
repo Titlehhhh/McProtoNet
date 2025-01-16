@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public Position Location { get; set; }
 
-        internal sealed class V340_762 : OpenSignEntityPacket
+        public sealed class V340_762 : OpenSignEntityPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V763_769 : OpenSignEntityPacket
+        public sealed class V763_769 : OpenSignEntityPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {

@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
     {
         public byte Difficulty { get; set; }
 
-        internal sealed class V340_404 : DifficultyPacket
+        public sealed class V340_404 : DifficultyPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
@@ -22,7 +22,7 @@ namespace McProtoNet.Protocol.ClientboundPackets
             }
         }
 
-        internal sealed class V477_769 : DifficultyPacket
+        public sealed class V477_769 : DifficultyPacket
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
