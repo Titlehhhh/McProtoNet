@@ -11,6 +11,7 @@ public class ZlibDecompressorHeapAlloc : IDisposable
     private readonly IntPtr decompressor;
 
     private bool disposedValue;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ZlibDecompressorHeapAlloc()
     {
@@ -41,7 +42,8 @@ public class ZlibDecompressorHeapAlloc : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private OperationStatus DecompressCore(ReadOnlySpan<byte> input, Span<byte> output, out nuint bytesWritten)
     {
-        return StatusFromResult(Decompression.libdeflate_zlib_decompress(decompressor, MemoryMarshal.GetReference(input),
+        return StatusFromResult(Decompression.libdeflate_zlib_decompress(decompressor,
+            MemoryMarshal.GetReference(input),
             (nuint)input.Length, ref MemoryMarshal.GetReference(output), (nuint)output.Length, out bytesWritten));
     }
 
@@ -64,7 +66,7 @@ public class ZlibDecompressorHeapAlloc : IDisposable
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DisposedGuard()
     {
         if (disposedValue)
@@ -77,10 +79,11 @@ public class ZlibDecompressorHeapAlloc : IDisposable
     }
 
     private bool disposed;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        if(disposed)
+        if (disposed)
             return;
         disposed = true;
         Decompression.libdeflate_free_decompressor(decompressor);

@@ -27,7 +27,8 @@ public static class ReadArraysSIMDExtensions
 
         return result;
     }
-    public static int[] ReadArrayInt32BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static int[] ReadArrayInt32BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -42,9 +43,11 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    public static long[] ReadArrayInt64BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static long[] ReadArrayInt64BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -59,9 +62,11 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    public static short[] ReadArrayInt16BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static short[] ReadArrayInt16BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -76,9 +81,11 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    public static ushort[] ReadArrayUnsignedInt16BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static ushort[] ReadArrayUnsignedInt16BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -93,9 +100,11 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    public static uint[] ReadArrayUnsignedInt32BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static uint[] ReadArrayUnsignedInt32BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -110,9 +119,11 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    public static ulong[] ReadArrayUnsignedInt64BigEndian(this MinecraftPrimitiveReader reader, int length) 
+
+    public static ulong[] ReadArrayUnsignedInt64BigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
         {
@@ -127,9 +138,10 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, result);
             return result;
         }
+
         return ints.ToArray();
     }
-    
+
     public static float[] ReadArrayFloatBigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -145,8 +157,10 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
             return result;
         }
+
         return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
     }
+
     public static double[] ReadArrayDoubleBigEndian(this MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -162,7 +176,7 @@ public static class ReadArraysSIMDExtensions
             BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
             return result;
         }
+
         return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
     }
-
 }

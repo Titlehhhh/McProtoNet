@@ -73,8 +73,10 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
                 BlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
                 EmptySkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
                 EmptyBlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
-                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                SkyLight = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                BlockLight = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
             }
 
             public new static bool SupportedVersion(int protocolVersion)
@@ -101,8 +103,10 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
                 BlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
                 EmptySkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
                 EmptyBlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
-                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                SkyLight = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                BlockLight = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
             }
 
             public new static bool SupportedVersion(int protocolVersion)
@@ -120,7 +124,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
 
         public static bool SupportedVersion(int protocolVersion)
         {
-            return V477_710.SupportedVersion(protocolVersion) || V734_754.SupportedVersion(protocolVersion) || V755_762.SupportedVersion(protocolVersion) || V763_769.SupportedVersion(protocolVersion);
+            return V477_710.SupportedVersion(protocolVersion) || V734_754.SupportedVersion(protocolVersion) ||
+                   V755_762.SupportedVersion(protocolVersion) || V763_769.SupportedVersion(protocolVersion);
         }
 
         public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);

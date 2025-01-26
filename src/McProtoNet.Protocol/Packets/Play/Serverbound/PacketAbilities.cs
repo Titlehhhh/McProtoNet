@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Flags, FlyingSpeed, WalkingSpeed);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte flags, float flyingSpeed, float walkingSpeed)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte flags, float flyingSpeed, float walkingSpeed)
             {
                 writer.WriteSignedByte(flags);
                 writer.WriteFloat(flyingSpeed);
@@ -39,7 +40,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Flags);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte flags)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte flags)
             {
                 writer.WriteSignedByte(flags);
             }

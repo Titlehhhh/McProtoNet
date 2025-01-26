@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
-                PreviousSignature = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                PreviousSignature = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
                 SenderUuid = reader.ReadUUID();
                 Signature = reader.ReadBuffer(LengthFormat.VarInt);
                 MessageHash = reader.ReadBuffer(LengthFormat.VarInt);

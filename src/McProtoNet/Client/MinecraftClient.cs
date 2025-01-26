@@ -38,7 +38,6 @@ public sealed class MinecraftClient : Disposable, IMinecraftClient
         minecraftLogin.StateChanged += this.MinecraftLogin_StateChanged;
     }
 
-    
 
     #region Public API
 
@@ -448,6 +447,7 @@ public sealed class MinecraftClient : Disposable, IMinecraftClient
     #region Properties
 
     public int ProtocolVersion => this.Version;
+
     /// <summary>
     /// The host (IP address or domain name) of the Minecraft server to connect to.
     /// </summary>

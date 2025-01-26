@@ -12,10 +12,10 @@
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2"/>
-        <PackageReference Include="DotNext" Version="5.14.0" />
+        <PackageReference Include="DotNext" Version="5.14.0"/>
         <PackageReference Include="MinVer" Version="6.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 </Project>

@@ -9,12 +9,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj" />
+        <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="carlst99.ZlibNGSharp" Version="1.2.0" />
+        <PackageReference Include="carlst99.ZlibNGSharp" Version="1.2.0"/>
     </ItemGroup>
 
 </Project>

@@ -34,7 +34,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
             if (V764_769.SupportedVersion(protocolVersion))
                 V764_769.SerializeInternal(ref writer, protocolVersion);
             else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ConfigurationAcknowledged), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ConfigurationAcknowledged),
+                    protocolVersion);
         }
 
         public static PacketIdentifier PacketId => ClientPlayPacket.ConfigurationAcknowledged;

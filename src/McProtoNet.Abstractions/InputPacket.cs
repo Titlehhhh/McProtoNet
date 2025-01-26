@@ -23,7 +23,7 @@ public readonly struct InputPacket : IDisposable
         Id = id;
         Data = this.owner.Memory;
         isMemoryPool = true;
-       // MainData = Data.ToArray();
+        // MainData = Data.ToArray();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

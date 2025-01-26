@@ -3,17 +3,16 @@
 open System
 open QuickProxyNet
 
-module MinecraftClient =   
+module MinecraftClient =
 
     type MinecraftClientOptions =
         { Username: string
-          Version : int
+          Version: int
           Host: string
           Port: uint16
-          Proxy: Option<IProxyClient>
-        }
+          Proxy: Option<IProxyClient> }
 
-    let create (ops: MinecraftClientOptions) =        
+    let create (ops: MinecraftClientOptions) =
         new McProtoNet.Client.MinecraftClient(
             Username = ops.Username,
             Host = ops.Host,

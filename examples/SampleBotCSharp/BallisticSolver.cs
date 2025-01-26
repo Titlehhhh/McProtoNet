@@ -235,7 +235,6 @@ public class BallisticSolver
     }
 
 
-
     public static int solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target, float gravity,
         out Vector3 s0, out Vector3 s1)
     {
@@ -293,7 +292,7 @@ public class BallisticSolver
         return numSolutions;
     }
 
-    
+
     public static int solve_ballistic_arc(Vector3 proj_pos, float proj_speed, Vector3 target_pos,
         Vector3 target_velocity, float gravity, out Vector3 s0, out Vector3 s1)
     {
@@ -330,9 +329,8 @@ public class BallisticSolver
         // Solve quartic
         Span<double> times = stackalloc double[4];
         int numTimes = SolveQuartic(c0, c1, c2, c3, c4, out times[0], out times[1], out times[2], out times[3]);
-       
-        
-        
+
+
         times.Sort();
         // Plug quartic solutions into base equations
         // There should never be more than 2 positive, real roots.
@@ -357,6 +355,4 @@ public class BallisticSolver
 
         return numSolutions;
     }
-
-
 }

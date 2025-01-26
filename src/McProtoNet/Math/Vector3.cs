@@ -316,6 +316,7 @@ public struct Vector3 : IEquatable<Vector3>
     {
         return new Vector3(this.X, y, this.Z);
     }
+
     public Vector3 WithZ(double z)
     {
         return new Vector3(this.X, this.Y, z);

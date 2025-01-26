@@ -7,13 +7,12 @@ namespace McProtoNet.Net;
 internal sealed class MinecraftPacketPipeWriter
 {
     private static readonly byte[] ZeroVarInt = { 0 };
-  
+
     private readonly PipeWriter pipeWriter;
 
     public MinecraftPacketPipeWriter(PipeWriter pipeWriter)
     {
         this.pipeWriter = pipeWriter;
-      
     }
 
     public int CompressionThreshold { get; set; }
@@ -39,7 +38,7 @@ internal sealed class MinecraftPacketPipeWriter
         }
 
         var uncompressedSize = data.Length;
-        using scoped var compressor = new ZlibCompressor(); 
+        using scoped var compressor = new ZlibCompressor();
         var length = compressor.GetBound(uncompressedSize);
 
         var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);

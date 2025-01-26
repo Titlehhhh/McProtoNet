@@ -18,7 +18,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, EntityId, Command, TrackOutput);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int entityId, string command, bool trackOutput)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int entityId, string command, bool trackOutput)
             {
                 writer.WriteVarInt(entityId);
                 writer.WriteString(command);
@@ -41,7 +42,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
             if (V393_769.SupportedVersion(protocolVersion))
                 V393_769.SerializeInternal(ref writer, protocolVersion, EntityId, Command, TrackOutput);
             else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.UpdateCommandBlockMinecart), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.UpdateCommandBlockMinecart),
+                    protocolVersion);
         }
 
         public static PacketIdentifier PacketId => ClientPlayPacket.UpdateCommandBlockMinecart;

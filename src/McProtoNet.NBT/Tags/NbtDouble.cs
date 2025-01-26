@@ -7,63 +7,63 @@ namespace McProtoNet.NBT;
 /// </summary>
 public sealed class NbtDouble : NbtTag
 {
-	/// <summary>
-	///     Creates an unnamed NbtDouble tag with the default value of 0.
-	/// </summary>
-	public NbtDouble()
+    /// <summary>
+    ///     Creates an unnamed NbtDouble tag with the default value of 0.
+    /// </summary>
+    public NbtDouble()
     {
     }
 
-	/// <summary>
-	///     Creates an unnamed NbtDouble tag with the given value.
-	/// </summary>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtDouble(double value)
+    /// <summary>
+    ///     Creates an unnamed NbtDouble tag with the given value.
+    /// </summary>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtDouble(double value)
         : this(null!, value)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtDouble tag with the given name and the default value of 0.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	public NbtDouble(string? tagName)
+    /// <summary>
+    ///     Creates an NbtDouble tag with the given name and the default value of 0.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    public NbtDouble(string? tagName)
         : this(tagName, 0)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtDouble tag with the given name and value.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtDouble(string? tagName, double value)
+    /// <summary>
+    ///     Creates an NbtDouble tag with the given name and value.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtDouble(string? tagName, double value)
     {
         Name = tagName;
         Value = value;
     }
 
-	/// <summary>
-	///     Creates a copy of given NbtDouble tag.
-	/// </summary>
-	/// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-	/// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
-	public NbtDouble(NbtDouble other)
+    /// <summary>
+    ///     Creates a copy of given NbtDouble tag.
+    /// </summary>
+    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
+    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    public NbtDouble(NbtDouble other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
         Name = other.Name;
         Value = other.Value;
     }
 
-	/// <summary>
-	///     Type of this tag (Double).
-	/// </summary>
-	public override NbtTagType TagType => NbtTagType.Double;
+    /// <summary>
+    ///     Type of this tag (Double).
+    /// </summary>
+    public override NbtTagType TagType => NbtTagType.Double;
 
-	/// <summary>
-	///     Value/payload of this tag (a double-precision floating point number).
-	/// </summary>
-	public double Value { get; set; }
+    /// <summary>
+    ///     Value/payload of this tag (a double-precision floating point number).
+    /// </summary>
+    public double Value { get; set; }
 
     internal override bool ReadTag(NbtBinaryReader readStream)
     {

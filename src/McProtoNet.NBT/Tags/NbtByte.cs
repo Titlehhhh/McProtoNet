@@ -7,63 +7,63 @@ namespace McProtoNet.NBT;
 /// </summary>
 public class NbtByte : NbtTag
 {
-	/// <summary>
-	///     Creates an unnamed NbtByte tag with the default value of 0.
-	/// </summary>
-	public NbtByte()
+    /// <summary>
+    ///     Creates an unnamed NbtByte tag with the default value of 0.
+    /// </summary>
+    public NbtByte()
     {
     }
 
-	/// <summary>
-	///     Creates an unnamed NbtByte tag with the given value.
-	/// </summary>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtByte(byte value)
+    /// <summary>
+    ///     Creates an unnamed NbtByte tag with the given value.
+    /// </summary>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtByte(byte value)
         : this(null!, value)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtByte tag with the given name and the default value of 0.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	public NbtByte(string? tagName)
+    /// <summary>
+    ///     Creates an NbtByte tag with the given name and the default value of 0.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    public NbtByte(string? tagName)
         : this(tagName, 0)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtByte tag with the given name and value.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtByte(string? tagName, byte value)
+    /// <summary>
+    ///     Creates an NbtByte tag with the given name and value.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtByte(string? tagName, byte value)
     {
         Name = tagName;
         Value = value;
     }
 
-	/// <summary>
-	///     Creates a copy of given NbtByte tag.
-	/// </summary>
-	/// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-	/// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
-	public NbtByte(NbtByte other)
+    /// <summary>
+    ///     Creates a copy of given NbtByte tag.
+    /// </summary>
+    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
+    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    public NbtByte(NbtByte other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
         Name = other.Name;
         Value = other.Value;
     }
 
-	/// <summary>
-	///     Type of this tag (Byte).
-	/// </summary>
-	public override NbtTagType TagType => NbtTagType.Byte;
+    /// <summary>
+    ///     Type of this tag (Byte).
+    /// </summary>
+    public override NbtTagType TagType => NbtTagType.Byte;
 
-	/// <summary>
-	///     Value/payload of this tag (a single byte).
-	/// </summary>
-	public byte Value { get; set; }
+    /// <summary>
+    ///     Value/payload of this tag (a single byte).
+    /// </summary>
+    public byte Value { get; set; }
 
     internal override bool ReadTag(NbtBinaryReader readStream)
     {

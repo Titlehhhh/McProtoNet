@@ -12,19 +12,26 @@ public static partial class PacketIdHelper
 
         return packetIdentifier.Direction switch
         {
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Status => ClientboundStatusPackets[key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Login => ClientboundLoginPackets[key],
+            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Status => ClientboundStatusPackets
+                [key],
+            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Login => ClientboundLoginPackets
+                [key],
             PacketDirection.Clientbound when packetIdentifier.State == PacketState.Play => ClientboundPlayPackets[key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Handshaking => ClientboundHandshakingPackets[key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Configuration => ClientboundConfigurationPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Status => ServerboundStatusPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Login => ServerboundLoginPackets[key],
+            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Handshaking =>
+                ClientboundHandshakingPackets[key],
+            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Configuration =>
+                ClientboundConfigurationPackets[key],
+            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Status => ServerboundStatusPackets
+                [key],
+            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Login => ServerboundLoginPackets
+                [key],
             PacketDirection.Serverbound when packetIdentifier.State == PacketState.Play => ServerboundPlayPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Handshaking => ServerboundHandshakingPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Configuration => ServerboundConfigurationPackets[key],
+            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Handshaking =>
+                ServerboundHandshakingPackets[key],
+            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Configuration =>
+                ServerboundConfigurationPackets[key],
             _ => throw new InvalidOperationException("Unknown packet identifier."),
         };
-
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

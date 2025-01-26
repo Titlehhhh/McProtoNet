@@ -4,18 +4,15 @@ public class ConnectTimeoutException : Exception
 {
     public ConnectTimeoutException()
     {
-        
     }
 
-    public ConnectTimeoutException(string? message):base(message)
+    public ConnectTimeoutException(string? message) : base(message)
     {
-        
     }
+
     public ConnectTimeoutException(string? message, Exception? innerException) : base(message, innerException)
     {
-        
     }
-    
 }
 
 public class ConnectException : Exception

@@ -27,6 +27,7 @@ public sealed class ResourcePackPacket
         UUID = uuid;
     }
 }
+
 public sealed class LoginPacket
 {
     public int Id { get; }
@@ -521,7 +522,6 @@ public sealed class MultiProtocol : ProtocolBase
             }
             else if (packet.Id == resourcePack)
             {
-                
                 _onResourcePack.OnNext(new ResourcePackPacket(Guid.Empty));
             }
             else if (packet.Id == pushResourcePack)
@@ -745,6 +745,7 @@ public sealed class MultiProtocol : ProtocolBase
             writer.Dispose();
         }
     }
+
     public ValueTask SendClientInformation(string locale, sbyte viewDistance, int chatMode, bool chatColors, byte skin,
         int mainHand, bool enableTextFiltering, bool allowServerListings)
     {

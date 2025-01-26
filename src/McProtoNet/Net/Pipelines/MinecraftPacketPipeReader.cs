@@ -110,6 +110,4 @@ internal sealed class MinecraftPacketPipeReader
 
         return new InputPacket(data.Slice(len).Decompress(sizeUncompressed));
     }
-
-    
 }

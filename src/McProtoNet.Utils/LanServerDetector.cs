@@ -62,9 +62,6 @@ public sealed class LanServerDetector
 
     public void StartReceiving()
     {
-        
-        
-        
     }
 
     private Task StartReceivingAsync()
@@ -77,11 +74,9 @@ public sealed class LanServerDetector
             if (line == null) break;
             Notify(line, localIPEndPoint);
         }
+
         return Task.CompletedTask;
     }
-    
-
-    
 
 
     private void Notify(string data, EndPoint endPoint)
@@ -99,7 +94,6 @@ public sealed class LanServerDetector
         }
     }
 
-   
 
     private static string ParseMotd(string line)
     {

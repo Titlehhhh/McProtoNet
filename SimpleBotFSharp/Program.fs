@@ -5,6 +5,6 @@ open McProtoNet.FSharp
 open McProtoNet.FSharp.MinecraftClient
 
 
-let str = new NetworkStream(null,false)
+let str = new NetworkStream(null, false)
 
 str.AsyncRead

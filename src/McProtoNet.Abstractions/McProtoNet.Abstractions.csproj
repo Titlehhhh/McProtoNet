@@ -7,7 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNext" Version="5.14.0" />
+        <PackageReference Include="DotNext" Version="5.14.0"/>
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>

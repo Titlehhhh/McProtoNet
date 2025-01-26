@@ -4,7 +4,6 @@ namespace McProtoNet.Protocol;
 
 public static partial class PacketFactory
 {
-  
     public static IServerPacket CreateClientboundPacket(int protocolVersion, int packetId)
     {
         return ClientboundPlayPackets[Combine(protocolVersion, packetId)]();

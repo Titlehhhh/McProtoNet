@@ -5,9 +5,10 @@ namespace McProtoNet.Abstractions;
 public abstract class ProtocolBase : IDisposable
 {
     public int SupportedVersion { get; protected set; }
-    
+
     protected readonly IMinecraftClient _client;
     protected int ProtocolVersion => _client.ProtocolVersion;
+
     public ProtocolBase(IMinecraftClient client)
     {
         _client = client;
@@ -50,20 +51,17 @@ public abstract class ProtocolBase : IDisposable
 
     protected virtual void OnLoaded()
     {
-        
     }
 
     protected virtual void OnStop()
     {
-        
     }
 
     protected virtual void OnError(Exception exception)
     {
-        
     }
+
     public virtual void Dispose()
     {
-        
     }
 }

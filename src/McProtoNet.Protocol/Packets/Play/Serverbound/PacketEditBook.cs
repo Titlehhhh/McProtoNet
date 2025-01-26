@@ -14,7 +14,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, NewBook, Signing);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Slot newBook, bool signing)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Slot newBook, bool signing)
             {
                 writer.WriteSlot(newBook, protocolVersion);
                 writer.WriteBoolean(signing);
@@ -36,7 +37,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, NewBook, Signing, Hand);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Slot newBook, bool signing, int hand)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Slot newBook, bool signing, int hand)
             {
                 writer.WriteSlot(newBook, protocolVersion);
                 writer.WriteBoolean(signing);
@@ -60,15 +62,16 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Hand, Pages, Title);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, string[] pages, string? title)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                string[] pages, string? title)
             {
                 writer.WriteVarInt(hand);
                 writer.WriteVarInt(pages.Length);
                 foreach (var pages_item in pages)
-                writer.WriteString(pages_item);
+                    writer.WriteString(pages_item);
                 writer.WriteBoolean(title is not null);
                 if (title is not null)
-                writer.WriteString((string)title);
+                    writer.WriteString((string)title);
             }
 
             public new static bool SupportedVersion(int protocolVersion)
@@ -83,7 +86,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
 
         public static bool SupportedVersion(int protocolVersion)
         {
-            return V393.SupportedVersion(protocolVersion) || V401_755.SupportedVersion(protocolVersion) || V756_769.SupportedVersion(protocolVersion);
+            return V393.SupportedVersion(protocolVersion) || V401_755.SupportedVersion(protocolVersion) ||
+                   V756_769.SupportedVersion(protocolVersion);
         }
 
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)

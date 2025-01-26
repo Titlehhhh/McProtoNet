@@ -21,7 +21,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
                 SourceTypeId = reader.ReadVarInt();
                 SourceCauseId = reader.ReadVarInt();
                 SourceDirectId = reader.ReadVarInt();
-                SourcePosition = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadVector3F64(protocolVersion));
+                SourcePosition = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadVector3F64(protocolVersion));
             }
 
             public new static bool SupportedVersion(int protocolVersion)

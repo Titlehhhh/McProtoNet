@@ -16,13 +16,14 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Text, AssumeCommand, LookedAtBlock);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, string text, bool assumeCommand, Position? lookedAtBlock)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                string text, bool assumeCommand, Position? lookedAtBlock)
             {
                 writer.WriteString(text);
                 writer.WriteBoolean(assumeCommand);
                 writer.WriteBoolean(lookedAtBlock is not null);
                 if (lookedAtBlock is not null)
-                writer.WritePosition((Position)lookedAtBlock, protocolVersion);
+                    writer.WritePosition((Position)lookedAtBlock, protocolVersion);
             }
 
             public new static bool SupportedVersion(int protocolVersion)
@@ -41,7 +42,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, TransactionId, Text);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int transactionId, string text)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int transactionId, string text)
             {
                 writer.WriteVarInt(transactionId);
                 writer.WriteString(text);

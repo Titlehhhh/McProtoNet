@@ -17,7 +17,6 @@ namespace McProtoNet.Serialization;
 [StructLayout(LayoutKind.Auto)]
 public ref partial struct MinecraftPrimitiveReader
 {
-    
     private SpanReader<byte> _reader;
     private bool disposed;
     public ReadOnlySpan<byte> Span => _reader.Span;
@@ -31,8 +30,7 @@ public ref partial struct MinecraftPrimitiveReader
     public readonly ReadOnlySpan<byte> ConsumedSpan => _reader.ConsumedSpan;
     public readonly ReadOnlySpan<byte> RemainingSpan => _reader.RemainingSpan;
 
-    
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public MinecraftPrimitiveReader(ReadOnlySpan<byte> data)
     {
@@ -47,12 +45,13 @@ public ref partial struct MinecraftPrimitiveReader
     {
         throw new NotImplementedException();
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
     {
         _reader.Advance(count);
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<byte> Read(int count) => _reader.Read(count);
 
@@ -233,6 +232,4 @@ public ref partial struct MinecraftPrimitiveReader
         _reader.Advance(nbtSpanReader.ConsumedCount);
         return result;
     }
-
-    
 }

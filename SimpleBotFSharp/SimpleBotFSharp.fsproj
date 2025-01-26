@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj" />
+        <ProjectReference Include="..\src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj"/>
     </ItemGroup>
 
 </Project>

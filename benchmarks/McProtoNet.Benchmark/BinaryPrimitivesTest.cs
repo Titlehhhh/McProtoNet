@@ -8,7 +8,6 @@ namespace McProtoNet.Benchmark;
 
 public static class BinaryPrimitivesTest
 {
-
     [CLSCompliant(false)]
     public static void ReverseEndianness(ReadOnlySpan<ushort> source, Span<ushort> destination) =>
         ReverseEndianness<short, Int16EndiannessReverser>(MemoryMarshal.Cast<ushort, short>(source),
@@ -96,7 +95,7 @@ public static class BinaryPrimitivesTest
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Vector128<long> Reverse(Vector128<long> vector) =>
             Impl.ShuffleUnsafe(vector.AsByte(),
-                Vector128.Create((byte)7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8))
+                    Vector128.Create((byte)7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8))
                 .AsInt64();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -198,8 +197,4 @@ public static class BinaryPrimitivesTest
         static abstract Vector128<T> Reverse(Vector128<T> vector);
         static abstract Vector256<T> Reverse(Vector256<T> vector);
     }
-
-
-
-
 }

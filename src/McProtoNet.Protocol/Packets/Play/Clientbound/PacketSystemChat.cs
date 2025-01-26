@@ -60,7 +60,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
 
         public static bool SupportedVersion(int protocolVersion)
         {
-            return V759.SupportedVersion(protocolVersion) || V760_764.SupportedVersion(protocolVersion) || V765_769.SupportedVersion(protocolVersion);
+            return V759.SupportedVersion(protocolVersion) || V760_764.SupportedVersion(protocolVersion) ||
+                   V765_769.SupportedVersion(protocolVersion);
         }
 
         public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);

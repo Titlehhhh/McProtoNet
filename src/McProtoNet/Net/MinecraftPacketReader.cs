@@ -16,8 +16,6 @@ public sealed class MinecraftPacketReader
 
     public Stream BaseStream { get; set; }
 
-   
-
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public async ValueTask<InputPacket> ReadNextPacketAsync(CancellationToken token = default)
@@ -94,8 +92,8 @@ public sealed class MinecraftPacketReader
         var status = decompressor.Decompress(
             bufferCompress,
             uncompress, out var written);
-        
-        if(written != uncompress.Length)
+
+        if (written != uncompress.Length)
             throw new Exception("Written not equal uncompress buffer length");
 
         if (status != OperationStatus.Done) throw new Exception("Decompress Error");

@@ -31,7 +31,7 @@ public class ReadPacketBenchmarks
     }
 
     private Stream _mainStream;
-    
+
     [GlobalSetup]
     public async Task Setup()
     {
@@ -55,19 +55,12 @@ public class ReadPacketBenchmarks
 
             await writer.SendAndDisposeAsync(packet, new CancellationToken());
         }
-
-
-       
     }
 
     [GlobalCleanup]
     public void Cleanup()
     {
     }
-
-
-
-    
 
 
     [Benchmark]

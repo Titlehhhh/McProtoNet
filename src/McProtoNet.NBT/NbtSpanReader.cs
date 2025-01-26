@@ -26,12 +26,12 @@ public ref struct NbtSpanReader
     {
         NbtTagType type = ReadTagType();
         string? rootName = readRootName ? ReadString() : null;
-        
+
         if (TypeIsPrimitive(type))
         {
             return (T)ReadPrimitive(type, rootName);
         }
-        
+
         if (_reader.RemainingCount <= 512) // Recursive
         {
             return ReadRecursive(type, rootName) as T ??
@@ -41,21 +41,17 @@ public ref struct NbtSpanReader
         {
             throw new NotImplementedException();
             Stack<NbtTag> stack = new Stack<NbtTag>();
-            
+
             do
             {
-                
-
                 if (type == NbtTagType.Compound)
                 {
-                    
                 }
-                
             } while (stack.Count > 0);
         }
     }
 
-    
+
     private bool TypeIsPrimitive(NbtTagType type)
     {
         switch (type)

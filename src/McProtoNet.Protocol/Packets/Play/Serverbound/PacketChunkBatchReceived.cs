@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, ChunksPerTick);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, float chunksPerTick)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                float chunksPerTick)
             {
                 writer.WriteFloat(chunksPerTick);
             }

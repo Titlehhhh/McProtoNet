@@ -15,14 +15,16 @@ public static class Impl
     {
         if (Avx2.IsSupported)
         {
-            var indicesXord = Avx2.And(Avx2.Xor(indices, Vector256.Create(Vector128.Create((byte)0), Vector128.Create((byte)0x10))), Vector256.Create((byte)0x9F));
+            var indicesXord =
+                Avx2.And(Avx2.Xor(indices, Vector256.Create(Vector128.Create((byte)0), Vector128.Create((byte)0x10))),
+                    Vector256.Create((byte)0x9F));
             var swap = Avx2.Permute2x128(values, values, 0b00000001);
             var shuf1 = Avx2.Shuffle(values, indices);
             var shuf2 = Avx2.Shuffle(swap, indices);
             var selection = Avx2.CompareGreaterThan(indicesXord.AsSByte(), Vector256.Create((sbyte)0x0F)).AsByte();
             return Avx2.BlendVariable(shuf1, shuf2, selection);
         }
+
         return Vector256.Shuffle(values, indices);
     }
-
 }

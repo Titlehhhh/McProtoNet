@@ -14,7 +14,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, PrimaryEffect, SecondaryEffect);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int primaryEffect, int secondaryEffect)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int primaryEffect, int secondaryEffect)
             {
                 writer.WriteVarInt(primaryEffect);
                 writer.WriteVarInt(secondaryEffect);
@@ -36,14 +37,15 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, PrimaryEffect, SecondaryEffect);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int? primaryEffect, int? secondaryEffect)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int? primaryEffect, int? secondaryEffect)
             {
                 writer.WriteBoolean(primaryEffect is not null);
                 if (primaryEffect is not null)
-                writer.WriteVarInt((int)primaryEffect);
+                    writer.WriteVarInt((int)primaryEffect);
                 writer.WriteBoolean(secondaryEffect is not null);
                 if (secondaryEffect is not null)
-                writer.WriteVarInt((int)secondaryEffect);
+                    writer.WriteVarInt((int)secondaryEffect);
             }
 
             public new static bool SupportedVersion(int protocolVersion)

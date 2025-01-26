@@ -23,11 +23,10 @@ public class VarIntTest
         Random r = new(23);
         byte[] write = new byte[100];
         r.NextBytes(write);
-        
+
         MemoryStream ms = new MemoryStream();
-        using (ZLibStream zlib = new ZLibStream(ms,CompressionLevel.SmallestSize,true))
+        using (ZLibStream zlib = new ZLibStream(ms, CompressionLevel.SmallestSize, true))
         {
-          
             zlib.Write(write);
         }
 
@@ -38,15 +37,14 @@ public class VarIntTest
         Span<byte> two = gg.AsSpan(50);
 
         Span<byte> output = new byte[100];
-        
+
         ZlibDecompressor decompressor = new ZlibDecompressor();
 
         var code = decompressor.Decompress(gg, output, out int written);
-        
-        
-        
+
+
         var writer = new MinecraftPrimitiveWriter();
-       
+
 
         int val = 300;
 
@@ -61,7 +59,7 @@ public class VarIntTest
         var block = reader.ReadBlock(LengthFormat.Compressed, ArrayPool<byte>.Shared.ToAllocator());
 
         byte[] expected = bytes.AsSpan(val.GetVarIntLength()).ToArray();
-        
+
         byte[] actualToArr = block.Memory.ToArray();
         CollectionAssert.AreEqual(expected, actualToArr,
             $"{string.Join(", ", bytes)}\r\n\r\n{string.Join(", ", block.Memory.ToArray())}");

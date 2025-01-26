@@ -12,21 +12,21 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BenchmarkDotNet" Version="0.14.0" />
-        <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0" />
-        <PackageReference Include="DotNetty.Buffers" Version="0.7.6" />
-        <PackageReference Include="DotNext" Version="5.14.0" />
-        
+        <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0"/>
+        <PackageReference Include="DotNetty.Buffers" Version="0.7.6"/>
+        <PackageReference Include="DotNext" Version="5.14.0"/>
+
         <PackageReference Include="SharpZipLib" Version="1.4.2"/>
-        <PackageReference Include="carlst99.ZlibNGSharp" Version="1.2.0" />
+        <PackageReference Include="carlst99.ZlibNGSharp" Version="1.2.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet.NBT\McProtoNet.NBT.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet.Serialization\McProtoNet.Serialization.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet.Utils\McProtoNet.Utils.csproj" />
-      <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj" />
+        <ProjectReference Include="..\..\src\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Utils\McProtoNet.Utils.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>
 </Project>

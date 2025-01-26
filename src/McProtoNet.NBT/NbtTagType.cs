@@ -5,20 +5,20 @@
 /// </summary>
 public enum NbtTagType : byte
 {
-	/// <summary>
-	///     Placeholder TagType used to indicate unknown/undefined tag type in NbtList.
-	/// </summary>
-	Unknown = 0xff,
+    /// <summary>
+    ///     Placeholder TagType used to indicate unknown/undefined tag type in NbtList.
+    /// </summary>
+    Unknown = 0xff,
 
-	/// <summary>
-	///     TAG_End: This unnamed tag serves no purpose but to signify the end of an open TAG_Compound.
-	/// </summary>
-	End = 0x00,
+    /// <summary>
+    ///     TAG_End: This unnamed tag serves no purpose but to signify the end of an open TAG_Compound.
+    /// </summary>
+    End = 0x00,
 
-	/// <summary>
-	///     TAG_Byte: A single byte.
-	/// </summary>
-	Byte = 0x01,
+    /// <summary>
+    ///     TAG_Byte: A single byte.
+    /// </summary>
+    Byte = 0x01,
     Boolean = 0x01,
 
     /// <summary>

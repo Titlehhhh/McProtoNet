@@ -18,7 +18,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Status, Location, Face);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status, Position location, sbyte face)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status,
+                Position location, sbyte face)
             {
                 writer.WriteVarInt(status);
                 writer.WritePosition(location, protocolVersion);
@@ -38,7 +39,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Status, Location, Face, Sequence);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status, Position location, sbyte face, int sequence)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status,
+                Position location, sbyte face, int sequence)
             {
                 writer.WriteVarInt(status);
                 writer.WritePosition(location, protocolVersion);

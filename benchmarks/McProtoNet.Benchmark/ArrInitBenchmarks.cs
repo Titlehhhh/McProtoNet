@@ -10,7 +10,7 @@ public class ArrInitBenchmarks
     {
         for (int i = 0; i < 100; i++)
         {
-            B([0,0,0,0]);
+            B([0, 0, 0, 0]);
         }
     }
 

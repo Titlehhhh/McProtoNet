@@ -39,7 +39,7 @@ public class ZlibTests
         r.Shuffle(compressed);
 
         ReadOnlySequence<byte> sequence = new ReadOnlySequence<byte>(compressed.AsMemory());
-        
+
         try
         {
             var libDeflate = sequence.Decompress(500);
@@ -75,7 +75,7 @@ public class ZlibTests
         for (int i = 0; i < 500; i++)
         {
             decompressor.Decompress(compressed, outTest, out _);
-            
+
             CollectionAssert.AreEqual(data, outTest);
         }
     }

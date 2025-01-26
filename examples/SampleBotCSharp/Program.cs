@@ -55,7 +55,7 @@ internal class Program
         var list = new List<MinecraftClient>();
         try
         {
-            var listProtocols = new List<(MinecraftClient ,MultiProtocol)>();
+            var listProtocols = new List<(MinecraftClient, MultiProtocol)>();
             for (int i = 1; i <= 30; i++)
             {
                 MinecraftClient client = new MinecraftClient()
@@ -88,12 +88,12 @@ internal class Program
                     }
                 };
                 var protoTest = new MultiProtocol(client);
-                listProtocols.Add((client,protoTest));
+                listProtocols.Add((client, protoTest));
                 list.Add(client);
             }
 
             List<Task> tasks = new List<Task>();
-          
+
             static async Task RunBot(MinecraftClient client, MultiProtocol proto)
             {
                 for (int i = 0; i < 10; i++)
@@ -114,8 +114,8 @@ internal class Program
                     }
                 }
             }
-            
-            tasks.AddRange(listProtocols.Select(x=>RunBot(x.Item1,x.Item2)));
+
+            tasks.AddRange(listProtocols.Select(x => RunBot(x.Item1, x.Item2)));
 
             await Task.WhenAll(tasks);
 
@@ -140,7 +140,7 @@ internal class Program
                     {
                         await protocol.SendChatPacket(nextMess);
                     }
-                    catch(Exception exception)
+                    catch (Exception exception)
                     {
                         Console.WriteLine(exception);
                         linesIndex = Math.Max(0, linesIndex - 1);

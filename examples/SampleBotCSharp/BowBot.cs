@@ -115,7 +115,7 @@ public class BowBot
 
 
         Vector3 speedTarget = (targetPos - oldPos) * 10;
-        
+
         targetPredict.Enqueue(speedTarget);
         if (targetPredict.Count >= 5)
         {

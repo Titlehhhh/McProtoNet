@@ -17,7 +17,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, Position, IncludeData);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position position, bool includeData)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position position, bool includeData)
             {
                 writer.WritePosition(position, protocolVersion);
                 writer.WriteBoolean(includeData);

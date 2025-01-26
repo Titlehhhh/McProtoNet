@@ -7,63 +7,63 @@ namespace McProtoNet.NBT;
 /// </summary>
 public sealed class NbtShort : NbtTag
 {
-	/// <summary>
-	///     Creates an unnamed NbtShort tag with the default value of 0.
-	/// </summary>
-	public NbtShort()
+    /// <summary>
+    ///     Creates an unnamed NbtShort tag with the default value of 0.
+    /// </summary>
+    public NbtShort()
     {
     }
 
-	/// <summary>
-	///     Creates an unnamed NbtShort tag with the given value.
-	/// </summary>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtShort(short value)
+    /// <summary>
+    ///     Creates an unnamed NbtShort tag with the given value.
+    /// </summary>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtShort(short value)
         : this(null!, value)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtShort tag with the given name and the default value of 0.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	public NbtShort(string? tagName)
+    /// <summary>
+    ///     Creates an NbtShort tag with the given name and the default value of 0.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    public NbtShort(string? tagName)
         : this(tagName!, 0)
     {
     }
 
-	/// <summary>
-	///     Creates an NbtShort tag with the given name and value.
-	/// </summary>
-	/// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-	/// <param name="value"> Value to assign to this tag. </param>
-	public NbtShort(string? tagName, short value)
+    /// <summary>
+    ///     Creates an NbtShort tag with the given name and value.
+    /// </summary>
+    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="value"> Value to assign to this tag. </param>
+    public NbtShort(string? tagName, short value)
     {
         Name = tagName;
         Value = value;
     }
 
-	/// <summary>
-	///     Creates a copy of given NbtShort tag.
-	/// </summary>
-	/// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-	/// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
-	public NbtShort(NbtShort other)
+    /// <summary>
+    ///     Creates a copy of given NbtShort tag.
+    /// </summary>
+    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
+    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    public NbtShort(NbtShort other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
         Name = other.Name;
         Value = other.Value;
     }
 
-	/// <summary>
-	///     Type of this tag (Short).
-	/// </summary>
-	public override NbtTagType TagType => NbtTagType.Short;
+    /// <summary>
+    ///     Type of this tag (Short).
+    /// </summary>
+    public override NbtTagType TagType => NbtTagType.Short;
 
-	/// <summary>
-	///     Value/payload of this tag (a single signed 16-bit integer).
-	/// </summary>
-	public short Value { get; set; }
+    /// <summary>
+    ///     Value/payload of this tag (a single signed 16-bit integer).
+    /// </summary>
+    public short Value { get; set; }
 
     /// <inheritdoc />
     public override object Clone()

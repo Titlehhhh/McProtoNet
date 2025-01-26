@@ -37,7 +37,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
             if (V766_769.SupportedVersion(protocolVersion))
                 V766_769.SerializeInternal(ref writer, protocolVersion, Type);
             else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.DebugSampleSubscription), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.DebugSampleSubscription),
+                    protocolVersion);
         }
 
         public static PacketIdentifier PacketId => ClientPlayPacket.DebugSampleSubscription;

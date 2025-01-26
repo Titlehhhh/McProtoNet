@@ -12,6 +12,7 @@ public ref struct ZlibDecompressor
     private readonly IntPtr decompressor;
 
     private bool disposedValue;
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ZlibDecompressor()
     {
@@ -65,7 +66,7 @@ public ref struct ZlibDecompressor
         }
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)] 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DisposedGuard()
     {
         if (disposedValue)

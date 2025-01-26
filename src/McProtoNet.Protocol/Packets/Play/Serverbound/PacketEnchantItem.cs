@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, WindowId, Enchantment);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte windowId, sbyte enchantment)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte windowId, sbyte enchantment)
             {
                 writer.WriteSignedByte(windowId);
                 writer.WriteSignedByte(enchantment);
@@ -37,7 +38,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, WindowId, Enchantment);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int windowId, sbyte enchantment)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int windowId, sbyte enchantment)
             {
                 writer.WriteVarInt(windowId);
                 writer.WriteSignedByte(enchantment);

@@ -175,7 +175,7 @@ public static class Extensions
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
         var buff = ArrayPool<byte>.Shared.Rent(1);
-        Memory<byte> memory = buff.AsMemory(0,1);
+        Memory<byte> memory = buff.AsMemory(0, 1);
         try
         {
             var numRead = 0;
@@ -285,7 +285,4 @@ public static class Extensions
             packet.Dispose();
         }
     }
-    
-    
-
 }

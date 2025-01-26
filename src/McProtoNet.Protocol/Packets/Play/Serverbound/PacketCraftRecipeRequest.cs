@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte windowId, int recipe, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte windowId, int recipe, bool makeAll)
             {
                 writer.WriteSignedByte(windowId);
                 writer.WriteVarInt(recipe);
@@ -39,7 +40,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte windowId, string recipe, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte windowId, string recipe, bool makeAll)
             {
                 writer.WriteSignedByte(windowId);
                 writer.WriteString(recipe);
@@ -62,7 +64,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, WindowId, RecipeId, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int windowId, int recipeId, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int windowId, int recipeId, bool makeAll)
             {
                 writer.WriteVarInt(windowId);
                 writer.WriteVarInt(recipeId);
@@ -80,7 +83,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
 
         public static bool SupportedVersion(int protocolVersion)
         {
-            return V340.SupportedVersion(protocolVersion) || V351_767.SupportedVersion(protocolVersion) || V768_769.SupportedVersion(protocolVersion);
+            return V340.SupportedVersion(protocolVersion) || V351_767.SupportedVersion(protocolVersion) ||
+                   V768_769.SupportedVersion(protocolVersion);
         }
 
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)

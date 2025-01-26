@@ -204,7 +204,7 @@ internal class ToServerClient : IDisposable
         {
             writer.WriteVarInt(0x1B);
             writer.WriteVarInt(status);
-            writer.WritePosition(position,765);
+            writer.WritePosition(position, 765);
             writer.WriteSignedByte(face);
             return new OutputPacket(writer.GetWrittenMemory());
         }

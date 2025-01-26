@@ -47,7 +47,7 @@ public class MinecraftClientBuilder
     }
 
     public TimeSpan ReadTimeout { get; private set; } = TimeSpan.FromSeconds(30);
-    public TimeSpan WriteTimeout { get; private set; }= TimeSpan.FromSeconds(30);
+    public TimeSpan WriteTimeout { get; private set; } = TimeSpan.FromSeconds(30);
 
     public MinecraftClientBuilder WithConnectTimeout(TimeSpan connectTimeout)
     {

@@ -8,35 +8,35 @@ namespace McProtoNet.NBT;
 /// </summary>
 internal sealed unsafe class NbtBinaryWriter
 {
-	/// <summary>
-	///     Writes at most 4 MiB at a time.
-	/// </summary>
-	public const int MaxWriteChunk = 4 * 1024 * 1024;
+    /// <summary>
+    ///     Writes at most 4 MiB at a time.
+    /// </summary>
+    public const int MaxWriteChunk = 4 * 1024 * 1024;
 
-	/// <summary>
-	///     Buffer used for temporary conversion
-	/// </summary>
-	private const int BufferSize = 256;
+    /// <summary>
+    ///     Buffer used for temporary conversion
+    /// </summary>
+    private const int BufferSize = 256;
 
-	/// <summary>
-	///     UTF8 characters use at most 4 bytes each
-	/// </summary>
-	private const int MaxBufferedStringLength = BufferSize / 4;
+    /// <summary>
+    ///     UTF8 characters use at most 4 bytes each
+    /// </summary>
+    private const int MaxBufferedStringLength = BufferSize / 4;
 
-	/// <summary>
-	///     Encoding can be shared among all instances of NbtBinaryWriter, because it is stateless.
-	/// </summary>
-	private static readonly UTF8Encoding Encoding = new(false, true);
+    /// <summary>
+    ///     Encoding can be shared among all instances of NbtBinaryWriter, because it is stateless.
+    /// </summary>
+    private static readonly UTF8Encoding Encoding = new(false, true);
 
-	/// <summary>
-	///     Each NbtBinaryWriter needs to have its own instance of the buffer
-	/// </summary>
-	private readonly byte[] _buffer = new byte[BufferSize];
+    /// <summary>
+    ///     Each NbtBinaryWriter needs to have its own instance of the buffer
+    /// </summary>
+    private readonly byte[] _buffer = new byte[BufferSize];
 
-	/// <summary>
-	///     Each instance has to have its own encoder, because it does maintain state.
-	/// </summary>
-	private readonly Encoder _encoder = Encoding.GetEncoder();
+    /// <summary>
+    ///     Each instance has to have its own encoder, because it does maintain state.
+    /// </summary>
+    private readonly Encoder _encoder = Encoding.GetEncoder();
 
     private readonly Stream _stream;
 

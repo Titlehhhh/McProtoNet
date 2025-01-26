@@ -71,7 +71,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadString();
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
                 EnforcesSecureChat = reader.ReadBoolean();
             }
 
@@ -90,7 +91,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadNbtTag(false);
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
                 EnforcesSecureChat = reader.ReadBoolean();
             }
 
@@ -109,7 +111,8 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadNbtTag(false);
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
             }
 
             public new static bool SupportedVersion(int protocolVersion)
@@ -123,7 +126,9 @@ namespace McProtoNet.Protocol.ClientboundPackets.Play
 
         public static bool SupportedVersion(int protocolVersion)
         {
-            return V759.SupportedVersion(protocolVersion) || V760.SupportedVersion(protocolVersion) || V761.SupportedVersion(protocolVersion) || V762_764.SupportedVersion(protocolVersion) || V765.SupportedVersion(protocolVersion) || V766_769.SupportedVersion(protocolVersion);
+            return V759.SupportedVersion(protocolVersion) || V760.SupportedVersion(protocolVersion) ||
+                   V761.SupportedVersion(protocolVersion) || V762_764.SupportedVersion(protocolVersion) ||
+                   V765.SupportedVersion(protocolVersion) || V766_769.SupportedVersion(protocolVersion);
         }
 
         public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);

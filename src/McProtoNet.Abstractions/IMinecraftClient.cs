@@ -12,6 +12,6 @@ public interface IMinecraftClient
     event Action Disposed;
 
     Task Stop(Exception? customException = null);
-    
+
     int ProtocolVersion { get; }
 }

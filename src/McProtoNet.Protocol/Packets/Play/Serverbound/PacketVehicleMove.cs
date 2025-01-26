@@ -20,7 +20,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x, double y, double z, float yaw, float pitch)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
+                double y, double z, float yaw, float pitch)
             {
                 writer.WriteDouble(x);
                 writer.WriteDouble(y);
@@ -42,7 +43,8 @@ namespace McProtoNet.Protocol.ServerboundPackets.Play
                 SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, OnGround);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x, double y, double z, float yaw, float pitch, bool onGround)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
+                double y, double z, float yaw, float pitch, bool onGround)
             {
                 writer.WriteDouble(x);
                 writer.WriteDouble(y);

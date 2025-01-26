@@ -6,11 +6,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="MinecraftClient.fs" />
+        <Compile Include="MinecraftClient.fs"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\McProtoNet\McProtoNet.csproj" />
+        <ProjectReference Include="..\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>
 
 </Project>
