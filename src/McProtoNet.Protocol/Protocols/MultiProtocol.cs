@@ -290,7 +290,7 @@ public sealed class MultiProtocol : ProtocolBase
     private readonly Subject<MapItemDataPacket> _onMapItemData = new();
     private readonly Subject<ResourcePackPacket> _onResourcePack = new();
 
-    public MultiProtocol(IPacketBroker client) : base(client)
+    public MultiProtocol(IMinecraftClient client) : base(client)
     {
         //SupportedVersion = 755;
     }

@@ -62,28 +62,30 @@ public sealed class LanServerDetector
 
     public void StartReceiving()
     {
-        var state = new StateObject();
-        state.WorkSocket = udpSocket;
-        Recieve(state);
+        
+        
+        
     }
 
-    private void Recieve(StateObject state)
+    private Task StartReceivingAsync()
     {
-        try
+        NetworkStream ns = new NetworkStream(udpSocket, true);
+        StreamReader sr = new StreamReader(ns, Encoding.UTF8);
+        while (true)
         {
-            var client = state.WorkSocket;
-            client.BeginReceiveFrom(state.Buffer, 0, StateObject.BufferSize, 0, ref localEndPoint, ReceiveCallback,
-                state);
+            var line = sr.ReadLine();
+            if (line == null) break;
+            Notify(line, localIPEndPoint);
         }
-        catch
-        {
-        }
+        return Task.CompletedTask;
     }
+    
+
+    
 
 
     private void Notify(string data, EndPoint endPoint)
     {
-        Debug.WriteLine("n");
         try
         {
             var ip = (IPEndPoint)endPoint;
@@ -97,41 +99,7 @@ public sealed class LanServerDetector
         }
     }
 
-    private void ReceiveCallback(IAsyncResult ar)
-    {
-        StateObject state = null;
-        try
-        {
-            state = (StateObject)ar.AsyncState;
-            var client = state.WorkSocket;
-
-
-            var bytesRead = client.EndReceiveFrom(ar, ref localEndPoint);
-
-
-            var bufferCopy = new byte[bytesRead];
-
-            Array.Copy(state.Buffer, 0, bufferCopy, 0, bytesRead);
-
-            Notify(Encoding.UTF8.GetString(bufferCopy), localEndPoint);
-
-            for (var i = 0; i < bytesRead; i++)
-                state.Buffer[i] = (byte)'\0';
-            Recieve(state);
-        }
-        catch (Exception e)
-        {
-            if (state != null)
-                Recieve(state);
-            else
-                StartReceiving();
-        }
-    }
-
-    public void Stop()
-    {
-        udpSocket.Close();
-    }
+   
 
     private static string ParseMotd(string line)
     {
@@ -171,25 +139,4 @@ internal static class JavaStringExt
     {
         return self.Substring(startIndex);
     }
-}
-
-internal class StateObject
-{
-    public const int BufferSize = 1024;
-
-    internal StateObject()
-    {
-        Buffer = new byte[BufferSize];
-        WorkSocket = null;
-    }
-
-    internal StateObject(int size, Socket sock)
-    {
-        Buffer = new byte[size];
-        WorkSocket = sock;
-    }
-
-    internal byte[] Buffer { get; set; }
-
-    internal Socket WorkSocket { get; set; }
 }

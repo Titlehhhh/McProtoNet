@@ -14,7 +14,7 @@ public sealed class MinecraftPacketSender
     public Stream BaseStream { get; set; }
 
 
-    public ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken token = default)
+    public ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
         if (_compressionThreshold >= 0)
         {
@@ -35,7 +35,7 @@ public sealed class MinecraftPacketSender
                     var fullSize = compressedLength + uncompressedSize.GetVarIntLength();
 
 
-                    return SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, token);
+                    return SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, cancellationToken);
                 }
                 catch
                 {
@@ -45,10 +45,10 @@ public sealed class MinecraftPacketSender
             }
 
             uncompressedSize++;
-            return SendShort(uncompressedSize, data, token);
+            return SendShort(uncompressedSize, data, cancellationToken);
         }
 
-        return SendPacketWithoutCompressionAsync(data, token);
+        return SendPacketWithoutCompressionAsync(data, cancellationToken);
     }
 
     private async ValueTask SendShort(int unSize, ReadOnlyMemory<byte> data, CancellationToken token)
@@ -91,9 +91,9 @@ public sealed class MinecraftPacketSender
 
     #region Send
 
-    public ValueTask SendPacketAsync(OutputPacket packet, CancellationToken token = default)
+    public ValueTask SendPacketAsync(OutputPacket packet, CancellationToken cancellationToken = default)
     {
-        return SendPacketAsync(packet.Memory, token);
+        return SendPacketAsync(packet.Memory, cancellationToken);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]

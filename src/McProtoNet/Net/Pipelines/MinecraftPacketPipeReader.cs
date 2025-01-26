@@ -24,27 +24,6 @@ internal sealed class MinecraftPacketPipeReader
     public int CompressionThreshold { get; set; }
 
 
-    private static void DecompressMemory(ReadOnlySpan<byte> compressed, Span<byte> decompressed)
-    {
-        scoped var decompressor = new ZlibDecompressor();
-        try
-        {
-            var result = decompressor.Decompress(
-                compressed,
-                decompressed,
-                out var written);
-
-            if (result != OperationStatus.Done)
-                throw new Exception("Zlib: " + result);
-        }
-        finally
-        {
-            decompressor.Dispose();
-        }
-    }
-
-   
-
     public async IAsyncEnumerable<InputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {

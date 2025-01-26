@@ -16,10 +16,7 @@ public sealed class MinecraftPacketReader
 
     public Stream BaseStream { get; set; }
 
-    public void Dispose()
-    {
-        //decompressor.Dispose();
-    }
+   
 
 
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]

@@ -30,7 +30,7 @@ internal class Program
             Host = "127.0.0.1",
             Port = 25565,
             Username = $"TestBot",
-            Version = MinecraftVersion.Latest
+            Version = (int)MinecraftVersion.Latest
         };
         await client.Start();
         await Task.Delay(-1);
@@ -64,7 +64,7 @@ internal class Program
                     Host = "192.168.0.9",
                     Port = 25565,
                     Username = $"BB_{i:D2}",
-                    Version = MinecraftVersion.Latest
+                    Version = (int)MinecraftVersion.Latest
                 };
                 client.Disconnected += async (sender, eventArgs) =>
                 {

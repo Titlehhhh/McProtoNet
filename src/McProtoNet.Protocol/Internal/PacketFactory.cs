@@ -7,10 +7,10 @@ public static partial class PacketFactory
   
     public static IServerPacket CreateClientboundPacket(int protocolVersion, int packetId)
     {
-        return ClientboundPackets[Combine(protocolVersion, packetId)]();
+        return ClientboundPlayPackets[Combine(protocolVersion, packetId)]();
     }
 
-    //public static object ClientboundPackets { get; set; }
+    //public static object ClientboundPlayPackets { get; set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long Combine(int a, int b)

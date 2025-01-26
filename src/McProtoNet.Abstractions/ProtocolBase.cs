@@ -6,9 +6,9 @@ public abstract class ProtocolBase : IDisposable
 {
     public int SupportedVersion { get; protected set; }
     
-    protected readonly IPacketBroker _client;
+    protected readonly IMinecraftClient _client;
     protected int ProtocolVersion => _client.ProtocolVersion;
-    public ProtocolBase(IPacketBroker client)
+    public ProtocolBase(IMinecraftClient client)
     {
         _client = client;
         _client.StateChanged += ClientOnStateChanged;

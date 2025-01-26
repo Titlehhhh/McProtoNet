@@ -14,7 +14,7 @@ public class BowBot
         _client.Host = "192.168.0.5";
         _client.Port = 25565;
         _client.Username = name;
-        _client.Version = MinecraftVersion.Latest;
+        _client.Version = (int)MinecraftVersion.Latest;
         protocol = new MultiProtocol(_client);
     }
 

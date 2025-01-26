@@ -9,7 +9,7 @@ using QuickProxyNet;
 
 namespace McProtoNet.Client;
 
-public sealed class MinecraftClient : Disposable, IPacketBroker
+public sealed class MinecraftClient : Disposable, IMinecraftClient
 {
 #if NET9_0_OR_GREATER
     private readonly System.Threading.Lock _gate = new();
@@ -38,10 +38,7 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
         minecraftLogin.StateChanged += this.MinecraftLogin_StateChanged;
     }
 
-    public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(3);
-
-    public int ReadTimeout { get; set; } = 30_000;
-    public int WriteTimeout { get; set; } = 30_000;
+    
 
     #region Public API
 
@@ -451,12 +448,45 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
     #region Properties
 
     public int ProtocolVersion => this.Version;
+    /// <summary>
+    /// The host (IP address or domain name) of the Minecraft server to connect to.
+    /// </summary>
     public string Host { get; set; }
+
+    /// <summary>
+    /// The port used to connect to the Minecraft server. By default, the standard Minecraft port (25565) is used.
+    /// </summary>
     public ushort Port { get; set; } = 25565;
 
+    /// <summary>
+    /// The username that will be used to authenticate on the server.
+    /// </summary>
     public string Username { get; set; }
+
+    /// <summary>
+    /// The Minecraft protocol version the client should use. This parameter ensures compatibility with different server versions.
+    /// </summary>
     public int Version { get; set; }
+
+    /// <summary>
+    /// The proxy server through which the connection will be established. If not specified, the connection happens directly.
+    /// </summary>
     public IProxyClient? Proxy { get; set; }
+
+    /// <summary>
+    /// The connection timeout. It sets the maximum time to wait for the connection to be established.
+    /// </summary>
+    public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(3);
+
+    /// <summary>
+    /// The read timeout in milliseconds. This parameter defines how long the client will wait for data from the server.
+    /// </summary>
+    public int ReadTimeout { get; set; } = 30_000;
+
+    /// <summary>
+    /// The write timeout in milliseconds. This parameter defines how long the client will wait for the successful sending of data to the server.
+    /// </summary>
+    public int WriteTimeout { get; set; } = 30_000;
 
     #endregion
 
@@ -464,7 +494,7 @@ public sealed class MinecraftClient : Disposable, IPacketBroker
     #region Constans
 
     public const int MinVersionSupport = 340;
-    public static readonly int MaxVersionSupport = MinecraftVersion.Latest;
+    public static readonly int MaxVersionSupport = (int)MinecraftVersion.Latest;
 
     #endregion
 }
