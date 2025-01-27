@@ -14,4 +14,6 @@ public sealed class PacketIdentifier
         State = state;
         Direction = direction;
     }
+
+    public override string ToString() => Name;
 }

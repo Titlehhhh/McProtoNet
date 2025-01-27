@@ -10,13 +10,13 @@ namespace McProtoNet.Protocol;
 
 public static class ReadExtensions
 {
-    public static IObservable<T> OnPacket<T>(this MinecraftClient protocol) where T : IServerPacket
+    public static IObservable<T> OnPacket<T>(this IMinecraftClient protocol) where T : IServerPacket
     {
         return protocol.OnPacket
             .Where(x =>
             {
                 var id = PacketIdHelper.GetPacketId(protocol.ProtocolVersion, T.PacketId);
-                return x.Id == id && T.VersionSupported(protocol.ProtocolVersion);
+                return x.Id == id && T.SupportedVersion(protocol.ProtocolVersion);
             })
             .Select(x =>
             {

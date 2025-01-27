@@ -7,12 +7,12 @@ namespace McProtoNet.Protocol;
 
 public static class WriteExtensions
 {
-    public static bool TrySend<T>(this MinecraftClient protocol, out PacketSender<T> sender)
+    public static bool TrySend<T>(this IMinecraftClient client, out PacketSender<T> sender)
         where T : IClientPacket, new()
     {
-        if (T.SupportedVersion(protocol.ProtocolVersion))
+        if (T.SupportedVersion(client.ProtocolVersion))
         {
-            sender = new PacketSender<T>(protocol);
+            sender = new PacketSender<T>(client);
             return true;
         }
 
@@ -32,7 +32,7 @@ public static class WriteExtensions
         }
     }
 
-    public static ValueTask SendPacket<T>(this MinecraftClient client, T packet) where T : IClientPacket
+    public static ValueTask SendPacket<T>(this IMinecraftClient client, T packet) where T : IClientPacket
     {
         if (T.SupportedVersion(client.ProtocolVersion))
         {
@@ -50,6 +50,6 @@ public static class WriteExtensions
             }
         }
 
-        throw new ProtocolNotSupportException(nameof(T.PacketId), client.ProtocolVersion);
+        throw new ProtocolNotSupportException(packet.GetPacketId().ToString(), client.ProtocolVersion);
     }
 }

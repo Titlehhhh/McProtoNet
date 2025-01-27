@@ -16,6 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" />
         <ProjectReference Include="..\..\src\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>

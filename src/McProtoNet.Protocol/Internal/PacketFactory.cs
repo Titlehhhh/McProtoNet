@@ -9,7 +9,6 @@ public static partial class PacketFactory
         return ClientboundPlayPackets[Combine(protocolVersion, packetId)]();
     }
 
-    //public static object ClientboundPlayPackets { get; set; }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long Combine(int a, int b)

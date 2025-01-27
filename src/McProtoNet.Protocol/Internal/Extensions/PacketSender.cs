@@ -1,15 +1,16 @@
-﻿using McProtoNet.Client;
+﻿using McProtoNet.Abstractions;
+using McProtoNet.Client;
 
 namespace McProtoNet.Protocol;
 
 public struct PacketSender<T> where T : IClientPacket, new()
 {
-    internal PacketSender(MinecraftClient client)
+    internal PacketSender(IMinecraftClient client)
     {
         _client = client;
     }
 
-    private MinecraftClient _client;
+    private IMinecraftClient _client;
     public T Packet { get; set; } = new();
 
     public ValueTask Send()

@@ -15,6 +15,7 @@ public sealed class Slot
     {
     }
 
+    
     public int ItemId { get; set; }
     public sbyte ItemCount { get; set; }
     public NbtTag? Nbt { get; set; }
