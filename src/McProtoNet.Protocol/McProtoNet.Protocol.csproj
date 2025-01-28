@@ -17,7 +17,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Internal\PacketFactory\" />
         <Folder Include="Packets\Play\"/>
         <Folder Include="Packets\Play\Clientbound\" />
         <Folder Include="Packets\Play\Serverbound\" />

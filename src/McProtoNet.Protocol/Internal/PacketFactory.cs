@@ -16,28 +16,32 @@ public static class PacketFactory
 
         foreach (var func in ServerPacketRegistry.Packets)
         {
-            PacketIdentifier packet = func().GetPacketId();
+            IServerPacket packet = func();
+            PacketIdentifier identifier = packet.GetPacketId();
             for (int version = MinVersion; version < MaxVersion; version++)
             {
-                try
+                if (packet.IsSupportedVersion(version))
                 {
-                    int packetId = PacketIdHelper.GetPacketId(version, packet);
-                    switch (packet.State)
+                    try
                     {
-                        case PacketState.Login:
-                            login.Add(Combine(version, packetId), func);
-                            break;
-                        case PacketState.Play:
-                            play.Add(Combine(version, packetId), func);
-                            break;
-                        case PacketState.Configuration:
-                            configuration.Add(Combine(version, packetId), func);
-                            break;
+                        int packetId = PacketIdHelper.GetPacketId(version, identifier);
+                        switch (identifier.State)
+                        {
+                            case PacketState.Login:
+                                login.Add(Combine(version, packetId), func);
+                                break;
+                            case PacketState.Play:
+                                play.Add(Combine(version, packetId), func);
+                                break;
+                            case PacketState.Configuration:
+                                configuration.Add(Combine(version, packetId), func);
+                                break;
+                        }
                     }
-                }
-                catch
-                {
-                    // ignored
+                    catch
+                    {
+                        // ignored
+                    }
                 }
             }
         }
@@ -78,4 +82,3 @@ public interface ITest
     static bool IsSupportedVersionStatic(int protocolVersion) => throw new NotImplementedException();
     bool IsSupportedVersion(int protocolVersion);
 }
-
