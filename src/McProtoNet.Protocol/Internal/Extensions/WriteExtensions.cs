@@ -10,7 +10,7 @@ public static class WriteExtensions
     public static bool TrySend<T>(this IMinecraftClient client, out PacketSender<T> sender)
         where T : IClientPacket, new()
     {
-        if (T.SupportedVersion(client.ProtocolVersion))
+        if (T.IsSupportedVersionStatic(client.ProtocolVersion))
         {
             sender = new PacketSender<T>(client);
             return true;
@@ -34,7 +34,7 @@ public static class WriteExtensions
 
     public static ValueTask SendPacket<T>(this IMinecraftClient client, T packet) where T : IClientPacket
     {
-        if (T.SupportedVersion(client.ProtocolVersion))
+        if (T.IsSupportedVersionStatic(client.ProtocolVersion))
         {
             MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
             try

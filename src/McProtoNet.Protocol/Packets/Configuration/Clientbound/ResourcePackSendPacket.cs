@@ -2,9 +2,11 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class ResourcePackSendPacket : IServerPacket
+[PacketInfo("ResourcePackSend", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class ResourcePackSendPacket : IServerPacket
 {
-    public sealed class V764 : ResourcePackSendPacket
+    [PacketSubInfo(764,764)]
+    public sealed partial class V764 : ResourcePackSendPacket
     {
         public string Url { get; set; }
         public string Hash { get; set; }
@@ -19,20 +21,9 @@ public abstract class ResourcePackSendPacket : IServerPacket
             PromptMessage = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadString());
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion == 764;
-        }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764.SupportedVersion(protocolVersion);
-    }
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.ResourcePackSend;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

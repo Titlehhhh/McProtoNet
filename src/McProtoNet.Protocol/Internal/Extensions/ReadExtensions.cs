@@ -16,11 +16,11 @@ public static class ReadExtensions
             .Where(x =>
             {
                 var id = PacketIdHelper.GetPacketId(protocol.ProtocolVersion, T.PacketId);
-                return x.Id == id && T.SupportedVersion(protocol.ProtocolVersion);
+                return x.Id == id && T.IsSupportedVersionStatic(protocol.ProtocolVersion);
             })
             .Select(x =>
             {
-                T packet = (T)PacketFactory.CreateClientboundPacket(protocol.ProtocolVersion, x.Id);
+                T packet = (T)PacketFactory.CreateClientboundPacket(protocol.ProtocolVersion, x.Id, T.PacketId.State);
 
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(x.Data);
                 packet.Deserialize(ref reader, protocol.ProtocolVersion);

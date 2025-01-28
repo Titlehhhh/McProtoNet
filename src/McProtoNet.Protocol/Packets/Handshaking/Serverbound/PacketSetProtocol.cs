@@ -1,7 +1,8 @@
 ﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.ServerboundPackets.Handshaking;
+namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+
 
 public sealed class SetProtocolPacket : IClientPacket
 {
@@ -15,7 +16,12 @@ public sealed class SetProtocolPacket : IClientPacket
     public PacketIdentifier GetPacketId() => PacketId;
 
 
-    public static bool SupportedVersion(int protocolVersion)
+    public static bool IsSupportedVersionStatic(int protocolVersion)
+    {
+        return protocolVersion is >= 340 and <= 769;
+    }
+
+    public bool IsSupportedVersion(int protocolVersion)
     {
         return protocolVersion is >= 340 and <= 769;
     }

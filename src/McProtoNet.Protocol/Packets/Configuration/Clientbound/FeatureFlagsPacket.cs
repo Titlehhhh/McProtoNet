@@ -2,15 +2,13 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class FeatureFlagsPacket : IServerPacket
+[PacketInfo("FeatureFlags", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class FeatureFlagsPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.FeatureFlags;
-
-    public PacketIdentifier GetPacketId() => PacketId;
-
-    public sealed class V764_769 : FeatureFlagsPacket
+    [PacketSubInfo(764,769)]
+    public sealed partial class V764_769 : FeatureFlagsPacket
     {
         public string[] Features { get; set; }
 
@@ -24,14 +22,6 @@ public abstract class FeatureFlagsPacket : IServerPacket
             }
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 769;
-        }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_769.SupportedVersion(protocolVersion);
-    }
 }

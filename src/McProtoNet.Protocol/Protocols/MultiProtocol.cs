@@ -293,7 +293,7 @@ public sealed class MultiProtocol : ProtocolBase
 
     public MultiProtocol(IMinecraftClient client) : base(client)
     {
-        //SupportedVersion = 755;
+        //IsSupportedVersionStatic = 755;
     }
 
     public IObservable<LoginPacket> OnLogin => _onLoginPacket;

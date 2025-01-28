@@ -2,25 +2,23 @@ using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 
 
-namespace McProtoNet.Protocol.ClientboundPackets.Login;
-
-public sealed class DisconnectPacket : IServerPacket
+namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+    
+[PacketInfo("Disconnect", PacketState.Login, PacketDirection.Clientbound)]
+public abstract partial class DisconnectPacket : IServerPacket
 {
     public string Reason { get; set; }
 
-
-    public void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    [PacketSubInfo(340,769)]
+    internal sealed partial class V340_769 : DisconnectPacket
     {
-        Reason = reader.ReadString();
+
+        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        {
+            Reason = reader.ReadString();
+        }
     }
 
-    public new static bool SupportedVersion(int protocolVersion)
-    {
-        return protocolVersion is >= 340 and <= 769;
-    }
+    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-
-    public static PacketIdentifier PacketId => ServerLoginPacket.Disconnect;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

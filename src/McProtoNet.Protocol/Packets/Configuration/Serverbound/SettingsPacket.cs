@@ -2,7 +2,8 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
-public class SettingsPacket : IClientPacket
+[PacketInfo("Settings",PacketState.Configuration,PacketDirection.Serverbound)]
+public partial class SettingsPacket : IClientPacket
 {
     public string Locale { get; set; }
     public sbyte ViewDistance { get; set; }
@@ -13,7 +14,8 @@ public class SettingsPacket : IClientPacket
     public bool EnableTextFiltering { get; set; }
     public bool EnableServerListing { get; set; }
 
-    public sealed class V764_767 : SettingsPacket
+    [PacketSubInfo(764,767)]
+    public sealed partial class V764_767 : SettingsPacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
@@ -35,13 +37,10 @@ public class SettingsPacket : IClientPacket
             writer.WriteBoolean(enableServerListing);
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 767;
-        }
+       
     }
-
-    public sealed class V768_769 : SettingsPacket
+[PacketSubInfo(768,769)]
+    public sealed partial class V768_769 : SettingsPacket
     {
         public int Particles { get; set; }
 
@@ -66,30 +65,21 @@ public class SettingsPacket : IClientPacket
             writer.WriteVarInt(particles);
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 768 and <= 769;
-        }
+        
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_767.SupportedVersion(protocolVersion) || V768_769.SupportedVersion(protocolVersion);
-    }
+    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        if (V764_767.SupportedVersion(protocolVersion))
+        if (V764_767.IsSupportedVersionStatic(protocolVersion))
             V764_767.SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors,
                 SkinParts, MainHand, EnableTextFiltering, EnableServerListing);
-        else if (V768_769.SupportedVersion(protocolVersion))
+        else if (V768_769.IsSupportedVersionStatic(protocolVersion))
             V768_769.SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors,
                 SkinParts, MainHand, EnableTextFiltering, EnableServerListing, 0);
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.Settings), protocolVersion);
     }
 
-    public static PacketIdentifier PacketId => ClientConfigurationPacket.Settings;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

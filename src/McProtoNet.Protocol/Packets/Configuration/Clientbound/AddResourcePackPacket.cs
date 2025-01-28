@@ -4,9 +4,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class AddResourcePackPacket : IServerPacket
+[PacketInfo("AddResourcePack", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class AddResourcePackPacket : IServerPacket
 {
-    public sealed class V765_767 : AddResourcePackPacket
+    [PacketSubInfo(765, 767)]
+    public sealed partial class V765_767 : AddResourcePackPacket
     {
         public Guid Uuid { get; set; }
         public string Url { get; set; }
@@ -23,21 +25,7 @@ public abstract class AddResourcePackPacket : IServerPacket
             PromptMessage = reader.ReadOptionalNbtTag(readRootTag: false);
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 765 and <= 767;
-        }
     }
-
-
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V765_767.SupportedVersion(protocolVersion);
-    }
-
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.AddResourcePack;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

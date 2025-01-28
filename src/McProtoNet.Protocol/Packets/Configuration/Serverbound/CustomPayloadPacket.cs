@@ -4,9 +4,11 @@ using McProtoNet.Protocol;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
-public class CustomPayloadPacket : IClientPacket
+[PacketInfo("CustomPayload", PacketState.Configuration, PacketDirection.Serverbound)]
+public partial class CustomPayloadPacket : IClientPacket
 {
-    public sealed class V764_769 : CustomPayloadPacket
+    [PacketSubInfo(764,769)]
+    public sealed partial class V764_769 : CustomPayloadPacket
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }
@@ -23,26 +25,16 @@ public class CustomPayloadPacket : IClientPacket
             SerializeInternal(ref writer, protocolVersion, Channel, Data);
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 769;
-        }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_769.SupportedVersion(protocolVersion);
-    }
+    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        if (V764_769.SupportedVersion(protocolVersion))
+        if (V764_769.IsSupportedVersionStatic(protocolVersion))
             V764_769.SerializeInternal(ref writer, protocolVersion, String.Empty, []);
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion);
     }
 
-    public static PacketIdentifier PacketId => ClientConfigurationPacket.CustomPayload;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

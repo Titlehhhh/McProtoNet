@@ -2,15 +2,15 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class KeepAlivePacket : IServerPacket
+[PacketInfo("KeepAlive", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class KeepAlivePacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.KeepAlive;
-
-    public PacketIdentifier GetPacketId() => PacketId;
-
-    public sealed class V764_769 : KeepAlivePacket
+  
+    
+    [PacketSubInfo(764,769)]
+    public sealed partial class V764_769 : KeepAlivePacket
     {
         public long KeepAliveId { get; set; }
 
@@ -19,14 +19,6 @@ public abstract class KeepAlivePacket : IServerPacket
             KeepAliveId = reader.ReadSignedLong();
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 769;
-        }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_769.SupportedVersion(protocolVersion);
-    }
 }

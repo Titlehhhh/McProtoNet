@@ -3,30 +3,26 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class RegistryDataPacket : IServerPacket
+[PacketInfo("RegistryData", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class RegistryDataPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.RegistryData;
-
-    public PacketIdentifier GetPacketId() => PacketId;
-
-    public sealed class V764_765 : RegistryDataPacket
+    [PacketSubInfo(764,765)]
+    public sealed partial class V764_765 : RegistryDataPacket
     {
         public NbtTag Codec { get; set; }
 
         public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         {
             Codec = reader.ReadNbtTag(readRootTag: false);
-        }
+            }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 765;
-        }
+        
     }
 
-    public sealed class V766_769 : RegistryDataPacket
+    [PacketSubInfo(766,769)]
+    public sealed partial class V766_769 : RegistryDataPacket
     {
         public string Id { get; set; }
         public List<RegistryEntry> Entries { get; set; }
@@ -48,10 +44,6 @@ public abstract class RegistryDataPacket : IServerPacket
             }
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 766 and <= 769;
-        }
 
         public class RegistryEntry
         {
@@ -60,9 +52,4 @@ public abstract class RegistryDataPacket : IServerPacket
         }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_765.SupportedVersion(protocolVersion) ||
-               V766_769.SupportedVersion(protocolVersion);
-    }
 }

@@ -17,8 +17,16 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Folder Include="Internal\PacketFactory\" />
         <Folder Include="Packets\Play\"/>
+        <Folder Include="Packets\Play\Clientbound\" />
+        <Folder Include="Packets\Play\Serverbound\" />
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+    </ItemGroup>
+
 
 
 </Project>

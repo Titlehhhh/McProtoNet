@@ -2,9 +2,11 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class RemoveResourcePackPacket : IServerPacket
+[PacketInfo("RemoveResourcePack", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class RemoveResourcePackPacket : IServerPacket
 {
-    public sealed class V765_767 : RemoveResourcePackPacket
+    [PacketSubInfo(765,767)]
+    public sealed partial class V765_767 : RemoveResourcePackPacket
     {
         public Guid? UUID { get; set; }
 
@@ -19,16 +21,8 @@ public abstract class RemoveResourcePackPacket : IServerPacket
         }
     }
 
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V765_767.SupportedVersion(protocolVersion);
-    }
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
     public Guid? UUID { get; set; }
-
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.RemoveResourcePack;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }

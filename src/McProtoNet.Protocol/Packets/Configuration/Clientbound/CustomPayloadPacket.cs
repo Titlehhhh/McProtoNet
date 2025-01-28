@@ -2,9 +2,11 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-public abstract class CustomPayloadPacket : IServerPacket
+[PacketInfo("CustomPayload", PacketState.Configuration, PacketDirection.Clientbound)]
+public abstract partial class CustomPayloadPacket : IServerPacket
 {
-    public sealed class V764_769 : AddResourcePackPacket
+    [PacketSubInfo(764,769)]
+    public sealed partial class V764_769 : CustomPayloadPacket
     {
         public string Channel { get; set; }
         public byte[] Data { get; set; }
@@ -15,20 +17,8 @@ public abstract class CustomPayloadPacket : IServerPacket
             Data = reader.ReadRestBuffer();
         }
 
-        public new static bool SupportedVersion(int protocolVersion)
-        {
-            return protocolVersion is >= 764 and <= 769;
-        }
-    }
-
-    public static bool SupportedVersion(int protocolVersion)
-    {
-        return V764_769.SupportedVersion(protocolVersion);
     }
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    public static PacketIdentifier PacketId => ServerConfigurationPacket.CustomPayload;
-
-    public PacketIdentifier GetPacketId() => PacketId;
 }
