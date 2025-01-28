@@ -42,7 +42,7 @@ McProtoNet is currently under active development, so some features are not stabl
     </li>
     <li>
         <img valign="middle" src="assets/cracked.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
-        <strong valign="middle" style="vertical-align: middle">Connect ot cracked servers</strong>
+        <strong valign="middle" style="vertical-align: middle">Connect to cracked servers</strong>
     </li>
 </ul>
 
