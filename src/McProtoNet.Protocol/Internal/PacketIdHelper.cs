@@ -21,6 +21,8 @@ public static partial class PacketIdHelper
                 ClientboundHandshakingPackets[key],
             PacketDirection.Clientbound when packetIdentifier.State == PacketState.Configuration =>
                 ClientboundConfigurationPackets[key],
+            
+            
             PacketDirection.Serverbound when packetIdentifier.State == PacketState.Status => ServerboundStatusPackets
                 [key],
             PacketDirection.Serverbound when packetIdentifier.State == PacketState.Login => ServerboundLoginPackets

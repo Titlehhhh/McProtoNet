@@ -6,6 +6,8 @@ using System.Runtime.Intrinsics;
 
 namespace McProtoNet.Benchmark;
 
+
+
 public static class BinaryPrimitivesTest
 {
     [CLSCompliant(false)]

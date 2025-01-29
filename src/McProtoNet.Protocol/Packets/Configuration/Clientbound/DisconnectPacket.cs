@@ -8,7 +8,7 @@ public abstract partial class DisconnectPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764,764)]
     public sealed partial class V764 : DisconnectPacket
     {
         public string Reason { get; set; }

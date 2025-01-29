@@ -32,9 +32,9 @@ public static class WriteExtensions
         }
     }
 
-    public static ValueTask SendPacket<T>(this IMinecraftClient client, T packet) where T : IClientPacket
+    public static ValueTask SendPacket(this IMinecraftClient client, IClientPacket packet)
     {
-        if (T.IsSupportedVersionStatic(client.ProtocolVersion))
+        if (packet.IsSupportedVersion(client.ProtocolVersion))
         {
             MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
             try

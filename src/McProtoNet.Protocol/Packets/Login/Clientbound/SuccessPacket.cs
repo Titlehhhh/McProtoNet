@@ -21,7 +21,7 @@ public abstract partial class SuccessPacket : IServerPacket
         }
 
     }
-    [PacketSubInfo(340,578)]
+    [PacketSubInfo(709,758)]
     public sealed partial class V709_758 : SuccessPacket
     {
         public Guid Uuid { get; set; }

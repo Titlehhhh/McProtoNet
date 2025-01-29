@@ -1,12 +1,17 @@
 ﻿using System.Collections.Frozen;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace McProtoNet.Protocol;
 
 public static class PacketFactory
 {
-    private const int MinVersion = 340;
-    private const int MaxVersion = 769;
+
+
+    internal static void Init()
+    {
+    }
+
 
     static PacketFactory()
     {
@@ -14,33 +19,57 @@ public static class PacketFactory
         Dictionary<long, Func<IServerPacket>> configuration = new();
         Dictionary<long, Func<IServerPacket>> play = new();
 
+        List<string> debugConf = new();
+        List<string> debugLog = new();
+        List<string> debugPlay = new();
+
         foreach (var func in ServerPacketRegistry.Packets)
         {
             IServerPacket packet = func();
             PacketIdentifier identifier = packet.GetPacketId();
-            for (int version = MinVersion; version < MaxVersion; version++)
+            
+            
+            
+            foreach(var eversion in Enum.GetValues<MinecraftVersion>())
             {
+                int version = (int)eversion;
                 if (packet.IsSupportedVersion(version))
                 {
+                    //if(identifier is { State: PacketState.Configuration, Name: "Disconnect" })
+                    //    Debugger.Break();
+                    
+                    int packetId;
                     try
                     {
-                        int packetId = PacketIdHelper.GetPacketId(version, identifier);
+                        packetId = PacketIdHelper.GetPacketId(version, identifier);
+                    }
+                    catch (KeyNotFoundException e)
+                    {
+                        throw new InvalidOperationException($"Not find packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
+                    }
+
+                    try
+                    {
+                        string str = $"Version: {version} PacketId: {packetId} Name: {packet.GetType().FullName}";
                         switch (identifier.State)
                         {
                             case PacketState.Login:
                                 login.Add(Combine(version, packetId), func);
+                                debugLog.Add(str);
                                 break;
                             case PacketState.Play:
                                 play.Add(Combine(version, packetId), func);
+                                debugPlay.Add(str);
                                 break;
                             case PacketState.Configuration:
                                 configuration.Add(Combine(version, packetId), func);
+                                debugConf.Add(str);
                                 break;
                         }
                     }
-                    catch
+                    catch (ArgumentException e)
                     {
-                        // ignored
+                        throw new InvalidOperationException($"Fatal set packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
                     }
                 }
             }
@@ -55,7 +84,7 @@ public static class PacketFactory
     private static readonly FrozenDictionary<long, Func<IServerPacket>> configurationPackets;
     private static readonly FrozenDictionary<long, Func<IServerPacket>> playPackets;
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static IServerPacket CreateClientboundPacket(int protocolVersion, int packetId, PacketState state)
     {
         long key = Combine(protocolVersion, packetId);
@@ -70,15 +99,9 @@ public static class PacketFactory
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private static long Combine(int a, int b)
     {
         return (long)a << 32 | (uint)b;
     }
-}
-
-public interface ITest
-{
-    static bool IsSupportedVersionStatic(int protocolVersion) => throw new NotImplementedException();
-    bool IsSupportedVersion(int protocolVersion);
 }

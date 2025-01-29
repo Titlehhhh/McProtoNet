@@ -69,7 +69,7 @@ public class PacketFactoryGenerator : IIncrementalGenerator
         sb.AppendLine("    {");
         foreach (var className in classSymbols.Select(classSymbol => classSymbol.ToDisplayString()))
         {
-            sb.AppendLine($"        () => new {className}(),");
+            sb.AppendLine($"        static () => new {className}(),");
         }
         sb.AppendLine("    };");
         sb.AppendLine("}");

@@ -5,8 +5,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>13</LangVersion>
+        
     </PropertyGroup>
-
+    <ItemGroup>
+        <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+        <InternalsVisibleTo Include="McProtoNet.Tests"/>
+    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj"/>
         <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
