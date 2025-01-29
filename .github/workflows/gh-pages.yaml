@@ -56,6 +56,7 @@ jobs:
         with:
           instance: ${{ env.INSTANCE }}
           docker-version: ${{ env.DOCKER_VERSION }}
+          path: "docs"
 
       - name: Save artifact with build results
         uses: actions/upload-artifact@v4
