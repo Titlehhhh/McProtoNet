@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE instance-profile
+        SYSTEM "https://resources.jetbrains.com/writerside/1.0/product-profile.dtd">
+
+<instance-profile id="in"
+                 name="McProtoNet"
+                 start-page="about.md">
+
+    <toc-element topic="about.md"/>
+    <toc-element topic="Benchmarks.md"/>
+    <toc-element topic="getting-started.md"/>
+    <toc-element topic="how-to-works.md">
+        <toc-element topic="McProtoNet-Abstractions.md"/>
+        <toc-element topic="McProtoNet-Serialization.md">
+            <toc-element topic="MinecraftPrimitiveReader.md"/>
+            <toc-element topic="MinecraftPrimitiveWriter.md"/>
+        </toc-element>
+        <toc-element topic="McProtoNet-NBT.md"/>
+        <toc-element topic="McProtoNet-Utils.md"/>
+        <toc-element topic="McProtoNet.md"/>
+        <toc-element topic="gg1.md"/>
+    </toc-element>
+    <toc-element topic="multiversion.md"/>
+    <toc-element topic="first-bot.md"/>
+</instance-profile>
