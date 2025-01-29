@@ -9,7 +9,7 @@ public static partial class PacketIdHelper
     public static int GetPacketId(int protocolVersion, PacketIdentifier packetIdentifier)
     {
         long key = Combine(packetIdentifier, protocolVersion);
-
+        
         return packetIdentifier.Direction switch
         {
             PacketDirection.Clientbound when packetIdentifier.State == PacketState.Status => ClientboundStatusPackets
