@@ -35,9 +35,13 @@ public static class ReadExtensions
             {
                 try
                 {
-                    return PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, state);
+                    IServerPacket packet = PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, state);
+
+                    MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(x.Data);
+                    packet.Deserialize(ref reader, client.ProtocolVersion);
+                    return packet;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Debug.WriteLine("Failed to create packet: " + ex.Message);
                     return null;
