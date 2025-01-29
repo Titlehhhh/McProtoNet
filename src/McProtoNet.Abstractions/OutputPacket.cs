@@ -3,19 +3,12 @@ using DotNext.Buffers;
 
 namespace McProtoNet.Abstractions;
 
-public readonly struct OutputPacket : IDisposable
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
+public readonly struct OutputPacket(MemoryOwner<byte> owner) : IDisposable
 {
-    private readonly MemoryOwner<byte> owner;
-
     public ReadOnlyMemory<byte> Memory => owner.Memory;
 
     public ReadOnlySpan<byte> Span => owner.Span;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public OutputPacket(MemoryOwner<byte> owner)
-    {
-        this.owner = owner;
-    }
 
     public void Dispose()
     {

@@ -1,4 +1,5 @@
-﻿using System.Net.Sockets;
+﻿using System.Diagnostics;
+using System.Net.Sockets;
 using System.Reactive;
 using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
@@ -9,74 +10,7 @@ using McProtoNet.Cryptography;
 using McProtoNet.Net;
 using QuickProxyNet;
 
-namespace McProtoNet.Client.New;
-
-//Config
-public struct MinecraftClientStartOptions
-{
-    public string Host { get; init; }
-    public int Port { get; init; }
-    public int Version { get; init; }
-    public IProxyClient? Proxy { get; set; }
-
-    public TimeSpan ConnectTimeout { get; init; }
-    public TimeSpan ReadTimeout { get; init; }
-    public TimeSpan WriteTimeout { get; init; }
-}
-
-/// <summary>
-///     Represents a Minecraft client.
-/// </summary>
-public interface IMinecraftClient : IDisposable
-{
-    /// <summary>
-    ///     Sends a packet to the server.
-    /// </summary>
-    /// <param name="packet">The packet to send.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the client is disposed, or when the client is stopping.</exception>
-    ValueTask SendPacket(OutputPacket packet);
-
-    /// <summary>
-    ///     Gets an observable sequence of packets received from the server.
-    /// </summary>
-    IObservable<InputPacket> ReceivePackets { get; }
-
-    /// <summary>
-    ///     Gets a value indicating whether the client is connected to the server.
-    /// </summary>
-    bool IsConnected { get; }
-
-    /// <summary>
-    ///     Gets a value indicating whether the client is stopping.
-    /// </summary>
-    /// <returns>true if the client is stopping; otherwise, false.</returns>
-    /// <exception cref="ObjectDisposedException">Thrown when the client is disposed.</exception>
-    ValueTask ConnectAsync();
-
-    /// <summary>
-    ///     Switches packet compression on or off.
-    /// </summary>
-    /// <param name="threshold">The threshold above which packets are compressed.</param>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the client is disposed, or when the client is stopping.
-    /// </exception>
-    void SwitchCompression(int threshold);
-
-    /// <summary>
-    ///     Switches packet encryption on or off.
-    /// </summary>
-    /// <param name="privateKey">The private key to use for encryption.</param>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the client is disposed, or when the client is stopping.
-    /// </exception>
-    void SwitchEncryption(Span<byte> privateKey);
-
-    /// <summary>
-    ///     Gets the start options for the client.
-    /// </summary>
-    MinecraftClientStartOptions StartOptions { get; }
-}
+namespace McProtoNet.Client;
 
 public class CompletionResult
 {
@@ -101,7 +35,8 @@ public class MinecraftClient : IMinecraftClient
 
     public IObservable<InputPacket> ReceivePackets => _receivePackets;
     public bool IsConnected => Volatile.Read(ref _state) == Connected;
-    public MinecraftClientStartOptions StartOptions { get; private set; }
+    public MinecraftClientStartOptions StartOptions { get; }
+    public int ProtocolVersion => StartOptions.Version;
 
     #endregion
 
@@ -134,7 +69,7 @@ public class MinecraftClient : IMinecraftClient
     #region Methods
 
     /// <summary>
-    ///     Send a packet
+    /// Send a packet
     /// </summary>
     /// <param name="packet"></param>
     /// <returns></returns>
@@ -157,7 +92,7 @@ public class MinecraftClient : IMinecraftClient
             throw new InvalidOperationException();
         }
 
-
+        Debug.WriteLine($"Enqueue packet: [{string.Join(", ", packet.Memory.ToArray())}]");
         return _packetQueue.Writer.WriteAsync(packet, _aliveClient.Token);
     }
 
@@ -246,12 +181,13 @@ public class MinecraftClient : IMinecraftClient
 
     private async Task MainLoop()
     {
+        Debug.WriteLine("Starting main loop");
         try
         {
             while (!_aliveClient.IsCancellationRequested)
             {
                 InputPacket packet = await _packetReader.ReadNextPacketAsync(_aliveClient.Token);
-
+                Debug.WriteLine("Received packet: " + packet.Id);
                 try
                 {
                     _receivePackets.OnNext(packet);
@@ -264,25 +200,31 @@ public class MinecraftClient : IMinecraftClient
         }
         catch (Exception e)
         {
+            Debug.WriteLine("Error in main loop: " + e);
             int state = Interlocked.Exchange(ref _state, Stopping);
             if (state == Stopping)
                 return;
             _receivePackets.OnError(e);
             Dispose();
         }
+
+        Debug.WriteLine("Main loop stopped");
     }
 
     private async Task HandlePackets()
     {
+        Debug.WriteLine("Starting packet handler");
         try
         {
             await foreach (var packet in _packetQueue.Reader.ReadAllAsync(_aliveClient.Token))
             {
+                Debug.WriteLine($"Send packet: [{string.Join(", ", packet.Memory.ToArray())}]");
                 await _packetSender.SendAndDisposeAsync(packet, _aliveClient.Token);
             }
         }
         catch (Exception ex)
         {
+            Debug.WriteLine("Error in packet handler: " + ex);
             int state = Interlocked.Exchange(ref _state, Stopping);
             if (state == Stopping)
                 return;
@@ -296,6 +238,8 @@ public class MinecraftClient : IMinecraftClient
                 packet.Dispose();
             }
         }
+
+        Debug.WriteLine("Packet handler stopped");
     }
 
 
@@ -364,11 +308,15 @@ public class MinecraftClient : IMinecraftClient
             return;
         try
         {
-            _mainStream?.Dispose();
             _aliveClient.Cancel();
+        }
+        catch
+        {
+            // ignored
         }
         finally
         {
+            _mainStream?.Dispose();
             _aliveClient.Dispose();
             _packetQueue.Writer.TryComplete();
 

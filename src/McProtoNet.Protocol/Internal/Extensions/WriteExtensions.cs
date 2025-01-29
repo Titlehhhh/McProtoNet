@@ -20,17 +20,6 @@ public static class WriteExtensions
         return false;
     }
 
-    public static async ValueTask SendAndDisposeAsync(this IMinecraftClient client, MemoryOwner<byte> data)
-    {
-        try
-        {
-            await client.SendPacket(data.Memory);
-        }
-        finally
-        {
-            data.Dispose();
-        }
-    }
 
     public static ValueTask SendPacket(this IMinecraftClient client, IClientPacket packet)
     {
@@ -42,7 +31,9 @@ public static class WriteExtensions
                 int packetId = PacketIdHelper.GetPacketId(client.ProtocolVersion, packet.GetPacketId());
                 writer.WriteVarInt(packetId);
                 packet.Serialize(ref writer, client.ProtocolVersion);
-                return client.SendAndDisposeAsync(writer.GetWrittenMemory());
+                var memoryOwner = writer.GetWrittenMemory();
+                var outputPacket = new OutputPacket(memoryOwner);
+                return client.SendPacket(outputPacket);
             }
             finally
             {

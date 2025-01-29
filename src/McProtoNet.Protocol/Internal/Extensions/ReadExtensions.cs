@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using McProtoNet.Abstractions;
@@ -10,22 +11,40 @@ namespace McProtoNet.Protocol;
 
 public static class ReadExtensions
 {
-    public static IObservable<T> OnPacket<T>(this IMinecraftClient protocol) where T : IServerPacket
+    public static IObservable<T> OnPacket<T>(this IMinecraftClient client) where T : IServerPacket
     {
-        return protocol.OnPacket
+        return client.ReceivePackets
             .Where(x =>
             {
-                var id = PacketIdHelper.GetPacketId(protocol.ProtocolVersion, T.PacketId);
-                return x.Id == id && T.IsSupportedVersionStatic(protocol.ProtocolVersion);
+                var id = PacketIdHelper.GetPacketId(client.ProtocolVersion, T.PacketId);
+                return x.Id == id && T.IsSupportedVersionStatic(client.ProtocolVersion);
             })
             .Select(x =>
             {
-                T packet = (T)PacketFactory.CreateClientboundPacket(protocol.ProtocolVersion, x.Id, T.PacketId.State);
+                T packet = (T)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, T.PacketId.State);
 
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(x.Data);
-                packet.Deserialize(ref reader, protocol.ProtocolVersion);
+                packet.Deserialize(ref reader, client.ProtocolVersion);
                 return packet;
             });
+    }
+
+    public static IObservable<IServerPacket> OnAllPackets(this IMinecraftClient client, PacketState state)
+    {
+        return client.ReceivePackets.Select(x =>
+            {
+                try
+                {
+                    return PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, state);
+                }
+                catch(Exception ex)
+                {
+                    Debug.WriteLine("Failed to create packet: " + ex.Message);
+                    return null;
+                }
+            })
+            .Where(x => x is not null)
+            .Select(x => x!);
     }
 
 

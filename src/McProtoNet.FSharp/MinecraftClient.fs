@@ -13,9 +13,4 @@ module MinecraftClient =
           Proxy: Option<IProxyClient> }
 
     let create (ops: MinecraftClientOptions) =
-        new McProtoNet.Client.MinecraftClient(
-            Username = ops.Username,
-            Host = ops.Host,
-            Port = ops.Port,
-            Proxy = ops.Proxy.Value
-        )
+        ignore()

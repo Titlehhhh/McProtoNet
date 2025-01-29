@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="DotNext" Version="5.14.0"/>
+        <PackageReference Include="QuickProxyNet" Version="2.0.0" />
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>

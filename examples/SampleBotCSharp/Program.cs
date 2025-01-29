@@ -1,11 +1,11 @@
-﻿using System.Buffers;
-using System.Collections.Concurrent;
-using System.IO.Compression;
-using System.Reactive.Linq;
+﻿using McProtoNet;
+using McProtoNet.Abstractions;
 using McProtoNet.Client;
-using McProtoNet.MultiVersionProtocol;
-using McProtoNet.Net.Zlib;
-using ZlibNGSharpMinimal.Inflate;
+using McProtoNet.Net;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+using McProtoNet.Protocol.Packets.Login.Serverbound;
+using McProtoNet.Serialization;
 
 internal class Program
 {
@@ -15,146 +15,79 @@ internal class Program
 
     private static int linesIndex = 0;
 
-    public static Task Main(string[] args)
+    public static async Task Main(string[] args)
     {
-        Console.WriteLine(_lines.Length);
-        return MultipleConnections();
-        return NewMethod();
-    }
-
-    private static async Task NewMethod()
-    {
-        MinecraftClient client = new MinecraftClient()
+        MinecraftVersion version = MinecraftVersion.V1_21_4;
+        MinecraftClient client = new MinecraftClient(new MinecraftClientStartOptions()
         {
-            ConnectTimeout = TimeSpan.FromSeconds(30),
-            Host = "127.0.0.1",
+            ConnectTimeout = TimeSpan.FromSeconds(5),
+            Host = "title-kde",
             Port = 25565,
-            Username = $"TestBot",
-            Version = (int)MinecraftVersion.Latest
+            WriteTimeout = TimeSpan.FromSeconds(5),
+            ReadTimeout = TimeSpan.FromSeconds(5),
+            Version = (int)version
+        });
+        await client.ConnectAsync();
+        
+        
+        
+        var hand = new SetProtocolPacket()
+        {
+            NextState = 2,
+            ProtocolVersion = (int)version,
+            ServerHost = "title-kde",
+            ServerPort = 25565
         };
-        await client.Start();
-        await Task.Delay(-1);
-    }
-
-    private static async Task BowBots()
-    {
-        List<BowBot> bots = new();
-        for (int i = 1; i < 30; i++)
+        var login = new LoginStartPacket.V764_769
         {
-            bots.Add(new BowBot($"TitleBot_{i:D3}"));
+            PlayerUUID = Guid.NewGuid(),
+            Username = "TestBot"
+        };
+        
+        {
+            var writer = new MinecraftPrimitiveWriter();
+            writer.WriteVarInt(0x00);
+            
+            hand.Serialize(ref writer, 769);
+            var memory = writer.GetWrittenMemory();
+            Console.WriteLine($"Serialized [{string.Join(", ", memory.Memory.ToArray())}]");
+            writer.Dispose();
+            MemoryStream ms = new();
+            MinecraftPacketSender sender = new MinecraftPacketSender
+            {
+                BaseStream = ms
+            };
+            await sender.SendPacketAsync(new OutputPacket(memory));
+            memory.Dispose();
+
+            Console.WriteLine($"Sent [{string.Join(", ", ms.ToArray())}]");
         }
 
-        var tasks = bots.Select(x => x.Run());
-        await Task.WhenAll(tasks);
-        await Task.Delay(-1);
-    }
-
-    private static async Task MultipleConnections()
-    {
-        Console.WriteLine("Start");
-        var list = new List<MinecraftClient>();
-        try
         {
-            var listProtocols = new List<(MinecraftClient, MultiProtocol)>();
-            for (int i = 1; i <= 30; i++)
+            var writer = new MinecraftPrimitiveWriter();
+            writer.WriteVarInt(0x00);
+
+            
+
+            login.Serialize(ref writer, 769);
+            var memory = writer.GetWrittenMemory();
+            Console.WriteLine($"Serialized [{string.Join(", ", memory.Memory.ToArray())}]");
+            MemoryStream ms = new();
+            MinecraftPacketSender sender = new MinecraftPacketSender
             {
-                MinecraftClient client = new MinecraftClient()
-                {
-                    ConnectTimeout = TimeSpan.FromSeconds(30),
-                    Host = "192.168.0.9",
-                    Port = 25565,
-                    Username = $"BB_{i:D2}",
-                    Version = (int)MinecraftVersion.Latest
-                };
-                client.Disconnected += async (sender, eventArgs) =>
-                {
-                    if (eventArgs.Exception is not null)
-                    {
-                        //Console.WriteLine("Errored: " + eventArgs.Exception.Message);
-                        //Console.WriteLine(eventArgs.Exception.StackTrace);
-                        //Console.WriteLine("Restart");
-                        try
-                        {
-                            await client.Start();
-                        }
-                        catch (Exception e)
-                        {
-                            //Console.WriteLine("Start: " + e);
-                        }
-                    }
-                    else
-                    {
-                        // Console.WriteLine("Stopped");
-                    }
-                };
-                var protoTest = new MultiProtocol(client);
-                listProtocols.Add((client, protoTest));
-                list.Add(client);
-            }
+                BaseStream = ms
+            };
+            await sender.SendPacketAsync(new OutputPacket(memory));
+            memory.Dispose();
 
-            List<Task> tasks = new List<Task>();
+            Console.WriteLine($"Sent [{string.Join(", ", ms.ToArray())}]");
 
-            static async Task RunBot(MinecraftClient client, MultiProtocol proto)
-            {
-                for (int i = 0; i < 10; i++)
-                {
-                    try
-                    {
-                        var onJoin = proto.OnLogin.FirstOrDefaultAsync();
-                        await client.Start();
-
-                        await onJoin;
-
-                        await Task.Delay(3000);
-                        break;
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
-            }
-
-            tasks.AddRange(listProtocols.Select(x => RunBot(x.Item1, x.Item2)));
-
-            await Task.WhenAll(tasks);
-
-            while (true)
-            {
-                foreach (var tuple in listProtocols)
-                {
-                    MinecraftClient client = tuple.Item1;
-                    MultiProtocol protocol = tuple.Item2;
-                    if (linesIndex >= _lines.Length)
-                    {
-                        linesIndex = 0;
-                        await Task.Delay(300);
-                    }
-
-                    string nextMess = _lines[linesIndex++].TrimEnd();
-
-                    //Console.WriteLine($"{client.Username}:\t{nextMess}");
-                    await Task.Delay(10);
-
-                    try
-                    {
-                        await protocol.SendChatPacket(nextMess);
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine(exception);
-                        linesIndex = Math.Max(0, linesIndex - 1);
-                    }
-                }
-            }
+            //writer.Dispose();
         }
-        catch (Exception e)
-        {
-            Console.WriteLine(e);
-            // throw;
-        }
+        Console.WriteLine();
 
-
+        await client.SendPacket(hand);
+        await client.SendPacket(login);
         await Task.Delay(-1);
     }
 }
