@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -10,24 +11,25 @@ using McProtoNet.NBT;
 
 namespace McProtoNet.Serialization;
 
+
+
 /// <summary>
 ///     Represents stack-allocated writer for primitive types of Minecraft
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public ref struct MinecraftPrimitiveWriter
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
+public ref struct MinecraftPrimitiveWriter()
 {
     private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
 
     private BufferWriterSlim<byte> writerSlim = new(64, s_allocator);
 
-    public MinecraftPrimitiveWriter()
-    {
-    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBoolean(bool value)
     {
         CheckDisposed();
+
         writerSlim.Write(value ? 1 : 0);
     }
 
