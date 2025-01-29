@@ -34,7 +34,7 @@ McProtoNet is currently under active development, so some features are not stabl
     </li>
     <li>
         <img valign="middle"  src="assets/multiversion.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">
-        <strong valign="middle"  style="vertical-align: middle">Multi-Version</strong> (1.12.2-1.21.2)
+        <strong valign="middle"  style="vertical-align: middle">Multi-Version</strong> (1.12.2-1.21.4)
     </li>
     <li>
         <img valign="middle" src="assets/nbt.svg" alt="Icon 3" style="width: 25px; vertical-align: middle; margin-right: 8px;">

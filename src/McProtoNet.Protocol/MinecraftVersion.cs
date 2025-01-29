@@ -1,5 +1,8 @@
 ﻿namespace McProtoNet.Protocol;
 
+/// <summary>
+/// Represents Minecraft versions with their corresponding protocol numbers
+/// </summary>
 public enum MinecraftVersion
 {
     V1_12_2 = 340,
@@ -7,6 +10,7 @@ public enum MinecraftVersion
     V1_13 = 393,
     V1_13_1 = 401,
     V1_13_2_pre1 = 402,
+
     V1_13_2_pre2 = 403,
     V1_13_2 = 404,
     V1_14 = 477,

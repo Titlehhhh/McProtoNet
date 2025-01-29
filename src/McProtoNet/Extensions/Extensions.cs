@@ -6,11 +6,19 @@ using McProtoNet.Net;
 
 namespace McProtoNet;
 
+/// <summary>
+/// Extension methods for working with Minecraft protocol data types and networking
+/// </summary>
 public static class Extensions
 {
     private static int SEGMENT_BITS = 0x7F;
     private static int CONTINUE_BIT = 0x80;
 
+    /// <summary>
+    /// Writes a VarInt to a buffer writer
+    /// </summary>
+    /// <param name="writer">The buffer writer to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteVarInt(this IBufferWriter<byte> writer, int value)
     {
@@ -29,7 +37,13 @@ public static class Extensions
         writer.Write(data.Slice(0, len));
     }
 
-
+    /// <summary>
+    /// Reads a VarInt from a byte span
+    /// </summary>
+    /// <param name="data">The span to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadVarInt(this Span<byte> data, out int len)
     {
@@ -55,7 +69,11 @@ public static class Extensions
         return result;
     }
 
-
+    /// <summary>
+    /// Gets the length in bytes needed to encode an integer as a VarInt
+    /// </summary>
+    /// <param name="val">The integer value</param>
+    /// <returns>The number of bytes needed</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int val)
     {
@@ -69,12 +87,26 @@ public static class Extensions
         return amount;
     }
 
+    /// <summary>
+    /// Writes a VarInt to a byte array and returns its length
+    /// </summary>
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte array to write to</param>
+    /// <returns>The number of bytes written</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int value, byte[] data)
     {
         return GetVarIntLength(value, data, 0);
     }
 
+    /// <summary>
+    /// Writes a VarInt to a byte array at the specified offset and returns its length
+    /// </summary>
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte array to write to</param>
+    /// <param name="offset">The offset in the array to start writing</param>
+    /// <returns>The number of bytes written</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int value, byte[] data, int offset)
     {
@@ -97,6 +129,14 @@ public static class Extensions
         return len;
     }
 
+    /// <summary>
+    /// Writes a VarInt to a byte span at the specified offset and returns its length
+    /// </summary>
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte span to write to</param>
+    /// <param name="offset">The offset in the span to start writing</param>
+    /// <returns>The number of bytes written</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int value, Span<byte> data, int offset)
     {
@@ -119,7 +159,12 @@ public static class Extensions
         return len;
     }
 
-
+    /// <summary>
+    /// Writes a VarInt to a byte span and returns its length
+    /// </summary>
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte span to write to</param>
+    /// <returns>The number of bytes written</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int value, Span<byte> data)
     {
@@ -142,12 +187,25 @@ public static class Extensions
         return len;
     }
 
+    /// <summary>
+    /// Writes a VarInt to a memory region and returns its length
+    /// </summary>
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The memory region to write to</param>
+    /// <returns>The number of bytes written</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     public static byte GetVarIntLength(this int value, Memory<byte> data)
     {
         return GetVarIntLength(value, data.Span);
     }
 
+    /// <summary>
+    /// Reads a VarInt from a stream
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
     public static int ReadVarInt(this Stream stream)
     {
         Span<byte> buff = stackalloc byte[1];
@@ -172,6 +230,13 @@ public static class Extensions
         return result;
     }
 
+    /// <summary>
+    /// Reads a VarInt from a stream asynchronously
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
         var buff = ArrayPool<byte>.Shared.Rent(1);
@@ -203,7 +268,14 @@ public static class Extensions
         }
     }
 
-
+    /// <summary>
+    /// Reads a VarInt from a stream and returns the number of bytes read
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
     public static int ReadVarInt(this Stream stream, out int len)
     {
         var buff = new byte[1];
@@ -229,6 +301,11 @@ public static class Extensions
         return result;
     }
 
+    /// <summary>
+    /// Writes a VarInt to a stream
+    /// </summary>
+    /// <param name="stream">The stream to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
     public static void WriteVarInt(this Stream stream, int value)
     {
         var unsigned = (uint)value;
@@ -245,6 +322,13 @@ public static class Extensions
         } while (unsigned != 0);
     }
 
+    /// <summary>
+    /// Writes a VarInt to a stream asynchronously
+    /// </summary>
+    /// <param name="stream">The stream to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the asynchronous operation</returns>
     public static ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
     {
         var unsigned = (uint)value;
@@ -273,6 +357,13 @@ public static class Extensions
         }
     }
 
+    /// <summary>
+    /// Sends a packet and ensures it is disposed after sending
+    /// </summary>
+    /// <param name="sender">The packet sender</param>
+    /// <param name="packet">The packet to send</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the asynchronous operation</returns>
     public static async ValueTask SendAndDisposeAsync(this MinecraftPacketSender sender, OutputPacket packet,
         CancellationToken token)
     {

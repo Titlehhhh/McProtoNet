@@ -4,8 +4,16 @@ using DotNext.Buffers;
 
 namespace McProtoNet;
 
+/// <summary>
+/// Extension methods for BufferWriterSlim to write Minecraft protocol data types
+/// </summary>
 public static class BufferWriterSlimExtensions
 {
+    /// <summary>
+    /// Writes a VarInt to the buffer
+    /// </summary>
+    /// <param name="writer">The buffer writer to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteVarInt(this ref BufferWriterSlim<byte> writer, int value)
     {
@@ -32,6 +40,11 @@ public static class BufferWriterSlimExtensions
         }
     }
 
+    /// <summary>
+    /// Writes a string to the buffer in UTF-8 format, prefixed with its length as a VarInt
+    /// </summary>
+    /// <param name="writer">The buffer writer to write to</param>
+    /// <param name="value">The string to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteString(this ref BufferWriterSlim<byte> writer, string value)
     {
@@ -48,6 +61,11 @@ public static class BufferWriterSlimExtensions
         }
     }
 
+    /// <summary>
+    /// Writes a byte buffer to the writer, prefixed with its length as a VarInt
+    /// </summary>
+    /// <param name="writer">The buffer writer to write to</param>
+    /// <param name="value">The byte span to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteBuffer(this ref BufferWriterSlim<byte> writer, ReadOnlySpan<byte> value)
     {

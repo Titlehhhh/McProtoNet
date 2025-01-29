@@ -10,4 +10,8 @@
         <description>Created after removal of "Empty XML Topic" from McProtoNet</description>
         <accepts>Empty-XML-Topic.html</accepts>
     </rule>
+    <rule id="71fc74cb">
+        <description>Created after removal of "gg1" from McProtoNet</description>
+        <accepts>gg1.html</accepts>
+    </rule>
 </rules>

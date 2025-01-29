@@ -2,11 +2,22 @@
 
 namespace McProtoNet.Utils;
 
+/// <summary>
+/// Resolves server records using DNS queries
+/// </summary>
 public class ServerResolver : IServerResolver
+
 {
+    /// <summary>
+    /// Resolves a server record asynchronously
+    /// </summary>
+    /// <param name="host">The host to resolve</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>The resolved server record</returns>
     public async Task<SrvRecord> ResolveAsync(string host, CancellationToken cancellationToken = default)
     {
         LookupClient lookupClient = new();
+
 
         var response = await lookupClient.QueryAsync(new DnsQuestion($"_minecraft._tcp.{host}", QueryType.SRV),
             cancellationToken);

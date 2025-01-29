@@ -6,8 +6,16 @@ using DotNext.Buffers;
 
 namespace McProtoNet.Serialization;
 
+/// <summary>
+/// Provides SIMD-optimized extensions for reading arrays of various data types
+/// </summary>
 public static class ReadArraysSIMDExtensions
 {
+    /// <summary>
+    /// Reads a VarInt from a span of bytes
+    /// </summary>
+    /// <param name="data">The span of bytes to read from</param>
+    /// <returns>The read VarInt</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadVarInt(this Span<byte> data)
     {
@@ -28,6 +36,13 @@ public static class ReadArraysSIMDExtensions
         return result;
     }
 
+    /// <summary>
+    /// Reads an array of 32-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of 32-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static int[] ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -47,6 +62,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of 64-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of 64-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static long[] ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -66,6 +88,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of 16-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of 16-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static short[] ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -85,6 +114,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of unsigned 16-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of unsigned 16-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static ushort[] ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -104,6 +140,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of unsigned 32-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of unsigned 32-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static uint[] ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -123,6 +166,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of unsigned 64-bit integers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of integers to read</param>
+    /// <returns>An array of unsigned 64-bit integers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static ulong[] ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -142,6 +192,13 @@ public static class ReadArraysSIMDExtensions
         return ints.ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of single-precision floating-point numbers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of floats to read</param>
+    /// <returns>An array of single-precision floating-point numbers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static float[] ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)
@@ -161,6 +218,13 @@ public static class ReadArraysSIMDExtensions
         return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
     }
 
+    /// <summary>
+    /// Reads an array of double-precision floating-point numbers in big-endian format
+    /// </summary>
+    /// <param name="reader">The primitive reader to read from</param>
+    /// <param name="length">The number of doubles to read</param>
+    /// <returns>An array of double-precision floating-point numbers</returns>
+    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static double[] ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < length)

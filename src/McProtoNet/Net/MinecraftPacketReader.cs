@@ -6,17 +6,29 @@ using McProtoNet.Net.Zlib;
 
 namespace McProtoNet.Net;
 
+/// <summary>
+/// Reads Minecraft protocol packets from a stream, handling compression if enabled
+/// </summary>
 public sealed class MinecraftPacketReader
 {
     private static readonly MemoryAllocator<byte> memoryAllocator = ArrayPool<byte>.Shared.ToAllocator();
 
-
+    /// <summary>
+    /// The compression threshold in bytes. Values less than 0 indicate compression is disabled.
+    /// </summary>
     private int _compressionThreshold = -1;
 
-
+    /// <summary>
+    /// Gets or sets the underlying stream to read packets from
+    /// </summary>
     public Stream BaseStream { get; set; }
 
-
+    /// <summary>
+    /// Reads the next packet from the stream asynchronously
+    /// </summary>
+    /// <param name="token">Cancellation token to cancel the operation</param>
+    /// <returns>The read packet data</returns>
+    /// <exception cref="Exception">Thrown when decompression fails or packet size is invalid</exception>
     [MethodImpl(MethodImplOptions.AggressiveOptimization)]
     public async ValueTask<InputPacket> ReadNextPacketAsync(CancellationToken token = default)
     {
@@ -85,7 +97,12 @@ public sealed class MinecraftPacketReader
         }
     }
 
-
+    /// <summary>
+    /// Decompresses data using LibDeflate
+    /// </summary>
+    /// <param name="bufferCompress">The compressed data buffer</param>
+    /// <param name="uncompress">The buffer to store decompressed data</param>
+    /// <exception cref="Exception">Thrown when decompression fails or output size is incorrect</exception>
     private static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
     {
         var decompressor = LibDeflateCache.RentDecompressor();
@@ -99,7 +116,10 @@ public sealed class MinecraftPacketReader
         if (status != OperationStatus.Done) throw new Exception("Decompress Error");
     }
 
-
+    /// <summary>
+    /// Enables or disables packet compression with the specified threshold
+    /// </summary>
+    /// <param name="threshold">The compression threshold in bytes. Values less than 0 disable compression.</param>
     public void SwitchCompression(int threshold)
     {
         _compressionThreshold = threshold;

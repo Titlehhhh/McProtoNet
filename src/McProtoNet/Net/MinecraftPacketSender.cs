@@ -5,15 +5,32 @@ using McProtoNet.Net.Zlib;
 
 namespace McProtoNet.Net;
 
+/// <summary>
+/// Handles sending Minecraft protocol packets with optional compression
+/// </summary>
 public sealed class MinecraftPacketSender
 {
+    /// <summary>
+    /// VarInt representing zero, used for uncompressed packets
+    /// </summary>
     private static readonly byte[] ZERO_VARINT = { 0 };
 
-
+    /// <summary>
+    /// The compression threshold in bytes. Values less than 0 indicate compression is disabled.
+    /// </summary>
     private int _compressionThreshold = -1;
+
+    /// <summary>
+    /// Gets or sets the underlying stream to send packets to
+    /// </summary>
     public Stream BaseStream { get; set; }
 
-
+    /// <summary>
+    /// Sends a packet asynchronously with optional compression
+    /// </summary>
+    /// <param name="data">The packet data to send</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>A ValueTask representing the asynchronous operation</returns>
     public ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
         if (_compressionThreshold >= 0)
@@ -34,7 +51,6 @@ public sealed class MinecraftPacketSender
 
                     var fullSize = compressedLength + uncompressedSize.GetVarIntLength();
 
-
                     return SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, cancellationToken);
                 }
                 catch
@@ -51,6 +67,13 @@ public sealed class MinecraftPacketSender
         return SendPacketWithoutCompressionAsync(data, cancellationToken);
     }
 
+    /// <summary>
+    /// Sends a short uncompressed packet
+    /// </summary>
+    /// <param name="unSize">The uncompressed size</param>
+    /// <param name="data">The packet data</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the send operation</returns>
     private async ValueTask SendShort(int unSize, ReadOnlyMemory<byte> data, CancellationToken token)
     {
         try
@@ -65,6 +88,15 @@ public sealed class MinecraftPacketSender
         }
     }
 
+    /// <summary>
+    /// Sends a compressed packet
+    /// </summary>
+    /// <param name="fullSize">The full packet size</param>
+    /// <param name="uncompressedSize">The uncompressed data size</param>
+    /// <param name="compressedBuffer">The compressed data buffer</param>
+    /// <param name="bytesCompress">The number of compressed bytes</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the send operation</returns>
     private async ValueTask SendCompress(int fullSize, int uncompressedSize, byte[] compressedBuffer, int bytesCompress,
         CancellationToken token)
     {
@@ -84,6 +116,10 @@ public sealed class MinecraftPacketSender
         }
     }
 
+    /// <summary>
+    /// Enables or disables packet compression with the specified threshold
+    /// </summary>
+    /// <param name="threshold">The compression threshold in bytes. Values less than 0 disable compression.</param>
     public void SwitchCompression(int threshold)
     {
         _compressionThreshold = threshold;
@@ -91,11 +127,23 @@ public sealed class MinecraftPacketSender
 
     #region Send
 
+    /// <summary>
+    /// Sends an OutputPacket asynchronously
+    /// </summary>
+    /// <param name="packet">The packet to send</param>
+    /// <param name="cancellationToken">Token to cancel the operation</param>
+    /// <returns>A ValueTask representing the send operation</returns>
     public ValueTask SendPacketAsync(OutputPacket packet, CancellationToken cancellationToken = default)
     {
         return SendPacketAsync(packet.Memory, cancellationToken);
     }
 
+    /// <summary>
+    /// Sends a packet without compression
+    /// </summary>
+    /// <param name="data">The packet data to send</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the send operation</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private async ValueTask SendPacketWithoutCompressionAsync(ReadOnlyMemory<byte> data, CancellationToken token)
     {

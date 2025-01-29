@@ -2,9 +2,12 @@
 
 Исходный код: [MinecraftPrimitiveReader.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveReader.cs)
 
-[ref-структура](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/ref-struct), предназначенная для чтения примитивных типов данных из бинарного потока в формате Minecraft-протокола. Она представляет собой высокопроизводительную оболочку над Span&lt;byte&gt;, что позволяет работать с данными напрямую из памяти без лишнего копирования.
+[ref-структура](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/ref-struct), предназначенная для чтения примитивных типов данных 
+из бинарного потока в формате Minecraft-протокола. Она представляет собой
+высокопроизводительную оболочку над Span&lt;byte&gt;,
+что позволяет работать с данными напрямую из памяти без лишнего копирования.
 
-## Методы
+## Основные методы
 
 <deflist>
 <def title="void Advance(int count)">
@@ -75,44 +78,6 @@
 </def>
 </deflist>
 
-## Расширения
+## Пример использования
 
-<deflist>
-<def title="int[] ReadArrayInt32BigEndian(int length)">
-Читает массив <code>Int32</code> big-endian, используя SIMD оптимизации.
-
-Параметры
-<deflist>
-<def title="int length">
-Длина запрашиваемого массива
-</def>
-</deflist>
-
-Исключения
-<deflist>
-<def title="InsufficientMemoryException">
-Выбрасывается, если недостаточно памяти для чтения массива <code>Int32</code> заданного размера.
-</def>
-</deflist>
-</def>
-
-<def title="long[] ReadArrayInt64BigEndian(int length)">
-Читает массив <code>Int64</code> big-endian, используя SIMD оптимизации.
-
-Параметры
-<deflist>
-<def title="int length">
-Длина запрашиваемого массива
-</def>
-</deflist>
-
-Исключения
-<deflist>
-<def title="InsufficientMemoryException">
-Выбрасывается, если недостаточно памяти для чтения массива <code>Int64</code> заданного размера.
-</def>
-</deflist>
-</def>
-</deflist>
-
-<tip>TODO</tip>
+<code-block lang="C#" src="../code-samples/PrimitiveReaderSample.cs"/>
