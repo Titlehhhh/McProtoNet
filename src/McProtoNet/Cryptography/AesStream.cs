@@ -8,7 +8,7 @@ namespace McProtoNet.Cryptography;
 /// <summary>
 /// A Stream implementation that provides AES encryption/decryption capabilities
 /// </summary>
-public sealed class AesStream : Stream, IDisposable
+public sealed class AesStream : Stream
 {
     private bool _disposed;
 
@@ -67,15 +67,7 @@ public sealed class AesStream : Stream, IDisposable
     /// </summary>
     private IBufferedCipher DecryptCipher { get; set; }
 
-    /// <summary>
-    /// Reads a variable-length integer from the stream
-    /// </summary>
-    /// <returns>The integer value read</returns>
-    public int ReadVarInt()
-    {
-        return BaseStream.ReadVarInt();
-    }
-
+    
     /// <summary>
     /// Enables AES encryption on the stream using the provided key
     /// </summary>

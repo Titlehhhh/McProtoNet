@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Net;
 

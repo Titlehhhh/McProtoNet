@@ -1,328 +1,260 @@
-﻿using System.Diagnostics;
-using System.Net.Sockets;
+﻿using System.Net.Sockets;
+using System.Reactive;
 using System.Reactive.Subjects;
-using DotNext;
-using DotNext.Threading;
+using System.Runtime.CompilerServices;
+using System.Security.Cryptography;
+using System.Threading.Channels;
 using McProtoNet.Abstractions;
+using McProtoNet.Cryptography;
 using McProtoNet.Net;
 using QuickProxyNet;
 
-namespace McProtoNet.Client;
+namespace McProtoNet.Client.New;
 
-public sealed class MinecraftClient : Disposable, IMinecraftClient
+//Config
+public struct MinecraftClientStartOptions
 {
-#if NET9_0_OR_GREATER
-    private readonly System.Threading.Lock _gate = new();
-#else
-    private readonly object _gate = new();
-#endif
+    public string Host { get; init; }
+    public int Port { get; init; }
+    public int Version { get; init; }
+    public IProxyClient? Proxy { get; set; }
+
+    public TimeSpan ConnectTimeout { get; init; }
+    public TimeSpan ReadTimeout { get; init; }
+    public TimeSpan WriteTimeout { get; init; }
+}
+
+/// <summary>
+///     Represents a Minecraft client.
+/// </summary>
+public interface IMinecraftClient : IDisposable
+{
+    /// <summary>
+    ///     Sends a packet to the server.
+    /// </summary>
+    /// <param name="packet">The packet to send.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the client is disposed, or when the client is stopping.</exception>
+    ValueTask SendPacket(OutputPacket packet);
+
+    /// <summary>
+    ///     Gets an observable sequence of packets received from the server.
+    /// </summary>
+    IObservable<InputPacket> ReceivePackets { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the client is connected to the server.
+    /// </summary>
+    bool IsConnected { get; }
+
+    /// <summary>
+    ///     Gets a value indicating whether the client is stopping.
+    /// </summary>
+    /// <returns>true if the client is stopping; otherwise, false.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown when the client is disposed.</exception>
+    ValueTask ConnectAsync();
+
+    /// <summary>
+    ///     Switches packet compression on or off.
+    /// </summary>
+    /// <param name="threshold">The threshold above which packets are compressed.</param>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when the client is disposed, or when the client is stopping.
+    /// </exception>
+    void SwitchCompression(int threshold);
+
+    /// <summary>
+    ///     Switches packet encryption on or off.
+    /// </summary>
+    /// <param name="privateKey">The private key to use for encryption.</param>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when the client is disposed, or when the client is stopping.
+    /// </exception>
+    void SwitchEncryption(Span<byte> privateKey);
+
+    /// <summary>
+    ///     Gets the start options for the client.
+    /// </summary>
+    MinecraftClientStartOptions StartOptions { get; }
+}
+
+public class CompletionResult
+{
+    public TimeSpan RunningTime { get; }
+}
+
+/// <summary>
+///     Represents a Minecraft client.
+/// </summary>
+public class MinecraftClient : IMinecraftClient
+{
+    /// <summary>
+    ///     Creates a new instance of <see cref="MinecraftClient" /> with the specified options.
+    /// </summary>
+    /// <param name="options">The options for the client.</param>
+    public MinecraftClient(MinecraftClientStartOptions options)
+    {
+        StartOptions = options;
+    }
+
+    #region Properties
+
+    public IObservable<InputPacket> ReceivePackets => _receivePackets;
+    public bool IsConnected => Volatile.Read(ref _state) == Connected;
+    public MinecraftClientStartOptions StartOptions { get; private set; }
+
+    #endregion
+
+    #region Constants
+
+    private const int None = 0;
+    private const int Connecting = 1;
+    private const int Connected = 2;
+    private const int Disposed = 3;
+    private const int Stopping = 4;
+
+    #endregion
+
+    #region Fields
+
     private volatile int _state;
 
-    private volatile int _isActive;
+    private readonly Subject<InputPacket> _receivePackets = new();
 
-    private bool IsActive => _isActive == 1;
+    private readonly TaskCompletionSource _completion = new();
+    private readonly CancellationTokenSource _aliveClient = new();
+    private readonly MinecraftPacketReader _packetReader = new();
+    private readonly MinecraftPacketSender _packetSender = new();
 
-    private volatile CancellationTokenSource _aliveClient;
+    private readonly Channel<OutputPacket> _packetQueue = Channel.CreateUnbounded<OutputPacket>();
+    private AesStream? _mainStream;
 
-    private volatile AsyncReaderWriterLock _sendLock;
-    private volatile MinecraftPacketSender _packetSender;
-    private volatile Stream mainStream;
+    #endregion
 
-    private readonly MinecraftClientLogin minecraftLogin = new();
-    private Task? mainLoop;
-    private Task? connectTask;
+    #region Methods
 
-
-    public MinecraftClient()
+    /// <summary>
+    ///     Send a packet
+    /// </summary>
+    /// <param name="packet"></param>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public ValueTask SendPacket(OutputPacket packet)
     {
-        minecraftLogin.StateChanged += this.MinecraftLogin_StateChanged;
+        int state = _state;
+        if (state == Disposed)
+        {
+            ThrowDisposed();
+        }
+
+        if (state == Stopping)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (state != Connected)
+        {
+            throw new InvalidOperationException();
+        }
+
+
+        return _packetQueue.Writer.WriteAsync(packet, _aliveClient.Token);
     }
 
-
-    #region Public API
-
-    public async ValueTask SendPacket(ReadOnlyMemory<byte> data)
+    /// <summary>
+    /// Connects to the Minecraft server asynchronously.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">Thrown if the client is already connecting or connected.</exception>
+    public async ValueTask ConnectAsync()
     {
-        ThrowIfDisposed();
-        ThrowIfNotPlay();
-        var holder = await _sendLock.AcquireWriteLockAsync(_aliveClient.Token);
+        if (Interlocked.CompareExchange(ref _state, Connecting, None) != None)
+            throw new InvalidOperationException();
+
         try
         {
-            await _packetSender.SendPacketAsync(data, _aliveClient.Token);
-        }
-        finally
-        {
-            holder.Dispose();
-        }
-    }
+            Stream stream = await ConnectInternal(StartOptions, _aliveClient.Token);
+            AesStream aesStream = new(stream);
+            _mainStream = aesStream;
 
-    public Task Start(bool throwErrorConnect = false)
-    {
-        ThrowIfDisposed();
-        ThrowIfConnected();
+            _packetReader.BaseStream = aesStream;
+            _packetSender.BaseStream = aesStream;
 
+            Task handlePackets = HandlePackets();
+            Task mainLoop = MainLoop();
 
-        Validate();
+            Task allTasks = Task.WhenAll(handlePackets, mainLoop);
 
-        if (CompareExchangeState(MinecraftClientState.Connect, MinecraftClientState.Disconnected) !=
-            MinecraftClientState.Disconnected)
-        {
-            throw new InvalidOperationException("Not allowed to connect while connect/disconnect is pending.");
-        }
-
-        RaiseStateChanged(MinecraftClientState.Disconnected, MinecraftClientState.Connect);
-
-        connectTask = StartCoreAsync();
-        return connectTask;
-    }
-
-    private async Task StartCoreAsync()
-    {
-        try
-        {
-            CleanUp();
-            var newCts = new CancellationTokenSource();
-            _aliveClient = newCts;
-
-            Stream tcpStream = null;
-            using (var timeCts = CancellationTokenSource.CreateLinkedTokenSource(newCts.Token))
+            _ = allTasks.ContinueWith(s =>
             {
-                try
-                {
-                    timeCts.CancelAfter(ConnectTimeout);
-                    tcpStream = await ConnectAsync(timeCts.Token);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw new ConnectTimeoutException(
-                        $"Failed to connect to {Host}:{Port} in the specified time: {ConnectTimeout} ms");
-                }
-            }
+                Dispose();
+                _completion.TrySetResult();
+            });
 
-
-            mainStream = tcpStream;
-            Debug.Assert(mainStream is not null, $"mainStream is not null?");
-            var loginOptions = new LoginOptions(Host, Port, Version, Username);
-
-
-            var result = await minecraftLogin.Login(tcpStream, loginOptions, newCts.Token);
-
-            _sendLock = new AsyncReaderWriterLock();
-            mainStream = result.Stream;
-
-            mainLoop = MainLoop(result, newCts.Token);
-        }
-        catch (Exception ex)
-        {
-            if (DisconnectIsPendingOrFinished(out var previus))
-            {
-                return;
-            }
-
-            TryInitiateDisconnect();
-
-            CleanUp();
-            CompareExchangeState(MinecraftClientState.Disconnected, MinecraftClientState.Disconnecting);
-
-            RaiseDisconnected(ex, previus);
-        }
-    }
-
-    private bool DisconnectIsPendingOrFinished(out MinecraftClientState old)
-    {
-        var status = (MinecraftClientState)_state;
-        do
-        {
-            switch (status)
-            {
-                case MinecraftClientState.Disconnecting:
-                case MinecraftClientState.Disconnected:
-                    old = status;
-                    return true;
-                case MinecraftClientState.Connect:
-                case MinecraftClientState.Login:
-                case MinecraftClientState.Handshaking:
-                case MinecraftClientState.Play:
-                    var curStatus = CompareExchangeState(MinecraftClientState.Disconnecting, status);
-                    if (curStatus == status)
-                    {
-                        old = curStatus;
-                        return false;
-                    }
-
-                    status = curStatus;
-                    break;
-            }
-        } while (true);
-    }
-
-    public async Task Stop(Exception? customException = null)
-    {
-        ThrowIfDisposed();
-
-        if (DisconnectIsPendingOrFinished(out var previus))
-        {
-            return;
-        }
-
-        TryInitiateDisconnect();
-        try
-        {
-            var task1 = connectTask ??= Task.CompletedTask;
-            var task2 = mainLoop ??= Task.CompletedTask;
-            await Task.WhenAll(task1, task2).ConfigureAwait(false);
+            Interlocked.Exchange(ref _state, Connected);
         }
         catch
         {
-            // ignored
-        }
-        finally
-        {
-            CleanUp();
-            CompareExchangeState(MinecraftClientState.Disconnected, MinecraftClientState.Disconnecting);
-            RaiseDisconnected(customException, previus);
-        }
-    }
-
-    #endregion
-
-    #region ValidateState
-
-    private void ThrowIfConnected()
-    {
-        var state = (MinecraftClientState)_state;
-        switch (state)
-        {
-            case MinecraftClientState.Login:
-            case MinecraftClientState.Handshaking:
-            case MinecraftClientState.Play:
-                throw new InvalidOperationException(
-                    "It is not allowed to connect with a server after the connection is established.");
-        }
-    }
-
-    private void ThrowIfNotPlay()
-    {
-        var state = _state;
-        if (state != (int)MinecraftClientState.Play)
-        {
-            throw new InvalidOperationException(
-                $"Cannot send packages outside of Play mode (Current mode: {(MinecraftClientState)state})");
-        }
-    }
-
-    #endregion
-
-
-    private void Validate()
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(Host, nameof(Host));
-        ArgumentException.ThrowIfNullOrWhiteSpace(Username, nameof(Username));
-
-        if (!(Version >= MinVersionSupport && Version <= MaxVersionSupport))
-            throw new ArgumentException($"Version {Version} not supported");
-    }
-
-    private void MinecraftLogin_StateChanged(MinecraftClientState state)
-    {
-        ThrowIfDisposed();
-        var curState = (MinecraftClientState)_state;
-        switch (curState)
-        {
-            case MinecraftClientState.Disconnected:
-            case MinecraftClientState.Disconnecting:
+            int state = Interlocked.Exchange(ref _state, Stopping);
+            if (state == Stopping)
                 return;
-        }
 
-        if (curState == MinecraftClientState.Play)
-        {
-            throw new InvalidOperationException("The login status changes in Play mode");
-        }
+            Dispose();
 
-        var prev = state switch
-        {
-            MinecraftClientState.Handshaking => MinecraftClientState.Connect,
-            MinecraftClientState.Login => MinecraftClientState.Handshaking,
-        };
-        var old = CompareExchangeState(state, prev);
-        if (old == prev)
-        {
-            RaiseStateChanged(prev, state);
-        }
-        else
-        {
-            Debug.Assert(false, $"Current: {state} Prev: {prev}");
+            throw;
         }
     }
 
-
-    void TryInitiateDisconnect()
+    private async ValueTask<Stream> ConnectInternal(MinecraftClientStartOptions startOptions,
+        CancellationToken cancellationToken)
     {
-        lock (_gate)
+        using CancellationTokenSource timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        timeout.CancelAfter(startOptions.ConnectTimeout);
+        if (startOptions.Proxy is not null)
         {
+            Stream stream;
+
+
+            stream = await startOptions.Proxy.ConnectAsync(startOptions.Host, startOptions.Port, timeout.Token);
+
+
+            stream.WriteTimeout = (int)startOptions.WriteTimeout.TotalMilliseconds;
+            stream.ReadTimeout = (int)startOptions.ReadTimeout.TotalMilliseconds;
+            return stream;
+        }
+
+        {
+            TcpClient tcpClient = new TcpClient();
+
+            await using var _ = cancellationToken.Register(d => ((TcpClient)d)?.Dispose(), tcpClient);
+
+            tcpClient.ReceiveTimeout = (int)startOptions.ReadTimeout.TotalMilliseconds;
+            tcpClient.SendTimeout = (int)startOptions.WriteTimeout.TotalMilliseconds;
             try
             {
-                _aliveClient?.Cancel(false);
+                await tcpClient.ConnectAsync(startOptions.Host, startOptions.Port, timeout.Token);
             }
             catch
             {
-                // ignored
+                tcpClient.Dispose();
+                throw;
             }
+
+
+            return tcpClient.GetStream();
         }
     }
 
-    private MinecraftClientState ExchangeState(MinecraftClientState newVal)
+    private async Task MainLoop()
     {
-        return (MinecraftClientState)Interlocked.Exchange(ref _state, (int)newVal);
-    }
-
-    private MinecraftClientState CompareExchangeState(MinecraftClientState val, MinecraftClientState comparand)
-    {
-        return (MinecraftClientState)Interlocked.CompareExchange(ref _state, (int)val, (int)comparand);
-    }
-
-    private void RaiseStateChanged(MinecraftClientState oldState, MinecraftClientState newState)
-    {
-        StateChanged?.Invoke(this, new StateEventArgs(oldState, newState));
-    }
-
-    private void RaiseDisconnected(Exception? ex, MinecraftClientState previousState)
-    {
-        Disconnected?.Invoke(this, new DisconnectedEventArgs(ex, previousState));
-    }
-
-
-    private async Task MainLoop(LoginizationResult loginizationResult, CancellationToken cancellationToken)
-    {
-        cancellationToken.ThrowIfCancellationRequested();
-        var packetSender = new MinecraftPacketSender();
-        var packetReader = new MinecraftPacketReader();
-
-
-        packetReader.BaseStream = loginizationResult.Stream;
-        packetSender.BaseStream = loginizationResult.Stream;
-
-        packetSender.SwitchCompression(loginizationResult.CompressionThreshold);
-
-        _packetSender = packetSender;
-
-        packetReader.SwitchCompression(loginizationResult.CompressionThreshold);
-
         try
         {
-            MinecraftClientState old = // Enable SendPacket
-                ExchangeState(MinecraftClientState.Play);
-
-            RaiseStateChanged(old, MinecraftClientState.Play);
-
-
-            while (!cancellationToken.IsCancellationRequested)
+            while (!_aliveClient.IsCancellationRequested)
             {
-                var packet = await packetReader
-                    .ReadNextPacketAsync(cancellationToken);
+                InputPacket packet = await _packetReader.ReadNextPacketAsync(_aliveClient.Token);
+
                 try
                 {
-                    PacketReceived?.Invoke(this, packet);
+                    _receivePackets.OnNext(packet);
                 }
                 finally
                 {
@@ -330,171 +262,121 @@ public sealed class MinecraftClient : Disposable, IMinecraftClient
                 }
             }
         }
+        catch (Exception e)
+        {
+            int state = Interlocked.Exchange(ref _state, Stopping);
+            if (state == Stopping)
+                return;
+            _receivePackets.OnError(e);
+            Dispose();
+        }
+    }
+
+    private async Task HandlePackets()
+    {
+        try
+        {
+            await foreach (var packet in _packetQueue.Reader.ReadAllAsync(_aliveClient.Token))
+            {
+                await _packetSender.SendAndDisposeAsync(packet, _aliveClient.Token);
+            }
+        }
         catch (Exception ex)
         {
-            await loginizationResult.Stream.DisposeAsync()
-                .ConfigureAwait(false);
-
-            if (DisconnectIsPendingOrFinished(out _))
-            {
+            int state = Interlocked.Exchange(ref _state, Stopping);
+            if (state == Stopping)
                 return;
-            }
-
-            TryInitiateDisconnect();
-            CleanUp();
-            CompareExchangeState(MinecraftClientState.Disconnected, MinecraftClientState.Disconnecting);
-            RaiseDisconnected(ex, MinecraftClientState.Play);
+            _receivePackets.OnError(ex);
+            Dispose();
         }
         finally
         {
-            packetReader.BaseStream?.Dispose();
-            packetReader.BaseStream = null;
+            while (_packetQueue.Reader.TryRead(out var packet))
+            {
+                packet.Dispose();
+            }
         }
     }
 
 
-    private async ValueTask<Stream> ConnectAsync(CancellationToken cancellationToken)
+    public void SwitchCompression(int threshold)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-        IDisposable? disposable = null;
-        try
+        int state = _state;
+        if (state == Disposed)
         {
-            if (Proxy is not null)
-            {
-                Proxy.ReadTimeout = this.ReadTimeout;
-                Proxy.WriteTimeout = this.WriteTimeout;
-                return await Proxy.ConnectAsync(Host, Port, cancellationToken);
-            }
-
-            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
-            {
-                NoDelay = true,
-                LingerState = new LingerOption(true, 0),
-                SendTimeout = this.WriteTimeout,
-                ReceiveTimeout = this.ReadTimeout
-            };
-            disposable = socket;
-            await using (cancellationToken.Register(d => ((IDisposable)d).Dispose(), socket))
-            {
-                await socket.ConnectAsync(Host, Port, cancellationToken).ConfigureAwait(false);
-
-                return new NetworkStream(socket, true);
-            }
+            ThrowDisposed();
         }
-        catch
+
+        if (state == Stopping)
         {
-            disposable?.Dispose();
-            throw;
+            throw new InvalidOperationException();
         }
+
+        if (state != Connected)
+            throw new InvalidOperationException();
+
+
+        _packetSender.SwitchCompression(threshold);
+        _packetReader.SwitchCompression(threshold);
     }
 
-
-    private void CleanUp()
+    /// <summary>
+    ///     Switches packet encryption on or off.
+    /// </summary>
+    /// <param name="privateKey">The private key to use for encryption.</param>
+    /// <exception cref="InvalidOperationException">
+    ///     Thrown when the client is disposed, or when the client is stopping.
+    /// </exception>
+    public void SwitchEncryption(Span<byte> privateKey)
     {
+        int state = _state;
+        if (state == Disposed)
+        {
+            ThrowDisposed();
+        }
+
+        if (state == Stopping)
+        {
+            throw new InvalidOperationException();
+        }
+
+        if (state != Connected)
+            throw new InvalidOperationException();
+
+
+        _mainStream!.SwitchEncryption(privateKey.ToArray());
+    }
+
+    #endregion
+
+    #region Dispose
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ThrowDisposed() => throw new ObjectDisposedException(string.Empty);
+
+    /// <summary>
+    ///     Disposes the client.
+    /// </summary>
+    public void Dispose()
+    {
+        int state = Interlocked.Exchange(ref _state, Disposed);
+        if (state == Disposed)
+            return;
         try
         {
-            _aliveClient?.Cancel(false);
+            _mainStream?.Dispose();
+            _aliveClient.Cancel();
         }
         finally
         {
-            _aliveClient?.Dispose();
-            _aliveClient = null;
+            _aliveClient.Dispose();
+            _packetQueue.Writer.TryComplete();
 
-            mainStream?.Dispose();
-            mainStream = null;
-
-
-            if (_packetSender is not null)
-            {
-                _packetSender.BaseStream = null;
-                _packetSender = null;
-            }
-
-            _sendLock?.Dispose();
-            _sendLock = null;
+            _packetReader.BaseStream = null;
+            _packetSender.BaseStream = null;
+            _receivePackets.OnCompleted();
         }
     }
-
-    private void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(IsDisposed || IsDisposing, this);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            CleanUp();
-            minecraftLogin.StateChanged -= MinecraftLogin_StateChanged;
-            Disposed?.Invoke();
-        }
-
-        base.Dispose(disposing);
-    }
-
-    #region Events
-
-    public event PacketHandler? PacketReceived;
-
-    public IObservable<InputPacket> OnPacket => throw new NotImplementedException();
-    public event EventHandler<StateEventArgs> StateChanged;
-    public event EventHandler<DisconnectedEventArgs> Disconnected;
-
-    public event Action? Disposed;
-
-    #endregion
-
-    #region Properties
-
-    public int ProtocolVersion => this.Version;
-
-    /// <summary>
-    /// The host (IP address or domain name) of the Minecraft server to connect to.
-    /// </summary>
-    public string Host { get; set; }
-
-    /// <summary>
-    /// The port used to connect to the Minecraft server. By default, the standard Minecraft port (25565) is used.
-    /// </summary>
-    public ushort Port { get; set; } = 25565;
-
-    /// <summary>
-    /// The username that will be used to authenticate on the server.
-    /// </summary>
-    public string Username { get; set; }
-
-    /// <summary>
-    /// The Minecraft protocol version the client should use. This parameter ensures compatibility with different server versions.
-    /// </summary>
-    public int Version { get; set; }
-
-    /// <summary>
-    /// The proxy server through which the connection will be established. If not specified, the connection happens directly.
-    /// </summary>
-    public IProxyClient? Proxy { get; set; }
-
-    /// <summary>
-    /// The connection timeout. It sets the maximum time to wait for the connection to be established.
-    /// </summary>
-    public TimeSpan ConnectTimeout { get; set; } = TimeSpan.FromSeconds(3);
-
-    /// <summary>
-    /// The read timeout in milliseconds. This parameter defines how long the client will wait for data from the server.
-    /// </summary>
-    public int ReadTimeout { get; set; } = 30_000;
-
-    /// <summary>
-    /// The write timeout in milliseconds. This parameter defines how long the client will wait for the successful sending of data to the server.
-    /// </summary>
-    public int WriteTimeout { get; set; } = 30_000;
-
-    #endregion
-
-
-    #region Constans
-
-    public const int MinVersionSupport = 340;
-    public static readonly int MaxVersionSupport = (int)MinecraftVersion.Latest;
 
     #endregion
 }

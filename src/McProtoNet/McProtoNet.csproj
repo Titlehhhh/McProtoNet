@@ -42,5 +42,10 @@
         <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Client\MinecraftClientLogin.cs" />
+      <None Include="Client\MinecraftClientLogin.cs" />
+    </ItemGroup>
+
 
 </Project>

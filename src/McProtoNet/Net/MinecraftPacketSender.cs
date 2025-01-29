@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Net;
 

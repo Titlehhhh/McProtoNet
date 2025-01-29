@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Cysharp.Text;
 using DotNext.Buffers;
+using McProtoNet.Serialization;
 
 namespace McProtoNet;
 

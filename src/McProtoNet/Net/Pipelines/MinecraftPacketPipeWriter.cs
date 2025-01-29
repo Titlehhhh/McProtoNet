@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using McProtoNet.Net.Zlib;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Net;
 

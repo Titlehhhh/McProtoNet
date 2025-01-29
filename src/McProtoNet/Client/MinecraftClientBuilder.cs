@@ -57,13 +57,13 @@ public class MinecraftClientBuilder
 
     public TimeSpan ConnectTimeout { get; private set; } = TimeSpan.FromSeconds(3);
 
-    public MinecraftClientBuilder WithVersion(MinecraftVersion version)
+    public MinecraftClientBuilder WithVersion(int version)
     {
         Version = version;
         return this;
     }
 
-    public MinecraftVersion Version { get; private set; }
+    public int Version { get; private set; }
 
     public MinecraftClientBuilder WithHost(string host)
     {

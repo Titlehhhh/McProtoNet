@@ -1,246 +1,358 @@
-﻿using System.Buffers.Binary;
+﻿using System.Buffers;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using DotNext;
-using DotNext.Buffers;
 
 namespace McProtoNet.Serialization;
 
 /// <summary>
-/// Provides SIMD-optimized extensions for reading arrays of various data types
+/// Extension methods for working with Minecraft protocol data types and networking
 /// </summary>
-public static class ReadArraysSIMDExtensions
+public static class Extensions
 {
+    private static int SEGMENT_BITS = 0x7F;
+    private static int CONTINUE_BIT = 0x80;
+
     /// <summary>
-    /// Reads a VarInt from a span of bytes
+    /// Writes a VarInt to a buffer writer
     /// </summary>
-    /// <param name="data">The span of bytes to read from</param>
-    /// <returns>The read VarInt</returns>
+    /// <param name="writer">The buffer writer to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadVarInt(this Span<byte> data)
+    public static void WriteVarInt(this IBufferWriter<byte> writer, int value)
+    {
+        if (value == 0)
+        {
+            writer.GetSpan(1)[0] = 0;
+            writer.Advance(1);
+            return;
+        }
+
+
+        Span<byte> data = stackalloc byte[5];
+
+        var len = value.GetVarIntLength(data);
+
+        writer.Write(data.Slice(0, len));
+    }
+
+    /// <summary>
+    /// Reads a VarInt from a byte span
+    /// </summary>
+    /// <param name="data">The span to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ReadVarInt(this Span<byte> data, out int len)
     {
         var numRead = 0;
         var result = 0;
         byte read;
-        scoped SpanReader<byte> reader = new SpanReader<byte>(data);
         do
         {
-            read = reader.Read();
-            var value = read & 127;
+            read = data[numRead];
+
+
+            var value = read & 0b01111111;
             result |= value << (7 * numRead);
 
             numRead++;
             if (numRead > 5) throw new ArithmeticException("VarInt too long");
         } while ((read & 0b10000000) != 0);
 
+        //data = data.Slice(numRead);
+
+
+        len = numRead;
         return result;
     }
 
     /// <summary>
-    /// Reads an array of 32-bit integers in big-endian format
+    /// Gets the length in bytes needed to encode an integer as a VarInt
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of 32-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static int[] ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="val">The integer value</param>
+    /// <returns>The number of bytes needed</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int val)
     {
-        if (reader.RemainingCount < length)
+        byte amount = 0;
+        do
         {
-            throw new InsufficientMemoryException();
-        }
+            val >>= 7;
+            amount++;
+        } while (val != 0);
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(int) * length);
-        ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            int[] result = new int[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
-
-        return ints.ToArray();
+        return amount;
     }
 
     /// <summary>
-    /// Reads an array of 64-bit integers in big-endian format
+    /// Writes a VarInt to a byte array and returns its length
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of 64-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static long[] ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte array to write to</param>
+    /// <returns>The number of bytes written</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int value, byte[] data)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(long) * length);
-        ReadOnlySpan<long> ints = MemoryMarshal.Cast<byte, long>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            long[] result = new long[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
-
-        return ints.ToArray();
+        return GetVarIntLength(value, data, 0);
     }
 
     /// <summary>
-    /// Reads an array of 16-bit integers in big-endian format
+    /// Writes a VarInt to a byte array at the specified offset and returns its length
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of 16-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static short[] ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte array to write to</param>
+    /// <param name="offset">The offset in the array to start writing</param>
+    /// <returns>The number of bytes written</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int value, byte[] data, int offset)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
+        var unsigned = (uint)value;
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(short) * length);
-        ReadOnlySpan<short> ints = MemoryMarshal.Cast<byte, short>(bytes);
-        if (BitConverter.IsLittleEndian)
+        byte len = 0;
+        do
         {
-            short[] result = new short[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+            var temp = (byte)(unsigned & 127);
+            unsigned >>= 7;
 
-        return ints.ToArray();
+            if (unsigned != 0)
+                temp |= 128;
+
+            data[offset + len++] = temp;
+        } while (unsigned != 0);
+
+        if (len > 5)
+            throw new ArithmeticException("Var int is too big");
+        return len;
     }
 
     /// <summary>
-    /// Reads an array of unsigned 16-bit integers in big-endian format
+    /// Writes a VarInt to a byte span at the specified offset and returns its length
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of unsigned 16-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static ushort[] ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte span to write to</param>
+    /// <param name="offset">The offset in the span to start writing</param>
+    /// <returns>The number of bytes written</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int value, Span<byte> data, int offset)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
+        var unsigned = (uint)value;
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(ushort) * length);
-        ReadOnlySpan<ushort> ints = MemoryMarshal.Cast<byte, ushort>(bytes);
-        if (BitConverter.IsLittleEndian)
+        byte len = 0;
+        do
         {
-            ushort[] result = new ushort[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+            var temp = (byte)(unsigned & 127);
+            unsigned >>= 7;
 
-        return ints.ToArray();
+            if (unsigned != 0)
+                temp |= 128;
+
+            data[offset + len++] = temp;
+        } while (unsigned != 0);
+
+        if (len > 5)
+            throw new ArithmeticException("Var int is too big");
+        return len;
     }
 
     /// <summary>
-    /// Reads an array of unsigned 32-bit integers in big-endian format
+    /// Writes a VarInt to a byte span and returns its length
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of unsigned 32-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static uint[] ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The byte span to write to</param>
+    /// <returns>The number of bytes written</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int value, Span<byte> data)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
+        var unsigned = (uint)value;
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(uint) * length);
-        ReadOnlySpan<uint> ints = MemoryMarshal.Cast<byte, uint>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            uint[] result = new uint[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        byte len = 0;
 
-        return ints.ToArray();
+
+        do
+        {
+            var temp = (byte)(unsigned & 127);
+            unsigned >>= 7;
+
+            if (unsigned != 0)
+                temp |= 128;
+
+            data[len++] = temp;
+        } while (unsigned != 0);
+
+        return len;
     }
 
     /// <summary>
-    /// Reads an array of unsigned 64-bit integers in big-endian format
+    /// Writes a VarInt to a memory region and returns its length
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of integers to read</param>
-    /// <returns>An array of unsigned 64-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static ulong[] ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="value">The integer value to encode</param>
+    /// <param name="data">The memory region to write to</param>
+    /// <returns>The number of bytes written</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    public static byte GetVarIntLength(this int value, Memory<byte> data)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(ulong) * length);
-        ReadOnlySpan<ulong> ints = MemoryMarshal.Cast<byte, ulong>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            ulong[] result = new ulong[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
-
-        return ints.ToArray();
+        return GetVarIntLength(value, data.Span);
     }
 
     /// <summary>
-    /// Reads an array of single-precision floating-point numbers in big-endian format
+    /// Reads a VarInt from a stream
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of floats to read</param>
-    /// <returns>An array of single-precision floating-point numbers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static float[] ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="stream">The stream to read from</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    public static int ReadVarInt(this Stream stream)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
+        Span<byte> buff = stackalloc byte[1];
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(int) * length);
-        if (BitConverter.IsLittleEndian)
+        var numRead = 0;
+        var result = 0;
+        byte read;
+        do
         {
-            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-            float[] result = new float[length];
-            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
-            return result;
-        }
+            if (stream.Read(buff) <= 0) throw new EndOfStreamException();
 
-        return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
+            read = buff[0];
+
+
+            var value = read & 0b01111111;
+            result |= value << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
+        } while ((read & 0b10000000) != 0);
+
+        return result;
     }
 
     /// <summary>
-    /// Reads an array of double-precision floating-point numbers in big-endian format
+    /// Reads a VarInt from a stream asynchronously
     /// </summary>
-    /// <param name="reader">The primitive reader to read from</param>
-    /// <param name="length">The number of doubles to read</param>
-    /// <returns>An array of double-precision floating-point numbers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
-    public static double[] ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader, int length)
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
-        if (reader.RemainingCount < length)
+        var buff = ArrayPool<byte>.Shared.Rent(1);
+        Memory<byte> memory = buff.AsMemory(0, 1);
+        try
         {
-            throw new InsufficientMemoryException();
-        }
+            var numRead = 0;
+            var result = 0;
+            byte read;
+            do
+            {
+                await stream.ReadExactlyAsync(memory, token);
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(long) * length);
-        if (BitConverter.IsLittleEndian)
-        {
-            ReadOnlySpan<long> ints = MemoryMarshal.Cast<byte, long>(bytes);
-            double[] result = new double[length];
-            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
+                read = buff[0];
+
+
+                var value = read & 0b01111111;
+                result |= value << (7 * numRead);
+
+                numRead++;
+                if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
+            } while ((read & 0b10000000) != 0);
+
             return result;
         }
-
-        return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buff);
+        }
     }
+
+    /// <summary>
+    /// Reads a VarInt from a stream and returns the number of bytes read
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    public static int ReadVarInt(this Stream stream, out int len)
+    {
+        var buff = new byte[1];
+
+        var numRead = 0;
+        var result = 0;
+        byte read;
+        do
+        {
+            if (stream.Read(buff, 0, 1) <= 0)
+                throw new EndOfStreamException();
+            read = buff[0];
+
+
+            var value = read & 0b01111111;
+            result |= value << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
+        } while ((read & 0b10000000) != 0);
+
+        len = (byte)numRead;
+        return result;
+    }
+
+    /// <summary>
+    /// Writes a VarInt to a stream
+    /// </summary>
+    /// <param name="stream">The stream to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
+    public static void WriteVarInt(this Stream stream, int value)
+    {
+        var unsigned = (uint)value;
+
+        do
+        {
+            var temp = (byte)(unsigned & 127);
+            unsigned >>= 7;
+
+            if (unsigned != 0)
+                temp |= 128;
+
+            stream.WriteByte(temp);
+        } while (unsigned != 0);
+    }
+
+    /// <summary>
+    /// Writes a VarInt to a stream asynchronously
+    /// </summary>
+    /// <param name="stream">The stream to write to</param>
+    /// <param name="value">The integer value to write as a VarInt</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>A ValueTask representing the asynchronous operation</returns>
+    public static ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
+    {
+        var unsigned = (uint)value;
+
+
+        var data = ArrayPool<byte>.Shared.Rent(5);
+        try
+        {
+            var len = 0;
+            do
+            {
+                token.ThrowIfCancellationRequested();
+                var temp = (byte)(unsigned & 127);
+                unsigned >>= 7;
+
+                if (unsigned != 0)
+                    temp |= 128;
+                data[len++] = temp;
+            } while (unsigned != 0);
+
+            return stream.WriteAsync(data.AsMemory(0, len), token);
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(data);
+        }
+    }
+
+    
 }
