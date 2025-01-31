@@ -227,7 +227,15 @@ public class MinecraftClient : IMinecraftClient
                 throw;
             }
 
-            yield return packet;
+            try
+            {
+                yield return packet;
+            }
+            finally
+            {
+                packet.Dispose();
+            }
+          
         }
     }
 

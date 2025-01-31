@@ -1,3 +1,6 @@
 namespace McProtoNet.Protocol;
 
-public static class ServerHandshakingPacket;
+public static class ServerHandshakingPacket
+{
+
+}

@@ -29,9 +29,9 @@ internal class Program
 
         List<Task> tasks = new List<Task>(100);
         MinecraftVersion version = MinecraftVersion.V1_21_4;
-        for (int i = 1; i <= 100; i++)
+        for (int i = 1; i <= 30; i++)
         {
-            Task t = RunBot(version, $"TestBot_{i:D3}");
+            Task t = RunBot(version, $"Title_{i:D3}");
             tasks.Add(t);
         }
 
@@ -80,20 +80,37 @@ internal class Program
                 await Task.Delay(5000);
 
 
-                if (client.TrySend<SPlay.ChatPacket>(out var sender))
+                await Task.Run(async () =>
                 {
-                    //Console.WriteLine("V1");
-                    sender.Packet.Message = "Helloworld";
-                    await sender.Send();
-                }
-                else if (client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
-                {
-                    // Console.WriteLine("V2");
-                    sender2.Packet.Message = "Helloworld";
-                    sender2.Packet.Timestamp = Random.Shared.NextInt64();
-                    sender2.Packet.Salt = Random.Shared.NextInt64();
-                    await sender2.Send();
-                }
+                    try
+                    {
+                        while (true)
+                        {
+
+
+                            if (client.TrySend<SPlay.ChatPacket>(out var sender))
+                            {
+                                //Console.WriteLine("V1");
+                                sender.Packet.Message = "Helloworld";
+                                await sender.Send();
+                            }
+                            else if (client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+                            {
+                                // Console.WriteLine("V2");
+                                sender2.Packet.Message = "Helloworld";
+                                sender2.Packet.Timestamp = Random.Shared.NextInt64();
+                                sender2.Packet.Salt = Random.Shared.NextInt64();
+                                await sender2.Send();
+                            }
+
+                            await Task.Delay(1500);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                });
 
 
                 await client.Completion;
