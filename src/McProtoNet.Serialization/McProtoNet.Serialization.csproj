@@ -17,7 +17,10 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
-
+    <ItemGroup>
+        <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+        <InternalsVisibleTo Include="McProtoNet.Tests"/>
+    </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
     </ItemGroup>

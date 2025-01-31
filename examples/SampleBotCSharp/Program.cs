@@ -1,4 +1,6 @@
-﻿using McProtoNet;
+﻿using System.Reactive.Linq;
+using System.Security.Cryptography;
+using McProtoNet;
 using McProtoNet.Abstractions;
 using McProtoNet.Client;
 using McProtoNet.Net;
@@ -24,42 +26,109 @@ internal class Program
     public static async Task Main(string[] args)
     {
         Console.WriteLine("Start");
-        MinecraftVersion version = MinecraftVersion.V1_21_4;
-        MinecraftClient client = new MinecraftClient(new MinecraftClientStartOptions()
-        {
-            ConnectTimeout = TimeSpan.FromSeconds(5),
-            Host = "title-kde",
-            Port = 25565,
-            WriteTimeout = TimeSpan.FromSeconds(5),
-            ReadTimeout = TimeSpan.FromSeconds(5),
-            Version = (int)version
-        });
-        Console.WriteLine("Connecting");
-        await client.ConnectAsync();
-        Console.WriteLine("Connected");
 
+        List<Task> tasks = new List<Task>(100);
+        MinecraftVersion version = MinecraftVersion.V1_21_4;
+        for (int i = 1; i <= 100; i++)
+        {
+            Task t = RunBot(version, $"TestBot_{i:D3}");
+            tasks.Add(t);
+        }
+
+        await Task.WhenAll(tasks);
+
+
+        await Task.Delay(-1);
+    }
+
+    private static async Task RunBot(MinecraftVersion version, string nickname)
+    {
+        while (true)
+        {
+            Console.WriteLine($"Start Bot: {nickname}");
+            try
+            {
+                MinecraftClient client = new MinecraftClient(new MinecraftClientStartOptions()
+                {
+                    ConnectTimeout = TimeSpan.FromSeconds(5),
+                    Host = "title-kde",
+                    Port = 25565,
+                    WriteTimeout = TimeSpan.FromSeconds(5),
+                    ReadTimeout = TimeSpan.FromSeconds(5),
+                    Version = (int)version,
+                    SendQueueSize = -1,
+                    ReceiveQueueSize = 10
+                });
+
+                await client.ConnectAsync();
+                await Login(client, nickname);
+
+                Task read = Task.Run(async () =>
+                {
+                    await foreach (var packet in client.ReceivePackets(default))
+                    {
+                        if (packet.TryDeserialize<CPlay.KeepAlivePacket>(client.ProtocolVersion, out var p))
+                        {
+                            //Console.WriteLine("KeepAlive");
+                            await client.SendPacket(new SPlay.KeepAlivePacket()
+                            {
+                                KeepAliveId = p.KeepAliveId
+                            });
+                        }
+                    }
+                });
+                await Task.Delay(5000);
+
+
+                if (client.TrySend<SPlay.ChatPacket>(out var sender))
+                {
+                    //Console.WriteLine("V1");
+                    sender.Packet.Message = "Helloworld";
+                    await sender.Send();
+                }
+                else if (client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+                {
+                    // Console.WriteLine("V2");
+                    sender2.Packet.Message = "Helloworld";
+                    sender2.Packet.Timestamp = Random.Shared.NextInt64();
+                    sender2.Packet.Salt = Random.Shared.NextInt64();
+                    await sender2.Send();
+                }
+
+
+                await client.Completion;
+            }
+            catch (Exception e)
+            {
+            }
+
+            await Task.Delay(1500);
+        }
+    }
+
+    private static async Task Login(MinecraftClient client, string nickname)
+    {
         var hand = new SetProtocolPacket()
         {
             NextState = 2,
-            ProtocolVersion = (int)version,
+            ProtocolVersion = client.ProtocolVersion,
             ServerHost = "title-kde",
             ServerPort = 25565
         };
         var login = new LoginStartPacket.V764_769
         {
             PlayerUUID = Guid.NewGuid(),
-            Username = "TestBot"
+            Username = nickname
         };
-        var loginRead = client.OnAllPackets(PacketState.Login);
+
+
         await client.SendPacket(hand);
         await client.SendPacket(login);
-
-        await foreach (var serverPacket in loginRead.ToAsyncEnumerable())
+        
+        await foreach (var serverPacket in client.OnAllPackets(PacketState.Login))
         {
-            Console.WriteLine("Receive: " + serverPacket.GetPacketId());
             if (serverPacket is CompressPacket compressPacket)
             {
-                Console.WriteLine("Threshold: " + compressPacket.Threshold);
                 client.SwitchCompression(compressPacket.Threshold);
             }
             else if (serverPacket is SuccessPacket)
@@ -71,15 +140,15 @@ internal class Program
 
                 break;
             }
+            else if (serverPacket is DisconnectPacket disconnectPacket)
+            {
+                Console.WriteLine("Disconnect: " + disconnectPacket.Reason);
+            }
         }
 
-        Console.WriteLine("Success!");
 
         if (client.ProtocolVersion >= 764)
         {
-            Console.WriteLine("Start config");
-
-
             await client.SendPacket(new SettingsPacket()
             {
                 Locale = "ru_ru",
@@ -92,17 +161,11 @@ internal class Program
                 ChatFlags = 0
             });
 
-            // await foreach (var pack in client.ReceivePackets.ToAsyncEnumerable())
-            // {
-            //     Console.WriteLine($"Receive: 0x{pack.Id:X2}");
-            // }
 
-            await foreach (var packet in client.OnAllPackets(PacketState.Configuration).ToAsyncEnumerable())
+            await foreach (var packet in client.OnAllPackets(PacketState.Configuration))
             {
-                Console.WriteLine("Receive packet:" + packet.GetPacketId());
                 if (packet is CConfig.FinishConfigurationPacket)
                 {
-                    Console.WriteLine("Finish");
                     await client.SendPacket(new SConfig.FinishConfigurationPacket());
                     break;
                 }
@@ -133,43 +196,7 @@ internal class Program
                 {
                     await client.SendPacket(new SConfig.SelectKnownPacksPacket());
                 }
-                 
-            }
-
-            client.OnPacket<CPlay.KeepAlivePacket>().Subscribe(p =>
-            {
-                client.SendPacket(new SPlay.KeepAlivePacket()
-                {
-                    KeepAliveId = p.KeepAliveId
-                });
-            });
-            Console.WriteLine("Wait");
-            await Task.Delay(3000);
-            Console.WriteLine("asdsad");
-
-            await client.SendPacket(new SPlay.ArmAnimationPacket()
-            {
-                Hand = 0
-            });
-            
-            await Task.Delay(5000);
-            
-            if (client.TrySend<SPlay.ChatPacket>(out var sender))
-            {
-                Console.WriteLine("V1");
-                sender.Packet.Message = "Helloworld";
-                await sender.Send();
-            }
-            else if (client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
-            {
-                Console.WriteLine("V2");
-                sender2.Packet.Message = "Helloworld";
-                sender2.Packet.Timestamp = Random.Shared.NextInt64();
-                sender2.Packet.Salt = Random.Shared.NextInt64();
-                await sender2.Send();
             }
         }
-
-        await Task.Delay(-1);
     }
 }

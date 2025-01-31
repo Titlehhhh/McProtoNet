@@ -13,6 +13,9 @@ public struct MinecraftClientStartOptions
     public TimeSpan ConnectTimeout { get; init; }
     public TimeSpan ReadTimeout { get; init; }
     public TimeSpan WriteTimeout { get; init; }
+    
+    public int SendQueueSize { get; init; }
+    public int ReceiveQueueSize { get; init; }
 }
 
 /// <summary>
@@ -31,7 +34,7 @@ public interface IMinecraftClient : IDisposable
     /// <summary>
     ///     Gets an observable sequence of packets received from the server.
     /// </summary>
-    IObservable<InputPacket> ReceivePackets { get; }
+    IAsyncEnumerable<InputPacket> ReceivePackets(CancellationToken cancellationToken=default);
 
     /// <summary>
     ///     Gets a value indicating whether the client is connected to the server.
@@ -69,4 +72,6 @@ public interface IMinecraftClient : IDisposable
     MinecraftClientStartOptions StartOptions { get; }
     
     int ProtocolVersion { get; }
+    
+    Task Completion { get; }
 }

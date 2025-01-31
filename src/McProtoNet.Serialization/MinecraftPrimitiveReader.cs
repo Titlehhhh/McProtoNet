@@ -229,7 +229,7 @@ public ref partial struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint ReadUnsignedInt()
     {
-        return ReadUnsignedInt();
+        return _reader.ReadBigEndian<uint>();
     }
 
     /// <summary>

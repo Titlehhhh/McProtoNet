@@ -243,7 +243,25 @@ public ref struct MinecraftPrimitiveWriter()
         } while (unsigned != 0);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    internal void WriteStringOld(string value)
+    {
+        CheckDisposed();
+        var builder = ZString.CreateUtf8StringBuilder();
+        try
+        {
+            builder.Append(value);
+            WriteVarInt(builder.Length);
+            writerSlim.Write(builder.AsSpan());
+        }
+        finally
+        {
+            builder.Dispose();
+        }
+    }
+
     private static readonly Encoding encoding = new UTF8Encoding();
+
     /// <summary>
     /// Writes a string value to the buffer in UTF-8 format
     /// </summary>
@@ -252,24 +270,13 @@ public ref struct MinecraftPrimitiveWriter()
     public void WriteString(string value)
     {
         CheckDisposed();
-        
-        
-
         int length = encoding.GetByteCount(value);
         WriteVarInt(length);
-
         Span<byte> span = writerSlim.GetSpan(length);
 
-        if (encoding.TryGetBytes(value, span, out var written))
-        {
-            writerSlim.Advance(written);
-            return;
-        }
-        
-        throw new ArgumentException("Failed to write string to buffer", nameof(value));
-        
-
-        
+        if (!encoding.TryGetBytes(value, span, out var written))
+            throw new ArgumentException("Failed to write string to buffer", nameof(value));
+        writerSlim.Advance(written);
     }
 
     /// <summary>

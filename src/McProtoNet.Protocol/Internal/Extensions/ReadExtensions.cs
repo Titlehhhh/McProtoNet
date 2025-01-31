@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using McProtoNet.Abstractions;
 using McProtoNet.Client;
@@ -11,44 +12,69 @@ namespace McProtoNet.Protocol;
 
 public static class ReadExtensions
 {
-    public static IObservable<T> OnPacket<T>(this IMinecraftClient client) where T : IServerPacket
+    public static async IAsyncEnumerable<T> OnPacket<T>(this IMinecraftClient client,
+        CancellationToken cancellationToken) where T : IServerPacket
     {
-        return client.ReceivePackets
-            .Where(x =>
+        await foreach (var packet in client.ReceivePackets(cancellationToken))
+        {
+            var id = PacketIdHelper.GetPacketId(client.ProtocolVersion, T.PacketId);
+            if (packet.Id == id && T.IsSupportedVersionStatic(client.ProtocolVersion))
             {
-                var id = PacketIdHelper.GetPacketId(client.ProtocolVersion, T.PacketId);
-                return x.Id == id && T.IsSupportedVersionStatic(client.ProtocolVersion);
-            })
-            .Select(x =>
-            {
-                T packet = (T)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, T.PacketId.State);
-
-                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(x.Data);
-                packet.Deserialize(ref reader, client.ProtocolVersion);
-                return packet;
-            });
+                T serverPacket =
+                    (T)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id, T.PacketId.State);
+                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(packet.Data);
+                serverPacket.Deserialize(ref reader, client.ProtocolVersion);
+                yield return serverPacket;
+            }
+        }
     }
 
-    public static IObservable<IServerPacket> OnAllPackets(this IMinecraftClient client, PacketState state)
+    public static bool TryDeserialize<T>(this InputPacket inPacket, int protcolVersion, out T? outPacket)
+        where T : IServerPacket
     {
-        return client.ReceivePackets.Select(x =>
+        try
+        {
+            var id = PacketIdHelper.GetPacketId(protcolVersion, T.PacketId);
+            if (inPacket.Id != id || !T.IsSupportedVersionStatic(protcolVersion))
             {
-                try
-                {
-                    IServerPacket packet = PacketFactory.CreateClientboundPacket(client.ProtocolVersion, x.Id, state);
+                outPacket = default;
+                return false;
+            }
+            
+            var serverPacket = PacketFactory.CreateClientboundPacket(protcolVersion, inPacket.Id, T.PacketId.State);
+            MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(inPacket.Data);
+            serverPacket.Deserialize(ref reader, protcolVersion);
+            outPacket = (T)serverPacket;
+            return true;
+        }
+        catch
+        {
+            outPacket = default;
+            return false;
+        }
+    }
 
-                    MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(x.Data);
-                    packet.Deserialize(ref reader, client.ProtocolVersion);
-                    return packet;
-                }
-                catch (Exception ex)
-                {
-                    Debug.WriteLine("Failed to create packet: " + ex.Message);
-                    return null;
-                }
-            })
-            .Where(x => x is not null)
-            .Select(x => x!);
+    public static async IAsyncEnumerable<IServerPacket> OnAllPackets(this IMinecraftClient client, PacketState state,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+        await foreach (var p in client.ReceivePackets(cancellationToken))
+        {
+            IServerPacket? packet = null;
+            try
+            {
+                packet = PacketFactory.CreateClientboundPacket(client.ProtocolVersion, p.Id, state);
+                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(p.Data);
+                packet.Deserialize(ref reader, client.ProtocolVersion);
+            }
+            catch (Exception e)
+            {
+            }
+
+            if (packet is not null)
+            {
+                yield return packet;
+            }
+        }
     }
 
 
