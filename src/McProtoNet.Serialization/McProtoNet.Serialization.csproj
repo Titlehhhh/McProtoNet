@@ -22,4 +22,9 @@
         <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Remove="Test.cs" />
+      <None Include="Test.cs" />
+    </ItemGroup>
+
 </Project>

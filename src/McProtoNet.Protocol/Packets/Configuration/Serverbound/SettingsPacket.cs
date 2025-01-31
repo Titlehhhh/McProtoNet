@@ -2,7 +2,7 @@
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
-[PacketInfo("Settings",PacketState.Configuration,PacketDirection.Serverbound)]
+[PacketInfo("Settings", PacketState.Configuration, PacketDirection.Serverbound)]
 public partial class SettingsPacket : IClientPacket
 {
     public string Locale { get; set; }
@@ -14,7 +14,7 @@ public partial class SettingsPacket : IClientPacket
     public bool EnableTextFiltering { get; set; }
     public bool EnableServerListing { get; set; }
 
-    [PacketSubInfo(764,767)]
+    [PacketSubInfo(764, 767)]
     public sealed partial class V764_767 : SettingsPacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -36,10 +36,9 @@ public partial class SettingsPacket : IClientPacket
             writer.WriteBoolean(enableTextFiltering);
             writer.WriteBoolean(enableServerListing);
         }
-
-       
     }
-[PacketSubInfo(768,769)]
+
+    [PacketSubInfo(768, 769)]
     public sealed partial class V768_769 : SettingsPacket
     {
         public int Particles { get; set; }
@@ -64,11 +63,8 @@ public partial class SettingsPacket : IClientPacket
             writer.WriteBoolean(enableServerListing);
             writer.WriteVarInt(particles);
         }
-
-        
     }
 
-    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -81,5 +77,4 @@ public partial class SettingsPacket : IClientPacket
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.Settings), protocolVersion);
     }
-
 }

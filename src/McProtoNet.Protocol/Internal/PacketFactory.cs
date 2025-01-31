@@ -19,10 +19,6 @@ public static class PacketFactory
         Dictionary<long, Func<IServerPacket>> configuration = new();
         Dictionary<long, Func<IServerPacket>> play = new();
 
-        List<string> debugConf = new();
-        List<string> debugLog = new();
-        List<string> debugPlay = new();
-
         foreach (var func in ServerPacketRegistry.Packets)
         {
             IServerPacket packet = func();
@@ -50,20 +46,18 @@ public static class PacketFactory
 
                     try
                     {
-                        string str = $"Version: {version} PacketId: {packetId} Name: {packet.GetType().FullName}";
+                        //string str = $"Version: {version} PacketId: {packetId} Name: {packet.GetType().FullName}";
                         switch (identifier.State)
                         {
                             case PacketState.Login:
                                 login.Add(Combine(version, packetId), func);
-                                debugLog.Add(str);
+                                
                                 break;
                             case PacketState.Play:
                                 play.Add(Combine(version, packetId), func);
-                                debugPlay.Add(str);
                                 break;
                             case PacketState.Configuration:
                                 configuration.Add(Combine(version, packetId), func);
-                                debugConf.Add(str);
                                 break;
                         }
                     }

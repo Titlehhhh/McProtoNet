@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.Unicode;
 using Cysharp.Text;
 using DotNext.Buffers;
@@ -242,6 +243,7 @@ public ref struct MinecraftPrimitiveWriter()
         } while (unsigned != 0);
     }
 
+    private static readonly Encoding encoding = new UTF8Encoding();
     /// <summary>
     /// Writes a string value to the buffer in UTF-8 format
     /// </summary>
@@ -250,17 +252,24 @@ public ref struct MinecraftPrimitiveWriter()
     public void WriteString(string value)
     {
         CheckDisposed();
-        var builder = ZString.CreateUtf8StringBuilder();
-        try
+        
+        
+
+        int length = encoding.GetByteCount(value);
+        WriteVarInt(length);
+
+        Span<byte> span = writerSlim.GetSpan(length);
+
+        if (encoding.TryGetBytes(value, span, out var written))
         {
-            builder.Append(value);
-            WriteVarInt(builder.Length);
-            writerSlim.Write(builder.AsSpan());
+            writerSlim.Advance(written);
+            return;
         }
-        finally
-        {
-            builder.Dispose();
-        }
+        
+        throw new ArgumentException("Failed to write string to buffer", nameof(value));
+        
+
+        
     }
 
     /// <summary>

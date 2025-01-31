@@ -74,7 +74,7 @@ public class MinecraftClient : IMinecraftClient
     /// <param name="packet"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public ValueTask SendPacket(OutputPacket packet)
+    public async ValueTask SendPacket(OutputPacket packet)
     {
         int state = _state;
         if (state == Disposed)
@@ -93,7 +93,7 @@ public class MinecraftClient : IMinecraftClient
         }
 
         Debug.WriteLine($"Enqueue packet: [{string.Join(", ", packet.Memory.ToArray())}]");
-        return _packetQueue.Writer.WriteAsync(packet, _aliveClient.Token);
+        await _packetQueue.Writer.WriteAsync(packet, _aliveClient.Token).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -146,12 +146,7 @@ public class MinecraftClient : IMinecraftClient
         timeout.CancelAfter(startOptions.ConnectTimeout);
         if (startOptions.Proxy is not null)
         {
-            Stream stream;
-
-
-            stream = await startOptions.Proxy.ConnectAsync(startOptions.Host, startOptions.Port, timeout.Token);
-
-
+            var stream = await startOptions.Proxy.ConnectAsync(startOptions.Host, startOptions.Port, timeout.Token);
             stream.WriteTimeout = (int)startOptions.WriteTimeout.TotalMilliseconds;
             stream.ReadTimeout = (int)startOptions.ReadTimeout.TotalMilliseconds;
             return stream;

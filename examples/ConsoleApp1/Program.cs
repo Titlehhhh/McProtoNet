@@ -1,28 +1,20 @@
-﻿using System.Net.Sockets;
-using System.Threading.Channels;
-using McProtoNet.Abstractions;
-using McProtoNet.Protocol;
-using McProtoNet.Serialization;
+﻿using System;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 
-//Random bytes
-byte[] data = [0x00, 0x15, 0x16, 0x01, 0x54];
-
-MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(new ReadOnlySpan<byte>(data));
-reader.ReadVarInt();
-Console.WriteLine($"Remaining: {reader.RemainingCount}");
-
-
-MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
-
-try
+class Program
 {
-    writer.WriteVarInt(111);
-    writer.WriteString("Hello");
-    var memory = writer.GetWrittenMemory();
-    Console.WriteLine(string.Join(", ", memory.Memory));
-}
-finally
-{
-    writer.Dispose();
-}
+    static void Main()
+    {
+        Vector128<int> v1 = Vector128.Create(1, 2, 3, 4);
+        Vector128<int> v2 = Vector128.Create(5, 6, 7, 8);
 
+        Vector128<int> r = Ssse3.UnpackHigh(v1, v2);
+
+        int[] bb = new int[4];
+        r.CopyTo(bb);
+        Console.WriteLine(string.Join(", ",bb));
+    }
+
+   
+}
