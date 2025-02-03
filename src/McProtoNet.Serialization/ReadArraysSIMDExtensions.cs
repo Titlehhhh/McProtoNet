@@ -22,10 +22,10 @@ public static class ReadArraysSIMDExtensions
         var numRead = 0;
         var result = 0;
         byte read;
-        scoped SpanReader<byte> reader = new SpanReader<byte>(data);
+        
         do
         {
-            read = reader.Read();
+            read = data[numRead];
             var value = read & 127;
             result |= value << (7 * numRead);
 
@@ -50,16 +50,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(int) * length);
-        ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            int[] result = new int[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(int) * length);
+        var ints = MemoryMarshal.Cast<byte, int>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        var result = new int[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -76,16 +73,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(long) * length);
-        ReadOnlySpan<long> ints = MemoryMarshal.Cast<byte, long>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            long[] result = new long[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(long) * length);
+        var ints = MemoryMarshal.Cast<byte, long>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        var result = new long[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -102,16 +96,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(short) * length);
-        ReadOnlySpan<short> ints = MemoryMarshal.Cast<byte, short>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            short[] result = new short[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(short) * length);
+        var ints = MemoryMarshal.Cast<byte, short>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        var result = new short[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -128,16 +119,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(ushort) * length);
-        ReadOnlySpan<ushort> ints = MemoryMarshal.Cast<byte, ushort>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            ushort[] result = new ushort[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(ushort) * length);
+        var ints = MemoryMarshal.Cast<byte, ushort>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        ushort[] result = new ushort[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -154,16 +142,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(uint) * length);
-        ReadOnlySpan<uint> ints = MemoryMarshal.Cast<byte, uint>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            uint[] result = new uint[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(uint) * length);
+        var ints = MemoryMarshal.Cast<byte, uint>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        uint[] result = new uint[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -180,16 +165,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(ulong) * length);
-        ReadOnlySpan<ulong> ints = MemoryMarshal.Cast<byte, ulong>(bytes);
-        if (BitConverter.IsLittleEndian)
-        {
-            ulong[] result = new ulong[length];
-            BinaryPrimitives.ReverseEndianness(ints, result);
-            return result;
-        }
+        var bytes = reader.Read(sizeof(ulong) * length);
+        var ints = MemoryMarshal.Cast<byte, ulong>(bytes);
+        if (!BitConverter.IsLittleEndian) return ints.ToArray();
+        var result = new ulong[length];
+        BinaryPrimitives.ReverseEndianness(ints, result);
+        return result;
 
-        return ints.ToArray();
     }
 
     /// <summary>
@@ -206,16 +188,13 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(int) * length);
-        if (BitConverter.IsLittleEndian)
-        {
-            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-            float[] result = new float[length];
-            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
-            return result;
-        }
+        var bytes = reader.Read(sizeof(int) * length);
+        if (!BitConverter.IsLittleEndian) return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
+        var ints = MemoryMarshal.Cast<byte, int>(bytes);
+        var result = new float[length];
+        BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
+        return result;
 
-        return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
     }
 
     /// <summary>
@@ -232,15 +211,12 @@ public static class ReadArraysSIMDExtensions
             throw new InsufficientMemoryException();
         }
 
-        ReadOnlySpan<byte> bytes = reader.Read(sizeof(long) * length);
-        if (BitConverter.IsLittleEndian)
-        {
-            ReadOnlySpan<long> ints = MemoryMarshal.Cast<byte, long>(bytes);
-            double[] result = new double[length];
-            BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
-            return result;
-        }
+        var bytes = reader.Read(sizeof(long) * length);
+        if (!BitConverter.IsLittleEndian) return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
+        var ints = MemoryMarshal.Cast<byte, long>(bytes);
+        var result = new double[length];
+        BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
+        return result;
 
-        return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
     }
 }

@@ -30,6 +30,7 @@ public sealed class AesStream : Stream
 #else
         ArgumentNullException.ThrowIfNull(stream, nameof(stream));
 #endif
+
         BaseStream = stream;
     }
 
@@ -67,7 +68,7 @@ public sealed class AesStream : Stream
     /// </summary>
     private IBufferedCipher DecryptCipher { get; set; }
 
-    
+
     /// <summary>
     /// Enables AES encryption on the stream using the provided key
     /// </summary>
@@ -77,10 +78,18 @@ public sealed class AesStream : Stream
     {
         if (EncryptionEnabled) throw new InvalidOperationException("Шифрование уже включено");
 
-        EncryptCipher = new BufferedBlockCipher(new CfbBlockCipher(new AesEngine(), 8));
+
+        EncryptCipher =
+            new BufferedBlockCipher(
+                new CfbBlockCipher(AesEngine_X86.IsSupported ? new AesEngine_X86() : new AesEngine(), 8));
+
         EncryptCipher.Init(true, new ParametersWithIV(new KeyParameter(privatekey), privatekey, 0, 16));
 
-        DecryptCipher = new BufferedBlockCipher(new CfbBlockCipher(new AesEngine(), 8));
+        DecryptCipher =
+            new BufferedBlockCipher(
+                new CfbBlockCipher(AesEngine_X86.IsSupported ? new AesEngine_X86() : new AesEngine(), 8));
+
+
         DecryptCipher.Init(false, new ParametersWithIV(new KeyParameter(privatekey), privatekey, 0, 16));
 
         BaseStream = new AsyncCipherStream(BaseStream, DecryptCipher, EncryptCipher);

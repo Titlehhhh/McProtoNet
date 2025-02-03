@@ -1,8 +1,13 @@
-﻿using System.Reactive.Linq;
+﻿using System.Diagnostics;
+using System.Numerics;
+using System.Reactive.Linq;
+using System.Runtime.Intrinsics.X86;
 using System.Security.Cryptography;
+using DotNext.Diagnostics;
 using McProtoNet;
 using McProtoNet.Abstractions;
 using McProtoNet.Client;
+using McProtoNet.Cryptography;
 using McProtoNet.Net;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Packets.Configuration.Serverbound;
@@ -14,12 +19,22 @@ using CConfig = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using SConfig = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using CPlay = McProtoNet.Protocol.Packets.Play.Clientbound;
 using SPlay = McProtoNet.Protocol.Packets.Play.Serverbound;
+using CLogin = McProtoNet.Protocol.Packets.Login.Clientbound;
+using SLogin = McProtoNet.Protocol.Packets.Login.Serverbound;
 
 internal class Program
 {
-    private static string[] _lines =
-        "====================\n$$$$$$$$\\   $$\\ $$\\   \n$$  _____|  $$ \\$$ \\  \n$$ |      $$$$$$$$$$\\ \n$$$$$\\    \\_$$  $$   |\n$$  __|   $$$$$$$$$$\\ \n$$ |      \\_$$  $$  _|\n$$ |        $$ |$$ |  \n\\__|        \\__|\\__|  \n===================="
-            .Split('\n');
+    public static string Figure =
+        """
+        _###___#__#_
+        #___#__#__#_
+        #_____######
+        #______#__#_
+        #______#__#_
+        #_____######
+        #___#__#__#_
+        _###___#__#_
+        """;
 
     private static int linesIndex = 0;
 
@@ -27,11 +42,16 @@ internal class Program
     {
         Console.WriteLine("Start");
 
+        Figure = Figure.Replace("\n", "").Replace("\r", "");
+
+        var count = Figure.Count(x => x == '#');
+
+
         List<Task> tasks = new List<Task>(100);
         MinecraftVersion version = MinecraftVersion.V1_21_4;
-        for (int i = 1; i <= 30; i++)
+        for (int i = 0; i < 100; i++)
         {
-            Task t = RunBot(version, $"Title_{i:D3}");
+            Task t = RunBot(version, $"Title_{i:D3}", i);
             tasks.Add(t);
         }
 
@@ -41,87 +61,82 @@ internal class Program
         await Task.Delay(-1);
     }
 
-    private static async Task RunBot(MinecraftVersion version, string nickname)
+    private static async Task RunBot(MinecraftVersion version, string nickname, int id)
     {
         while (true)
         {
             Console.WriteLine($"Start Bot: {nickname}");
+
+            var client = new MinecraftClient(new MinecraftClientStartOptions()
+            {
+                ConnectTimeout = TimeSpan.FromSeconds(5),
+                Host = "localhost",
+                Port = 25565,
+                WriteTimeout = TimeSpan.FromSeconds(5),
+                ReadTimeout = TimeSpan.FromSeconds(5),
+                Version = (int)version
+            });
+
+            await client.ConnectAsync();
+            await Login(client, nickname);
+            Vector3 myPos = Vector3.Zero;
+            bool first = true;
+
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    await client.Completion;
+                    Console.WriteLine("Success completion");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine($"Completion: {e}");
+                }
+            });
             try
             {
-                MinecraftClient client = new MinecraftClient(new MinecraftClientStartOptions()
+                await foreach (var packet in client.ReceivePackets(default))
                 {
-                    ConnectTimeout = TimeSpan.FromSeconds(5),
-                    Host = "title-kde",
-                    Port = 25565,
-                    WriteTimeout = TimeSpan.FromSeconds(5),
-                    ReadTimeout = TimeSpan.FromSeconds(5),
-                    Version = (int)version,
-                    SendQueueSize = -1,
-                    ReceiveQueueSize = 10
-                });
-
-                await client.ConnectAsync();
-                await Login(client, nickname);
-
-                Task read = Task.Run(async () =>
-                {
-                    await foreach (var packet in client.ReceivePackets(default))
+                    if (packet.TryDeserialize<CPlay.KeepAlivePacket>(client.ProtocolVersion, out var p))
                     {
-                        if (packet.TryDeserialize<CPlay.KeepAlivePacket>(client.ProtocolVersion, out var p))
+                        //Console.WriteLine("KeepAlive");
+                        await client.SendPacket(new SPlay.KeepAlivePacket()
                         {
-                            //Console.WriteLine("KeepAlive");
-                            await client.SendPacket(new SPlay.KeepAlivePacket()
+                            KeepAliveId = p.KeepAliveId
+                        });
+                    }
+                    else if (packet.TryDeserialize<CPlay.PositionPacket.V768_769>(client.ProtocolVersion,
+                                 out var position))
+                    {
+                        myPos = new Vector3(position.X, position.Y, position.Z);
+                        await client.SendPacket(new SPlay.TeleportConfirmPacket()
+                        {
+                            TeleportId = position.TeleportId
+                        });
+                        if (first)
+                        {
+                            first = false;
+                            await client.SendPacket(new SPlay.PositionLookPacket.V768_769()
                             {
-                                KeepAliveId = p.KeepAliveId
+                                X = position.X,
+                                Y = position.Y,
+                                Z = position.Z,
+                                Yaw = 0,
+                                Pitch = 0,
+                                Flags = 0x01
                             });
                         }
                     }
-                });
-                await Task.Delay(5000);
-
-
-                await Task.Run(async () =>
-                {
-                    try
-                    {
-                        while (true)
-                        {
-
-
-                            if (client.TrySend<SPlay.ChatPacket>(out var sender))
-                            {
-                                //Console.WriteLine("V1");
-                                sender.Packet.Message = "Helloworld";
-                                await sender.Send();
-                            }
-                            else if (client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
-                            {
-                                // Console.WriteLine("V2");
-                                sender2.Packet.Message = "Helloworld";
-                                sender2.Packet.Timestamp = Random.Shared.NextInt64();
-                                sender2.Packet.Salt = Random.Shared.NextInt64();
-                                await sender2.Send();
-                            }
-
-                            await Task.Delay(1500);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-
-                    }
-                });
-
-
-                await client.Completion;
+                }
             }
             catch (Exception e)
             {
+                Console.WriteLine(e);
             }
-
-            await Task.Delay(1500);
         }
     }
+
 
     private static async Task Login(MinecraftClient client, string nickname)
     {
@@ -141,9 +156,10 @@ internal class Program
 
         await client.SendPacket(hand);
         await client.SendPacket(login);
-        
+
         await foreach (var serverPacket in client.OnAllPackets(PacketState.Login))
         {
+            //Console.WriteLine($"Read Login: {serverPacket.GetPacketId()}");
             if (serverPacket is CompressPacket compressPacket)
             {
                 client.SwitchCompression(compressPacket.Threshold);
@@ -160,6 +176,25 @@ internal class Program
             else if (serverPacket is DisconnectPacket disconnectPacket)
             {
                 Console.WriteLine("Disconnect: " + disconnectPacket.Reason);
+            }
+            else if (serverPacket is CLogin.EncryptionBeginPacket encryptBegin)
+            {
+                var RSAService = CryptoHandler.DecodeRSAPublicKey(encryptBegin.PublicKey);
+                var secretKey = CryptoHandler.GenerateAESPrivateKey();
+
+
+                var sharedSecret = RSAService.Encrypt(secretKey, false);
+                var verifyToken = RSAService.Encrypt(encryptBegin.VerifyToken, false);
+
+                var response = new SLogin.EncryptionBeginPacket.V761_769()
+                {
+                    SharedSecret = sharedSecret,
+                    VerifyToken = verifyToken
+                };
+
+                await client.SendPacket(response);
+
+                client.SwitchEncryption(secretKey);
             }
         }
 
@@ -181,6 +216,7 @@ internal class Program
 
             await foreach (var packet in client.OnAllPackets(PacketState.Configuration))
             {
+                // Console.WriteLine($"Read Configuration: {packet.GetPacketId()}");
                 if (packet is CConfig.FinishConfigurationPacket)
                 {
                     await client.SendPacket(new SConfig.FinishConfigurationPacket());

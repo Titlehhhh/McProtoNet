@@ -97,7 +97,7 @@ public static class ReadExtensions
 
     public static byte[] ReadBuffer(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
     {
-        int len = reader.ReadLength(lengthFormat);
+        var len = reader.ReadLength(lengthFormat);
         return reader.ReadBuffer(len);
     }
 
@@ -173,8 +173,8 @@ public static class ReadExtensions
         ReadDelegate<T> readDelegate)
 
     {
-        int len = reader.ReadLength(lengthFormat);
-        return ReadArray<T>(ref reader, len, readDelegate);
+        var len = reader.ReadLength(lengthFormat);
+        return ReadArray(ref reader, len, readDelegate);
     }
 
     public static T? ReadOptional<T>(this MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)

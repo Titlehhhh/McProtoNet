@@ -14,8 +14,6 @@ public struct MinecraftClientStartOptions
     public TimeSpan ReadTimeout { get; init; }
     public TimeSpan WriteTimeout { get; init; }
     
-    public int SendQueueSize { get; init; }
-    public int ReceiveQueueSize { get; init; }
 }
 
 /// <summary>

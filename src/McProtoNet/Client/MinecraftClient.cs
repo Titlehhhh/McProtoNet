@@ -5,6 +5,7 @@ using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Channels;
+using DotNext.Threading;
 using McProtoNet.Abstractions;
 using McProtoNet.Cryptography;
 using McProtoNet.Net;
@@ -29,25 +30,6 @@ public class MinecraftClient : IMinecraftClient
     public MinecraftClient(MinecraftClientStartOptions options)
     {
         StartOptions = options;
-        if (options.SendQueueSize >= 0)
-        {
-            _packetSendQueue = Channel.CreateBounded<OutputPacket>(new BoundedChannelOptions(options.SendQueueSize)
-            {
-                Capacity = options.SendQueueSize,
-                AllowSynchronousContinuations = false,
-                SingleReader = false,
-                SingleWriter = true
-            });
-        }
-        else
-        {
-            _packetSendQueue = Channel.CreateUnbounded<OutputPacket>(new UnboundedChannelOptions()
-            {
-                AllowSynchronousContinuations = false,
-                SingleReader = false,
-                SingleWriter = true
-            });
-        }
     }
 
     #region Properties
@@ -78,8 +60,7 @@ public class MinecraftClient : IMinecraftClient
     private readonly CancellationTokenSource _aliveClient = new();
     private readonly MinecraftPacketReader _packetReader = new();
     private readonly MinecraftPacketSender _packetSender = new();
-
-    private readonly Channel<OutputPacket> _packetSendQueue;
+    private readonly AsyncReaderWriterLock _sendLock = new();
     private AesStream? _mainStream;
 
     #endregion
@@ -110,8 +91,25 @@ public class MinecraftClient : IMinecraftClient
         if (state != Connected)
             ThrowNotConnected();
 
-        Debug.WriteLine($"Enqueue packet: [{string.Join(", ", packet.Memory.ToArray())}]");
-        await _packetSendQueue.Writer.WriteAsync(packet, _aliveClient.Token).ConfigureAwait(false);
+        var holder = await _sendLock.AcquireWriteLockAsync(_aliveClient.Token);
+        try
+        {
+            await _packetSender.SendAndDisposeAsync(packet, _aliveClient.Token);
+        }
+        catch (Exception ex)
+        {
+            _completion.TrySetException(ex);
+            state = Interlocked.Exchange(ref _state, Stopping);
+            if (state == Stopping)
+                return;
+            Dispose();
+
+            throw;
+        }
+        finally
+        {
+            holder.Dispose();
+        }
     }
 
     /// <summary>
@@ -132,17 +130,14 @@ public class MinecraftClient : IMinecraftClient
             _packetReader.BaseStream = aesStream;
             _packetSender.BaseStream = aesStream;
 
-            Task handlePackets = HandlePackets();
-
-
             Interlocked.Exchange(ref _state, Connected);
         }
         catch (Exception ex)
         {
+            _completion.TrySetException(ex);
             int state = Interlocked.Exchange(ref _state, Stopping);
             if (state == Stopping)
                 return;
-            _completion.TrySetException(ex);
             Dispose();
 
             throw;
@@ -215,11 +210,10 @@ public class MinecraftClient : IMinecraftClient
             {
                 packet = await _packetReader.ReadNextPacketAsync(_aliveClient.Token);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _packetSendQueue.Writer.TryComplete(e);
-
-                Debug.WriteLine("Error in main loop: " + e);
+                _completion.TrySetException(ex);
+                Debug.WriteLine("Error in main loop: " + ex);
                 int state = Interlocked.Exchange(ref _state, Stopping);
                 if (state == Stopping)
                     yield break;
@@ -235,35 +229,11 @@ public class MinecraftClient : IMinecraftClient
             {
                 packet.Dispose();
             }
-          
         }
     }
 
 
-    private async Task HandlePackets()
-    {
-        Debug.WriteLine("Starting packet handler");
-        try
-        {
-            await foreach (var packet in _packetSendQueue.Reader.ReadAllAsync(_aliveClient.Token))
-            {
-                Debug.WriteLine($"Send packet: [{string.Join(", ", packet.Memory.ToArray())}]");
-                await _packetSender.SendAndDisposeAsync(packet, _aliveClient.Token);
-            }
-        }
-        catch (Exception ex)
-        {
-            _completion.TrySetException(ex);
-            Debug.WriteLine("Error in packet handler: " + ex);
-            int state = Interlocked.Exchange(ref _state, Stopping);
-            if (state == Stopping)
-                return;
-            Dispose();
-        }
-
-
-        Debug.WriteLine("Packet handler stopped");
-    }
+    
 
 
     public void SwitchCompression(int threshold)
@@ -348,14 +318,7 @@ public class MinecraftClient : IMinecraftClient
         {
             _mainStream?.Dispose();
             _aliveClient.Dispose();
-            _packetSendQueue.Writer.TryComplete();
-
-
-            while (_packetSendQueue.Reader.TryRead(out var p))
-            {
-                p.Dispose();
-            }
-
+            _sendLock.Dispose();
             _packetReader.BaseStream = null;
             _packetSender.BaseStream = null;
             _completion.TrySetResult();

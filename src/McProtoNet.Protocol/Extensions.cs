@@ -37,6 +37,36 @@ public static class Extensions
         return new Position(x, z, y);
     }
 
+    public static ChunkBlockEntity ReadChunkBlockEntity(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        if (protocolVersion is >= 757 and <= 763)
+        {
+            byte packed = reader.ReadUnsignedByte();
+            int x = packed >> 4;
+            int z = packed & 0xF;
+            short y = reader.ReadSignedShort();
+            int type = reader.ReadVarInt();
+            var nbtData = reader.ReadOptionalNbtTag(true);
+            
+            return new ChunkBlockEntity((byte)x, (byte)z, y, type, nbtData);
+        }
+
+        if (protocolVersion is >= 764 and <= 769)
+        {
+            byte packed = reader.ReadUnsignedByte();
+            int x = packed >> 4;
+            int z = packed & 0b1111;
+            short y = reader.ReadSignedShort();
+            int type = reader.ReadVarInt();
+            var nbtData = reader.ReadOptionalNbtTag(false);
+            
+            return new ChunkBlockEntity((byte)x, (byte)z, y, type, nbtData);
+        }
+
+        throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");
+
+    }
+
     public static Vector2 ReadVector2(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         if (protocolVersion is >= 767 and <= 769)

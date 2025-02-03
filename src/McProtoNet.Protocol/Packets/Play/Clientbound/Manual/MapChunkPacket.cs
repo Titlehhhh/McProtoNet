@@ -3,12 +3,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
-[PacketInfo("MapChunk",PacketState.Play, PacketDirection.Clientbound)]
+[PacketInfo("MapChunk", PacketState.Play, PacketDirection.Clientbound)]
 public abstract partial class MapChunkPacket : IServerPacket
 {
     public int X { get; set; }
     public int Z { get; set; }
-
     public byte[] ChunkData { get; set; }
 
     [PacketSubInfo(340, 404)]
@@ -203,7 +202,7 @@ public abstract partial class MapChunkPacket : IServerPacket
         }
     }
     //public class V765 Ignore 
-    
+
     [PacketSubInfo(763, 769)]
     public sealed partial class V763_769 : MapChunkPacket
     {
@@ -228,20 +227,19 @@ public abstract partial class MapChunkPacket : IServerPacket
             BlockEntities = reader.ReadArray(LengthFormat.VarInt,
                 (ref MinecraftPrimitiveReader r1) => r1.ReadChunkBlockEntity(protocolVersion));
 
-            
+
             SkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
             BlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
             EmptySkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
             EmptyBlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
             SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader primitiveReader) =>
-                primitiveReader.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte)
+                primitiveReader.ReadBuffer(LengthFormat.VarInt)
             );
             BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader primitiveReader) =>
-                primitiveReader.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte)
+                primitiveReader.ReadBuffer(LengthFormat.VarInt)
             );
         }
     }
-
 
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
