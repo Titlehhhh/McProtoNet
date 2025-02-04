@@ -7,12 +7,14 @@ public sealed class PacketIdentifier
     public readonly PacketState State;
     public readonly PacketDirection Direction;
 
-    public PacketIdentifier(int order, string name, PacketState state, PacketDirection direction)
+    
+    internal PacketIdentifier(int order, string name, PacketState state, PacketDirection direction)
     {
         Order = order;
         Name = name;
         State = state;
         Direction = direction;
+        
     }
 
     public override string ToString() => Name;

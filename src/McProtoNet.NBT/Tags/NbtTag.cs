@@ -8,6 +8,8 @@ namespace McProtoNet.NBT;
 /// </summary>
 public abstract class NbtTag : ICloneable
 {
+    public static readonly NbtTag EndTag = new NbtEnd();
+
     private static string _defaultIndentString = "  ";
 
     /// <summary>

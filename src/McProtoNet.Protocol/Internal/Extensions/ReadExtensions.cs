@@ -66,9 +66,19 @@ public static class ReadExtensions
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(p.Data);
                 packet.Deserialize(ref reader, client.ProtocolVersion);
             }
-            catch (Exception e)
+            catch (KeyNotFoundException)
             {
+                
             }
+            // catch (Exception e)
+            // {
+            //     if (p.Id == PacketIdHelper.GetPacketId(client.ProtocolVersion, ServerPlayPacket.MapChunk))
+            //     {
+            //         throw;
+            //         Console.WriteLine($"error: {e}");
+            //     }
+            //     packet = null;
+            // }
 
             if (packet is not null)
             {

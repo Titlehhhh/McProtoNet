@@ -1,6 +1,7 @@
 ﻿using System.Buffers.Binary;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Text;
 using DotNext;
 using DotNext.Buffers;
 
@@ -22,7 +23,7 @@ public static class ReadArraysSIMDExtensions
         var numRead = 0;
         var result = 0;
         byte read;
-        
+
         do
         {
             read = data[numRead];
@@ -45,19 +46,14 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static int[] ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(int) * length);
         var ints = MemoryMarshal.Cast<byte, int>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         var result = new int[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
-
     }
+
 
     /// <summary>
     /// Reads an array of 64-bit integers in big-endian format
@@ -68,18 +64,26 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static long[] ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(long) * length);
         var ints = MemoryMarshal.Cast<byte, long>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         var result = new long[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
+    }
 
+    public static void ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<long> destination)
+    {
+        var bytes = reader.Read(sizeof(long) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, long>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
     }
 
     /// <summary>
@@ -91,18 +95,12 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static short[] ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(short) * length);
         var ints = MemoryMarshal.Cast<byte, short>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         var result = new short[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
-
     }
 
     /// <summary>
@@ -114,18 +112,12 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static ushort[] ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(ushort) * length);
         var ints = MemoryMarshal.Cast<byte, ushort>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         ushort[] result = new ushort[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
-
     }
 
     /// <summary>
@@ -137,18 +129,12 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static uint[] ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(uint) * length);
         var ints = MemoryMarshal.Cast<byte, uint>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         uint[] result = new uint[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
-
     }
 
     /// <summary>
@@ -160,18 +146,12 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static ulong[] ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(ulong) * length);
         var ints = MemoryMarshal.Cast<byte, ulong>(bytes);
         if (!BitConverter.IsLittleEndian) return ints.ToArray();
         var result = new ulong[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
-
     }
 
     /// <summary>
@@ -183,18 +163,12 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static float[] ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(int) * length);
         if (!BitConverter.IsLittleEndian) return MemoryMarshal.Cast<byte, float>(bytes).ToArray();
         var ints = MemoryMarshal.Cast<byte, int>(bytes);
         var result = new float[length];
         BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<float, int>(result));
         return result;
-
     }
 
     /// <summary>
@@ -206,17 +180,11 @@ public static class ReadArraysSIMDExtensions
     /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
     public static double[] ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
-        if (reader.RemainingCount < length)
-        {
-            throw new InsufficientMemoryException();
-        }
-
         var bytes = reader.Read(sizeof(long) * length);
         if (!BitConverter.IsLittleEndian) return MemoryMarshal.Cast<byte, double>(bytes).ToArray();
         var ints = MemoryMarshal.Cast<byte, long>(bytes);
         var result = new double[length];
         BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
         return result;
-
     }
 }

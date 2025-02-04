@@ -101,7 +101,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// <param name="output">The span to read bytes into</param>
     /// <returns>The number of bytes read</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Read(Span<byte> output) => _reader.Read(output);
+    public int Read(scoped Span<byte> output) => _reader.Read(output);
 
     /// <summary>
     /// Checks if the reader has been disposed
@@ -344,12 +344,14 @@ public ref partial struct MinecraftPrimitiveReader
     /// </summary>
     /// <param name="readRootTag">Whether to read the root tag</param>
     /// <returns>The NBT tag read</returns>
-    public NbtTag ReadNbtTag(bool readRootTag)
+    public NbtTag? ReadNbtTag(bool readRootTag)
     {
         NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);
-        NbtTag result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
+        NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
 
         _reader.Advance(nbtSpanReader.ConsumedCount);
         return result;
     }
+
+    
 }

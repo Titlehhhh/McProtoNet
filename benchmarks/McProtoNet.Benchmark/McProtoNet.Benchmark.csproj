@@ -29,4 +29,10 @@
         <ProjectReference Include="..\..\src\McProtoNet.Utils\McProtoNet.Utils.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>
+
+    <ItemGroup>
+      <None Update="Test.bin">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>

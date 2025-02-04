@@ -6,6 +6,30 @@ namespace McProtoNet.Protocol;
 
 public static partial class PacketIdHelper
 {
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedClientboundStatusPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedClientboundLoginPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedClientboundHandshakingPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedClientboundConfigurationPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedClientboundPlayPackets;
+
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundStatusPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundLoginPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundHandshakingPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundConfigurationPackets;
+    private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundPlayPackets;
+    
+    static PacketIdHelper()
+    {
+        
+    }
+    
+    
+    
+    public static PacketIdentifier GetPacketIdentifier(int protocolVersion, int packetId, PacketState state, PacketDirection direction)
+    {
+        throw new NotImplementedException();
+    }
+    
     public static int GetPacketId(int protocolVersion, PacketIdentifier packetIdentifier)
     {
         long key = Combine(packetIdentifier, protocolVersion);
@@ -47,4 +71,19 @@ public static partial class PacketIdHelper
     {
         return (long)a << 32 | (uint)b;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void LongToInts(long l, out int a, out int b)
+    {
+        a = (int)(l & uint.MaxValue);
+        b = (int)(l >> 32);
+    }
+
+    private static int GetOrder(long key)
+    {
+        LongToInts(key, out var a, out var b);
+        return a;
+    }
+    
+    
 }

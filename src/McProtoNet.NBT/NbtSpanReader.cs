@@ -22,9 +22,13 @@ public ref struct NbtSpanReader
     }
 
 
-    public T ReadAsTag<T>(bool readRootName) where T : NbtTag
+    public T? ReadAsTag<T>(bool readRootName) where T : NbtTag
     {
         NbtTagType type = ReadTagType();
+        if (type == NbtTagType.End)
+        {
+            return null;
+        }
         string? rootName = readRootName ? ReadString() : null;
 
         if (TypeIsPrimitive(type))
@@ -37,18 +41,56 @@ public ref struct NbtSpanReader
             return ReadRecursive(type, rootName) as T ??
                    throw new InvalidOperationException($"Error cast to {typeof(T)}");
         }
-        else
-        {
-            throw new NotImplementedException();
-            Stack<NbtTag> stack = new Stack<NbtTag>();
 
-            do
+        Stack<NbtTag> stack = new Stack<NbtTag>();
+        NbtTag root;
+
+        if (type == NbtTagType.List)
+        {
+            var listType = ReadTagType();
+            var length = _reader.ReadBigEndian<int>();
+            if (length < 0) throw new NbtFormatException($"Negative tag length given: {length}");
+
+            if (TryReadNbtListPrimitive(listType, length, out var resultList))
             {
-                if (type == NbtTagType.Compound)
-                {
-                }
-            } while (stack.Count > 0);
+                resultList.Name = rootName;
+                return resultList as T ?? throw new InvalidOperationException($"Error cast to {typeof(T)}");
+            }
+
+            var list = new NbtList { Name = rootName };
+            stack.Push(list);
+            for (int i = 0; i < length; i++)
+            {
+                var tag = ReadRecursive(listType, null);
+                list.Add(tag);
+            }
+            root = list;
         }
+        else // Compound
+        {
+            var compound = new NbtCompound { Name = rootName };
+            stack.Push(compound);
+                
+            while (true)
+            {
+                var nextType = ReadTagType();
+                if (nextType == NbtTagType.End) break;
+
+                var name = ReadString();
+                if (TypeIsPrimitive(nextType))
+                {
+                    compound.Add(ReadPrimitive(nextType, name));
+                }
+                else if (nextType == NbtTagType.List || nextType == NbtTagType.Compound)
+                {
+                    var tag = ReadRecursive(nextType, name);
+                    compound.Add(tag);
+                }
+            }
+            root = compound;
+        }
+
+        return (T)root;
     }
 
 
@@ -93,7 +135,8 @@ public ref struct NbtSpanReader
             list.Name = name;
             return list;
         }
-        else if (type == NbtTagType.Compound)
+
+        if (type == NbtTagType.Compound)
         {
             NbtCompound nbtCompound = new NbtCompound();
             nbtCompound.Name = name;
@@ -109,10 +152,8 @@ public ref struct NbtSpanReader
                 nbtCompound.Add(tag);
             }
         }
-        else
-        {
-            return ReadPrimitive(type, name);
-        }
+
+        return ReadPrimitive(type, name);
     }
 
     private bool TryReadNbtListPrimitive(NbtTagType listType, int length, out NbtList list)
@@ -128,7 +169,8 @@ public ref struct NbtSpanReader
 
             return true;
         }
-        else if (listType == NbtTagType.Short)
+
+        if (listType == NbtTagType.Short)
         {
             list = new NbtList();
             ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(short));
@@ -163,7 +205,8 @@ public ref struct NbtSpanReader
 
             return true;
         }
-        else if (listType == NbtTagType.Int)
+
+        if (listType == NbtTagType.Int)
         {
             list = new NbtList();
             ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(int));
@@ -198,7 +241,8 @@ public ref struct NbtSpanReader
 
             return true;
         }
-        else if (listType == NbtTagType.Long)
+
+        if (listType == NbtTagType.Long)
         {
             list = new NbtList();
             ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(long));
@@ -233,7 +277,8 @@ public ref struct NbtSpanReader
 
             return true;
         }
-        else if (listType == NbtTagType.Float)
+
+        if (listType == NbtTagType.Float)
         {
             list = new NbtList();
             ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(float));
@@ -271,7 +316,8 @@ public ref struct NbtSpanReader
 
             return true;
         }
-        else if (listType == NbtTagType.Double)
+
+        if (listType == NbtTagType.Double)
         {
             list = new NbtList();
             ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(double));
@@ -394,7 +440,7 @@ public ref struct NbtSpanReader
             return nbtIntArray;
         }
 
-        throw new InvalidOperationException("Unknown type");
+        throw new InvalidOperationException($"Unknown type: {type}({(int)type})");
     }
 
     private double ReadDouble()

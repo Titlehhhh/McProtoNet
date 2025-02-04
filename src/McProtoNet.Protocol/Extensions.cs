@@ -1,15 +1,26 @@
-﻿using McProtoNet.Serialization;
+﻿using McProtoNet.NBT;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
 
 public static class Extensions
 {
+    public static NbtTag? ReadNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        return reader.ReadNbtTag(protocolVersion < 764);
+    }
+
+    public static NbtTag? ReadOptionalNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        return reader.ReadOptionalNbtTag(protocolVersion < 764);
+    }
+
     public static Position ReadPosition(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         var locEncoded = reader.ReadSignedLong();
         int x, y, z;
 
-        if (protocolVersion is <= 340 or >= 769)
+        if (protocolVersion is < 340 or > 769)
         {
             throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");
         }
@@ -39,32 +50,17 @@ public static class Extensions
 
     public static ChunkBlockEntity ReadChunkBlockEntity(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (protocolVersion is >= 757 and <= 763)
-        {
-            byte packed = reader.ReadUnsignedByte();
-            int x = packed >> 4;
-            int z = packed & 0xF;
-            short y = reader.ReadSignedShort();
-            int type = reader.ReadVarInt();
-            var nbtData = reader.ReadOptionalNbtTag(true);
-            
-            return new ChunkBlockEntity((byte)x, (byte)z, y, type, nbtData);
-        }
+        if (protocolVersion is < 757 or > 769)
+            throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");
 
-        if (protocolVersion is >= 764 and <= 769)
-        {
-            byte packed = reader.ReadUnsignedByte();
-            int x = packed >> 4;
-            int z = packed & 0b1111;
-            short y = reader.ReadSignedShort();
-            int type = reader.ReadVarInt();
-            var nbtData = reader.ReadOptionalNbtTag(false);
-            
-            return new ChunkBlockEntity((byte)x, (byte)z, y, type, nbtData);
-        }
+        byte packed = reader.ReadUnsignedByte();
+        int x = packed >> 4;
+        int z = packed & 0xF;
+        short y = reader.ReadSignedShort();
+        int type = reader.ReadVarInt();
+        var nbtData = reader.ReadNbtTag(protocolVersion);
 
-        throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");
-
+        return new ChunkBlockEntity((byte)x, (byte)z, y, type, nbtData);
     }
 
     public static Vector2 ReadVector2(this ref MinecraftPrimitiveReader reader, int protocolVersion)

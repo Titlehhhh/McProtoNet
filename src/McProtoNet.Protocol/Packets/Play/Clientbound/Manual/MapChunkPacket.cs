@@ -59,7 +59,7 @@ public abstract partial class MapChunkPacket : IServerPacket
 
         public int[]? Biomes { get; set; }
 
-        public NbtTag[] BlockEntities { get; set; }
+        public NbtTag?[] BlockEntities { get; set; }
 
         public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         {
@@ -88,7 +88,7 @@ public abstract partial class MapChunkPacket : IServerPacket
         public NbtTag Heightmaps { get; set; }
         public int[]? Biomes { get; set; }
 
-        public NbtTag[] BlockEntities { get; set; }
+        public NbtTag?[] BlockEntities { get; set; }
 
         public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         {
@@ -117,7 +117,7 @@ public abstract partial class MapChunkPacket : IServerPacket
         public NbtTag Heightmaps { get; set; }
         public int[]? Biomes { get; set; }
 
-        public NbtTag[] BlockEntities { get; set; }
+        public NbtTag?[] BlockEntities { get; set; }
 
         public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         {
@@ -221,17 +221,28 @@ public abstract partial class MapChunkPacket : IServerPacket
         {
             X = reader.ReadSignedInt();
             Z = reader.ReadSignedInt();
-            Heightmaps = reader.ReadNbtTag(false);
+
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
+
+
             ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
 
             BlockEntities = reader.ReadArray(LengthFormat.VarInt,
                 (ref MinecraftPrimitiveReader r1) => r1.ReadChunkBlockEntity(protocolVersion));
 
+            try
+            {
+                SkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
+                BlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
+                EmptySkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
+                EmptyBlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
 
-            SkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
-            BlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
-            EmptySkyLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
-            EmptyBlockLightMask = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
             SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader primitiveReader) =>
                 primitiveReader.ReadBuffer(LengthFormat.VarInt)
             );
