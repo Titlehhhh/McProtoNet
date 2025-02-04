@@ -143,9 +143,9 @@ public class Bot
             Console.WriteLine($"Pallete length: {paletteLength}");
 
             //// Block IDs are packed in the array of 64-bits integers
-            reader.ReadVarInt(); // Entry length
+          int a =  reader.ReadVarInt(); // Entry length
 
-
+          
             Span<byte> entryDataByte = stackalloc byte[8];
             Span<long>
                 entryDataLong = MemoryMarshal.Cast<byte, long>(entryDataByte);

@@ -1,11 +1,15 @@
 ﻿using System;
 using System.Buffers;
+using System.Buffers.Binary;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using BenchmarkDotNet.Attributes;
 using CommandLine;
 using DotNext;
@@ -55,12 +59,16 @@ public class ParseChunksBenchmarks
                 palette[i] = (uint)reader.ReadVarInt();
 
 
-            reader.ReadVarInt();
+            //dict[palette.Length] = dict.TryGetValue(palette.Length, out var gg) ? gg + 1 : 1;
+
+
+            int a = reader.ReadVarInt();
+
+
             Chunk chunk = new();
             if (WithSIMD && bitsPerEntry == 4 && Vector128.IsHardwareAccelerated)
             {
                 Vectorized(ref reader, chunk, palette);
-                
             }
             else
             {
@@ -104,6 +112,7 @@ public class ParseChunksBenchmarks
                             }
 
                             Block block = new((ushort)blockId);
+                            chunk.SetFast(blockX, blockY, blockZ, block);
                         }
                     }
                 }
@@ -117,55 +126,66 @@ public class ParseChunksBenchmarks
 
     private unsafe void Vectorized(ref MinecraftPrimitiveReader reader, Chunk chunk, scoped Span<uint> palette)
     {
-        const int BytesPerVector = 16; // 128 бит = 16 байт
-        const int BlocksPerVector = BytesPerVector * 2; // 2x 4-битных значения на байт
+        const int BytesPerVector = 16;
         const int VectorsPerChunk = 2048 / BytesPerVector;
 
+
         ReadOnlySpan<byte> bytes = reader.Read(2048);
-        ref byte source = ref MemoryMarshal.GetReference(bytes);
-        var mask = Vector128.Create((byte)0x0F);
-        // Используем указатели для максимальной скорости
-        fixed (byte* pSource = &source)
+
+        fixed (byte* pSource = &MemoryMarshal.GetReference(bytes))
         fixed (uint* pPalette = &MemoryMarshal.GetReference(palette))
         {
             byte* current = pSource;
-
-            // Обрабатываем векторы пакетами по 4 для лучшего использования кэша
             for (int i = 0; i < VectorsPerChunk; i += 4)
             {
-                // Загружаем 4 вектора одновременно
-                var vectors = (Vector128<byte>*)current;
-
-                // Первый вектор: извлекаем нижние 4 бита
-                var v1Lo = vectors[0] & mask;
-                var v1Hi = (vectors[0] >>> 4) & mask;
-
-                // Второй вектор
-                var v2Lo = vectors[1] & mask;
-                var v2Hi = (vectors[1] >>> 4) & mask;
-
-                // Третий вектор
-                var v3Lo = vectors[2] & mask;
-                var v3Hi = (vectors[2] >>> 4) & mask;
-
-                // Четвертый вектор
-                var v4Lo = vectors[3] & mask;
-                var v4Hi = (vectors[3] >>> 4) & mask;
-
-                // Обрабатываем 512 блоков за 4 итерации
-                ProcessVector(v1Lo, pPalette, chunk);
-                ProcessVector(v1Hi, pPalette, chunk);
-                ProcessVector(v2Lo, pPalette, chunk);
-                ProcessVector(v2Hi, pPalette, chunk);
-                ProcessVector(v3Lo, pPalette, chunk);
-                ProcessVector(v3Hi, pPalette, chunk);
-                ProcessVector(v4Lo, pPalette, chunk);
-                ProcessVector(v4Hi, pPalette, chunk);
-
-                current += BytesPerVector * 4;
+                LoadAndSplit(current, pPalette, chunk);
+                current += BytesPerVector;
+                LoadAndSplit(current, pPalette, chunk);
+                current += BytesPerVector;
+                LoadAndSplit(current, pPalette, chunk);
+                current += BytesPerVector;
+                LoadAndSplit(current, pPalette, chunk);
+                current += BytesPerVector;
             }
         }
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector128<byte> Low(Vector128<byte> vector)
+    {
+        return vector & Vector128.Create((byte)0x0F);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static Vector128<byte> High(Vector128<byte> vector)
+    {
+        return vector >>> 4;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static unsafe Vector128<byte> LoadBigEndian(byte* source)
+    {
+        var vec = Vector128.Load(source);
+        return Vector128.Shuffle(vec, Vector128.Create((byte)7, 6, 5, 4, 3, 2, 1, 0, 15, 14, 13, 12, 11, 10, 9, 8));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private unsafe void LoadAndSplit(byte* source, uint* palette, Chunk chunk)
+    {
+        var vec = LoadBigEndian(source);
+        //var (lo, hi) = SplitNibbles(vec);
+        ProcessVector(Low(vec), palette, chunk);
+        ProcessVector(High(vec), palette, chunk);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static (Vector128<byte> Lo, Vector128<byte> Hi) SplitNibbles(Vector128<byte> vector)
+    {
+        var lo = vector & Vector128.Create((byte)0x0F);
+        var hi = vector >>> 4;
+        return (lo, hi);
+    }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private unsafe void ProcessVector(in Vector128<byte> vector, uint* palette, Chunk chunk)
@@ -235,11 +255,10 @@ public class Chunk
     public const int SizeY = 16;
     public const int SizeZ = 16;
     private readonly Block[] blocks = new Block[SizeY * SizeZ * SizeX];
-    
+
 
     public void SetFast(int x, int y, int z, Block block)
     {
         blocks[(y << 8) | (z << 4) | x] = block;
-        
     }
 }
