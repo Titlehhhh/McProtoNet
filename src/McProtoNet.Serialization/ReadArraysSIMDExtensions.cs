@@ -54,6 +54,20 @@ public static class ReadArraysSIMDExtensions
         return result;
     }
 
+    public static void ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<int> destination)
+    {
+        var bytes = reader.Read(sizeof(int) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, int>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
+    }
+
 
     /// <summary>
     /// Reads an array of 64-bit integers in big-endian format
@@ -103,6 +117,20 @@ public static class ReadArraysSIMDExtensions
         return result;
     }
 
+    public static void ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<short> destination)
+    {
+        var bytes = reader.Read(sizeof(short) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, short>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
+    }
+
     /// <summary>
     /// Reads an array of unsigned 16-bit integers in big-endian format
     /// </summary>
@@ -118,6 +146,21 @@ public static class ReadArraysSIMDExtensions
         ushort[] result = new ushort[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
+    }
+
+    public static void ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader,
+        scoped Span<ushort> destination)
+    {
+        var bytes = reader.Read(sizeof(ushort) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, ushort>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
     }
 
     /// <summary>
@@ -137,6 +180,21 @@ public static class ReadArraysSIMDExtensions
         return result;
     }
 
+    public static void ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader,
+        scoped Span<uint> destination)
+    {
+        var bytes = reader.Read(sizeof(uint) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, uint>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
+    }
+
     /// <summary>
     /// Reads an array of unsigned 64-bit integers in big-endian format
     /// </summary>
@@ -152,6 +210,21 @@ public static class ReadArraysSIMDExtensions
         var result = new ulong[length];
         BinaryPrimitives.ReverseEndianness(ints, result);
         return result;
+    }
+
+    public static void ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader,
+        scoped Span<ulong> destination)
+    {
+        var bytes = reader.Read(sizeof(ulong) * destination.Length);
+        var ints = MemoryMarshal.Cast<byte, ulong>(bytes);
+        if (BitConverter.IsLittleEndian)
+        {
+            BinaryPrimitives.ReverseEndianness(ints, destination);
+        }
+        else
+        {
+            ints.CopyTo(destination);
+        }
     }
 
     /// <summary>
@@ -171,6 +244,21 @@ public static class ReadArraysSIMDExtensions
         return result;
     }
 
+    public static void ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<float> destination)
+    {
+        var bytes = reader.Read(sizeof(int) * destination.Length);
+        if (BitConverter.IsLittleEndian)
+        {
+            var ints = MemoryMarshal.Cast<byte, int>(bytes);
+            Span<int> destinationInts = MemoryMarshal.Cast<float, int>(destination);
+            BinaryPrimitives.ReverseEndianness(ints, destinationInts);
+        }
+        else
+        {
+            MemoryMarshal.Cast<byte, int>(bytes).CopyTo(MemoryMarshal.Cast<float, int>(destination));
+        }
+    }
+
     /// <summary>
     /// Reads an array of double-precision floating-point numbers in big-endian format
     /// </summary>
@@ -186,5 +274,21 @@ public static class ReadArraysSIMDExtensions
         var result = new double[length];
         BinaryPrimitives.ReverseEndianness(ints, MemoryMarshal.Cast<double, long>(result));
         return result;
+    }
+    
+    public static void ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<double> destination)
+    {
+        var bytes = reader.Read(sizeof(long) * destination.Length);
+        if (BitConverter.IsLittleEndian)
+        {
+            var ints = MemoryMarshal.Cast<byte, long>(bytes);
+            Span<long> destinationInts = MemoryMarshal.Cast<double, long>(destination);
+            BinaryPrimitives.ReverseEndianness(ints, destinationInts);
+        }
+        else
+        {
+            MemoryMarshal.Cast<byte, long>(bytes)
+                .CopyTo(MemoryMarshal.Cast<double, long>(destination));
+        }
     }
 }

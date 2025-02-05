@@ -16,7 +16,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
-                Sample = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
+                Sample = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
                 Type = reader.ReadVarInt();
             }
         }

@@ -1,12 +1,6 @@
-using System.Diagnostics;
-using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using McProtoNet.Abstractions;
-using McProtoNet.Client;
-using McProtoNet;
 using McProtoNet.Serialization;
-using static McProtoNet.Protocol.ReadDelegates;
 
 namespace McProtoNet.Protocol;
 
@@ -40,7 +34,7 @@ public static class ReadExtensions
                 outPacket = default;
                 return false;
             }
-            
+
             var serverPacket = PacketFactory.CreateClientboundPacket(protcolVersion, inPacket.Id, T.PacketId.State);
             MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(inPacket.Data);
             serverPacket.Deserialize(ref reader, protcolVersion);
@@ -54,7 +48,9 @@ public static class ReadExtensions
         }
     }
 
-    public static async IAsyncEnumerable<IServerPacket> OnAllPackets(this IMinecraftClient client, PacketState state,
+
+    public static async IAsyncEnumerable<IServerPacket> OnAllPackets(this IMinecraftClient client,
+        PacketState state,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         await foreach (var p in client.ReceivePackets(cancellationToken))
@@ -68,17 +64,7 @@ public static class ReadExtensions
             }
             catch (KeyNotFoundException)
             {
-                
             }
-            // catch (Exception e)
-            // {
-            //     if (p.Id == PacketIdHelper.GetPacketId(client.ProtocolVersion, ServerPlayPacket.MapChunk))
-            //     {
-            //         throw;
-            //         Console.WriteLine($"error: {e}");
-            //     }
-            //     packet = null;
-            // }
 
             if (packet is not null)
             {
@@ -118,58 +104,6 @@ public static class ReadExtensions
         if (len == 0)
             return [];
 
-        if (ReferenceEquals(readDelegate, ReadDelegates.Byte))
-        {
-            return (T[])(object)reader.ReadBuffer(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.SByte))
-        {
-            ReadOnlySpan<byte> buff = reader.Read(len);
-            ReadOnlySpan<sbyte> casted = MemoryMarshal.Cast<byte, sbyte>(buff);
-            return (T[])(object)casted.ToArray();
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.Int16))
-        {
-            return (T[])(object)reader.ReadArrayInt16BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.UInt16))
-        {
-            return (T[])(object)reader.ReadArrayUnsignedInt16BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.Int32))
-        {
-            return (T[])(object)reader.ReadArrayInt32BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.UInt32))
-        {
-            return (T[])(object)reader.ReadArrayUnsignedInt32BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.Int64))
-        {
-            return (T[])(object)reader.ReadArrayInt64BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.UInt64))
-        {
-            return (T[])(object)reader.ReadArrayUnsignedInt64BigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.Float))
-        {
-            return (T[])(object)reader.ReadArrayFloatBigEndian(len);
-        }
-
-        if (ReferenceEquals(readDelegate, ReadDelegates.Double))
-        {
-            return (T[])(object)reader.ReadArrayDoubleBigEndian(len);
-        }
-
         T[] arr = new T[len];
         for (int i = 0; i < len; i++)
         {
@@ -187,10 +121,30 @@ public static class ReadExtensions
         return ReadArray(ref reader, len, readDelegate);
     }
 
-    public static T? ReadOptional<T>(this MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)
+    public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
+        where TReader : IArrayReader<T>
+    {
+        int length = reader.ReadLength(lengthFormat);
+        return ReadArray<T, TReader>(ref reader, length);
+    }
+
+    public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, int length)
+        where TReader : IArrayReader<T>
+    {
+        T[] result = new T[length];
+        TReader.Read(ref reader, 0, result);
+        return result;
+    }
+
+    public static T? ReadOptional<T>(this ref MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)
     {
         if (reader.ReadBoolean())
             return readDelegate(ref reader);
         return default;
     }
+}
+
+public interface IArrayReader<T>
+{
+    static abstract void Read(ref MinecraftPrimitiveReader reader, int protocolVersion, Span<T> destination);
 }

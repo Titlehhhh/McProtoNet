@@ -2,9 +2,10 @@
 
 namespace McProtoNet.Protocol;
 
+public delegate T ReadDelegate<out T>(ref MinecraftPrimitiveReader reader);
 public static class ReadDelegates
 {
-    public delegate T ReadDelegate<out T>(ref MinecraftPrimitiveReader reader);
+    
 
     public static readonly ReadDelegate<byte> Byte = (ref MinecraftPrimitiveReader reader) => reader.ReadUnsignedByte();
     public static readonly ReadDelegate<sbyte> SByte = (ref MinecraftPrimitiveReader reader) => reader.ReadSignedByte();

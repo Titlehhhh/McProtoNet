@@ -15,7 +15,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
-                EntityIds = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.VarInt);
+                EntityIds = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
             }
         }
 
@@ -24,7 +24,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
         {
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
-                EntityIds = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.VarInt);
+                EntityIds = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
             }
         }
 

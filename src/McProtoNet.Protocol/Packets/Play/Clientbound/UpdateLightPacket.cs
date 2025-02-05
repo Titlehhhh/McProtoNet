@@ -63,12 +63,12 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 ChunkX = reader.ReadVarInt();
                 ChunkZ = reader.ReadVarInt();
                 TrustEdges = reader.ReadBoolean();
-                SkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                BlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                EmptySkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                EmptyBlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
-                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                SkyLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                BlockLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                EmptySkyLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                EmptyBlockLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray<byte, ByteArrayReader>(LengthFormat.VarInt));
+                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray<byte, ByteArrayReader>(LengthFormat.VarInt));
             }
 
             public bool TrustEdges { get; set; }
@@ -87,12 +87,12 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             {
                 ChunkX = reader.ReadVarInt();
                 ChunkZ = reader.ReadVarInt();
-                SkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                BlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                EmptySkyLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                EmptyBlockLightMask = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.Int64);
-                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
-                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray(LengthFormat.VarInt, ReadDelegates.Byte));
+                SkyLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                BlockLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                EmptySkyLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                EmptyBlockLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                SkyLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray<byte, ByteArrayReader>(LengthFormat.VarInt));
+                BlockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadArray<byte, ByteArrayReader>(LengthFormat.VarInt));
             }
 
             public long[] SkyLightMask { get; set; }

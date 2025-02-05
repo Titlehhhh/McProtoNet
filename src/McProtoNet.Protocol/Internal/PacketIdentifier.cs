@@ -2,6 +2,8 @@
 
 public sealed class PacketIdentifier
 {
+    public static readonly PacketIdentifier Undefined = new(-1, "Undefined", PacketState.Status, PacketDirection.Clientbound);
+    
     public readonly string Name;
     public readonly int Order;
     public readonly PacketState State;
