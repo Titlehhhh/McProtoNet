@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using McProtoNet.Abstractions;
 using McProtoNet.Serialization;
@@ -64,6 +65,20 @@ public static class ReadExtensions
             }
             catch (KeyNotFoundException)
             {
+                if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion,
+                        state,
+                        PacketDirection.Clientbound, out var identifier))
+                {
+                    Debug.WriteLine($"Not found packet: {identifier}");
+                }
+            }
+            catch (Exception ex)
+            {
+                if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion, state,
+                        PacketDirection.Clientbound, out var identifier))
+                {
+                    Debug.WriteLine($"Error in: {identifier}. Error: {ex}");
+                }
             }
 
             if (packet is not null)
