@@ -37,62 +37,94 @@ public static partial class PacketIdHelper
     private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundPlayPackets =
         CombineInverted(serverboundPlayPackets);
 
+    public static bool TryGetPacketIdentifier(int packetId, int protocolVersion, PacketState state,
+        PacketDirection direction, out PacketIdentifier identifier)
+    {
+        var dict = direction switch
+        {
+            PacketDirection.Clientbound when state == PacketState.Status => invertedClientboundStatusPackets,
+            PacketDirection.Clientbound when state == PacketState.Login => invertedClientboundLoginPackets,
+            PacketDirection.Clientbound when state == PacketState.Play => invertedClientboundPlayPackets,
+            PacketDirection.Clientbound when state == PacketState.Handshaking =>
+                invertedClientboundHandshakingPackets,
+            PacketDirection.Clientbound when state == PacketState.Configuration =>
+                invertedClientboundConfigurationPackets,
+
+            PacketDirection.Serverbound when state == PacketState.Status => invertedServerboundStatusPackets,
+            PacketDirection.Serverbound when state == PacketState.Login => invertedServerboundLoginPackets,
+            PacketDirection.Serverbound when state == PacketState.Play => invertedServerboundPlayPackets,
+            PacketDirection.Serverbound when state == PacketState.Handshaking =>
+                invertedServerboundHandshakingPackets,
+            PacketDirection.Serverbound when state == PacketState.Configuration =>
+                invertedServerboundConfigurationPackets,
+            _ => throw new InvalidOperationException("Unknown packet direction."),
+        };
+        long key = Combine(packetId, protocolVersion);
+        if (dict.TryGetValue(key, out var finded))
+        {
+            identifier = finded;
+            return true;
+        }
+
+        identifier = PacketIdentifier.Undefined;
+        return false;
+    }
 
     public static PacketIdentifier GetPacketIdentifier(int packetId, int protocolVersion, PacketState state,
         PacketDirection direction)
     {
-        long key = Combine(packetId, protocolVersion);
-
-        return direction switch
+        if (TryGetPacketIdentifier(packetId, protocolVersion, state, direction, out var identifier))
         {
-            PacketDirection.Clientbound when state == PacketState.Status => invertedClientboundStatusPackets[key],
-            PacketDirection.Clientbound when state == PacketState.Login => invertedClientboundLoginPackets[key],
-            PacketDirection.Clientbound when state == PacketState.Play => invertedClientboundPlayPackets[key],
-            PacketDirection.Clientbound when state == PacketState.Handshaking =>
-                invertedClientboundHandshakingPackets[key],
-            PacketDirection.Clientbound when state == PacketState.Configuration =>
-                invertedClientboundConfigurationPackets[key],
+            return identifier;
+        }
 
-            PacketDirection.Serverbound when state == PacketState.Status => invertedServerboundStatusPackets[key],
-            PacketDirection.Serverbound when state == PacketState.Login => invertedServerboundLoginPackets[key],
-            PacketDirection.Serverbound when state == PacketState.Play => invertedServerboundPlayPackets[key],
-            PacketDirection.Serverbound when state == PacketState.Handshaking =>
-                invertedServerboundHandshakingPackets[key],
-            PacketDirection.Serverbound when state == PacketState.Configuration =>
-                invertedServerboundConfigurationPackets[key],
-            _ => throw new InvalidOperationException("Unknown packet direction."),
-        };
+        throw new KeyNotFoundException("Packet identifier not found.");
     }
+
+    public static bool TryGetPacketId(PacketIdentifier identifier, int protocolVersion, out int packetId)
+    {
+        long key = Combine(identifier, protocolVersion);
+        var dict = identifier.Direction switch
+        {
+            PacketDirection.Clientbound when identifier.State == PacketState.Status => ClientboundStatusPackets,
+            PacketDirection.Clientbound when identifier.State == PacketState.Login => ClientboundLoginPackets,
+            PacketDirection.Clientbound when identifier.State == PacketState.Play => ClientboundPlayPackets,
+            PacketDirection.Clientbound when identifier.State == PacketState.Handshaking =>
+                ClientboundHandshakingPackets,
+            PacketDirection.Clientbound when identifier.State == PacketState.Configuration =>
+                ClientboundConfigurationPackets,
+            PacketDirection.Serverbound when identifier.State == PacketState.Status => ServerboundStatusPackets,
+            PacketDirection.Serverbound when identifier.State == PacketState.Login => ServerboundLoginPackets,
+
+            PacketDirection.Serverbound when identifier.State == PacketState.Play => ServerboundPlayPackets,
+            PacketDirection.Serverbound when identifier.State == PacketState.Handshaking =>
+                ServerboundHandshakingPackets,
+            PacketDirection.Serverbound when identifier.State == PacketState.Configuration =>
+                ServerboundConfigurationPackets,
+            _ => throw new InvalidOperationException("Unknown packet identifier."),
+        };
+
+        if (dict.TryGetValue(key, out var finded))
+        {
+            packetId = finded;
+            return true;
+        }
+
+        packetId = -1;
+        return false;
+    }
+
 
     public static int GetPacketId(int protocolVersion, PacketIdentifier packetIdentifier)
     {
-        long key = Combine(packetIdentifier, protocolVersion);
-
-        return packetIdentifier.Direction switch
+        if (TryGetPacketId(packetIdentifier, protocolVersion, out var packetId))
         {
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Status => ClientboundStatusPackets
-                [key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Login => ClientboundLoginPackets
-                [key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Play => ClientboundPlayPackets[key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Handshaking =>
-                ClientboundHandshakingPackets[key],
-            PacketDirection.Clientbound when packetIdentifier.State == PacketState.Configuration =>
-                ClientboundConfigurationPackets[key],
+            return packetId;
+        }
 
-
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Status => ServerboundStatusPackets
-                [key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Login => ServerboundLoginPackets
-                [key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Play => ServerboundPlayPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Handshaking =>
-                ServerboundHandshakingPackets[key],
-            PacketDirection.Serverbound when packetIdentifier.State == PacketState.Configuration =>
-                ServerboundConfigurationPackets[key],
-            _ => throw new InvalidOperationException("Unknown packet identifier."),
-        };
+        throw new KeyNotFoundException("Packet identifier not found.");
     }
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long Combine(PacketIdentifier identifier, int protocol)
