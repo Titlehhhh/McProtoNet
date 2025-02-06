@@ -5,5 +5,5 @@ namespace McProtoNet.Protocol;
 
 public interface IClientPacket : IPacket
 {
-     void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion);
+    void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion);
 }

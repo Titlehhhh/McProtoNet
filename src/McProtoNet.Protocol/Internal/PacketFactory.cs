@@ -6,8 +6,6 @@ namespace McProtoNet.Protocol;
 
 public static class PacketFactory
 {
-
-
     internal static void Init()
     {
     }
@@ -23,17 +21,16 @@ public static class PacketFactory
         {
             IServerPacket packet = func();
             PacketIdentifier identifier = packet.GetPacketId();
-            
-            
-            
-            foreach(var eversion in Enum.GetValues<MinecraftVersion>())
+
+
+            foreach (var eversion in Enum.GetValues<MinecraftVersion>())
             {
                 int version = (int)eversion;
                 if (packet.IsSupportedVersion(version))
                 {
                     //if(identifier is { State: PacketState.Configuration, Name: "Disconnect" })
                     //    Debugger.Break();
-                    
+
                     int packetId;
                     try
                     {
@@ -41,7 +38,8 @@ public static class PacketFactory
                     }
                     catch (KeyNotFoundException e)
                     {
-                        throw new InvalidOperationException($"Not find packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
+                        throw new InvalidOperationException(
+                            $"Not find packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
                     }
 
                     try
@@ -51,7 +49,6 @@ public static class PacketFactory
                         {
                             case PacketState.Login:
                                 login.Add(Combine(version, packetId), func);
-                                
                                 break;
                             case PacketState.Play:
                                 play.Add(Combine(version, packetId), func);
@@ -63,7 +60,8 @@ public static class PacketFactory
                     }
                     catch (ArgumentException e)
                     {
-                        throw new InvalidOperationException($"Fatal set packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
+                        throw new InvalidOperationException(
+                            $"Fatal set packet: {packet.GetType().FullName} Version: {version} State: {identifier.State} Direction: {identifier.Direction}");
                     }
                 }
             }

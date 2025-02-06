@@ -25,7 +25,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             BitMap = reader.ReadVarInt();
             ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
             BlockEntities = reader.ReadArray(LengthFormat.VarInt,
-                (ref MinecraftPrimitiveReader r1) => r1.ReadNbtTag(true));
+                (ref MinecraftPrimitiveReader r1) => r1.ReadNbtTag(protocolVersion));
         }
     }
 
@@ -43,7 +43,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             Z = reader.ReadSignedInt();
             GroundUp = reader.ReadBoolean();
             BitMap = reader.ReadVarInt();
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
             ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
             BlockEntities = reader.ReadArray(LengthFormat.VarInt,
                 (ref MinecraftPrimitiveReader r1) => r1.ReadNbtTag(true));
@@ -67,7 +67,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             Z = reader.ReadSignedInt();
             GroundUp = reader.ReadBoolean();
             BitMap = reader.ReadVarInt();
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
             if (GroundUp)
             {
                 Biomes = reader.ReadArrayInt32BigEndian(1024);
@@ -97,7 +97,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             GroundUp = reader.ReadBoolean();
             IgnoreOldData = reader.ReadBoolean();
             BitMap = reader.ReadVarInt();
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
             if (GroundUp)
             {
                 Biomes = reader.ReadArrayInt32BigEndian(1024);
@@ -125,7 +125,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             Z = reader.ReadSignedInt();
             GroundUp = reader.ReadBoolean();
             BitMap = reader.ReadVarInt();
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
             if (GroundUp)
             {
                 Biomes = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.VarInt);
@@ -152,7 +152,7 @@ public abstract partial class MapChunkPacket : IServerPacket
             X = reader.ReadSignedInt();
             Z = reader.ReadSignedInt();
             BitMap = reader.ReadArrayInt64BigEndian(reader.ReadVarInt());
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
 
             Biomes = reader.ReadArray(LengthFormat.VarInt, ReadDelegates.VarInt);
 
@@ -182,7 +182,7 @@ public abstract partial class MapChunkPacket : IServerPacket
         {
             X = reader.ReadSignedInt();
             Z = reader.ReadSignedInt();
-            Heightmaps = reader.ReadNbtTag(true);
+            Heightmaps = reader.ReadNbtTag(protocolVersion);
             ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
 
             BlockEntities = reader.ReadArray(LengthFormat.VarInt,

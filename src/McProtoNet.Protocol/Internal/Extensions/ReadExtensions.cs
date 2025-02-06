@@ -128,6 +128,7 @@ public static class ReadExtensions
         return ReadArray<T, TReader>(ref reader, length);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, int length)
         where TReader : IArrayReader<T>
     {

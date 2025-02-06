@@ -213,8 +213,6 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
         }
 
         public class ChatType
-
-
         {
             public string TranslationKey { get; set; }
             public int[] Parameters { get; set; }
