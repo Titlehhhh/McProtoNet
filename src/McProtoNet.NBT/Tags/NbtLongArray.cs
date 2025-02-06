@@ -41,6 +41,14 @@ public sealed class NbtLongArray : NbtTag
         _longs = Array.Empty<long>();
     }
 
+    internal static NbtLongArray CreateFromArray(long[] value, string? tagName)
+    {
+        NbtLongArray result = new();
+        result.Name = tagName;
+        result._longs = value;
+        return result;
+    }
+    
     /// <summary>
     ///     Creates an NbtLongArray tag with the given name, containing the given array of longs.
     /// </summary>

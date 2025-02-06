@@ -29,6 +29,7 @@ public ref struct NbtSpanReader
         {
             return null;
         }
+
         string? rootName = readRootName ? ReadString() : null;
 
         if (TypeIsPrimitive(type))
@@ -64,13 +65,14 @@ public ref struct NbtSpanReader
                 var tag = ReadRecursive(listType, null);
                 list.Add(tag);
             }
+
             root = list;
         }
         else // Compound
         {
             var compound = new NbtCompound { Name = rootName };
             stack.Push(compound);
-                
+
             while (true)
             {
                 var nextType = ReadTagType();
@@ -87,6 +89,7 @@ public ref struct NbtSpanReader
                     compound.Add(tag);
                 }
             }
+
             root = compound;
         }
 
@@ -366,78 +369,85 @@ public ref struct NbtSpanReader
         {
             return new NbtByte(name, _reader.Read());
         }
-        else if (type == NbtTagType.Short)
+
+        if (type == NbtTagType.Short)
         {
             return new NbtShort(name, _reader.ReadBigEndian<short>());
         }
-        else if (type == NbtTagType.Int)
+
+        if (type == NbtTagType.Int)
         {
             return new NbtInt(name, _reader.ReadBigEndian<int>());
         }
-        else if (type == NbtTagType.Long)
+
+        if (type == NbtTagType.Long)
         {
             return new NbtLong(name, _reader.ReadBigEndian<long>());
         }
-        else if (type == NbtTagType.Float)
+
+        if (type == NbtTagType.Float)
         {
             return new NbtFloat(name, ReadFloat());
         }
-        else if (type == NbtTagType.Double)
+
+        if (type == NbtTagType.Double)
         {
             return new NbtDouble(name, ReadDouble());
         }
-        else if (type == NbtTagType.ByteArray)
+
+        if (type == NbtTagType.ByteArray)
         {
             int length = _reader.ReadBigEndian<int>();
             if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
-            return new NbtByteArray(name, _reader.Read(length).ToArray());
+            byte[] arr = _reader.Read(length).ToArray();
+            return NbtByteArray.CreateFromArray(arr, name);
         }
-        else if (type == NbtTagType.String)
+
+        if (type == NbtTagType.String)
         {
             return new NbtString(name, ReadString());
         }
 
-        else if (type == NbtTagType.IntArray)
+        if (type == NbtTagType.IntArray)
         {
             int length = _reader.ReadBigEndian<int>();
             if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
+            int[] result = new int[length];
+
 
             ReadOnlySpan<byte> bytes = _reader.Read(sizeof(int) * length);
             ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-            NbtIntArray nbtIntArray = null;
+
             if (BitConverter.IsLittleEndian)
             {
-                int[] result = new int[length];
                 BinaryPrimitives.ReverseEndianness(ints, result);
-                nbtIntArray = new NbtIntArray(name, result);
             }
             else
             {
-                nbtIntArray = new NbtIntArray(name, ints.ToArray());
+                ints.CopyTo(result);
             }
 
-            return nbtIntArray;
+            return NbtIntArray.CreateFromArray(result, name);
         }
-        else if (type == NbtTagType.LongArray)
+
+        if (type == NbtTagType.LongArray)
         {
             int length = _reader.ReadBigEndian<int>();
             if (length < 0) throw new NbtFormatException("Negative array length given: " + length);
 
             ReadOnlySpan<byte> bytes = _reader.Read(sizeof(long) * length);
             ReadOnlySpan<long> longs = MemoryMarshal.Cast<byte, long>(bytes);
-            NbtLongArray nbtIntArray = null;
+            long[] result = new long[length];
             if (BitConverter.IsLittleEndian)
             {
-                long[] result = new long[length];
                 BinaryPrimitives.ReverseEndianness(longs, result);
-                nbtIntArray = new NbtLongArray(name, result);
             }
             else
             {
-                nbtIntArray = new NbtLongArray(name, longs.ToArray());
+                longs.CopyTo(result);
             }
-
-            return nbtIntArray;
+            
+            return NbtLongArray.CreateFromArray(result, name);
         }
 
         throw new InvalidOperationException($"Unknown type: {type}({(int)type})");

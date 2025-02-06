@@ -31,6 +31,14 @@ public sealed class NbtIntArray : NbtTag
     {
     }
 
+    internal static NbtIntArray CreateFromArray(int[] value, string? tagName)
+    {
+        NbtIntArray result = new NbtIntArray();
+        result.Name = tagName;
+        result._ints = value;
+        return result;
+    } 
+
     /// <summary>
     ///     Creates an NbtIntArray tag with the given name, containing an empty array of ints.
     /// </summary>
