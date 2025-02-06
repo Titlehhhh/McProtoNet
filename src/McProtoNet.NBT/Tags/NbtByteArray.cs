@@ -41,6 +41,14 @@ public sealed class NbtByteArray : NbtTag
         _bytes = Array.Empty<byte>();
     }
 
+    internal static NbtByteArray CreateFromArray(byte[] value, string? tagName) 
+    {
+        NbtByteArray result = new NbtByteArray();
+        result._bytes = value;
+        result.Name = tagName;
+        return result;
+    }
+    
     /// <summary>
     ///     Creates an NbtByte tag with the given name, containing the given array of bytes.
     /// </summary>
