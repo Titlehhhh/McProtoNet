@@ -201,4 +201,3 @@ public abstract partial class MapPacket : IServerPacket
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 }
-

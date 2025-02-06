@@ -8,8 +8,35 @@ namespace McProtoNet.Serialization;
 /// </summary>
 public static class Extensions
 {
+
+
     private static int SEGMENT_BITS = 0x7F;
     private static int CONTINUE_BIT = 0x80;
+
+    /// <summary>
+    /// Reads a VarInt from a span of bytes
+    /// </summary>
+    /// <param name="data">The span of bytes to read from</param>
+    /// <returns>The read VarInt</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ReadVarInt(this Span<byte> data)
+    {
+        var numRead = 0;
+        var result = 0;
+        byte read;
+
+        do
+        {
+            read = data[numRead];
+            var value = read & 127;
+            result |= value << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) throw new ArithmeticException("VarInt too long");
+        } while ((read & 0b10000000) != 0);
+
+        return result;
+    }
 
     /// <summary>
     /// Writes a VarInt to a buffer writer

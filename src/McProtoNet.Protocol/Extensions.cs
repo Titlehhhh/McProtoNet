@@ -88,7 +88,6 @@ public static class Extensions
         throw new InvalidOperationException("Protocol version not supported");
     }
 
-    // TODO ProtocolVersion
     public static void WritePosition(this scoped ref MinecraftPrimitiveWriter writer, Position position,
         int protocolVersion)
     {
