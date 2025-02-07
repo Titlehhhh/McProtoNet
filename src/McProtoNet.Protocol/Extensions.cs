@@ -48,7 +48,57 @@ public static class Extensions
         return new Position(x, z, y);
     }
 
+    public static ChunkCoordinate ReadChunkCoordinate(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        ulong bitfield = reader.ReadUnsignedLong();
+        int x = (int)((bitfield >> 42) & 0x3FFFFF);
+        int z = (int)((bitfield >> 20) & 0x3FFFFF);
+        int y = (int)(bitfield & 0xFFFFF);
+        // Sign extend if necessary
+        if ((x & 0x200000) != 0) x |= ~0x3FFFFF;
+        if ((z & 0x200000) != 0) z |= ~0x3FFFFF;
+        if ((y & 0x80000) != 0) y |= ~0xFFFFF;
+
+        return new ChunkCoordinate(x, z, y);
+    }
+
+    public static DeathLocation ReadDeathLocation(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        return new DeathLocation(reader.ReadString(), reader.ReadPosition(protocolVersion));
+    }
+
+    public static SpawnInfo ReadSpawnInfo(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        if (protocolVersion < 766)
+        {
+            throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");
+        }
+
+
+        var dimension = reader.ReadVarInt();
+        var name = reader.ReadString();
+        var hashedSeed = reader.ReadSignedLong();
+        var gamemode = reader.ReadUnsignedByte();
+        var previousGamemode = reader.ReadUnsignedByte();
+        var isDebug = reader.ReadBoolean();
+        var isFlat = reader.ReadBoolean();
+        var death = reader.ReadDeathLocation(protocolVersion);
+        var portalCooldown = reader.ReadVarInt();
+        int? seaLevel = null;
+
+        if (protocolVersion >= 768)
+        {
+            seaLevel = reader.ReadVarInt();
+        }
+
+        return new SpawnInfo(dimension, name, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death,
+            portalCooldown, seaLevel);
+    }
+
+
     public static ChunkBlockEntity ReadChunkBlockEntity(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+
+
     {
         if (protocolVersion is < 757 or > 769)
             throw new InvalidOperationException($"Protocol {protocolVersion} not supported.");

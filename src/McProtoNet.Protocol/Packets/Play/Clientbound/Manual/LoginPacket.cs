@@ -285,13 +285,10 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 IsFlat = reader.ReadBoolean();
                 if (reader.ReadBoolean())
                 {
-                    Death = new DeathLocation
-                    {
-                        DimensionName = reader.ReadString(),
-                        Location = reader.ReadPosition(protocolVersion)
-                    };
+                    Death = reader.ReadDeathLocation(protocolVersion);
                 }
             }
+
         }
 
         [PacketSubInfo(763, 763)]
@@ -338,11 +335,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 IsFlat = reader.ReadBoolean();
                 if (reader.ReadBoolean())
                 {
-                    Death = new DeathLocation
-                    {
-                        DimensionName = reader.ReadString(),
-                        Location = reader.ReadPosition(protocolVersion)
-                    };
+                    Death = reader.ReadDeathLocation(protocolVersion);
                 }
 
                 PortalCooldown = reader.ReadVarInt();
@@ -391,11 +384,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 IsFlat = reader.ReadBoolean();
                 if (reader.ReadBoolean())
                 {
-                    Death = new DeathLocation
-                    {
-                        DimensionName = reader.ReadString(),
-                        Location = reader.ReadPosition(protocolVersion)
-                    };
+                    Death = reader.ReadDeathLocation(protocolVersion);
                 }
 
                 PortalCooldown = reader.ReadVarInt();
@@ -429,8 +418,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 EnableRespawnScreen = reader.ReadBoolean();
 
                 DoLimitedCrafting = reader.ReadBoolean();
-                WorldState = new SpawnInfo();
-                WorldState.Deserialize(ref reader, protocolVersion);
+                WorldState = reader.ReadSpawnInfo(protocolVersion);
                 EnforcesSecureChat = reader.ReadBoolean();
             }
         }
@@ -438,51 +426,5 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
         public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
 
-    public sealed class DeathLocation
-    {
-        public string DimensionName { get; set; }
-        public Position Location { get; set; }
-    }
-
-    public sealed class SpawnInfo
-    {
-        public int Dimension { get; set; }
-        public string Name { get; set; }
-        public long HashedSeed { get; set; }
-        public byte Gamemode { get; set; }
-        public byte PreviousGamemode { get; set; }
-        public bool IsDebug { get; set; }
-        public bool IsFlat { get; set; }
-        public DeathLocation Death { get; set; }
-        public int PortalCooldown { get; set; }
-        public int? SeaLevel { get; set; }
-
-        public void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        {
-            Dimension = reader.ReadVarInt();
-            Name = reader.ReadString();
-            HashedSeed = reader.ReadSignedLong();
-            Gamemode = reader.ReadUnsignedByte();
-            PreviousGamemode = reader.ReadUnsignedByte();
-            IsDebug = reader.ReadBoolean();
-            IsFlat = reader.ReadBoolean();
-
-
-            if (reader.ReadBoolean())
-            {
-                Death = new DeathLocation
-                {
-                    DimensionName = reader.ReadString(),
-                    Location = reader.ReadPosition(protocolVersion)
-                };
-            }
-
-            PortalCooldown = reader.ReadVarInt();
-
-            if (protocolVersion >= 768)
-            {
-                SeaLevel = reader.ReadVarInt();
-            }
-        }
-    }
+    
 }
