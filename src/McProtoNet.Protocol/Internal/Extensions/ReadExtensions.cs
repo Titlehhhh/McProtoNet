@@ -65,11 +65,11 @@ public static class ReadExtensions
             }
             catch (KeyNotFoundException)
             {
-                if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion,
-                        state,
-                        PacketDirection.Clientbound, out var identifier))
+                //if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion,
+                //        state,
+                //        PacketDirection.Clientbound, out var identifier))
                 {
-                    Debug.WriteLine($"Not found packet: {identifier}");
+                    //Debug.WriteLine($"Not found packet");
                 }
             }
             catch (Exception ex)

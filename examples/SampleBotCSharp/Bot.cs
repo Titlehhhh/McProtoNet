@@ -71,6 +71,14 @@ public class Bot
             else if (packet is CPlay.MapChunkPacket mapChunkPacket)
             {
             }
+            else if (packet is CPlay.PlayerChatPacket chatPacket)
+            {
+                Console.WriteLine("Chat");
+            }
+            else if (packet is CPlay.LoginPacket login)
+            {
+                
+            }
         }
         catch (Exception e)
         {
@@ -78,5 +86,4 @@ public class Bot
             throw;
         }
     }
-
 }

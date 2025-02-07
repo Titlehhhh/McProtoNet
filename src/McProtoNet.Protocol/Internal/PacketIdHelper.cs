@@ -37,6 +37,7 @@ public static partial class PacketIdHelper
     private static readonly FrozenDictionary<long, PacketIdentifier> invertedServerboundPlayPackets =
         CombineInverted(serverboundPlayPackets);
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryGetPacketIdentifier(int packetId, int protocolVersion, PacketState state,
         PacketDirection direction, out PacketIdentifier identifier)
     {
