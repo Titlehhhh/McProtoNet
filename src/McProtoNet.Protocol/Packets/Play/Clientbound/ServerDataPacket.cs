@@ -61,7 +61,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadString();
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
                 EnforcesSecureChat = reader.ReadBoolean();
             }
 
@@ -76,7 +77,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadNbtTag(false);
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
                 EnforcesSecureChat = reader.ReadBoolean();
             }
 
@@ -91,7 +93,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 Motd = reader.ReadNbtTag(false);
-                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadBuffer(LengthFormat.VarInt));
+                IconBytes = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) =>
+                    r_0.ReadBuffer(LengthFormat.VarInt));
             }
 
             public NbtTag Motd { get; set; }

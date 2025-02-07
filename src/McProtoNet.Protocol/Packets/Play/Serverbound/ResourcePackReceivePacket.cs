@@ -32,7 +32,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Uuid, Result);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid uuid, int result)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid uuid,
+                int result)
             {
                 writer.WriteUUID(uuid);
                 writer.WriteVarInt(result);

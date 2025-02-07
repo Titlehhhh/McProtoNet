@@ -7,7 +7,7 @@ public partial class PongPacket : IClientPacket
 {
     public int Id { get; set; }
 
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : PongPacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -19,12 +19,8 @@ public partial class PongPacket : IClientPacket
         {
             writer.WriteSignedInt(id);
         }
-
-        
     }
 
-
-    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -33,5 +29,4 @@ public partial class PongPacket : IClientPacket
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.Pong), protocolVersion);
     }
-
 }

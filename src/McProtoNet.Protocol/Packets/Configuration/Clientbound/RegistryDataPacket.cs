@@ -8,7 +8,7 @@ public abstract partial class RegistryDataPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    [PacketSubInfo(764,765)]
+    [PacketSubInfo(764, 765)]
     public sealed partial class V764_765 : RegistryDataPacket
     {
         public NbtTag Codec { get; set; }
@@ -16,12 +16,10 @@ public abstract partial class RegistryDataPacket : IServerPacket
         public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         {
             Codec = reader.ReadNbtTag(readRootTag: false);
-            }
-
-        
+        }
     }
 
-    [PacketSubInfo(766,769)]
+    [PacketSubInfo(766, 769)]
     public sealed partial class V766_769 : RegistryDataPacket
     {
         public string Id { get; set; }
@@ -51,5 +49,4 @@ public abstract partial class RegistryDataPacket : IServerPacket
             public NbtTag? Value { get; set; }
         }
     }
-
 }

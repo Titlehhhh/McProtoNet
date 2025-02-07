@@ -23,7 +23,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY, CursorZ);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, int direction, int hand, float cursorX, float cursorY, float cursorZ)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, int direction, int hand, float cursorX, float cursorY, float cursorZ)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteVarInt(direction);
@@ -39,10 +40,12 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, InsideBlock);
+                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
+                    InsideBlock);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock)
             {
                 writer.WriteVarInt(hand);
                 writer.WritePosition(location, protocolVersion);
@@ -61,10 +64,13 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, InsideBlock, Sequence);
+                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
+                    InsideBlock, Sequence);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock, int sequence)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock,
+                int sequence)
             {
                 writer.WriteVarInt(hand);
                 writer.WritePosition(location, protocolVersion);
@@ -85,10 +91,13 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, InsideBlock, WorldBorderHit, Sequence);
+                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
+                    InsideBlock, WorldBorderHit, Sequence);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock, bool worldBorderHit, int sequence)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock,
+                bool worldBorderHit, int sequence)
             {
                 writer.WriteVarInt(hand);
                 writer.WritePosition(location, protocolVersion);
@@ -109,13 +118,17 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V340_404.IsSupportedVersionStatic(protocolVersion))
-                V340_404.SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY, CursorZ);
+                V340_404.SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY,
+                    CursorZ);
             else if (V477_758.IsSupportedVersionStatic(protocolVersion))
-                V477_758.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false);
+                V477_758.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
+                    CursorZ, false);
             else if (V759_767.IsSupportedVersionStatic(protocolVersion))
-                V759_767.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false, 0);
+                V759_767.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
+                    CursorZ, false, 0);
             else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ, false, false, 0);
+                V768_769.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
+                    CursorZ, false, false, 0);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPlayPacket.BlockPlace), protocolVersion);
         }

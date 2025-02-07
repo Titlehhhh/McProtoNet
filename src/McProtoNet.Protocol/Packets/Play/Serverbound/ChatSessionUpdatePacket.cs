@@ -21,7 +21,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
             {
                 writer.WriteUUID(sessionUUID);
                 writer.WriteSignedLong(expireTime);
@@ -40,7 +41,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
             {
                 writer.WriteUUID(sessionUUID);
                 writer.WriteSignedLong(expireTime);

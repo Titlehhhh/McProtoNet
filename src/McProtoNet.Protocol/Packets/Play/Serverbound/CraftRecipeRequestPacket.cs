@@ -18,7 +18,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte windowId, int recipe, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte windowId, int recipe, bool makeAll)
             {
                 writer.WriteSignedByte(windowId);
                 writer.WriteVarInt(recipe);
@@ -37,7 +38,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, sbyte windowId, string recipe, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                sbyte windowId, string recipe, bool makeAll)
             {
                 writer.WriteSignedByte(windowId);
                 writer.WriteString(recipe);
@@ -56,7 +58,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, WindowId, RecipeId, MakeAll);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int windowId, int recipeId, bool makeAll)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                int windowId, int recipeId, bool makeAll)
             {
                 writer.WriteVarInt(windowId);
                 writer.WriteVarInt(recipeId);

@@ -19,7 +19,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, LeftPaddle, RightPaddle);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, bool leftPaddle, bool rightPaddle)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                bool leftPaddle, bool rightPaddle)
             {
                 writer.WriteBoolean(leftPaddle);
                 writer.WriteBoolean(rightPaddle);

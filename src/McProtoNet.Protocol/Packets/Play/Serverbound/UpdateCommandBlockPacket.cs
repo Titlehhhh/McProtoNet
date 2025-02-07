@@ -21,7 +21,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, Command, Mode, Flags);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, string command, int mode, byte flags)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, string command, int mode, byte flags)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteString(command);

@@ -5,9 +5,9 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [PacketInfo("KeepAlive", PacketState.Configuration, PacketDirection.Serverbound)]
 public partial class KeepAlivePacket : IClientPacket
 {
-    public long KeepAliveId { get; set; }   
+    public long KeepAliveId { get; set; }
 
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : KeepAlivePacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -20,10 +20,8 @@ public partial class KeepAlivePacket : IClientPacket
         {
             writer.WriteSignedLong(keepAliveId);
         }
-
     }
 
-    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -32,5 +30,4 @@ public partial class KeepAlivePacket : IClientPacket
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.KeepAlive), protocolVersion);
     }
-
 }

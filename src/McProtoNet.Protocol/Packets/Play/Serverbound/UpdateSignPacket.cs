@@ -22,7 +22,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, Text1, Text2, Text3, Text4);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, string text1, string text2, string text3, string text4)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, string text1, string text2, string text3, string text4)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteString(text1);
@@ -40,7 +41,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, IsFrontText, Text1, Text2, Text3, Text4);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, bool isFrontText, string text1, string text2, string text3, string text4)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, bool isFrontText, string text1, string text2, string text3, string text4)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteBoolean(isFrontText);

@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("RemoveResourcePack", PacketState.Configuration, PacketDirection.Clientbound)]
 public abstract partial class RemoveResourcePackPacket : IServerPacket
 {
-    [PacketSubInfo(765,767)]
+    [PacketSubInfo(765, 767)]
     public sealed partial class V765_767 : RemoveResourcePackPacket
     {
         public Guid? UUID { get; set; }

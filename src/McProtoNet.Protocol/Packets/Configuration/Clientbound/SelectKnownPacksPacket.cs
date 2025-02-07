@@ -5,7 +5,6 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("SelectKnownPacks", PacketState.Configuration, PacketDirection.Clientbound)]
 public abstract partial class SelectKnownPacksPacket : IServerPacket
 {
-
     [PacketSubInfo(766, 769)]
     public sealed partial class V766_769 : SelectKnownPacksPacket
     {
@@ -23,6 +22,7 @@ public abstract partial class SelectKnownPacksPacket : IServerPacket
                 pack.Version = reader.ReadString();
                 packs[i] = pack;
             }
+
             Packs = packs;
         }
     }
@@ -36,5 +36,4 @@ public abstract partial class SelectKnownPacksPacket : IServerPacket
     }
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-
 }

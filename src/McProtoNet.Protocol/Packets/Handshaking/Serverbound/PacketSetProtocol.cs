@@ -3,7 +3,6 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
-
 public sealed class SetProtocolPacket : IClientPacket
 {
     public int ProtocolVersion { get; set; }

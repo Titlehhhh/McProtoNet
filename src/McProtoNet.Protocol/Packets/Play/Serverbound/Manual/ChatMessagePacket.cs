@@ -115,6 +115,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                     {
                         throw new ArgumentException("Signature length is not 256");
                     }
+
                     writer.WriteBuffer(signature);
                 }
                 else
@@ -145,7 +146,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
             else if (V761_769.IsSupportedVersionStatic(protocolVersion))
 
                 V761_769.SerializeInternal(ref writer, protocolVersion, Message, Timestamp, Salt, null, 0,
-                    [0, 0, 0]); 
+                    [0, 0, 0]);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ChatMessage), protocolVersion);
         }

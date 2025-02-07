@@ -7,7 +7,7 @@ public abstract partial class FeatureFlagsPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : FeatureFlagsPacket
     {
         public string[] Features { get; set; }
@@ -21,7 +21,5 @@ public abstract partial class FeatureFlagsPacket : IServerPacket
                 Features[i] = reader.ReadString();
             }
         }
-
     }
-
 }

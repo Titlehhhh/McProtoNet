@@ -7,7 +7,7 @@ public abstract partial class PingPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : PingPacket
     {
         public int Id { get; set; }
@@ -16,8 +16,5 @@ public abstract partial class PingPacket : IServerPacket
         {
             Id = reader.ReadSignedInt();
         }
-
-        
     }
-
 }

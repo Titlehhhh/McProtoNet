@@ -20,7 +20,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, Levels, KeepJigsaws);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, int levels, bool keepJigsaws)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, int levels, bool keepJigsaws)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteVarInt(levels);

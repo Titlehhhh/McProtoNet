@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [PacketInfo("LoginAcknowledged", PacketState.Login, PacketDirection.Serverbound)]
 public partial class LoginAcknowledgedPacket : IClientPacket
 {
-    [PacketSubInfo(340,769)]
+    [PacketSubInfo(340, 769)]
     public sealed partial class V340_769 : LoginAcknowledgedPacket
     {
     }

@@ -7,9 +7,9 @@ public partial class ResourcePackReceivePacket : IClientPacket
 {
     public int Result { get; set; }
 
-    public Guid Uuid { get; set; }  
+    public Guid Uuid { get; set; }
 
-    [PacketSubInfo(764,764)]
+    [PacketSubInfo(764, 764)]
     public sealed partial class V764 : ResourcePackReceivePacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -21,11 +21,10 @@ public partial class ResourcePackReceivePacket : IClientPacket
         {
             writer.WriteVarInt(result);
         }
-
     }
 
 
-    [PacketSubInfo(765,769)]
+    [PacketSubInfo(765, 769)]
     public sealed partial class V765_769 : ResourcePackReceivePacket
     {
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -39,7 +38,6 @@ public partial class ResourcePackReceivePacket : IClientPacket
             writer.WriteUUID(uuid);
             writer.WriteVarInt(result);
         }
-
     }
 
 
@@ -53,5 +51,4 @@ public partial class ResourcePackReceivePacket : IClientPacket
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.ResourcePackReceive),
                 protocolVersion);
     }
-
 }

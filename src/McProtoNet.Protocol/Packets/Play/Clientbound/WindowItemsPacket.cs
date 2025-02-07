@@ -16,7 +16,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
             {
                 WindowId = reader.ReadUnsignedByte();
-                Items = reader.ReadArray(LengthFormat.Short, (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
+                Items = reader.ReadArray(LengthFormat.Short,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
             }
 
             public byte WindowId { get; set; }
@@ -29,7 +30,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             {
                 WindowId = reader.ReadUnsignedByte();
                 StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
+                Items = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
                 CarriedItem = reader.ReadSlot(protocolVersion);
             }
 
@@ -45,7 +47,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             {
                 WindowId = reader.ReadUnsignedByte();
                 StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
+                Items = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
                 CarriedItem = reader.ReadSlot(protocolVersion);
             }
 
@@ -61,7 +64,8 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
             {
                 WindowId = reader.ReadVarInt();
                 StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
+                Items = reader.ReadArray(LengthFormat.VarInt,
+                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
                 CarriedItem = reader.ReadSlot(protocolVersion);
             }
 

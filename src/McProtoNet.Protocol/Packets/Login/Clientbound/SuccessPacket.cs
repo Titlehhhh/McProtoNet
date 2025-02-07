@@ -9,7 +9,7 @@ public abstract partial class SuccessPacket : IServerPacket
 
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-    [PacketSubInfo(340,578)]
+    [PacketSubInfo(340, 578)]
     public sealed partial class V340_578 : SuccessPacket
     {
         public string Uuid { get; set; }
@@ -19,9 +19,9 @@ public abstract partial class SuccessPacket : IServerPacket
             Uuid = reader.ReadString();
             Username = reader.ReadString();
         }
-
     }
-    [PacketSubInfo(709,758)]
+
+    [PacketSubInfo(709, 758)]
     public sealed partial class V709_758 : SuccessPacket
     {
         public Guid Uuid { get; set; }
@@ -31,10 +31,9 @@ public abstract partial class SuccessPacket : IServerPacket
             Uuid = reader.ReadUUID();
             Username = reader.ReadString();
         }
-
-        
     }
-    [PacketSubInfo(759,765)]
+
+    [PacketSubInfo(759, 765)]
     public sealed partial class V759_765 : SuccessPacket
     {
         public Property[] Properties { get; set; }
@@ -56,9 +55,9 @@ public abstract partial class SuccessPacket : IServerPacket
                 };
             }
         }
-
     }
-    [PacketSubInfo(766,767)]
+
+    [PacketSubInfo(766, 767)]
     public sealed partial class V766_767 : SuccessPacket
     {
         public Property[] Properties { get; set; }
@@ -83,11 +82,9 @@ public abstract partial class SuccessPacket : IServerPacket
 
             StrictErrorHandling = reader.ReadBoolean();
         }
-
-       
     }
 
-    [PacketSubInfo(768,769)]
+    [PacketSubInfo(768, 769)]
     public sealed partial class V768_769 : SuccessPacket
     {
         public Guid Uuid { get; set; }
@@ -109,7 +106,6 @@ public abstract partial class SuccessPacket : IServerPacket
                 };
             }
         }
-
     }
 
     public class Property
@@ -118,5 +114,4 @@ public abstract partial class SuccessPacket : IServerPacket
         public string? Value { get; set; }
         public string? Signature { get; set; }
     }
-
 }

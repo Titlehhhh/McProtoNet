@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [PacketInfo("CustomPayload", PacketState.Configuration, PacketDirection.Serverbound)]
 public partial class CustomPayloadPacket : IClientPacket
 {
-    [PacketSubInfo(764,769)]
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : CustomPayloadPacket
     {
         public string Channel { get; set; }
@@ -24,10 +24,8 @@ public partial class CustomPayloadPacket : IClientPacket
         {
             SerializeInternal(ref writer, protocolVersion, Channel, Data);
         }
-
     }
 
-    
 
     public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -36,5 +34,4 @@ public partial class CustomPayloadPacket : IClientPacket
         else
             throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion);
     }
-
 }

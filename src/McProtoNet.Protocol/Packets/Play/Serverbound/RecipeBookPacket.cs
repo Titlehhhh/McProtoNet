@@ -20,7 +20,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, BookId, BookOpen, FilterActive);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int bookId, bool bookOpen, bool filterActive)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int bookId,
+                bool bookOpen, bool filterActive)
             {
                 writer.WriteVarInt(bookId);
                 writer.WriteBoolean(bookOpen);

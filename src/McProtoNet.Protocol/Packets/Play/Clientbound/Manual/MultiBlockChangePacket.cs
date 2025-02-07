@@ -29,7 +29,7 @@ public abstract partial class MultiBlockChangePacket : IServerPacket
                 Records[i] = new Record(horizontalPos, y, blockId);
             }
         }
-        
+
         public readonly struct Record(byte horizontalPos, byte y, int blockId)
         {
             public readonly byte HorizontalPos = horizontalPos;

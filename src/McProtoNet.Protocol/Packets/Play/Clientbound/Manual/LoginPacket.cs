@@ -288,7 +288,6 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                     Death = reader.ReadDeathLocation(protocolVersion);
                 }
             }
-
         }
 
         [PacketSubInfo(763, 763)]
@@ -425,6 +424,4 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
 
         public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
-
-    
 }

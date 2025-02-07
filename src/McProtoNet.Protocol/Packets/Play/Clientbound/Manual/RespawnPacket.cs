@@ -196,6 +196,7 @@ public abstract partial class RespawnPacket : IServerPacket
             {
                 Death = reader.ReadDeathLocation(protocolVersion);
             }
+
             PortalCooldown = reader.ReadVarInt();
         }
     }
@@ -227,6 +228,7 @@ public abstract partial class RespawnPacket : IServerPacket
             {
                 Death = reader.ReadDeathLocation(protocolVersion);
             }
+
             PortalCooldown = reader.ReadVarInt();
             CopyMetadata = reader.ReadBoolean();
         }

@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>13</LangVersion>
-        
+
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
@@ -26,9 +26,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+        <ProjectReference Include="..\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
-
 
 
 </Project>

@@ -7,9 +7,8 @@ public abstract partial class KeepAlivePacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
-  
-    
-    [PacketSubInfo(764,769)]
+
+    [PacketSubInfo(764, 769)]
     public sealed partial class V764_769 : KeepAlivePacket
     {
         public long KeepAliveId { get; set; }
@@ -18,7 +17,5 @@ public abstract partial class KeepAlivePacket : IServerPacket
         {
             KeepAliveId = reader.ReadSignedLong();
         }
-
     }
-
 }

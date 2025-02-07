@@ -7,8 +7,8 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 public abstract partial class DisconnectPacket : IServerPacket
 {
     public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-    
-    [PacketSubInfo(764,764)]
+
+    [PacketSubInfo(764, 764)]
     public sealed partial class V764 : DisconnectPacket
     {
         public string Reason { get; set; }
@@ -17,11 +17,9 @@ public abstract partial class DisconnectPacket : IServerPacket
         {
             Reason = reader.ReadString();
         }
-
-        
     }
 
-    [PacketSubInfo(765,769)]
+    [PacketSubInfo(765, 769)]
     public sealed partial class V765_769 : DisconnectPacket
     {
         public NbtTag Reason { get; set; }
@@ -30,7 +28,5 @@ public abstract partial class DisconnectPacket : IServerPacket
         {
             Reason = reader.ReadNbtTag(readRootTag: false);
         }
-
     }
-
 }

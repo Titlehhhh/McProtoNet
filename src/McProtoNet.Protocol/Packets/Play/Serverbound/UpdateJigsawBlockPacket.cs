@@ -19,7 +19,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, AttachmentType, TargetPool, FinalState);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, string attachmentType, string targetPool, string finalState)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, string attachmentType, string targetPool, string finalState)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteString(attachmentType);
@@ -39,7 +40,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Location, Name, Target, Pool, FinalState, JointType);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, string name, string target, string pool, string finalState, string jointType)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, string name, string target, string pool, string finalState, string jointType)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteString(name);
@@ -60,10 +62,13 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Location, Name, Target, Pool, FinalState, JointType, SelectionPriority, PlacementPriority);
+                SerializeInternal(ref writer, protocolVersion, Location, Name, Target, Pool, FinalState, JointType,
+                    SelectionPriority, PlacementPriority);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, string name, string target, string pool, string finalState, string jointType, int selectionPriority, int placementPriority)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, string name, string target, string pool, string finalState, string jointType,
+                int selectionPriority, int placementPriority)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteString(name);
@@ -86,11 +91,14 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V477_578.IsSupportedVersionStatic(protocolVersion))
-                V477_578.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, FinalState);
+                V477_578.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
+                    FinalState);
             else if (V709_764.IsSupportedVersionStatic(protocolVersion))
-                V709_764.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, string.Empty, FinalState, string.Empty);
+                V709_764.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
+                    string.Empty, FinalState, string.Empty);
             else if (V765_769.IsSupportedVersionStatic(protocolVersion))
-                V765_769.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty, string.Empty, FinalState, string.Empty, 0, 0);
+                V765_769.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
+                    string.Empty, FinalState, string.Empty, 0, 0);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPlayPacket.UpdateJigsawBlock), protocolVersion);
         }

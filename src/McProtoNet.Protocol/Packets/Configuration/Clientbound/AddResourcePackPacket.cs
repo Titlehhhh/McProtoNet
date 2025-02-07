@@ -24,8 +24,7 @@ public abstract partial class AddResourcePackPacket : IServerPacket
             Forced = reader.ReadBoolean();
             PromptMessage = reader.ReadOptionalNbtTag(readRootTag: false);
         }
-
     }
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 
+    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
 }

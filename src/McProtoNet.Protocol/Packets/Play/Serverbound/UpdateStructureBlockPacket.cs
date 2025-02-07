@@ -29,10 +29,14 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, Seed, Flags);
+                SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ,
+                    SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, Seed, Flags);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, int action, int mode, string name, sbyte offsetX, sbyte offsetY, sbyte offsetZ, sbyte sizeX, sbyte sizeY, sbyte sizeZ, int mirror, int rotation, string metadata, float integrity, long seed, byte flags)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, int action, int mode, string name, sbyte offsetX, sbyte offsetY, sbyte offsetZ,
+                sbyte sizeX, sbyte sizeY, sbyte sizeZ, int mirror, int rotation, string metadata, float integrity,
+                long seed, byte flags)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteVarInt(action);
@@ -60,10 +64,14 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         {
             public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
             {
-                SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, Seed, Flags);
+                SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ,
+                    SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, Seed, Flags);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Position location, int action, int mode, string name, sbyte offsetX, sbyte offsetY, sbyte offsetZ, sbyte sizeX, sbyte sizeY, sbyte sizeZ, int mirror, int rotation, string metadata, float integrity, int seed, byte flags)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+                Position location, int action, int mode, string name, sbyte offsetX, sbyte offsetY, sbyte offsetZ,
+                sbyte sizeX, sbyte sizeY, sbyte sizeZ, int mirror, int rotation, string metadata, float integrity,
+                int seed, byte flags)
             {
                 writer.WritePosition(location, protocolVersion);
                 writer.WriteVarInt(action);
@@ -89,9 +97,11 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
         public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             if (V393_758.IsSupportedVersionStatic(protocolVersion))
-                V393_758.SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, 0, Flags);
+                V393_758.SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY,
+                    OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, 0, Flags);
             else if (V759_769.IsSupportedVersionStatic(protocolVersion))
-                V759_769.SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY, OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, 0, Flags);
+                V759_769.SerializeInternal(ref writer, protocolVersion, Location, Action, Mode, Name, OffsetX, OffsetY,
+                    OffsetZ, SizeX, SizeY, SizeZ, Mirror, Rotation, Metadata, Integrity, 0, Flags);
             else
                 throw new ProtocolNotSupportException(nameof(ClientPlayPacket.UpdateStructureBlock), protocolVersion);
         }

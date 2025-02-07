@@ -32,7 +32,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Hand, Sequence);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, int sequence)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                int sequence)
             {
                 writer.WriteVarInt(hand);
                 writer.WriteVarInt(sequence);
@@ -49,7 +50,8 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound
                 SerializeInternal(ref writer, protocolVersion, Hand, Sequence, Rotation);
             }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand, int sequence, Vector2 rotation)
+            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
+                int sequence, Vector2 rotation)
             {
                 writer.WriteVarInt(hand);
                 writer.WriteVarInt(sequence);
