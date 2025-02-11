@@ -1,4 +1,3 @@
-using System.Dynamic;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
