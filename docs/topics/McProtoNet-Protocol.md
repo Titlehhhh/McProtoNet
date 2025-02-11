@@ -12,14 +12,12 @@
 версии поддерживает пакет и содержит свойство типа `PacketIdentifier`, которое представляет 
 из себя некоторую мета-информацию о пакете: 
 
-**Order** - некоторый ключ, который необходим для получение идентификатора пакета 
+- **Order** - некоторый ключ, который необходим для получение идентификатора пакета 
 на конкретной версии протокола.
-**Name** - имя пакета.
-**State** - состояние пакета, например, Handshaking(рукопожатие), Login, Confuguration.
-**Direction** - направление к кому идёт пакет: к серверу или к клиенту.
+- **Name** - имя пакета.
+- **State** - состояние пакета, например, Handshaking(рукопожатие), Login, Confuguration.
+- **Direction** - направление к кому идёт пакет: к серверу или к клиенту.
 
-<code-blocks
-    src="../../src/McProtoNet.Protocol/Internal/IPacket.cs"
-    lang="C#"
-    collapsed-title="IPacket.cs"
-    collapsible="true"/>
+<code-blocks src="../../src/McProtoNet.Protocol/Internal/IPacket.cs" lang="C#" collapsed-title="IPacket.cs" collapsible="true"/>
+
+
