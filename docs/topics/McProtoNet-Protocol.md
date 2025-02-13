@@ -29,17 +29,14 @@
 
 <code-block src="../code-samples/IClientPacket.cs" lang="C#" collapsed-title="IClientPacket.cs" collapsible="true"/>
 
+
 ## PacketIdentifier
 
-Как говорилось выше `PacketIdentifier` это некоторая мета-информация об пакете.
-`PacketIdentifier` представлен в виде класса, а значит может создаться впечатление,
-что он аллоцируется каждый раз когда вызывается метод `GetPacketId`, но нет.
-Каждый класс, описывающий пакет, просто возвращет существующий статический экземпляр
-из классов таких как: `ClientConfigurationPacket`, `ClientLoginPacket`, 
-`ServerPlayPacket` и другие. Эти классы напоминают перечисления, где каждый вариант -
-это статическое readonly поле. Дабы стало понятнее, то вот как это примерно выглядит:
+Как уже упоминалось, `PacketIdentifier` представляет собой мета-информацию о пакете. Это класс, и может возникнуть впечатление, что он каждый раз создается заново при вызове метода `GetPacketId`. Однако это не так.
 
-```CSharp
+Каждый класс, описывающий пакет, просто возвращает существующий статический экземпляр из классов, таких как `ClientConfigurationPacket`, `ClientLoginPacket`, `ServerPlayPacket` и другие. Эти классы напоминают перечисления, где каждый вариант — это статическое поле `readonly`. Чтобы было понятнее, вот пример того, как это реализуется:
+
+```csharp
 public static class ServerPlayPacket
 {
     public static readonly PacketIdentifier Abilities = new(0, nameof(Abilities), PacketState.Play,
@@ -54,7 +51,7 @@ public static class ServerPlayPacket
 }
 ```
 
-```CSharp
+```csharp
 public class AbilitiesPacket : IServerPacket
 {
     public PacketIdentifier GetPacketId
@@ -64,10 +61,6 @@ public class AbilitiesPacket : IServerPacket
     // Deserialize...
 }
 ```
-
-С учетом приведенного кода методов из класса `PacketIdHelper`, можно более детально раскрыть процесс получения и использования идентификаторов пакетов в контексте мультиверсии. Следовательно, описание класса `PacketIdHelper` можно дополнить следующим образом:
-
----
 
 ## Получение идентификатора
 
@@ -96,7 +89,7 @@ public class AbilitiesPacket : IServerPacket
 
 ### Пример работы с идентификаторами пакетов:
 
-```csharp
+```Csharp
 // Пример получения идентификатора пакета
 int packetId = 30;
 int protocolVersion = 340;
