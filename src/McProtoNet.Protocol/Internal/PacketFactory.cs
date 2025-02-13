@@ -76,7 +76,7 @@ public static class PacketFactory
     private static readonly FrozenDictionary<long, Func<IServerPacket>> configurationPackets;
     private static readonly FrozenDictionary<long, Func<IServerPacket>> playPackets;
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IServerPacket CreateClientboundPacket(int protocolVersion, int packetId, PacketState state)
     {
         long key = Combine(protocolVersion, packetId);
@@ -91,7 +91,7 @@ public static class PacketFactory
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long Combine(int a, int b)
     {
         return (long)a << 32 | (uint)b;

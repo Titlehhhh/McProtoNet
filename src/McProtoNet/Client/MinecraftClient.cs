@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net.Sockets;
 using System.Reactive;
 using System.Reactive.Subjects;
@@ -11,13 +11,13 @@ using McProtoNet.Cryptography;
 using McProtoNet.Net;
 using QuickProxyNet;
 
+
 namespace McProtoNet.Client;
 
 public class CompletionResult
 {
     public TimeSpan RunningTime { get; }
 }
-
 /// <summary>
 ///     Represents a Minecraft client.
 /// </summary>
@@ -233,7 +233,7 @@ public class MinecraftClient : IMinecraftClient
     }
 
 
-    
+
 
 
     public void SwitchCompression(int threshold)

@@ -7,16 +7,16 @@ namespace McProtoNet.Protocol;
 
 public static class ReadExtensions
 {
-    public static async IAsyncEnumerable<T> OnPacket<T>(this IMinecraftClient client,
-        CancellationToken cancellationToken) where T : IServerPacket
+    public static async IAsyncEnumerable<TPacket> OnPacket<TPacket>(this IMinecraftClient client,
+        CancellationToken cancellationToken) where TPacket : IServerPacket
     {
         await foreach (var packet in client.ReceivePackets(cancellationToken))
         {
-            var id = PacketIdHelper.GetPacketId(client.ProtocolVersion, T.PacketId);
-            if (packet.Id == id && T.IsSupportedVersionStatic(client.ProtocolVersion))
+            var id = PacketIdHelper.GetPacketId(client.ProtocolVersion, TPacket.PacketId);
+            if (packet.Id == id && TPacket.IsSupportedVersionStatic(client.ProtocolVersion))
             {
-                T serverPacket =
-                    (T)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id, T.PacketId.State);
+                TPacket serverPacket =
+                    (TPacket)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id, TPacket.PacketId.State);
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(packet.Data);
                 serverPacket.Deserialize(ref reader, client.ProtocolVersion);
                 yield return serverPacket;
