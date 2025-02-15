@@ -18,8 +18,10 @@
         <toc-element topic="McProtoNet-NBT.md"/>
         <toc-element topic="McProtoNet-Utils.md"/>
         <toc-element topic="McProtoNet.md"/>
-        <toc-element topic="McProtoNet-Protocol.md"/>
+        <toc-element topic="McProtoNet-Protocol.md">
+             <toc-element topic="Multiversion.md"/>
+        <toc-element/>
     </toc-element>
-    <toc-element topic="multiversion.md"/>
+   
     <toc-element topic="first-bot.md"/>
 </instance-profile>

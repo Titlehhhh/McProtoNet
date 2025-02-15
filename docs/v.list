@@ -2,5 +2,7 @@
 <!DOCTYPE vars SYSTEM "https://resources.jetbrains.com/writerside/1.0/vars.dtd">
 <vars>
     <var name="min_minecraft_version" value="1.12.2"/>
+    <var name="min_minecraft_protocolversion" value="340"/>
     <var name="max_minecraft_version" value="1.21.4"/>
+    <var name="max_minecraft_protocolversion" value="769"/>
 </vars>

@@ -105,8 +105,6 @@ await sender.SendPacketAsync(data, cancellationToken: default(CancellationToken)
 #### `IAsyncEnumerable<IPacket> ReceivePackets()`  
 Возвращает асинхронный поток пакетов, получаемых от сервера.  
 
-
-
 #### `Dispose()`  
 Закрывает соединение и освобождает ресурсы.  
 

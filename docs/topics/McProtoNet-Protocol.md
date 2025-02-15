@@ -36,7 +36,7 @@
 
 Каждый класс, описывающий пакет, просто возвращает существующий статический экземпляр из классов, таких как `ClientConfigurationPacket`, `ClientLoginPacket`, `ServerPlayPacket` и другие. Эти классы напоминают перечисления, где каждый вариант — это статическое поле `readonly`. Чтобы было понятнее, вот пример того, как это реализуется:
 
-```csharp
+```C#
 public static class ServerPlayPacket
 {
     public static readonly PacketIdentifier Abilities = new(0, nameof(Abilities), PacketState.Play,
@@ -51,7 +51,7 @@ public static class ServerPlayPacket
 }
 ```
 
-```csharp
+```C#
 public class AbilitiesPacket : IServerPacket
 {
     public PacketIdentifier GetPacketId
@@ -89,7 +89,7 @@ public class AbilitiesPacket : IServerPacket
 
 ### Пример работы с идентификаторами пакетов:
 
-```Csharp
+```C#
 // Пример получения идентификатора пакета
 int packetId = 30;
 int protocolVersion = 340;
@@ -155,7 +155,7 @@ McProtoNet
 
 ### Пример кода
 
-```csharp
+```C#
 MinecraftClient client = //...
 
 await foreach(InputPacket packet = client.ReceivePackets())
@@ -170,7 +170,7 @@ await foreach(InputPacket packet = client.ReceivePackets())
 Хотя Вы можете так делать, но для упрощения разработки рекомендуется использовать
 методы расширения `OnPacket<TPacket>`, `OnAllPackets`.
 
-```csharp
+```C#
 await foreach(IServerPacket packet = client.OnAllPackets(PacketState.Play))
 {
     Console.WriteLine($"Received packet: {packet.GetPacketId()}");
