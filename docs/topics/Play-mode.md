@@ -33,7 +33,8 @@ await _client.Login("TestBot", _host,25565);
 ```C#
 private async Task RunReadLoop()
 {
-    await foreach (var packet in _client.OnAllPackets(PacketState.Play))
+    await foreach (var packet in 
+        _client.OnAllPackets(PacketState.Play))
     {
         HandlePlayPacket(packet);
     }

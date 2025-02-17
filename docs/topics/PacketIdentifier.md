@@ -12,13 +12,17 @@
 ```C#
 public static class ServerPlayPacket
 {
-    public static readonly PacketIdentifier Abilities = new(0, nameof(Abilities), PacketState.Play,
-        PacketDirection.Clientbound);
+    public static readonly PacketIdentifier Abilities = 
+        new(0, nameof(Abilities), PacketState.Play,
+            PacketDirection.Clientbound);
 
     public static readonly PacketIdentifier AcknowledgePlayerDigging =
-        new(1, nameof(AcknowledgePlayerDigging), PacketState.Play, PacketDirection.Clientbound);
+        new(1, nameof(AcknowledgePlayerDigging), 
+            PacketState.Play,  
+            PacketDirection.Clientbound);
 
-    public static readonly PacketIdentifier ActionBar = new(2, nameof(ActionBar), PacketState.Play,
+    public static readonly PacketIdentifier ActionBar = 
+        new(2, nameof(ActionBar), PacketState.Play,
         PacketDirection.Clientbound);
     // ...
 }

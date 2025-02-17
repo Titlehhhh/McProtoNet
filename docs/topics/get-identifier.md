@@ -32,7 +32,12 @@ int protocolVersion = 340;
 PacketState state = PacketState.Play;
 PacketDirection direction = PacketDirection.Clientbound;
 
-if (PacketIdHelper.TryGetPacketIdentifier(packetId, protocolVersion, state, direction, out var identifier))
+if (PacketIdHelper.TryGetPacketIdentifier(
+    packetId, 
+    protocolVersion,
+    state, 
+    direction, 
+    out var identifier))
 {
     Console.WriteLine($"Packet identifier: {identifier}");
 }
@@ -43,7 +48,10 @@ else
 
 // Пример получения packetId из PacketIdentifier
 PacketIdentifier packetIdentifier = ServerPlayPacket.KeepAlive;
-if (PacketIdHelper.TryGetPacketId(packetIdentifier, protocolVersion, out int foundPacketId))
+if (PacketIdHelper.TryGetPacketId(
+    packetIdentifier, 
+    protocolVersion, 
+    out int foundPacketId))
 {
     Console.WriteLine($"Found packet ID: {foundPacketId}");
 }

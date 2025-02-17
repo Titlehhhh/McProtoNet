@@ -25,7 +25,7 @@ NetworkStream ns = new NetworkStream(socket);
 MinecraftPacketSender sender = new MinecraftPacketSender();
 sender.BaseStream = ns;
 byte[] data = [0, 3, 4, 5, 6];
-await sender.SendPacketAsync(data, cancellationToken: default(CancellationToken));
+await sender.SendPacketAsync(data, cancellationToken: default);
 ```
 
 Также имеются методы расширения для [](McProtoNet-Abstractions.md#outputpacket). Это удобно, если

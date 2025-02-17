@@ -13,7 +13,10 @@ MinecraftClient client = //...
 await foreach(InputPacket packet = client.ReceivePackets())
 {
     IServerPacket createdPacket = 
-        PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id, PacketState.Play);
+        PacketFactory.CreateClientboundPacket(
+            client.ProtocolVersion, 
+            packet.Id, 
+            PacketState.Play);
     
     // Deserialize and handling ...
 }
@@ -23,7 +26,8 @@ await foreach(InputPacket packet = client.ReceivePackets())
 методы расширения `OnPacket<TPacket>`, `OnAllPackets`.
 
 ```C#
-await foreach(IServerPacket packet = client.OnAllPackets(PacketState.Play))
+await foreach(IServerPacket packet in 
+    client.OnAllPackets(PacketState.Play))
 {
     Console.WriteLine($"Received packet: {packet.GetPacketId()}");
 }

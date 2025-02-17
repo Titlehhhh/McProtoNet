@@ -6,7 +6,7 @@
 клиентские пакеты режима **Play** в `McProtoNet.Protocol.Packets.Play.Serverbound` и так далее.
 
 **Полная структура**
-```txt
+```plain text
 McProtoNet
 │
 └───Protocol
