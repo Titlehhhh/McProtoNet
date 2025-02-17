@@ -1,11 +1,12 @@
 # MinecraftPrimitiveReader
 
-Исходный код: [MinecraftPrimitiveReader.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveReader.cs)
 
 [ref-структура](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/ref-struct), предназначенная для чтения примитивных типов данных 
 из бинарного потока в формате Minecraft-протокола. Она представляет собой
 высокопроизводительную оболочку над Span&lt;byte&gt;,
 что позволяет работать с данными напрямую из памяти без лишнего копирования.
+
+Исходный код: [MinecraftPrimitiveReader.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveReader.cs)
 
 ## Основные методы
 

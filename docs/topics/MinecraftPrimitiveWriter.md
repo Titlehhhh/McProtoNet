@@ -1,12 +1,12 @@
 # MinecraftPrimitiveWriter
 
-Исходный код: [MinecraftPrimitiveWriter.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveWriter.cs)
-
 [ref-структура](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/builtin-types/ref-struct), предназначенная для записи примитивных 
 типов данных в бинарный поток согласно формату Minecraft-протокола.
 Она реализована на основе `Span<byte>`, 
 что обеспечивает высокую производительность за счёт работы напрямую с памятью, 
 исключая лишние копирования.
+
+Исходный код: [MinecraftPrimitiveWriter.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveWriter.cs)
 
 ## Основные методы
 
