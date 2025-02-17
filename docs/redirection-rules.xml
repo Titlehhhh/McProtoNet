@@ -14,4 +14,8 @@
         <description>Created after removal of "gg1" from McProtoNet</description>
         <accepts>gg1.html</accepts>
     </rule>
+    <rule id="2c92846">
+        <description>Created after removal of "Получение идентификатора" from McProtoNet</description>
+        <accepts>get-identifier.html</accepts>
+    </rule>
 </rules>

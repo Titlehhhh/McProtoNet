@@ -17,9 +17,18 @@
         </toc-element>
         <toc-element topic="McProtoNet-NBT.md"/>
         <toc-element topic="McProtoNet-Utils.md"/>
-        <toc-element topic="McProtoNet.md"/>
+        <toc-element topic="McProtoNet.md">
+            <toc-element topic="work-with-packets.md"/>
+            <toc-element topic="Cryptography.md"/>
+            <toc-element topic="MinecraftClient.md"/>
+        </toc-element>
         <toc-element topic="McProtoNet-Protocol.md">
-             <toc-element topic="Multiversion.md"/>
+            <toc-element topic="Interfaces.md"/>
+            <toc-element topic="PacketIdentifier.md"/>
+            <toc-element topic="get-identifier.md"/>
+            <toc-element topic="packet-namespace-structure.md"/>
+            <toc-element topic="server-packet-creation.md"/>
+            <toc-element topic="Multiversion.md"/>
         </toc-element>
     </toc-element>
    

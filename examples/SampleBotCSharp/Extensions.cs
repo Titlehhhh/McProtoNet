@@ -4,48 +4,37 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 using CConfig = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using SConfig = McProtoNet.Protocol.Packets.Configuration.Serverbound;
-
 using CLogin = McProtoNet.Protocol.Packets.Login.Clientbound;
-using SLogin = McProtoNet.Protocol.Packets.Login.Serverbound;
+using McProtoNet.Protocol.Packets.Login.Serverbound;
 
 namespace SampleBotCSharp;
 
 public static class Extensions
 {
-    
-    public static async Task Login(this IMinecraftClient client, string nickname)
+    public static async Task Login(this IMinecraftClient client, string nickname, string host, ushort port)
     {
-        var hand = new SetProtocolPacket()
+        await client.SendPacket(new SetProtocolPacket()
         {
             NextState = 2,
             ProtocolVersion = client.ProtocolVersion,
-            ServerHost = "title-kde",
-            ServerPort = 25565
-        };
-        var login = new SLogin.LoginStartPacket.V764_769
-        {
-            PlayerUUID = Guid.NewGuid(),
-            Username = nickname
-        };
+            ServerHost = host,
+            ServerPort = port
+        });
 
-
-        await client.SendPacket(hand);
-        await client.SendPacket(login);
+        await client.SendPacket(
+            new LoginStartPacket
+            {
+                Username = nickname
+            });
 
         await foreach (var serverPacket in client.OnAllPackets(PacketState.Login))
         {
-            //Console.WriteLine($"Read Login: {serverPacket.GetPacketId()}");
             if (serverPacket is CLogin.CompressPacket compressPacket)
             {
                 client.SwitchCompression(compressPacket.Threshold);
             }
             else if (serverPacket is CLogin.SuccessPacket)
             {
-                if (client.ProtocolVersion >= 764)
-                {
-                    await client.SendPacket(new SLogin.LoginAcknowledgedPacket());
-                }
-
                 break;
             }
             else if (serverPacket is CLogin.DisconnectPacket disconnectPacket)
@@ -61,7 +50,7 @@ public static class Extensions
                 var sharedSecret = RSAService.Encrypt(secretKey, false);
                 var verifyToken = RSAService.Encrypt(encryptBegin.VerifyToken, false);
 
-                var response = new SLogin.EncryptionBeginPacket.V761_769()
+                var response = new EncryptionBeginPacket
                 {
                     SharedSecret = sharedSecret,
                     VerifyToken = verifyToken
@@ -76,6 +65,8 @@ public static class Extensions
 
         if (client.ProtocolVersion >= 764)
         {
+            await client.SendPacket(new LoginAcknowledgedPacket());
+            
             await client.SendPacket(new SConfig.SettingsPacket()
             {
                 Locale = "ru_ru",
@@ -91,13 +82,12 @@ public static class Extensions
 
             await foreach (var packet in client.OnAllPackets(PacketState.Configuration))
             {
-                // Console.WriteLine($"Read Configuration: {packet.GetPacketId()}");
                 if (packet is CConfig.FinishConfigurationPacket)
                 {
+                    // Succes configuration
                     await client.SendPacket(new SConfig.FinishConfigurationPacket());
                     break;
                 }
-
                 if (packet is CConfig.KeepAlivePacket.V764_769 keepAlivePacket)
                 {
                     await client.SendPacket(new SConfig.KeepAlivePacket()

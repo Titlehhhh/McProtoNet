@@ -1,9 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Numerics;
-using System.Runtime.Intrinsics.Arm;
-using System.Runtime.Intrinsics.X86;
-using DotNext;
-using McProtoNet.Abstractions;
+﻿using McProtoNet.Abstractions;
 using McProtoNet.Client;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Packets.Configuration.Serverbound;
@@ -14,18 +9,25 @@ namespace SampleBotCSharp;
 
 public class Bot
 {
-    private MinecraftVersion _version = MinecraftVersion.V1_21_4;
+    private MinecraftVersion _version;
 
     //public static ConcurrentDictionary<int, int> bits = new();
 
     private MinecraftClient _client;
+    private string _host;
+
+    public Bot(MinecraftVersion version, string host)
+    {
+        _version = version;
+        _host = host;
+    }
 
     public async Task Start()
     {
         _client = new MinecraftClient(new MinecraftClientStartOptions()
         {
             ConnectTimeout = TimeSpan.FromSeconds(5),
-            Host = "title-kde",
+            Host = _host,
             Port = 25565,
             WriteTimeout = TimeSpan.FromSeconds(5),
             ReadTimeout = TimeSpan.FromSeconds(5),
@@ -33,7 +35,7 @@ public class Bot
         });
 
         await _client.ConnectAsync();
-        await _client.Login("TestBot");
+        await _client.Login("TestBot", _host,25565);
         _ = Task.Run(async () =>
         {
             try
@@ -56,29 +58,35 @@ public class Bot
         });
     }
 
+    private int _entityId;
+
     private void HandlePlayPacket(IServerPacket packet)
     {
         try
         {
             if (packet is CPlay.KeepAlivePacket keepAlive)
             {
-                Console.WriteLine("KeepAlive");
                 _client.SendPacket(new SPlay.KeepAlivePacket()
                 {
                     KeepAliveId = keepAlive.KeepAliveId
                 });
             }
-            else if (packet is CPlay.MapChunkPacket mapChunkPacket)
-            {
-            }
-            else if (packet is CPlay.PlayerChatPacket chatPacket)
-            {
-                Console.WriteLine("Chat");
-            }
             else if (packet is CPlay.LoginPacket login)
             {
-                
+                _entityId = login.EntityId;
             }
+            else if (packet is CPlay.EntityStatusPacket statusPacket)
+            {
+                //Console.WriteLine("Status: " + statusPacket.EntityStatus);
+            }
+            else if (packet is CPlay.EntityVelocityPacket velocityPacket)
+            {
+                if (velocityPacket.EntityId == _entityId)
+                {
+                    Console.WriteLine("Меня ударили!");
+                }
+            }
+            
         }
         catch (Exception e)
         {

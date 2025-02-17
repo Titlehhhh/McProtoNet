@@ -6,12 +6,13 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 public partial class EncryptionBeginPacket : IClientPacket
 {
     public byte[] SharedSecret { get; set; }
+    
+    public byte[]? VerifyToken { get; set; }
 
 
     [PacketSubInfo(340, 758)]
     public sealed partial class V340_758 : EncryptionBeginPacket
     {
-        public byte[] VerifyToken { get; set; }
 
         internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
             byte[] sharedSecret, byte[] verifyToken)
@@ -24,15 +25,13 @@ public partial class EncryptionBeginPacket : IClientPacket
 
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken);
+            SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken!);
         }
     }
 
     [PacketSubInfo(759, 760)]
     public sealed partial class V759_760 : EncryptionBeginPacket
     {
-        public bool HasVerifyToken { get; set; }
-        public byte[] VerifyToken { get; set; }
         public long Salt { get; set; }
         public byte[] MessageSignature { get; set; }
 
@@ -58,7 +57,7 @@ public partial class EncryptionBeginPacket : IClientPacket
 
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, SharedSecret, HasVerifyToken, VerifyToken, Salt,
+            SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken is not null, VerifyToken, Salt,
                 MessageSignature);
         }
     }
@@ -66,7 +65,6 @@ public partial class EncryptionBeginPacket : IClientPacket
     [PacketSubInfo(761, 769)]
     public sealed partial class V761_769 : EncryptionBeginPacket
     {
-        public byte[] VerifyToken { get; set; }
 
         internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
             byte[] sharedSecret, byte[] verifyToken)
@@ -79,7 +77,7 @@ public partial class EncryptionBeginPacket : IClientPacket
 
         public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken);
+            SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken!);
         }
     }
 
@@ -88,15 +86,15 @@ public partial class EncryptionBeginPacket : IClientPacket
     {
         if (V340_758.IsSupportedVersionStatic(protocolVersion))
         {
-            V340_758.SerializeInternal(ref writer, protocolVersion, SharedSecret, []);
+            V340_758.SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken!);
         }
         else if (V759_760.IsSupportedVersionStatic(protocolVersion))
         {
-            V759_760.SerializeInternal(ref writer, protocolVersion, SharedSecret, false, [], 0, []);
+            V759_760.SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken is not null, VerifyToken!, 0, []);
         }
         else if (V761_769.IsSupportedVersionStatic(protocolVersion))
         {
-            V761_769.SerializeInternal(ref writer, protocolVersion, SharedSecret, []);
+            V761_769.SerializeInternal(ref writer, protocolVersion, SharedSecret, VerifyToken!);
         }
         else
         {
