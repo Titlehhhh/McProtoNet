@@ -1,3 +1,8 @@
 # Первый бот
 
-Start typing here...
+Теперь, когда мы разобрались с теорией, давайте перейдём к практике. 
+Мы напишем простого Minecraft-бота с использованием McProtoNet. Разберемся как читать пакеты, 
+как включать шифрование и сжатие, а также как отправлять пакеты.
+
+В следующих разделах будут куски кода,
+которые доступны в [examples/SampleBotCSharp](https://github.com/Titlehhhh/McProtoNet/tree/dev/examples/SampleBotCSharp).

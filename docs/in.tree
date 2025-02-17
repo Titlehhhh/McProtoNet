@@ -32,5 +32,9 @@
         </toc-element>
     </toc-element>
    
-    <toc-element topic="first-bot.md"/>
+    <toc-element topic="first-bot.md">
+        <toc-element topic="configure-and-login.md"/>
+        <toc-element topic="Play-mode.md"/>
+        <toc-element topic="OuchBot.md"/>
+    </toc-element>
 </instance-profile>

@@ -18,4 +18,16 @@
         <description>Created after removal of "Получение идентификатора" from McProtoNet</description>
         <accepts>get-identifier.html</accepts>
     </rule>
+    <rule id="34445db5">
+        <description>Created after removal of "Режим Login" from McProtoNet</description>
+        <accepts>Login-mode.html</accepts>
+    </rule>
+    <rule id="5153deb5">
+        <description>Created after removal of "Рукопожатие" from McProtoNet</description>
+        <accepts>handshaking.html</accepts>
+    </rule>
+    <rule id="6613a660">
+        <description>Created after removal of "Подключение и подготовка" from McProtoNet</description>
+        <accepts>Conect-and-preparing.html</accepts>
+    </rule>
 </rules>

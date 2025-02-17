@@ -35,30 +35,20 @@ public class Bot
         });
 
         await _client.ConnectAsync();
-        await _client.Login("TestBot", _host,25565);
-        _ = Task.Run(async () =>
-        {
-            try
-            {
-                Console.WriteLine("Start Play");
-                await foreach (var packet in _client.OnAllPackets(PacketState.Play))
-                {
-                    HandlePlayPacket(packet);
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Read packets: {ex}");
-                throw;
-            }
-            finally
-            {
-                Console.WriteLine("Stop Play");
-            }
-        });
+        await _client.Login("TestBot", _host, 25565);
+
+        _ = RunReadLoop();
     }
 
-    private int _entityId;
+    private async Task RunReadLoop()
+    {
+        await foreach (var packet in _client.OnAllPackets(PacketState.Play))
+        {
+            HandlePlayPacket(packet);
+        }
+    }
+
+    private int _myEntityId;
 
     private void HandlePlayPacket(IServerPacket packet)
     {
@@ -71,9 +61,20 @@ public class Bot
                     KeepAliveId = keepAlive.KeepAliveId
                 });
             }
+            else if (packet is CPlay.UpdateHealthPacket hp)
+            {
+                if (hp.Health <= 0)
+                {
+                    Console.WriteLine("Меня убили!!!");
+                    _client.SendPacket(new SPlay.ClientCommandPacket()
+                    {
+                        ActionId = 0
+                    });
+                }
+            }
             else if (packet is CPlay.LoginPacket login)
             {
-                _entityId = login.EntityId;
+                _myEntityId = login.EntityId;
             }
             else if (packet is CPlay.EntityStatusPacket statusPacket)
             {
@@ -81,17 +82,30 @@ public class Bot
             }
             else if (packet is CPlay.EntityVelocityPacket velocityPacket)
             {
-                if (velocityPacket.EntityId == _entityId)
+                if (velocityPacket.EntityId == _myEntityId)
                 {
-                    Console.WriteLine("Меня ударили!");
+                    _ = SendChat("Ouch!!!");
                 }
             }
-            
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
+        }
+    }
+
+    private async ValueTask SendChat(string message)
+    {
+        if (_client.TrySend<SPlay.ChatPacket>(out var sender1))
+        {
+            sender1.Packet.Message = message;
+            await sender1.Send();
+        }
+        else if (_client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+        {
+            sender2.Packet.Message = message;
+            await sender2.Send();
         }
     }
 }
