@@ -2,7 +2,7 @@
 
 Давайте сделаем простого бота, который пишет в чат `Ouch!!!`, когда его бьют.
 
-Для этого нам нужно узнать идентификатор сущности бота из пакета Login(он еще называется Join Game):
+Для этого нам нужно узнать идентификатор сущности бота из пакета `Login`(он еще называется Join Game):
 
 ```C#
 if (packet is CPlay.LoginPacket login)
@@ -11,8 +11,8 @@ if (packet is CPlay.LoginPacket login)
 }
 ```
 
-Затем нужно прочитать пакет `EntitiyVelocity`, который передает скорость сущности. Мы должны сравнить 
-переданный идентификатор в пакете со своим и затем отправить пакет чата:
+Затем нужно прочитать пакет `EntityVelocity`, который передаёт скорость сущности.
+Мы должны сравнить переданный идентификатор в пакете со своим, и затем отправить пакет чата:
 
 ```C#
 if (packet is CPlay.EntityVelocityPacket velocityPacket)
@@ -23,8 +23,8 @@ if (packet is CPlay.EntityVelocityPacket velocityPacket)
     }
 }
 ```
-
-К сожалению из-за автогенерации пакетов пакет чата разделен на два. Поэтому для удобства был создан метод:
+К сожалению, из-за автогенерации пакетов, пакет чата разделён на два. 
+Поэтому для удобства был создан метод:
 
 ```C#
 private async ValueTask SendChat(string message)
@@ -42,4 +42,6 @@ private async ValueTask SendChat(string message)
 }
 ```
 
-<video src="../videos/ouchbot-preview.mp4"/>
+## Результат
+
+<video src="../videos/ouchbot-preview.mp4" preview-src="../videos/preview.png"/>
