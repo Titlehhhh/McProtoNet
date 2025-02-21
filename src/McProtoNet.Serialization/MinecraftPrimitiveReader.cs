@@ -18,7 +18,6 @@ namespace McProtoNet.Serialization;
 public ref partial struct MinecraftPrimitiveReader
 {
     private SpanReader<byte> _reader;
-    private bool disposed;
 
     /// <summary>
     /// Gets the underlying span being read from
@@ -103,16 +102,6 @@ public ref partial struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Read(scoped Span<byte> output) => _reader.Read(output);
 
-    /// <summary>
-    /// Checks if the reader has been disposed
-    /// </summary>
-    /// <exception cref="ObjectDisposedException">Thrown when the reader is disposed</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CheckDisposed()
-    {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(MinecraftPrimitiveWriter));
-    }
 
     /// <summary>
     /// Reads a VarInt from the reader
@@ -278,6 +267,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// Reads a UTF-8 encoded string from the reader
     /// </summary>
     /// <returns>The decoded string</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString()
     {
         int len = ReadVarInt();
@@ -294,6 +284,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// Reads a UUID from the reader
     /// </summary>
     /// <returns>The UUID value read</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public unsafe Guid ReadUUID()
     {
         long x = ReadSignedLong();
@@ -309,6 +300,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// Reads all remaining bytes from the reader
     /// </summary>
     /// <returns>An array containing the remaining bytes</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadRestBuffer()
     {
         return _reader.ReadToEnd().ToArray();
@@ -319,6 +311,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// </summary>
     /// <param name="length">The number of bytes to read</param>
     /// <returns>An array containing the read bytes</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadBuffer(int length)
     {
         return _reader.Read(length).ToArray();
@@ -329,6 +322,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// </summary>
     /// <param name="readRootTag">Whether to read the root tag</param>
     /// <returns>The NBT tag if present, null otherwise</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NbtTag? ReadOptionalNbtTag(bool readRootTag)
     {
         if (ReadBoolean())
@@ -344,6 +338,7 @@ public ref partial struct MinecraftPrimitiveReader
     /// </summary>
     /// <param name="readRootTag">Whether to read the root tag</param>
     /// <returns>The NBT tag read</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NbtTag? ReadNbtTag(bool readRootTag)
     {
         NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);

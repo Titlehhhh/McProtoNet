@@ -74,9 +74,11 @@ public static class ReadExtensions
             }
             catch (Exception ex)
             {
+                throw;
                 if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion, state,
                         PacketDirection.Clientbound, out var identifier))
                 {
+                    Console.WriteLine($"Error in: {identifier}. Error: {ex}");
                     Debug.WriteLine($"Error in: {identifier}. Error: {ex}");
                 }
             }
@@ -88,30 +90,25 @@ public static class ReadExtensions
         }
     }
 
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int ReadLength(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
     {
-        switch (lengthFormat)
+        return lengthFormat switch
         {
-            case LengthFormat.VarInt:
-                return reader.ReadVarInt();
-            case LengthFormat.Byte:
-                return reader.ReadUnsignedByte();
-            case LengthFormat.Short:
-                return reader.ReadSignedShort();
-            case LengthFormat.Int:
-                return reader.ReadSignedInt();
-            default:
-                throw new ArgumentOutOfRangeException(nameof(lengthFormat), lengthFormat, null);
-        }
+            LengthFormat.VarInt => reader.ReadVarInt(),
+            LengthFormat.Byte => reader.ReadUnsignedByte(),
+            LengthFormat.Short => reader.ReadSignedShort(),
+            LengthFormat.Int => reader.ReadSignedInt(),
+            _ => throw new ArgumentOutOfRangeException(nameof(lengthFormat), lengthFormat, null)
+        };
     }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] ReadBuffer(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
     {
         var len = reader.ReadLength(lengthFormat);
         return reader.ReadBuffer(len);
     }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, int len,
         ReadDelegate<T> readDelegate)
 
@@ -127,7 +124,7 @@ public static class ReadExtensions
 
         return arr;
     }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat,
         ReadDelegate<T> readDelegate)
 
@@ -136,6 +133,7 @@ public static class ReadExtensions
         return ReadArray(ref reader, len, readDelegate);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
         where TReader : IArrayReader<T>
     {
@@ -151,7 +149,7 @@ public static class ReadExtensions
         TReader.Read(ref reader, 0, result);
         return result;
     }
-
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? ReadOptional<T>(this ref MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)
     {
         if (reader.ReadBoolean())

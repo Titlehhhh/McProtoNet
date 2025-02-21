@@ -21,9 +21,7 @@
 
     <ItemGroup>
       <Compile Remove="BowBot.cs" />
-      <None Include="BowBot.cs" />
       <Compile Remove="BallisticSolver.cs" />
-      <None Include="BallisticSolver.cs" />
     </ItemGroup>
 
 </Project>

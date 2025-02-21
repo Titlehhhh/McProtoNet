@@ -10,6 +10,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Utils\McProtoNet.Utils.csproj" />
     </ItemGroup>
 
 </Project>
