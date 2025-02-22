@@ -16,7 +16,8 @@ public static class ReadExtensions
             if (packet.Id == id && TPacket.IsSupportedVersionStatic(client.ProtocolVersion))
             {
                 TPacket serverPacket =
-                    (TPacket)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id, TPacket.PacketId.State);
+                    (TPacket)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id,
+                        TPacket.PacketId.State);
                 MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(packet.Data);
                 serverPacket.Deserialize(ref reader, client.ProtocolVersion);
                 yield return serverPacket;
@@ -56,37 +57,11 @@ public static class ReadExtensions
     {
         await foreach (var p in client.ReceivePackets(cancellationToken))
         {
-            IServerPacket? packet = null;
-            try
-            {
-                packet = PacketFactory.CreateClientboundPacket(client.ProtocolVersion, p.Id, state);
-                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(p.Data);
-                packet.Deserialize(ref reader, client.ProtocolVersion);
-            }
-            catch (KeyNotFoundException)
-            {
-                //if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion,
-                //        state,
-                //        PacketDirection.Clientbound, out var identifier))
-                {
-                    //Debug.WriteLine($"Not found packet");
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-                if (PacketIdHelper.TryGetPacketIdentifier(p.Id, client.ProtocolVersion, state,
-                        PacketDirection.Clientbound, out var identifier))
-                {
-                    Console.WriteLine($"Error in: {identifier}. Error: {ex}");
-                    Debug.WriteLine($"Error in: {identifier}. Error: {ex}");
-                }
-            }
-
-            if (packet is not null)
-            {
-                yield return packet;
-            }
+            if (!PacketFactory.TryCreateClientboundPacket(client.ProtocolVersion, p.Id, state, out var packet))
+                continue;
+            MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(p.Data);
+            packet.Deserialize(ref reader, client.ProtocolVersion);
+            yield return packet;
         }
     }
 
@@ -102,12 +77,14 @@ public static class ReadExtensions
             _ => throw new ArgumentOutOfRangeException(nameof(lengthFormat), lengthFormat, null)
         };
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte[] ReadBuffer(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
     {
         var len = reader.ReadLength(lengthFormat);
         return reader.ReadBuffer(len);
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, int len,
         ReadDelegate<T> readDelegate)
@@ -124,6 +101,7 @@ public static class ReadExtensions
 
         return arr;
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T[] ReadArray<T>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat,
         ReadDelegate<T> readDelegate)
@@ -149,6 +127,7 @@ public static class ReadExtensions
         TReader.Read(ref reader, 0, result);
         return result;
     }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T? ReadOptional<T>(this ref MinecraftPrimitiveReader reader, ReadDelegate<T> readDelegate)
     {

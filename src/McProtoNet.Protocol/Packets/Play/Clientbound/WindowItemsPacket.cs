@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
     [PacketInfo("WindowItems", PacketState.Play, PacketDirection.Clientbound)]
     public abstract partial class WindowItemsPacket : IServerPacket
     {
-        public Slot[] Items { get; set; }
+        public Slot?[] Items { get; set; }
 
         [PacketSubInfo(340, 755)]
         public sealed partial class V340_755 : WindowItemsPacket

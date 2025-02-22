@@ -89,6 +89,29 @@ public static class PacketFactory
             _ => throw new NotSupportedException("Not supported state.")
         };
     }
+    
+    public static bool TryCreateClientboundPacket(int protocolVersion, int packetId, PacketState state, out IServerPacket packet) 
+    {
+        long key = Combine(protocolVersion, packetId);
+        
+        var dict =  state switch
+        {
+            PacketState.Login => loginPackets,
+            PacketState.Play => playPackets,
+            PacketState.Configuration => configurationPackets,
+            _ => throw new NotSupportedException("Not supported state.")
+        };
+        
+        if (dict.TryGetValue(key, out var factory))
+        {
+            packet = factory();
+            return true;
+        }
+
+        packet = null;
+        return false;
+
+    }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
