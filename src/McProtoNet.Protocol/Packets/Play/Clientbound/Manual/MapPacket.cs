@@ -8,7 +8,7 @@ public abstract partial class MapPacket : IServerPacket
 {
     public int ItemDamage { get; set; }
     public sbyte Scale { get; set; }
-    public byte[] Data { get; set; }
+    public byte[]? Data { get; set; }
 
     public struct MapIcon
     {
@@ -32,7 +32,7 @@ public abstract partial class MapPacket : IServerPacket
     {
         public bool TrackingPosition { get; set; }
         public MapIconLegacy[] Icons { get; set; }
-        public sbyte Columns { get; set; }
+        public byte Columns { get; set; }
         public sbyte? Rows { get; set; }
         public sbyte? X { get; set; }
         public sbyte? Y { get; set; }
@@ -48,7 +48,7 @@ public abstract partial class MapPacket : IServerPacket
                 X = r.ReadSignedByte(),
                 Z = r.ReadSignedByte()
             });
-            Columns = reader.ReadSignedByte();
+            Columns = reader.ReadUnsignedByte();
             if (Columns > 0)
             {
                 Rows = reader.ReadSignedByte();
@@ -64,7 +64,7 @@ public abstract partial class MapPacket : IServerPacket
     {
         public bool TrackingPosition { get; set; }
         public MapIcon[] Icons { get; set; }
-        public sbyte Columns { get; set; }
+        public byte Columns { get; set; }
         public sbyte? Rows { get; set; }
         public sbyte? X { get; set; }
         public sbyte? Y { get; set; }
@@ -82,7 +82,7 @@ public abstract partial class MapPacket : IServerPacket
                 Direction = r.ReadUnsignedByte(),
                 DisplayName = r.ReadOptional((ref MinecraftPrimitiveReader r2) => r2.ReadString())
             });
-            Columns = reader.ReadSignedByte();
+            Columns = reader.ReadUnsignedByte();
             if (Columns > 0)
             {
                 Rows = reader.ReadSignedByte();
@@ -99,8 +99,8 @@ public abstract partial class MapPacket : IServerPacket
         public bool TrackingPosition { get; set; }
         public bool Locked { get; set; }
         public MapIcon[] Icons { get; set; }
-        public sbyte Columns { get; set; }
-        public sbyte? Rows { get; set; }
+        public byte Columns { get; set; }
+        public byte? Rows { get; set; }
         public sbyte? X { get; set; }
         public sbyte? Y { get; set; }
 
@@ -118,10 +118,10 @@ public abstract partial class MapPacket : IServerPacket
                 Direction = r.ReadUnsignedByte(),
                 DisplayName = r.ReadOptional((ref MinecraftPrimitiveReader r2) => r2.ReadString())
             });
-            Columns = reader.ReadSignedByte();
+            Columns = reader.ReadUnsignedByte();
             if (Columns > 0)
             {
-                Rows = reader.ReadSignedByte();
+                Rows = reader.ReadUnsignedByte();
                 X = reader.ReadSignedByte();
                 Y = reader.ReadSignedByte();
                 Data = reader.ReadBuffer(LengthFormat.VarInt);

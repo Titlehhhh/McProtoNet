@@ -45,7 +45,7 @@ public static class Extensions
         if (y >= 0x00000800) y -= 0x00001000;
         if (z >= 0x02000000) z -= 0x04000000;
 
-        return new Position(x, z, y);
+        return new Position(x, y, z);
     }
 
     public static ChunkCoordinate ReadChunkCoordinate(this ref MinecraftPrimitiveReader reader, int protocolVersion)
