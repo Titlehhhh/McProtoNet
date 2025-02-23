@@ -189,7 +189,7 @@ public static class Extensions
     /// <param name="value">The integer value to encode</param>
     /// <param name="data">The byte span to write to</param>
     /// <returns>The number of bytes written</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte GetVarIntLength(this int value, Span<byte> data)
     {
         var unsigned = (uint)value;
@@ -275,8 +275,6 @@ public static class Extensions
                 await stream.ReadExactlyAsync(memory, token);
 
                 read = buff[0];
-
-
                 var value = read & 0b01111111;
                 result |= value << (7 * numRead);
 
