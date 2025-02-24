@@ -6,7 +6,6 @@ namespace McProtoNet.Utils;
 /// Resolves server records using DNS queries
 /// </summary>
 public class ServerResolver : IServerResolver
-
 {
     /// <summary>
     /// Resolves a server record asynchronously
