@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <PackageTags>minecraft;nbt</PackageTags>
     </PropertyGroup>
     <PropertyGroup>
         <Description>Library for working with NBT</Description>
