@@ -30,9 +30,21 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
         </PackageReference>
     </ItemGroup>
+    
+    <PropertyGroup>
+        <EnableSourceLink>true</EnableSourceLink>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DotNextVersion>5.18.0</DotNextVersion>
+        <DotNextVersion>5.19.0</DotNextVersion>
     </PropertyGroup>
     <PropertyGroup>
         <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>
@@ -52,6 +64,7 @@
         <PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
         <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1"/>
         <PackageVersion Include="System.IO.Pipelines" Version="9.0.2"/>
+        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
 
         <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25"/>
     </ItemGroup>
