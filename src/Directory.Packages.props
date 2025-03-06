@@ -8,17 +8,26 @@
         <PackageTags>minecraft;protocol;high-performance</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageProjectUrl>https://github.com/Titlehhhh/McProtoNet</PackageProjectUrl>
-        <PackageIcon>..\assets\icon.png</PackageIcon>
-        <PackageLicenseFile>..\assets\LICENSE.txt</PackageLicenseFile>
-        <PackageReadmeFile>..\assets\readme.md</PackageReadmeFile>
+        <PackageIcon>icon.png</PackageIcon>        
+        <PackageReadmeFile>Readme.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
+        <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString(`yyyy`)) &#169; Titlehhhh</Copyright>
     </PropertyGroup>
-    <ItemGroup>
-        <None Include="..\assets\icon.png" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="..\assets\LICENSE.txt" Pack="true" PackagePath="" Visible="false"/>
-        <None Include="..\assets\readme.md" Pack="true" PackagePath=""/>
+    <ItemGroup>                
+        <None Include="Readme.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+    <ItemGroup Label="PackageIcon">
+        <None Include="$(MSBuildThisFileDirectory)/assets/icon.png" Pack="true" Visible="false" PackagePath=""/>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="DotNet.ReproducibleBuilds"/>
+        <PackageReference Include="DotNet.ReproducibleBuilds">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="MinVer">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -43,6 +52,6 @@
         <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1"/>
         <PackageVersion Include="System.IO.Pipelines" Version="9.0.2"/>
 
-        <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25" PrivateAssets="All"/>
+        <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25"/>
     </ItemGroup>
 </Project>

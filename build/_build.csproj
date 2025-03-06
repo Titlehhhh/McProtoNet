@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <PackageReference Include="Nuke.Common" Version="9.0.4" />
+    <PackageDownload Include="Meziantou.Framework.NuGetPackageValidation.Tool" Version="[1.0.18]" />
   </ItemGroup>
 
 </Project>

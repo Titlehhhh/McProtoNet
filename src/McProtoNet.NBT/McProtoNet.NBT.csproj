@@ -10,7 +10,6 @@
         <Description>Library for working with NBT</Description>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="DotNext.IO"/>
         <PackageReference Include="DotNext"/>
     </ItemGroup>
 </Project>
