@@ -9,8 +9,6 @@ using DotNext.Buffers;
 using DotNext.Collections.Generic;
 using DotNext.IO;
 using McProtoNet.Net.Zlib;
-using ZlibNGSharpMinimal.Deflate;
-using ZlibNGSharpMinimal.Inflate;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace McProtoNet.Benchmark;

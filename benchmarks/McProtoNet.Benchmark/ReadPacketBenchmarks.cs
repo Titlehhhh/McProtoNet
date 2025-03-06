@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using DotNetty.Common.Utilities;
 using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Net;

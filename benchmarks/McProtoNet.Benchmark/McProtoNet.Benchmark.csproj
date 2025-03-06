@@ -13,12 +13,7 @@
 
     <ItemGroup>
         <PackageReference Include="BenchmarkDotNet" Version="0.14.0"/>
-        <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0"/>
-        <PackageReference Include="DotNetty.Buffers" Version="0.7.6"/>
-        <PackageReference Include="DotNext" Version="5.18.0"/>
-
-        <PackageReference Include="SharpZipLib" Version="1.4.2"/>
-        <PackageReference Include="carlst99.ZlibNGSharp" Version="1.2.0"/>
+        <PackageReference Include="BenchmarkDotNet.Diagnostics.Windows" Version="0.14.0"/>             
     </ItemGroup>
 
     <ItemGroup>

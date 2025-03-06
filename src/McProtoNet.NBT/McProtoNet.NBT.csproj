@@ -6,16 +6,14 @@
         <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
-        <Description>Библиотека для работы с NBT</Description>
-        <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+       
 
     </PropertyGroup>
+    <PropertyGroup>
+        <Description>Library for working with NBT</Description>
+        <PackageTags>minecraft;nbt</PackageTags>
+    </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2"/>
-        <PackageReference Include="DotNext" Version="5.14.0"/>
-        <PackageReference Include="MinVer" Version="6.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
+        <PackageReference Include="DotNext"/>
     </ItemGroup>
 </Project>
