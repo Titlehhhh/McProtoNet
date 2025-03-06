@@ -11,6 +11,7 @@
         <PackageIcon>icon.png</PackageIcon>        
         <PackageReadmeFile>Readme.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
+        <Authors>Titlehhhh</Authors>
         <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString(`yyyy`)) &#169; Titlehhhh</Copyright>
     </PropertyGroup>
     <ItemGroup>                
