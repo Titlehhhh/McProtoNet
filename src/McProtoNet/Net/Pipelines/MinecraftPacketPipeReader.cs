@@ -97,14 +97,16 @@ internal sealed class MinecraftPacketPipeReader
     {
         if (CompressionThreshold == -1)
         {
-            return new InputPacket(data);
+            throw new NotImplementedException();
+            //return new InputPacket(data);
         }
 
         data.TryReadVarInt(out var sizeUncompressed, out var len);
 
         if (sizeUncompressed == 0)
         {
-            return new InputPacket(data.Slice(1));
+            throw new NotImplementedException();
+            //return new InputPacket(data.Slice(1));
         }
 
 

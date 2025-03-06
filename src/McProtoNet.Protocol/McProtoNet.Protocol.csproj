@@ -7,6 +7,12 @@
         <LangVersion>13</LangVersion>
 
     </PropertyGroup>
+    <PropertyGroup>
+        <Description>A library that supports multiversion</Description>
+    </PropertyGroup>
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS0535</NoWarn>
+    </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
@@ -18,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Reactive" Version="6.0.1"/>
+
     </ItemGroup>
 
     <ItemGroup>

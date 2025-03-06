@@ -1,13 +1,9 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics.X86;
 using System.Text;
-using System.Text.Unicode;
-using DotNext;
 using DotNext.Buffers;
 using McProtoNet.NBT;
-using DotNext.IO;
 
 namespace McProtoNet.Serialization;
 
@@ -15,7 +11,7 @@ namespace McProtoNet.Serialization;
 /// Represents stack-allocated reader for primitive types of Minecraft
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-public ref partial struct MinecraftPrimitiveReader
+public ref struct MinecraftPrimitiveReader
 {
     private SpanReader<byte> _reader;
 

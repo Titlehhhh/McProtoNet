@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McProtoNet", "src\McProtoNet\McProtoNet.csproj", "{48EC7F9B-B242-4F3C-BEF9-7508671E4E35}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B8A25834-11DD-486B-9D54-DB2FE12AA9F6}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Packages.props = src\Directory.Packages.props
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McProtoNet.Abstractions", "src\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj", "{635E016E-9B06-4EF2-8812-A62F1EE96126}"
 EndProject
@@ -31,9 +34,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McProtoNet.Benchmark", "ben
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "McProtoNet.FSharp", "src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj", "{7072045E-F563-4394-932B-AE195B072401}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleBotFSharp", "SimpleBotFSharp\SimpleBotFSharp.fsproj", "{A2632801-BC97-46FD-B001-3505D19335E4}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McProtoNet.SourceGenerator", "src\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj", "{CDF9A963-1548-4AD1-821D-4B96DE0F085D}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleBotFSharp", "examples\SimpleBotFSharp\SimpleBotFSharp.fsproj", "{FB037473-5148-44D6-BD5D-E119006F81AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -81,14 +84,14 @@ Global
 		{7072045E-F563-4394-932B-AE195B072401}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7072045E-F563-4394-932B-AE195B072401}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7072045E-F563-4394-932B-AE195B072401}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A2632801-BC97-46FD-B001-3505D19335E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A2632801-BC97-46FD-B001-3505D19335E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A2632801-BC97-46FD-B001-3505D19335E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A2632801-BC97-46FD-B001-3505D19335E4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB037473-5148-44D6-BD5D-E119006F81AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB037473-5148-44D6-BD5D-E119006F81AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB037473-5148-44D6-BD5D-E119006F81AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB037473-5148-44D6-BD5D-E119006F81AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -104,7 +107,7 @@ Global
 		{56D22A08-5EF3-47CA-9333-1F6B053926C5} = {9BFAD4F4-6351-4EF7-B327-8C4D6B85B28F}
 		{DCBB7E3A-0433-40C3-9370-595677240F53} = {32D768AE-3AD9-4145-B94D-15D80639B885}
 		{7072045E-F563-4394-932B-AE195B072401} = {B8A25834-11DD-486B-9D54-DB2FE12AA9F6}
-		{A2632801-BC97-46FD-B001-3505D19335E4} = {C5986CEE-2458-4C1B-B538-3A2E9A248645}
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D} = {B8A25834-11DD-486B-9D54-DB2FE12AA9F6}
+		{FB037473-5148-44D6-BD5D-E119006F81AE} = {C5986CEE-2458-4C1B-B538-3A2E9A248645}
 	EndGlobalSection
 EndGlobal

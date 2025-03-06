@@ -9,8 +9,5 @@
         <Compile Include="Program.fs"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj"/>
-    </ItemGroup>
 
 </Project>

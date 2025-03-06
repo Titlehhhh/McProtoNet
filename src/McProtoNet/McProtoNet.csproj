@@ -1,39 +1,22 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
-        <RuntimeIdentifiers>win-x64;linux-x64</RuntimeIdentifiers>
+        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>       
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>
-        <Description>High-performance library for working with the minecraft protocol</Description>
-        <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-        <PackageTags>minecraft bot reactive performance</PackageTags>
+        
+        
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
+    </PropertyGroup>
+    <PropertyGroup>
+        <Description>High-performance library for working with the minecraft protocol</Description>
+        
     </PropertyGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
         <InternalsVisibleTo Include="SampleBotCSharp"/>
-    </ItemGroup>
-    <ItemGroup>
-
-
-        <PackageReference Include="ConfigureAwait.Fody" Version="3.3.2"/>
-        <PackageReference Include="DotNext.IO" Version="5.18.0"/>
-        <PackageReference Include="DotNext.Threading" Version="5.18.0"/>
-        <PackageReference Include="MinVer" Version="6.0.0">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="DotNext" Version="5.18.0"/>
-        <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.0" />
-        <PackageReference Include="QuickProxyNet" Version="2.0.0"/>
-
-        <PackageReference Include="System.Reactive" Version="6.0.1"/>
-        <PackageReference Include="ZString" Version="2.6.0"/>
-        <PackageReference Include="Tomat.LibDeflate.Native" Version="1.21.1"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -43,8 +26,15 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Client\MinecraftClientLogin.cs" />
-      <None Include="Client\MinecraftClientLogin.cs" />
+        <Compile Remove="Client\MinecraftClientLogin.cs"/>
+        <None Include="Client\MinecraftClientLogin.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="BouncyCastle.Cryptography"/>
+        <PackageReference Include="DotNext.IO"/>
+        <PackageReference Include="DotNext.Threading"/>
+        <PackageReference Include="System.Reactive"/>
     </ItemGroup>
 
 

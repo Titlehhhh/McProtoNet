@@ -17,7 +17,7 @@ public class StringBenchmarks
         MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
         for (int i = 0; i < 10; i++)
         {
-            writer.WriteStringOld(Test);
+           // writer.WriteStringOld(Test);
         }
     }
 

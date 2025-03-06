@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
     public abstract partial class SetSlotPacket : IServerPacket
     {
         public short Slot { get; set; }
-        public Slot Item { get; set; }
+        public Slot? Item { get; set; }
 
         [PacketSubInfo(340, 755)]
         public sealed partial class V340_755 : SetSlotPacket

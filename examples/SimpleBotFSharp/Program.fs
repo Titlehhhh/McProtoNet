@@ -1,0 +1,4 @@
+﻿module SimpleBot
+
+
+printfn "asd"
