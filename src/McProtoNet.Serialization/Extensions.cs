@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace McProtoNet.Serialization;
 
@@ -19,22 +20,39 @@ public static class Extensions
     /// <param name="data">The span of bytes to read from</param>
     /// <returns>The read VarInt</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadVarInt(this Span<byte> data)
+    public static int ReadVarInt(this ReadOnlySpan<byte> data)
+    {
+        return ReadVarInt(data, out _);
+    }
+    /// <summary>
+    /// Reads a VarInt from a byte span
+    /// </summary>
+    /// <param name="data">The span to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static int ReadVarInt(this ReadOnlySpan<byte> data, out int len)
     {
         var numRead = 0;
         var result = 0;
         byte read;
-
         do
         {
             read = data[numRead];
-            var value = read & 127;
+
+
+            var value = read & 0b01111111;
             result |= value << (7 * numRead);
 
             numRead++;
             if (numRead > 5) throw new ArithmeticException("VarInt too long");
         } while ((read & 0b10000000) != 0);
 
+        //data = data.Slice(numRead);
+
+
+        len = numRead;
         return result;
     }
 
@@ -61,37 +79,7 @@ public static class Extensions
         writer.Write(data.Slice(0, len));
     }
 
-    /// <summary>
-    /// Reads a VarInt from a byte span
-    /// </summary>
-    /// <param name="data">The span to read from</param>
-    /// <param name="len">The number of bytes read</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadVarInt(this Span<byte> data, out int len)
-    {
-        var numRead = 0;
-        var result = 0;
-        byte read;
-        do
-        {
-            read = data[numRead];
-
-
-            var value = read & 0b01111111;
-            result |= value << (7 * numRead);
-
-            numRead++;
-            if (numRead > 5) throw new ArithmeticException("VarInt too long");
-        } while ((read & 0b10000000) != 0);
-
-        //data = data.Slice(numRead);
-
-
-        len = numRead;
-        return result;
-    }
+   
 
     /// <summary>
     /// Gets the length in bytes needed to encode an integer as a VarInt
@@ -264,7 +252,7 @@ public static class Extensions
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
         var buff = ArrayPool<byte>.Shared.Rent(1);
-        var memory = buff.AsMemory(0, 1);
+       
         try
         {
             var numRead = 0;
@@ -272,7 +260,7 @@ public static class Extensions
             byte read;
             do
             {
-                await stream.ReadExactlyAsync(memory, token);
+                await stream.ReadExactlyAsync(buff,0,1, token);
 
                 read = buff[0];
                 var value = read & 0b01111111;

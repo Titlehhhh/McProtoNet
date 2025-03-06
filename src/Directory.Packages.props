@@ -1,0 +1,43 @@
+<Project>
+    <PropertyGroup>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+    </PropertyGroup>
+    <PropertyGroup>
+        <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+        <PackageTags>minecraft;protocol;high-performance</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/Titlehhhh/McProtoNet</PackageProjectUrl>
+        <PackageIcon>..\assets\icon.png</PackageIcon>
+        <PackageLicenseFile>..\assets\LICENSE.txt</PackageLicenseFile>
+        <PackageReadmeFile>..\assets\readme.md</PackageReadmeFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\assets\icon.png" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="..\assets\LICENSE.txt" Pack="true" PackagePath="" Visible="false"/>
+        <None Include="..\assets\readme.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DotNextVersion>5.18.0</DotNextVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+        <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageVersion Include="DotNext.IO" Version="$(DotNextVersion)"/>
+        <PackageVersion Include="DotNext.Threading" Version="$(DotNextVersion)"/>
+        <PackageVersion Include="DotNext" Version="$(DotNextVersion)"/>
+
+        <PackageVersion Include="MinVer" Version="6.0.0"/>
+
+        <PackageVersion Include="QuickProxyNet" Version="2.0.0"/>
+        <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2"/>
+        <PackageVersion Include="BouncyCastle.Cryptography" Version="2.5.1"/>
+        <PackageVersion Include="System.Reactive" Version="6.0.1"/>
+        <PackageVersion Include="DnsClient" Version="1.8.0"/>
+        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
+        <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1"/>
+        <PackageVersion Include="System.IO.Pipelines" Version="9.0.2"/>
+    </ItemGroup>
+</Project>

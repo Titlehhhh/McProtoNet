@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Unicode;
-using Cysharp.Text;
 using DotNext.Buffers;
 using McProtoNet.NBT;
 
@@ -243,22 +242,6 @@ public ref struct MinecraftPrimitiveWriter()
         } while (unsigned != 0);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    internal void WriteStringOld(string value)
-    {
-        CheckDisposed();
-        var builder = ZString.CreateUtf8StringBuilder();
-        try
-        {
-            builder.Append(value);
-            WriteVarInt(builder.Length);
-            writerSlim.Write(builder.AsSpan());
-        }
-        finally
-        {
-            builder.Dispose();
-        }
-    }
 
     private static readonly Encoding encoding = new UTF8Encoding();
 
@@ -267,16 +250,26 @@ public ref struct MinecraftPrimitiveWriter()
     /// </summary>
     /// <param name="value">The string value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteString(string value)
+    public void WriteString(scoped ReadOnlySpan<char> chars)
     {
         CheckDisposed();
-        int length = encoding.GetByteCount(value);
+        int length = encoding.GetByteCount(chars);
         WriteVarInt(length);
         Span<byte> span = writerSlim.GetSpan(length);
 
-        if (!encoding.TryGetBytes(value, span, out var written))
-            throw new ArgumentException("Failed to write string to buffer", nameof(value));
+        if (!encoding.TryGetBytes(chars, span, out var written))
+            throw new ArgumentException("Failed to write string to buffer", nameof(chars));
         writerSlim.Advance(written);
+    }
+
+    /// <summary>
+    /// Writes a string value to the buffer in UTF-8 format
+    /// </summary>
+    /// <param name="value">The string value to write</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void WriteString(string value)
+    {
+        WriteString(value.AsSpan());
     }
 
     /// <summary>

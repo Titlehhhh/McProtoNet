@@ -202,7 +202,7 @@ public static class Extensions
             writer.WriteBoolean(true);
             writer.WriteVarInt(slot.ItemId);
             writer.WriteSignedByte(slot.ItemCount);
-            writer.WriteOptionalNbt(slot.Nbt);
+            writer.WriteNbt(slot.Nbt);
         }
     }
 
@@ -210,7 +210,7 @@ public static class Extensions
     {
         if (reader.ReadBoolean())
             return new Slot(reader.ReadVarInt(), reader.ReadSignedByte(),
-                reader.ReadOptionalNbtTag(protocolVersion < 764));
+                reader.ReadNbtTag(protocolVersion));
 
         return null;
     }

@@ -5,14 +5,18 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
     </PropertyGroup>
-
+    <PropertyGroup>
+        <Description>Abstractions for McProtoNet</Description>
+    </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="DotNext" Version="5.14.0"/>
-        <PackageReference Include="QuickProxyNet" Version="2.0.0" />
+        <PackageReference Include="QuickProxyNet"/>
     </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
     </ItemGroup>
 
 </Project>
