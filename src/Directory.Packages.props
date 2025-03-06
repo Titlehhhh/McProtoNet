@@ -33,6 +33,7 @@
     
     <PropertyGroup>
         <EnableSourceLink>true</EnableSourceLink>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
     </PropertyGroup>
     <ItemGroup>
