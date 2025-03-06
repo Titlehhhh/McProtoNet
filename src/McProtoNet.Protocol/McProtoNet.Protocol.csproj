@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>13</LangVersion>
-
+        <NoWarn>CS8618;CS1591;CS8601</NoWarn>
     </PropertyGroup>
     <PropertyGroup>
         <Description>A library that supports multiversion</Description>
