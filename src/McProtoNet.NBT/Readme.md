@@ -1,3 +1,3 @@
 # McProtoNet.NBT
 
-Библиотека для работы с NBT. Это копия fnbt, но пространства имен были заменены.
+This library includes tools for working with NBT.

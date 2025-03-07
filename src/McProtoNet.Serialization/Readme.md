@@ -1,15 +1,9 @@
-# McProtoNet
+# McProtoNet.Serialization
 
-**McProtoNet** - это библиотека для работы с протоколом Minecraft.
+**McProtoNet.Serialization** is a library designed to simplify the serialization and deserialization of Minecraft protocol data. It provides a powerful and flexible API for working with binary data specific to Minecraft, including:
 
-Где можно применять:
+- Processing data in BigEndian format (high byte forward), which complies with the specifications of the Minecraft protocol and eliminates the need for manual byte order control.
 
-- Создание ботов
-- Создание быстрых серверов
+- Serialization and deserialization of specific data types such as VarInt, VarLong, UUID, and NBT (Named Binary Tag).
 
-Поддерживаемые версии
-
-1.12.2 - latest
-
-Библиотека лишь занимается подключением к ванильным серверам Minecraft.
-Обработкой пакетов и запись.
+- Convenient methods for reading and writing structures, which makes it easier to work with low-level data.

@@ -1,3 +1,3 @@
 # McProtoNet.Utils
 
-Библиотека вспомогательных инструментов для запуска бота, например, srv lookup.
+A library of auxiliary tools for the work, for example, srv-lookup.
