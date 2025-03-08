@@ -64,6 +64,7 @@ class Build : NukeBuild
 
     Target Pack => _ => _
         .DependsOn(Clean)
+        .DependsOn(Compile)
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
@@ -81,6 +82,8 @@ class Build : NukeBuild
                     .SetProject(project)
                     .SetConfiguration(Configuration)
                     .SetNoDependencies(true)
+                    .SetNoBuild(true)
+                    .SetNoRestore(true)
                     .SetContinuousIntegrationBuild(true)
                     .SetOutputDirectory(NugetDirectory));
             }
@@ -98,6 +101,7 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
+            DotNetBuild(x => x.SetProjectFile(Solution));
         });
 
     Target Push => _ => _
