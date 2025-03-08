@@ -46,7 +46,7 @@ class Build : NukeBuild
         });
 
     Target Tests => _ => _
-        .Before(Restore)
+        .DependsOn(Restore)
         .Executes(() =>
         {
             DotNetTest(x =>

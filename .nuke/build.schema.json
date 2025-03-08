@@ -27,7 +27,6 @@
         "Clean",
         "Compile",
         "Pack",
-        "PrintVersion",
         "Push",
         "Restore",
         "Tests",
