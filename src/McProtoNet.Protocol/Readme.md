@@ -1,15 +1,3 @@
-# McProtoNet
+# McProtoNet.Protocol
 
-**McProtoNet** - это библиотека для работы с протоколом Minecraft.
-
-Где можно применять:
-
-- Создание ботов
-- Создание быстрых серверов
-
-Поддерживаемые версии
-
-1.12.2 - latest
-
-Библиотека лишь занимается подключением к ванильным серверам Minecraft.
-Обработкой пакетов и запись.
+This library includes classes and structures that provide serialization and deserialization of Minecraft packages and types for different versions of the game, adding support for multiversion.
