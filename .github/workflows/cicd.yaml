@@ -17,7 +17,7 @@ jobs:
         with:
           dotnet-version: 9.x
       - name: Run tests
-        run: ./build.cmd Tests
+        run: ./build.cmd Tests --Configuration Release
         
   publish-nuget:
     needs: [tests]
