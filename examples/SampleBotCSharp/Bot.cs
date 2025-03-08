@@ -34,7 +34,7 @@ public class Bot
             Version = (int)_version
         });
 
-        await _client.ConnectAsync();
+        await _client.ConnectAsync(default);
         await _client.Login("TestBot", _host, 25565);
 
         _ = RunReadLoop();

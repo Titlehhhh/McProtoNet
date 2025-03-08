@@ -41,6 +41,15 @@ class Build : NukeBuild
             DotNetClean(s => s.SetProject(Solution));
         });
 
+    Target Tests => _ => _
+        .Before(Restore)
+        .Executes(() =>
+        {
+            DotNetTest(x =>
+                x.SetProjectFile(Solution.tests.McProtoNet_Tests)
+                    .SetConfiguration(Configuration));
+        });
+
     Target Validation => _ => _
         .DependsOn(Pack)
         .Executes(() =>
@@ -89,5 +98,26 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
+        });
+
+    Target Push => _ => _
+        .DependsOn(Tests)
+        .DependsOn(Pack)
+        .DependsOn(Validation)
+        .Requires(() => NugetApiUrl)
+        .Requires(() => NugetApiKey)
+        .Requires(() => Configuration.Equals(Configuration.Release))
+        .Executes(() =>
+        {
+            NugetDirectory.GlobFiles("*.nupkg")
+                .ForEach(x =>
+                {
+                    DotNetNuGetPush(s => s
+                        .SetTargetPath(x)
+                        .EnableSkipDuplicate()
+                        .SetSource(NugetApiUrl)
+                        .SetApiKey(NugetApiKey)
+                    );
+                });
         });
 }
