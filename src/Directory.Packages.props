@@ -7,7 +7,7 @@
         <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
         <PackageTags>minecraft;protocol;high-performance</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/Titlehhhh/McProtoNet</PackageProjectUrl>
+        <PackageProjectUrl>https://titlehhhh.github.io/McProtoNet</PackageProjectUrl>
         <PackageIcon>icon.png</PackageIcon>        
         <PackageReadmeFile>Readme.md</PackageReadmeFile>
         <RepositoryType>git</RepositoryType>
