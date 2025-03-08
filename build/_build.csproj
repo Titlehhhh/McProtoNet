@@ -9,10 +9,7 @@
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
     <IsPackable>false</IsPackable>
-  </PropertyGroup>
-  <PropertyGroup>
-    <MinVerTagPrefix>v</MinVerTagPrefix>
-  </PropertyGroup>
+  </PropertyGroup>  
   <ItemGroup>
     <PackageDownload Include="minver-cli" Version="[6.0.0]" />
     <PackageReference Include="Nuke.Common" Version="9.0.4" />
