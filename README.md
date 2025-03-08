@@ -1,18 +1,12 @@
 ﻿<h1 align="center">
      <img height="200" alt="Fiber" src="assets/icon.svg">
-
-
   <br>
   <a href="https://www.nuget.org/packages/McProtoNet">
     <img src="https://img.shields.io/nuget/v/McProtoNet?style=for-the-badge">
   </a>
-
   <a href="https://f.feedz.io/mcprotonet/night/packages/McProtoNet/latest/download">
     <img src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fmcprotonet%2Fnight%2Fshield%2FMcProtoNet%2Flatest">
   </a>
-
-
-
 </h1>
 <p>
   <em>
