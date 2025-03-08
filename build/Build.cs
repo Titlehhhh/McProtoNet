@@ -36,7 +36,6 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     Target Clean => _ => _
-        .Before(Restore)
         .Executes(() =>
         {
             ArtifactsDirectory.DeleteDirectory();
@@ -68,7 +67,6 @@ class Build : NukeBuild
 
 
     Target Pack => _ => _
-        .DependsOn(Clean)
         .DependsOn(Compile)
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
