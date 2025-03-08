@@ -5,7 +5,10 @@ on:
       - master
       - release/*
     tags:
-      - "v*"  
+      - "v*"
+    paths-ignore:
+      - 'docs/**'
+      - '**.md'
 jobs:
   tests:
     runs-on: ubuntu-latest
