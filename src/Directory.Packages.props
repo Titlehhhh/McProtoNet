@@ -49,7 +49,7 @@
     
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DotNextVersion>5.19.0</DotNextVersion>
+        <DotNextVersion>5.19.1</DotNextVersion>
     </PropertyGroup>
     <PropertyGroup>
         <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>

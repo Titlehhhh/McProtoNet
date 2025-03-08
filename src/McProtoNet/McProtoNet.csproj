@@ -4,9 +4,7 @@
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>       
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>preview</LangVersion>
-        
-        
+        <LangVersion>preview</LangVersion>        
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup>
@@ -35,6 +33,7 @@
         <PackageReference Include="DotNext.IO"/>
         <PackageReference Include="DotNext.Threading"/>
         <PackageReference Include="System.Reactive"/>
+        <PackageReference Include="Tomat.LibDeflate.Native"/>
     </ItemGroup>
 
 
