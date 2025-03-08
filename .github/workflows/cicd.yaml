@@ -8,7 +8,7 @@ on:
       - "v*"
     paths-ignore:
       - 'docs/**'
-      - 'Readme.md'
+      - 'README.md'
 jobs:
   tests:
     runs-on: ubuntu-latest
