@@ -40,6 +40,11 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "SimpleBotFSharp", "examples
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.csproj", "{67A0FA30-A737-4849-9DE7-FBFDDA3B6CB8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "assets", "assets", "{912AF9F6-B29F-4326-8FD7-95D9289DD7F9}"
+	ProjectSection(SolutionItems) = preProject
+		src\assets\icon.png = src\assets\icon.png
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -113,5 +118,6 @@ Global
 		{7072045E-F563-4394-932B-AE195B072401} = {B8A25834-11DD-486B-9D54-DB2FE12AA9F6}
 		{CDF9A963-1548-4AD1-821D-4B96DE0F085D} = {B8A25834-11DD-486B-9D54-DB2FE12AA9F6}
 		{FB037473-5148-44D6-BD5D-E119006F81AE} = {C5986CEE-2458-4C1B-B538-3A2E9A248645}
+		{912AF9F6-B29F-4326-8FD7-95D9289DD7F9} = {B8A25834-11DD-486B-9D54-DB2FE12AA9F6}
 	EndGlobalSection
 EndGlobal

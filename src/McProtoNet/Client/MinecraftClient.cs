@@ -73,7 +73,7 @@ public class MinecraftClient : IMinecraftClient
     /// <param name="packet"></param>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    public async ValueTask SendPacket(OutputPacket packet)
+    public async ValueTask SendPacket(OutputPacket packet, CancellationToken cancellationToken = default)
     {
         var state = _state;
 
@@ -91,6 +91,7 @@ public class MinecraftClient : IMinecraftClient
         if (state != Connected)
             ThrowNotConnected();
 
+        await using var reg = cancellationToken.Register(_aliveClient.Cancel); 
         var holder = await _sendLock.AcquireWriteLockAsync(_aliveClient.Token);
         try
         {
@@ -116,11 +117,12 @@ public class MinecraftClient : IMinecraftClient
     /// Connects to the Minecraft server asynchronously.
     /// </summary>
     /// <exception cref="InvalidOperationException">Thrown if the client is already connecting or connected.</exception>
-    public async ValueTask ConnectAsync()
+    public async ValueTask ConnectAsync(CancellationToken cancellationToken)
     {
         if (Interlocked.CompareExchange(ref _state, Connecting, None) != None)
             throw new InvalidOperationException();
 
+        await using var reg = cancellationToken.Register(_aliveClient.Cancel); 
         try
         {
             Stream stream = await ConnectInternal(StartOptions, _aliveClient.Token);
