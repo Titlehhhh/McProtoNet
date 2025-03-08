@@ -45,14 +45,10 @@ class Build : NukeBuild
         });
 
     Target Tests => _ => _
-        .DependsOn(Restore)
-        .DependsOn(Compile)
         .Executes(() =>
         {
             DotNetTest(x =>
                 x.SetProjectFile(Solution.tests.McProtoNet_Tests)
-                    .SetNoRestore(true)
-                    .SetNoBuild(true)
                     .SetConfiguration(Configuration));
         });
 
@@ -118,7 +114,6 @@ class Build : NukeBuild
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
-            return;
             NugetDirectory.GlobFiles("*.nupkg")
                 .ForEach(x =>
                 {
