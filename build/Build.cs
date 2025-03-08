@@ -83,8 +83,6 @@ class Build : NukeBuild
                     .SetProject(project)
                     .SetConfiguration(Configuration)
                     .SetNoDependencies(true)
-                    .SetNoBuild(true)
-                    .SetNoRestore(true)
                     .SetContinuousIntegrationBuild(true)
                     .SetOutputDirectory(NugetDirectory));
             }
