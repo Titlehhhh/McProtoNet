@@ -14,14 +14,13 @@
 
 
 </h1>
-<p align="center">
+<p>
   <em>
     <b>McProtoNet</b> is a .NET library for working with the Minecraft Java Edition protocol 
     </em>
 </p>
 
 ---
- 
 
 
 ## ⚠️ **Attention**
