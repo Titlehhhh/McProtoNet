@@ -47,6 +47,7 @@ class Build : NukeBuild
         {
             DotNetTest(x =>
                 x.SetProjectFile(Solution.tests.McProtoNet_Tests)
+                    .SetNoRestore(true)
                     .SetConfiguration(Configuration));
         });
 
