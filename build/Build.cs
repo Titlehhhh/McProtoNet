@@ -7,7 +7,9 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
+using Serilog;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.EnvironmentInfo;
@@ -25,6 +27,7 @@ class Build : NukeBuild
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
     [Parameter] string NugetApiKey;
 
+    [MinVer] readonly MinVer MinVer;
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath NugetDirectory => ArtifactsDirectory / "nuget";
     public static int Main() => Execute<Build>(x => x.Compile);
@@ -39,6 +42,12 @@ class Build : NukeBuild
             ArtifactsDirectory.DeleteDirectory();
             NugetDirectory.DeleteDirectory();
             DotNetClean(s => s.SetProject(Solution));
+        });
+
+    Target PrintVersion => _ => _
+        .Executes(() =>
+        {
+            Log.Information("MinVer = {Value}", MinVer.Version);
         });
 
     Target Tests => _ => _
