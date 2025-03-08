@@ -46,11 +46,13 @@ class Build : NukeBuild
 
     Target Tests => _ => _
         .DependsOn(Restore)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             DotNetTest(x =>
                 x.SetProjectFile(Solution.tests.McProtoNet_Tests)
                     .SetNoRestore(true)
+                    .SetNoBuild(true)
                     .SetConfiguration(Configuration));
         });
 
