@@ -1,0 +1,28 @@
+﻿name: cicd.yaml
+on:
+  push:
+    branches:
+      - master
+      - release/*
+    tags:
+      - "v*"  
+jobs:
+  main:
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+          
+      - name: Feedz push
+        run: ./build.cmd Push --Configuration Release --NugetApiUrl https://f.feedz.io/mcprotonet/night/nuget/index.json --NugetApiKey ${{secrets.FEEDZ_TOKEN}}
+      
+      #- name: Nuget push
+      #  if: ${{ startsWith(github.ref, 'refs/tags/') }}
+      #  run: ./build.cmd Push --Configuration Release --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
