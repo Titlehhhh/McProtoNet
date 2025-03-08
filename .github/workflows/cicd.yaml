@@ -23,6 +23,6 @@ jobs:
       - name: Feedz push
         run: ./build.cmd Push --Configuration Release --NugetApiUrl https://f.feedz.io/mcprotonet/night/nuget/index.json --NugetApiKey ${{secrets.FEEDZ_TOKEN}}
       
-      #- name: Nuget push
-      #  if: ${{ startsWith(github.ref, 'refs/tags/') }}
-      #  run: ./build.cmd Push --Configuration Release --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
+      - name: Nuget push
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: ./build.cmd Push --Configuration Release --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
