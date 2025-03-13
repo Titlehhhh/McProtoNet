@@ -2,7 +2,7 @@
 
 <tabs>
     <tab title="NuGet">
-        <code-block lang="bash">dotnet add package McProtoNet --version 2.0.0-preview.3</code-block>
+        <code-block lang="bash">dotnet add package McProtoNet --version 2.0.0-preview.4</code-block>
     </tab>
     <tab title="Сборка из исходного кода">
         <procedure>
