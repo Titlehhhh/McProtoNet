@@ -18,7 +18,7 @@
 
 
 ## ⚠️ **Attention**
-McProtoNet is currently under active development, so some features are not stable and not all packages are supported.
+McProtoNet is currently under active development, so some features are not stable and not all packets are supported.
 
 ---
 
