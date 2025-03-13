@@ -132,7 +132,6 @@ public class MinecraftClient : IMinecraftClient
         {
             Stream stream = await ConnectInternal(StartOptions, cancellationToken);
             AesStream aesStream = new(stream);
-            _mainStream = aesStream;
             Interlocked.Exchange(ref _mainStream, aesStream)?.Dispose();
 
             _packetReader.BaseStream = aesStream;
