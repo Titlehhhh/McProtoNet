@@ -18,11 +18,20 @@ public class CompletionResult
 {
     public TimeSpan RunningTime { get; }
 }
+
 /// <summary>
 ///     Represents a Minecraft client.
 /// </summary>
 public class MinecraftClient : IMinecraftClient
 {
+    private enum State
+    {
+        None = 0,
+        Connecting = 1,
+        Connected = 2,
+        Disposed = 3
+    }
+
     /// <summary>
     ///     Creates a new instance of <see cref="MinecraftClient" /> with the specified options.
     /// </summary>
@@ -34,33 +43,21 @@ public class MinecraftClient : IMinecraftClient
 
     #region Properties
 
-    public bool IsConnected => Volatile.Read(ref _state) == Connected;
+    public bool IsConnected => _state == (int)State.Connected;
     public MinecraftClientStartOptions StartOptions { get; }
     public int ProtocolVersion => StartOptions.Version;
-    public Task Completion => _completion.Task;
 
     #endregion
 
-    #region Constants
-
-    private const int None = 0;
-    private const int Connecting = 1;
-    private const int Connected = 2;
-    private const int Disposed = 3;
-    private const int Stopping = 4;
-
-    #endregion
 
     #region Fields
 
+    private State CurrentState => (State)_state;
+
     private volatile int _state;
 
-
-    private readonly TaskCompletionSource _completion = new();
-    private readonly CancellationTokenSource _aliveClient = new();
     private readonly MinecraftPacketReader _packetReader = new();
     private readonly MinecraftPacketSender _packetSender = new();
-    private readonly AsyncReaderWriterLock _sendLock = new();
     private AesStream? _mainStream;
 
     #endregion
@@ -75,42 +72,25 @@ public class MinecraftClient : IMinecraftClient
     /// <exception cref="InvalidOperationException"></exception>
     public async ValueTask SendPacket(OutputPacket packet, CancellationToken cancellationToken = default)
     {
-        var state = _state;
+        var state = CurrentState;
 
         switch (state)
         {
-            case Disposed:
+            case State.Disposed:
                 ThrowDisposed();
                 break;
-            case Stopping:
-                ThrowStopping();
-                break;
         }
 
-
-        if (state != Connected)
+        if (state != State.Connected)
             ThrowNotConnected();
 
-        await using var reg = cancellationToken.Register(_aliveClient.Cancel); 
-        var holder = await _sendLock.AcquireWriteLockAsync(_aliveClient.Token);
-        try
-        {
-            await _packetSender.SendAndDisposeAsync(packet, _aliveClient.Token);
-        }
-        catch (Exception ex)
-        {
-            _completion.TrySetException(ex);
-            state = Interlocked.Exchange(ref _state, Stopping);
-            if (state == Stopping)
-                return;
-            Dispose();
+        await _packetSender.SendAndDisposeAsync(packet, cancellationToken);
+    }
 
-            throw;
-        }
-        finally
-        {
-            holder.Dispose();
-        }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private State CompareExchange(State value, State comparand)
+    {
+        return (State)Interlocked.CompareExchange(ref _state, (int)value, (int)comparand);
     }
 
     /// <summary>
@@ -119,29 +99,37 @@ public class MinecraftClient : IMinecraftClient
     /// <exception cref="InvalidOperationException">Thrown if the client is already connecting or connected.</exception>
     public async ValueTask ConnectAsync(CancellationToken cancellationToken)
     {
-        if (Interlocked.CompareExchange(ref _state, Connecting, None) != None)
-            throw new InvalidOperationException();
+        var state = CompareExchange(State.Connecting, State.None);
 
-        await using var reg = cancellationToken.Register(_aliveClient.Cancel); 
+
+        if (state == State.Disposed)
+        {
+            ThrowDisposed();
+        }
+
+        if (state != State.None)
+        {
+            throw new InvalidOperationException("Already connecting or connected");
+        }
+
         try
         {
-            Stream stream = await ConnectInternal(StartOptions, _aliveClient.Token);
+            Stream stream = await ConnectInternal(StartOptions, cancellationToken);
             AesStream aesStream = new(stream);
             _mainStream = aesStream;
 
             _packetReader.BaseStream = aesStream;
             _packetSender.BaseStream = aesStream;
 
-            Interlocked.Exchange(ref _state, Connected);
+            state = CompareExchange(State.Connected, State.Connecting);
+            if (state != State.Connecting)
+            {
+                await aesStream.DisposeAsync();
+            }
         }
         catch (Exception ex)
         {
-            _completion.TrySetException(ex);
-            int state = Interlocked.Exchange(ref _state, Stopping);
-            if (state == Stopping)
-                return;
             Dispose();
-
             throw;
         }
     }
@@ -183,20 +171,15 @@ public class MinecraftClient : IMinecraftClient
 
     public IAsyncEnumerable<InputPacket> ReceivePackets(CancellationToken cancellationToken)
     {
-        int state = Volatile.Read(ref _state);
-        if (state == Disposed)
+        var state = CurrentState;
+        if (state == State.Disposed)
         {
             ThrowDisposed();
         }
 
-        if (state == Stopping)
+        if (state != State.Connected)
         {
-            throw new InvalidOperationException();
-        }
-
-        if (state != Connected)
-        {
-            throw new InvalidOperationException();
+            ThrowNotConnected();
         }
 
         return ReceivePacketsCore(cancellationToken);
@@ -205,20 +188,15 @@ public class MinecraftClient : IMinecraftClient
     private async IAsyncEnumerable<InputPacket> ReceivePacketsCore(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
-        while (!_aliveClient.IsCancellationRequested && !cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
             InputPacket packet;
             try
             {
-                packet = await _packetReader.ReadNextPacketAsync(_aliveClient.Token);
+                packet = await _packetReader.ReadNextPacketAsync(cancellationToken);
             }
-            catch (Exception ex)
+            catch
             {
-                _completion.TrySetException(ex);
-                Debug.WriteLine("Error in main loop: " + ex);
-                int state = Interlocked.Exchange(ref _state, Stopping);
-                if (state == Stopping)
-                    yield break;
                 Dispose();
                 throw;
             }
@@ -235,23 +213,17 @@ public class MinecraftClient : IMinecraftClient
     }
 
 
-
-
-
     public void SwitchCompression(int threshold)
     {
-        var state = _state;
+        var state = CurrentState;
         switch (state)
         {
-            case Disposed:
+            case State.Disposed:
                 ThrowDisposed();
-                break;
-            case Stopping:
-                ThrowStopping();
                 break;
         }
 
-        if (state != Connected)
+        if (state != State.Connected)
             ThrowNotConnected();
 
 
@@ -268,18 +240,15 @@ public class MinecraftClient : IMinecraftClient
     /// </exception>
     public void SwitchEncryption(Span<byte> privateKey)
     {
-        int state = _state;
+        var state = CurrentState;
         switch (state)
         {
-            case Disposed:
+            case State.Disposed:
                 ThrowDisposed();
-                break;
-            case Stopping:
-                ThrowStopping();
                 break;
         }
 
-        if (state != Connected)
+        if (state != State.Connected)
             ThrowNotConnected();
 
 
@@ -296,8 +265,6 @@ public class MinecraftClient : IMinecraftClient
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ThrowNotConnected() => throw new InvalidOperationException("Not connected");
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ThrowStopping() => throw new InvalidOperationException("Stopping");
 
 
     /// <summary>
@@ -305,26 +272,13 @@ public class MinecraftClient : IMinecraftClient
     /// </summary>
     public void Dispose()
     {
-        int state = Interlocked.Exchange(ref _state, Disposed);
-        if (state == Disposed)
+        int state = Interlocked.Exchange(ref _state, (int)State.Disposed);
+        if (state == (int)State.Disposed)
             return;
-        try
-        {
-            _aliveClient.Cancel();
-        }
-        catch
-        {
-            // ignored
-        }
-        finally
-        {
-            _mainStream?.Dispose();
-            _aliveClient.Dispose();
-            _sendLock.Dispose();
-            _packetReader.BaseStream = null;
-            _packetSender.BaseStream = null;
-            _completion.TrySetResult();
-        }
+
+        _mainStream?.Dispose();
+        _packetReader.BaseStream = null;
+        _packetSender.BaseStream = null;
     }
 
     #endregion

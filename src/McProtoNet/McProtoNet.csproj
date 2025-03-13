@@ -25,7 +25,6 @@
 
     <ItemGroup>
         <Compile Remove="Client\MinecraftClientLogin.cs"/>
-        <None Include="Client\MinecraftClientLogin.cs"/>
     </ItemGroup>
 
     <ItemGroup>

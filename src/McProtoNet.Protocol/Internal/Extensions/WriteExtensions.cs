@@ -21,7 +21,7 @@ public static class WriteExtensions
     }
 
 
-    public static ValueTask SendPacket(this IMinecraftClient client, IClientPacket packet)
+    public static ValueTask SendPacket(this IMinecraftClient client, IClientPacket packet, CancellationToken token=default)
     {
         if (packet.IsSupportedVersion(client.ProtocolVersion))
         {
@@ -33,7 +33,7 @@ public static class WriteExtensions
                 packet.Serialize(ref writer, client.ProtocolVersion);
                 var memoryOwner = writer.GetWrittenMemory();
                 var outputPacket = new OutputPacket(memoryOwner);
-                return client.SendPacket(outputPacket);
+                return client.SendPacket(outputPacket, token);
             }
             finally
             {

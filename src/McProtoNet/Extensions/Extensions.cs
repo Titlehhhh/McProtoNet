@@ -8,6 +8,7 @@ namespace McProtoNet;
 
 public static class Extensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static async ValueTask SendAndDisposeAsync(this MinecraftPacketSender sender, OutputPacket packet,
         CancellationToken token)
     {
