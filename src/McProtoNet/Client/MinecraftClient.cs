@@ -1,15 +1,8 @@
-using System.Diagnostics;
 using System.Net.Sockets;
-using System.Reactive;
-using System.Reactive.Subjects;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using System.Threading.Channels;
-using DotNext.Threading;
 using McProtoNet.Abstractions;
 using McProtoNet.Cryptography;
 using McProtoNet.Net;
-using QuickProxyNet;
 
 
 namespace McProtoNet.Client;
