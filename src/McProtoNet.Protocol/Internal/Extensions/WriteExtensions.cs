@@ -30,7 +30,15 @@ public static class WriteExtensions
             {
                 int packetId = PacketIdHelper.GetPacketId(client.ProtocolVersion, packet.GetPacketId());
                 writer.WriteVarInt(packetId);
-                packet.Serialize(ref writer, client.ProtocolVersion);
+
+                try
+                {
+                    packet.Serialize(ref writer, client.ProtocolVersion);
+                }
+                catch (Exception e)
+                {
+                    throw new PacketSerializationException("Failed to serialize packet", e, packet.GetPacketId().ToString(), client.ProtocolVersion);
+                }
                 var memoryOwner = writer.GetWrittenMemory();
                 var outputPacket = new OutputPacket(memoryOwner);
                 return client.SendPacket(outputPacket, token);
