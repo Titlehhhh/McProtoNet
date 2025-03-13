@@ -30,6 +30,7 @@
             <toc-element topic="packet-namespace-structure.md"/>
             <toc-element topic="server-packet-creation.md"/>
             <toc-element topic="Multiversion.md"/>
+            <toc-element topic="Exceptions.md"/>
         </toc-element>
     </toc-element>
    

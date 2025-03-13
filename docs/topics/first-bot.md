@@ -5,4 +5,4 @@
 как включать шифрование и сжатие, а также как отправлять пакеты.
 
 В следующих разделах будут куски кода,
-которые доступны в [examples/SampleBotCSharp](https://github.com/Titlehhhh/McProtoNet/tree/dev/examples/SampleBotCSharp).
+которые доступны в [examples/SampleBotCSharp](https://github.com/Titlehhhh/McProtoNet/tree/master/examples/SampleBotCSharp).

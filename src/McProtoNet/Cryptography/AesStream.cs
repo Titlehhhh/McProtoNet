@@ -238,4 +238,9 @@ public sealed class AesStream : Stream
 
         _disposed = true;
     }
+
+    public override ValueTask DisposeAsync()
+    {
+        return BaseStream.DisposeAsync();
+    }
 }

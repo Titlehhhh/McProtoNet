@@ -13,7 +13,7 @@ public struct PacketSender<T> where T : IClientPacket, new()
     private IMinecraftClient _client;
     public T Packet { get; set; } = new();
 
-    public ValueTask Send()
+    public ValueTask Send(CancellationToken token = default)
     {
         //Check null
         if (Packet is null)
@@ -21,6 +21,6 @@ public struct PacketSender<T> where T : IClientPacket, new()
             throw new ArgumentNullException(nameof(Packet));
         }
 
-        return _client.SendPacket(Packet);
+        return _client.SendPacket(Packet, token);
     }
 }

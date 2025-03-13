@@ -7,17 +7,22 @@
 Этот класс одноразовый: после отключения, ошибки или остановки соединения его нельзя
 повторно использовать — необходимо создать новый экземпляр.
 
-Исходный код: [MinecraftClient.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet/Client/MinecraftClient.cs)
+Исходный код: [MinecraftClient.cs](https://github.com/Titlehhhh/McProtoNet/blob/master/src/McProtoNet/Client/MinecraftClient.cs)
+
+<warning>
+Методы для записи и чтения пакетов у этого класса не являются потокобезопасными, то есть 
+не стоит, например, одновременно вызывать метод <code>SendPacket</code> из разных потоков.
+</warning>
 
 ### Основные методы
 
-#### ConnectAsync()
+#### ConnectAsync(CancellationToken)
 Устанавливает соединение с сервером Minecraft на основе переданных параметров.
 
-#### SendPacket(IPacket packet)
-Отправляет указанный пакет серверу.
+#### SendPacket(IClientPacket, CancellationToken)
+Отправляет указанный пакет серверу. Этот метод не является потокобезопасным.
 
-#### IAsyncEnumerable<IPacket> ReceivePackets()
+#### IAsyncEnumerable<IPacket> ReceivePackets(CancellationToken)
 Возвращает асинхронный поток пакетов, получаемых от сервера.
 Важно - пакеты не хранятся в какой очереди, а лишь читаются из сети, когда вызывается
 MoveNextAsync у [IAsyncEnumerator](https://learn.microsoft.com/ru-ru/dotnet/api/system.collections.generic.iasyncenumerator-1?view=net-9.0).
@@ -65,3 +70,4 @@ MoveNextAsync у [IAsyncEnumerator](https://learn.microsoft.com/ru-ru/dotnet/api
 Этот параметр определяет, сколько времени клиент будет ожидать успешную отправку данных на сервер.
 </def>
 </deflist>
+

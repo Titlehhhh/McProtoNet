@@ -82,7 +82,14 @@ public static class Extensions
         var previousGamemode = reader.ReadUnsignedByte();
         var isDebug = reader.ReadBoolean();
         var isFlat = reader.ReadBoolean();
-        var death = reader.ReadDeathLocation(protocolVersion);
+        var hasDeath = reader.ReadBoolean();
+        DeathLocation? death = null;
+        if (hasDeath)
+        {
+             death = reader.ReadDeathLocation(protocolVersion);
+        }  
+        
+
         var portalCooldown = reader.ReadVarInt();
         int? seaLevel = null;
 

@@ -6,7 +6,7 @@
 что обеспечивает высокую производительность за счёт работы напрямую с памятью, 
 исключая лишние копирования.
 
-Исходный код: [MinecraftPrimitiveWriter.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveWriter.cs)
+Исходный код: [MinecraftPrimitiveWriter.cs](https://github.com/Titlehhhh/McProtoNet/tree/master/src/McProtoNet.Serialization/MinecraftPrimitiveWriter.cs)
 
 ## Основные методы
 
