@@ -7,13 +7,8 @@ using McProtoNet.Net;
 
 namespace McProtoNet.Client;
 
-public class CompletionResult
-{
-    public TimeSpan RunningTime { get; }
-}
-
 /// <summary>
-///     Represents a Minecraft client.
+///     Represents a Minecraft client capable of connecting to a server, sending and receiving packets.
 /// </summary>
 public class MinecraftClient : IMinecraftClient
 {
@@ -28,7 +23,7 @@ public class MinecraftClient : IMinecraftClient
     /// <summary>
     ///     Creates a new instance of <see cref="MinecraftClient" /> with the specified options.
     /// </summary>
-    /// <param name="options">The options for the client.</param>
+    /// <param name="options">The configuration options for the client.</param>
     public MinecraftClient(MinecraftClientStartOptions options)
     {
         StartOptions = options;
@@ -36,8 +31,24 @@ public class MinecraftClient : IMinecraftClient
 
     #region Properties
 
+    /// <summary>
+    ///     Gets a value indicating whether the client is currently connected to the Minecraft server.
+    /// </summary>
+    /// <value>
+    ///     <c>true</c> if connected; otherwise, <c>false</c>.
+    /// </value>
     public bool IsConnected => _state == (int)State.Connected;
+    /// <summary>
+    ///     Gets the startup configuration options used to initialize this client instance.
+    /// </summary>
+    /// <value>Read-only startup options.</value>
     public MinecraftClientStartOptions StartOptions { get; }
+    /// <summary>
+    ///     Gets the protocol version number used by this client.
+    /// </summary>
+    /// <value>
+    ///     Protocol version derived from <see cref="MinecraftClientStartOptions.Version" />.
+    /// </value>
     public int ProtocolVersion => StartOptions.Version;
 
     #endregion
@@ -58,11 +69,13 @@ public class MinecraftClient : IMinecraftClient
     #region Methods
 
     /// <summary>
-    /// Send a packet
+    ///     Sends a packet to the Minecraft server asynchronously.
     /// </summary>
-    /// <param name="packet"></param>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <param name="packet">The packet to send.</param>
+    /// <param name="cancellationToken">Token to cancel the operation.</param>
+    /// <returns>A <see cref="ValueTask" /> representing the asynchronous send operation.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown if the client has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the client is not connected.</exception>
     public async ValueTask SendPacket(OutputPacket packet, CancellationToken cancellationToken = default)
     {
         var state = CurrentState;
@@ -94,9 +107,12 @@ public class MinecraftClient : IMinecraftClient
     }
 
     /// <summary>
-    /// Connects to the Minecraft server asynchronously.
+    ///     Establishes a connection to the Minecraft server asynchronously.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Thrown if the client is already connecting or connected.</exception>
+    /// <param name="cancellationToken">Token to cancel the connection attempt.</param>
+    /// <returns>A <see cref="ValueTask" /> representing the connection operation.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown if the client has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if already connecting or connected.</exception>
     public async ValueTask ConnectAsync(CancellationToken cancellationToken)
     {
         var state = CompareExchange(State.Connecting, State.None);
@@ -117,6 +133,7 @@ public class MinecraftClient : IMinecraftClient
             Stream stream = await ConnectInternal(StartOptions, cancellationToken);
             AesStream aesStream = new(stream);
             _mainStream = aesStream;
+            Interlocked.Exchange(ref _mainStream, aesStream)?.Dispose();
 
             _packetReader.BaseStream = aesStream;
             _packetSender.BaseStream = aesStream;
@@ -169,7 +186,13 @@ public class MinecraftClient : IMinecraftClient
             return tcpClient.GetStream();
         }
     }
-
+    /// <summary>
+    ///     Starts receiving packets from the server asynchronously.
+    /// </summary>
+    /// <param name="cancellationToken">Token to cancel packet reception.</param>
+    /// <returns>An asynchronous enumerable of received packets.</returns>
+    /// <exception cref="ObjectDisposedException">Thrown if the client has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the client is not connected.</exception>
     public IAsyncEnumerable<InputPacket> ReceivePackets(CancellationToken cancellationToken)
     {
         var state = CurrentState;
@@ -185,6 +208,7 @@ public class MinecraftClient : IMinecraftClient
 
         return ReceivePacketsCore(cancellationToken);
     }
+
 
     private async IAsyncEnumerable<InputPacket> ReceivePacketsCore(
         [EnumeratorCancellation] CancellationToken cancellationToken)
@@ -213,7 +237,15 @@ public class MinecraftClient : IMinecraftClient
         }
     }
 
-
+    /// <summary>
+    ///     Enables or disables packet compression.
+    /// </summary>
+    /// <param name="threshold">
+    ///     Compression threshold in bytes.
+    ///     Packets larger than this size will be compressed (set to 0 to disable).
+    /// </param>
+    /// <exception cref="ObjectDisposedException">Thrown if the client has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the client is not connected.</exception>
     public void SwitchCompression(int threshold)
     {
         var state = CurrentState;
@@ -233,12 +265,11 @@ public class MinecraftClient : IMinecraftClient
     }
 
     /// <summary>
-    ///     Switches packet encryption on or off.
+    ///     Enables packet encryption using the specified private key.
     /// </summary>
-    /// <param name="privateKey">The private key to use for encryption.</param>
-    /// <exception cref="InvalidOperationException">
-    ///     Thrown when the client is disposed, or when the client is stopping.
-    /// </exception>
+    /// <param name="privateKey">The 16-byte private key for AES encryption.</param>
+    /// <exception cref="ObjectDisposedException">Thrown if the client has been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the client is not connected.</exception>
     public void SwitchEncryption(Span<byte> privateKey)
     {
         var state = CurrentState;

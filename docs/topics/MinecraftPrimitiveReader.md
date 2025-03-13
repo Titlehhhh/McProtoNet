@@ -6,7 +6,7 @@
 высокопроизводительную оболочку над Span&lt;byte&gt;,
 что позволяет работать с данными напрямую из памяти без лишнего копирования.
 
-Исходный код: [MinecraftPrimitiveReader.cs](https://github.com/Titlehhhh/McProtoNet/blob/dev/src/McProtoNet.Serialization/MinecraftPrimitiveReader.cs)
+Исходный код: [MinecraftPrimitiveReader.cs](https://github.com/Titlehhhh/McProtoNet/tree/master/src/McProtoNet.Serialization/MinecraftPrimitiveReader.cs)
 
 ## Основные методы
 
