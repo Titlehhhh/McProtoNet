@@ -185,11 +185,8 @@ public static class Extensions
             byte read;
             do
             {
-                int numBytesRead = await stream.ReadAsync(buff, 0, 1, token);
-                if (numBytesRead <= 0)
-                {
-                    throw new EndOfStreamException();
-                }
+               await stream.ReadExactlyAsync(buff, 0, 1, token);
+                
 
                 read = buff[0];
                 var value = read & 0b01111111;

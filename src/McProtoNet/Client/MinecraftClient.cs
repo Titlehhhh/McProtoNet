@@ -83,8 +83,15 @@ public class MinecraftClient : IMinecraftClient
 
         if (state != State.Connected)
             ThrowNotConnected();
-
-        await _packetSender.SendAndDisposeAsync(packet, cancellationToken);
+        try
+        {
+            await _packetSender.SendAndDisposeAsync(packet, cancellationToken);
+        }
+        catch
+        {
+            Dispose();
+            throw;
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -121,13 +128,14 @@ public class MinecraftClient : IMinecraftClient
             _packetReader.BaseStream = aesStream;
             _packetSender.BaseStream = aesStream;
 
+
             state = CompareExchange(State.Connected, State.Connecting);
             if (state != State.Connecting)
             {
                 await aesStream.DisposeAsync();
             }
         }
-        catch (Exception ex)
+        catch
         {
             Dispose();
             throw;
@@ -264,7 +272,6 @@ public class MinecraftClient : IMinecraftClient
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ThrowNotConnected() => throw new InvalidOperationException("Not connected");
-
 
 
     /// <summary>

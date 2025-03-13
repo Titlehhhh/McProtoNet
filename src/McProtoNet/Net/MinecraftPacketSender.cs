@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Runtime.CompilerServices;
+using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
@@ -42,31 +43,26 @@ public sealed class MinecraftPacketSender
 
                 if (uncompressedSize >= _compressionThreshold)
                 {
-                    var compressor = LibDeflateCache.RentCompressor();
+                    using var compressedBuffer = Compress(data.Span);
 
-                    var length = compressor.GetBound(uncompressedSize);
-                    var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
-                    try
-                    {
-                        var bytesCompress = compressor.Compress(data.Span, compressedBuffer.AsSpan(0, length));
-                        var compressedLength = bytesCompress;
+                    var fullSize = compressedBuffer.Length + uncompressedSize.GetVarIntLength();
 
-                        var fullSize = compressedLength + uncompressedSize.GetVarIntLength();
+                    await BaseStream.WriteVarIntAsync(fullSize, cancellationToken).ConfigureAwait(false);
+                    await BaseStream.WriteVarIntAsync(uncompressedSize, cancellationToken).ConfigureAwait(false);
 
-                        await SendCompress(fullSize, uncompressedSize, compressedBuffer, bytesCompress, cancellationToken);
-                    }
-                    catch
-                    {
-                        ArrayPool<byte>.Shared.Return(compressedBuffer);
-                        throw;
-                    }
+                    await BaseStream.WriteAsync(compressedBuffer.Memory, cancellationToken)
+                        .ConfigureAwait(false);
+                    
+                    return;
                 }
 
                 uncompressedSize++;
                 await SendShort(uncompressedSize, data, cancellationToken);
+                return;
             }
 
             await SendPacketWithoutCompressionAsync(data, cancellationToken);
+           
         }
         finally
         {
@@ -95,32 +91,6 @@ public sealed class MinecraftPacketSender
         }
     }
 
-    /// <summary>
-    /// Sends a compressed packet
-    /// </summary>
-    /// <param name="fullSize">The full packet size</param>
-    /// <param name="uncompressedSize">The uncompressed data size</param>
-    /// <param name="compressedBuffer">The compressed data buffer</param>
-    /// <param name="bytesCompress">The number of compressed bytes</param>
-    /// <param name="token">Cancellation token</param>
-    /// <returns>A ValueTask representing the send operation</returns>
-    private async ValueTask SendCompress(int fullSize, int uncompressedSize, byte[] compressedBuffer, int bytesCompress,
-        CancellationToken token)
-    {
-        try
-        {
-            await BaseStream.WriteVarIntAsync(fullSize, token).ConfigureAwait(false);
-            await BaseStream.WriteVarIntAsync(uncompressedSize, token).ConfigureAwait(false);
-            //await BaseStream.WriteAsync(compressed.Memory, token);
-
-            await BaseStream.WriteAsync(compressedBuffer.AsMemory(0, bytesCompress), token)
-                .ConfigureAwait(false);
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(compressedBuffer);
-        }
-    }
 
     /// <summary>
     /// Enables or disables packet compression with the specified threshold
@@ -144,12 +114,7 @@ public sealed class MinecraftPacketSender
         return SendPacketAsync(packet.Memory, cancellationToken);
     }
 
-    /// <summary>
-    /// Sends a packet without compression
-    /// </summary>
-    /// <param name="data">The packet data to send</param>
-    /// <param name="token">Cancellation token</param>
-    /// <returns>A ValueTask representing the send operation</returns>
+
     [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
     private async ValueTask SendPacketWithoutCompressionAsync(ReadOnlyMemory<byte> data, CancellationToken token)
     {
@@ -161,4 +126,29 @@ public sealed class MinecraftPacketSender
     }
 
     #endregion
+
+    private static MemoryOwner<byte> Compress(ReadOnlySpan<byte> data)
+    {
+        var compressor = LibDeflateCache.RentCompressor();
+        var length = compressor.GetBound(data.Length);
+
+        var compressedBuffer = _memoryAllocator.AllocateExactly(length);
+        try
+        {
+            var bytesCompress = compressor.Compress(data, compressedBuffer.Span);
+
+
+            compressedBuffer.Resize(bytesCompress, _memoryAllocator);
+
+            return compressedBuffer;
+        }
+        catch
+        {
+            compressedBuffer.Dispose();
+            throw;
+        }
+    }
+
+
+    private static readonly MemoryAllocator<byte> _memoryAllocator = ArrayPool<byte>.Shared.ToAllocator();
 }
