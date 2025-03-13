@@ -1,19 +1,5 @@
-﻿using QuickProxyNet;
+﻿namespace McProtoNet.Abstractions;
 
-namespace McProtoNet.Abstractions;
-
-//Config
-public struct MinecraftClientStartOptions
-{
-    public string Host { get; init; }
-    public int Port { get; init; }
-    public int Version { get; init; }
-    public IProxyClient? Proxy { get; set; }
-
-    public TimeSpan ConnectTimeout { get; init; }
-    public TimeSpan ReadTimeout { get; init; }
-    public TimeSpan WriteTimeout { get; init; }
-}
 
 /// <summary>
 ///     Represents a Minecraft client.

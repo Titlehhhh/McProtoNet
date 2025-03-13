@@ -46,3 +46,14 @@
 
 ## IMinecraftClient
 
+Интерфейс, представляющий клиент Minecraft.
+
+Исходный код: [IMinecraftClient.cs](https://github.com/Titlehhhh/McProtoNet/blob/master/src/McProtoNet.Abstractions/IMinecraftClient.cs)
+
+
+## MinecraftClientStartOptions
+
+Структура, представляющая настройки для запуска клиента Minecraft.
+
+Исходный код: [MinecraftClientStartOptions.cs](https://github.com/Titlehhhh/McProtoNet/blob/master/src/McProtoNet.Abstractions/MinecraftClientStartOptions.cs)
+
