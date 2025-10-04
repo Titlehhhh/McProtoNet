@@ -281,15 +281,10 @@ public ref struct MinecraftPrimitiveReader
     /// </summary>
     /// <returns>The UUID value read</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public unsafe Guid ReadUUID()
+    public Guid ReadUUID()
     {
-        long x = ReadSignedLong();
-        long y = ReadSignedLong();
-
-        long* ptr = stackalloc long[2];
-        ptr[0] = x;
-        ptr[1] = y;
-        return *(Guid*)ptr;
+        var bytes = Read(16);
+        return new Guid(bytes);
     }
 
     /// <summary>
@@ -343,6 +338,4 @@ public ref struct MinecraftPrimitiveReader
         _reader.Advance(nbtSpanReader.ConsumedCount);
         return result;
     }
-
-    
 }
