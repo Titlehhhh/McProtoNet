@@ -284,7 +284,7 @@ public ref struct MinecraftPrimitiveReader
     public Guid ReadUUID()
     {
         var bytes = Read(16);
-        return new Guid(bytes);
+        return new Guid(bytes, bigEndian: true);
     }
 
     /// <summary>
