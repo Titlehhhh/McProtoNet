@@ -73,7 +73,6 @@ internal sealed class MinecraftPacketPipeReader
             }
             catch (OperationCanceledException)
             {
-                
                 await pipeReader.CompleteAsync().ConfigureAwait(false);
                 break;
             }

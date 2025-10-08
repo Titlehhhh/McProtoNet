@@ -2,6 +2,7 @@ using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol.Extensions;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound
 {

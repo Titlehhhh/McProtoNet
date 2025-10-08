@@ -1,127 +1,84 @@
 ﻿using System;
+using System.Buffers;
+using System.Buffers.Binary;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using BenchmarkDotNet.Attributes;
 
 namespace McProtoNet.Benchmark.JitTest;
 
-
-[MemoryDiagnoser(true)]
-[DisassemblyDiagnoser(exportHtml: true,printSource: true)]
+[MemoryDiagnoser]
+[DisassemblyDiagnoser(exportHtml: true, printSource: true)]
 public class ReadArrayGeneric
 {
-    private byte[] _array = new byte[64];
-    
-    [Benchmark()]
-    public Guid[] Base1()
-    {
-        return ReadGuidArray();
-    }
-    
-    [Benchmark()]
-    public CustomClass[] Base2()
-    {
-        return ReadCustomClassArray();
-    }
-    
-    [Benchmark()]
-    public string[] Base3()
-    {
-        return ReadStringArray();
-    }
-    
+    private ArrayBufferWriter<byte> _writer = new();
+    private int[] _intArray = new int[64];
+    private long[] _longArray = new long[64];
 
     [Benchmark]
-    public Guid[] If1()
+    public void Typeof_Int()
     {
-        return ReadArray<Guid>();
+        WriteBigEndianArray_Typeof<int>(_intArray);
     }
-    
+
     [Benchmark]
-    public CustomClass[] If2()
+    public void Typeof_Long()
     {
-        return ReadArray<CustomClass>();
+        WriteBigEndianArray_Typeof<long>(_longArray);
     }
-    
+
     [Benchmark]
-    public string[] If3()
+    public void Switch_Int()
     {
-        return ReadArray<string>();
+        WriteBigEndianArray_Switch<int>(_intArray);
     }
-    
+
+    [Benchmark]
+    public void Switch_Long()
+    {
+        WriteBigEndianArray_Switch<long>(_longArray);
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private T[] ReadArray<T>()
+    private void WriteBigEndianArray_Typeof<T>(ReadOnlySpan<T> val) where T : struct
     {
+        int size = Unsafe.SizeOf<T>();
+        int totalBytes = size * val.Length;
+        var writer = _writer;
+
         if (typeof(T) == typeof(int))
         {
-            return (T[])(object)ReadIntArray();
+            var src = MemoryMarshal.Cast<T, int>(val);
+            var dst = writer.GetSpan(totalBytes);
+            var dstInts = MemoryMarshal.Cast<byte, int>(dst);
+            for (int i = 0; i < src.Length; i++)
+                dstInts[i] = BinaryPrimitives.ReverseEndianness(src[i]);
         }
-
-        if (typeof(T) == typeof(long))
+        else if (typeof(T) == typeof(long))
         {
-            return (T[])(object)ReadLongArray();
+            var src = MemoryMarshal.Cast<T, long>(val);
+            var dst = writer.GetSpan(totalBytes);
+            var dstLongs = MemoryMarshal.Cast<byte, long>(dst);
+            for (int i = 0; i < src.Length; i++)
+                dstLongs[i] = BinaryPrimitives.ReverseEndianness(src[i]);
         }
 
-        if (typeof(T) == typeof(string))
-        {
-            return (T[])(object)ReadStringArray();
-        }
-
-        if (typeof(T) == typeof(byte))
-        {
-            return (T[])(object)ReadByteArray();
-        }
-
-        if (typeof(T) == typeof(Guid))
-        {
-            return (T[])(object)ReadGuidArray();
-        }
-
-        if (typeof(T) == typeof(CustomClass))
-        {
-            return (T[])(object)ReadCustomClassArray();
-        }
-
-        throw new Exception();
+        writer.Advance(totalBytes);
     }
 
-    private int[] _a = [];
-    private long[] _b = [];
-    private string[] _c = [];
-    private byte[] _d = [];
-    private Guid[] _e = [];
-    private CustomClass[] _f = [];
-    private int[] ReadIntArray()
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void WriteBigEndianArray_Switch<T>(ReadOnlySpan<T> val) where T : struct
     {
-        return MemoryMarshal.Cast<byte, int>(_array).ToArray();
-    }
+        int size = Unsafe.SizeOf<T>();
+        int totalBytes = size * val.Length;
+        var writer = _writer;
 
-    private long[] ReadLongArray()
-    {
-        return MemoryMarshal.Cast<byte, long>(_array).ToArray();
-    }
+       
 
-    private string[] ReadStringArray()
-    {
-        return new string[5];
+        writer.Advance(totalBytes);
     }
-
-    private byte[] ReadByteArray()
-    {
-        return _array.ToArray();
-    }
-
-    private Guid[] ReadGuidArray()
-    {
-        return MemoryMarshal.Cast<byte, Guid>(_array).ToArray();
-    }
-
-    private CustomClass[] ReadCustomClassArray()
-    {
-        return new CustomClass[1];
-    }
-    
 }
 
 public class CustomClass

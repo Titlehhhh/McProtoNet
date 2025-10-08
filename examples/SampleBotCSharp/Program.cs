@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System.Buffers.Binary;
+using System.Diagnostics;
 using System.Runtime.Intrinsics;
 using System.Security.Cryptography;
 using McProtoNet.Protocol;
 using SampleBotCSharp;
 using System.Security.Cryptography;
+using McProtoNet.Serialization;
 
 namespace Obsidian.Net;
 
@@ -118,7 +120,6 @@ public sealed class AesCfbBlockCipher : IDisposable
             // copy last `block` bytes of ciphertext into iv
             ciphertext.Slice(n - block, block).CopyTo(iv);
             return;
-            
         }
 
         // n < block: shift iv left by n bytes and append ciphertext at the end
@@ -157,8 +158,39 @@ public sealed class AesCfbBlockCipher : IDisposable
 
 class Program
 {
+    static byte[] FromVarInt(int val)
+    {
+        byte[] buff = new byte[5];
+        var len = val.GetVarIntLength(buff.AsSpan());
+        return buff.AsSpan(0, len).ToArray();
+    }
+
+    static byte[] ToBytes(int val)
+    {
+        byte[] buff = new byte[4];
+        BinaryPrimitives.WriteInt32LittleEndian(buff, val);
+        return buff;
+    }
+
     static void Test()
     {
+        for (int i = 0; i < 50_000; i+=100)
+        {
+            byte[] varIntBytes = FromVarInt(i);
+            byte[] intBytes = ToBytes(i);
+
+            Console.Write("VarInt({0}): ", i);
+            foreach (var b in varIntBytes)
+                Console.Write("{0:X2} ", b);
+
+            Console.Write("Bytes({0}): ", i);
+            foreach (var b in intBytes)
+                Console.Write("{0:X2} ", b);
+            Console.WriteLine();
+        }
+
+        return;
+
         byte[] originalData = new byte[120];
         Random rng = new(42);
         rng.NextBytes(originalData);
@@ -172,8 +204,7 @@ class Program
         AesCfbBlockCipher encryptor = new(key);
         AesCfbBlockCipher decryptor = new(key);
 
-        
-        
+
         int pos = 0;
         List<byte[]> encryptedChunks = new List<byte[]>();
         List<int> chunkSizes = new List<int>();
@@ -199,13 +230,13 @@ class Program
 
 
         byte[] allData = encryptedChunks.SelectMany(x => x).ToArray();
-        
-        
+
+
         var decryptedBlocks = allData
             .Chunk(37)
             .Select(x => decryptor.Decrypt2(x))
             .ToArray();
-        
+
         byte[] allData2 = decryptedBlocks.SelectMany(x => x).ToArray();
 
         Console.WriteLine(originalData.SequenceEqual(allData2));

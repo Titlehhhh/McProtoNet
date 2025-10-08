@@ -1,0 +1,1 @@
+﻿global using McProtoNet.Protocol.Extensions;

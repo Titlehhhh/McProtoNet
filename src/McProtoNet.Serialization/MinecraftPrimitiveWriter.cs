@@ -34,6 +34,17 @@ public ref struct MinecraftPrimitiveWriter()
         writerSlim.Write(value ? 1 : 0);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public Span<byte> GetSpan(int size = 0)
+    {
+        return writerSlim.GetSpan();
+    }
+
+    public void Advance(int count)
+    {
+        writerSlim.Advance(count);
+    }
+
     /// <summary>
     /// Writes a signed byte value to the buffer
     /// </summary>

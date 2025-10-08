@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using BenchmarkDotNet.Attributes;
@@ -8,12 +9,15 @@ using DotNext.Buffers;
 namespace McProtoNet.Benchmark;
 
 [MemoryDiagnoser(true)]
+[DisassemblyDiagnoser(exportHtml: true,printSource: true)]
 public class ReadBigEndianBenchmarks
 {
     public byte[] TestArr;
+
+    public long[] consumedArr;
     private Random r = new();
 
-    [Params(10, 100, 100000)] public int Count { get; set; }
+    [Params(1000)] public int Count { get; set; }
 
     //public int Count = 10;
     [GlobalSetup]
@@ -33,35 +37,40 @@ public class ReadBigEndianBenchmarks
             long v = r.NextInt64();
             writer.WriteBigEndian(v);
         }
+
+        consumedArr = new long[Count];
     }
 
 
-    [Benchmark]
-    public long[] SpanReader()
+    //[Benchmark]
+    public void SpanReader()
     {
         scoped SpanReader<byte> reader = new SpanReader<byte>(TestArr);
-        long[] source = new long[Count];
+
         for (int i = 0; i < Count; i++)
         {
-            source[i] = reader.ReadBigEndian<long>();
+            consumedArr[i] = reader.ReadBigEndian<long>();
         }
-
-        return source;
     }
 
     [Benchmark]
-    public long[] SimdRead()
+    public void ReadJitOpt()
+    {
+        var span = TestArr.AsSpan();
+        for (int i = 0; i < Count; i++)
+        {
+            int val = MemoryMarshal.Read<int>(span);
+            span = span[sizeof(int)..];
+            consumedArr[i] = BinaryPrimitives.ReverseEndianness(val);
+        }
+    }
+
+
+    [Benchmark]
+    public void SimdRead()
     {
         ReadOnlySpan<long> numbers = MemoryMarshal.Cast<byte, long>(TestArr);
-
-        //if (BitConverter.IsLittleEndian)
-        {
-            long[] source = new long[Count];
-            BinaryPrimitives.ReverseEndianness(numbers, source);
-            return source;
-        }
-
-        return numbers.ToArray();
+        BinaryPrimitives.ReverseEndianness(numbers, consumedArr.AsSpan());
     }
 
 

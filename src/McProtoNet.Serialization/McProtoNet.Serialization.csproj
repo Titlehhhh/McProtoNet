@@ -5,6 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>14</LangVersion>
     </PropertyGroup>
     <PropertyGroup>
         <Description>A library that contains tools for serialization and deserialization</Description>
