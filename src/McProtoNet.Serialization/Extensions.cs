@@ -9,8 +9,6 @@ namespace McProtoNet.Serialization;
 /// </summary>
 public static class Extensions
 {
-
-
     private static int SEGMENT_BITS = 0x7F;
     private static int CONTINUE_BIT = 0x80;
 
@@ -24,6 +22,7 @@ public static class Extensions
     {
         return ReadVarInt(data, out _);
     }
+
     /// <summary>
     /// Reads a VarInt from a byte span
     /// </summary>
@@ -79,7 +78,6 @@ public static class Extensions
         writer.Write(data.Slice(0, len));
     }
 
-   
 
     /// <summary>
     /// Gets the length in bytes needed to encode an integer as a VarInt
@@ -99,77 +97,6 @@ public static class Extensions
         return amount;
     }
 
-    /// <summary>
-    /// Writes a VarInt to a byte array and returns its length
-    /// </summary>
-    /// <param name="value">The integer value to encode</param>
-    /// <param name="data">The byte array to write to</param>
-    /// <returns>The number of bytes written</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static byte GetVarIntLength(this int value, byte[] data)
-    {
-        return GetVarIntLength(value, data, 0);
-    }
-
-    /// <summary>
-    /// Writes a VarInt to a byte array at the specified offset and returns its length
-    /// </summary>
-    /// <param name="value">The integer value to encode</param>
-    /// <param name="data">The byte array to write to</param>
-    /// <param name="offset">The offset in the array to start writing</param>
-    /// <returns>The number of bytes written</returns>
-    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static byte GetVarIntLength(this int value, byte[] data, int offset)
-    {
-        var unsigned = (uint)value;
-
-        byte len = 0;
-        do
-        {
-            var temp = (byte)(unsigned & 127);
-            unsigned >>= 7;
-
-            if (unsigned != 0)
-                temp |= 128;
-
-            data[offset + len++] = temp;
-        } while (unsigned != 0);
-
-        if (len > 5)
-            throw new ArithmeticException("Var int is too big");
-        return len;
-    }
-
-    /// <summary>
-    /// Writes a VarInt to a byte span at the specified offset and returns its length
-    /// </summary>
-    /// <param name="value">The integer value to encode</param>
-    /// <param name="data">The byte span to write to</param>
-    /// <param name="offset">The offset in the span to start writing</param>
-    /// <returns>The number of bytes written</returns>
-    /// <exception cref="ArithmeticException">Thrown when VarInt is too big</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static byte GetVarIntLength(this int value, Span<byte> data, int offset)
-    {
-        var unsigned = (uint)value;
-
-        byte len = 0;
-        do
-        {
-            var temp = (byte)(unsigned & 127);
-            unsigned >>= 7;
-
-            if (unsigned != 0)
-                temp |= 128;
-
-            data[offset + len++] = temp;
-        } while (unsigned != 0);
-
-        if (len > 5)
-            throw new ArithmeticException("Var int is too big");
-        return len;
-    }
 
     /// <summary>
     /// Writes a VarInt to a byte span and returns its length
@@ -183,8 +110,6 @@ public static class Extensions
         var unsigned = (uint)value;
 
         byte len = 0;
-
-
         do
         {
             var temp = (byte)(unsigned & 127);
@@ -252,7 +177,7 @@ public static class Extensions
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
         var buff = ArrayPool<byte>.Shared.Rent(1);
-       
+
         try
         {
             var numRead = 0;
@@ -260,7 +185,8 @@ public static class Extensions
             byte read;
             do
             {
-                await stream.ReadExactlyAsync(buff,0,1, token);
+               await stream.ReadExactlyAsync(buff, 0, 1, token);
+                
 
                 read = buff[0];
                 var value = read & 0b01111111;
@@ -339,33 +265,18 @@ public static class Extensions
     /// <param name="value">The integer value to write as a VarInt</param>
     /// <param name="token">Cancellation token</param>
     /// <returns>A ValueTask representing the asynchronous operation</returns>
-    public static ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
+    public static async ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
     {
-        var unsigned = (uint)value;
-
-
         var data = ArrayPool<byte>.Shared.Rent(5);
         try
         {
-            var len = 0;
-            do
-            {
-                token.ThrowIfCancellationRequested();
-                var temp = (byte)(unsigned & 127);
-                unsigned >>= 7;
+            int len = value.GetVarIntLength(data.AsSpan(0, 5));
 
-                if (unsigned != 0)
-                    temp |= 128;
-                data[len++] = temp;
-            } while (unsigned != 0);
-
-            return stream.WriteAsync(data.AsMemory(0, len), token);
+            await stream.WriteAsync(data.AsMemory(0, len), token);
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(data);
         }
     }
-
-    
 }

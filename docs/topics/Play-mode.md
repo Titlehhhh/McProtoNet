@@ -44,7 +44,7 @@ private async Task RunReadLoop()
 ```C#
 if (packet is CPlay.KeepAlivePacket keepAlive)
 {
-    _client.SendPacket(new SPlay.KeepAlivePacket()
+    await _client.SendPacket(new SPlay.KeepAlivePacket()
     {
         KeepAliveId = keepAlive.KeepAliveId
     });

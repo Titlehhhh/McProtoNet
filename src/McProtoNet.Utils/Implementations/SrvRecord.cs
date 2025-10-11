@@ -1,14 +1,8 @@
 ﻿namespace McProtoNet.Utils;
 
-public class SrvRecord
+public struct SrvRecord(string host, ushort port)
 {
-    public SrvRecord(string host, ushort port)
-    {
-        Host = host;
-        Port = port;
-    }
+    public string Host { get; } = host;
 
-    public string Host { get; }
-
-    public ushort Port { get; }
+    public ushort Port { get; } = port;
 }

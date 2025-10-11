@@ -7,6 +7,20 @@ namespace McProtoNet.Protocol;
 
 public static class ReadExtensions
 {
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void DeserializeCore(ref MinecraftPrimitiveReader reader, IServerPacket packet, int protocolVersion)
+    {
+        try
+        {
+            packet.Deserialize(ref reader, protocolVersion);
+        }
+        catch (Exception ex)
+        {
+            throw new PacketDeserializationException("Failed to deserialize packet", ex,
+                packet.GetPacketId().ToString(), protocolVersion);
+        }
+    }
+
     public static async IAsyncEnumerable<TPacket> OnPacket<TPacket>(this IMinecraftClient client,
         CancellationToken cancellationToken) where TPacket : IServerPacket
     {
@@ -18,28 +32,28 @@ public static class ReadExtensions
                 TPacket serverPacket =
                     (TPacket)PacketFactory.CreateClientboundPacket(client.ProtocolVersion, packet.Id,
                         TPacket.PacketId.State);
-                MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(packet.Data);
-                serverPacket.Deserialize(ref reader, client.ProtocolVersion);
+                var reader = new MinecraftPrimitiveReader(packet.Data);
+                DeserializeCore(ref reader, serverPacket, client.ProtocolVersion);
                 yield return serverPacket;
             }
         }
     }
 
-    public static bool TryDeserialize<T>(this InputPacket inPacket, int protcolVersion, out T? outPacket)
+    public static bool TryDeserialize<T>(this InputPacket inPacket, int protocolVersion, out T? outPacket)
         where T : IServerPacket
     {
         try
         {
-            var id = PacketIdHelper.GetPacketId(protcolVersion, T.PacketId);
-            if (inPacket.Id != id || !T.IsSupportedVersionStatic(protcolVersion))
+            var id = PacketIdHelper.GetPacketId(protocolVersion, T.PacketId);
+            if (inPacket.Id != id || !T.IsSupportedVersionStatic(protocolVersion))
             {
                 outPacket = default;
                 return false;
             }
 
-            var serverPacket = PacketFactory.CreateClientboundPacket(protcolVersion, inPacket.Id, T.PacketId.State);
-            MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(inPacket.Data);
-            serverPacket.Deserialize(ref reader, protcolVersion);
+            var serverPacket = PacketFactory.CreateClientboundPacket(protocolVersion, inPacket.Id, T.PacketId.State);
+            var reader = new MinecraftPrimitiveReader(inPacket.Data);
+            DeserializeCore(ref reader, serverPacket, protocolVersion);
             outPacket = (T)serverPacket;
             return true;
         }
@@ -59,8 +73,8 @@ public static class ReadExtensions
         {
             if (!PacketFactory.TryCreateClientboundPacket(client.ProtocolVersion, p.Id, state, out var packet))
                 continue;
-            MinecraftPrimitiveReader reader = new MinecraftPrimitiveReader(p.Data);
-            packet.Deserialize(ref reader, client.ProtocolVersion);
+            var reader = new MinecraftPrimitiveReader(p.Data);
+            DeserializeCore(ref reader, packet, client.ProtocolVersion);
             yield return packet;
         }
     }

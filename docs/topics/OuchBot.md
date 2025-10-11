@@ -19,7 +19,7 @@ if (packet is CPlay.EntityVelocityPacket velocityPacket)
 {
     if (velocityPacket.EntityId == _myEntityId)
     {
-        _ = SendChat("Ouch!!!");
+        await SendChat("Ouch!!!");
     }
 }
 ```
@@ -34,7 +34,8 @@ private async ValueTask SendChat(string message)
         sender1.Packet.Message = message;
         await sender1.Send();
     }
-    else if (_client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+    else if (_client.
+        TrySend<SPlay.ChatMessagePacket>(out var sender2))
     {
         sender2.Packet.Message = message;
         await sender2.Send();

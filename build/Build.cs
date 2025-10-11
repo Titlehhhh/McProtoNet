@@ -7,7 +7,9 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
+using Serilog;
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.EnvironmentInfo;
@@ -25,6 +27,7 @@ class Build : NukeBuild
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
     [Parameter] string NugetApiKey;
 
+
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath NugetDirectory => ArtifactsDirectory / "nuget";
     public static int Main() => Execute<Build>(x => x.Compile);
@@ -33,16 +36,15 @@ class Build : NukeBuild
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
     Target Clean => _ => _
-        .Before(Restore)
         .Executes(() =>
         {
             ArtifactsDirectory.DeleteDirectory();
-            NugetDirectory.DeleteDirectory();
-            DotNetClean(s => s.SetProject(Solution));
+            DotNetClean(s => s
+                .SetProject(Solution)
+                .SetConfiguration(Configuration));
         });
 
     Target Tests => _ => _
-        .Before(Restore)
         .Executes(() =>
         {
             DotNetTest(x =>
@@ -63,7 +65,7 @@ class Build : NukeBuild
 
 
     Target Pack => _ => _
-        .DependsOn(Clean)
+        .DependsOn(Compile)
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
@@ -98,6 +100,9 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
+            DotNetBuild(x => x
+                .SetProjectFile(Solution)
+                .SetConfiguration(Configuration));
         });
 
     Target Push => _ => _

@@ -9,12 +9,12 @@ public sealed class SpawnInfo
     public byte PreviousGamemode { get; }
     public bool IsDebug { get; }
     public bool IsFlat { get; }
-    public DeathLocation Death { get; }
+    public DeathLocation? Death { get; }
     public int PortalCooldown { get; }
     public int? SeaLevel { get; }
 
     public SpawnInfo(int dimension, string name, long hashedSeed, byte gamemode, byte previousGamemode, bool isDebug,
-        bool isFlat, DeathLocation death, int portalCooldown, int? seaLevel)
+        bool isFlat, DeathLocation? death, int portalCooldown, int? seaLevel)
     {
         Dimension = dimension;
         Name = name;

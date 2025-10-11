@@ -4,9 +4,7 @@
         <TargetFrameworks>net8.0;net9.0</TargetFrameworks>       
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>preview</LangVersion>
-        
-        
+        <LangVersion>preview</LangVersion>        
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup>
@@ -25,16 +23,11 @@
         <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Compile Remove="Client\MinecraftClientLogin.cs"/>
-        <None Include="Client\MinecraftClientLogin.cs"/>
-    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="BouncyCastle.Cryptography"/>
         <PackageReference Include="DotNext.IO"/>
-        <PackageReference Include="DotNext.Threading"/>
-        <PackageReference Include="System.Reactive"/>
+        <PackageReference Include="Tomat.LibDeflate.Native"/>
     </ItemGroup>
 
 

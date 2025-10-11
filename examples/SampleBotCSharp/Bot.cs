@@ -14,6 +14,7 @@ public class Bot
     //public static ConcurrentDictionary<int, int> bits = new();
 
     private MinecraftClient _client;
+    private SemaphoreSlim _sendLock = new(1, 1);
     private string _host;
 
     public Bot(MinecraftVersion version, string host)
@@ -56,7 +57,7 @@ public class Bot
         {
             if (packet is CPlay.KeepAlivePacket keepAlive)
             {
-                _client.SendPacket(new SPlay.KeepAlivePacket()
+                _ = SendPacket(new SPlay.KeepAlivePacket()
                 {
                     KeepAliveId = keepAlive.KeepAliveId
                 });
@@ -66,7 +67,7 @@ public class Bot
                 if (hp.Health <= 0)
                 {
                     Console.WriteLine("Меня убили!!!");
-                    _client.SendPacket(new SPlay.ClientCommandPacket()
+                    _ = SendPacket(new SPlay.ClientCommandPacket()
                     {
                         ActionId = 0
                     });
@@ -95,18 +96,38 @@ public class Bot
         }
     }
 
+    private async ValueTask SendPacket(IClientPacket packet)
+    {
+        await _sendLock.WaitAsync();
+        try
+        {
+            await _client.SendPacket(packet);
+        }
+        finally
+        {
+            _sendLock.Release();
+        }
+    }
+
     private async ValueTask SendChat(string message)
     {
-        if (_client.TrySend<SPlay.ChatPacket>(out var sender1))
+        await _sendLock.WaitAsync();
+        try
         {
-            sender1.Packet.Message = message;
-            await sender1.Send();
+            if (_client.TrySend<SPlay.ChatPacket>(out var sender1))
+            {
+                sender1.Packet.Message = message;
+                await sender1.Send();
+            }
+            else if (_client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+            {
+                sender2.Packet.Message = message;
+                await sender2.Send();
+            }
         }
-        else if (_client.TrySend<SPlay.ChatMessagePacket>(out var sender2))
+        finally
         {
-            sender2.Packet.Message = message;
-            await sender2.Send();
+            _sendLock.Release();
         }
     }
 }
-
