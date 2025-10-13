@@ -1,0 +1,31 @@
+﻿<Solution>
+  <Folder Name="/benchmarks/">
+    <Project Path="benchmarks\McProtoNet.Benchmark\McProtoNet.Benchmark.csproj" Type="Classic C#" />
+  </Folder>
+  <Folder Name="/samples/">
+    <Project Path="examples\SampleBotCSharp\SampleBotCSharp.csproj" Type="Classic C#" />
+    <Project Path="examples\SimpleBotFSharp\SimpleBotFSharp.fsproj" Type="Classic F#" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj" Type="Classic F#" />
+    <Project Path="src\McProtoNet.NBT\McProtoNet.NBT.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet.Serialization\McProtoNet.Serialization.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet.Utils\McProtoNet.Utils.csproj" Type="Classic C#" />
+    <Project Path="src\McProtoNet\McProtoNet.csproj" Type="Classic C#" />
+    <File Path="src\Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/src/assets/">
+    <File Path="src\assets\icon.png" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests\McProtoNet.Tests\McProtoNet.Tests.csproj" Type="Classic C#" />
+  </Folder>
+  <Project Path="build\_build.csproj">
+    <Configuration Solution="Debug|Any CPU" Project="Debug|Any CPU|NoBuild" />
+    <Configuration Solution="Release|Any CPU" Project="Release|Any CPU|NoBuild" />
+  </Project>
+  <Project Path="TestServer\TestServer.csproj" Type="Classic C#" />
+</Solution>
