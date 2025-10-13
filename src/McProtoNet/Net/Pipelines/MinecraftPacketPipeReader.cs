@@ -11,38 +11,6 @@ using LengthFormat = DotNext.IO.LengthFormat;
 
 namespace McProtoNet.Net;
 
-internal sealed class DecryptedPipeReader : PipeReader
-{
-    public override bool TryRead(out ReadResult result)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = new CancellationToken())
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void AdvanceTo(SequencePosition consumed)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void AdvanceTo(SequencePosition consumed, SequencePosition examined)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void CancelPendingRead()
-    {
-        throw new NotImplementedException();
-    }
-
-    public override void Complete(Exception? exception = null)
-    {
-        throw new NotImplementedException();
-    }
-}
 internal sealed class MinecraftPacketPipeReader
 {
     private readonly PipeReader pipeReader;
@@ -81,8 +49,7 @@ internal sealed class MinecraftPacketPipeReader
             if (result.IsCompleted) break;
 
             if (result.IsCanceled) break;
-    
-            
+
 
             try
             {
@@ -100,7 +67,6 @@ internal sealed class MinecraftPacketPipeReader
         await pipeReader.CompleteAsync().ConfigureAwait(false);
     }
 
-    
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryReadPacket(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> packet)
