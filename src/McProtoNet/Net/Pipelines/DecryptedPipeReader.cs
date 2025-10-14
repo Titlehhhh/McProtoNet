@@ -6,8 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Org.BouncyCastle.Crypto;
 
+
 public sealed class DecryptedPipeReader : PipeReader
 {
+    
     private readonly PipeReader _pipeReader;
     private readonly Pipe _encPipe;
 
@@ -131,6 +133,7 @@ public sealed class DecryptedPipeReader : PipeReader
 
     public override void Complete(Exception? exception = null)
     {
+        
         if (_isEncrypted)
         {
             _encPipe.Reader.Complete(exception);
