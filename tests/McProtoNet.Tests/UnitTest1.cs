@@ -1,4 +1,6 @@
-﻿namespace McProtoNet.Tests;
+﻿using System.Net.Sockets;
+
+namespace McProtoNet.Tests;
 
 public class UnitTest1
 {

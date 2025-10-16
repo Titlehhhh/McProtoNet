@@ -4,17 +4,22 @@ using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Threading.Tasks.Sources;
+using DotNext.Threading;
 using Org.BouncyCastle.Crypto;
 
 
 public sealed class DecryptedPipeReader : PipeReader
 {
-    
     private readonly PipeReader _pipeReader;
     private readonly Pipe _encPipe;
 
     private IBufferedCipher? _decryptor;
     private bool _isEncrypted;
+
+    public bool IsEncrypted => _isEncrypted;
+
+    private int _readState = 0;
 
     public DecryptedPipeReader(PipeReader baseReader, Pipe? pipe = null)
     {
@@ -37,7 +42,7 @@ public sealed class DecryptedPipeReader : PipeReader
             if (_encPipe.Reader.TryRead(out result))
                 return true;
 
-           
+
             if (_pipeReader.TryRead(out var r1))
             {
                 if (r1.Buffer.Length > 0)
@@ -64,26 +69,49 @@ public sealed class DecryptedPipeReader : PipeReader
         return _pipeReader.TryRead(out result);
     }
 
-    public override async ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
+    public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
     {
         if (!_isEncrypted)
-            return await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+            return _pipeReader.ReadAsync(cancellationToken);
 
-        ReadResult baseResult = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-        if (baseResult.Buffer.Length > 0)
+        if (Interlocked.CompareExchange(ref _readState, 1, 0) != 0)
         {
-            Decrypt(baseResult.Buffer, _encPipe.Writer);
-            _pipeReader.AdvanceTo(baseResult.Buffer.End);
-            await _encPipe.Writer.FlushAsync(cancellationToken).ConfigureAwait(false);
+            return
+                ValueTask.FromException<ReadResult>
+                    (new InvalidOperationException("Concurrent reads or writes are not supported."));
         }
 
-        if (baseResult.IsCompleted)
-        {
-            await _encPipe.Writer.CompleteAsync().ConfigureAwait(false);
-        }
+        return new ValueTask<ReadResult>(ReadDecryptedAsync(cancellationToken));
+    }
 
-        return await _encPipe.Reader.ReadAsync(cancellationToken).ConfigureAwait(false);
+    private async Task<ReadResult> ReadDecryptedAsync(CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            var readResult = await _pipeReader.ReadAsync(cancellationToken);
+            if (readResult.Buffer.Length > 0)
+            {
+                Decrypt(readResult.Buffer, _encPipe.Writer);
+                _pipeReader.AdvanceTo(readResult.Buffer.End);
+                FlushResult result = await _encPipe.Writer.FlushAsync(cancellationToken);
+                if (result.IsCompleted)
+                {
+                    await _encPipe.Writer.CompleteAsync();
+                }
+                //Debug.Assert(!result.IsCompletedSuccessfully);
+            }
+
+            if (readResult.IsCompleted)
+            {
+                await _encPipe.Writer.CompleteAsync();
+            }
+
+            return await _encPipe.Reader.ReadAsync(cancellationToken);
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _readState, 0);
+        }
     }
 
     private void Decrypt(in ReadOnlySequence<byte> data, PipeWriter output)
@@ -94,7 +122,7 @@ public sealed class DecryptedPipeReader : PipeReader
         foreach (ReadOnlyMemory<byte> segment in data)
         {
             ReadOnlySpan<byte> src = segment.Span;
-            int outSize = src.Length; 
+            int outSize = src.Length;
             Span<byte> dest = output.GetSpan(outSize);
 
             int written = _decryptor.ProcessBytes(src, dest);
@@ -133,16 +161,12 @@ public sealed class DecryptedPipeReader : PipeReader
 
     public override void Complete(Exception? exception = null)
     {
-        
         if (_isEncrypted)
         {
             _encPipe.Reader.Complete(exception);
-            _pipeReader.Complete(exception);
+            _encPipe.Writer.Complete(exception);
         }
-        else
-        {
-            _pipeReader.Complete(exception);
-        }
-    }
 
+        _pipeReader.Complete(exception);
+    }
 }

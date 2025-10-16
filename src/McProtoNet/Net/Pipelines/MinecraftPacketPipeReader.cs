@@ -7,25 +7,28 @@ using DotNext.Buffers;
 using DotNext.IO.Pipelines;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
+using Org.BouncyCastle.Crypto;
 using LengthFormat = DotNext.IO.LengthFormat;
 
 namespace McProtoNet.Net;
 
 internal sealed class MinecraftPacketPipeReader
 {
-    private readonly PipeReader pipeReader;
-    //private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
-
-    private bool isEncrypted;
+    private DecryptedPipeReader _pipeReader;
 
     public MinecraftPacketPipeReader(PipeReader pipeReader)
     {
-        this.pipeReader = pipeReader;
-        //this.decompressor = decompressor;
+        this._pipeReader = new DecryptedPipeReader(pipeReader);
     }
 
     public int CompressionThreshold { get; set; }
 
+    public bool EncryptionEnabled => _pipeReader.IsEncrypted;
+
+    public void EnableEncryption(IBufferedCipher decryptor)
+    {
+        _pipeReader.SwitchEncryption(decryptor);
+    }
 
     public async IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -37,11 +40,11 @@ internal sealed class MinecraftPacketPipeReader
             ReadResult result = default;
             try
             {
-                result = await pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                await pipeReader.CompleteAsync().ConfigureAwait(false);
+                await _pipeReader.CompleteAsync().ConfigureAwait(false);
                 break;
             }
 
@@ -60,11 +63,11 @@ internal sealed class MinecraftPacketPipeReader
             }
             finally
             {
-                pipeReader.AdvanceTo(buffer.Start, buffer.End);
+                _pipeReader.AdvanceTo(buffer.Start, buffer.End);
             }
         }
 
-        await pipeReader.CompleteAsync().ConfigureAwait(false);
+        await _pipeReader.CompleteAsync().ConfigureAwait(false);
     }
 
 
@@ -76,12 +79,11 @@ internal sealed class MinecraftPacketPipeReader
 
         packet = ReadOnlySequence<byte>.Empty;
 
-        if (buffer.Length < 1) return false; // Недостаточно данных для чтения заголовка пакета
+        if (buffer.Length < 1) return false; // Not enough data to read packet header
 
-        if (!reader.TryReadVarInt(out var length, out _)) return false; // Невозможно прочитать длину заголовка
+        if (!reader.TryReadVarInt(out var length, out _)) return false; // Unable to read packet length
 
-
-        if (length > reader.Remaining) return false; // Недостаточно данных для чтения полного пакета
+        if (length > reader.Remaining) return false; // Not enough data to read full packet
 
 
         packet = reader.UnreadSequence.Slice(0, length);
@@ -118,8 +120,8 @@ internal sealed class MinecraftPacketPipeReader
 
 public struct NewInputPacket : IDisposable
 {
-    public readonly int Id;
-    public readonly ReadOnlySequence<byte> Data;
+    public int Id { get; }
+    public ReadOnlySequence<byte> Data { get; }
 
     private readonly MemoryOwner<byte>? _memoryOwner;
 

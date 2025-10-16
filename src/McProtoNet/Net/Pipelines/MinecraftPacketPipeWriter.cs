@@ -24,55 +24,52 @@ internal sealed class MinecraftPacketPipeWriter
 
     public int CompressionThreshold { get; set; }
 
-    public void WritePacket(ReadOnlyMemory<byte> data,
-        CancellationToken cancellationToken = default)
+    public void WritePacket(ReadOnlySpan<byte> rawPacket)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         if (CompressionThreshold < 0)
         {
-            pipeWriter.WriteVarInt(data.Length);
-            pipeWriter.Write(data.Span);
-            return;
-            //await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-            //return ValueTask.CompletedTask;
+            pipeWriter.WriteVarInt(rawPacket.Length);
+            pipeWriter.Write(rawPacket);
         }
-        return;
-
-        if (data.Length < CompressionThreshold)
+        else
         {
-            
-            pipeWriter.WriteVarInt(data.Length + 1);
-            pipeWriter.WriteVarInt(0);
-
-            //await pipeWriter.WriteAsync(data, cancellationToken).ConfigureAwait(false);
-            //return ValueTask.CompletedTask;
+            if (rawPacket.Length < CompressionThreshold)
+            {
+                pipeWriter.WriteVarInt(rawPacket.Length + 1);
+                pipeWriter.WriteVarInt(0);
+                pipeWriter.Write(rawPacket);
+            }
+            else
+            {
+                var uncompressedSize = rawPacket.Length;
+                var compressor = LibDeflateCache.RentCompressor();
+                var length = compressor.GetBound(uncompressedSize);
+                
+                var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
+                
+                try
+                {
+                    var bytesCompress = 
+                        compressor.Compress(rawPacket, compressedBuffer.AsSpan(0, length));
+                
+                    var compressedLength = bytesCompress;
+                
+                    var fullsize = compressedLength + uncompressedSize.GetVarIntLength();
+                
+                    pipeWriter.WriteVarInt(fullsize);
+                    pipeWriter.WriteVarInt(uncompressedSize);
+                    pipeWriter.Write(compressedBuffer.AsSpan(0, bytesCompress));
+                }
+                finally
+                {
+                    ArrayPool<byte>.Shared.Return(compressedBuffer);
+                }
+                
+            }
         }
 
-        throw new NotSupportedException();
-        // var uncompressedSize = data.Length;
-        // using scoped var compressor = new ZlibCompressor();
-        // var length = compressor.GetBound(uncompressedSize);
-        //
-        // var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
-        //
-        // try
-        // {
-        //     var bytesCompress = compressor.Compress(data.Span, compressedBuffer.AsSpan(0, length));
-        //
-        //     var compressedLength = bytesCompress;
-        //
-        //     var fullsize = compressedLength + uncompressedSize.GetVarIntLength();
-        //
-        //     pipeWriter.WriteVarInt(fullsize);
-        //     pipeWriter.WriteVarInt(uncompressedSize);
-        //     pipeWriter.Write(compressedBuffer.AsSpan(0, bytesCompress));
-        // }
-        // finally
-        // {
-        //     ArrayPool<byte>.Shared.Return(compressedBuffer);
-        // }
-        //
-        // return pipeWriter.FlushAsync(cancellationToken);
+        
+        
     }
+
 }

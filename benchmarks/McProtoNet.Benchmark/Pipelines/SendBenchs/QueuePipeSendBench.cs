@@ -102,7 +102,7 @@ public class QueuePipeSendBench : ISendBench
                     while (reader.TryRead(out var memory))
                     {
                         count++;
-                        _writer.WritePacket(memory);
+                        _writer.WritePacket(memory.Span);
                         if (count == 500_000)
                         {
                             count = 0;

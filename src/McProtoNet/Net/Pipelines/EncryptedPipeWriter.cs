@@ -37,20 +37,21 @@ public sealed class EncryptedPipeWriter : PipeWriter
     {
         if (_isEncrypted)
             return _encPipe.Writer.GetMemory(sizeHint);
-        else
-            return _pipeWriter.GetMemory(sizeHint);
+        return _pipeWriter.GetMemory(sizeHint);
     }
 
     public override Span<byte> GetSpan(int sizeHint = 0)
     {
         if (_isEncrypted)
             return _encPipe.Writer.GetSpan(sizeHint);
-        else
-            return _pipeWriter.GetSpan(sizeHint);
+        return _pipeWriter.GetSpan(sizeHint);
     }
 
-    public override bool CanGetUnflushedBytes => _pipeWriter.CanGetUnflushedBytes;
-    public override long UnflushedBytes => _pipeWriter.UnflushedBytes;
+    public override bool CanGetUnflushedBytes => 
+        (_isEncrypted ? _encPipe.Writer : _pipeWriter).CanGetUnflushedBytes;
+
+    public override long UnflushedBytes => 
+        (_isEncrypted ? _encPipe.Writer : _pipeWriter).UnflushedBytes;
 
     public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
@@ -59,18 +60,22 @@ public sealed class EncryptedPipeWriter : PipeWriter
             var flushAsync = await _encPipe.Writer.FlushAsync(cancellationToken)
                 .ConfigureAwait(false);
 
-            if (flushAsync.IsCanceled)
-                return flushAsync;
+            if (flushAsync.IsCanceled || flushAsync.IsCompleted)
+                return new FlushResult(flushAsync.IsCanceled, flushAsync.IsCompleted);
 
-            bool tryR = _encPipe.Reader.TryRead(out ReadResult result);
-            Debug.Assert(tryR, $"{nameof(_encPipe.Reader.TryRead)} should return true");
-            if (result.IsCanceled || result.IsCompleted)
+            if (_encPipe.Reader.TryRead(out ReadResult result))
             {
-                return new FlushResult(result.IsCanceled, result.IsCompleted);
-            }
+                if (result.IsCanceled || result.IsCompleted)
+                {
+                    return new FlushResult(result.IsCanceled, result.IsCompleted);
+                }
 
-            Encrypt(result.Buffer, _pipeWriter);
-            _encPipe.Reader.AdvanceTo(result.Buffer.End);
+                if (!result.Buffer.IsEmpty)
+                {
+                    Encrypt(result.Buffer, _pipeWriter);
+                    _encPipe.Reader.AdvanceTo(result.Buffer.End);
+                }
+            }
         }
 
         return await _pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
