@@ -28,4 +28,9 @@ internal static class ThrowHelper
     [DoesNotReturn]
     public static void ThrowInvalidOperation(string message)
         => throw new InvalidOperationException(message);
+    [DoesNotReturn]
+    public static void ThrowVarIntTooLong()
+    {
+        throw new ArithmeticException("VarInt too long");
+    }
 }

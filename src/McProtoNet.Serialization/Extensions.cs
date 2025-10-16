@@ -23,14 +23,14 @@ public static class Extensions
     {
         return ReadVarInt(data, out _);
     }
-    
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryReadVarInt(this ref SequenceReader<byte> reader, out int res, out int length)
     {
         var numRead = 0;
         var result = 0;
         byte read;
-        
+
         do
         {
             if (reader.TryRead(out read))
@@ -54,6 +54,55 @@ public static class Extensions
         res = result;
         length = numRead;
         return true;
+    }
+
+
+    public static bool TryReadVarInt(
+        this ref ReadOnlySequence<byte> sequence,
+        out int result,
+        out SequencePosition consumed)
+    {
+        consumed = sequence.Start;
+        if (sequence.IsSingleSegment)
+        {
+            result = sequence.FirstSpan.ReadVarInt(); //TODO Try
+            return true;
+        }
+        else
+        {
+            byte read = 0;
+            var res1 = 0;
+            var numRead = 0;
+
+            SequencePosition position = sequence.Start;
+            while (sequence.TryGet(
+                       ref position,
+                       out ReadOnlyMemory<byte> segment))
+            {
+                _ = segment.Span[segment.Length];
+                int i = 0;
+                while (i < segment.Length && ((read & 0b10000000) != 0))
+                {
+                    read = segment.Span[i];
+                    
+                    var value = read & 127;
+                    res1 |= value << (7 * numRead);
+
+                    numRead++;
+                    if (numRead > 5)
+                        ThrowHelper.ThrowVarIntTooLong();
+                    
+                    i++;
+                }
+
+                consumed = sequence.GetPosition(i, position);
+            }
+
+            result = res1;
+            return true;
+        }
+
+        return false;
     }
 
     /// <summary>
