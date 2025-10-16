@@ -1,4 +1,6 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,63 +15,46 @@ namespace McProtoNet.Serialization;
 [StructLayout(LayoutKind.Auto)]
 public ref struct MinecraftPrimitiveReader
 {
-    private SpanReader<byte> _reader;
-
-    /// <summary>
-    /// Gets the underlying span being read from
-    /// </summary>
-    public ReadOnlySpan<byte> Span => _reader.Span;
-
-    /// <summary>
-    /// Gets a reference to the current byte being read
-    /// </summary>
-    public ref byte Current => ref Unsafe.AsRef(in _reader.Current);
+    private SequenceReader<byte> _reader;
 
     /// <summary>
     /// Gets the number of bytes consumed from the reader
     /// </summary>
-    public int ConsumedCount => _reader.ConsumedCount;
+    public long ConsumedCount => _reader.Consumed;
 
     /// <summary>
     /// Gets the number of remaining bytes to be read
     /// </summary>
-    public readonly int RemainingCount => _reader.RemainingCount;
+    public readonly long RemainingCount => _reader.Remaining;
 
-    /// <summary>
-    /// Gets the span of bytes that have been consumed
-    /// </summary>
-    public readonly ReadOnlySpan<byte> ConsumedSpan => _reader.ConsumedSpan;
+    
 
-    /// <summary>
-    /// Gets the span of remaining bytes to be read
-    /// </summary>
-    public readonly ReadOnlySpan<byte> RemainingSpan => _reader.RemainingSpan;
+    
 
-    /// <summary>
-    /// Initializes a new instance of the MinecraftPrimitiveReader with a span of bytes
-    /// </summary>
-    /// <param name="data">The span of bytes to read from</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public MinecraftPrimitiveReader(ReadOnlySpan<byte> data)
-    {
-        _reader = new SpanReader<byte>(data);
-    }
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowBufferOverflow() =>
+        throw new BufferOverflowException();
 
     /// <summary>
     /// Initializes a new instance of the MinecraftPrimitiveReader with a memory of bytes
     /// </summary>
     /// <param name="data">The memory of bytes to read from</param>
-    public MinecraftPrimitiveReader(ReadOnlyMemory<byte> data) : this(data.Span)
+    public MinecraftPrimitiveReader(ReadOnlyMemory<byte> data) : this(new ReadOnlySequence<byte>(data))
     {
+        
     }
+
+    
 
     /// <summary>
     /// Initializes a new instance of the MinecraftPrimitiveReader with a sequence of bytes
     /// </summary>
     /// <param name="data">The sequence of bytes to read from</param>
-    internal MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
+    public MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
     {
-        throw new NotImplementedException();
+        _reader = new SequenceReader<byte>(data);
+       
     }
 
     /// <summary>
@@ -82,13 +67,22 @@ public ref struct MinecraftPrimitiveReader
         _reader.Advance(count);
     }
 
-    /// <summary>
-    /// Reads a specified number of bytes from the reader
-    /// </summary>
-    /// <param name="count">The number of bytes to read</param>
-    /// <returns>A span containing the read bytes</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ReadOnlySpan<byte> Read(int count) => _reader.Read(count);
+    public void Rewind(int count)
+    {
+        _reader.Rewind(count);
+    }
+
+
+    public ReadOnlySequence<byte> Read(int count)
+    {
+        if (!_reader.TryReadExact(count, out var result))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return result;
+    }
 
     /// <summary>
     /// Reads bytes into the provided output span
@@ -96,7 +90,15 @@ public ref struct MinecraftPrimitiveReader
     /// <param name="output">The span to read bytes into</param>
     /// <returns>The number of bytes read</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int Read(scoped Span<byte> output) => _reader.Read(output);
+    public int Read(scoped Span<byte> output)
+    {
+        if (!_reader.TryCopyTo(output))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return output.Length;
+    }
 
 
     /// <summary>
@@ -107,20 +109,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadVarInt()
     {
-        var numRead = 0;
-        var result = 0;
-        byte read;
-        do
+        if (!_reader.TryReadVarInt(out int res, out _))
         {
-            read = _reader.Read();
-            var value = read & 127;
-            result |= value << (7 * numRead);
+            ThrowBufferOverflow();
+        }
 
-            numRead++;
-            if (numRead > 5) throw new ArithmeticException("VarInt too long");
-        } while ((read & 0b10000000) != 0);
-
-        return result;
+        return res;
     }
 
     /// <summary>
@@ -136,12 +130,22 @@ public ref struct MinecraftPrimitiveReader
         byte read;
         do
         {
-            read = _reader.Read();
-            var value = read & 127;
-            result |= (long)value << (7 * numRead);
-
-            numRead++;
-            if (numRead > 10) throw new ArithmeticException("VarLong too long");
+            if (_reader.TryRead(out read))
+            {
+                var value = read & 127;
+                result |= (long)value << (7 * numRead);
+                numRead++;
+                if (numRead > 10)
+                {
+                    _reader.Rewind(numRead);
+                    throw new ArithmeticException("VarLong too long");
+                }
+            }
+            else
+            {
+                _reader.Rewind(numRead);
+                ThrowBufferOverflow();
+            }
         } while ((read & 0b10000000) != 0);
 
         return result;
@@ -154,7 +158,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ReadBoolean()
     {
-        return _reader.Read() == 1;
+        if (!_reader.TryRead(out var b))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return b == 1;
     }
 
     /// <summary>
@@ -164,7 +173,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte ReadUnsignedByte()
     {
-        return _reader.Read();
+        if (!_reader.TryRead(out var b))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return b;
     }
 
     /// <summary>
@@ -184,7 +198,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ushort ReadUnsignedShort()
     {
-        return _reader.ReadBigEndian<ushort>();
+        if (!_reader.TryReadBigEndian(out short v))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return (ushort)v;
     }
 
     /// <summary>
@@ -194,7 +213,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short ReadSignedShort()
     {
-        return (short)ReadUnsignedShort();
+        if (!_reader.TryReadBigEndian(out short v))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return v;
     }
 
     /// <summary>
@@ -204,7 +228,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadSignedInt()
     {
-        return _reader.ReadBigEndian<int>();
+        if (!_reader.TryReadBigEndian(out int v))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return v;
     }
 
     /// <summary>
@@ -214,7 +243,7 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint ReadUnsignedInt()
     {
-        return _reader.ReadBigEndian<uint>();
+        return (uint)ReadSignedInt();
     }
 
     /// <summary>
@@ -224,7 +253,12 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public long ReadSignedLong()
     {
-        return _reader.ReadBigEndian<long>();
+        if (!_reader.TryReadBigEndian(out long v))
+        {
+            ThrowBufferOverflow();
+        }
+
+        return v;
     }
 
     /// <summary>
@@ -264,17 +298,40 @@ public ref struct MinecraftPrimitiveReader
     /// </summary>
     /// <returns>The decoded string</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ReadString()
+    public string ReadString(int maxLength = short.MaxValue)
     {
+        return ReadString(Encoding.UTF8, maxLength);
+    }
+
+
+    public string ReadString(Encoding encoding, int maxLength = short.MaxValue)
+    {
+        ArgumentNullException.ThrowIfNull(encoding);
         int len = ReadVarInt();
 
-        if (len > 0)
+        if (len < 0)
         {
-            return Encoding.UTF8.GetString(_reader.Read(len));
+            ThrowHelper.ThrowInvalidData($"Negative string length: {len}");
         }
 
-        return "";
+        if (len > maxLength * 3)
+        {
+            ThrowHelper.ThrowInvalidData($"String buffer too long ({len} bytes, max {maxLength * 3}).");
+        }
+
+        if (!_reader.TryReadExact(len, out var buff))
+        {
+            ThrowBufferOverflow();
+        }
+
+        string result = encoding.GetString(buff);
+        if (result.Length > maxLength)
+            ThrowHelper.ThrowInvalidData(
+                $"Decoded string too long ({result.Length} chars, max {maxLength})");
+        return result;
     }
+
+   
 
     /// <summary>
     /// Reads a UUID from the reader
@@ -283,7 +340,18 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Guid ReadUUID()
     {
-        var bytes = Read(16);
+        if (!_reader.TryReadExact(16, out var seq))
+        {
+            ThrowBufferOverflow();
+        }
+
+        if (seq.IsSingleSegment)
+        {
+            return new Guid(seq.FirstSpan, bigEndian: true);
+        }
+
+        Span<byte> bytes = stackalloc byte[16];
+        seq.CopyTo(bytes);
         return new Guid(bytes, bigEndian: true);
     }
 
@@ -294,7 +362,9 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadRestBuffer()
     {
-        return _reader.ReadToEnd().ToArray();
+        var arr = _reader.UnreadSequence.ToArray();
+        _reader.Advance(arr.Length);
+        return arr;
     }
 
     /// <summary>
@@ -305,7 +375,7 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadBuffer(int length)
     {
-        return _reader.Read(length).ToArray();
+        return Read(length).ToArray();
     }
 
     /// <summary>
@@ -332,10 +402,11 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NbtTag? ReadNbtTag(bool readRootTag)
     {
-        NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);
-        NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
-
-        _reader.Advance(nbtSpanReader.ConsumedCount);
-        return result;
+        throw new NotImplementedException();
+        // NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);
+        // NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
+        //
+        // _reader.Advance(nbtSpanReader.ConsumedCount);
+        // return result;
     }
 }
