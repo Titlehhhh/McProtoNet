@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DotNext.Buffers;
@@ -39,7 +40,8 @@ public static class Extensions
                 result |= value << (7 * numRead);
 
                 numRead++;
-                if (numRead > 5) throw new ArithmeticException("VarInt too long");
+                if (numRead > 5)
+                    ThrowHelper.ThrowVarIntTooLong();
             }
             else
             {
@@ -58,50 +60,53 @@ public static class Extensions
 
 
     public static bool TryReadVarInt(
-        this ref ReadOnlySequence<byte> sequence,
+        this in ReadOnlySequence<byte> sequence,
         out int result,
-        out SequencePosition consumed)
+        out int length)
     {
-        consumed = sequence.Start;
-        if (sequence.IsSingleSegment)
+        if (sequence.FirstSpan.Length >= 5 || sequence.IsSingleSegment)
         {
-            result = sequence.FirstSpan.ReadVarInt(); //TODO Try
-            return true;
+            return sequence.FirstSpan.TryReadVarInt(out result, out length);
         }
-        else
-        {
-            byte read = 0;
-            var res1 = 0;
-            var numRead = 0;
 
-            SequencePosition position = sequence.Start;
-            while (sequence.TryGet(
-                       ref position,
-                       out ReadOnlyMemory<byte> segment))
+        return TryReadVarIntMultisegment(in sequence, out result, out length);
+    }
+
+    private static bool TryReadVarIntMultisegment(in ReadOnlySequence<byte> sequence,
+        out int result,
+        out int length)
+    {
+        var res1 = 0;
+        var numRead = 0;
+
+        var position = sequence.Start;
+        while (sequence.TryGet(
+                   ref position,
+                   out var segment))
+        {
+            int i = 0;
+            do
             {
-                _ = segment.Span[segment.Length];
-                int i = 0;
-                while (i < segment.Length && ((read & 0b10000000) != 0))
-                {
-                    read = segment.Span[i];
-                    
-                    var value = read & 127;
-                    res1 |= value << (7 * numRead);
+                var read = segment.Span[i];
 
-                    numRead++;
-                    if (numRead > 5)
-                        ThrowHelper.ThrowVarIntTooLong();
-                    
-                    i++;
-                }
+                var value = read & 127;
+                res1 |= value << (7 * numRead);
 
-                consumed = sequence.GetPosition(i, position);
-            }
+                numRead++;
+                if (numRead > 5)
+                    ThrowHelper.ThrowVarIntTooLong();
 
-            result = res1;
-            return true;
+                i++;
+                if ((read & 0b10000000) != 0) continue;
+
+                length = numRead;
+                result = res1;
+                return true;
+            } while (i < segment.Length);
         }
 
+        result = 0;
+        length = 0;
         return false;
     }
 
@@ -113,7 +118,7 @@ public static class Extensions
     /// <returns>The decoded VarInt value</returns>
     /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadVarInt(this ReadOnlySpan<byte> data, out int len)
+    public static int ReadVarInt(this in ReadOnlySpan<byte> data, out int len)
     {
         var numRead = 0;
         var result = 0;
@@ -127,14 +132,42 @@ public static class Extensions
             result |= value << (7 * numRead);
 
             numRead++;
-            if (numRead > 5) throw new ArithmeticException("VarInt too long");
+            if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
         } while ((read & 0b10000000) != 0);
-
-        //data = data.Slice(numRead);
-
 
         len = numRead;
         return result;
+    }
+
+
+    public static bool TryReadVarInt(this in ReadOnlySpan<byte> span, out int result, out int len)
+    {
+        scoped var reader = new SpanReader<byte>(span);
+
+        var numRead = 0;
+        result = 0;
+        byte read;
+        do
+        {
+            if (reader.TryRead(out read))
+            {
+                var value = read & 0b01111111;
+                result |= value << (7 * numRead);
+                numRead++;
+                if (numRead > 5)
+                    ThrowHelper.ThrowVarIntTooLong();
+            }
+            else
+            {
+                len = 0;
+                result = 0;
+                return false;
+            }
+        } while ((read & 0b10000000) != 0);
+
+
+        len = numRead;
+        return true;
     }
 
     /// <summary>
@@ -210,7 +243,7 @@ public static class Extensions
     /// <param name="value">The integer value to encode</param>
     /// <param name="data">The memory region to write to</param>
     /// <returns>The number of bytes written</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte GetVarIntLength(this int value, Memory<byte> data)
     {
         return GetVarIntLength(value, data.Span);
@@ -225,6 +258,89 @@ public static class Extensions
     /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
     public static int ReadVarInt(this Stream stream)
     {
+        return stream.ReadVarInt(out _);
+    }
+
+    /// <summary>
+    /// Reads a VarInt from a stream asynchronously
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="token">Cancellation token</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    //[AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
+    public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        var buff = ArrayPool<byte>.Shared.Rent(1);
+
+        try
+        {
+            var numRead = 0;
+            var result = 0;
+            byte read;
+            do
+            {
+                await stream.ReadExactlyAsync(buff, 0, 1, token)
+                    .ConfigureAwait(false);
+
+
+                read = buff[0];
+                var value = read & 0b01111111;
+                result |= value << (7 * numRead);
+
+                numRead++;
+                if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
+            } while ((read & 0b10000000) != 0);
+
+            return result;
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(buff);
+        }
+    }
+
+    public static async ValueTask<int> ReadVarIntAsync(this Stream stream, Memory<byte> buff,
+        CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(buff);
+        
+        if(buff.Length == 0)
+            throw new ArgumentException("Buffer must be at least 1 byte long", nameof(buff));
+        
+        var numRead = 0;
+        var result = 0;
+        byte read;
+        do
+        {
+            await stream.ReadExactlyAsync(buff, token)
+                .ConfigureAwait(false);
+
+
+            read = buff.Span[0];
+            var value = read & 0b01111111;
+            result |= value << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
+        } while ((read & 0b10000000) != 0);
+
+        return result;
+    }
+
+    /// <summary>
+    /// Reads a VarInt from a stream and returns the number of bytes read
+    /// </summary>
+    /// <param name="stream">The stream to read from</param>
+    /// <param name="len">The number of bytes read</param>
+    /// <returns>The decoded VarInt value</returns>
+    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
+    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    public static int ReadVarInt(this Stream stream, out int len)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
         Span<byte> buff = stackalloc byte[1];
 
         var numRead = 0;
@@ -241,102 +357,10 @@ public static class Extensions
             result |= value << (7 * numRead);
 
             numRead++;
-            if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
+            if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
         } while ((read & 0b10000000) != 0);
 
-        return result;
-    }
-
-    /// <summary>
-    /// Reads a VarInt from a stream asynchronously
-    /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="token">Cancellation token</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
-    //[AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
-    public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
-    {
-        var buff = ArrayPool<byte>.Shared.Rent(1);
-
-        try
-        {
-            var numRead = 0;
-            var result = 0;
-            byte read;
-            do
-            {
-                await stream.ReadExactlyAsync(buff, 0, 1, token);
-
-
-                read = buff[0];
-                var value = read & 0b01111111;
-                result |= value << (7 * numRead);
-
-                numRead++;
-                if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
-            } while ((read & 0b10000000) != 0);
-
-            return result;
-        }
-        finally
-        {
-            ArrayPool<byte>.Shared.Return(buff);
-        }
-    }
-
-    public static async ValueTask<int> ReadVarIntTestAsync(this Stream stream, byte[] buff,
-        CancellationToken token = default)
-    {
-        var numRead = 0;
-        var result = 0;
-        byte read;
-        do
-        {
-            await stream.ReadExactlyAsync(buff, 0, 1, token);
-
-
-            read = buff[0];
-            var value = read & 0b01111111;
-            result |= value << (7 * numRead);
-
-            numRead++;
-            if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
-        } while ((read & 0b10000000) != 0);
-
-        return result;
-    }
-
-    /// <summary>
-    /// Reads a VarInt from a stream and returns the number of bytes read
-    /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="len">The number of bytes read</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
-    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
-    public static int ReadVarInt(this Stream stream, out int len)
-    {
-        var buff = new byte[1];
-
-        var numRead = 0;
-        var result = 0;
-        byte read;
-        do
-        {
-            if (stream.Read(buff, 0, 1) <= 0)
-                throw new EndOfStreamException();
-            read = buff[0];
-
-
-            var value = read & 0b01111111;
-            result |= value << (7 * numRead);
-
-            numRead++;
-            if (numRead > 5) throw new InvalidOperationException("VarInt is too big");
-        } while ((read & 0b10000000) != 0);
-
-        len = (byte)numRead;
+        len = numRead;
         return result;
     }
 
@@ -347,8 +371,9 @@ public static class Extensions
     /// <param name="value">The integer value to write as a VarInt</param>
     public static void WriteVarInt(this Stream stream, int value)
     {
+        ArgumentNullException.ThrowIfNull(stream);
+        
         var unsigned = (uint)value;
-
         do
         {
             var temp = (byte)(unsigned & 127);
@@ -374,13 +399,26 @@ public static class Extensions
         var data = ArrayPool<byte>.Shared.Rent(5);
         try
         {
-            int len = value.GetVarIntLength(data.AsSpan(0, 5));
-
-            await stream.WriteAsync(data.AsMemory(0, len), token).ConfigureAwait(false);
+            await WriteVarIntAsync(stream, value, data, token).ConfigureAwait(false);
         }
         finally
         {
             ArrayPool<byte>.Shared.Return(data);
         }
+    }
+
+    public static async ValueTask WriteVarIntAsync(this Stream stream, int value, Memory<byte> buffer,
+        CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        if (buffer.Length < 5)
+        {
+            throw new ArgumentException("Buffer must be at least 5 bytes long", nameof(buffer));
+        }
+        
+        int len = value.GetVarIntLength(buffer.Span);
+
+        await stream.WriteAsync(buffer[..len], token)
+            .ConfigureAwait(false);
     }
 }

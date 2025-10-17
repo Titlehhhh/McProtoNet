@@ -37,12 +37,12 @@ public sealed class MinecraftPacketReader
     [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     public async ValueTask<InputPacket> ReadNextPacketAsync(CancellationToken token = default)
     {
-        var len = await BaseStream.ReadVarIntTestAsync(_varIntBuff, token);
+        var len = await BaseStream.ReadVarIntAsync(_varIntBuff, token).ConfigureAwait(false);
 
         var buffer = MemoryAllocator.AllocateExactly(len);
         try
         {
-            await BaseStream.ReadExactlyAsync(buffer.Memory, token);
+            await BaseStream.ReadExactlyAsync(buffer.Memory, token).ConfigureAwait(false);
 
             if (_compressionThreshold < 0)
             {
@@ -72,70 +72,6 @@ public sealed class MinecraftPacketReader
             buffer.Dispose();
             throw;
         }
-
-        // var len = await BaseStream.ReadVarIntAsync(token);
-        // if (_compressionThreshold < 0)
-        // {
-        //     var buffer = memoryAllocator.AllocateExactly(len);
-        //     try
-        //     {
-        //         await BaseStream.ReadExactlyAsync(buffer.Memory, token);
-        //         return new InputPacket(buffer);
-        //     }
-        //     catch
-        //     {
-        //         buffer.Dispose();
-        //         throw;
-        //     }
-        // }
-        //
-        // var sizeUncompressed = await BaseStream.ReadVarIntAsync(token);
-        // if (sizeUncompressed > 0)
-        // {
-        //     if (sizeUncompressed < _compressionThreshold)
-        //         throw new Exception(
-        //             $"Длина sizeUncompressed меньше порога сжатия. sizeUncompressed: {sizeUncompressed} Порог: {_compressionThreshold}");
-        //     len -= sizeUncompressed.GetVarIntLength();
-        //
-        //     var compressedBuffer = memoryAllocator.AllocateExactly(len);
-        //
-        //     try
-        //     {
-        //         await BaseStream.ReadExactlyAsync(compressedBuffer.Memory, token);
-        //         var memoryOwner = memoryAllocator.AllocateExactly(sizeUncompressed);
-        //         try
-        //         {
-        //             DecompressCore(compressedBuffer.Span, memoryOwner.Span);
-        //             return new InputPacket(memoryOwner);
-        //         }
-        //         catch
-        //         {
-        //             memoryOwner.Dispose();
-        //             throw;
-        //         }
-        //     }
-        //     finally
-        //     {
-        //         compressedBuffer.Dispose();
-        //     }
-        // }
-        //
-        // {
-        //     if (sizeUncompressed != 0)
-        //         throw new Exception("size incorrect");
-        //
-        //     var buffer = memoryAllocator.AllocateExactly(len - 1); // -1 is sizeUncompressed length !!!
-        //     try
-        //     {
-        //         await BaseStream.ReadExactlyAsync(buffer.Memory, token);
-        //         return new InputPacket(buffer);
-        //     }
-        //     catch
-        //     {
-        //         buffer.Dispose();
-        //         throw;
-        //     }
-        // }
     }
 
     /// <summary>

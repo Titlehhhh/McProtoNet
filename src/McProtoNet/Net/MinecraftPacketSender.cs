@@ -12,6 +12,10 @@ namespace McProtoNet.Net;
 /// </summary>
 public sealed class MinecraftPacketSender
 {
+    private readonly byte[] _varIntBuff = new byte[5];
+    private static readonly MemoryAllocator<byte> MemoryAllocator = ArrayPool<byte>.Shared.ToAllocator();
+
+
     public bool AutoFlush { get; set; } = true;
 
     /// <summary>
@@ -45,12 +49,21 @@ public sealed class MinecraftPacketSender
 
                 if (uncompressedSize >= _compressionThreshold)
                 {
-                    using MemoryOwner<byte> compressedBuffer = Compress(data.Span);
+                    using var compressedBuffer = Compress(data.Span);
 
                     int fullSize = compressedBuffer.Length + uncompressedSize.GetVarIntLength();
 
-                    await BaseStream.WriteVarIntAsync(fullSize, cancellationToken).ConfigureAwait(false);
-                    await BaseStream.WriteVarIntAsync(uncompressedSize, cancellationToken).ConfigureAwait(false);
+                    await BaseStream.WriteVarIntAsync(
+                        fullSize, 
+                        _varIntBuff,
+                        cancellationToken).ConfigureAwait(false);
+                    
+                    
+                    await BaseStream.WriteVarIntAsync(
+                            uncompressedSize, 
+                            _varIntBuff, 
+                            cancellationToken)
+                        .ConfigureAwait(false);
 
                     await BaseStream.WriteAsync(compressedBuffer.Memory, cancellationToken)
                         .ConfigureAwait(false);
@@ -81,7 +94,7 @@ public sealed class MinecraftPacketSender
     /// <returns>A ValueTask representing the send operation</returns>
     private async ValueTask SendShort(int unSize, ReadOnlyMemory<byte> data, CancellationToken token)
     {
-        await BaseStream.WriteVarIntAsync(unSize, token).ConfigureAwait(false);
+        await BaseStream.WriteVarIntAsync(unSize,_varIntBuff, token).ConfigureAwait(false);
         await BaseStream.WriteAsync(ZERO_VARINT, token).ConfigureAwait(false);
         await BaseStream.WriteAsync(data, token).ConfigureAwait(false);
     }
@@ -110,12 +123,12 @@ public sealed class MinecraftPacketSender
     }
 
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
+    
     private async ValueTask SendPacketWithoutCompressionAsync(ReadOnlyMemory<byte> data, CancellationToken token)
     {
         var len = data.Length;
 
-        await BaseStream.WriteVarIntAsync(len, token).ConfigureAwait(false);
+        await BaseStream.WriteVarIntAsync(len,_varIntBuff, token).ConfigureAwait(false);
 
         await BaseStream.WriteAsync(data, token).ConfigureAwait(false);
     }
@@ -127,13 +140,13 @@ public sealed class MinecraftPacketSender
         var compressor = LibDeflateCache.RentCompressor();
         var length = compressor.GetBound(data.Length);
 
-        var compressedBuffer = _memoryAllocator.AllocateExactly(length);
+        var compressedBuffer = MemoryAllocator.AllocateExactly(length);
         try
         {
             var bytesCompress = compressor.Compress(data, compressedBuffer.Span);
 
 
-            compressedBuffer.Resize(bytesCompress, _memoryAllocator);
+            compressedBuffer.Resize(bytesCompress, MemoryAllocator);
 
             return compressedBuffer;
         }
@@ -143,10 +156,6 @@ public sealed class MinecraftPacketSender
             throw;
         }
     }
-
-
-    private static readonly MemoryAllocator<byte> _memoryAllocator = ArrayPool<byte>.Shared.ToAllocator();
-
     public async Task FlushAsync(CancellationToken cancellationToken = default)
     {
         await BaseStream.FlushAsync(cancellationToken).ConfigureAwait(false);

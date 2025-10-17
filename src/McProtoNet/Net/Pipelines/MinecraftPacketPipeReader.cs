@@ -7,6 +7,7 @@ using DotNext.Buffers;
 using DotNext.IO.Pipelines;
 using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
+using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
 using LengthFormat = DotNext.IO.LengthFormat;
 
@@ -99,13 +100,14 @@ internal sealed class MinecraftPacketPipeReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private NewInputPacket Decompress(in ReadOnlySequence<byte> data)
     {
+        scoped SequenceReader<byte> reader = new(data);
         if (CompressionThreshold == -1)
         {
             //Без сжатия
             return new NewInputPacket(data);
         }
 
-        data.TryReadVarInt(out var sizeUncompressed, out var len);
+        reader.TryReadVarInt(out var sizeUncompressed, out var len);
 
         if (sizeUncompressed == 0)
         {
