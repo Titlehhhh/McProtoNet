@@ -1,5 +1,6 @@
 ﻿using System.Buffers;
 using System.Threading.Tasks.Sources;
+using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 
@@ -8,7 +9,7 @@ namespace McProtoNet.Net;
 /// <summary>
 /// Reads Minecraft protocol packets from a stream, handling compression if enabled
 /// </summary>
-public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPacketSource
+public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
 {
     private readonly Stream _stream;
     private readonly ArrayPool<byte> _pool;
@@ -21,9 +22,8 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
 
     private volatile int _readState = NotRead;
     private volatile int _state;
-    
-    private PacketState _currentPacket;
-    private int _version;
+
+    private readonly PacketSourceCore _sourceCore = new();
 
     private const int NotRead = 0;
     private const int Reading = 1;
@@ -69,13 +69,13 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
     public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
-
-        ReturnBufferToPool();
-
+        
         if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
         {
             throw new InvalidOperationException("Concurrent packet reading is not allowed.");
         }
+        
+        ReturnBufferToPool();
 
         var len = await BaseStream.ReadVarIntAsync(_varIntBuff, token)
             .ConfigureAwait(false);
@@ -158,10 +158,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
         var old = Interlocked.Exchange(ref _bytes, null);
         if (old is not null)
         {
-            unchecked
-            {
-                _version++;
-            }
+            _sourceCore.IncrementVersion();
             _pool.Return(old);
         }
     }
@@ -177,26 +174,12 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
         var id = readData.Span.ReadVarInt(out var len);
         var data = new ReadOnlySequence<byte>(readData[len..]);
 
-        _currentPacket.Id = id;
-        _currentPacket.Data = data;
-        
-        return new NewInputPacket(this, _version);
-    }
-    
-    int IPacketSource.GetId(int version)
-    {
-        if (_version != version)
-            throw new InvalidOperationException("Packet returned to pool");
-        return _currentPacket.Id;
+        _sourceCore.Id = id;
+        _sourceCore.Data = data;
+
+        return new NewInputPacket(_sourceCore, _sourceCore.Version);
     }
 
-    ReadOnlySequence<byte> IPacketSource.GetData(int version)
-    {
-        if (_version != version)
-            throw new InvalidOperationException("Packet returned to pool");
-
-        return _currentPacket.Data;
-    }
 
     /// <summary>
     /// Enables or disables packet compression with the specified threshold
@@ -218,7 +201,6 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
         {
             return;
         }
-
         ReturnBufferToPool();
         if (!_leaveOpen)
         {
@@ -231,13 +213,4 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable, IPack
         Dispose();
         return ValueTask.CompletedTask;
     }
-    
-    
-    private struct PacketState
-    {
-        public int Id;
-        public ReadOnlySequence<byte> Data;
-    }
-
-    
 }
