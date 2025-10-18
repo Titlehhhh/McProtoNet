@@ -6,6 +6,6 @@ namespace McProtoNet.Net;
 
 public interface IPacketSource
 {
-    int GetId(int version);
-    ReadOnlySequence<byte> GetData(int version);
+    int GetId(int token);
+    ReadOnlySequence<byte> GetData(int token);
 }
