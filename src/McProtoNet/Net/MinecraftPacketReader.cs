@@ -18,7 +18,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
 
     private volatile byte[]? _bytes;
 
-    private int _compressionThreshold = -1;
+    private volatile int _compressionThreshold = -1;
 
     private volatile int _readState = NotRead;
     private volatile int _state;
@@ -69,12 +69,12 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
     public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
-        
+
         if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
         {
             throw new InvalidOperationException("Concurrent packet reading is not allowed.");
         }
-        
+
         ReturnBufferToPool();
 
         var len = await BaseStream.ReadVarIntAsync(_varIntBuff, token)
@@ -158,7 +158,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
         var old = Interlocked.Exchange(ref _bytes, null);
         if (old is not null)
         {
-            _sourceCore.IncrementVersion();
+            _sourceCore.Reset();
             _pool.Return(old);
         }
     }
@@ -180,15 +180,30 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
         return new NewInputPacket(_sourceCore, _sourceCore.Version);
     }
 
-
     /// <summary>
-    /// Enables or disables packet compression with the specified threshold
+    ///     Get the compression threshold for this packet reader.
+    ///     Any packet larger than this threshold will be compressed.
     /// </summary>
-    /// <param name="threshold">The compression threshold in bytes. Values less than 0 disable compression.</param>
-    public void SwitchCompression(int threshold)
+    /// <value>
+    ///     The compression threshold in bytes.
+    /// </value>
+    public int CompressionThreshold
     {
-        ThrowIfDisposed();
-        _compressionThreshold = threshold;
+        get
+        {
+            ThrowIfDisposed();
+            return _compressionThreshold;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (_readState == Reading)
+            {
+                throw new InvalidOperationException("Cannot set CompressionThreshold while reading a packet");
+            }
+
+            _compressionThreshold = value;
+        }
     }
 
     private void ThrowIfDisposed() =>
@@ -201,6 +216,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
         {
             return;
         }
+
         ReturnBufferToPool();
         if (!_leaveOpen)
         {
