@@ -70,7 +70,6 @@ public class Pipelines2ReadBench : IReceiveBench
         var count = 0;
         await foreach (var packet in _reader.ReadPacketsAsync())
         {
-            packet.Dispose();
             count++;
             if (count == packetsCount)
                 break;

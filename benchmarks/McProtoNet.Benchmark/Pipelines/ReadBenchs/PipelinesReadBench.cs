@@ -31,7 +31,6 @@ public class PipelinesReadBench : IReceiveBench
         {
             await foreach (var packet in _reader.ReadPacketsAsync())
             {
-                packet.Dispose();
                 count++;
             }
         }

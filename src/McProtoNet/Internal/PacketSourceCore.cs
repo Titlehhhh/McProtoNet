@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using McProtoNet.Net;
 
 namespace McProtoNet.Internal;
@@ -9,12 +10,14 @@ internal class PacketSourceCore : IPacketSource
     public int Id;
     public ReadOnlySequence<byte> Data;
 
-    public void IncrementVersion()
+    public void Reset()
     {
         unchecked
         {
             _version++;
         }
+        Id = -1;
+        Data = ReadOnlySequence<byte>.Empty;
     }
 
     private int _version; // it's not Minecraft protocol version
@@ -25,7 +28,9 @@ internal class PacketSourceCore : IPacketSource
     {
         if (_version != token)
             throw new InvalidOperationException("Packet returned to pool");
-        return Id;
+        var id = Id;
+        Debug.Assert(id == -1, $"PacketSourceCore.GetId called with invalid token {_version} != {token}");
+        return id;
     }
 
     public ReadOnlySequence<byte> GetData(int token)

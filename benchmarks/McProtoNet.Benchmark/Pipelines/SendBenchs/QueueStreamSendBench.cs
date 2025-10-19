@@ -9,7 +9,7 @@ namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class QueueStreamSendBench : ISendBench
 {
-    private readonly MinecraftPacketSender _sender = new();
+    private MinecraftPacketSender _sender;
     private Stream _stream;
     private readonly int _queueSize;
 
@@ -36,9 +36,12 @@ public class QueueStreamSendBench : ISendBench
             });
         }
         _stream = new PoolingBufferedStream(stream);
-        _sender.AutoFlush = false;
-        _sender.BaseStream = _stream;
-        _sender.SwitchCompression(compressionThreshold);
+
+        _sender = new MinecraftPacketSender(_stream)
+        {
+            AutoFlush = false,
+            CompressionThreshold = compressionThreshold
+        };
         Task read = Task.Run(async () =>
         {
             try
@@ -84,7 +87,6 @@ public class QueueStreamSendBench : ISendBench
 
     public async Task Cleanup()
     {
-        //await _read;
-        _stream?.Dispose();
+        await _sender.DisposeAsync();
     }
 }

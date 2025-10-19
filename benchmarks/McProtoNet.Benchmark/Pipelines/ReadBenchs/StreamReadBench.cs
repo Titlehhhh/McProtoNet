@@ -6,20 +6,19 @@ namespace McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 public class StreamReadBench : IReceiveBench
 {
-    private readonly MinecraftPacketReader _reader;
+    private MinecraftPacketReader _reader;
 
     private Stream _stream;
+
     public StreamReadBench()
     {
-        _reader = new MinecraftPacketReader();
     }
 
 
     public Task Setup(Stream stream, int compressionThreshold)
     {
-        _reader.SwitchCompression(compressionThreshold);
-        _stream = stream;
-        _reader.BaseStream = _stream;
+        _reader = new MinecraftPacketReader(stream);
+        _reader.CompressionThreshold = compressionThreshold;
         return Task.CompletedTask;
     }
 
@@ -27,14 +26,12 @@ public class StreamReadBench : IReceiveBench
     {
         for (var i = 0; i < packetsCount; i++)
         {
-            using var packet = await _reader.ReadNextPacketAsync();
+            _ = await _reader.ReadPacketAsync();
         }
     }
 
-    public Task Cleanup()
+    public async Task Cleanup()
     {
-        _stream?.Dispose();
-        return Task.CompletedTask;
+        await _reader.DisposeAsync();
     }
-
 }

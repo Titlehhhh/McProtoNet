@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace McProtoNet.Serialization;
@@ -6,6 +7,7 @@ namespace McProtoNet.Serialization;
 internal static class ThrowHelper
 {
     [DoesNotReturn]
+    [StackTraceHidden]
     public static void ThrowInvalidData(string message)
         => throw new InvalidDataException(message);
 
@@ -29,6 +31,7 @@ internal static class ThrowHelper
     public static void ThrowInvalidOperation(string message)
         => throw new InvalidOperationException(message);
     [DoesNotReturn]
+    [StackTraceHidden]
     public static void ThrowVarIntTooLong()
     {
         throw new ArithmeticException("VarInt too long");

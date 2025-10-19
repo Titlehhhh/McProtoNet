@@ -8,14 +8,16 @@ namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class BufferedStreamSendBench : ISendBench
 {
-    private readonly MinecraftPacketSender _sender = new();
-    private Stream _stream;
+    private MinecraftPacketSender _sender;
+   
 
     public Task Setup(Stream stream, int compressionThreshold)
     {
-        _stream = new PoolingBufferedStream(stream);
-        _sender.BaseStream = _stream;
-        _sender.SwitchCompression(compressionThreshold);
+        stream = new PoolingBufferedStream(stream);
+        _sender = new MinecraftPacketSender(stream)
+        {
+            CompressionThreshold = compressionThreshold
+        };
         return Task.CompletedTask;
     }
 
@@ -27,9 +29,8 @@ public class BufferedStreamSendBench : ISendBench
         }
     }
 
-    public Task Cleanup()
+    public async Task Cleanup()
     {
-        _stream?.Dispose();
-        return Task.CompletedTask;
+        await _sender.DisposeAsync();
     }
 }
