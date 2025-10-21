@@ -1,21 +1,33 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
-using DotNext;
-using DotNext.Buffers;
-using DotNext.IO.Pipelines;
-using McProtoNet.Abstractions;
+using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
-using LengthFormat = DotNext.IO.LengthFormat;
 
 namespace McProtoNet.Net;
 
-internal sealed class MinecraftPacketPipeReader
+internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
 {
-    private DecryptedPipeReader _pipeReader;
+    private static readonly NullOwner DisposedMemoryOwner = new();
+
+    private readonly DecryptedPipeReader _pipeReader;
+
+    // For single packet
+    private SequencePosition? _position;
+
+
+    private const int None = 0;
+    private const int Disposed = 1;
+
+    private volatile int _state = 0;
+
+    private int _compressionThreshold = -1;
+
+    private volatile IMemoryOwner<byte>? _desompressedBuffer;
+
+    private readonly PacketSourceCore _sourceCore = new();
 
     public MinecraftPacketPipeReader(PipeReader pipeReader)
     {
@@ -31,35 +43,76 @@ internal sealed class MinecraftPacketPipeReader
         _pipeReader.SwitchEncryption(decryptor);
     }
 
+
+    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token)
+    {
+        ThrowIfDisposed();
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            var result = await _pipeReader.ReadAsync(token);
+
+            ReadOnlySequence<byte> sequence = result.Buffer;
+
+            if (TryReadPacket(ref sequence, out var packet))
+            {
+                if (_position.HasValue)
+                {
+                    _pipeReader.AdvanceTo(_position.Value);
+                    _position = null;
+                }
+
+                _position = sequence.Start;
+                return CreatePacket(packet);
+            }
+
+            _pipeReader.AdvanceTo(sequence.Start, sequence.End);
+            if (result.IsCompleted)
+            {
+                throw new InvalidOperationException("PipeReader is completed");
+            }
+
+            if (result.IsCanceled)
+            {
+                throw new OperationCanceledException("ReadAsync.Result is canceled");
+            }
+        }
+    }
+
     public async IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var chunkcount = 0;
-        cancellationToken.ThrowIfCancellationRequested();
-        while (!cancellationToken.IsCancellationRequested)
+        ThrowIfDisposed();
+        while (true)
         {
-            ReadResult result = default;
-            try
-            {
-                result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                await _pipeReader.CompleteAsync().ConfigureAwait(false);
-                break;
-            }
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
 
             var buffer = result.Buffer;
-            if (result.IsCompleted) break;
-
-            if (result.IsCanceled) break;
-
-
+            
             try
             {
                 while (TryReadPacket(ref buffer, out var packet))
                 {
-                    yield return Decompress(packet);
+                    yield return CreatePacket(packet);
+
+                    if (_position.HasValue)
+                    {
+                        _pipeReader.AdvanceTo(_position.Value);
+                        _position = null;
+                    }
+                }
+                
+                if (result.IsCompleted)
+                {
+                    throw new InvalidOperationException("PipeReader is completed");
+                }
+
+                if (result.IsCanceled)
+                {
+                    throw new OperationCanceledException("ReadAsync.Result is canceled");
                 }
             }
             finally
@@ -67,8 +120,6 @@ internal sealed class MinecraftPacketPipeReader
                 _pipeReader.AdvanceTo(buffer.Start, buffer.End);
             }
         }
-
-        await _pipeReader.CompleteAsync().ConfigureAwait(false);
     }
 
 
@@ -98,58 +149,128 @@ internal sealed class MinecraftPacketPipeReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private NewInputPacket Decompress(in ReadOnlySequence<byte> data)
+    private NewInputPacket CreatePacket(ReadOnlySequence<byte> data)
     {
-        scoped SequenceReader<byte> reader = new(data);
-        if (CompressionThreshold == -1)
+        if (_compressionThreshold == -1)
         {
-            //Без сжатия
-            return new NewInputPacket(data);
+            if (data.TryReadVarInt(out var id, out int idLen))
+            {
+                data = data.Slice(idLen);
+                _sourceCore.Reset();
+                _sourceCore.Id = id;
+                _sourceCore.Data = data;
+                return new NewInputPacket(_sourceCore, _sourceCore.Version);
+            }
+
+            throw new InvalidOperationException("Unable to read packet ID");
         }
 
-        reader.TryReadVarInt(out var sizeUncompressed, out var len);
-
-        if (sizeUncompressed == 0)
+        if (data.TryReadVarInt(out var sizeUncompressed, out var len))
         {
-            // Со сжатием, короткий пакет
-            return new NewInputPacket(data.Slice(1));
+            data = data.Slice(len);
+            if (sizeUncompressed == 0)
+            {
+                if (data.TryReadVarInt(out var id, out int idLen))
+                {
+                    data = data.Slice(idLen);
+                    _sourceCore.Reset();
+                    _sourceCore.Id = id;
+                    _sourceCore.Data = data;
+                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                }
+
+                throw new InvalidOperationException("Unable to read packet ID");
+            }
+
+            var owner = data.Decompress(sizeUncompressed);
+            data = new ReadOnlySequence<byte>(owner.Memory);
+
+            try
+            {
+                if (data.TryReadVarInt(out var id, out int idLen))
+                {
+                    data = data.Slice(idLen);
+                    _sourceCore.Reset();
+                    _sourceCore.Id = id;
+                    _sourceCore.Data = data;
+
+                    var old = Interlocked.Exchange(ref _desompressedBuffer, owner);
+
+
+                    ObjectDisposedException.ThrowIf(ReferenceEquals(old, DisposedMemoryOwner), GetType());
+
+
+                    old?.Dispose();
+
+                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                }
+
+                owner.Dispose();
+                throw new InvalidOperationException("Unable to read packet ID");
+            }
+            catch
+            {
+                owner.Dispose();
+                throw;
+            }
         }
 
-        // Со сжатием, длинный пакет
-        return new NewInputPacket(data.Slice(len).Decompress(sizeUncompressed));
-    }
-}
-
-public struct NewInputPacket : IDisposable
-{
-    public int Id { get; }
-    public ReadOnlySequence<byte> Data { get; }
-
-    private readonly MemoryOwner<byte>? _memoryOwner;
-
-    public NewInputPacket(ReadOnlySequence<byte> data)
-    {
-        data.TryReadVarInt(out var value, out var offset);
-        Id = value;
-        Data = data.Slice(offset);
+        throw new InvalidOperationException("Unable to read uncompressed size");
     }
 
-
-    /// <summary>
-    /// Constructor for compressed packet
-    /// </summary>
-    /// <param name="owner"></param>
-    public NewInputPacket(MemoryOwner<byte> owner)
+    public void Complete(Exception? exception = null)
     {
-        _memoryOwner = owner;
-        var data = new ReadOnlySequence<byte>(owner.Memory);
-        data.TryReadVarInt(out var value, out var offset);
-        Id = value;
-        Data = data.Slice(offset);
+        ThrowIfDisposed();
+        _pipeReader.Complete(exception);
+    }
+
+    public ValueTask CompleteAsync(Exception? exception = null)
+    {
+        ThrowIfDisposed();
+        return _pipeReader.CompleteAsync(exception);
+    }
+
+    private void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_state == Disposed, this.GetType());
     }
 
     public void Dispose()
     {
-        _memoryOwner?.Dispose();
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
+        {
+            return;
+        }
+
+        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
+        {
+            return ValueTask.CompletedTask;
+        }
+
+        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+        return ValueTask.CompletedTask;
+    }
+
+
+    internal sealed class NullOwner : IMemoryOwner<byte>
+    {
+        public void Dispose()
+        {
+        }
+
+        public Memory<byte> Memory => Memory<byte>.Empty;
     }
 }
