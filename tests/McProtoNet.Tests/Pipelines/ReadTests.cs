@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Buffers.Binary;
 using System.IO.Pipelines;
 using McProtoNet.Net;
 using McProtoNet.Serialization;
@@ -14,7 +15,7 @@ public class ReadTests
         var sender = new MinecraftPacketSender(ms, leaveOpen: true);
 
         await sender.SendPacketAsync(new byte[500], Token());
-        await sender.SendPacketAsync(new byte[500], Token());
+        await sender.SendPacketAsync(new byte[501], Token());
 
         ms.Position = 0;
         var pipeReader = PipeReader.Create(ms);
@@ -22,10 +23,10 @@ public class ReadTests
         var reader = new MinecraftPacketPipeReader(pipeReader);
 
         var packet1 = await reader.ReadPacketAsync(Token());
+        Assert.Equal(500, packet1.FullLength);
         var packet2 = await reader.ReadPacketAsync(Token());
+        Assert.Equal(501, packet2.FullLength);
 
-
-        Assert.Equal(500, packet2.FullLength);
 
         Assert.Throws<InvalidOperationException>(() =>
         {
@@ -45,11 +46,17 @@ public class ReadTests
         var ms = new MemoryStream();
         var sender = new MinecraftPacketSender(ms, leaveOpen: true);
 
-        await sender.SendPacketAsync(new byte[500], Token());
-        await sender.SendPacketAsync(new byte[500], Token());
+        for (int i = 0; i < 100; i++)
+        {
+            var gg = new byte[500 + i];
+            
+            BinaryPrimitives.WriteInt32BigEndian(
+                gg.AsSpan(1), i); // 1 offset for packet identifier
+            await sender.SendPacketAsync(gg, Token());
+        }
 
         ms.Position = 0;
-        var pipeReader = PipeReader.Create(new ReadOnlySequence<byte>(ms.ToArray()));
+        var pipeReader = PipeReader.Create(ms);
         
         var reader = new MinecraftPacketPipeReader(pipeReader);
 
@@ -58,9 +65,17 @@ public class ReadTests
         await foreach (var packet in reader.ReadPacketsAsync(TestContext.Current.CancellationToken))
         {
             var lengg = packet.FullLength;
+
+            var packetTest = packet.Data.ToArray();
+
+            var index = BinaryPrimitives.ReadInt32BigEndian(packetTest);
+            
+            Assert.Equal(500+count,lengg);
+            Assert.Equal(count, index);
             test = packet;
             count++;
-            if (count == 2)
+            
+            if (count == 100)
             {
                 break;
             }
