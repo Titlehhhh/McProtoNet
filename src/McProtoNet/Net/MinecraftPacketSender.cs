@@ -108,6 +108,7 @@ public sealed class MinecraftPacketSender : IDisposable, IAsyncDisposable
     /// <returns>A ValueTask representing the asynchronous operation</returns>
     public async ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         if (Interlocked.CompareExchange(ref _writeState, Writing, NonWrite) == Writing)
         {

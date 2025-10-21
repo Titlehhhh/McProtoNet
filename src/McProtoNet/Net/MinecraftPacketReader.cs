@@ -68,6 +68,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
     /// <exception cref="Exception">Thrown when decompression fails or packet size is invalid</exception>
     public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
+        token.ThrowIfCancellationRequested();
         ThrowIfDisposed();
 
         if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
