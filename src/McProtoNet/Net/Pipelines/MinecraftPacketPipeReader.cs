@@ -123,12 +123,13 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
 
                     if (result.IsCompleted)
                     {
-                        throw new InvalidOperationException("PipeReader is completed");
+                        break;
                     }
 
                     if (result.IsCanceled)
                     {
-                        throw new OperationCanceledException("ReadAsync.Result is canceled");
+                        cancellationToken.ThrowIfCancellationRequested();
+                        break;
                     }
                 }
                 finally
