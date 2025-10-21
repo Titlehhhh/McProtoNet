@@ -29,7 +29,8 @@ internal class PacketSourceCore : IPacketSource
         if (_version != token)
             throw new InvalidOperationException("Packet returned to pool");
         var id = Id;
-        Debug.Assert(id == -1, $"PacketSourceCore.GetId called with invalid token {_version} != {token}");
+        Debug.Assert(id >= 0, 
+            $"PacketSourceCore.GetId called with invalid id {id}");
         return id;
     }
 

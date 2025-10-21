@@ -8,6 +8,12 @@ using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
+internal struct PositionState
+{
+    public SequencePosition Consumed;
+    public SequencePosition Examined;
+}
+
 internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
 {
     private static readonly NullOwner DisposedMemoryOwner = new();
@@ -15,7 +21,7 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
     private readonly DecryptedPipeReader _pipeReader;
 
     // For single packet
-    private SequencePosition? _position;
+    private PositionState? _positionState;
 
 
     private const int None = 0;
@@ -44,7 +50,7 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
     }
 
 
-    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token)
+    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
         while (true)
@@ -52,21 +58,28 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
             token.ThrowIfCancellationRequested();
             var result = await _pipeReader.ReadAsync(token);
 
-            ReadOnlySequence<byte> sequence = result.Buffer;
+            SequencePosition consumed = result.Buffer.Start;
+            SequencePosition examined = result.Buffer.End;
 
-            if (TryReadPacket(ref sequence, out var packet))
+            if (TryReadPacket(result.Buffer, out var packet, ref consumed))
             {
-                if (_position.HasValue)
+                if (_positionState.HasValue)
                 {
-                    _pipeReader.AdvanceTo(_position.Value);
-                    _position = null;
+                    _pipeReader.AdvanceTo(
+                        _positionState.Value.Consumed,
+                        _positionState.Value.Examined);
+                    _positionState = null;
                 }
 
-                _position = sequence.Start;
+                _positionState = new PositionState()
+                {
+                    Consumed = consumed,
+                    Examined = examined
+                };
                 return CreatePacket(packet);
             }
 
-            _pipeReader.AdvanceTo(sequence.Start, sequence.End);
+            _pipeReader.AdvanceTo(consumed, examined);
             if (result.IsCompleted)
             {
                 throw new InvalidOperationException("PipeReader is completed");
@@ -82,69 +95,86 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
     public async IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        ThrowIfDisposed();
-        while (true)
+        if (_positionState.HasValue)
         {
-            cancellationToken.ThrowIfCancellationRequested();
+            _pipeReader.AdvanceTo(
+                _positionState.Value.Consumed,
+                _positionState.Value.Examined);
+            _positionState = null;
+        }
 
-            var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-
-            var buffer = result.Buffer;
-            
-            try
+        ThrowIfDisposed();
+        try
+        {
+            while (true)
             {
-                while (TryReadPacket(ref buffer, out var packet))
-                {
-                    yield return CreatePacket(packet);
+                cancellationToken.ThrowIfCancellationRequested();
 
-                    if (_position.HasValue)
+                var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+
+                var consumed = result.Buffer.Start;
+                var examined = result.Buffer.End;
+                try
+                {
+                    while (TryReadPacket(
+                               result.Buffer,
+                               out var packet,
+                               ref consumed))
                     {
-                        _pipeReader.AdvanceTo(_position.Value);
-                        _position = null;
+                        yield return CreatePacket(packet);
+                    }
+
+                    if (result.IsCompleted)
+                    {
+                        throw new InvalidOperationException("PipeReader is completed");
+                    }
+
+                    if (result.IsCanceled)
+                    {
+                        throw new OperationCanceledException("ReadAsync.Result is canceled");
                     }
                 }
-                
-                if (result.IsCompleted)
+                finally
                 {
-                    throw new InvalidOperationException("PipeReader is completed");
+                    _pipeReader.AdvanceTo(consumed, examined);
                 }
+            }
+        }
+        finally
+        {
+            _sourceCore.Reset();
+            var old = 
+                Interlocked.Exchange(ref _desompressedBuffer, null);
 
-                if (result.IsCanceled)
-                {
-                    throw new OperationCanceledException("ReadAsync.Result is canceled");
-                }
-            }
-            finally
-            {
-                _pipeReader.AdvanceTo(buffer.Start, buffer.End);
-            }
+            old?.Dispose();
         }
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool TryReadPacket(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> packet)
+    private static bool TryReadPacket(
+        in ReadOnlySequence<byte> buffer,
+        out ReadOnlySequence<byte> packet,
+        ref SequencePosition consumed)
     {
-        scoped SequenceReader<byte> reader = new(buffer);
-
-
         packet = ReadOnlySequence<byte>.Empty;
 
-        if (buffer.Length < 1) return false; // Not enough data to read packet header
+        if (buffer.IsEmpty)
+            return false; // Not enough data to read packet header
 
-        if (!reader.TryReadVarInt(out var length, out _)) return false; // Unable to read packet length
-
-        if (length > reader.Remaining) return false; // Not enough data to read full packet
-
-
-        packet = reader.UnreadSequence.Slice(0, length);
-
-        reader.Advance(length);
+        if (!buffer.TryReadVarInt(out var length, out var headerLen))
+            return false; // Unable to read packet length
 
 
-        buffer = buffer.Slice(reader.Position);
+        if ((long)length + headerLen > buffer.Length)
+            return false;
 
+        SequencePosition packetStart = buffer.GetPosition(headerLen);
+        SequencePosition packetEnd = buffer.GetPosition(length, packetStart);
+
+        packet = buffer.Slice(packetStart, packetEnd);
+        consumed = packetEnd;
         return true;
     }
 
@@ -261,6 +291,7 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         {
             old.Dispose();
         }
+
         return ValueTask.CompletedTask;
     }
 

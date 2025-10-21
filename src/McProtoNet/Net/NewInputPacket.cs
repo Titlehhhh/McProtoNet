@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Net;
 
@@ -17,4 +18,5 @@ public readonly struct NewInputPacket
         _source = source;
         _version = version;
     }
+    public long FullLength => Id.GetVarIntLength() + Data.Length;
 }
