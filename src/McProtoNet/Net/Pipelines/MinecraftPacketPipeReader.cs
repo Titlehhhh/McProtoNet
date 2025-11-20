@@ -8,13 +8,9 @@ using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
-internal struct PositionState
-{
-    public SequencePosition Consumed;
-    public SequencePosition Examined;
-}
 
-public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
+
+public sealed class MinecraftPacketPipeReader : PipeReader
 {
     private static readonly NullOwner DisposedMemoryOwner = new();
 
@@ -46,10 +42,61 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
 
     public void EnableEncryption(IBufferedCipher decryptor)
     {
+        ThrowIfDisposed();
         _pipeReader.SwitchEncryption(decryptor);
     }
 
-    public void CancelPendingRead()
+    public override bool TryRead(out ReadResult result)
+    {
+        ThrowIfDisposed();
+        return _pipeReader.TryRead(out result);
+    }
+
+    public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        return _pipeReader.ReadAsync(cancellationToken);
+    }
+
+    public override void AdvanceTo(SequencePosition consumed)
+    {
+        ThrowIfDisposed();
+        _pipeReader.AdvanceTo(consumed);
+    }
+
+    public override void AdvanceTo(SequencePosition consumed, SequencePosition examined)
+    {
+        ThrowIfDisposed();
+        _pipeReader.AdvanceTo(consumed, examined);
+    }
+
+    private void CompleteCore()
+    {
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
+        {
+            return;
+        }
+
+        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+    }
+
+    public override void Complete(Exception? exception = null)
+    {
+        _pipeReader.Complete(exception);
+        CompleteCore();
+    }
+
+    public override async ValueTask CompleteAsync(Exception? exception = null)
+    {
+        await _pipeReader.CompleteAsync(exception).ConfigureAwait(false);
+        CompleteCore();
+    }
+
+    public override void CancelPendingRead()
     {
         _pipeReader.CancelPendingRead();
     }
@@ -69,7 +116,7 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
                 _positionState = null;
             }
 
-            var result = await _pipeReader.ReadAsync(token);
+            var result = await _pipeReader.ReadAsync(token).ConfigureAwait(false);
 
             var buffer = result.Buffer;
 
@@ -96,8 +143,8 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         }
     }
 
-    public async IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
+         CancellationToken cancellationToken = default)
     {
         if (_positionState.HasValue)
         {
@@ -108,6 +155,11 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         }
 
         ThrowIfDisposed();
+        return ReadPacketsAsyncCore(cancellationToken);
+    }
+
+    private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore([EnumeratorCancellation] CancellationToken cancellationToken)
+    {
         try
         {
             while (true)
@@ -153,6 +205,7 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
             old?.Dispose();
         }
     }
+
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -250,51 +303,10 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         throw new InvalidOperationException("Unable to read uncompressed size");
     }
 
-    public void Complete(Exception? exception = null)
-    {
-        ThrowIfDisposed();
-        _pipeReader.Complete(exception);
-    }
-
-    public ValueTask CompleteAsync(Exception? exception = null)
-    {
-        ThrowIfDisposed();
-        return _pipeReader.CompleteAsync(exception);
-    }
 
     private void ThrowIfDisposed()
     {
         ObjectDisposedException.ThrowIf(_state == Disposed, this.GetType());
-    }
-
-    public void Dispose()
-    {
-        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
-        {
-            return;
-        }
-        _pipeReader.CancelPendingRead();
-        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
-        if (old != DisposedMemoryOwner && old is not null)
-        {
-            old.Dispose();
-        }
-    }
-
-    public ValueTask DisposeAsync()
-    {
-        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
-        {
-            return ValueTask.CompletedTask;
-        }
-
-        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
-        if (old != DisposedMemoryOwner && old is not null)
-        {
-            old.Dispose();
-        }
-
-        return ValueTask.CompletedTask;
     }
 
 
@@ -305,5 +317,11 @@ public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         }
 
         public Memory<byte> Memory => Memory<byte>.Empty;
+    }
+    
+    internal struct PositionState
+    {
+        public SequencePosition Consumed;
+        public SequencePosition Examined;
     }
 }

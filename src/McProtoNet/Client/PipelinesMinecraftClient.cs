@@ -11,21 +11,27 @@ namespace McProtoNet.Client;
 /// </summary>
 public class PipelinesMinecraftClient : IDisposable
 {
-    public PipelinesMinecraftClient Create(Stream stream)
+    public int ProtocolVersion { get; }
+    public static PipelinesMinecraftClient Create(Stream stream, int protocolVersion)
     {
-        throw null;
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(protocolVersion);
+        ArgumentNullException.ThrowIfNull(stream);
+        return new PipelinesMinecraftClient(stream, protocolVersion);
     }
 
     private readonly MinecraftPacketPipeReader _pipeReader;
     private readonly MinecraftPacketPipeWriter _pipeWriter;
 
+    public PipeWriter PacketWriter => _pipeWriter;
+    public PipeReader PacketReader => _pipeReader;
+    
     private readonly Stream _stream;
 
     private Task _task;
 
-    public PipelinesMinecraftClient(Stream stream)
+    internal PipelinesMinecraftClient(Stream stream, int protocolVersion)
     {
-        ArgumentNullException.ThrowIfNull(stream);
+        ProtocolVersion = protocolVersion;
         var transportPipe = new Pipe();
         var appPipe = new Pipe();
         _stream = stream;
@@ -89,7 +95,6 @@ public class PipelinesMinecraftClient : IDisposable
 
         _stream.Dispose();
         _pipeReader.Complete();
-        _pipeReader.Dispose();
         _pipeWriter.Complete();
         
         
@@ -171,7 +176,7 @@ public class PipelinesMinecraftClient : IDisposable
             }
             finally
             {
-                await pipeReader.DisposeAsync().ConfigureAwait(false);
+                await pipeReader.CompleteAsync().ConfigureAwait(false);
                 cts.Dispose();
             }
         }

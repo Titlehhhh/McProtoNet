@@ -1,14 +1,12 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
-using System.Security.Cryptography;
-using DotNext.Buffers;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
-public sealed class MinecraftPacketPipeWriter
+public sealed class MinecraftPacketPipeWriter : PipeWriter
 {
     private readonly EncryptedPipeWriter _pipeWriter;
 
@@ -19,30 +17,48 @@ public sealed class MinecraftPacketPipeWriter
 
     public bool EncryptionEnabled => _pipeWriter.IsEncrypted;
 
+    public int CompressionThreshold { get; set; }
+
     public void EnableEncryption(IBufferedCipher decryptor)
     {
         _pipeWriter.SwitchEncryption(decryptor);
     }
 
-    public void CancelPendingFlush()
+    public override void CancelPendingFlush()
     {
         _pipeWriter.CancelPendingFlush();
     }
 
-    public ValueTask CompleteAsync(Exception? ex = null)
+    public override ValueTask CompleteAsync(Exception? ex = null)
     {
         return _pipeWriter.CompleteAsync(ex);
     }
 
-    public void Complete(Exception? ex = null)
+    public override void Complete(Exception? ex = null)
     {
         _pipeWriter.Complete(ex);
     }
 
-    public ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default) =>
-        _pipeWriter.FlushAsync(cancellationToken);
+    public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+    {
+        return _pipeWriter.FlushAsync(cancellationToken);
+    }
 
-    public int CompressionThreshold { get; set; }
+
+    public override void Advance(int bytes)
+    {
+        _pipeWriter.Advance(bytes);
+    }
+
+    public override Memory<byte> GetMemory(int sizeHint = 0)
+    {
+        return _pipeWriter.GetMemory(sizeHint);
+    }
+
+    public override Span<byte> GetSpan(int sizeHint = 0)
+    {
+        return _pipeWriter.GetSpan(sizeHint);
+    }
 
     public void WritePacket(ReadOnlySpan<byte> rawPacket)
     {

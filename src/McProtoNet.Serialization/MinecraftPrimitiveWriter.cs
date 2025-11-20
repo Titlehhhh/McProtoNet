@@ -201,9 +201,6 @@ public ref struct MinecraftPrimitiveWriter()
     /// </summary>
     /// <param name="value">The VarInt value to write</param>
     /// <exception cref="ArithmeticException">Thrown when the VarInt is too big</exception>
-#if RELEASE
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-#endif
     public void WriteVarInt(int value)
     {
         CheckDisposed();
