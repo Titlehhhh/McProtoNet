@@ -1,97 +1,83 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.IO.Pipelines;
+using System.Net.Sockets;
 using System.Runtime.Intrinsics;
 using McProtoNet.Protocol;
 using SampleBotCSharp;
 using System.Security.Cryptography;
 using DotNext.Buffers;
+using McProtoNet.Client;
+using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.IO;
 using Org.BouncyCastle.Crypto.Operators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 
-namespace Obsidian.Net;
+namespace SampleBotCSharp;
 
 class Program
 {
-    private static byte[] privatekey = Enumerable.Range(1, 16).Select(i => (byte)i).ToArray();
-
-    private static List<byte[]> GetTestEncrypted(byte[] data)
-    {
-        var cryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-
-        cryptor.Init(true,
-            new ParametersWithIV(
-                new KeyParameter(privatekey), privatekey, 0, 16));
-
-        MemoryStream ms = new();
-
-        var cipher = new CipherStream(ms, null, cryptor);
-
-        cipher.Write(data);
-        //cipher.Dispose();
-
-        ms.Position = 0;
-        var arr = ms.ToArray();
-
-        return arr.Chunk(50).ToList();
-    }
+    
 
     public static async Task Main(string[] args)
     {
-        var random = new Random(55);
-
-        var testData = new byte[560];
-
-        random.NextBytes(testData);
-
-        var encrypted = GetTestEncrypted(testData);
-
-        var pipe = new Pipe(
-            new PipeOptions(
-                writerScheduler: PipeScheduler.Inline,
-                readerScheduler: PipeScheduler.Inline));
-
-        var decryptor = CipherUtilities.GetCipher("AES/CFB8/NoPadding");
-
-        decryptor.Init(false,
-            new ParametersWithIV(
-                new KeyParameter(privatekey), privatekey, 0, 16));
-
-
-        foreach (var segment in encrypted)
-        {
-            var gg = pipe.Writer.GetSpan(20);
-
-            ReadOnlySpan<byte> src = segment.AsSpan();
-
-            int a = decryptor.ProcessBytes(src, gg);
-            if (a >= segment.Length)
-            {
-                pipe.Writer.Advance(a);
-            }
-            else
-            {
-
-            }
-            
-        }
-
-        var test = decryptor.DoFinal();
+        var tcp = new TcpClient();
         
-        var vTask = pipe.Writer.FlushAsync();
+        await tcp.ConnectAsync("127.0.0.1", 25565);
 
-        Console.WriteLine($"IsCompleted: {vTask.IsCompleted}");
+        var stream = tcp.GetStream();
 
-        Console.WriteLine(pipe.Writer.UnflushedBytes);
+        var client = PipelinesMinecraftClient.Create(stream,773);
 
-        return;
-        Bot bot = new Bot(MinecraftVersion.V1_21_4, "title-kde");
+        var handshake = new HandshakePacket()
+        {
+            ProtocolVersion = 773,
+            NextState = 2,
+            ServerHost = "127.0.0.1",
+            ServerPort = 25565
+        };
+        
+        
+    }
 
-        await bot.Start();
+    
+}
+public interface IPacket 
+{
+    void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion); 
+}
+    
+class HandshakePacket : IPacket
+{
+    public int ProtocolVersion { get; set; }
+    public string ServerHost { get; set; }
+    public ushort ServerPort { get; set; }
+    public int NextState { get; set; }
+        
+    public void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        writer.WriteVarInt(ProtocolVersion);
+        writer.WriteString(ServerHost);
+        writer.WriteUnsignedShort(ServerPort);
+        writer.WriteVarInt(NextState);
+    }
+}
+static class Ext
+{
+    extension(PipelinesMinecraftClient client)
+    {
+        public async ValueTask SendPacket(IPacket packet, int id, CancellationToken cancellationToken = default)
+        {
+            
+            var writer = new MinecraftPrimitiveWriter();
+            
+            writer.WriteVarInt(id);
+            packet.Serialize(ref writer, client.ProtocolVersion);
 
-        await Task.Delay(-1);
+            using var memory = writer.GetWrittenMemory();
+            await client.SendPacketAsync(memory.Memory, cancellationToken);
+        }
     }
 }
