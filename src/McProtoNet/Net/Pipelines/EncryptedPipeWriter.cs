@@ -18,7 +18,7 @@ public sealed class EncryptedPipeWriter : PipeWriter
             readerScheduler: PipeScheduler.Inline,
             writerScheduler: PipeScheduler.Inline));
     }
-
+    public bool IsEncrypted => _isEncrypted;
     public void SwitchEncryption(IBufferedCipher cipher)
     {
         _isEncrypted = true;
