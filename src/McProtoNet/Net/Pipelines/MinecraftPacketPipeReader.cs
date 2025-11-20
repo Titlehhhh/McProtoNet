@@ -14,7 +14,7 @@ internal struct PositionState
     public SequencePosition Examined;
 }
 
-internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
+public sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
 {
     private static readonly NullOwner DisposedMemoryOwner = new();
 
@@ -49,6 +49,11 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         _pipeReader.SwitchEncryption(decryptor);
     }
 
+    public void CancelPendingRead()
+    {
+        _pipeReader.CancelPendingRead();
+    }
+
 
     public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
@@ -63,13 +68,14 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
                     _positionState.Value.Examined);
                 _positionState = null;
             }
+
             var result = await _pipeReader.ReadAsync(token);
 
-            var buffer  = result.Buffer;
+            var buffer = result.Buffer;
 
             if (TryReadPacket(ref buffer, out var packet))
             {
-                _positionState = new PositionState()
+                _positionState = new PositionState
                 {
                     Consumed = buffer.Start,
                     Examined = buffer.End
@@ -141,7 +147,7 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         finally
         {
             _sourceCore.Reset();
-            var old = 
+            var old =
                 Interlocked.Exchange(ref _desompressedBuffer, null);
 
             old?.Dispose();
@@ -267,7 +273,7 @@ internal sealed class MinecraftPacketPipeReader : IDisposable, IAsyncDisposable
         {
             return;
         }
-
+        _pipeReader.CancelPendingRead();
         var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
         if (old != DisposedMemoryOwner && old is not null)
         {
