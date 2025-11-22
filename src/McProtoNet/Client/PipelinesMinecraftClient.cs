@@ -3,6 +3,7 @@ using System.IO.Pipelines;
 using System.Net.Sockets;
 using DotNext.IO.Pipelines;
 using McProtoNet.Net;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Client;
 
@@ -12,6 +13,7 @@ namespace McProtoNet.Client;
 public class PipelinesMinecraftClient : IDisposable
 {
     public int ProtocolVersion { get; }
+
     public static PipelinesMinecraftClient Create(Stream stream, int protocolVersion)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(protocolVersion);
@@ -22,9 +24,9 @@ public class PipelinesMinecraftClient : IDisposable
     private readonly MinecraftPacketPipeReader _pipeReader;
     private readonly MinecraftPacketPipeWriter _pipeWriter;
 
-    public PipeWriter PacketWriter => _pipeWriter;
-    public PipeReader PacketReader => _pipeReader;
-    
+    public MinecraftPacketPipeWriter PacketWriter => _pipeWriter;
+    public MinecraftPacketPipeReader PacketReader => _pipeReader;
+
     private readonly Stream _stream;
 
     private Task _task;
@@ -47,22 +49,31 @@ public class PipelinesMinecraftClient : IDisposable
         var task = Task.WhenAll(task1, task2).ContinueWith(async t =>
         {
             var first = t.Exception?.InnerExceptions.FirstOrDefault();
-
+            Console.WriteLine($"End: {first}");
             transportPipe.Reader.CancelPendingRead();
             transportPipe.Writer.CancelPendingFlush();
             await transportPipe.Writer.CompleteAsync(first);
             await transportPipe.Writer.CompleteAsync(first);
-            
+
             appPipe.Writer.CancelPendingFlush();
             appPipe.Reader.CancelPendingRead();
 
             appPipe.Writer.CompleteAsync(first);
             appPipe.Reader.CompleteAsync(first);
-
         }, TaskScheduler.Default);
         _task = task;
     }
 
+    public int CompressionThreshold
+    {
+        get;
+        set
+        {
+            _pipeReader.CompressionThreshold = value;
+            _pipeWriter.CompressionThreshold = value;
+            field = value;
+        }
+    }
 
     public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(CancellationToken token = default)
     {
@@ -77,6 +88,17 @@ public class PipelinesMinecraftClient : IDisposable
     public async ValueTask SendPacketAsync(ReadOnlyMemory<byte> packet, CancellationToken token = default)
     {
         _pipeWriter.WritePacket(packet.Span);
+        var result = await _pipeWriter.FlushAsync(token).ConfigureAwait(false);
+        result.ThrowIfCancellationRequested(token);
+    }
+
+    public async ValueTask SendEmptyPacketAsync(int id, CancellationToken token = default)
+    {
+        Span<byte> idBytes = [ 0, 0, 0, 0, 0 ];
+        var len = id.GetVarIntLength(idBytes);
+        _pipeWriter.WritePacket(idBytes[..len]);
+        
+        
         var result = await _pipeWriter.FlushAsync(token).ConfigureAwait(false);
         result.ThrowIfCancellationRequested(token);
     }
@@ -96,66 +118,101 @@ public class PipelinesMinecraftClient : IDisposable
         _stream.Dispose();
         _pipeReader.Complete();
         _pipeWriter.Complete();
-        
-        
     }
 
 
     private static async Task WriteToStream(Stream stream, PipeReader pipeReader, CancellationToken cancellationToken)
     {
-        while (true)
+        Console.WriteLine("start WriteToStream");
+        try
         {
-            var result = await pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-            if (result.IsCanceled)
+            while (true)
             {
-                break;
+                var result = await pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+                Console.WriteLine($"Write {result.Buffer.Length}");
+                if (result.IsCanceled)
+                {
+                    break;
+                }
+
+                if (result.IsCompleted)
+                {
+                    break;
+                }
+
+                //var array = result.Buffer.ToArray();
+                //byte[] buff = new byte[1];
+                // for (var i = 0; i < array.Length; i++)
+                // {
+                //     await Task.Delay(500, cancellationToken);
+                //     Console.WriteLine($"Write byte №{i}.");
+                //     buff[0] = array[i];
+                //     await stream.WriteAsync(buff,0,1, cancellationToken);
+                // }
+                foreach (var memory in result.Buffer)
+                {
+                    await stream.WriteAsync(memory, cancellationToken).ConfigureAwait(false);
+                }
+
+                await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+                pipeReader.AdvanceTo(result.Buffer.End);
             }
-
-            if (result.IsCompleted)
-            {
-                break;
-            }
-
-            foreach (var memory in result.Buffer)
-            {
-                await stream.WriteAsync(memory, cancellationToken).ConfigureAwait(false);
-            }
-
-            await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-            pipeReader.AdvanceTo(result.Buffer.End);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("WriteToStream Exception: {ex}");
+        }
+        finally
+        {
+            Console.WriteLine("WriteToStream End");
         }
     }
 
     private static async Task ReadFromStream(Stream stream, PipeWriter pipeWriter, CancellationToken cancellationToken)
     {
-        while (true)
+        Console.WriteLine("start ReadFromStream");
+        try
         {
-            var memory = pipeWriter.GetMemory();
-
-            int bytes = await stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
-
-
-            if (bytes == 0)
+            while (true)
             {
-                await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-                break;
+                var memory = pipeWriter.GetMemory();
+                Console.WriteLine($"ReadFromStream memory: {memory.Length}");
+                int bytes = await stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
+
+
+                if (bytes == 0)
+                {
+                    Console.WriteLine("ReadFromStream 0 bytes");
+                    await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+                    break;
+                }
+
+                pipeWriter.Advance(bytes);
+
+                var result = await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+
+                if (result.IsCanceled)
+                {
+                    Console.WriteLine("ReadFromStream Canceled");
+                    break;
+                }
+
+                if (result.IsCompleted)
+                {
+                    Console.WriteLine("ReadFromStream Completed");
+                    break;
+                }
             }
-
-            pipeWriter.Advance(bytes);
-
-            var result = await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
-
-            if (result.IsCanceled)
-            {
-                break;
-            }
-
-            if (result.IsCompleted)
-            {
-                break;
-            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("ReadFromStream Exception: {ex}");
+        }
+        finally
+        {
+            Console.WriteLine("ReadFromStream End");
         }
     }
 
