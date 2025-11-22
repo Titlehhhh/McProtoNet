@@ -8,8 +8,6 @@ using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
-
-
 public sealed class MinecraftPacketPipeReader : PipeReader
 {
     private static readonly NullOwner DisposedMemoryOwner = new();
@@ -25,7 +23,6 @@ public sealed class MinecraftPacketPipeReader : PipeReader
 
     private volatile int _state = 0;
 
-    private int _compressionThreshold = -1;
 
     private volatile IMemoryOwner<byte>? _desompressedBuffer;
 
@@ -36,7 +33,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         this._pipeReader = new DecryptedPipeReader(pipeReader);
     }
 
-    public int CompressionThreshold { get; set; }
+    public int CompressionThreshold { get; set; } = -1;
 
     public bool EncryptionEnabled => _pipeReader.IsEncrypted;
 
@@ -144,7 +141,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     }
 
     public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
-         CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default)
     {
         if (_positionState.HasValue)
         {
@@ -158,7 +155,8 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         return ReadPacketsAsyncCore(cancellationToken);
     }
 
-    private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore([EnumeratorCancellation] CancellationToken cancellationToken)
+    private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore(
+        [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         try
         {
@@ -207,7 +205,6 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     }
 
 
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryReadPacket(
         ref ReadOnlySequence<byte> buffer,
@@ -236,7 +233,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private NewInputPacket CreatePacket(ReadOnlySequence<byte> data)
     {
-        if (_compressionThreshold == -1)
+        if (CompressionThreshold < 0)
         {
             if (data.TryReadVarInt(out var id, out int idLen))
             {
@@ -318,7 +315,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
 
         public Memory<byte> Memory => Memory<byte>.Empty;
     }
-    
+
     internal struct PositionState
     {
         public SequencePosition Consumed;

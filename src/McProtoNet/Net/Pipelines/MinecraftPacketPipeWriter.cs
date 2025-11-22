@@ -17,7 +17,7 @@ public sealed class MinecraftPacketPipeWriter : PipeWriter
 
     public bool EncryptionEnabled => _pipeWriter.IsEncrypted;
 
-    public int CompressionThreshold { get; set; }
+    public int CompressionThreshold { get; set; } = -1;
 
     public void EnableEncryption(IBufferedCipher decryptor)
     {
@@ -29,14 +29,14 @@ public sealed class MinecraftPacketPipeWriter : PipeWriter
         _pipeWriter.CancelPendingFlush();
     }
 
-    public override ValueTask CompleteAsync(Exception? ex = null)
+    public override ValueTask CompleteAsync(Exception? exception = null)
     {
-        return _pipeWriter.CompleteAsync(ex);
+        return _pipeWriter.CompleteAsync(exception);
     }
 
-    public override void Complete(Exception? ex = null)
+    public override void Complete(Exception? exception = null)
     {
-        _pipeWriter.Complete(ex);
+        _pipeWriter.Complete(exception);
     }
 
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
