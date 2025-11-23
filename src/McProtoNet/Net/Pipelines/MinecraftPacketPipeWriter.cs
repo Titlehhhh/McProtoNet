@@ -60,6 +60,19 @@ public sealed class MinecraftPacketPipeWriter : PipeWriter
         return _pipeWriter.GetSpan(sizeHint);
     }
 
+    public MinecraftPrimitiveWriter GetWriter(int size = 0)
+    {
+        throw null;
+        // if (CompressionThreshold < 0)
+        // {
+        //     return new MinecraftPrimitiveWriter(GetSpan(size));
+        // }
+        // else
+        // {
+        //    //var writer =  
+        // }
+    }
+
     public void WritePacket(ReadOnlySpan<byte> rawPacket)
     {
         if (CompressionThreshold < 0)
@@ -81,6 +94,7 @@ public sealed class MinecraftPacketPipeWriter : PipeWriter
                 var compressor = LibDeflateCache.RentCompressor();
                 var length = compressor.GetBound(uncompressedSize);
 
+                // TODO: Use _pipeWriter.GetSpan()
                 var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
 
                 try

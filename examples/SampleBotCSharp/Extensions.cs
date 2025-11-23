@@ -13,6 +13,7 @@ public static class Extensions
 {
     public static async Task Login(this IMinecraftClient client, string nickname, string host, ushort port)
     {
+        throw new NotImplementedException();
         await client.SendPacket(new SetProtocolPacket()
         {
             NextState = 2,
@@ -21,11 +22,11 @@ public static class Extensions
             ServerPort = port
         });
 
-        await client.SendPacket(
-            new LoginStartPacket
-            {
-                Username = nickname
-            });
+        // await client.SendPacket(
+        //     new LoginStartPacket
+        //     {
+        //         Username = nickname
+        //     });
 
         await foreach (var serverPacket in client.OnAllPackets(PacketState.Login))
         {

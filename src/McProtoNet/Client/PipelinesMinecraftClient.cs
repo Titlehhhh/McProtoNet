@@ -49,7 +49,7 @@ public class PipelinesMinecraftClient : IDisposable
         var task = Task.WhenAll(task1, task2).ContinueWith(async t =>
         {
             var first = t.Exception?.InnerExceptions.FirstOrDefault();
-            Console.WriteLine($"End: {first}");
+            //Console.WriteLine($"End: {first}");
             transportPipe.Reader.CancelPendingRead();
             transportPipe.Writer.CancelPendingFlush();
             await transportPipe.Writer.CompleteAsync(first);
@@ -123,14 +123,14 @@ public class PipelinesMinecraftClient : IDisposable
 
     private static async Task WriteToStream(Stream stream, PipeReader pipeReader, CancellationToken cancellationToken)
     {
-        Console.WriteLine("start WriteToStream");
+        //Console.WriteLine("start WriteToStream");
         try
         {
             while (true)
             {
                 var result = await pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
-                Console.WriteLine($"Write {result.Buffer.Length}");
+                //Console.WriteLine($"Write {result.Buffer.Length}");
                 if (result.IsCanceled)
                 {
                     break;
@@ -162,29 +162,29 @@ public class PipelinesMinecraftClient : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine("WriteToStream Exception: {ex}");
+            //Console.WriteLine("WriteToStream Exception: {ex}");
         }
         finally
         {
-            Console.WriteLine("WriteToStream End");
+            //Console.WriteLine("WriteToStream End");
         }
     }
 
     private static async Task ReadFromStream(Stream stream, PipeWriter pipeWriter, CancellationToken cancellationToken)
     {
-        Console.WriteLine("start ReadFromStream");
+        //Console.WriteLine("start ReadFromStream");
         try
         {
             while (true)
             {
                 var memory = pipeWriter.GetMemory();
-                Console.WriteLine($"ReadFromStream memory: {memory.Length}");
+                //Console.WriteLine($"ReadFromStream memory: {memory.Length}");
                 int bytes = await stream.ReadAsync(memory, cancellationToken).ConfigureAwait(false);
 
 
                 if (bytes == 0)
                 {
-                    Console.WriteLine("ReadFromStream 0 bytes");
+                    //Console.WriteLine("ReadFromStream 0 bytes");
                     await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
                     break;
                 }
@@ -195,24 +195,24 @@ public class PipelinesMinecraftClient : IDisposable
 
                 if (result.IsCanceled)
                 {
-                    Console.WriteLine("ReadFromStream Canceled");
+                    //Console.WriteLine("ReadFromStream Canceled");
                     break;
                 }
 
                 if (result.IsCompleted)
                 {
-                    Console.WriteLine("ReadFromStream Completed");
+                    //Console.WriteLine("ReadFromStream Completed");
                     break;
                 }
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine("ReadFromStream Exception: {ex}");
+            //Console.WriteLine("ReadFromStream Exception: {ex}");
         }
         finally
         {
-            Console.WriteLine("ReadFromStream End");
+            //Console.WriteLine("ReadFromStream End");
         }
     }
 

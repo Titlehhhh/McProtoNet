@@ -55,12 +55,9 @@ public class TestServer
 
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-
-        var writer = new MinecraftPacketSender();
-        writer.SwitchCompression(compressionThreshold);
-
         var stream = new MemoryStream();
-        writer.BaseStream = stream;
+        await using var writer = new MinecraftPacketSender(stream);
+        writer.CompressionThreshold = compressionThreshold;
 
         for (int i = 0; i < packetsCount; i++)
         {

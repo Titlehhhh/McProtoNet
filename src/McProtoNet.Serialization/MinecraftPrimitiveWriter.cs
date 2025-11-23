@@ -15,13 +15,21 @@ namespace McProtoNet.Serialization;
 /// Represents stack-allocated writer for primitive types of Minecraft
 /// </summary>
 [StructLayout(LayoutKind.Auto)]
-[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-public ref struct MinecraftPrimitiveWriter()
+public ref struct MinecraftPrimitiveWriter
 {
-    private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
 
-    private BufferWriterSlim<byte> writerSlim = new(64, s_allocator);
+    private BufferWriterSlim<byte> writerSlim;
 
+
+    public MinecraftPrimitiveWriter()
+    {
+        writerSlim = new BufferWriterSlim<byte>(64);
+    }
+
+    public MinecraftPrimitiveWriter(Span<byte> initialBuffer)
+    {
+        writerSlim = new BufferWriterSlim<byte>(initialBuffer);
+    }
     /// <summary>
     /// Writes a boolean value to the buffer
     /// </summary>
@@ -32,6 +40,21 @@ public ref struct MinecraftPrimitiveWriter()
         CheckDisposed();
 
         writerSlim.Write(value ? 1 : 0);
+    }
+
+    public void Write(ReadOnlySequence<byte> sequence)
+    {
+        if (sequence.IsSingleSegment)
+        {
+            writerSlim.Write(sequence.FirstSpan);
+        }
+        else
+        {
+            foreach (var memory in sequence)
+            {
+                writerSlim.Write(memory.Span);
+            }
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,5 +1,7 @@
 ﻿using System.Buffers;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using DotNext.Buffers;
@@ -19,13 +21,11 @@ public static class Extensions
     /// </summary>
     /// <param name="data">The span of bytes to read from</param>
     /// <returns>The read VarInt</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadVarInt(this ReadOnlySpan<byte> data)
     {
         return ReadVarInt(data, out _);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool TryReadVarInt(this ref SequenceReader<byte> reader, out int res, out int length)
     {
         var numRead = 0;
@@ -117,7 +117,6 @@ public static class Extensions
     /// <param name="len">The number of bytes read</param>
     /// <returns>The decoded VarInt value</returns>
     /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static int ReadVarInt(this in ReadOnlySpan<byte> data, out int len)
     {
         var numRead = 0;
@@ -175,7 +174,6 @@ public static class Extensions
     /// </summary>
     /// <param name="writer">The buffer writer to write to</param>
     /// <param name="value">The integer value to write as a VarInt</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void WriteVarInt(this IBufferWriter<byte> writer, int value)
     {
         if (value == 0)
@@ -193,21 +191,66 @@ public static class Extensions
 
 
     /// <summary>
+    /// Gets the length in bytes needed to encode an integer as a VarInt using optimized bit operations
+    /// </summary>
+    /// <param name="value">The integer value to measure</param>
+    /// <returns>The number of bytes needed to encode the value as VarInt</returns>
+    /// <remarks>
+    /// This implementation uses mathematical optimization for maximum performance.
+    /// It has no branches or loops, making it ideal for high-performance scenarios.
+    /// </remarks>
+    public static int GetVarIntLengthFast(this int value)
+    {
+        return (BitOperations.LeadingZeroCount((uint)value | 1) - 38) * -1171 >> 13;
+    }
+
+    /// <summary>
     /// Gets the length in bytes needed to encode an integer as a VarInt
     /// </summary>
-    /// <param name="val">The integer value</param>
-    /// <returns>The number of bytes needed</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-    public static byte GetVarIntLength(this int val)
+    /// <param name="value">The integer value to measure</param>
+    /// <returns>The number of bytes needed to encode the value as VarInt</returns>
+    /// <remarks>
+    /// <para>VarInt encoding uses 1-5 bytes where each byte contains 7 bits of data:</para>
+    /// <list type="bullet">
+    /// <item>
+    /// <term>1 byte</term>
+    /// <description>Values from 0 to 127 (0x00 to 0x7F)</description>
+    /// </item>
+    /// <item>
+    /// <term>2 bytes</term>
+    /// <description>Values from 128 to 16,383 (0x80 to 0x3FFF)</description>
+    /// </item>
+    /// <item>
+    /// <term>3 bytes</term>
+    /// <description>Values from 16,384 to 2,097,151 (0x4000 to 0x1FFFFF)</description>
+    /// </item>
+    /// <item>
+    /// <term>4 bytes</term>
+    /// <description>Values from 2,097,152 to 268,435,455 (0x200000 to 0xFFFFFFF)</description>
+    /// </item>
+    /// <item>
+    /// <term>5 bytes</term>
+    /// <description>Values from 268,435,456 to 4,294,967,295 (0x10000000 to 0xFFFFFFFF)</description>
+    /// </item>
+    /// </list>
+    /// <para>This implementation uses range checks for better readability.</para>
+    /// </remarks>
+    public static int GetVarIntLength(this int value)
     {
-        byte amount = 0;
-        do
-        {
-            val >>= 7;
-            amount++;
-        } while (val != 0);
+        var val = (uint)value;
 
-        return amount;
+        if (val < 128) return 1; // 0-127
+        if (val < 16384) return 2; // 128-16383
+        if (val < 2097152) return 3; // 16384-2097151
+        if (val < 268435456) return 4; // 2097152-268435455
+        return 5; // 268435456-4294967295
+    }
+    
+    public static byte[] VarIntToArray(this int value)
+    {
+        Span<byte> span = stackalloc byte[5];
+        var len = value.GetVarIntLength(span);
+        return span.Slice(0, len).ToArray();
     }
 
 
@@ -225,6 +268,7 @@ public static class Extensions
         byte len = 0;
         do
         {
+            
             var temp = (byte)(unsigned & 127);
             unsigned >>= 7;
 
@@ -306,10 +350,10 @@ public static class Extensions
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(buff);
-        
-        if(buff.Length == 0)
+
+        if (buff.Length == 0)
             throw new ArgumentException("Buffer must be at least 1 byte long", nameof(buff));
-        
+
         var numRead = 0;
         var result = 0;
         byte read;
@@ -372,7 +416,7 @@ public static class Extensions
     public static void WriteVarInt(this Stream stream, int value)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        
+
         var unsigned = (uint)value;
         do
         {
@@ -415,7 +459,7 @@ public static class Extensions
         {
             throw new ArgumentException("Buffer must be at least 5 bytes long", nameof(buffer));
         }
-        
+
         int len = value.GetVarIntLength(buffer.Span);
 
         await stream.WriteAsync(buffer[..len], token)
