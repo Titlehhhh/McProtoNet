@@ -17,16 +17,37 @@ class Program
     {
         Console.WriteLine("Hi");
         using ConsoleLifetimeTokenSource clts = new();
-        try
+        List<Task> tasks = new List<Task>();
+        for (int i = 0; i < 130; i++)
         {
-            await RunBot(clts.Token);
+            var nick = $"McProtoBot_{i:D3}";
+            var bot = Task.Run(async () =>
+            {
+                for (int j = 0; j < 3; j++)
+                {
+                    try
+                    {
+                        await RunBot(nick, clts.Token);
+                    }
+                    catch (OperationCanceledException) when (clts.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception.Message);
+                    }
+
+                    await Task.Delay(300, clts.Token);
+                }
+            });
+            tasks.Add(bot);
         }
-        catch (OperationCanceledException) when (clts.IsCancellationRequested)
-        {
-        }
+
+        await Task.WhenAll(tasks);
     }
 
-    private static async Task RunBot(CancellationToken cancellationToken)
+    private static async Task RunBot(string nick, CancellationToken cancellationToken)
     {
         var tcp = new TcpClient();
 
@@ -34,7 +55,7 @@ class Program
 
         var stream = tcp.GetStream();
 
-        var client = PipelinesMinecraftClient.Create(stream, 773);
+        await using var client = PipelinesMinecraftClient.Create(stream, 773);
 
         var handshake = new HandshakePacket
         {
@@ -47,7 +68,7 @@ class Program
         //await Task.Delay(500, clts.Token);
         await client.SendPacketAsync(new LoginStartPacket
         {
-            Name = "McProtoBot",
+            Name = nick,
             UUID = Guid.NewGuid()
         }, 0x00, cancellationToken);
 
@@ -113,18 +134,21 @@ class Program
         Console.WriteLine();
         await foreach (var p in client.ReadPacketsAsync(cancellationToken))
         {
-            Console.WriteLine($"ReadPacket. Id: {p.Id}");
+            //Console.WriteLine($"ReadPacket. Id: {p.Id}");
             if (p.Id == 0x2B) //KeepAlive
             {
-                Console.WriteLine($"Keep Alive: {p.Data.Length}");
+                //Console.WriteLine($"Keep Alive: {p.Data.Length}");
                 //var gg = p.Data.ToArray().ReadVarInt();
                 //Console.WriteLine($"Keep Alive: {gg}");
                 //Console.WriteLine($"KeepAlive: [{string.Join(", ", p.Data.ToArray())}]");
                 await client.SendPacketAsync(
                     (ref writer, _) => { writer.Write(p.Data); }, 0x1B, cancellationToken);
+
+                //client.Stop(); //Типо отмена
             }
         }
 
+        Console.WriteLine("Enter for exit");
         Console.ReadLine();
     }
 }

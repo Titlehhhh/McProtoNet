@@ -177,6 +177,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
                         yield return CreatePacket(packet);
                     }
 
+
                     if (result.IsCompleted)
                     {
                         break;
