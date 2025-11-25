@@ -11,41 +11,13 @@ internal static class Extensions
     private static MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static MemoryOwner<byte> Decompress(this ReadOnlySequence<byte> compressedSequence,
+    public static MemoryOwner<byte> Decompress(this in ReadOnlySequence<byte> compressedSequence,
         int decompressSize)
     {
         MemoryOwner<byte> decompress = s_allocator.AllocateExactly(decompressSize);
         try
         {
-            if (compressedSequence.IsSingleSegment)
-            {
-                var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, decompress.Span, out _);
-
-                if (status != OperationStatus.Done)
-                {
-                    throw new InvalidOperationException("Zlib decompress error: " + status);
-                }
-            }
-            else
-            {
-                var tempBuffer = s_allocator.AllocateExactly((int)compressedSequence.Length);
-
-                try
-                {
-                    compressedSequence.CopyTo(tempBuffer.Span);
-
-                    var status = LibDeflateStatic.Decompress(tempBuffer.Span, decompress.Span, out _);
-
-                    if (status != OperationStatus.Done)
-                    {
-                        throw new InvalidOperationException("Zlib decompress error: " + status);
-                    }
-                }
-                finally
-                {
-                    tempBuffer.Dispose();
-                }
-            }
+            Decompress(compressedSequence, ref decompress);
 
             return decompress;
         }
@@ -53,6 +25,41 @@ internal static class Extensions
         {
             decompress.Dispose();
             throw;
+        }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void Decompress(this in ReadOnlySequence<byte> compressedSequence,
+        ref MemoryOwner<byte> owner)
+    {
+        if (compressedSequence.IsSingleSegment)
+        {
+            var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out _);
+
+            if (status != OperationStatus.Done)
+            {
+                throw new InvalidOperationException("Zlib decompress error: " + status);
+            }
+        }
+        else
+        {
+            var tempBuffer = s_allocator.AllocateExactly((int)compressedSequence.Length);
+
+            try
+            {
+                compressedSequence.CopyTo(tempBuffer.Span);
+
+                var status = LibDeflateStatic.Decompress(tempBuffer.Span, owner.Span, out _);
+
+                if (status != OperationStatus.Done)
+                {
+                    throw new InvalidOperationException("Zlib decompress error: " + status);
+                }
+            }
+            finally
+            {
+                tempBuffer.Dispose();
+            }
         }
     }
 }

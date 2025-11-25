@@ -4,6 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 using DotNext.Buffers;
 using DotNext.Hosting;
+using DotNext.IO.Pipelines;
 using McProtoNet.Client;
 using McProtoNet.Net;
 using McProtoNet.Net.Zlib;
@@ -17,34 +18,36 @@ class Program
     {
         Console.WriteLine("Hi");
         using ConsoleLifetimeTokenSource clts = new();
+        await using var gg = clts.Token.Register(() => { Console.WriteLine("Отмена..."); });
         List<Task> tasks = new List<Task>();
         for (int i = 0; i < 130; i++)
         {
-            var nick = $"McProtoBot_{i:D3}";
+            var nick = $"McProto_{i:D3}";
             var bot = Task.Run(async () =>
             {
-                for (int j = 0; j < 3; j++)
+                try
                 {
-                    try
+                    for (int j = 1; j <= 3; j++)
                     {
+                        var time = TimeSpan.FromSeconds(j*20D * Random.Shared.NextDouble());
+                        await Task.Delay(time, clts.Token);
                         await RunBot(nick, clts.Token);
                     }
-                    catch (OperationCanceledException) when (clts.IsCancellationRequested)
-                    {
-                        break;
-                    }
-                    catch (Exception exception)
-                    {
-                        Console.WriteLine(exception.Message);
-                    }
-
-                    await Task.Delay(300, clts.Token);
+                }
+                catch (OperationCanceledException) when (clts.IsCancellationRequested)
+                {
+                }
+                catch (Exception exception)
+                {
+                    Console.WriteLine(exception.Message);
                 }
             });
             tasks.Add(bot);
         }
 
         await Task.WhenAll(tasks);
+        Console.WriteLine("Успешно завершено. Нажмите кнопку для остановки");
+        Console.ReadLine();
     }
 
     private static async Task RunBot(string nick, CancellationToken cancellationToken)
@@ -55,17 +58,17 @@ class Program
 
         var stream = tcp.GetStream();
 
-        await using var client = PipelinesMinecraftClient.Create(stream, 773);
+        await using var client =
+            PipelinesMinecraftClient.Create(stream, 772);
 
         var handshake = new HandshakePacket
         {
-            ProtocolVersion = 773,
+            ProtocolVersion = 772,
             NextState = 2,
             ServerHost = "127.0.0.1",
             ServerPort = 25565
         };
         await client.SendPacketAsync(handshake, 0x00, cancellationToken);
-        //await Task.Delay(500, clts.Token);
         await client.SendPacketAsync(new LoginStartPacket
         {
             Name = nick,
@@ -74,12 +77,10 @@ class Program
 
         await foreach (var p in client.ReadPacketsAsync(cancellationToken))
         {
-            Console.WriteLine($"ReadPacket. Id: {p.Id}");
             if (p.Id == 0x03)
             {
                 var reader = p.CreateReader();
                 int threshold = reader.ReadVarInt();
-                Console.WriteLine($"Set compression: {threshold}");
                 client.CompressionThreshold = threshold;
             }
 
@@ -90,8 +91,6 @@ class Program
             }
         }
 
-
-        Console.WriteLine("Start Configuration");
 
         await client.SendPacketAsync((ref writer, version) =>
         {
@@ -107,8 +106,6 @@ class Program
         }, 0x00, cancellationToken);
         await foreach (var p in client.ReadPacketsAsync(cancellationToken))
         {
-            Console.WriteLine($"ReadPacket. Id: {p.Id}");
-
             if (p.Id == 0x04) //KeepAlive
             {
                 await client.SendPacketAsync((ref writer, _) => { writer.Write(p.Data); }, 0x04, cancellationToken);
@@ -123,33 +120,19 @@ class Program
             }
             else if (p.Id == 0x03)
             {
-                Console.WriteLine("Finish Configuration");
                 await client.SendEmptyPacketAsync(0x03, cancellationToken);
                 break;
             }
         }
 
-        Console.WriteLine();
-        Console.WriteLine("Game loop");
-        Console.WriteLine();
         await foreach (var p in client.ReadPacketsAsync(cancellationToken))
         {
-            //Console.WriteLine($"ReadPacket. Id: {p.Id}");
-            if (p.Id == 0x2B) //KeepAlive
+            if (p.Id == 0x26) //KeepAlive
             {
-                //Console.WriteLine($"Keep Alive: {p.Data.Length}");
-                //var gg = p.Data.ToArray().ReadVarInt();
-                //Console.WriteLine($"Keep Alive: {gg}");
-                //Console.WriteLine($"KeepAlive: [{string.Join(", ", p.Data.ToArray())}]");
                 await client.SendPacketAsync(
                     (ref writer, _) => { writer.Write(p.Data); }, 0x1B, cancellationToken);
-
-                //client.Stop(); //Типо отмена
             }
         }
-
-        Console.WriteLine("Enter for exit");
-        Console.ReadLine();
     }
 }
 
@@ -194,20 +177,26 @@ static class Ext
     {
         public async ValueTask SendPacketAsync(IPacket packet, int id, CancellationToken cancellationToken = default)
         {
-            var writer = new MinecraftPrimitiveWriter();
+            Span<byte> buffer = stackalloc byte[128];
+            var writer = new MinecraftPrimitiveWriter(buffer);
             try
             {
                 writer.WriteVarInt(id);
                 packet.Serialize(ref writer, client.ProtocolVersion);
+                client.PacketWriter.WritePacket(writer.WrittenSpan);
             }
-            catch
+            finally
             {
                 writer.Dispose();
-                throw;
             }
 
-            using var memory = writer.GetWrittenMemory();
-            await client.SendPacketAsync(memory.Memory, cancellationToken);
+
+            var result = await client.PacketWriter.FlushAsync(cancellationToken);
+            result.ThrowIfCancellationRequested(cancellationToken);
+            if (result.IsCompleted)
+            {
+                throw new InvalidOperationException("Flush failed");
+            }
         }
 
         public async ValueTask SendPacketAsync(WriteAction write, int id, CancellationToken cancellationToken = default)

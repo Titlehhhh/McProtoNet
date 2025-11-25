@@ -240,6 +240,7 @@ public static class Extensions
         var val = (uint)value;
 
         if (val < 128) return 1; // 0-127
+        return GetVarIntLengthFast((int)val);
         if (val < 16384) return 2; // 128-16383
         if (val < 2097152) return 3; // 16384-2097151
         if (val < 268435456) return 4; // 2097152-268435455

@@ -1,6 +1,7 @@
 ﻿using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
+using DotNext.Buffers;
 using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
@@ -8,7 +9,7 @@ using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
-public sealed class MinecraftPacketPipeReader : PipeReader
+public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 {
     private static readonly NullOwner DisposedMemoryOwner = new();
 
@@ -21,7 +22,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     private const int None = 0;
     private const int Disposed = 1;
 
-    private volatile int _state = 0;
+    private volatile int _state = None;
 
 
     private volatile IMemoryOwner<byte>? _desompressedBuffer;
@@ -49,10 +50,17 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         return _pipeReader.TryRead(out result);
     }
 
-    public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
+    public override async ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-        return _pipeReader.ReadAsync(cancellationToken);
+        var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+        if (result.IsCompleted)
+        {
+            CompleteCore();
+        }
+
+        return result;
     }
 
     public override void AdvanceTo(SequencePosition consumed)
@@ -79,6 +87,20 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         {
             old.Dispose();
         }
+    }
+
+    private void SetDecompressedBuffer(ref MemoryOwner<byte> buffer)
+    {
+        var old = Interlocked.Exchange(ref _desompressedBuffer, buffer);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        CompleteCore();
     }
 
     public override void Complete(Exception? exception = null)
@@ -124,12 +146,16 @@ public sealed class MinecraftPacketPipeReader : PipeReader
                     Consumed = buffer.Start,
                     Examined = buffer.End
                 };
-                return CreatePacket(packet);
+                MemoryOwner<byte> decompressed = default;
+                var createdPacket = CreatePacket(packet, ref decompressed);
+                SetDecompressedBuffer(ref decompressed);
+                return createdPacket;
             }
 
             _pipeReader.AdvanceTo(buffer.Start, buffer.End);
             if (result.IsCompleted)
             {
+                CompleteCore();
                 throw new InvalidOperationException("PipeReader is completed");
             }
 
@@ -158,14 +184,15 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        MemoryOwner<byte> decompressedBuffer = default;
         try
         {
+            cancellationToken.ThrowIfCancellationRequested();
             while (true)
             {
-                cancellationToken.ThrowIfCancellationRequested();
-
                 var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
+                
 
                 var buffer = result.Buffer;
                 try
@@ -174,12 +201,13 @@ public sealed class MinecraftPacketPipeReader : PipeReader
                                ref buffer,
                                out var packet))
                     {
-                        yield return CreatePacket(packet);
+                        yield return CreatePacket(packet, ref decompressedBuffer);
                     }
 
 
                     if (result.IsCompleted)
                     {
+                        CompleteCore();
                         break;
                     }
 
@@ -198,10 +226,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         finally
         {
             _sourceCore.Reset();
-            var old =
-                Interlocked.Exchange(ref _desompressedBuffer, null);
-
-            old?.Dispose();
+            decompressedBuffer.Dispose();
         }
     }
 
@@ -232,7 +257,9 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private NewInputPacket CreatePacket(ReadOnlySequence<byte> data)
+    private NewInputPacket CreatePacket(
+        ReadOnlySequence<byte> data,
+        ref MemoryOwner<byte> decompressedBuffer)
     {
         if (CompressionThreshold < 0)
         {
@@ -265,11 +292,19 @@ public sealed class MinecraftPacketPipeReader : PipeReader
                 throw new InvalidOperationException("Unable to read packet ID");
             }
 
-            var owner = data.Decompress(sizeUncompressed);
-            data = new ReadOnlySequence<byte>(owner.Memory);
+
+            if (!decompressedBuffer.TryResize(sizeUncompressed))
+            {
+                decompressedBuffer.Dispose();
+                decompressedBuffer =
+                    new(ArrayPool<byte>.Shared, sizeUncompressed);
+            }
 
             try
             {
+                data.Decompress(ref decompressedBuffer);
+                data = new ReadOnlySequence<byte>(decompressedBuffer.Memory);
+
                 if (data.TryReadVarInt(out var id, out int idLen))
                 {
                     data = data.Slice(idLen);
@@ -277,23 +312,14 @@ public sealed class MinecraftPacketPipeReader : PipeReader
                     _sourceCore.Id = id;
                     _sourceCore.Data = data;
 
-                    var old = Interlocked.Exchange(ref _desompressedBuffer, owner);
-
-
-                    ObjectDisposedException.ThrowIf(ReferenceEquals(old, DisposedMemoryOwner), GetType());
-
-
-                    old?.Dispose();
-
                     return new NewInputPacket(_sourceCore, _sourceCore.Version);
                 }
 
-                owner.Dispose();
                 throw new InvalidOperationException("Unable to read packet ID");
             }
             catch
             {
-                owner.Dispose();
+                decompressedBuffer.Dispose();
                 throw;
             }
         }
@@ -308,7 +334,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
     }
 
 
-    internal sealed class NullOwner : IMemoryOwner<byte>
+    private sealed class NullOwner : IMemoryOwner<byte>
     {
         public void Dispose()
         {
@@ -317,7 +343,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader
         public Memory<byte> Memory => Memory<byte>.Empty;
     }
 
-    internal struct PositionState
+    private struct PositionState
     {
         public SequencePosition Consumed;
         public SequencePosition Examined;

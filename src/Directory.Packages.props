@@ -67,7 +67,7 @@
     <PackageVersion Include="DnsClient" Version="1.8.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1" />
-    <PackageVersion Include="System.IO.Pipelines" Version="10.0.0-rc.1.25451.107" />
+    <PackageVersion Include="System.IO.Pipelines" Version="10.0.0" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.39" />
   </ItemGroup>

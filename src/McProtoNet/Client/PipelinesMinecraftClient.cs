@@ -21,22 +21,22 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(protocolVersion);
         ArgumentNullException.ThrowIfNull(stream);
 
-        var networkToAppPipe = new Pipe(); 
-        var appToNetworkPipe = new Pipe(); 
+        var networkToAppPipe = new Pipe();
+        var appToNetworkPipe = new Pipe();
 
-      
+
         var transport = new DuplexPipe(
-            input: appToNetworkPipe.Reader,  
-            output: networkToAppPipe.Writer   
+            input: appToNetworkPipe.Reader,
+            output: networkToAppPipe.Writer
         );
         var app = new DuplexPipe(
-            input: networkToAppPipe.Reader, 
-            output: appToNetworkPipe.Writer 
+            input: networkToAppPipe.Reader,
+            output: appToNetworkPipe.Writer
         );
 
         return new PipelinesMinecraftClient(stream, transport, app, protocolVersion);
     }
-    
+
     internal PipelinesMinecraftClient(Stream stream, IDuplexPipe transport, IDuplexPipe app, int protocolVersion)
     {
         ProtocolVersion = protocolVersion;
@@ -67,7 +67,12 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
             }, transport, TaskScheduler.Default);
 
         var task = Task.WhenAll(task1, task2)
-            .ContinueWith(_ => { stream.Dispose(); }, TaskScheduler.Default);
+            .ContinueWith(_ =>
+            {
+                stream.Dispose();
+                _pipeReader.Dispose();
+                //_pipeWriter.Dispose();
+            }, TaskScheduler.Default);
 
         Completion = task;
     }
@@ -83,8 +88,6 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
 
     private CancellationTokenSource _cts;
 
-
-    
 
     public int CompressionThreshold
     {
@@ -191,6 +194,8 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
                 {
                     break;
                 }
+
+               
 
                 await stream.WriteAsync(result.Buffer, cancellationToken).ConfigureAwait(false);
 

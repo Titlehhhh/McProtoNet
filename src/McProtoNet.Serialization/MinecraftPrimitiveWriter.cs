@@ -20,6 +20,7 @@ public ref struct MinecraftPrimitiveWriter
 
     private BufferWriterSlim<byte> writerSlim;
 
+    public ReadOnlySpan<byte> WrittenSpan => writerSlim.WrittenSpan;
 
     public MinecraftPrimitiveWriter()
     {
