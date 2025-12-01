@@ -1,13 +1,13 @@
-﻿using System.Buffers;
+﻿using System.Collections.Immutable;
 using System.Net.Sockets;
-using System.Security.Cryptography;
-using System.Text;
-using DotNext.Buffers;
+using System.Security.AccessControl;
+using System.Text.RegularExpressions;
 using DotNext.Hosting;
-using DotNext.IO.Pipelines;
 using McProtoNet.Client;
+using McProtoNet.NBT;
 using McProtoNet.Net;
-using McProtoNet.Net.Zlib;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace SampleBotCSharp;
@@ -16,41 +16,44 @@ class Program
 {
     public static async Task Main(string[] args)
     {
-        Console.WriteLine("Hi");
+        Console.WriteLine("Start");
         using ConsoleLifetimeTokenSource clts = new();
-        await using var gg = clts.Token.Register(() => { Console.WriteLine("Отмена..."); });
-        List<Task> tasks = new List<Task>();
-        for (int i = 0; i < 130; i++)
+
+        var apiKey = Environment.GetEnvironmentVariable("LLM_API_KEY")
+                     ?? throw new InvalidOperationException();
+        OpenRouterService llm = new OpenRouterService(apiKey);
+
+        await llm.LoadAsync("history.json");
+        try
         {
-            var nick = $"McProto_{i:D3}";
-            var bot = Task.Run(async () =>
+            await using var gg = clts.Token.Register(() => { Console.WriteLine("Отмена..."); });
+            var nick = $"AlphaBot";
+
+            try
             {
-                try
-                {
-                    for (int j = 1; j <= 3; j++)
-                    {
-                        var time = TimeSpan.FromSeconds(j*20D * Random.Shared.NextDouble());
-                        await Task.Delay(time, clts.Token);
-                        await RunBot(nick, clts.Token);
-                    }
-                }
-                catch (OperationCanceledException) when (clts.IsCancellationRequested)
-                {
-                }
-                catch (Exception exception)
-                {
-                    Console.WriteLine(exception.Message);
-                }
-            });
-            tasks.Add(bot);
+                await RunBot(llm, nick, clts.Token);
+            }
+            catch (OperationCanceledException) when (clts.IsCancellationRequested)
+            {
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
+        finally
+        {
+            await llm.SaveAsync("history.json");
         }
 
-        await Task.WhenAll(tasks);
         Console.WriteLine("Успешно завершено. Нажмите кнопку для остановки");
         Console.ReadLine();
     }
 
-    private static async Task RunBot(string nick, CancellationToken cancellationToken)
+    private static async Task RunBot(
+        OpenRouterService llm,
+        string nick,
+        CancellationToken cancellationToken)
     {
         var tcp = new TcpClient();
 
@@ -59,11 +62,11 @@ class Program
         var stream = tcp.GetStream();
 
         await using var client =
-            PipelinesMinecraftClient.Create(stream, 772);
+            PipelinesMinecraftClient.Create(stream, 773);
 
         var handshake = new HandshakePacket
         {
-            ProtocolVersion = 772,
+            ProtocolVersion = 773,
             NextState = 2,
             ServerHost = "127.0.0.1",
             ServerPort = 25565
@@ -125,104 +128,151 @@ class Program
             }
         }
 
+        SemaphoreSlim sendSem =
+            new SemaphoreSlim(1, 1);
         await foreach (var p in client.ReadPacketsAsync(cancellationToken))
         {
-            if (p.Id == 0x26) //KeepAlive
+            if (p.Id == 0x2B) //KeepAlive
             {
-                await client.SendPacketAsync(
-                    (ref writer, _) => { writer.Write(p.Data); }, 0x1B, cancellationToken);
+                await sendSem.WaitAsync(cancellationToken);
+                try
+                {
+                    await client.SendPacketAsync(
+                        (ref writer, _) => { writer.Write(p.Data); }, 0x1B, cancellationToken);
+                }
+                finally
+                {
+                    sendSem.Release();
+                }
+            }
+            else if (p.Id == 0x3F)
+            {
+                var chat = PlayerChatPacket.Read(p);
+
+                if (chat.SenderName is NbtString str)
+                {
+                    if (str.Value.Contains(nick))
+                        continue;
+                }
+
+                Task.Run(async () =>
+                {
+                    try
+                    {
+                        var completed = await llm.SendMessageAsync(chat.Message,
+                            cancellationToken: cancellationToken);
+                        completed = CleanMinecraftMessage(completed);
+                        
+                        Console.WriteLine($"Completed: {completed}");
+                        await sendSem.WaitAsync(cancellationToken);
+                        foreach (var chunk in completed.Chunk(200))
+                        {
+                            var chunkStr = new string(chunk);
+                            
+                            await client.SendChatAsync(chunkStr, cancellationToken);
+                            await Task.Delay(
+                                Random.Shared.NextTimeSpan(500, 1000), cancellationToken);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+                    finally
+                    {
+                        sendSem.Release();
+                    }
+                });
             }
         }
+    }
+    
+    public static string CleanMinecraftMessage(string input)
+    {
+        return string.Concat(input
+            .Where(c => !char.IsControl(c) && !char.IsSurrogate(c)));
+    }
+
+
+    
+}
+
+
+public class PlayerChatPacket
+{
+    public class PreviousMessage
+    {
+        public int Id { get; set; }
+        public byte[]? Signature { get; set; }
+
+        public static PreviousMessage[] ReadArr(ref MinecraftPrimitiveReader reader)
+        {
+            int len = reader.ReadVarInt();
+            PreviousMessage[] messages = new PreviousMessage[len];
+            for (int i = 0; i < len; i++)
+            {
+                var message = new PreviousMessage
+                {
+                    Id = reader.ReadVarInt(),
+                    Signature = reader.ReadOptional((ref r) => r.ReadBuffer(256))
+                };
+                messages[i] = message;
+            }
+
+            return messages;
+        }
+    }
+
+    public int GlobalIndex { get; set; }
+    public Guid Sender { get; set; }
+    public int Index { get; set; }
+
+    public byte[]? Signature { get; set; }
+    public string Message { get; set; }
+
+    public long Timestamp { get; set; }
+    public long Salt { get; set; }
+
+
+    public PreviousMessage[] PreviousMessages { get; set; }
+    public NbtTag? UnsignedContent { get; set; }
+    public int FilterType { get; set; }
+    public long[]? FilterTypeMask { get; set; }
+
+    public NbtTag SenderName { get; set; }
+    public NbtTag? NetworkTargetName { get; set; }
+
+    public static PlayerChatPacket Read(NewInputPacket inPacket)
+    {
+        var reader = inPacket.CreateReader();
+        var packet = new PlayerChatPacket();
+        packet.GlobalIndex = reader.ReadVarInt();
+        packet.Sender = reader.ReadUUID();
+        packet.Index = reader.ReadVarInt();
+        if (reader.ReadBoolean())
+        {
+            packet.Signature = reader.ReadBuffer(256);
+        }
+
+        packet.Message = reader.ReadString();
+        packet.Timestamp = reader.ReadSignedLong();
+        packet.Salt = reader.ReadSignedLong();
+        packet.PreviousMessages = PreviousMessage.ReadArr(ref reader);
+
+        if (reader.ReadBoolean())
+            packet.UnsignedContent = reader.ReadNbtTag(false);
+
+        packet.FilterType = reader.ReadVarInt();
+        if (packet.FilterType == 2)
+            packet.FilterTypeMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+        var id = reader.ReadVarInt();
+        packet.SenderName = reader.ReadNbtTag(false);
+        //packet.NetworkTargetName = reader.ReadOptionalNbtTag(packet.ProtocolVersion);
+        return packet;
     }
 }
 
 public interface IPacket
 {
     void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion);
-}
-
-class HandshakePacket : IPacket
-{
-    public int ProtocolVersion { get; set; }
-    public string ServerHost { get; set; }
-    public ushort ServerPort { get; set; }
-    public int NextState { get; set; }
-
-    public void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        writer.WriteVarInt(ProtocolVersion);
-        writer.WriteString(ServerHost);
-        writer.WriteUnsignedShort(ServerPort);
-        writer.WriteVarInt(NextState);
-    }
-}
-
-class LoginStartPacket : IPacket
-{
-    public string Name { get; set; }
-    public Guid UUID { get; set; }
-
-    public void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        writer.WriteString(Name);
-        writer.WriteUUID(UUID);
-    }
-}
-
-static class Ext
-{
-    public delegate void WriteAction(ref MinecraftPrimitiveWriter writer, int protocolVersion);
-
-    extension(PipelinesMinecraftClient client)
-    {
-        public async ValueTask SendPacketAsync(IPacket packet, int id, CancellationToken cancellationToken = default)
-        {
-            Span<byte> buffer = stackalloc byte[128];
-            var writer = new MinecraftPrimitiveWriter(buffer);
-            try
-            {
-                writer.WriteVarInt(id);
-                packet.Serialize(ref writer, client.ProtocolVersion);
-                client.PacketWriter.WritePacket(writer.WrittenSpan);
-            }
-            finally
-            {
-                writer.Dispose();
-            }
-
-
-            var result = await client.PacketWriter.FlushAsync(cancellationToken);
-            result.ThrowIfCancellationRequested(cancellationToken);
-            if (result.IsCompleted)
-            {
-                throw new InvalidOperationException("Flush failed");
-            }
-        }
-
-        public async ValueTask SendPacketAsync(WriteAction write, int id, CancellationToken cancellationToken = default)
-        {
-            var writer = new MinecraftPrimitiveWriter();
-            try
-            {
-                writer.WriteVarInt(id);
-                write(ref writer, client.ProtocolVersion);
-            }
-            catch
-            {
-                writer.Dispose();
-                throw;
-            }
-
-            using var memory = writer.GetWrittenMemory();
-            await client.SendPacketAsync(memory.Memory, cancellationToken);
-        }
-    }
-
-    extension(NewInputPacket packet)
-    {
-        public MinecraftPrimitiveReader CreateReader()
-        {
-            return new MinecraftPrimitiveReader(packet.Data);
-        }
-    }
 }

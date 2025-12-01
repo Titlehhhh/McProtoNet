@@ -402,11 +402,11 @@ public ref struct MinecraftPrimitiveReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NbtTag? ReadNbtTag(bool readRootTag)
     {
-        throw new NotImplementedException();
-        // NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.RemainingSpan);
-        // NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
-        //
-        // _reader.Advance(nbtSpanReader.ConsumedCount);
-        // return result;
+        //throw new NotImplementedException();
+         NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.UnreadSequence.ToArray());
+         NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
+        
+         _reader.Advance(nbtSpanReader.ConsumedCount);
+         return result;
     }
 }
