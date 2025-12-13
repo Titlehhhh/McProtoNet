@@ -1,8 +1,10 @@
 using System.Buffers;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using DotNext;
 using DotNext.Buffers;
+using DotNext.IO;
 
 namespace McProtoNet.Net.Zlib;
 
@@ -17,6 +19,21 @@ internal static class Extensions
         MemoryOwner<byte> decompress = s_allocator.AllocateExactly(decompressSize);
         try
         {
+            var stream = compressedSequence.AsStream();
+
+            using ZLibStream zLibStream = new(stream, mode: CompressionMode.Decompress);
+
+            var read = zLibStream.ReadAtLeast(decompress.Span, decompressSize);
+            
+            if (read != decompressSize)
+            {
+                throw new InvalidOperationException("Zlib decompress error: " + read);
+            }
+
+            return decompress;
+            
+                
+
             Decompress(compressedSequence, ref decompress);
 
             return decompress;
@@ -34,8 +51,13 @@ internal static class Extensions
     {
         if (compressedSequence.IsSingleSegment)
         {
-            var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out _);
+            var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out var written);
 
+            if (status == OperationStatus.InvalidData)
+            {
+                Debugger.Break();
+            }
+            
             if (status != OperationStatus.Done)
             {
                 throw new InvalidOperationException("Zlib decompress error: " + status);

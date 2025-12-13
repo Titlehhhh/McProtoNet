@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using DotNext.Buffers;
@@ -197,11 +198,16 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
                 var buffer = result.Buffer;
                 try
                 {
+                    
                     while (TryReadPacket(
                                ref buffer,
                                out var packet))
                     {
                         yield return CreatePacket(packet, ref decompressedBuffer);
+                        if (this.CompressionThreshold > -1)
+                        {
+                            //Debugger.Break();
+                        }
                     }
 
 
@@ -261,6 +267,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         ReadOnlySequence<byte> data,
         ref MemoryOwner<byte> decompressedBuffer)
     {
+        bool isSingle1 = data.IsSingleSegment;
         if (CompressionThreshold < 0)
         {
             if (data.TryReadVarInt(out var id, out int idLen))
@@ -275,6 +282,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
             throw new InvalidOperationException("Unable to read packet ID");
         }
 
+        var isSingle2 = data.IsSingleSegment;
         if (data.TryReadVarInt(out var sizeUncompressed, out var len))
         {
             data = data.Slice(len);
@@ -302,6 +310,8 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 
             try
             {
+                var test = data.Decompress(sizeUncompressed);
+                
                 data.Decompress(ref decompressedBuffer);
                 data = new ReadOnlySequence<byte>(decompressedBuffer.Memory);
 

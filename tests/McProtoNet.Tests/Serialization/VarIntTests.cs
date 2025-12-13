@@ -1,4 +1,5 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using DotNext.Buffers;
 using McProtoNet.Serialization;
 
@@ -6,40 +7,29 @@ namespace McProtoNet.Tests.Serialization;
 
 public class VarIntTests
 {
-    [Fact]
-    public void Test1()
+    public static IEnumerable<object[]> GetNumbers() =>
+        Enumerable.Range(0, 10_000).Select(x => new object[] { x });
+    
+    [Theory]
+    [MemberData(nameof(GetNumbers))]
+    public void Test1(int value)
     {
-        var gg = new SequenceBuilder<byte>();
-        byte[] buff = new byte[8192];
-        int len1 = 500.GetVarIntLength(buff);
-        var asSpan = buff.AsSpan(len1, 500);
-        for (int i = 0; i < asSpan.Length; i++)
+        for (int segSize = 1; segSize <= 5; segSize++)
         {
-            asSpan[i] = unchecked((byte)i);
+            var seq = CreateSequence(value, segSize);
+            var read = seq.TryReadVarInt(out var actual, out var length);
+            Assert.True(read);
+            Assert.Equal(value, actual);
+            Assert.Equal(value.GetVarIntLength(), length);
         }
+    }
+    
+    private static ReadOnlySequence<byte> CreateSequence(int value, int segmentSize)
+    {
+        var arr = value.VarIntToArray();
 
-        var orig = asSpan.ToArray();
-
-
-        gg.Write(buff);
-        Array.Clear(buff);
-        gg.Write(buff);
-
-        var segments = gg.ToArray();
-        var start = gg.Start;
-        var seq = gg.Read(ref start, gg.WrittenCount);
-
-        var b = seq.TryReadVarInt(out int result, out var len);
-        
-        Assert.True(b);
-
-        var startPacket = seq.GetPosition(len);
-        var endPacket = seq.GetPosition(result, startPacket);
-
-        var packet = seq.Slice(startPacket, endPacket);
-
-        Assert.Equal(500, packet.Length);
-
-        Assert.Equal(orig, packet.ToArray());
+        return arr.Chunk(segmentSize).Select(x =>
+            new ReadOnlyMemory<byte>(x)
+        ).ToReadOnlySequence();
     }
 }
