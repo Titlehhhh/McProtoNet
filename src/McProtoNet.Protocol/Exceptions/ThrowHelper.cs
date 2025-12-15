@@ -4,17 +4,12 @@ namespace McProtoNet.Protocol;
 
 internal static partial class ThrowHelper
 {
-    public static void ThrowIfProtocolNotSupported<T>(int version)
-    {
-        if (typeof(T) == typeof(Position))
-        {
-            if (Position.IsSupportedVersion(version))
-            {
-                //Throw
-            }
-        }
-        
-        // Другие типы должны здесь собираться.
-        // Еще генерация исключений, если тип данныз  не поддерживается.
-    }
+    [DoesNotReturn]
+    public static void ThrowProtocolNotSupported(Type type, int protocol, ProtocolRange[] ranges)
+        => throw new ProtocolNotSupportedException(type.Name, protocol, ranges);
+
+
+    [DoesNotReturn]
+    private static void ThrowUnknownType(Type type)
+        => throw new InvalidOperationException($"Unknown protocol type {type}");
 }
