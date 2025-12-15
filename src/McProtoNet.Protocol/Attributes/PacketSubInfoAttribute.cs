@@ -1,4 +1,4 @@
-namespace McProtoNet.Protocol;
+﻿namespace McProtoNet.Protocol.Attributes;
 
 [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
 public sealed class PacketSubInfoAttribute : Attribute

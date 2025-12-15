@@ -32,5 +32,4 @@ public static class GenericExtensions
         }
     }
     
-    
 }

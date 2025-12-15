@@ -36,4 +36,10 @@
     </ItemGroup>
 
 
+    <ItemGroup>
+        <Compile Remove="Internal\**\*.cs" />
+        <Compile Remove="Packets\**\*.cs" />
+        <Compile Remove="Types\**\*.cs" />
+    </ItemGroup>
+
 </Project>
