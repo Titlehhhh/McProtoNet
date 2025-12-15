@@ -26,7 +26,7 @@ public sealed class ProtocolNotSupportedException : Exception
         IReadOnlyList<ProtocolRange> ranges)
     {
         var supported = string.Join(", ", ranges);
-        return $"{typeName} is not supported for protocol {actualVersion}. Supported: {supported}";
+        return $"Type {typeName} is not supported for protocol {actualVersion}. Supported: {supported}";
     }
 }
 
