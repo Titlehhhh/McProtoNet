@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using McProtoNet.Abstractions;
@@ -38,11 +39,13 @@ public class MinecraftClient : IMinecraftClient
     ///     <c>true</c> if connected; otherwise, <c>false</c>.
     /// </value>
     public bool IsConnected => _state == (int)State.Connected;
+
     /// <summary>
     ///     Gets the startup configuration options used to initialize this client instance.
     /// </summary>
     /// <value>Read-only startup options.</value>
     public MinecraftClientStartOptions StartOptions { get; }
+
     /// <summary>
     ///     Gets the protocol version number used by this client.
     /// </summary>
@@ -60,8 +63,8 @@ public class MinecraftClient : IMinecraftClient
 
     private volatile int _state;
 
-    private readonly MinecraftPacketReader _packetReader = new();
-    private readonly MinecraftPacketSender _packetSender = new();
+    private readonly MinecraftPacketReader _packetReader = new(null, ArrayPool<byte>.Shared);
+    private readonly MinecraftPacketSender _packetSender = new(null);
     private AesStream? _mainStream;
 
     #endregion
@@ -128,21 +131,22 @@ public class MinecraftClient : IMinecraftClient
             throw new InvalidOperationException("Already connecting or connected");
         }
 
+        throw new NotImplementedException();
         try
         {
-            Stream stream = await ConnectInternal(StartOptions, cancellationToken);
-            AesStream aesStream = new(stream);
-            Interlocked.Exchange(ref _mainStream, aesStream)?.Dispose();
+            // Stream stream = await ConnectInternal(StartOptions, cancellationToken);
+            // AesStream aesStream = new(stream);
+            // Interlocked.Exchange(ref _mainStream, aesStream)?.Dispose();
+            //
+            // _packetReader.BaseStream = aesStream;
+            // _packetSender.BaseStream = aesStream;
 
-            _packetReader.BaseStream = aesStream;
-            _packetSender.BaseStream = aesStream;
 
-
-            state = CompareExchange(State.Connected, State.Connecting);
-            if (state != State.Connecting)
-            {
-                await aesStream.DisposeAsync();
-            }
+            // state = CompareExchange(State.Connected, State.Connecting);
+            // if (state != State.Connecting)
+            // {
+            //     await aesStream.DisposeAsync();
+            // }
         }
         catch
         {
@@ -185,6 +189,7 @@ public class MinecraftClient : IMinecraftClient
             return tcpClient.GetStream();
         }
     }
+
     /// <summary>
     ///     Starts receiving packets from the server asynchronously.
     /// </summary>
@@ -212,12 +217,14 @@ public class MinecraftClient : IMinecraftClient
     private async IAsyncEnumerable<InputPacket> ReceivePacketsCore(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
+        yield break;
+        throw new NotImplementedException();
         while (!cancellationToken.IsCancellationRequested)
         {
             InputPacket packet;
             try
             {
-                packet = await _packetReader.ReadNextPacketAsync(cancellationToken);
+                //packet = await _packetReader.ReadNextPacketAsync(cancellationToken);
             }
             catch
             {
@@ -227,11 +234,11 @@ public class MinecraftClient : IMinecraftClient
 
             try
             {
-                yield return packet;
+                //yield return packet;
             }
             finally
             {
-                packet.Dispose();
+                //packet.Dispose();
             }
         }
     }
@@ -259,8 +266,8 @@ public class MinecraftClient : IMinecraftClient
             ThrowNotConnected();
 
 
-        _packetSender.SwitchCompression(threshold);
-        _packetReader.SwitchCompression(threshold);
+        _packetSender.CompressionThreshold = threshold;
+        _packetReader.CompressionThreshold = threshold;
     }
 
     /// <summary>
@@ -307,8 +314,8 @@ public class MinecraftClient : IMinecraftClient
             return;
 
         _mainStream?.Dispose();
-        _packetReader.BaseStream = null;
-        _packetSender.BaseStream = null;
+        //_packetReader.BaseStream = null;
+        //_packetSender.BaseStream = null;
     }
 
     #endregion

@@ -1,115 +1,361 @@
 ﻿using System.Buffers;
+using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
-using DotNext;
 using DotNext.Buffers;
-using DotNext.IO.Pipelines;
-using McProtoNet.Abstractions;
+using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
-using LengthFormat = DotNext.IO.LengthFormat;
+using McProtoNet.Serialization;
+using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
-internal sealed class MinecraftPacketPipeReader
+public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 {
-    private readonly PipeReader pipeReader;
-    private static readonly MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
+    private static readonly NullOwner DisposedMemoryOwner = new();
+
+    private readonly DecryptedPipeReader _pipeReader;
+
+    // For single packet
+    private PositionState? _positionState;
+
+
+    private const int None = 0;
+    private const int Disposed = 1;
+
+    private volatile int _state = None;
+
+
+    private volatile IMemoryOwner<byte>? _desompressedBuffer;
+
+    private readonly PacketSourceCore _sourceCore = new();
 
     public MinecraftPacketPipeReader(PipeReader pipeReader)
     {
-        this.pipeReader = pipeReader;
-        //this.decompressor = decompressor;
+        this._pipeReader = new DecryptedPipeReader(pipeReader);
     }
 
-    public int CompressionThreshold { get; set; }
+    public int CompressionThreshold { get; set; } = -1;
 
+    public bool EncryptionEnabled => _pipeReader.IsEncrypted;
 
-    public async IAsyncEnumerable<InputPacket> ReadPacketsAsync(
-        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public void EnableEncryption(IBufferedCipher decryptor)
     {
-        var chunkcount = 0;
-        cancellationToken.ThrowIfCancellationRequested();
-        while (!cancellationToken.IsCancellationRequested)
+        ThrowIfDisposed();
+        _pipeReader.SwitchEncryption(decryptor);
+    }
+
+    public override bool TryRead(out ReadResult result)
+    {
+        ThrowIfDisposed();
+        return _pipeReader.TryRead(out result);
+    }
+
+    public override async ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+        var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+        if (result.IsCompleted)
         {
-            ReadResult result = default;
-            try
-            {
-                result = await pipeReader.ReadAsync(cancellationToken);
-            }
-            catch (OperationCanceledException)
-            {
-                await pipeReader.CompleteAsync();
-                break;
-            }
-
-            var buffer = result.Buffer;
-            if (result.IsCompleted) break;
-
-            if (result.IsCanceled) break;
-
-
-            try
-            {
-                while (TryReadPacket(ref buffer, out var packet))
-                {
-                    yield return Decompress(packet);
-                }
-            }
-            finally
-            {
-                pipeReader.AdvanceTo(buffer.Start, buffer.End);
-            }
+            CompleteCore();
         }
 
-        await pipeReader.CompleteAsync();
+        return result;
+    }
+
+    public override void AdvanceTo(SequencePosition consumed)
+    {
+        ThrowIfDisposed();
+        _pipeReader.AdvanceTo(consumed);
+    }
+
+    public override void AdvanceTo(SequencePosition consumed, SequencePosition examined)
+    {
+        ThrowIfDisposed();
+        _pipeReader.AdvanceTo(consumed, examined);
+    }
+
+    private void CompleteCore()
+    {
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
+        {
+            return;
+        }
+
+        var old = Interlocked.Exchange(ref _desompressedBuffer, DisposedMemoryOwner);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+    }
+
+    private void SetDecompressedBuffer(ref MemoryOwner<byte> buffer)
+    {
+        var old = Interlocked.Exchange(ref _desompressedBuffer, buffer);
+        if (old != DisposedMemoryOwner && old is not null)
+        {
+            old.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        CompleteCore();
+    }
+
+    public override void Complete(Exception? exception = null)
+    {
+        _pipeReader.Complete(exception);
+        CompleteCore();
+    }
+
+    public override async ValueTask CompleteAsync(Exception? exception = null)
+    {
+        await _pipeReader.CompleteAsync(exception).ConfigureAwait(false);
+        CompleteCore();
+    }
+
+    public override void CancelPendingRead()
+    {
+        _pipeReader.CancelPendingRead();
+    }
+
+
+    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
+    {
+        ThrowIfDisposed();
+        while (true)
+        {
+            token.ThrowIfCancellationRequested();
+            if (_positionState.HasValue)
+            {
+                _pipeReader.AdvanceTo(
+                    _positionState.Value.Consumed,
+                    _positionState.Value.Examined);
+                _positionState = null;
+            }
+
+            var result = await _pipeReader.ReadAsync(token).ConfigureAwait(false);
+
+            var buffer = result.Buffer;
+
+            if (TryReadPacket(ref buffer, out var packet))
+            {
+                _positionState = new PositionState
+                {
+                    Consumed = buffer.Start,
+                    Examined = buffer.End
+                };
+                MemoryOwner<byte> decompressed = default;
+                var createdPacket = CreatePacket(packet, ref decompressed);
+                SetDecompressedBuffer(ref decompressed);
+                return createdPacket;
+            }
+
+            _pipeReader.AdvanceTo(buffer.Start, buffer.End);
+            if (result.IsCompleted)
+            {
+                CompleteCore();
+                throw new InvalidOperationException("PipeReader is completed");
+            }
+
+            if (result.IsCanceled)
+            {
+                throw new OperationCanceledException("ReadAsync.Result is canceled");
+            }
+        }
+    }
+
+    public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
+        CancellationToken cancellationToken = default)
+    {
+        if (_positionState.HasValue)
+        {
+            _pipeReader.AdvanceTo(
+                _positionState.Value.Consumed,
+                _positionState.Value.Examined);
+            _positionState = null;
+        }
+
+        ThrowIfDisposed();
+        return ReadPacketsAsyncCore(cancellationToken);
+    }
+
+    private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore(
+        [EnumeratorCancellation] CancellationToken cancellationToken)
+    {
+        MemoryOwner<byte> decompressedBuffer = default;
+        try
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            while (true)
+            {
+                var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+
+                
+
+                var buffer = result.Buffer;
+                try
+                {
+                    
+                    while (TryReadPacket(
+                               ref buffer,
+                               out var packet))
+                    {
+                        yield return CreatePacket(packet, ref decompressedBuffer);
+                        if (this.CompressionThreshold > -1)
+                        {
+                            //Debugger.Break();
+                        }
+                    }
+
+
+                    if (result.IsCompleted)
+                    {
+                        CompleteCore();
+                        break;
+                    }
+
+                    if (result.IsCanceled)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        break;
+                    }
+                }
+                finally
+                {
+                    _pipeReader.AdvanceTo(buffer.Start, buffer.End);
+                }
+            }
+        }
+        finally
+        {
+            _sourceCore.Reset();
+            decompressedBuffer.Dispose();
+        }
     }
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool TryReadPacket(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> packet)
+    private static bool TryReadPacket(
+        ref ReadOnlySequence<byte> buffer,
+        out ReadOnlySequence<byte> packet)
     {
-        scoped SequenceReader<byte> reader = new(buffer);
-
-
         packet = ReadOnlySequence<byte>.Empty;
 
-        if (buffer.Length < 1) return false; // Недостаточно данных для чтения заголовка пакета
+        if (buffer.IsEmpty)
+            return false; // Not enough data to read packet header
 
-        int length;
-        if (!reader.TryReadVarInt(out length, out _)) return false; // Невозможно прочитать длину заголовка
-
-
-        if (length > reader.Remaining) return false; // Недостаточно данных для чтения полного пакета
+        if (!buffer.TryReadVarInt(out var length, out var headerLen))
+            return false; // Unable to read packet length
 
 
-        packet = reader.UnreadSequence.Slice(0, length);
+        if ((long)length + headerLen > buffer.Length)
+            return false;
 
-        reader.Advance(length);
+        SequencePosition packetStart = buffer.GetPosition(headerLen);
+        SequencePosition packetEnd = buffer.GetPosition(length, packetStart);
 
-
-        buffer = buffer.Slice(reader.Position);
-
+        packet = buffer.Slice(packetStart, packetEnd);
+        buffer = buffer.Slice(packetEnd);
         return true;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private InputPacket Decompress(in ReadOnlySequence<byte> data)
+    private NewInputPacket CreatePacket(
+        ReadOnlySequence<byte> data,
+        ref MemoryOwner<byte> decompressedBuffer)
     {
-        if (CompressionThreshold == -1)
+        bool isSingle1 = data.IsSingleSegment;
+        if (CompressionThreshold < 0)
         {
-            throw new NotImplementedException();
-            //return new InputPacket(data);
+            if (data.TryReadVarInt(out var id, out int idLen))
+            {
+                data = data.Slice(idLen);
+                _sourceCore.Reset();
+                _sourceCore.Id = id;
+                _sourceCore.Data = data;
+                return new NewInputPacket(_sourceCore, _sourceCore.Version);
+            }
+
+            throw new InvalidOperationException("Unable to read packet ID");
         }
 
-        data.TryReadVarInt(out var sizeUncompressed, out var len);
-
-        if (sizeUncompressed == 0)
+        var isSingle2 = data.IsSingleSegment;
+        if (data.TryReadVarInt(out var sizeUncompressed, out var len))
         {
-            throw new NotImplementedException();
-            //return new InputPacket(data.Slice(1));
+            data = data.Slice(len);
+            if (sizeUncompressed == 0)
+            {
+                if (data.TryReadVarInt(out var id, out int idLen))
+                {
+                    data = data.Slice(idLen);
+                    _sourceCore.Reset();
+                    _sourceCore.Id = id;
+                    _sourceCore.Data = data;
+                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                }
+
+                throw new InvalidOperationException("Unable to read packet ID");
+            }
+
+
+            if (!decompressedBuffer.TryResize(sizeUncompressed))
+            {
+                decompressedBuffer.Dispose();
+                decompressedBuffer =
+                    new(ArrayPool<byte>.Shared, sizeUncompressed);
+            }
+
+            try
+            {
+                var test = data.Decompress(sizeUncompressed);
+                
+                data.Decompress(ref decompressedBuffer);
+                data = new ReadOnlySequence<byte>(decompressedBuffer.Memory);
+
+                if (data.TryReadVarInt(out var id, out int idLen))
+                {
+                    data = data.Slice(idLen);
+                    _sourceCore.Reset();
+                    _sourceCore.Id = id;
+                    _sourceCore.Data = data;
+
+                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                }
+
+                throw new InvalidOperationException("Unable to read packet ID");
+            }
+            catch
+            {
+                decompressedBuffer.Dispose();
+                throw;
+            }
         }
 
+        throw new InvalidOperationException("Unable to read uncompressed size");
+    }
 
-        return new InputPacket(data.Slice(len).Decompress(sizeUncompressed));
+
+    private void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_state == Disposed, this.GetType());
+    }
+
+
+    private sealed class NullOwner : IMemoryOwner<byte>
+    {
+        public void Dispose()
+        {
+        }
+
+        public Memory<byte> Memory => Memory<byte>.Empty;
+    }
+
+    private struct PositionState
+    {
+        public SequencePosition Consumed;
+        public SequencePosition Examined;
     }
 }

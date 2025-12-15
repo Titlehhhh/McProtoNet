@@ -12,6 +12,7 @@ public static class Utf8ValueStringBuilderExtensions
             builder.Write(value.FirstSpan);
         else
             WriteSlow(ref builder, in value);
+        return;
 
         [MethodImpl(MethodImplOptions.NoInlining)]
         static void WriteSlow(ref Utf8ValueStringBuilder builder, in ReadOnlySequence<byte> value)
@@ -45,9 +46,9 @@ public static class Utf8ValueStringBuilderExtensions
         while (true)
         {
             var writeSize = Math.Min(destination.Length, input.Length);
-            input.Slice(0, writeSize).CopyTo(destination);
+            input[..writeSize].CopyTo(destination);
             builder.Advance(writeSize);
-            input = input.Slice(writeSize);
+            input = input[writeSize..];
             if (input.Length > 0)
             {
                 destination = builder.GetSpan(0);

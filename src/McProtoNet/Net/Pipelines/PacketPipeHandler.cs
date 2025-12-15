@@ -37,7 +37,7 @@ internal sealed class PacketPipeHandler : Disposable
     {
         try
         {
-            await writer.SendPacketAsync(data, cancellationToken);
+            //await writer.SendPacketAsync(data, cancellationToken);
         }
         catch (OperationCanceledException)
         {
@@ -51,19 +51,19 @@ internal sealed class PacketPipeHandler : Disposable
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            await foreach (var packet in reader.ReadPacketsAsync(cancellationToken))
-                PacketReceived?.Invoke(this, packet);
-        }
-        catch (Exception ex)
-        {
-            duplexPipe.Output.CancelPendingFlush();
-        }
-        finally
-        {
-            await duplexPipe.Output.CompleteAsync();
-        }
+        // try
+        // {
+        //     await foreach (var packet in reader.ReadPacketsAsync(cancellationToken))
+        //         PacketReceived?.Invoke(this, packet);
+        // }
+        // catch (Exception ex)
+        // {
+        //     duplexPipe.Output.CancelPendingFlush();
+        // }
+        // finally
+        // {
+        //     await duplexPipe.Output.CompleteAsync();
+        // }
     }
 
 

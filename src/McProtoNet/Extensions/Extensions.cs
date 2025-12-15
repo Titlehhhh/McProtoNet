@@ -13,7 +13,7 @@ public static class Extensions
     {
         try
         {
-            await sender.SendPacketAsync(packet, token);
+            await sender.SendPacketAsync(packet.Memory, token);
         }
         finally
         {

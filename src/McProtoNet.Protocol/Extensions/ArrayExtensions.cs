@@ -1,9 +1,13 @@
 ﻿using McProtoNet.NBT;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol;
+namespace McProtoNet.Protocol.Extensions;
 
-public static class Extensions
+public struct VarInt;
+public struct VarLong;
+
+
+public static class TypeExtensions
 {
     public static NbtTag? ReadNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {

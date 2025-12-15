@@ -127,7 +127,8 @@ public class AsyncCipherStream : Stream
         var numRead = 0;
         do
         {
-            var count = await stream.ReadAsync(block, numRead, block.Length - numRead, cancellation);
+            var count = await stream
+                .ReadAsync(block.AsMemory(numRead, block.Length - numRead), cancellation).ConfigureAwait(false);
             if (count <= 0)
             {
                 //throw new EndOfStreamException();

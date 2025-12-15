@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>       
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>       
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>preview</LangVersion>        
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
     <PropertyGroup>
-        <Description>High-performance library for working with the minecraft protocol</Description>
-        
+        <Description>High-performance library for working with the minecraft protocol</Description>        
     </PropertyGroup>
+    
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
@@ -29,6 +29,8 @@
         <PackageReference Include="DotNext.IO"/>
         <PackageReference Include="Tomat.LibDeflate.Native"/>
     </ItemGroup>
+
+
 
 
 </Project>

@@ -37,13 +37,12 @@ public class ReadPacketBenchmarks
         MemoryStream ms = new MemoryStream();
         _mainStream = ms;
         Random r = new Random(73);
-        var writer = new MinecraftPacketSender();
+        await using var writer = new MinecraftPacketSender(ms, leaveOpen: true);
 
-        writer.SwitchCompression(CompressionThreshold);
+        writer.CompressionThreshold = CompressionThreshold;
 
         var allocator = ArrayPool<byte>.Shared.ToAllocator();
 
-        writer.BaseStream = ms;
 
         for (int i = 0; i < PacketsCount; i++)
         {
@@ -65,19 +64,12 @@ public class ReadPacketBenchmarks
     [Benchmark]
     public async Task ReadPacketsStreaming()
     {
-        var reader = new MinecraftPacketReader();
-        reader.SwitchCompression(CompressionThreshold);
-        reader.BaseStream = _mainStream;
+        await using var reader = new MinecraftPacketReader(_mainStream);
+        reader.CompressionThreshold = CompressionThreshold;
+
         for (int i = 0; i < PacketsCount; i++)
         {
-            InputPacket packet = await reader.ReadNextPacketAsync();
-            try
-            {
-            }
-            finally
-            {
-                packet.Dispose();
-            }
+            _ = await reader.ReadPacketAsync();
         }
     }
 
@@ -85,12 +77,13 @@ public class ReadPacketBenchmarks
     [Benchmark]
     public async Task ReadPacketsWithPipeLines()
     {
-        var reader = new MinecraftPacketPipeReader(PipeReader.Create(_mainStream));
-        reader.CompressionThreshold = CompressionThreshold;
+        var reader = new MinecraftPacketPipeReader(PipeReader.Create(_mainStream))
+        {
+            CompressionThreshold = CompressionThreshold
+        };
         int count = 0;
         await foreach (var packet in reader.ReadPacketsAsync())
         {
-            packet.Dispose();
             count++;
             if (count == PacketsCount)
                 break;

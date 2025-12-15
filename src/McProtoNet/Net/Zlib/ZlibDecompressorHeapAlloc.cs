@@ -39,7 +39,7 @@ public class ZlibDecompressorHeapAlloc : IDisposable
             Decompression.libdeflate_result.LIBDEFLATE_INSUFFICIENT_SPACE => OperationStatus.DestinationTooSmall,
         };
 #pragma warning restore CS8524 // The switch expression does not handle some values of its input type (it is not exhaustive) involving an unnamed enum value.
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    
     private OperationStatus DecompressCore(ReadOnlySpan<byte> input, Span<byte> output, out nuint bytesWritten)
     {
         return StatusFromResult(Decompression.libdeflate_zlib_decompress(decompressor,
@@ -47,7 +47,6 @@ public class ZlibDecompressorHeapAlloc : IDisposable
             (nuint)input.Length, ref MemoryMarshal.GetReference(output), (nuint)output.Length, out bytesWritten));
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public OperationStatus Decompress(ReadOnlySpan<byte> input, Span<byte> output, out int bytesWritten)
     {
         DisposedGuard();

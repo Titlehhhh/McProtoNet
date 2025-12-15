@@ -1,7 +1,9 @@
 ﻿using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
+using Org.BouncyCastle.Crypto.IO;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace McProtoNet.Cryptography;
 
@@ -78,6 +80,7 @@ public sealed class AesStream : Stream
     {
         if (EncryptionEnabled) throw new InvalidOperationException("Шифрование уже включено");
 
+        
 
         EncryptCipher =
             new BufferedBlockCipher(

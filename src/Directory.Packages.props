@@ -1,76 +1,74 @@
 <Project>
-    <PropertyGroup>
-        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-        <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
-    </PropertyGroup>
-    <PropertyGroup>
-        <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
-        <PackageTags>minecraft;protocol;high-performance</PackageTags>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://titlehhhh.github.io/McProtoNet</PackageProjectUrl>
-        <PackageIcon>icon.png</PackageIcon>        
-        <PackageReadmeFile>Readme.md</PackageReadmeFile>
-        <RepositoryType>git</RepositoryType>
-        <Authors>Titlehhhh</Authors>
-        <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString(`yyyy`)) &#169; Titlehhhh</Copyright>
-    </PropertyGroup>
-
-    <PropertyGroup>
-        <MinVerTagPrefix>v</MinVerTagPrefix>
-    </PropertyGroup>
-    <ItemGroup>                
-        <None Include="Readme.md" Pack="true" PackagePath=""/>
-    </ItemGroup>
-    <ItemGroup Label="PackageIcon">
-        <None Include="$(MSBuildThisFileDirectory)/assets/icon.png" Pack="true" Visible="false" PackagePath=""/>
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="DotNet.ReproducibleBuilds">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="MinVer">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-    
-    <PropertyGroup>
-        <EnableSourceLink>true</EnableSourceLink>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub">
-            <PrivateAssets>all</PrivateAssets>
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-    
-    <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <DotNextVersion>5.19.1</DotNextVersion>
-    </PropertyGroup>
-    <PropertyGroup>
-        <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageVersion Include="DotNext.IO" Version="$(DotNextVersion)"/>
-        <PackageVersion Include="DotNext.Threading" Version="$(DotNextVersion)"/>
-        <PackageVersion Include="DotNext" Version="$(DotNextVersion)"/>
-
-        <PackageVersion Include="MinVer" Version="6.0.0"/>
-
-        <PackageVersion Include="QuickProxyNet" Version="2.0.0"/>
-        <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2"/>
-        <PackageVersion Include="BouncyCastle.Cryptography" Version="2.5.1"/>
-        <PackageVersion Include="System.Reactive" Version="6.0.1"/>
-        <PackageVersion Include="DnsClient" Version="1.8.0"/>
-        <PackageVersion Include="Newtonsoft.Json" Version="13.0.3"/>
-        <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1"/>
-        <PackageVersion Include="System.IO.Pipelines" Version="9.0.2"/>
-        <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
-
-        <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.25"/>
-    </ItemGroup>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <PropertyGroup>
+    <RepositoryUrl>https://github.com/Titlehhhh/McProtoNet</RepositoryUrl>
+    <PackageTags>minecraft;protocol;high-performance</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://titlehhhh.github.io/McProtoNet</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageReadmeFile>Readme.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <Authors>Titlehhhh</Authors>
+    <Copyright>Copyright 2022-$([System.DateTime]::Now.ToString(`yyyy`)) © Titlehhhh</Copyright>
+  </PropertyGroup>
+  <PropertyGroup>
+    <MinVerTagPrefix>v</MinVerTagPrefix>
+  </PropertyGroup>
+  <PropertyGroup>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Readme.md" Pack="true" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup Label="PackageIcon">
+    <None Include="$(MSBuildThisFileDirectory)/assets/icon.png" Pack="true" Visible="false" PackagePath="" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="DotNet.ReproducibleBuilds">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MinVer">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <EnableSourceLink>true</EnableSourceLink>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DotNextVersion>5.26.1</DotNextVersion>
+  </PropertyGroup>
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageVersion Include="DotNext.IO" Version="$(DotNextVersion)" />
+    <PackageVersion Include="DotNext.Threading" Version="$(DotNextVersion)" />
+    <PackageVersion Include="DotNext" Version="$(DotNextVersion)" />
+    <PackageVersion Include="MinVer" Version="6.0.0" />
+    <PackageVersion Include="QuickProxyNet" Version="2.0.0" />
+    <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2" />
+    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageVersion Include="System.Reactive" Version="6.0.1" />
+    <PackageVersion Include="DnsClient" Version="1.8.0" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1" />
+    <PackageVersion Include="System.IO.Pipelines" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.39" />
+  </ItemGroup>
 </Project>

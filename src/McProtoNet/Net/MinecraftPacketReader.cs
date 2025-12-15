@@ -1,7 +1,6 @@
 ﻿using System.Buffers;
-using System.Runtime.CompilerServices;
-using DotNext.Buffers;
-using McProtoNet.Abstractions;
+using System.Threading.Tasks.Sources;
+using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 
@@ -10,19 +9,56 @@ namespace McProtoNet.Net;
 /// <summary>
 /// Reads Minecraft protocol packets from a stream, handling compression if enabled
 /// </summary>
-public sealed class MinecraftPacketReader
+public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
 {
-    private static readonly MemoryAllocator<byte> memoryAllocator = ArrayPool<byte>.Shared.ToAllocator();
+    private readonly Stream _stream;
+    private readonly ArrayPool<byte> _pool;
+    private readonly bool _leaveOpen;
+    private readonly byte[] _varIntBuff = new byte[1];
+
+    private volatile byte[]? _bytes;
+
+    private volatile int _compressionThreshold = -1;
+
+    private volatile int _readState = NotRead;
+    private volatile int _state;
+
+    private readonly PacketSourceCore _sourceCore = new();
+
+    private const int NotRead = 0;
+    private const int Reading = 1;
+
+    private const int Normal = 0;
+    private const int Disposed = 1;
+
+
+    public MinecraftPacketReader(Stream stream, bool leaveOpen = false) :
+        this(stream, ArrayPool<byte>.Shared, leaveOpen)
+    {
+    }
+
+    public MinecraftPacketReader(Stream stream, ArrayPool<byte> pool, bool leaveOpen = false)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(pool);
+        _stream = stream;
+        _pool = pool;
+        _leaveOpen = leaveOpen;
+    }
+
 
     /// <summary>
-    /// The compression threshold in bytes. Values less than 0 indicate compression is disabled.
+    /// Gets the underlying stream to read packets from
     /// </summary>
-    private int _compressionThreshold = -1;
+    public Stream BaseStream
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _stream;
+        }
+    }
 
-    /// <summary>
-    /// Gets or sets the underlying stream to read packets from
-    /// </summary>
-    public Stream BaseStream { get; set; }
 
     /// <summary>
     /// Reads the next packet from the stream asynchronously
@@ -30,80 +66,69 @@ public sealed class MinecraftPacketReader
     /// <param name="token">Cancellation token to cancel the operation</param>
     /// <returns>The read packet data</returns>
     /// <exception cref="Exception">Thrown when decompression fails or packet size is invalid</exception>
-    [MethodImpl(MethodImplOptions.AggressiveOptimization)]
-    public async ValueTask<InputPacket> ReadNextPacketAsync(CancellationToken token = default)
+    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
     {
-        var len = await BaseStream.ReadVarIntAsync(token);
-        if (_compressionThreshold < 0)
+        token.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
         {
-            var buffer = memoryAllocator.AllocateExactly(len);
+            throw new InvalidOperationException("Concurrent packet reading is not allowed.");
+        }
+
+        ReturnBufferToPool();
+
+        var len = await BaseStream.ReadVarIntAsync(_varIntBuff, token)
+            .ConfigureAwait(false);
+
+        var buffer = _pool.Rent(len);
+
+        Memory<byte> memory = buffer.AsMemory(0, len);
+        try
+        {
+            await BaseStream.ReadExactlyAsync(memory, token)
+                .ConfigureAwait(false);
+
+            if (_compressionThreshold < 0)
+            {
+                return CreatePacket(buffer, memory);
+            }
+
+            var sizeUncompressed = memory.Span.ReadVarInt(out var offsetSizeUncompressed);
+
+            if (sizeUncompressed <= 0)
+            {
+                return CreatePacket(buffer, memory[offsetSizeUncompressed..]);
+            }
+
+
+            var decompressed = _pool.Rent(sizeUncompressed);
             try
             {
-                await BaseStream.ReadExactlyAsync(buffer.Memory, token);
-                return new InputPacket(buffer);
+                var decMem = decompressed.AsMemory(0, sizeUncompressed);
+                DecompressCore(memory.Span[offsetSizeUncompressed..],
+                    decMem.Span);
+
+                _pool.Return(buffer);
+                return CreatePacket(decompressed, decMem);
             }
             catch
             {
-                buffer.Dispose();
+                _pool.Return(decompressed);
                 throw;
             }
         }
-
-        var sizeUncompressed = await BaseStream.ReadVarIntAsync(token);
-        if (sizeUncompressed > 0)
+        catch
         {
-            if (sizeUncompressed < _compressionThreshold)
-                throw new Exception(
-                    $"Длина sizeUncompressed меньше порога сжатия. sizeUncompressed: {sizeUncompressed} Порог: {_compressionThreshold}");
-            len -= sizeUncompressed.GetVarIntLength();
-
-            var compressedBuffer = memoryAllocator.AllocateExactly(len);
-
-            try
-            {
-                await BaseStream.ReadExactlyAsync(compressedBuffer.Memory, token);
-                var memoryOwner = memoryAllocator.AllocateExactly(sizeUncompressed);
-                try
-                {
-                    DecompressCore(compressedBuffer.Span, memoryOwner.Span);
-                    return new InputPacket(memoryOwner);
-                }
-                catch
-                {
-                    memoryOwner.Dispose();
-                    throw;
-                }
-            }
-            finally
-            {
-                compressedBuffer.Dispose();
-            }
+            _pool.Return(buffer);
+            throw;
         }
-
+        finally
         {
-            if (sizeUncompressed != 0)
-                throw new Exception("size incorrect");
-
-            var buffer = memoryAllocator.AllocateExactly(len - 1); // -1 is sizeUncompressed length !!!
-            try
-            {
-                await BaseStream.ReadExactlyAsync(buffer.Memory, token);
-                return new InputPacket(buffer);
-            }
-            catch
-            {
-                buffer.Dispose();
-                throw;
-            }
+            Interlocked.Exchange(ref _readState, NotRead);
         }
     }
 
-    /// <summary>
-    /// Decompresses data using LibDeflate
-    /// </summary>
-    /// <param name="bufferCompress">The compressed data buffer</param>
-    /// <param name="uncompress">The buffer to store decompressed data</param>
-    /// <exception cref="Exception">Thrown when decompression fails or output size is incorrect</exception>
     private static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
     {
         var decompressor = LibDeflateCache.RentDecompressor();
@@ -112,17 +137,97 @@ public sealed class MinecraftPacketReader
             uncompress, out var written);
 
         if (written != uncompress.Length)
-            throw new Exception("Written not equal uncompress buffer length");
+            throw new InvalidOperationException("Written not equal uncompress buffer length");
 
-        if (status != OperationStatus.Done) throw new Exception("Decompress Error");
+        switch (status)
+        {
+            case OperationStatus.InvalidData:
+                throw new InvalidDataException("Decompress Error: Invalid Data");
+            case OperationStatus.NeedMoreData:
+                throw new InvalidOperationException("Decompress Error: Need more data");
+            case OperationStatus.DestinationTooSmall:
+                throw new InvalidOperationException("Decompress Error: Destination buffer too small");
+            case OperationStatus.Done:
+                break;
+            default:
+                throw new InvalidOperationException($"Decompress Error: {status}");
+        }
+    }
+
+    private void ReturnBufferToPool()
+    {
+        var old = Interlocked.Exchange(ref _bytes, null);
+        if (old is not null)
+        {
+            _sourceCore.Reset();
+            _pool.Return(old);
+        }
+    }
+
+    private NewInputPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
+    {
+        var old = Interlocked.Exchange(ref _bytes, pooledArr);
+        if (old is not null)
+        {
+            _pool.Return(old);
+        }
+
+        var id = readData.Span.ReadVarInt(out var len);
+        var data = new ReadOnlySequence<byte>(readData[len..]);
+
+        _sourceCore.Id = id;
+        _sourceCore.Data = data;
+
+        return new NewInputPacket(_sourceCore, _sourceCore.Version);
     }
 
     /// <summary>
-    /// Enables or disables packet compression with the specified threshold
+    ///     Get the compression threshold for this packet reader.
+    ///     Any packet larger than this threshold will be compressed.
     /// </summary>
-    /// <param name="threshold">The compression threshold in bytes. Values less than 0 disable compression.</param>
-    public void SwitchCompression(int threshold)
+    /// <value>
+    ///     The compression threshold in bytes.
+    /// </value>
+    public int CompressionThreshold
     {
-        _compressionThreshold = threshold;
+        get
+        {
+            ThrowIfDisposed();
+            return _compressionThreshold;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (_readState == Reading)
+            {
+                throw new InvalidOperationException("Cannot set CompressionThreshold while reading a packet");
+            }
+
+            _compressionThreshold = value;
+        }
+    }
+
+    private void ThrowIfDisposed() =>
+        ObjectDisposedException.ThrowIf(_state == Disposed, typeof(MinecraftPacketReader));
+
+
+    public void Dispose()
+    {
+        if (Interlocked.CompareExchange(ref _state, Disposed, Normal) == Disposed)
+        {
+            return;
+        }
+
+        ReturnBufferToPool();
+        if (!_leaveOpen)
+        {
+            _stream.Dispose();
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
     }
 }

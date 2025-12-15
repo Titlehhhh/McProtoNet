@@ -46,9 +46,9 @@ namespace McProtoNet.Abstractions
         public InputPacket(MemoryOwner<byte> owner, int offset = 0)
         {
             this.owner = owner;
-            Memory<byte> mainData = this.owner.Memory.Slice(offset);
+            Memory<byte> mainData = this.owner.Memory[offset..];
             Id = Extensions.ReadVarInt(mainData.Span, out var offsetId);
-            Data = mainData.Slice(offsetId);
+            Data = mainData[offsetId..];
         }
 
         /// <summary>
