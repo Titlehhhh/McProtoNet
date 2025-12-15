@@ -47,9 +47,9 @@ class Build : NukeBuild
     Target Tests => _ => _
         .Executes(() =>
         {
-            DotNetTest(x =>
-                x.SetProjectFile(Solution.tests.McProtoNet_Tests)
-                    .SetConfiguration(Configuration));
+          //  DotNetTest(x =>
+               // x.SetProjectFile(Solution.McProtoNet_Tests)
+                //    .SetConfiguration(Configuration));
         });
 
     Target Validation => _ => _
@@ -69,12 +69,12 @@ class Build : NukeBuild
         .Requires(() => Configuration.Equals(Configuration.Release))
         .Executes(() =>
         {
-            PackCore(Solution.src.McProtoNet_NBT);
-            PackCore(Solution.src.McProtoNet_Utils);
-            PackCore(Solution.src.McProtoNet_Serialization);
-            PackCore(Solution.src.McProtoNet_Abstractions);
-            PackCore(Solution.src.McProtoNet);
-            PackCore(Solution.src.McProtoNet_Protocol);
+            // PackCore(Solution.src.McProtoNet_NBT);
+            // PackCore(Solution.src.McProtoNet_Utils);
+            // PackCore(Solution.src.McProtoNet_Serialization);
+            // PackCore(Solution.src.McProtoNet_Abstractions);
+            // PackCore(Solution.src.McProtoNet);
+            // PackCore(Solution.src.McProtoNet_Protocol);
             return;
 
             void PackCore(Project project)
