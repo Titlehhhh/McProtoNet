@@ -12,6 +12,7 @@ public class PacketFactoryGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        return;
         // 1. Выбираем все синтаксические деревья из проекта
         var classes = context.SyntaxProvider
             .CreateSyntaxProvider(
