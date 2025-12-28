@@ -1,10 +1,6 @@
-﻿namespace McProtoNet.Protocol;
+﻿using McProtoNet.Protocol.Attributes;
 
-[MCVer(1,2)]
-public readonly partial record struct Position(int X, int Y, int Z);
+namespace McProtoNet.Protocol;
 
-//Generated
-public partial record struct Position
-{
-    public static ProtocolRange SupportedVersions = new ProtocolRange(1, 2);
-}
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+public partial record struct Position(int X, int Y, int Z);
