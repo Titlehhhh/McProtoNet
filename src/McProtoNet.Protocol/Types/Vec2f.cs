@@ -2,5 +2,5 @@
 
 namespace McProtoNet.Protocol;
 
-[ProtocolSupport(767, 772)]
+[ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct Vec2f(float X, float Y);
