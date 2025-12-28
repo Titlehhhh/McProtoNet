@@ -1,0 +1,20 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketRemoveResourcePack",
+  "history": {
+    "735-764": null,
+    "765": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": [
+            "option",
+            "UUID"
+          ]
+        }
+      ]
+    ],
+    "766-772": null
+  }
+}

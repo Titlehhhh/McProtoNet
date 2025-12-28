@@ -1,0 +1,16 @@
+{
+  "path": "play.toClient",
+  "name": "PacketClearTitles",
+  "history": {
+    "735-754": null,
+    "755-772": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "path": "play.toServer",
+  "name": "PacketLook",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "MovementFlags"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,93 @@
+{
+  "path": "",
+  "name": "ItemBlockPredicate",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "blockSet",
+          "type": [
+            "option",
+            [
+              "registryEntryHolderSet",
+              {
+                "base": {
+                  "name": "name",
+                  "type": "string"
+                },
+                "otherwise": {
+                  "name": "blockIds",
+                  "type": "varint"
+                }
+              }
+            ]
+          ]
+        },
+        {
+          "name": "properties",
+          "type": [
+            "option",
+            [
+              "array",
+              {
+                "type": "ItemBlockProperty",
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "nbt",
+          "type": "anonOptionalNbt"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "blockSet",
+          "type": [
+            "option",
+            [
+              "registryEntryHolderSet",
+              {
+                "base": {
+                  "name": "name",
+                  "type": "string"
+                },
+                "otherwise": {
+                  "name": "blockIds",
+                  "type": "varint"
+                }
+              }
+            ]
+          ]
+        },
+        {
+          "name": "properties",
+          "type": [
+            "option",
+            [
+              "array",
+              {
+                "type": "ItemBlockProperty",
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "nbt",
+          "type": "anonOptionalNbt"
+        },
+        {
+          "name": "components",
+          "type": "DataComponentMatchers"
+        }
+      ]
+    ]
+  }
+}

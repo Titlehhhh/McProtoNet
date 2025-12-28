@@ -1,0 +1,15 @@
+{
+  "path": "handshaking.toServer",
+  "name": "PacketLegacyServerListPing",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "payload",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUpdateLight",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "varint"
+        },
+        {
+          "name": "chunkZ",
+          "type": "varint"
+        },
+        {
+          "name": "trustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "skyLightMask",
+          "type": "varint"
+        },
+        {
+          "name": "blockLightMask",
+          "type": "varint"
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": "varint"
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": "varint"
+        },
+        {
+          "name": "data",
+          "type": "restBuffer"
+        }
+      ]
+    ],
+    "755-762": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "varint"
+        },
+        {
+          "name": "chunkZ",
+          "type": "varint"
+        },
+        {
+          "name": "trustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "763-772": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "varint"
+        },
+        {
+          "name": "chunkZ",
+          "type": "varint"
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

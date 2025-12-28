@@ -1,0 +1,26 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDebugSample",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "sample",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

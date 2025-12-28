@@ -1,0 +1,37 @@
+{
+  "path": "play.toClient",
+  "name": "PacketStatistics",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "categoryId",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "statisticId",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "value",
+                    "type": "varint"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

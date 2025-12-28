@@ -1,0 +1,139 @@
+{
+  "path": "",
+  "name": "Slot",
+  "history": {
+    "735-765": null,
+    "766": [
+      "container",
+      [
+        {
+          "name": "itemCount",
+          "type": "i8"
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "itemCount",
+              "fields": {
+                "0": "void"
+              },
+              "default": [
+                "container",
+                [
+                  {
+                    "name": "itemId",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "addedComponentCount",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "removedComponentCount",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "components",
+                    "type": [
+                      "array",
+                      {
+                        "type": "SlotComponent",
+                        "count": "addedComponentCount"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "removeComponents",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "type",
+                              "type": "SlotComponentType"
+                            }
+                          ]
+                        ],
+                        "count": "removedComponentCount"
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "itemCount",
+          "type": "varint"
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "itemCount",
+              "fields": {
+                "0": "void"
+              },
+              "default": [
+                "container",
+                [
+                  {
+                    "name": "itemId",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "addedComponentCount",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "removedComponentCount",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "components",
+                    "type": [
+                      "array",
+                      {
+                        "type": "SlotComponent",
+                        "count": "addedComponentCount"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "removeComponents",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "type",
+                              "type": "SlotComponentType"
+                            }
+                          ]
+                        ],
+                        "count": "removedComponentCount"
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

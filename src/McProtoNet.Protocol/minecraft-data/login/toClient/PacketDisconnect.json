@@ -1,0 +1,15 @@
+{
+  "path": "login.toClient",
+  "name": "PacketDisconnect",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

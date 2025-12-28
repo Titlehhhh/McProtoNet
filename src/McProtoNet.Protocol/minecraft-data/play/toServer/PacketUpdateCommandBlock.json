@@ -1,0 +1,27 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUpdateCommandBlock",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "flags",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

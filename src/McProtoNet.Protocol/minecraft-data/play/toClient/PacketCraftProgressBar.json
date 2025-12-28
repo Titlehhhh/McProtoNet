@@ -1,0 +1,40 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCraftProgressBar",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "property",
+          "type": "i16"
+        },
+        {
+          "name": "value",
+          "type": "i16"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "property",
+          "type": "i16"
+        },
+        {
+          "name": "value",
+          "type": "i16"
+        }
+      ]
+    ]
+  }
+}

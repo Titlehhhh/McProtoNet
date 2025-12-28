@@ -1,0 +1,66 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityEquipment",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "equipments",
+          "type": [
+            "topBitSetTerminatedArray",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "slot",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "item",
+                    "type": "slot"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "equipments",
+          "type": [
+            "topBitSetTerminatedArray",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "slot",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "item",
+                    "type": "Slot"
+                  }
+                ]
+              ]
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

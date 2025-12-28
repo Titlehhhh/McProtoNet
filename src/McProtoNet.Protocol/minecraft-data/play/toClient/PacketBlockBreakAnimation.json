@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketBlockBreakAnimation",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "destroyStage",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

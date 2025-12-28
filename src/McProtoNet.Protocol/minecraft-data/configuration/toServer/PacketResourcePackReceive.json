@@ -1,0 +1,29 @@
+{
+  "path": "configuration.toServer",
+  "name": "PacketResourcePackReceive",
+  "history": {
+    "735-763": null,
+    "764": [
+      "container",
+      [
+        {
+          "name": "result",
+          "type": "varint"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "result",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

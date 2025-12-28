@@ -1,0 +1,40 @@
+{
+  "path": "play.toClient",
+  "name": "PacketOpenHorseWindow",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "nbSlots",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "i32"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "nbSlots",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "i32"
+        }
+      ]
+    ]
+  }
+}

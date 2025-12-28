@@ -1,0 +1,15 @@
+{
+  "path": "play.toClient",
+  "name": "PacketOpenBook",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

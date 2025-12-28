@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketBlockChange",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

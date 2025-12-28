@@ -1,0 +1,18 @@
+{
+  "path": "play.toClient",
+  "name": "ChatTypeParameterType",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "mapper",
+      {
+        "type": "varint",
+        "mappings": {
+          "0": "content",
+          "1": "sender",
+          "2": "target"
+        }
+      }
+    ]
+  }
+}

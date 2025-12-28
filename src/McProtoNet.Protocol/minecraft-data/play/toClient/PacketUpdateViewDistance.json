@@ -1,0 +1,15 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUpdateViewDistance",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

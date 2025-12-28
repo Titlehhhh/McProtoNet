@@ -1,0 +1,337 @@
+{
+  "path": "",
+  "name": "EntityMetadataEntry",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "key",
+          "type": "u8"
+        },
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "byte",
+                "1": "int",
+                "2": "long",
+                "3": "float",
+                "4": "string",
+                "5": "component",
+                "6": "optional_component",
+                "7": "item_stack",
+                "8": "boolean",
+                "9": "rotations",
+                "10": "block_pos",
+                "11": "optional_block_pos",
+                "12": "direction",
+                "13": "optional_uuid",
+                "14": "block_state",
+                "15": "optional_block_state",
+                "16": "compound_tag",
+                "17": "particle",
+                "18": "particles",
+                "19": "villager_data",
+                "20": "optional_unsigned_int",
+                "21": "pose",
+                "22": "cat_variant",
+                "23": "wolf_variant",
+                "24": "frog_variant",
+                "25": "optional_global_pos",
+                "26": "painting_variant",
+                "27": "sniffer_state",
+                "28": "armadillo_state",
+                "29": "vector3",
+                "30": "quaternion"
+              }
+            }
+          ]
+        },
+        {
+          "name": "value",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "byte": "i8",
+                "int": "varint",
+                "long": "varlong",
+                "float": "f32",
+                "string": "string",
+                "component": "anonymousNbt",
+                "optional_component": [
+                  "option",
+                  "anonymousNbt"
+                ],
+                "item_stack": "Slot",
+                "boolean": "bool",
+                "rotations": [
+                  "container",
+                  [
+                    {
+                      "name": "pitch",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "yaw",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "roll",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "block_pos": "position",
+                "optional_block_pos": [
+                  "option",
+                  "position"
+                ],
+                "direction": "varint",
+                "optional_uuid": [
+                  "option",
+                  "UUID"
+                ],
+                "block_state": "varint",
+                "optional_block_state": "optvarint",
+                "compound_tag": "anonymousNbt",
+                "particle": "Particle",
+                "particles": [
+                  "array",
+                  {
+                    "type": "Particle",
+                    "countType": "varint"
+                  }
+                ],
+                "villager_data": [
+                  "container",
+                  [
+                    {
+                      "name": "villagerType",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "villagerProfession",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "level",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "optional_unsigned_int": "optvarint",
+                "pose": "varint",
+                "cat_variant": "varint",
+                "wolf_variant": [
+                  "registryEntryHolder",
+                  {
+                    "baseName": "variantId",
+                    "otherwise": {
+                      "name": "variantData",
+                      "type": "EntityMetadataWolfVariant"
+                    }
+                  }
+                ],
+                "frog_variant": "varint",
+                "optional_global_pos": [
+                  "option",
+                  "string"
+                ],
+                "painting_variant": [
+                  "registryEntryHolder",
+                  {
+                    "baseName": "variantId",
+                    "otherwise": {
+                      "name": "variantData",
+                      "type": "EntityMetadataPaintingVariant"
+                    }
+                  }
+                ],
+                "sniffer_state": "varint",
+                "armadillo_state": "varint",
+                "vector3": "vec3f",
+                "quaternion": "vec4f"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "key",
+          "type": "u8"
+        },
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "byte",
+                "1": "int",
+                "2": "long",
+                "3": "float",
+                "4": "string",
+                "5": "component",
+                "6": "optional_component",
+                "7": "item_stack",
+                "8": "boolean",
+                "9": "rotations",
+                "10": "block_pos",
+                "11": "optional_block_pos",
+                "12": "direction",
+                "13": "optional_uuid",
+                "14": "block_state",
+                "15": "optional_block_state",
+                "16": "compound_tag",
+                "17": "particle",
+                "18": "particles",
+                "19": "villager_data",
+                "20": "optional_unsigned_int",
+                "21": "pose",
+                "22": "cat_variant",
+                "23": "cow_variant",
+                "24": "wolf_variant",
+                "25": "wolf_sound_variant",
+                "26": "frog_variant",
+                "27": "pig_variant",
+                "28": "chicken_variant",
+                "29": "optional_global_pos",
+                "30": "painting_variant",
+                "31": "sniffer_state",
+                "32": "armadillo_state",
+                "33": "vector3",
+                "34": "quaternion"
+              }
+            }
+          ]
+        },
+        {
+          "name": "value",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "byte": "i8",
+                "int": "varint",
+                "long": "varlong",
+                "float": "f32",
+                "string": "string",
+                "component": "anonymousNbt",
+                "optional_component": [
+                  "option",
+                  "anonymousNbt"
+                ],
+                "item_stack": "Slot",
+                "boolean": "bool",
+                "rotations": [
+                  "container",
+                  [
+                    {
+                      "name": "pitch",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "yaw",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "roll",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "block_pos": "position",
+                "optional_block_pos": [
+                  "option",
+                  "position"
+                ],
+                "direction": "varint",
+                "optional_uuid": [
+                  "option",
+                  "UUID"
+                ],
+                "block_state": "varint",
+                "optional_block_state": "optvarint",
+                "compound_tag": "anonymousNbt",
+                "particle": "Particle",
+                "particles": [
+                  "array",
+                  {
+                    "type": "Particle",
+                    "countType": "varint"
+                  }
+                ],
+                "villager_data": [
+                  "container",
+                  [
+                    {
+                      "name": "villagerType",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "villagerProfession",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "level",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "optional_unsigned_int": "optvarint",
+                "pose": "varint",
+                "cat_variant": "varint",
+                "cow_variant": "varint",
+                "wolf_variant": "varint",
+                "wolf_sound_variant": "varint",
+                "frog_variant": "varint",
+                "pig_variant": "varint",
+                "chicken_variant": [
+                  "registryEntryHolder",
+                  {
+                    "baseName": "variantId",
+                    "otherwise": {
+                      "name": "variantData",
+                      "type": "string"
+                    }
+                  }
+                ],
+                "optional_global_pos": [
+                  "option",
+                  "string"
+                ],
+                "painting_variant": [
+                  "registryEntryHolder",
+                  {
+                    "baseName": "variantId",
+                    "otherwise": {
+                      "name": "variantData",
+                      "type": "EntityMetadataPaintingVariant"
+                    }
+                  }
+                ],
+                "sniffer_state": "varint",
+                "armadillo_state": "varint",
+                "vector3": "vec3f",
+                "quaternion": "vec4f"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

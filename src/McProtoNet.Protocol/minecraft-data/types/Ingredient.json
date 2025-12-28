@@ -1,0 +1,20 @@
+{
+  "path": "",
+  "name": "Ingredient",
+  "history": {
+    "735-765": [
+      "array",
+      {
+        "type": "slot",
+        "countType": "varint"
+      }
+    ],
+    "766-772": [
+      "array",
+      {
+        "type": "Slot",
+        "countType": "varint"
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetCooldown",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "itemID",
+          "type": "varint"
+        },
+        {
+          "name": "cooldownTicks",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "cooldownGroup",
+          "type": "string"
+        },
+        {
+          "name": "cooldownTicks",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

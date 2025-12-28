@@ -1,0 +1,122 @@
+{
+  "path": "play.toServer",
+  "name": "PacketPlayerInput",
+  "history": {
+    "735-767": null,
+    "768": [
+      "container",
+      [
+        {
+          "name": "inputs",
+          "type": [
+            "bitflags",
+            {
+              "type": "u8",
+              "flags": [
+                "forward",
+                "backward",
+                "left",
+                "right",
+                "jump",
+                "shift",
+                "sprint"
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "769": [
+      "container",
+      [
+        {
+          "name": "inputs",
+          "type": [
+            "bitflags",
+            {
+              "type": "u8",
+              "flags": [
+                "forward",
+                "backward",
+                "left",
+                "right",
+                "jump",
+                "shift",
+                "sprint"
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "770": [
+      "container",
+      [
+        {
+          "name": "inputs",
+          "type": [
+            "bitflags",
+            {
+              "type": "u8",
+              "flags": [
+                "forward",
+                "backward",
+                "left",
+                "right",
+                "jump",
+                "shift",
+                "sprint"
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "771": [
+      "container",
+      [
+        {
+          "name": "inputs",
+          "type": [
+            "bitflags",
+            {
+              "type": "u8",
+              "flags": [
+                "forward",
+                "backward",
+                "left",
+                "right",
+                "jump",
+                "shift",
+                "sprint"
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "772": [
+      "container",
+      [
+        {
+          "name": "inputs",
+          "type": [
+            "bitflags",
+            {
+              "type": "u8",
+              "flags": [
+                "forward",
+                "backward",
+                "left",
+                "right",
+                "jump",
+                "shift",
+                "sprint"
+              ]
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

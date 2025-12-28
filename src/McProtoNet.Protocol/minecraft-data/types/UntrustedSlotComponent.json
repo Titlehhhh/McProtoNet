@@ -1,0 +1,20 @@
+{
+  "path": "",
+  "name": "UntrustedSlotComponent",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": "SlotComponentType"
+        },
+        {
+          "name": "data",
+          "type": "ByteArray"
+        }
+      ]
+    ]
+  }
+}

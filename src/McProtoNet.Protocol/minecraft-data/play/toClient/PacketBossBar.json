@@ -1,0 +1,172 @@
+{
+  "path": "play.toClient",
+  "name": "PacketBossBar",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "entityUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "title",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "string",
+                "3": "string"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "health",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "f32",
+                "2": "f32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "color",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "4": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "dividers",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "4": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "flags",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "u8",
+                "5": "u8"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "entityUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "title",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "anonymousNbt",
+                "3": "anonymousNbt"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "health",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "f32",
+                "2": "f32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "color",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "4": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "dividers",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "4": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "flags",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "u8",
+                "5": "u8"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

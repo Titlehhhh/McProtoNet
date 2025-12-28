@@ -1,0 +1,15 @@
+{
+  "path": "login.toClient",
+  "name": "PacketCompress",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "threshold",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

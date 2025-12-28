@@ -1,0 +1,108 @@
+{
+  "path": "play.toClient",
+  "name": "PacketFacePlayer",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "feet_eyes",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "isEntity",
+          "type": "bool"
+        },
+        {
+          "name": "entityId",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isEntity",
+              "fields": {
+                "true": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "entity_feet_eyes",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isEntity",
+              "fields": {
+                "true": "string"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "feet_eyes",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "isEntity",
+          "type": "bool"
+        },
+        {
+          "name": "entityId",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isEntity",
+              "fields": {
+                "true": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "entity_feet_eyes",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isEntity",
+              "fields": {
+                "true": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

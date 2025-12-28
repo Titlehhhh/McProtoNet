@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketFeatureFlags",
+  "history": {
+    "735-760": null,
+    "761-763": [
+      "container",
+      [
+        {
+          "name": "features",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "764-772": null
+  }
+}

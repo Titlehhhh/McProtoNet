@@ -1,0 +1,187 @@
+{
+  "path": "play.toClient",
+  "name": "PacketPosition",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "i8"
+        },
+        {
+          "name": "teleportId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "755-761": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "i8"
+        },
+        {
+          "name": "teleportId",
+          "type": "varint"
+        },
+        {
+          "name": "dismountVehicle",
+          "type": "bool"
+        }
+      ]
+    ],
+    "762-765": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "i8"
+        },
+        {
+          "name": "teleportId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "PositionUpdateRelatives"
+        },
+        {
+          "name": "teleportId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "teleportId",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "dx",
+          "type": "f64"
+        },
+        {
+          "name": "dy",
+          "type": "f64"
+        },
+        {
+          "name": "dz",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "flags",
+          "type": "PositionUpdateRelatives"
+        }
+      ]
+    ]
+  }
+}

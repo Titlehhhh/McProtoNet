@@ -1,0 +1,60 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUpdateSign",
+  "history": {
+    "735-762": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "text1",
+          "type": "string"
+        },
+        {
+          "name": "text2",
+          "type": "string"
+        },
+        {
+          "name": "text3",
+          "type": "string"
+        },
+        {
+          "name": "text4",
+          "type": "string"
+        }
+      ]
+    ],
+    "763-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "isFrontText",
+          "type": "bool"
+        },
+        {
+          "name": "text1",
+          "type": "string"
+        },
+        {
+          "name": "text2",
+          "type": "string"
+        },
+        {
+          "name": "text3",
+          "type": "string"
+        },
+        {
+          "name": "text4",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

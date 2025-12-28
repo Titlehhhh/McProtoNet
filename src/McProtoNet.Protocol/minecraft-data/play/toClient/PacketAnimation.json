@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketAnimation",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "animation",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

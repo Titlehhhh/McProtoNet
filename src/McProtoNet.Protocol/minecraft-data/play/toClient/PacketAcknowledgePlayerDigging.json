@@ -1,0 +1,36 @@
+{
+  "path": "play.toClient",
+  "name": "PacketAcknowledgePlayerDigging",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "block",
+          "type": "varint"
+        },
+        {
+          "name": "status",
+          "type": "varint"
+        },
+        {
+          "name": "successful",
+          "type": "bool"
+        }
+      ]
+    ],
+    "759-772": [
+      "container",
+      [
+        {
+          "name": "sequenceId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "path": "",
+  "name": "ItemPotionEffect",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "id",
+          "type": "varint"
+        },
+        {
+          "name": "details",
+          "type": "ItemEffectDetail"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTileEntityData",
+  "history": {
+    "735-756": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "u8"
+        },
+        {
+          "name": "nbtData",
+          "type": "optionalNbt"
+        }
+      ]
+    ],
+    "757-763": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "nbtData",
+          "type": "optionalNbt"
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "nbtData",
+          "type": "anonOptionalNbt"
+        }
+      ]
+    ]
+  }
+}

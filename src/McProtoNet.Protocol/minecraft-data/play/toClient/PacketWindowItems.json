@@ -1,0 +1,79 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWindowItems",
+  "history": {
+    "735-755": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "items",
+          "type": [
+            "array",
+            {
+              "type": "slot",
+              "countType": "i16"
+            }
+          ]
+        }
+      ]
+    ],
+    "756-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "items",
+          "type": [
+            "array",
+            {
+              "type": "slot",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "carriedItem",
+          "type": "slot"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "items",
+          "type": [
+            "array",
+            {
+              "type": "Slot",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "carriedItem",
+          "type": "Slot"
+        }
+      ]
+    ]
+  }
+}

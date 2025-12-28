@@ -1,0 +1,24 @@
+{
+  "path": "",
+  "name": "Vec3f64",
+  "history": {
+    "735-761": null,
+    "762-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        }
+      ]
+    ]
+  }
+}

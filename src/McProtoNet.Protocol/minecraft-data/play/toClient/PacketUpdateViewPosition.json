@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUpdateViewPosition",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "varint"
+        },
+        {
+          "name": "chunkZ",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

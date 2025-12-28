@@ -1,0 +1,22 @@
+{
+  "path": "login.toServer",
+  "name": "PacketLoginPluginResponse",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "messageId",
+          "type": "varint"
+        },
+        {
+          "name": "data",
+          "type": [
+            "option",
+            "restBuffer"
+          ]
+        }
+      ]
+    ]
+  }
+}

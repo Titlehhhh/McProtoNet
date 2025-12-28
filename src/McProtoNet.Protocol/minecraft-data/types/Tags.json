@@ -1,0 +1,31 @@
+{
+  "path": "",
+  "name": "Tags",
+  "history": {
+    "735-772": [
+      "array",
+      {
+        "type": [
+          "container",
+          [
+            {
+              "name": "tagName",
+              "type": "string"
+            },
+            {
+              "name": "entries",
+              "type": [
+                "array",
+                {
+                  "type": "varint",
+                  "countType": "varint"
+                }
+              ]
+            }
+          ]
+        ],
+        "countType": "varint"
+      }
+    ]
+  }
+}

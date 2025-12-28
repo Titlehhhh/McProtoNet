@@ -1,0 +1,787 @@
+{
+  "path": "play.toClient",
+  "name": "PacketMapChunk",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "groundUp",
+          "type": "bool"
+        },
+        {
+          "name": "ignoreOldData",
+          "type": "bool"
+        },
+        {
+          "name": "bitMap",
+          "type": "varint"
+        },
+        {
+          "name": "heightmaps",
+          "type": "nbt"
+        },
+        {
+          "name": "biomes",
+          "type": [
+            "switch",
+            {
+              "compareTo": "groundUp",
+              "fields": {
+                "false": "void",
+                "true": [
+                  "array",
+                  {
+                    "type": "i32",
+                    "count": 1024
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "nbt",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "751-754": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "groundUp",
+          "type": "bool"
+        },
+        {
+          "name": "bitMap",
+          "type": "varint"
+        },
+        {
+          "name": "heightmaps",
+          "type": "nbt"
+        },
+        {
+          "name": "biomes",
+          "type": [
+            "switch",
+            {
+              "compareTo": "groundUp",
+              "fields": {
+                "false": "void",
+                "true": [
+                  "array",
+                  {
+                    "type": "varint",
+                    "countType": "varint"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "nbt",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-756": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "bitMap",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "heightmaps",
+          "type": "nbt"
+        },
+        {
+          "name": "biomes",
+          "type": [
+            "array",
+            {
+              "type": "varint",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "nbt",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "757-762": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "heightmaps",
+          "type": "nbt"
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "chunkBlockEntity",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "trustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "763": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "heightmaps",
+          "type": "nbt"
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "chunkBlockEntity",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "764-769": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "heightmaps",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "chunkData",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "chunkBlockEntity",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "770": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "heightmaps",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "array",
+                      {
+                        "type": "i64",
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "chunkData",
+          "type": "ByteArray"
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "chunkBlockEntity",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "heightmaps",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "world_surface_wg",
+                          "1": "world_surface",
+                          "2": "ocean_floor_wg",
+                          "3": "ocean_floor",
+                          "4": "motion_blocking",
+                          "5": "motion_blocking_no_leaves"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "array",
+                      {
+                        "type": "i64",
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "chunkData",
+          "type": "ByteArray"
+        },
+        {
+          "name": "blockEntities",
+          "type": [
+            "array",
+            {
+              "type": "chunkBlockEntity",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptySkyLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "emptyBlockLightMask",
+          "type": [
+            "array",
+            {
+              "type": "i64",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "skyLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "blockLight",
+          "type": [
+            "array",
+            {
+              "type": [
+                "array",
+                {
+                  "type": "u8",
+                  "countType": "varint"
+                }
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

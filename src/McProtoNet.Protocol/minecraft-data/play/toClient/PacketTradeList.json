@@ -1,0 +1,494 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTradeList",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "varint"
+        },
+        {
+          "name": "trades",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "inputItem1",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "outputItem",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "inputItem2",
+                    "type": [
+                      "option",
+                      "slot"
+                    ]
+                  },
+                  {
+                    "name": "tradeDisabled",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "nbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "maximumNbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "xp",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "specialPrice",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "priceMultiplier",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "demand",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "u8"
+            }
+          ]
+        },
+        {
+          "name": "villagerLevel",
+          "type": "varint"
+        },
+        {
+          "name": "experience",
+          "type": "varint"
+        },
+        {
+          "name": "isRegularVillager",
+          "type": "bool"
+        },
+        {
+          "name": "canRestock",
+          "type": "bool"
+        }
+      ]
+    ],
+    "759": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "varint"
+        },
+        {
+          "name": "trades",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "inputItem1",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "outputItem",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "inputItem2",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "tradeDisabled",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "nbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "maximumNbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "xp",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "specialPrice",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "priceMultiplier",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "demand",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "u8"
+            }
+          ]
+        },
+        {
+          "name": "villagerLevel",
+          "type": "varint"
+        },
+        {
+          "name": "experience",
+          "type": "varint"
+        },
+        {
+          "name": "isRegularVillager",
+          "type": "bool"
+        },
+        {
+          "name": "canRestock",
+          "type": "bool"
+        }
+      ]
+    ],
+    "760-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "varint"
+        },
+        {
+          "name": "trades",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "inputItem1",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "outputItem",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "inputItem2",
+                    "type": "slot"
+                  },
+                  {
+                    "name": "tradeDisabled",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "nbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "maximumNbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "xp",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "specialPrice",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "priceMultiplier",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "demand",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "villagerLevel",
+          "type": "varint"
+        },
+        {
+          "name": "experience",
+          "type": "varint"
+        },
+        {
+          "name": "isRegularVillager",
+          "type": "bool"
+        },
+        {
+          "name": "canRestock",
+          "type": "bool"
+        }
+      ]
+    ],
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "trades",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "inputItem1",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "itemId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "itemCount",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "addedComponentCount",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "components",
+                          "type": [
+                            "array",
+                            {
+                              "type": "SlotComponent",
+                              "count": "addedComponentCount"
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "outputItem",
+                    "type": "Slot"
+                  },
+                  {
+                    "name": "inputItem2",
+                    "type": [
+                      "option",
+                      [
+                        "container",
+                        [
+                          {
+                            "name": "itemId",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "itemCount",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "addedComponentCount",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "components",
+                            "type": [
+                              "array",
+                              {
+                                "type": "SlotComponent",
+                                "count": "addedComponentCount"
+                              }
+                            ]
+                          }
+                        ]
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "tradeDisabled",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "nbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "maximumNbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "xp",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "specialPrice",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "priceMultiplier",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "demand",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "villagerLevel",
+          "type": "varint"
+        },
+        {
+          "name": "experience",
+          "type": "varint"
+        },
+        {
+          "name": "isRegularVillager",
+          "type": "bool"
+        },
+        {
+          "name": "canRestock",
+          "type": "bool"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "trades",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "inputItem1",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "itemId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "itemCount",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "components",
+                          "type": "ExactComponentMatcher"
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "outputItem",
+                    "type": "Slot"
+                  },
+                  {
+                    "name": "inputItem2",
+                    "type": [
+                      "option",
+                      [
+                        "container",
+                        [
+                          {
+                            "name": "itemId",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "itemCount",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "components",
+                            "type": "ExactComponentMatcher"
+                          }
+                        ]
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "tradeDisabled",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "nbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "maximumNbTradeUses",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "xp",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "specialPrice",
+                    "type": "i32"
+                  },
+                  {
+                    "name": "priceMultiplier",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "demand",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "villagerLevel",
+          "type": "varint"
+        },
+        {
+          "name": "experience",
+          "type": "varint"
+        },
+        {
+          "name": "isRegularVillager",
+          "type": "bool"
+        },
+        {
+          "name": "canRestock",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

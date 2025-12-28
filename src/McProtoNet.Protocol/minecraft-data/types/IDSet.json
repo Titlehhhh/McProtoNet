@@ -1,0 +1,20 @@
+{
+  "path": "",
+  "name": "IDSet",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "registryEntryHolderSet",
+      {
+        "base": {
+          "name": "name",
+          "type": "string"
+        },
+        "otherwise": {
+          "name": "ids",
+          "type": "varint"
+        }
+      }
+    ]
+  }
+}

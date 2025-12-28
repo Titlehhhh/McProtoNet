@@ -1,0 +1,20 @@
+{
+  "path": "play.toClient",
+  "name": "RecipeBookSetting",
+  "history": {
+    "735-770": null,
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "open",
+          "type": "bool"
+        },
+        {
+          "name": "filtering",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

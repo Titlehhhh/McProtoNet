@@ -1,0 +1,77 @@
+{
+  "path": "play.toClient",
+  "name": "PacketNamedSoundEffect",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "soundName",
+          "type": "string"
+        },
+        {
+          "name": "soundCategory",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "y",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        }
+      ]
+    ],
+    "759-760": [
+      "container",
+      [
+        {
+          "name": "soundName",
+          "type": "string"
+        },
+        {
+          "name": "soundCategory",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "i32"
+        },
+        {
+          "name": "y",
+          "type": "i32"
+        },
+        {
+          "name": "z",
+          "type": "i32"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "i64"
+        }
+      ]
+    ],
+    "761-772": null
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "path": "",
+  "name": "PacketCommonAddResourcePack",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "name": "forced",
+          "type": "bool"
+        },
+        {
+          "name": "promptMessage",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ]
+  }
+}

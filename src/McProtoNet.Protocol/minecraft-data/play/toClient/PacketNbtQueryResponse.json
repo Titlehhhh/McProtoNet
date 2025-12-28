@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketNbtQueryResponse",
+  "history": {
+    "735-763": [
+      "container",
+      [
+        {
+          "name": "transactionId",
+          "type": "varint"
+        },
+        {
+          "name": "nbt",
+          "type": "optionalNbt"
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "transactionId",
+          "type": "varint"
+        },
+        {
+          "name": "nbt",
+          "type": "anonOptionalNbt"
+        }
+      ]
+    ]
+  }
+}

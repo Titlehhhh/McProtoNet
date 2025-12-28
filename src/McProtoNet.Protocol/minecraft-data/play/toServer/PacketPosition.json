@@ -1,0 +1,48 @@
+{
+  "path": "play.toServer",
+  "name": "PacketPosition",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "flags",
+          "type": "MovementFlags"
+        }
+      ]
+    ]
+  }
+}

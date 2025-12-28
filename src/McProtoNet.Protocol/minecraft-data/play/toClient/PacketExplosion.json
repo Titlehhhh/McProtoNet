@@ -1,0 +1,322 @@
+{
+  "path": "play.toClient",
+  "name": "PacketExplosion",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f32"
+        },
+        {
+          "name": "y",
+          "type": "f32"
+        },
+        {
+          "name": "z",
+          "type": "f32"
+        },
+        {
+          "name": "radius",
+          "type": "f32"
+        },
+        {
+          "name": "affectedBlockOffsets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "x",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "y",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "z",
+                    "type": "i8"
+                  }
+                ]
+              ],
+              "countType": "i32"
+            }
+          ]
+        },
+        {
+          "name": "playerMotionX",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionY",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionZ",
+          "type": "f32"
+        }
+      ]
+    ],
+    "755-760": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f32"
+        },
+        {
+          "name": "y",
+          "type": "f32"
+        },
+        {
+          "name": "z",
+          "type": "f32"
+        },
+        {
+          "name": "radius",
+          "type": "f32"
+        },
+        {
+          "name": "affectedBlockOffsets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "x",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "y",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "z",
+                    "type": "i8"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "playerMotionX",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionY",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionZ",
+          "type": "f32"
+        }
+      ]
+    ],
+    "761-764": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "radius",
+          "type": "f32"
+        },
+        {
+          "name": "affectedBlockOffsets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "x",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "y",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "z",
+                    "type": "i8"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "playerMotionX",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionY",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionZ",
+          "type": "f32"
+        }
+      ]
+    ],
+    "765-767": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "radius",
+          "type": "f32"
+        },
+        {
+          "name": "affectedBlockOffsets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "x",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "y",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "z",
+                    "type": "i8"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "playerMotionX",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionY",
+          "type": "f32"
+        },
+        {
+          "name": "playerMotionZ",
+          "type": "f32"
+        },
+        {
+          "name": "block_interaction_type",
+          "type": "varint"
+        },
+        {
+          "name": "small_explosion_particle",
+          "type": "Particle"
+        },
+        {
+          "name": "large_explosion_particle",
+          "type": "Particle"
+        },
+        {
+          "name": "sound",
+          "type": "ItemSoundHolder"
+        }
+      ]
+    ],
+    "768": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "playerKnockback",
+          "type": [
+            "option",
+            "vec3f"
+          ]
+        },
+        {
+          "name": "explosionParticle",
+          "type": "Particle"
+        },
+        {
+          "name": "sound",
+          "type": "ItemSoundHolder"
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "playerKnockback",
+          "type": [
+            "option",
+            "vec3f64"
+          ]
+        },
+        {
+          "name": "explosionParticle",
+          "type": "Particle"
+        },
+        {
+          "name": "sound",
+          "type": "ItemSoundHolder"
+        }
+      ]
+    ]
+  }
+}

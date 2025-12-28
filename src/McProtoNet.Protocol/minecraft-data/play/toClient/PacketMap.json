@@ -1,0 +1,361 @@
+{
+  "path": "play.toClient",
+  "name": "PacketMap",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "itemDamage",
+          "type": "varint"
+        },
+        {
+          "name": "scale",
+          "type": "i8"
+        },
+        {
+          "name": "trackingPosition",
+          "type": "bool"
+        },
+        {
+          "name": "locked",
+          "type": "bool"
+        },
+        {
+          "name": "icons",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "varint"
+                  },
+                  {
+                    "name": "x",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "z",
+                    "type": "i8"
+                  },
+                  {
+                    "name": "direction",
+                    "type": "u8"
+                  },
+                  {
+                    "name": "displayName",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "columns",
+          "type": "i8"
+        },
+        {
+          "name": "rows",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "i8"
+            }
+          ]
+        },
+        {
+          "name": "x",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "i8"
+            }
+          ]
+        },
+        {
+          "name": "y",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "i8"
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": [
+                "buffer",
+                {
+                  "countType": "varint"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "755-764": [
+      "container",
+      [
+        {
+          "name": "itemDamage",
+          "type": "varint"
+        },
+        {
+          "name": "scale",
+          "type": "i8"
+        },
+        {
+          "name": "locked",
+          "type": "bool"
+        },
+        {
+          "name": "icons",
+          "type": [
+            "option",
+            [
+              "array",
+              {
+                "type": [
+                  "container",
+                  [
+                    {
+                      "name": "type",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "x",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "z",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "direction",
+                      "type": "u8"
+                    },
+                    {
+                      "name": "displayName",
+                      "type": [
+                        "option",
+                        "string"
+                      ]
+                    }
+                  ]
+                ],
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "columns",
+          "type": "u8"
+        },
+        {
+          "name": "rows",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "x",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "y",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": [
+                "buffer",
+                {
+                  "countType": "varint"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "itemDamage",
+          "type": "varint"
+        },
+        {
+          "name": "scale",
+          "type": "i8"
+        },
+        {
+          "name": "locked",
+          "type": "bool"
+        },
+        {
+          "name": "icons",
+          "type": [
+            "option",
+            [
+              "array",
+              {
+                "type": [
+                  "container",
+                  [
+                    {
+                      "name": "type",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "x",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "z",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "direction",
+                      "type": "u8"
+                    },
+                    {
+                      "name": "displayName",
+                      "type": [
+                        "option",
+                        "anonymousNbt"
+                      ]
+                    }
+                  ]
+                ],
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "columns",
+          "type": "u8"
+        },
+        {
+          "name": "rows",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "x",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "y",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": "u8"
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "columns",
+              "fields": {
+                "0": "void"
+              },
+              "default": [
+                "buffer",
+                {
+                  "countType": "varint"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

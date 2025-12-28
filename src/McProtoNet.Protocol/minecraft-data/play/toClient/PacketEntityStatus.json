@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityStatus",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "entityStatus",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

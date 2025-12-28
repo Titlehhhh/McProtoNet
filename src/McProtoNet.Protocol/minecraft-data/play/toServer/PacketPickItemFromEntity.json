@@ -1,0 +1,20 @@
+{
+  "path": "play.toServer",
+  "name": "PacketPickItemFromEntity",
+  "history": {
+    "735-768": null,
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "includeData",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

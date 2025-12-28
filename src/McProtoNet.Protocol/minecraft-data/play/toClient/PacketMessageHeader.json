@@ -1,0 +1,47 @@
+{
+  "path": "play.toClient",
+  "name": "PacketMessageHeader",
+  "history": {
+    "735-759": null,
+    "760": [
+      "container",
+      [
+        {
+          "name": "previousSignature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "messageHash",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "761-772": null
+  }
+}

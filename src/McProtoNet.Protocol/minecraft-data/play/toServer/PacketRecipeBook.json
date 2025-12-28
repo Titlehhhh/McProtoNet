@@ -1,0 +1,24 @@
+{
+  "path": "play.toServer",
+  "name": "PacketRecipeBook",
+  "history": {
+    "735-736": null,
+    "751-772": [
+      "container",
+      [
+        {
+          "name": "bookId",
+          "type": "varint"
+        },
+        {
+          "name": "bookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filterActive",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSpawnEntityPainting",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "entityUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "title",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "direction",
+          "type": "u8"
+        }
+      ]
+    ],
+    "759-772": null
+  }
+}

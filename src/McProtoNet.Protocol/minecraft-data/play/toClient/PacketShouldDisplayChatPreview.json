@@ -1,0 +1,17 @@
+{
+  "path": "play.toClient",
+  "name": "PacketShouldDisplayChatPreview",
+  "history": {
+    "735-758": null,
+    "759-760": [
+      "container",
+      [
+        {
+          "name": "should_display_chat_preview",
+          "type": "bool"
+        }
+      ]
+    ],
+    "761-772": null
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSetDifficulty",
+  "history": {
+    "735-770": [
+      "container",
+      [
+        {
+          "name": "newDifficulty",
+          "type": "u8"
+        }
+      ]
+    ],
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "newDifficulty",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "peaceful",
+                "1": "easy",
+                "2": "normal",
+                "3": "hard"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

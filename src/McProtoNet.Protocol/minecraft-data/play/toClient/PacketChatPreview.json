@@ -1,0 +1,24 @@
+{
+  "path": "play.toClient",
+  "name": "PacketChatPreview",
+  "history": {
+    "735-758": null,
+    "759-760": [
+      "container",
+      [
+        {
+          "name": "queryId",
+          "type": "i32"
+        },
+        {
+          "name": "message",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "761-772": null
+  }
+}

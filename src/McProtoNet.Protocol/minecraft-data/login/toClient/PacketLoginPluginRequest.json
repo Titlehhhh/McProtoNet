@@ -1,0 +1,23 @@
+{
+  "path": "login.toClient",
+  "name": "PacketLoginPluginRequest",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "messageId",
+          "type": "varint"
+        },
+        {
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "name": "data",
+          "type": "restBuffer"
+        }
+      ]
+    ]
+  }
+}

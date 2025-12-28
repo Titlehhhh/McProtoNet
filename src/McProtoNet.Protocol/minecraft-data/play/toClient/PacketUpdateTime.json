@@ -1,0 +1,36 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUpdateTime",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "age",
+          "type": "i64"
+        },
+        {
+          "name": "time",
+          "type": "i64"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "age",
+          "type": "i64"
+        },
+        {
+          "name": "time",
+          "type": "i64"
+        },
+        {
+          "name": "tickDayTime",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

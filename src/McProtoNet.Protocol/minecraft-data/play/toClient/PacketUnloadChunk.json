@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUnloadChunk",
+  "history": {
+    "735-763": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "i32"
+        },
+        {
+          "name": "chunkZ",
+          "type": "i32"
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "chunkZ",
+          "type": "i32"
+        },
+        {
+          "name": "chunkX",
+          "type": "i32"
+        }
+      ]
+    ]
+  }
+}

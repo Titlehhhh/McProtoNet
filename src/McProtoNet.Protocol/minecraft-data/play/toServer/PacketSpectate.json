@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSpectate",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "target",
+          "type": "UUID"
+        }
+      ]
+    ]
+  }
+}

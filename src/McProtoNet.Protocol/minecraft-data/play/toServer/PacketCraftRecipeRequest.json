@@ -1,0 +1,57 @@
+{
+  "path": "play.toServer",
+  "name": "PacketCraftRecipeRequest",
+  "history": {
+    "735-766": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "i8"
+        },
+        {
+          "name": "recipe",
+          "type": "string"
+        },
+        {
+          "name": "makeAll",
+          "type": "bool"
+        }
+      ]
+    ],
+    "767": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "recipe",
+          "type": "string"
+        },
+        {
+          "name": "makeAll",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "recipeId",
+          "type": "varint"
+        },
+        {
+          "name": "makeAll",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

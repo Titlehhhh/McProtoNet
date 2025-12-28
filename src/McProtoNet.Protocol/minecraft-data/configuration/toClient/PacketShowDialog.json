@@ -1,0 +1,16 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketShowDialog",
+  "history": {
+    "735-770": null,
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "dialog",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

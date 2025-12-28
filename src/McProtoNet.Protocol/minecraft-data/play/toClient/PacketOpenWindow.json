@@ -1,0 +1,40 @@
+{
+  "path": "play.toClient",
+  "name": "PacketOpenWindow",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "varint"
+        },
+        {
+          "name": "inventoryType",
+          "type": "varint"
+        },
+        {
+          "name": "windowTitle",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "varint"
+        },
+        {
+          "name": "inventoryType",
+          "type": "varint"
+        },
+        {
+          "name": "windowTitle",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "path": "",
+  "name": "GameProfile",
+  "history": {
+    "735-760": null,
+    "761-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

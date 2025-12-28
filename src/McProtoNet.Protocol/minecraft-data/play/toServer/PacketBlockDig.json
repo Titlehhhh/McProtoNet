@@ -1,0 +1,44 @@
+{
+  "path": "play.toServer",
+  "name": "PacketBlockDig",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "status",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "face",
+          "type": "i8"
+        }
+      ]
+    ],
+    "759-772": [
+      "container",
+      [
+        {
+          "name": "status",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "face",
+          "type": "i8"
+        },
+        {
+          "name": "sequence",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

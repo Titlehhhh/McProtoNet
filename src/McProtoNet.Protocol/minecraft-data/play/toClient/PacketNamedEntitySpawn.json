@@ -1,0 +1,40 @@
+{
+  "path": "play.toClient",
+  "name": "PacketNamedEntitySpawn",
+  "history": {
+    "735-763": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "playerUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "i8"
+        },
+        {
+          "name": "pitch",
+          "type": "i8"
+        }
+      ]
+    ],
+    "764-772": null
+  }
+}

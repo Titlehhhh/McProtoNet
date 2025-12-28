@@ -1,0 +1,20 @@
+{
+  "path": "configuration.toServer",
+  "name": "PacketCustomPayload",
+  "history": {
+    "735-763": null,
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "name": "data",
+          "type": "restBuffer"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityLook",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "yaw",
+          "type": "i8"
+        },
+        {
+          "name": "pitch",
+          "type": "i8"
+        },
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

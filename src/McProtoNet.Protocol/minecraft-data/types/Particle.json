@@ -1,0 +1,1166 @@
+{
+  "path": "",
+  "name": "Particle",
+  "history": {
+    "735-764": null,
+    "765": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "angry_villager",
+                "1": "block",
+                "2": "block_marker",
+                "3": "bubble",
+                "4": "cloud",
+                "5": "crit",
+                "6": "damage_indicator",
+                "7": "dragon_breath",
+                "8": "dripping_lava",
+                "9": "falling_lava",
+                "10": "landing_lava",
+                "11": "dripping_water",
+                "12": "falling_water",
+                "13": "dust",
+                "14": "dust_color_transition",
+                "15": "effect",
+                "16": "elder_guardian",
+                "17": "enchanted_hit",
+                "18": "enchant",
+                "19": "end_rod",
+                "20": "entity_effect",
+                "21": "explosion_emitter",
+                "22": "explosion",
+                "23": "gust",
+                "24": "small_gust",
+                "25": "gust_emitter_large",
+                "26": "gust_emitter_small",
+                "27": "sonic_boom",
+                "28": "falling_dust",
+                "29": "firework",
+                "30": "fishing",
+                "31": "flame",
+                "32": "infested",
+                "33": "cherry_leaves",
+                "34": "sculk_soul",
+                "35": "sculk_charge",
+                "36": "sculk_charge_pop",
+                "37": "soul_fire_flame",
+                "38": "soul",
+                "39": "flash",
+                "40": "happy_villager",
+                "41": "composter",
+                "42": "heart",
+                "43": "instant_effect",
+                "44": "item",
+                "45": "vibration",
+                "46": "item_slime",
+                "47": "item_cobweb",
+                "48": "item_snowball",
+                "49": "large_smoke",
+                "50": "lava",
+                "51": "mycelium",
+                "52": "note",
+                "53": "poof",
+                "54": "portal",
+                "55": "rain",
+                "56": "smoke",
+                "57": "white_smoke",
+                "58": "sneeze",
+                "59": "spit",
+                "60": "squid_ink",
+                "61": "sweep_attack",
+                "62": "totem_of_undying",
+                "63": "underwater",
+                "64": "splash",
+                "65": "witch",
+                "66": "bubble_pop",
+                "67": "current_down",
+                "68": "bubble_column_up",
+                "69": "nautilus",
+                "70": "dolphin",
+                "71": "campfire_cosy_smoke",
+                "72": "campfire_signal_smoke",
+                "73": "dripping_honey",
+                "74": "falling_honey",
+                "75": "landing_honey",
+                "76": "falling_nectar",
+                "77": "falling_spore_blossom",
+                "78": "ash",
+                "79": "crimson_spore",
+                "80": "warped_spore",
+                "81": "spore_blossom_air",
+                "82": "dripping_obsidian_tear",
+                "83": "falling_obsidian_tear",
+                "84": "landing_obsidian_tear",
+                "85": "reverse_portal",
+                "86": "white_ash",
+                "87": "small_flame",
+                "88": "snowflake",
+                "89": "dripping_dripstone_lava",
+                "90": "falling_dripstone_lava",
+                "91": "dripping_dripstone_water",
+                "92": "falling_dripstone_water",
+                "93": "glow_squid_ink",
+                "94": "glow",
+                "95": "wax_on",
+                "96": "wax_off",
+                "97": "electric_spark",
+                "98": "scrape",
+                "99": "shriek",
+                "100": "egg_crack",
+                "101": "dust_plume",
+                "102": "trial_spawner_detected_player",
+                "103": "trial_spawner_detected_player_ominous",
+                "104": "vault_connection",
+                "105": "dust_pillar",
+                "106": "ominous_spawning",
+                "107": "raid_omen",
+                "108": "trial_omen"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "angry_villager",
+                "1": "block",
+                "2": "block_marker",
+                "3": "bubble",
+                "4": "cloud",
+                "5": "crit",
+                "6": "damage_indicator",
+                "7": "dragon_breath",
+                "8": "dripping_lava",
+                "9": "falling_lava",
+                "10": "landing_lava",
+                "11": "dripping_water",
+                "12": "falling_water",
+                "13": "dust",
+                "14": "dust_color_transition",
+                "15": "effect",
+                "16": "elder_guardian",
+                "17": "enchanted_hit",
+                "18": "enchant",
+                "19": "end_rod",
+                "20": "entity_effect",
+                "21": "explosion_emitter",
+                "22": "explosion",
+                "23": "gust",
+                "24": "small_gust",
+                "25": "gust_emitter_large",
+                "26": "gust_emitter_small",
+                "27": "sonic_boom",
+                "28": "falling_dust",
+                "29": "firework",
+                "30": "fishing",
+                "31": "flame",
+                "32": "infested",
+                "33": "cherry_leaves",
+                "34": "sculk_soul",
+                "35": "sculk_charge",
+                "36": "sculk_charge_pop",
+                "37": "soul_fire_flame",
+                "38": "soul",
+                "39": "flash",
+                "40": "happy_villager",
+                "41": "composter",
+                "42": "heart",
+                "43": "instant_effect",
+                "44": "item",
+                "45": "vibration",
+                "46": "item_slime",
+                "47": "item_cobweb",
+                "48": "item_snowball",
+                "49": "large_smoke",
+                "50": "lava",
+                "51": "mycelium",
+                "52": "note",
+                "53": "poof",
+                "54": "portal",
+                "55": "rain",
+                "56": "smoke",
+                "57": "white_smoke",
+                "58": "sneeze",
+                "59": "spit",
+                "60": "squid_ink",
+                "61": "sweep_attack",
+                "62": "totem_of_undying",
+                "63": "underwater",
+                "64": "splash",
+                "65": "witch",
+                "66": "bubble_pop",
+                "67": "current_down",
+                "68": "bubble_column_up",
+                "69": "nautilus",
+                "70": "dolphin",
+                "71": "campfire_cosy_smoke",
+                "72": "campfire_signal_smoke",
+                "73": "dripping_honey",
+                "74": "falling_honey",
+                "75": "landing_honey",
+                "76": "falling_nectar",
+                "77": "falling_spore_blossom",
+                "78": "ash",
+                "79": "crimson_spore",
+                "80": "warped_spore",
+                "81": "spore_blossom_air",
+                "82": "dripping_obsidian_tear",
+                "83": "falling_obsidian_tear",
+                "84": "landing_obsidian_tear",
+                "85": "reverse_portal",
+                "86": "white_ash",
+                "87": "small_flame",
+                "88": "snowflake",
+                "89": "dripping_dripstone_lava",
+                "90": "falling_dripstone_lava",
+                "91": "dripping_dripstone_water",
+                "92": "falling_dripstone_water",
+                "93": "glow_squid_ink",
+                "94": "glow",
+                "95": "wax_on",
+                "96": "wax_off",
+                "97": "electric_spark",
+                "98": "scrape",
+                "99": "shriek",
+                "100": "egg_crack",
+                "101": "dust_plume",
+                "102": "trial_spawner_detected_player",
+                "103": "trial_spawner_detected_player_ominous",
+                "104": "vault_connection",
+                "105": "dust_pillar",
+                "106": "ominous_spawning",
+                "107": "raid_omen",
+                "108": "trial_omen"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "block": "varint",
+                "block_marker": "varint",
+                "falling_dust": "varint",
+                "dust_pillar": "varint",
+                "dust": [
+                  "container",
+                  [
+                    {
+                      "name": "red",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "green",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "blue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "dust_color_transition": [
+                  "container",
+                  [
+                    {
+                      "name": "fromRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromBlue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toBlue",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "entity_effect": "i32",
+                "item": "Slot",
+                "sculk_charge": "f32",
+                "shriek": "varint",
+                "vibration": [
+                  "container",
+                  [
+                    {
+                      "name": "positionType",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "block",
+                            "1": "entity"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "position",
+                      "type": [
+                        "switch",
+                        {
+                          "compareTo": "positionType",
+                          "fields": {
+                            "block": "position",
+                            "entity": [
+                              "container",
+                              [
+                                {
+                                  "name": "entityId",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "entityEyeHeight",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "ticks",
+                      "type": "varint"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "768": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "angry_villager",
+                "1": "block",
+                "2": "block_marker",
+                "3": "bubble",
+                "4": "cloud",
+                "5": "crit",
+                "6": "damage_indicator",
+                "7": "dragon_breath",
+                "8": "dripping_lava",
+                "9": "falling_lava",
+                "10": "landing_lava",
+                "11": "dripping_water",
+                "12": "falling_water",
+                "13": "dust",
+                "14": "dust_color_transition",
+                "15": "effect",
+                "16": "elder_guardian",
+                "17": "enchanted_hit",
+                "18": "enchant",
+                "19": "end_rod",
+                "20": "entity_effect",
+                "21": "explosion_emitter",
+                "22": "explosion",
+                "23": "gust",
+                "24": "small_gust",
+                "25": "gust_emitter_large",
+                "26": "gust_emitter_small",
+                "27": "sonic_boom",
+                "28": "falling_dust",
+                "29": "firework",
+                "30": "fishing",
+                "31": "flame",
+                "32": "infested",
+                "33": "cherry_leaves",
+                "34": "sculk_soul",
+                "35": "sculk_charge",
+                "36": "sculk_charge_pop",
+                "37": "soul_fire_flame",
+                "38": "soul",
+                "39": "flash",
+                "40": "happy_villager",
+                "41": "composter",
+                "42": "heart",
+                "43": "instant_effect",
+                "44": "item",
+                "45": "vibration",
+                "46": "trail",
+                "47": "item_slime",
+                "48": "item_cobweb",
+                "49": "item_snowball",
+                "50": "large_smoke",
+                "51": "lava",
+                "52": "mycelium",
+                "53": "note",
+                "54": "poof",
+                "55": "portal",
+                "56": "rain",
+                "57": "smoke",
+                "58": "white_smoke",
+                "59": "sneeze",
+                "60": "spit",
+                "61": "squid_ink",
+                "62": "sweep_attack",
+                "63": "totem_of_undying",
+                "64": "underwater",
+                "65": "splash",
+                "66": "witch",
+                "67": "bubble_pop",
+                "68": "current_down",
+                "69": "bubble_column_up",
+                "70": "nautilus",
+                "71": "dolphin",
+                "72": "campfire_cosy_smoke",
+                "73": "campfire_signal_smoke",
+                "74": "dripping_honey",
+                "75": "falling_honey",
+                "76": "landing_honey",
+                "77": "falling_nectar",
+                "78": "falling_spore_blossom",
+                "79": "ash",
+                "80": "crimson_spore",
+                "81": "warped_spore",
+                "82": "spore_blossom_air",
+                "83": "dripping_obsidian_tear",
+                "84": "falling_obsidian_tear",
+                "85": "landing_obsidian_tear",
+                "86": "reverse_portal",
+                "87": "white_ash",
+                "88": "small_flame",
+                "89": "snowflake",
+                "90": "dripping_dripstone_lava",
+                "91": "falling_dripstone_lava",
+                "92": "dripping_dripstone_water",
+                "93": "falling_dripstone_water",
+                "94": "glow_squid_ink",
+                "95": "glow",
+                "96": "wax_on",
+                "97": "wax_off",
+                "98": "electric_spark",
+                "99": "scrape",
+                "100": "shriek",
+                "101": "egg_crack",
+                "102": "dust_plume",
+                "103": "trial_spawner_detected_player",
+                "104": "trial_spawner_detected_player_ominous",
+                "105": "vault_connection",
+                "106": "dust_pillar",
+                "107": "ominous_spawning",
+                "108": "raid_omen",
+                "109": "trial_omen",
+                "110": "block_crumble"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "block": "varint",
+                "block_marker": "varint",
+                "falling_dust": "varint",
+                "dust_pillar": "varint",
+                "block_crumble": "varint",
+                "dust": [
+                  "container",
+                  [
+                    {
+                      "name": "red",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "green",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "blue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "dust_color_transition": [
+                  "container",
+                  [
+                    {
+                      "name": "fromRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromBlue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toBlue",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "entity_effect": "i32",
+                "item": "Slot",
+                "sculk_charge": "f32",
+                "shriek": "varint",
+                "vibration": [
+                  "container",
+                  [
+                    {
+                      "name": "positionType",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "block",
+                            "1": "entity"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "position",
+                      "type": [
+                        "switch",
+                        {
+                          "compareTo": "positionType",
+                          "fields": {
+                            "block": "position",
+                            "entity": [
+                              "container",
+                              [
+                                {
+                                  "name": "entityId",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "entityEyeHeight",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "ticks",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "trail": [
+                  "container",
+                  [
+                    {
+                      "name": "target",
+                      "type": "vec3f64"
+                    },
+                    {
+                      "name": "color",
+                      "type": "u8"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "769": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "angry_villager",
+                "1": "block",
+                "2": "block_marker",
+                "3": "bubble",
+                "4": "cloud",
+                "5": "crit",
+                "6": "damage_indicator",
+                "7": "dragon_breath",
+                "8": "dripping_lava",
+                "9": "falling_lava",
+                "10": "landing_lava",
+                "11": "dripping_water",
+                "12": "falling_water",
+                "13": "dust",
+                "14": "dust_color_transition",
+                "15": "effect",
+                "16": "elder_guardian",
+                "17": "enchanted_hit",
+                "18": "enchant",
+                "19": "end_rod",
+                "20": "entity_effect",
+                "21": "explosion_emitter",
+                "22": "explosion",
+                "23": "gust",
+                "24": "small_gust",
+                "25": "gust_emitter_large",
+                "26": "gust_emitter_small",
+                "27": "sonic_boom",
+                "28": "falling_dust",
+                "29": "firework",
+                "30": "fishing",
+                "31": "flame",
+                "32": "infested",
+                "33": "cherry_leaves",
+                "34": "pale_oak_leaves",
+                "35": "sculk_soul",
+                "36": "sculk_charge",
+                "37": "sculk_charge_pop",
+                "38": "soul_fire_flame",
+                "39": "soul",
+                "40": "flash",
+                "41": "happy_villager",
+                "42": "composter",
+                "43": "heart",
+                "44": "instant_effect",
+                "45": "item",
+                "46": "vibration",
+                "47": "trail",
+                "48": "item_slime",
+                "49": "item_cobweb",
+                "50": "item_snowball",
+                "51": "large_smoke",
+                "52": "lava",
+                "53": "mycelium",
+                "54": "note",
+                "55": "poof",
+                "56": "portal",
+                "57": "rain",
+                "58": "smoke",
+                "59": "white_smoke",
+                "60": "sneeze",
+                "61": "spit",
+                "62": "squid_ink",
+                "63": "sweep_attack",
+                "64": "totem_of_undying",
+                "65": "underwater",
+                "66": "splash",
+                "67": "witch",
+                "68": "bubble_pop",
+                "69": "current_down",
+                "70": "bubble_column_up",
+                "71": "nautilus",
+                "72": "dolphin",
+                "73": "campfire_cosy_smoke",
+                "74": "campfire_signal_smoke",
+                "75": "dripping_honey",
+                "76": "falling_honey",
+                "77": "landing_honey",
+                "78": "falling_nectar",
+                "79": "falling_spore_blossom",
+                "80": "ash",
+                "81": "crimson_spore",
+                "82": "warped_spore",
+                "83": "spore_blossom_air",
+                "84": "dripping_obsidian_tear",
+                "85": "falling_obsidian_tear",
+                "86": "landing_obsidian_tear",
+                "87": "reverse_portal",
+                "88": "white_ash",
+                "89": "small_flame",
+                "90": "snowflake",
+                "91": "dripping_dripstone_lava",
+                "92": "falling_dripstone_lava",
+                "93": "dripping_dripstone_water",
+                "94": "falling_dripstone_water",
+                "95": "glow_squid_ink",
+                "96": "glow",
+                "97": "wax_on",
+                "98": "wax_off",
+                "99": "electric_spark",
+                "100": "scrape",
+                "101": "shriek",
+                "102": "egg_crack",
+                "103": "dust_plume",
+                "104": "trial_spawner_detected_player",
+                "105": "trial_spawner_detected_player_ominous",
+                "106": "vault_connection",
+                "107": "dust_pillar",
+                "108": "ominous_spawning",
+                "109": "raid_omen",
+                "110": "trial_omen",
+                "111": "block_crumble"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "block": "varint",
+                "block_marker": "varint",
+                "falling_dust": "varint",
+                "dust_pillar": "varint",
+                "block_crumble": "varint",
+                "dust": [
+                  "container",
+                  [
+                    {
+                      "name": "red",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "green",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "blue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "dust_color_transition": [
+                  "container",
+                  [
+                    {
+                      "name": "fromRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromBlue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toBlue",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "entity_effect": "i32",
+                "item": "Slot",
+                "sculk_charge": "f32",
+                "shriek": "varint",
+                "vibration": [
+                  "container",
+                  [
+                    {
+                      "name": "positionType",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "block",
+                            "1": "entity"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "position",
+                      "type": [
+                        "switch",
+                        {
+                          "compareTo": "positionType",
+                          "fields": {
+                            "block": "position",
+                            "entity": [
+                              "container",
+                              [
+                                {
+                                  "name": "entityId",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "entityEyeHeight",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "ticks",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "trail": [
+                  "container",
+                  [
+                    {
+                      "name": "target",
+                      "type": "vec3f64"
+                    },
+                    {
+                      "name": "color",
+                      "type": "u8"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "angry_villager",
+                "1": "block",
+                "2": "block_marker",
+                "3": "bubble",
+                "4": "cloud",
+                "5": "crit",
+                "6": "damage_indicator",
+                "7": "dragon_breath",
+                "8": "dripping_lava",
+                "9": "falling_lava",
+                "10": "landing_lava",
+                "11": "dripping_water",
+                "12": "falling_water",
+                "13": "dust",
+                "14": "dust_color_transition",
+                "15": "effect",
+                "16": "elder_guardian",
+                "17": "enchanted_hit",
+                "18": "enchant",
+                "19": "end_rod",
+                "20": "entity_effect",
+                "21": "explosion_emitter",
+                "22": "explosion",
+                "23": "gust",
+                "24": "small_gust",
+                "25": "gust_emitter_large",
+                "26": "gust_emitter_small",
+                "27": "sonic_boom",
+                "28": "falling_dust",
+                "29": "firework",
+                "30": "fishing",
+                "31": "flame",
+                "32": "infested",
+                "33": "cherry_leaves",
+                "34": "pale_oak_leaves",
+                "35": "tinted_leaves",
+                "36": "sculk_soul",
+                "37": "sculk_charge",
+                "38": "sculk_charge_pop",
+                "39": "soul_fire_flame",
+                "40": "soul",
+                "41": "flash",
+                "42": "happy_villager",
+                "43": "composter",
+                "44": "heart",
+                "45": "instant_effect",
+                "46": "item",
+                "47": "vibration",
+                "48": "trail",
+                "49": "item_slime",
+                "50": "item_cobweb",
+                "51": "item_snowball",
+                "52": "large_smoke",
+                "53": "lava",
+                "54": "mycelium",
+                "55": "note",
+                "56": "poof",
+                "57": "portal",
+                "58": "rain",
+                "59": "smoke",
+                "60": "white_smoke",
+                "61": "sneeze",
+                "62": "spit",
+                "63": "squid_ink",
+                "64": "sweep_attack",
+                "65": "totem_of_undying",
+                "66": "underwater",
+                "67": "splash",
+                "68": "witch",
+                "69": "bubble_pop",
+                "70": "current_down",
+                "71": "bubble_column_up",
+                "72": "nautilus",
+                "73": "dolphin",
+                "74": "campfire_cosy_smoke",
+                "75": "campfire_signal_smoke",
+                "76": "dripping_honey",
+                "77": "falling_honey",
+                "78": "landing_honey",
+                "79": "falling_nectar",
+                "80": "falling_spore_blossom",
+                "81": "ash",
+                "82": "crimson_spore",
+                "83": "warped_spore",
+                "84": "spore_blossom_air",
+                "85": "dripping_obsidian_tear",
+                "86": "falling_obsidian_tear",
+                "87": "landing_obsidian_tear",
+                "88": "reverse_portal",
+                "89": "white_ash",
+                "90": "small_flame",
+                "91": "snowflake",
+                "92": "dripping_dripstone_lava",
+                "93": "falling_dripstone_lava",
+                "94": "dripping_dripstone_water",
+                "95": "falling_dripstone_water",
+                "96": "glow_squid_ink",
+                "97": "glow",
+                "98": "wax_on",
+                "99": "wax_off",
+                "100": "electric_spark",
+                "101": "scrape",
+                "102": "shriek",
+                "103": "egg_crack",
+                "104": "dust_plume",
+                "105": "trial_spawner_detected_player",
+                "106": "trial_spawner_detected_player_ominous",
+                "107": "vault_connection",
+                "108": "dust_pillar",
+                "109": "ominous_spawning",
+                "110": "raid_omen",
+                "111": "trial_omen",
+                "112": "block_crumble",
+                "113": "firefly"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "block": "varint",
+                "block_marker": "varint",
+                "falling_dust": "varint",
+                "dust_pillar": "varint",
+                "block_crumble": "varint",
+                "dust": [
+                  "container",
+                  [
+                    {
+                      "name": "red",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "green",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "blue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "dust_color_transition": [
+                  "container",
+                  [
+                    {
+                      "name": "fromRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "fromBlue",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "scale",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toRed",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toGreen",
+                      "type": "f32"
+                    },
+                    {
+                      "name": "toBlue",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "entity_effect": "i32",
+                "item": "Slot",
+                "sculk_charge": "f32",
+                "shriek": "varint",
+                "vibration": [
+                  "container",
+                  [
+                    {
+                      "name": "positionType",
+                      "type": [
+                        "mapper",
+                        {
+                          "type": "varint",
+                          "mappings": {
+                            "0": "block",
+                            "1": "entity"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "position",
+                      "type": [
+                        "switch",
+                        {
+                          "compareTo": "positionType",
+                          "fields": {
+                            "block": "position",
+                            "entity": [
+                              "container",
+                              [
+                                {
+                                  "name": "entityId",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "entityEyeHeight",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "name": "ticks",
+                      "type": "varint"
+                    }
+                  ]
+                ],
+                "trail": [
+                  "container",
+                  [
+                    {
+                      "name": "target",
+                      "type": "vec3f64"
+                    },
+                    {
+                      "name": "color",
+                      "type": "u8"
+                    }
+                  ]
+                ],
+                "tinted_leaves": "i32",
+                "firefly": "void"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

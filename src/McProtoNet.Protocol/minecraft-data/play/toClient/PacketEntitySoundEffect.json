@@ -1,0 +1,146 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntitySoundEffect",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "soundId",
+          "type": "varint"
+        },
+        {
+          "name": "soundCategory",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        }
+      ]
+    ],
+    "759-760": [
+      "container",
+      [
+        {
+          "name": "soundId",
+          "type": "varint"
+        },
+        {
+          "name": "soundCategory",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "i64"
+        }
+      ]
+    ],
+    "761-765": [
+      "container",
+      [
+        {
+          "name": "soundId",
+          "type": "varint"
+        },
+        {
+          "name": "soundEvent",
+          "type": [
+            "switch",
+            {
+              "compareTo": "soundId",
+              "fields": {
+                "0": [
+                  "container",
+                  [
+                    {
+                      "name": "resource",
+                      "type": "string"
+                    },
+                    {
+                      "name": "range",
+                      "type": [
+                        "option",
+                        "f32"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "soundCategory",
+          "type": "soundSource"
+        },
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "i64"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "sound",
+          "type": "ItemSoundHolder"
+        },
+        {
+          "name": "soundCategory",
+          "type": "soundSource"
+        },
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "volume",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "i64"
+        }
+      ]
+    ]
+  }
+}

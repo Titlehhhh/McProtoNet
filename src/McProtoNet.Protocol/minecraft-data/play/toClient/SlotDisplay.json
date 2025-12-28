@@ -1,0 +1,170 @@
+{
+  "path": "play.toClient",
+  "name": "SlotDisplay",
+  "history": {
+    "735-767": null,
+    "768-769": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "empty",
+                "1": "any_fuel",
+                "2": "item",
+                "3": "item_stack",
+                "4": "tag",
+                "5": "smithing_trim",
+                "6": "with_remainder",
+                "7": "composite"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "empty": "void",
+                "any_fuel": "void",
+                "item": "varint",
+                "item_stack": "Slot",
+                "tag": "string",
+                "smithing_trim": [
+                  "container",
+                  [
+                    {
+                      "name": "base",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "material",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "pattern",
+                      "type": "SlotDisplay"
+                    }
+                  ]
+                ],
+                "with_remainder": [
+                  "container",
+                  [
+                    {
+                      "name": "input",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "remainder",
+                      "type": "SlotDisplay"
+                    }
+                  ]
+                ],
+                "composite": [
+                  "array",
+                  {
+                    "type": "SlotDisplay",
+                    "countType": "varint"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "empty",
+                "1": "any_fuel",
+                "2": "item",
+                "3": "item_stack",
+                "4": "tag",
+                "5": "smithing_trim",
+                "6": "with_remainder",
+                "7": "composite"
+              }
+            }
+          ]
+        },
+        {
+          "name": "data",
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "empty": "void",
+                "any_fuel": "void",
+                "item": "varint",
+                "item_stack": "Slot",
+                "tag": "string",
+                "smithing_trim": [
+                  "container",
+                  [
+                    {
+                      "name": "base",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "material",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "pattern",
+                      "type": [
+                        "registryEntryHolder",
+                        {
+                          "baseName": "patternId",
+                          "otherwise": {
+                            "name": "data",
+                            "type": "ArmorTrimPattern"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                ],
+                "with_remainder": [
+                  "container",
+                  [
+                    {
+                      "name": "input",
+                      "type": "SlotDisplay"
+                    },
+                    {
+                      "name": "remainder",
+                      "type": "SlotDisplay"
+                    }
+                  ]
+                ],
+                "composite": [
+                  "array",
+                  {
+                    "type": "SlotDisplay",
+                    "countType": "varint"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

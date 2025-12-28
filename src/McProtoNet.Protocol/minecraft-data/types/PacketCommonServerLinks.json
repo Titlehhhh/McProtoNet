@@ -1,0 +1,58 @@
+{
+  "path": "",
+  "name": "PacketCommonServerLinks",
+  "history": {
+    "735-766": null,
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "links",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "hasKnownType",
+                    "type": "bool"
+                  },
+                  {
+                    "name": "knownType",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "hasKnownType",
+                        "fields": {
+                          "true": "ServerLinkType"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "unknownType",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "hasKnownType",
+                        "fields": {
+                          "false": "anonymousNbt"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "link",
+                    "type": "string"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

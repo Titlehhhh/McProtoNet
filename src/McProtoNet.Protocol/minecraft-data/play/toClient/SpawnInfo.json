@@ -1,0 +1,145 @@
+{
+  "path": "play.toClient",
+  "name": "SpawnInfo",
+  "history": {
+    "735-765": null,
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": [
+            "mapper",
+            {
+              "type": "i8",
+              "mappings": {
+                "0": "survival",
+                "1": "creative",
+                "2": "adventure",
+                "3": "spectator"
+              }
+            }
+          ]
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": [
+            "mapper",
+            {
+              "type": "i8",
+              "mappings": {
+                "0": "survival",
+                "1": "creative",
+                "2": "adventure",
+                "3": "spectator"
+              }
+            }
+          ]
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        },
+        {
+          "name": "seaLevel",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

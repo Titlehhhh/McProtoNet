@@ -1,0 +1,25 @@
+{
+  "path": "",
+  "name": "Particle",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "particleId",
+          "type": "varint"
+        },
+        {
+          "name": "data",
+          "type": [
+            "particleData",
+            {
+              "compareTo": "particleId"
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": null
+  }
+}

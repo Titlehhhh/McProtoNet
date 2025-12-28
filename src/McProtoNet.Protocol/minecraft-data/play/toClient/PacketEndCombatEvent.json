@@ -1,0 +1,29 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEndCombatEvent",
+  "history": {
+    "735-754": null,
+    "755-762": [
+      "container",
+      [
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "i32"
+        }
+      ]
+    ],
+    "763-772": [
+      "container",
+      [
+        {
+          "name": "duration",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSetBeaconEffect",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "primary_effect",
+          "type": "varint"
+        },
+        {
+          "name": "secondary_effect",
+          "type": "varint"
+        }
+      ]
+    ],
+    "759-772": [
+      "container",
+      [
+        {
+          "name": "primary_effect",
+          "type": [
+            "option",
+            "varint"
+          ]
+        },
+        {
+          "name": "secondary_effect",
+          "type": [
+            "option",
+            "varint"
+          ]
+        }
+      ]
+    ]
+  }
+}

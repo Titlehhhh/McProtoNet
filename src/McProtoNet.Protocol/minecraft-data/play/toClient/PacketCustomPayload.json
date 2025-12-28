@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCustomPayload",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "channel",
+          "type": "string"
+        },
+        {
+          "name": "data",
+          "type": "restBuffer"
+        }
+      ]
+    ]
+  }
+}

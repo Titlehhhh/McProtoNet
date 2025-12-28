@@ -1,0 +1,478 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityUpdateAttributes",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "UUID"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "i32"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-765": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "UUID"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "generic.armor",
+                          "1": "generic.armor_toughness",
+                          "2": "generic.attack_damage",
+                          "3": "generic.attack_knockback",
+                          "4": "generic.attack_speed",
+                          "5": "player.block_break_speed",
+                          "6": "player.block_interaction_range",
+                          "7": "player.entity_interaction_range",
+                          "8": "generic.fall_damage_multiplier",
+                          "9": "generic.flying_speed",
+                          "10": "generic.follow_range",
+                          "11": "generic.gravity",
+                          "12": "generic.jump_strength",
+                          "13": "generic.knockback_resistance",
+                          "14": "generic.luck",
+                          "15": "generic.max_absorption",
+                          "16": "generic.max_health",
+                          "17": "generic.movement_speed",
+                          "18": "generic.safe_fall_distance",
+                          "19": "generic.scale",
+                          "20": "zombie.spawn_reinforcements",
+                          "21": "generic.step_height"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "UUID"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "767-769": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "generic.armor",
+                          "1": "generic.armor_toughness",
+                          "2": "generic.attack_damage",
+                          "3": "generic.attack_knockback",
+                          "4": "generic.attack_speed",
+                          "5": "player.block_break_speed",
+                          "6": "player.block_interaction_range",
+                          "7": "player.entity_interaction_range",
+                          "8": "generic.fall_damage_multiplier",
+                          "9": "generic.flying_speed",
+                          "10": "generic.follow_range",
+                          "11": "generic.gravity",
+                          "12": "generic.jump_strength",
+                          "13": "generic.knockback_resistance",
+                          "14": "generic.luck",
+                          "15": "generic.max_absorption",
+                          "16": "generic.max_health",
+                          "17": "generic.movement_speed",
+                          "18": "generic.safe_fall_distance",
+                          "19": "generic.scale",
+                          "20": "zombie.spawn_reinforcements",
+                          "21": "generic.step_height"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "string"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "770": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "generic.armor",
+                          "1": "generic.armor_toughness",
+                          "2": "generic.attack_damage",
+                          "3": "generic.attack_knockback",
+                          "4": "generic.attack_speed",
+                          "5": "player.block_break_speed",
+                          "6": "player.block_interaction_range",
+                          "7": "camera_distance",
+                          "8": "explosion_knockback_resistance",
+                          "9": "player.entity_interaction_range",
+                          "10": "generic.fall_damage_multiplier",
+                          "11": "generic.flying_speed",
+                          "12": "generic.follow_range",
+                          "13": "generic.gravity",
+                          "14": "generic.jump_strength",
+                          "15": "generic.knockback_resistance",
+                          "16": "generic.luck",
+                          "17": "generic.max_absorption",
+                          "18": "generic.max_health",
+                          "19": "generic.movement_speed",
+                          "20": "generic.safe_fall_distance",
+                          "21": "generic.scale",
+                          "22": "zombie.spawn_reinforcements",
+                          "23": "generic.step_height",
+                          "24": "submerged_mining_speed",
+                          "25": "sweeping_damage_ratio",
+                          "26": "tempt_range"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "string"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "generic.armor",
+                          "1": "generic.armor_toughness",
+                          "2": "generic.attack_damage",
+                          "3": "generic.attack_knockback",
+                          "4": "generic.attack_speed",
+                          "5": "player.block_break_speed",
+                          "6": "player.block_interaction_range",
+                          "7": "burning_time",
+                          "8": "camera_distance",
+                          "9": "explosion_knockback_resistance",
+                          "10": "player.entity_interaction_range",
+                          "11": "generic.fall_damage_multiplier",
+                          "12": "generic.flying_speed",
+                          "13": "generic.follow_range",
+                          "14": "generic.gravity",
+                          "15": "generic.jump_strength",
+                          "16": "generic.knockback_resistance",
+                          "17": "generic.luck",
+                          "18": "generic.max_absorption",
+                          "19": "generic.max_health",
+                          "20": "generic.movement_speed",
+                          "21": "generic.safe_fall_distance",
+                          "22": "generic.scale",
+                          "23": "zombie.spawn_reinforcements",
+                          "24": "generic.step_height",
+                          "25": "submerged_mining_speed",
+                          "26": "sweeping_damage_ratio",
+                          "27": "tempt_range",
+                          "28": "water_movement_efficiency",
+                          "29": "waypoint_transmit_range",
+                          "30": "waypoint_receive_range"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "value",
+                    "type": "f64"
+                  },
+                  {
+                    "name": "modifiers",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "uuid",
+                              "type": "string"
+                            },
+                            {
+                              "name": "amount",
+                              "type": "f64"
+                            },
+                            {
+                              "name": "operation",
+                              "type": "i8"
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

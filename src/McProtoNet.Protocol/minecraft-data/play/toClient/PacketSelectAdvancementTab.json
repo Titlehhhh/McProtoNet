@@ -1,0 +1,18 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSelectAdvancementTab",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "id",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ]
+  }
+}

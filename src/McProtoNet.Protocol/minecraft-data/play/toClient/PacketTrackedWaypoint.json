@@ -1,0 +1,127 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTrackedWaypoint",
+  "history": {
+    "735-770": null,
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "operation",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "track",
+                "1": "untrack",
+                "2": "update"
+              }
+            }
+          ]
+        },
+        {
+          "name": "waypoint",
+          "type": [
+            "container",
+            [
+              {
+                "name": "hasUUID",
+                "type": "bool"
+              },
+              {
+                "anon": true,
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "hasUUID",
+                    "fields": {
+                      "true": [
+                        "container",
+                        [
+                          {
+                            "name": "uuid",
+                            "type": "UUID"
+                          }
+                        ]
+                      ],
+                      "false": [
+                        "container",
+                        [
+                          {
+                            "name": "id",
+                            "type": "string"
+                          }
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "icon",
+                "type": [
+                  "container",
+                  [
+                    {
+                      "name": "style",
+                      "type": "string"
+                    },
+                    {
+                      "name": "color",
+                      "type": [
+                        "option",
+                        "i32"
+                      ]
+                    }
+                  ]
+                ]
+              },
+              {
+                "name": "type",
+                "type": [
+                  "mapper",
+                  {
+                    "type": "varint",
+                    "mappings": {
+                      "0": "empty",
+                      "1": "vec3i",
+                      "2": "chunk",
+                      "3": "azimuth"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "data",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "type",
+                    "fields": {
+                      "vec3i": "vec3i",
+                      "chunk": [
+                        "container",
+                        [
+                          {
+                            "name": "chunkX",
+                            "type": "varint"
+                          },
+                          {
+                            "name": "chunkZ",
+                            "type": "varint"
+                          }
+                        ]
+                      ],
+                      "azimuth": "f32"
+                    }
+                  }
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    ]
+  }
+}

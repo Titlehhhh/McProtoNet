@@ -1,0 +1,23 @@
+{
+  "path": "play.toServer",
+  "name": "PacketGenerateStructure",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "levels",
+          "type": "varint"
+        },
+        {
+          "name": "keepJigsaws",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

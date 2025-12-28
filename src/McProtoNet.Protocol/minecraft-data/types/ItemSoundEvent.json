@@ -1,0 +1,23 @@
+{
+  "path": "",
+  "name": "ItemSoundEvent",
+  "history": {
+    "735-760": null,
+    "761-772": [
+      "container",
+      [
+        {
+          "name": "soundName",
+          "type": "string"
+        },
+        {
+          "name": "fixedRange",
+          "type": [
+            "option",
+            "f32"
+          ]
+        }
+      ]
+    ]
+  }
+}

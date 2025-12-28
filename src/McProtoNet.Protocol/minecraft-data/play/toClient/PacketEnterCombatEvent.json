@@ -1,0 +1,11 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEnterCombatEvent",
+  "history": {
+    "735-754": null,
+    "755-772": [
+      "container",
+      []
+    ]
+  }
+}

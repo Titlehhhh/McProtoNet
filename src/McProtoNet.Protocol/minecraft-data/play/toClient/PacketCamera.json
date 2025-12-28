@@ -1,0 +1,15 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCamera",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "cameraId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

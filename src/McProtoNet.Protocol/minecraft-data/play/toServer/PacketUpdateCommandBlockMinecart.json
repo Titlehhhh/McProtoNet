@@ -1,0 +1,23 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUpdateCommandBlockMinecart",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "track_output",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

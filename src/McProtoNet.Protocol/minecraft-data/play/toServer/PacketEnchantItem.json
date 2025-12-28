@@ -1,0 +1,32 @@
+{
+  "path": "play.toServer",
+  "name": "PacketEnchantItem",
+  "history": {
+    "735-766": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "i8"
+        },
+        {
+          "name": "enchantment",
+          "type": "i8"
+        }
+      ]
+    ],
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "enchantment",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "path": "",
+  "name": "Slot",
+  "history": {
+    "735-763": [
+      "container",
+      [
+        {
+          "name": "present",
+          "type": "bool"
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "present",
+              "fields": {
+                "false": "void",
+                "true": [
+                  "container",
+                  [
+                    {
+                      "name": "itemId",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "itemCount",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "nbtData",
+                      "type": "optionalNbt"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "present",
+          "type": "bool"
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "present",
+              "fields": {
+                "false": "void",
+                "true": [
+                  "container",
+                  [
+                    {
+                      "name": "itemId",
+                      "type": "varint"
+                    },
+                    {
+                      "name": "itemCount",
+                      "type": "i8"
+                    },
+                    {
+                      "name": "nbtData",
+                      "type": "anonOptionalNbt"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": null
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketExperience",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "experienceBar",
+          "type": "f32"
+        },
+        {
+          "name": "level",
+          "type": "varint"
+        },
+        {
+          "name": "totalExperience",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChangeGamemode",
+  "history": {
+    "735-770": null,
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "mode",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "survival",
+                "1": "creative",
+                "2": "adventure",
+                "3": "spectator"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

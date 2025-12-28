@@ -1,0 +1,50 @@
+{
+  "path": "play.toClient",
+  "name": "PacketMoveMinecart",
+  "history": {
+    "735-767": null,
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "steps",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "position",
+                    "type": "vec3f"
+                  },
+                  {
+                    "name": "movement",
+                    "type": "vec3f"
+                  },
+                  {
+                    "name": "yaw",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "pitch",
+                    "type": "f32"
+                  },
+                  {
+                    "name": "weight",
+                    "type": "f32"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

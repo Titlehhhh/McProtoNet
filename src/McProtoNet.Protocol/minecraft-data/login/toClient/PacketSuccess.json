@@ -1,0 +1,149 @@
+{
+  "path": "login.toClient",
+  "name": "PacketSuccess",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "username",
+          "type": "string"
+        }
+      ]
+    ],
+    "759-765": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "strictErrorHandling",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "properties",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

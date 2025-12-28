@@ -1,0 +1,64 @@
+{
+  "path": "login.toClient",
+  "name": "PacketEncryptionBegin",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "serverId",
+          "type": "string"
+        },
+        {
+          "name": "publicKey",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "verifyToken",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "serverId",
+          "type": "string"
+        },
+        {
+          "name": "publicKey",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "verifyToken",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "shouldAuthenticate",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

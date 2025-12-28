@@ -1,0 +1,197 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChatCommand",
+  "history": {
+    "735-758": null,
+    "759": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "argumentSignatures",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "argumentName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "buffer",
+                      {
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "signedPreview",
+          "type": "bool"
+        }
+      ]
+    ],
+    "760": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "argumentSignatures",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "argumentName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "buffer",
+                      {
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "signedPreview",
+          "type": "bool"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "lastRejectedMessage",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "sender",
+                  "type": "UUID"
+                },
+                {
+                  "name": "signature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "761-765": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "argumentSignatures",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "argumentName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "buffer",
+                      {
+                        "count": 256
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "messageCount",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

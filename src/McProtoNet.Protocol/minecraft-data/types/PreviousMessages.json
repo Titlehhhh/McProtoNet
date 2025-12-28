@@ -1,0 +1,64 @@
+{
+  "path": "",
+  "name": "PreviousMessages",
+  "history": {
+    "735-759": null,
+    "760": [
+      "array",
+      {
+        "type": [
+          "container",
+          [
+            {
+              "name": "messageSender",
+              "type": "UUID"
+            },
+            {
+              "name": "messageSignature",
+              "type": [
+                "buffer",
+                {
+                  "countType": "varint"
+                }
+              ]
+            }
+          ]
+        ],
+        "countType": "varint"
+      }
+    ],
+    "761-772": [
+      "array",
+      {
+        "type": [
+          "container",
+          [
+            {
+              "name": "id",
+              "type": "varint"
+            },
+            {
+              "name": "signature",
+              "type": [
+                "switch",
+                {
+                  "compareTo": "id",
+                  "fields": {
+                    "0": [
+                      "buffer",
+                      {
+                        "count": 256
+                      }
+                    ]
+                  },
+                  "default": "void"
+                }
+              ]
+            }
+          ]
+        ],
+        "countType": "varint"
+      }
+    ]
+  }
+}

@@ -1,0 +1,472 @@
+{
+  "path": "play.toClient",
+  "name": "PacketRecipeBookAdd",
+  "history": {
+    "735-767": null,
+    "768": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "recipe",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "displayId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "display",
+                          "type": "RecipeDisplay"
+                        },
+                        {
+                          "name": "group",
+                          "type": "optvarint"
+                        },
+                        {
+                          "name": "category",
+                          "type": [
+                            "mapper",
+                            {
+                              "type": "varint",
+                              "mappings": {
+                                "0": "crafting_building_blocks",
+                                "1": "crafting_redstone",
+                                "2": "crafting_equipment",
+                                "3": "crafting_misc",
+                                "4": "furnace_food",
+                                "5": "furnace_blocks",
+                                "6": "furnace_misc",
+                                "7": "blast_furnace_blocks",
+                                "8": "blast_furnace_misc",
+                                "9": "smoker_food",
+                                "10": "stonecutter",
+                                "11": "smithing",
+                                "12": "campfire"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "craftingRequirements",
+                          "type": [
+                            "option",
+                            [
+                              "array",
+                              {
+                                "type": "IDSet",
+                                "countType": "varint"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "flags",
+                    "type": [
+                      "bitflags",
+                      {
+                        "type": "u8",
+                        "flags": [
+                          "notification",
+                          "highlight"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "replace",
+          "type": "bool"
+        }
+      ]
+    ],
+    "769": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "recipe",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "displayId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "display",
+                          "type": "RecipeDisplay"
+                        },
+                        {
+                          "name": "group",
+                          "type": "optvarint"
+                        },
+                        {
+                          "name": "category",
+                          "type": [
+                            "mapper",
+                            {
+                              "type": "varint",
+                              "mappings": {
+                                "0": "crafting_building_blocks",
+                                "1": "crafting_redstone",
+                                "2": "crafting_equipment",
+                                "3": "crafting_misc",
+                                "4": "furnace_food",
+                                "5": "furnace_blocks",
+                                "6": "furnace_misc",
+                                "7": "blast_furnace_blocks",
+                                "8": "blast_furnace_misc",
+                                "9": "smoker_food",
+                                "10": "stonecutter",
+                                "11": "smithing",
+                                "12": "campfire"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "craftingRequirements",
+                          "type": [
+                            "option",
+                            [
+                              "array",
+                              {
+                                "type": "IDSet",
+                                "countType": "varint"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "flags",
+                    "type": [
+                      "bitflags",
+                      {
+                        "type": "u8",
+                        "flags": [
+                          "notification",
+                          "highlight"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "replace",
+          "type": "bool"
+        }
+      ]
+    ],
+    "770": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "recipe",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "displayId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "display",
+                          "type": "RecipeDisplay"
+                        },
+                        {
+                          "name": "group",
+                          "type": "optvarint"
+                        },
+                        {
+                          "name": "category",
+                          "type": [
+                            "mapper",
+                            {
+                              "type": "varint",
+                              "mappings": {
+                                "0": "crafting_building_blocks",
+                                "1": "crafting_redstone",
+                                "2": "crafting_equipment",
+                                "3": "crafting_misc",
+                                "4": "furnace_food",
+                                "5": "furnace_blocks",
+                                "6": "furnace_misc",
+                                "7": "blast_furnace_blocks",
+                                "8": "blast_furnace_misc",
+                                "9": "smoker_food",
+                                "10": "stonecutter",
+                                "11": "smithing",
+                                "12": "campfire"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "craftingRequirements",
+                          "type": [
+                            "option",
+                            [
+                              "array",
+                              {
+                                "type": "IDSet",
+                                "countType": "varint"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "flags",
+                    "type": [
+                      "bitflags",
+                      {
+                        "type": "u8",
+                        "flags": [
+                          "notification",
+                          "highlight"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "replace",
+          "type": "bool"
+        }
+      ]
+    ],
+    "771": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "recipe",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "displayId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "display",
+                          "type": "RecipeDisplay"
+                        },
+                        {
+                          "name": "group",
+                          "type": "optvarint"
+                        },
+                        {
+                          "name": "category",
+                          "type": [
+                            "mapper",
+                            {
+                              "type": "varint",
+                              "mappings": {
+                                "0": "crafting_building_blocks",
+                                "1": "crafting_redstone",
+                                "2": "crafting_equipment",
+                                "3": "crafting_misc",
+                                "4": "furnace_food",
+                                "5": "furnace_blocks",
+                                "6": "furnace_misc",
+                                "7": "blast_furnace_blocks",
+                                "8": "blast_furnace_misc",
+                                "9": "smoker_food",
+                                "10": "stonecutter",
+                                "11": "smithing",
+                                "12": "campfire"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "craftingRequirements",
+                          "type": [
+                            "option",
+                            [
+                              "array",
+                              {
+                                "type": "IDSet",
+                                "countType": "varint"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "flags",
+                    "type": [
+                      "bitflags",
+                      {
+                        "type": "u8",
+                        "flags": [
+                          "notification",
+                          "highlight"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "replace",
+          "type": "bool"
+        }
+      ]
+    ],
+    "772": [
+      "container",
+      [
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "recipe",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "displayId",
+                          "type": "varint"
+                        },
+                        {
+                          "name": "display",
+                          "type": "RecipeDisplay"
+                        },
+                        {
+                          "name": "group",
+                          "type": "optvarint"
+                        },
+                        {
+                          "name": "category",
+                          "type": [
+                            "mapper",
+                            {
+                              "type": "varint",
+                              "mappings": {
+                                "0": "crafting_building_blocks",
+                                "1": "crafting_redstone",
+                                "2": "crafting_equipment",
+                                "3": "crafting_misc",
+                                "4": "furnace_food",
+                                "5": "furnace_blocks",
+                                "6": "furnace_misc",
+                                "7": "blast_furnace_blocks",
+                                "8": "blast_furnace_misc",
+                                "9": "smoker_food",
+                                "10": "stonecutter",
+                                "11": "smithing",
+                                "12": "campfire"
+                              }
+                            }
+                          ]
+                        },
+                        {
+                          "name": "craftingRequirements",
+                          "type": [
+                            "option",
+                            [
+                              "array",
+                              {
+                                "type": "IDSet",
+                                "countType": "varint"
+                              }
+                            ]
+                          ]
+                        }
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "flags",
+                    "type": [
+                      "bitflags",
+                      {
+                        "type": "u8",
+                        "flags": [
+                          "notification",
+                          "highlight"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "replace",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

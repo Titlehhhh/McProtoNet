@@ -1,0 +1,41 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSetSlotState",
+  "history": {
+    "735-764": null,
+    "765-767": [
+      "container",
+      [
+        {
+          "name": "slot_id",
+          "type": "varint"
+        },
+        {
+          "name": "window_id",
+          "type": "varint"
+        },
+        {
+          "name": "state",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "slot_id",
+          "type": "varint"
+        },
+        {
+          "name": "window_id",
+          "type": "ContainerID"
+        },
+        {
+          "name": "state",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

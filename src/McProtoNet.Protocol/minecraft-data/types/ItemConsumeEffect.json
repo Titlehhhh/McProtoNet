@@ -1,0 +1,86 @@
+{
+  "path": "",
+  "name": "ItemConsumeEffect",
+  "history": {
+    "735-767": null,
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "apply_effects",
+                "1": "remove_effects",
+                "2": "clear_all_effects",
+                "3": "teleport_randomly",
+                "4": "play_sound"
+              }
+            }
+          ]
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "apply_effects": [
+                  "container",
+                  [
+                    {
+                      "name": "effects",
+                      "type": [
+                        "array",
+                        {
+                          "type": "ItemPotionEffect",
+                          "countType": "varint"
+                        }
+                      ]
+                    },
+                    {
+                      "name": "probability",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "remove_effects": [
+                  "container",
+                  [
+                    {
+                      "name": "effects",
+                      "type": "IDSet"
+                    }
+                  ]
+                ],
+                "clear_all_effects": "void",
+                "teleport_randomly": [
+                  "container",
+                  [
+                    {
+                      "name": "diameter",
+                      "type": "f32"
+                    }
+                  ]
+                ],
+                "play_sound": [
+                  "container",
+                  [
+                    {
+                      "name": "sound",
+                      "type": "ItemSoundHolder"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

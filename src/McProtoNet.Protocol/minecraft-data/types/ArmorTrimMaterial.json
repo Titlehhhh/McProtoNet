@@ -1,0 +1,81 @@
+{
+  "path": "",
+  "name": "ArmorTrimMaterial",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "assetName",
+          "type": "string"
+        },
+        {
+          "name": "ingredientId",
+          "type": "varint"
+        },
+        {
+          "name": "overrideArmorAssets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "assetBase",
+          "type": "string"
+        },
+        {
+          "name": "overrideArmorAssets",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

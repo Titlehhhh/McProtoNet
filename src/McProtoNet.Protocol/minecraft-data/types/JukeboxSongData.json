@@ -1,0 +1,28 @@
+{
+  "path": "",
+  "name": "JukeboxSongData",
+  "history": {
+    "735-766": null,
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "soundEvent",
+          "type": "ItemSoundHolder"
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "lengthInSeconds",
+          "type": "f32"
+        },
+        {
+          "name": "comparatorOutput",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

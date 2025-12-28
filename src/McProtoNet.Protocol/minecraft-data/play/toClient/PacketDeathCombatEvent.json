@@ -1,0 +1,50 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDeathCombatEvent",
+  "history": {
+    "735-754": null,
+    "755-762": [
+      "container",
+      [
+        {
+          "name": "playerId",
+          "type": "varint"
+        },
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    ],
+    "763-764": [
+      "container",
+      [
+        {
+          "name": "playerId",
+          "type": "varint"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "playerId",
+          "type": "varint"
+        },
+        {
+          "name": "message",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

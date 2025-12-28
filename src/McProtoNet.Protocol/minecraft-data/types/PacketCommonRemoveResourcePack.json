@@ -1,0 +1,19 @@
+{
+  "path": "",
+  "name": "PacketCommonRemoveResourcePack",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": [
+            "option",
+            "UUID"
+          ]
+        }
+      ]
+    ]
+  }
+}

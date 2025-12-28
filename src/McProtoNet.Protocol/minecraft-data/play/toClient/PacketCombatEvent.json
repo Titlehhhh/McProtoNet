@@ -1,0 +1,69 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCombatEvent",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "event",
+          "type": "varint"
+        },
+        {
+          "name": "duration",
+          "type": [
+            "switch",
+            {
+              "compareTo": "event",
+              "fields": {
+                "1": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "playerId",
+          "type": [
+            "switch",
+            {
+              "compareTo": "event",
+              "fields": {
+                "2": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "entityId",
+          "type": [
+            "switch",
+            {
+              "compareTo": "event",
+              "fields": {
+                "1": "i32",
+                "2": "i32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "message",
+          "type": [
+            "switch",
+            {
+              "compareTo": "event",
+              "fields": {
+                "2": "string"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-772": null
+  }
+}

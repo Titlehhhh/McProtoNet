@@ -1,0 +1,106 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSettings",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "locale",
+          "type": "string"
+        },
+        {
+          "name": "viewDistance",
+          "type": "i8"
+        },
+        {
+          "name": "chatFlags",
+          "type": "varint"
+        },
+        {
+          "name": "chatColors",
+          "type": "bool"
+        },
+        {
+          "name": "skinParts",
+          "type": "u8"
+        },
+        {
+          "name": "mainHand",
+          "type": "varint"
+        }
+      ]
+    ],
+    "755-756": [
+      "container",
+      [
+        {
+          "name": "locale",
+          "type": "string"
+        },
+        {
+          "name": "viewDistance",
+          "type": "i8"
+        },
+        {
+          "name": "chatFlags",
+          "type": "varint"
+        },
+        {
+          "name": "chatColors",
+          "type": "bool"
+        },
+        {
+          "name": "skinParts",
+          "type": "u8"
+        },
+        {
+          "name": "mainHand",
+          "type": "varint"
+        },
+        {
+          "name": "disableTextFiltering",
+          "type": "bool"
+        }
+      ]
+    ],
+    "757-765": [
+      "container",
+      [
+        {
+          "name": "locale",
+          "type": "string"
+        },
+        {
+          "name": "viewDistance",
+          "type": "i8"
+        },
+        {
+          "name": "chatFlags",
+          "type": "varint"
+        },
+        {
+          "name": "chatColors",
+          "type": "bool"
+        },
+        {
+          "name": "skinParts",
+          "type": "u8"
+        },
+        {
+          "name": "mainHand",
+          "type": "varint"
+        },
+        {
+          "name": "enableTextFiltering",
+          "type": "bool"
+        },
+        {
+          "name": "enableServerListing",
+          "type": "bool"
+        }
+      ]
+    ],
+    "766-772": null
+  }
+}

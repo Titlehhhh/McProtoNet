@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketArmAnimation",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

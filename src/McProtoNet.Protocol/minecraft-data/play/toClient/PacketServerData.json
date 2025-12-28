@@ -1,0 +1,146 @@
+{
+  "path": "play.toClient",
+  "name": "PacketServerData",
+  "history": {
+    "735-758": null,
+    "759": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "icon",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "previewsChat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "760": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "icon",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "previewsChat",
+          "type": "bool"
+        },
+        {
+          "name": "enforcesSecureChat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "761": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "icon",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "enforcesSecureChat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "762-764": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": "string"
+        },
+        {
+          "name": "iconBytes",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "enforcesSecureChat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "765": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "iconBytes",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "enforcesSecureChat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "motd",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "iconBytes",
+          "type": [
+            "option",
+            "ByteArray"
+          ]
+        }
+      ]
+    ]
+  }
+}

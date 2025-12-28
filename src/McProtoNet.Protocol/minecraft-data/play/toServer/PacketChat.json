@@ -1,0 +1,16 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChat",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    ],
+    "759-772": null
+  }
+}

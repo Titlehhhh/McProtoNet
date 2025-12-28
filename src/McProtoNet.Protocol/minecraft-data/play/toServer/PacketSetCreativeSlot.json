@@ -1,0 +1,45 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSetCreativeSlot",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "slot"
+        }
+      ]
+    ],
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "Slot"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "UntrustedSlot"
+        }
+      ]
+    ]
+  }
+}

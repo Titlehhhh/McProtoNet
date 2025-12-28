@@ -1,0 +1,1196 @@
+{
+  "path": "play.toClient",
+  "name": "PacketAdvancements",
+  "history": {
+    "735-762": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "_unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "criteria",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "container",
+                                [
+                                  {
+                                    "name": "key",
+                                    "type": "string"
+                                  },
+                                  {
+                                    "name": "value",
+                                    "type": "void"
+                                  }
+                                ]
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "763": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "_unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "criteria",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "container",
+                                [
+                                  {
+                                    "name": "key",
+                                    "type": "string"
+                                  },
+                                  {
+                                    "name": "value",
+                                    "type": "void"
+                                  }
+                                ]
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "sendsTelemtryData",
+                          "type": "bool"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "764": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "string"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "_unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "sendsTelemtryData",
+                          "type": "bool"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "765": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "_unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "sendsTelemtryData",
+                          "type": "bool"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "Slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "sendsTelemtryData",
+                          "type": "bool"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "reset",
+          "type": "bool"
+        },
+        {
+          "name": "advancementMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "container",
+                      [
+                        {
+                          "name": "parentId",
+                          "type": [
+                            "option",
+                            "string"
+                          ]
+                        },
+                        {
+                          "name": "displayData",
+                          "type": [
+                            "option",
+                            [
+                              "container",
+                              [
+                                {
+                                  "name": "title",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "description",
+                                  "type": "anonymousNbt"
+                                },
+                                {
+                                  "name": "icon",
+                                  "type": "Slot"
+                                },
+                                {
+                                  "name": "frameType",
+                                  "type": "varint"
+                                },
+                                {
+                                  "name": "flags",
+                                  "type": [
+                                    "bitfield",
+                                    [
+                                      {
+                                        "name": "unused",
+                                        "size": 29,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "hidden",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "show_toast",
+                                        "size": 1,
+                                        "signed": false
+                                      },
+                                      {
+                                        "name": "has_background_texture",
+                                        "size": 1,
+                                        "signed": false
+                                      }
+                                    ]
+                                  ]
+                                },
+                                {
+                                  "name": "backgroundTexture",
+                                  "type": [
+                                    "switch",
+                                    {
+                                      "compareTo": "flags/has_background_texture",
+                                      "fields": {
+                                        "1": "string"
+                                      },
+                                      "default": "void"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "name": "xCord",
+                                  "type": "f32"
+                                },
+                                {
+                                  "name": "yCord",
+                                  "type": "f32"
+                                }
+                              ]
+                            ]
+                          ]
+                        },
+                        {
+                          "name": "requirements",
+                          "type": [
+                            "array",
+                            {
+                              "type": [
+                                "array",
+                                {
+                                  "type": "string",
+                                  "countType": "varint"
+                                }
+                              ],
+                              "countType": "varint"
+                            }
+                          ]
+                        },
+                        {
+                          "name": "sendsTelemtryData",
+                          "type": "bool"
+                        }
+                      ]
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "identifiers",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "progressMapping",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "array",
+                      {
+                        "type": [
+                          "container",
+                          [
+                            {
+                              "name": "criterionIdentifier",
+                              "type": "string"
+                            },
+                            {
+                              "name": "criterionProgress",
+                              "type": [
+                                "option",
+                                "i64"
+                              ]
+                            }
+                          ]
+                        ],
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "showAdvancements",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChatSessionUpdate",
+  "history": {
+    "735-760": null,
+    "761-765": [
+      "container",
+      [
+        {
+          "name": "sessionUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "expireTime",
+          "type": "i64"
+        },
+        {
+          "name": "publicKey",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "sessionUUID",
+          "type": "UUID"
+        },
+        {
+          "name": "expireTime",
+          "type": "i64"
+        },
+        {
+          "name": "publicKey",
+          "type": "ByteArray"
+        },
+        {
+          "name": "signature",
+          "type": "ByteArray"
+        }
+      ]
+    ]
+  }
+}

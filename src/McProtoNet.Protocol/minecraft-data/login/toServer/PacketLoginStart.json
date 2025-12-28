@@ -1,0 +1,135 @@
+{
+  "path": "login.toServer",
+  "name": "PacketLoginStart",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "username",
+          "type": "string"
+        }
+      ]
+    ],
+    "759": [
+      "container",
+      [
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "timestamp",
+                  "type": "i64"
+                },
+                {
+                  "name": "publicKey",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                },
+                {
+                  "name": "signature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "760": [
+      "container",
+      [
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "timestamp",
+                  "type": "i64"
+                },
+                {
+                  "name": "publicKey",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                },
+                {
+                  "name": "signature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "playerUUID",
+          "type": [
+            "option",
+            "UUID"
+          ]
+        }
+      ]
+    ],
+    "761-763": [
+      "container",
+      [
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "playerUUID",
+          "type": [
+            "option",
+            "UUID"
+          ]
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "username",
+          "type": "string"
+        },
+        {
+          "name": "playerUUID",
+          "type": "UUID"
+        }
+      ]
+    ]
+  }
+}

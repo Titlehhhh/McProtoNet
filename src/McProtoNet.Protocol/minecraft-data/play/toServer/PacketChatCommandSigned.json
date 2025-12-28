@@ -1,0 +1,125 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChatCommandSigned",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "argumentSignatures",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "argumentName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "buffer",
+                      {
+                        "count": 256
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "messageCount",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "command",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "argumentSignatures",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "argumentName",
+                    "type": "string"
+                  },
+                  {
+                    "name": "signature",
+                    "type": [
+                      "buffer",
+                      {
+                        "count": 256
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "messageCount",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        },
+        {
+          "name": "checksum",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

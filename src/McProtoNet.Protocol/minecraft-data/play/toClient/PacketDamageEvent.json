@@ -1,0 +1,35 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDamageEvent",
+  "history": {
+    "735-761": null,
+    "762-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "sourceTypeId",
+          "type": "varint"
+        },
+        {
+          "name": "sourceCauseId",
+          "type": "varint"
+        },
+        {
+          "name": "sourceDirectId",
+          "type": "varint"
+        },
+        {
+          "name": "sourcePosition",
+          "type": [
+            "option",
+            "vec3f64"
+          ]
+        }
+      ]
+    ]
+  }
+}

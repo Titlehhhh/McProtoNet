@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketPlayerlistHeader",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "header",
+          "type": "string"
+        },
+        {
+          "name": "footer",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "header",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "footer",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

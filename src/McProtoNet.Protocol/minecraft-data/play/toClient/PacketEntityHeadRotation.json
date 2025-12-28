@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityHeadRotation",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "headYaw",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

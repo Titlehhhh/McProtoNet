@@ -1,0 +1,17 @@
+{
+  "path": "",
+  "name": "MinecraftSimpleRecipeFormat",
+  "history": {
+    "735-760": null,
+    "761-767": [
+      "container",
+      [
+        {
+          "name": "category",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": null
+  }
+}

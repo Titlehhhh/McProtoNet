@@ -1,0 +1,24 @@
+{
+  "path": "play.toClient",
+  "name": "PacketChat",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "position",
+          "type": "i8"
+        },
+        {
+          "name": "sender",
+          "type": "UUID"
+        }
+      ]
+    ],
+    "759-772": null
+  }
+}

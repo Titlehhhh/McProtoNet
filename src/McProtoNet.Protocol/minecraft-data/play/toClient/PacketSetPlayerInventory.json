@@ -1,0 +1,36 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetPlayerInventory",
+  "history": {
+    "735-767": null,
+    "768": [
+      "container",
+      [
+        {
+          "name": "slotId",
+          "type": "varint"
+        },
+        {
+          "name": "contents",
+          "type": [
+            "option",
+            "Slot"
+          ]
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "slotId",
+          "type": "varint"
+        },
+        {
+          "name": "contents",
+          "type": "Slot"
+        }
+      ]
+    ]
+  }
+}

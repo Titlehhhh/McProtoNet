@@ -1,0 +1,81 @@
+{
+  "path": "play.toClient",
+  "name": "PacketInitializeWorldBorder",
+  "history": {
+    "735-754": null,
+    "755-758": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "oldDiameter",
+          "type": "f64"
+        },
+        {
+          "name": "newDiameter",
+          "type": "f64"
+        },
+        {
+          "name": "speed",
+          "type": "varlong"
+        },
+        {
+          "name": "portalTeleportBoundary",
+          "type": "varint"
+        },
+        {
+          "name": "warningBlocks",
+          "type": "varint"
+        },
+        {
+          "name": "warningTime",
+          "type": "varint"
+        }
+      ]
+    ],
+    "759-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "oldDiameter",
+          "type": "f64"
+        },
+        {
+          "name": "newDiameter",
+          "type": "f64"
+        },
+        {
+          "name": "speed",
+          "type": "varint"
+        },
+        {
+          "name": "portalTeleportBoundary",
+          "type": "varint"
+        },
+        {
+          "name": "warningBlocks",
+          "type": "varint"
+        },
+        {
+          "name": "warningTime",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

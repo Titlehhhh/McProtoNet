@@ -1,0 +1,28 @@
+{
+  "path": "",
+  "name": "Vec4f",
+  "history": {
+    "735-761": null,
+    "762-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f32"
+        },
+        {
+          "name": "y",
+          "type": "f32"
+        },
+        {
+          "name": "z",
+          "type": "f32"
+        },
+        {
+          "name": "w",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

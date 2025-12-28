@@ -1,0 +1,208 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWorldParticles",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "particleId",
+          "type": "i32"
+        },
+        {
+          "name": "longDistance",
+          "type": "bool"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "offsetX",
+          "type": "f32"
+        },
+        {
+          "name": "offsetY",
+          "type": "f32"
+        },
+        {
+          "name": "offsetZ",
+          "type": "f32"
+        },
+        {
+          "name": "particleData",
+          "type": "f32"
+        },
+        {
+          "name": "particles",
+          "type": "i32"
+        },
+        {
+          "name": "data",
+          "type": [
+            "particleData",
+            {
+              "compareTo": "particleId"
+            }
+          ]
+        }
+      ]
+    ],
+    "759-765": [
+      "container",
+      [
+        {
+          "name": "particleId",
+          "type": "varint"
+        },
+        {
+          "name": "longDistance",
+          "type": "bool"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "offsetX",
+          "type": "f32"
+        },
+        {
+          "name": "offsetY",
+          "type": "f32"
+        },
+        {
+          "name": "offsetZ",
+          "type": "f32"
+        },
+        {
+          "name": "particleData",
+          "type": "f32"
+        },
+        {
+          "name": "particles",
+          "type": "i32"
+        },
+        {
+          "name": "data",
+          "type": [
+            "particleData",
+            {
+              "compareTo": "particleId"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-768": [
+      "container",
+      [
+        {
+          "name": "longDistance",
+          "type": "bool"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "offsetX",
+          "type": "f32"
+        },
+        {
+          "name": "offsetY",
+          "type": "f32"
+        },
+        {
+          "name": "offsetZ",
+          "type": "f32"
+        },
+        {
+          "name": "velocityOffset",
+          "type": "f32"
+        },
+        {
+          "name": "amount",
+          "type": "i32"
+        },
+        {
+          "name": "particle",
+          "type": "Particle"
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "longDistance",
+          "type": "bool"
+        },
+        {
+          "name": "alwaysShow",
+          "type": "bool"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "offsetX",
+          "type": "f32"
+        },
+        {
+          "name": "offsetY",
+          "type": "f32"
+        },
+        {
+          "name": "offsetZ",
+          "type": "f32"
+        },
+        {
+          "name": "velocityOffset",
+          "type": "f32"
+        },
+        {
+          "name": "amount",
+          "type": "i32"
+        },
+        {
+          "name": "particle",
+          "type": "Particle"
+        }
+      ]
+    ]
+  }
+}

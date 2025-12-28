@@ -1,0 +1,466 @@
+{
+  "path": "",
+  "name": "EntityMetadataItem",
+  "history": {
+    "735-759": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "0": "i8",
+          "1": "varint",
+          "2": "f32",
+          "3": "string",
+          "4": "string",
+          "5": [
+            "option",
+            "string"
+          ],
+          "6": "slot",
+          "7": "bool",
+          "8": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "9": "position",
+          "10": [
+            "option",
+            "position"
+          ],
+          "11": "varint",
+          "12": [
+            "option",
+            "UUID"
+          ],
+          "13": "varint",
+          "14": "nbt",
+          "15": "particle",
+          "16": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "17": "optvarint",
+          "18": "varint"
+        }
+      }
+    ],
+    "760": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "0": "i8",
+          "1": "varint",
+          "2": "f32",
+          "3": "string",
+          "4": "string",
+          "5": [
+            "option",
+            "string"
+          ],
+          "6": "slot",
+          "7": "bool",
+          "8": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "9": "position",
+          "10": [
+            "option",
+            "position"
+          ],
+          "11": "varint",
+          "12": [
+            "option",
+            "UUID"
+          ],
+          "13": "varint",
+          "14": "nbt",
+          "15": "particle",
+          "16": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "17": "optvarint",
+          "18": "varint",
+          "19": "varint",
+          "20": "varint",
+          "21": [
+            "option",
+            "string"
+          ],
+          "22": "varint"
+        }
+      }
+    ],
+    "761": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "0": "i8",
+          "1": "varint",
+          "2": "varlong",
+          "3": "f32",
+          "4": "string",
+          "5": "string",
+          "6": [
+            "option",
+            "string"
+          ],
+          "7": "slot",
+          "8": "bool",
+          "9": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "10": "position",
+          "11": [
+            "option",
+            "position"
+          ],
+          "12": "varint",
+          "13": [
+            "option",
+            "UUID"
+          ],
+          "14": "varint",
+          "15": "nbt",
+          "16": "particle",
+          "17": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "18": "optvarint",
+          "19": "varint",
+          "20": "varint",
+          "21": "varint",
+          "22": [
+            "option",
+            "string"
+          ],
+          "23": "varint"
+        }
+      }
+    ],
+    "762-763": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "byte": "i8",
+          "int": "varint",
+          "long": "varlong",
+          "float": "f32",
+          "string": "string",
+          "component": "string",
+          "optional_component": [
+            "option",
+            "string"
+          ],
+          "item_stack": "slot",
+          "boolean": "bool",
+          "rotations": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "block_pos": "position",
+          "optional_block_pos": [
+            "option",
+            "position"
+          ],
+          "direction": "varint",
+          "optional_uuid": [
+            "option",
+            "UUID"
+          ],
+          "block_state": "varint",
+          "optional_block_state": "optvarint",
+          "compound_tag": "nbt",
+          "particle": "particle",
+          "villager_data": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "optional_unsigned_int": "optvarint",
+          "pose": "varint",
+          "cat_variant": "varint",
+          "frog_variant": "varint",
+          "optional_global_pos": [
+            "option",
+            "string"
+          ],
+          "painting_variant": "varint",
+          "sniffer_state": "varint",
+          "vector3": "vec3f",
+          "quaternion": "vec4f"
+        }
+      }
+    ],
+    "764": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "byte": "i8",
+          "int": "varint",
+          "long": "varlong",
+          "float": "f32",
+          "string": "string",
+          "component": "string",
+          "optional_component": [
+            "option",
+            "string"
+          ],
+          "item_stack": "slot",
+          "boolean": "bool",
+          "rotations": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "block_pos": "position",
+          "optional_block_pos": [
+            "option",
+            "position"
+          ],
+          "direction": "varint",
+          "optional_uuid": [
+            "option",
+            "UUID"
+          ],
+          "block_state": "varint",
+          "optional_block_state": "optvarint",
+          "compound_tag": "anonymousNbt",
+          "particle": "particle",
+          "villager_data": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "optional_unsigned_int": "optvarint",
+          "pose": "varint",
+          "cat_variant": "varint",
+          "frog_variant": "varint",
+          "optional_global_pos": [
+            "option",
+            "string"
+          ],
+          "painting_variant": "varint",
+          "sniffer_state": "varint",
+          "vector3": "vec3f",
+          "quaternion": "vec4f"
+        }
+      }
+    ],
+    "765": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "byte": "i8",
+          "int": "varint",
+          "long": "varlong",
+          "float": "f32",
+          "string": "string",
+          "component": "anonymousNbt",
+          "optional_component": [
+            "option",
+            "anonymousNbt"
+          ],
+          "item_stack": "slot",
+          "boolean": "bool",
+          "rotations": [
+            "container",
+            [
+              {
+                "name": "pitch",
+                "type": "f32"
+              },
+              {
+                "name": "yaw",
+                "type": "f32"
+              },
+              {
+                "name": "roll",
+                "type": "f32"
+              }
+            ]
+          ],
+          "block_pos": "position",
+          "optional_block_pos": [
+            "option",
+            "position"
+          ],
+          "direction": "varint",
+          "optional_uuid": [
+            "option",
+            "UUID"
+          ],
+          "block_state": "varint",
+          "optional_block_state": "optvarint",
+          "compound_tag": "anonymousNbt",
+          "particle": "Particle",
+          "villager_data": [
+            "container",
+            [
+              {
+                "name": "villagerType",
+                "type": "varint"
+              },
+              {
+                "name": "villagerProfession",
+                "type": "varint"
+              },
+              {
+                "name": "level",
+                "type": "varint"
+              }
+            ]
+          ],
+          "optional_unsigned_int": "optvarint",
+          "pose": "varint",
+          "cat_variant": "varint",
+          "frog_variant": "varint",
+          "optional_global_pos": [
+            "option",
+            "string"
+          ],
+          "painting_variant": "varint",
+          "sniffer_state": "varint",
+          "vector3": "vec3f",
+          "quaternion": "vec4f"
+        }
+      }
+    ],
+    "766-772": null
+  }
+}

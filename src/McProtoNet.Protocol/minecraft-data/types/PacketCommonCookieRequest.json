@@ -1,0 +1,16 @@
+{
+  "path": "",
+  "name": "PacketCommonCookieRequest",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "cookie",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "path": "",
+  "name": "MinecraftSmeltingFormat",
+  "history": {
+    "735-760": [
+      "container",
+      [
+        {
+          "name": "group",
+          "type": "string"
+        },
+        {
+          "name": "ingredient",
+          "type": "ingredient"
+        },
+        {
+          "name": "result",
+          "type": "slot"
+        },
+        {
+          "name": "experience",
+          "type": "f32"
+        },
+        {
+          "name": "cookTime",
+          "type": "varint"
+        }
+      ]
+    ],
+    "761-765": [
+      "container",
+      [
+        {
+          "name": "group",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "type": "varint"
+        },
+        {
+          "name": "ingredient",
+          "type": "ingredient"
+        },
+        {
+          "name": "result",
+          "type": "slot"
+        },
+        {
+          "name": "experience",
+          "type": "f32"
+        },
+        {
+          "name": "cookTime",
+          "type": "varint"
+        }
+      ]
+    ],
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "group",
+          "type": "string"
+        },
+        {
+          "name": "category",
+          "type": "varint"
+        },
+        {
+          "name": "ingredient",
+          "type": "ingredient"
+        },
+        {
+          "name": "result",
+          "type": "Slot"
+        },
+        {
+          "name": "experience",
+          "type": "f32"
+        },
+        {
+          "name": "cookTime",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": null
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "path": "handshaking.toServer",
+  "name": "PacketSetProtocol",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "protocolVersion",
+          "type": "varint"
+        },
+        {
+          "name": "serverHost",
+          "type": "string"
+        },
+        {
+          "name": "serverPort",
+          "type": "u16"
+        },
+        {
+          "name": "nextState",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

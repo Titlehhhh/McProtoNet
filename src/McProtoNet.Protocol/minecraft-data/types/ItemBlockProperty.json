@@ -1,0 +1,53 @@
+{
+  "path": "",
+  "name": "ItemBlockProperty",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "isExactMatch",
+          "type": "bool"
+        },
+        {
+          "name": "value",
+          "type": [
+            "switch",
+            {
+              "compareTo": "isExactMatch",
+              "fields": {
+                "true": [
+                  "container",
+                  [
+                    {
+                      "name": "exactValue",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "false": [
+                  "container",
+                  [
+                    {
+                      "name": "minValue",
+                      "type": "string"
+                    },
+                    {
+                      "name": "maxValue",
+                      "type": "string"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "path": "",
+  "name": "ArmorTrimPattern",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "assetId",
+          "type": "string"
+        },
+        {
+          "name": "templateItemId",
+          "type": "varint"
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "decal",
+          "type": "bool"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "assetId",
+          "type": "string"
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "decal",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

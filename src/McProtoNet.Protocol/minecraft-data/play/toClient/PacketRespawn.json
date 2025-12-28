@@ -1,0 +1,325 @@
+{
+  "path": "play.toClient",
+  "name": "PacketRespawn",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        }
+      ]
+    ],
+    "751-758": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "nbt"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        }
+      ]
+    ],
+    "759": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "760-762": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "i8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "763": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "i8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        }
+      ]
+    ],
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gamemode",
+          "type": "i8"
+        },
+        {
+          "name": "previousGamemode",
+          "type": "u8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "bool"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "worldState",
+          "type": "SpawnInfo"
+        },
+        {
+          "name": "copyMetadata",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

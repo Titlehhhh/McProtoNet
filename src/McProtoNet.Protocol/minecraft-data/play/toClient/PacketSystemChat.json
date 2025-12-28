@@ -1,0 +1,46 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSystemChat",
+  "history": {
+    "735-758": null,
+    "759": [
+      "container",
+      [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        }
+      ]
+    ],
+    "760-764": [
+      "container",
+      [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "isActionBar",
+          "type": "bool"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "content",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "isActionBar",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

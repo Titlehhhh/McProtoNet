@@ -1,0 +1,27 @@
+{
+  "path": "play.toClient",
+  "name": "PacketBlockAction",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "byte1",
+          "type": "u8"
+        },
+        {
+          "name": "byte2",
+          "type": "u8"
+        },
+        {
+          "name": "blockId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

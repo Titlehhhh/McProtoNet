@@ -1,0 +1,28 @@
+{
+  "path": "play.toServer",
+  "name": "PacketResourcePackReceive",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "result",
+          "type": "varint"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "uuid",
+          "type": "UUID"
+        },
+        {
+          "name": "result",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

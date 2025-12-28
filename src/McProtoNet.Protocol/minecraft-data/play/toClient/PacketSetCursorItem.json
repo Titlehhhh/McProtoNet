@@ -1,0 +1,28 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetCursorItem",
+  "history": {
+    "735-767": null,
+    "768": [
+      "container",
+      [
+        {
+          "name": "contents",
+          "type": [
+            "option",
+            "Slot"
+          ]
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "contents",
+          "type": "Slot"
+        }
+      ]
+    ]
+  }
+}

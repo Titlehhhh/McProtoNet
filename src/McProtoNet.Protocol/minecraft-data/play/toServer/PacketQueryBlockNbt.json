@@ -1,0 +1,19 @@
+{
+  "path": "play.toServer",
+  "name": "PacketQueryBlockNbt",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "transactionId",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        }
+      ]
+    ]
+  }
+}

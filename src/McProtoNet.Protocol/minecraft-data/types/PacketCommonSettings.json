@@ -1,0 +1,95 @@
+{
+  "path": "",
+  "name": "PacketCommonSettings",
+  "history": {
+    "735-765": null,
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "locale",
+          "type": "string"
+        },
+        {
+          "name": "viewDistance",
+          "type": "i8"
+        },
+        {
+          "name": "chatFlags",
+          "type": "varint"
+        },
+        {
+          "name": "chatColors",
+          "type": "bool"
+        },
+        {
+          "name": "skinParts",
+          "type": "u8"
+        },
+        {
+          "name": "mainHand",
+          "type": "varint"
+        },
+        {
+          "name": "enableTextFiltering",
+          "type": "bool"
+        },
+        {
+          "name": "enableServerListing",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "locale",
+          "type": "string"
+        },
+        {
+          "name": "viewDistance",
+          "type": "i8"
+        },
+        {
+          "name": "chatFlags",
+          "type": "varint"
+        },
+        {
+          "name": "chatColors",
+          "type": "bool"
+        },
+        {
+          "name": "skinParts",
+          "type": "u8"
+        },
+        {
+          "name": "mainHand",
+          "type": "varint"
+        },
+        {
+          "name": "enableTextFiltering",
+          "type": "bool"
+        },
+        {
+          "name": "enableServerListing",
+          "type": "bool"
+        },
+        {
+          "name": "particleStatus",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "all",
+                "1": "decreased",
+                "2": "minimal"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

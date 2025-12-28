@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketScoreboardDisplayObjective",
+  "history": {
+    "735-763": [
+      "container",
+      [
+        {
+          "name": "position",
+          "type": "i8"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "position",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

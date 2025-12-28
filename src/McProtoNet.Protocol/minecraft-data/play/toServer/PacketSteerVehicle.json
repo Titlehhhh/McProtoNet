@@ -1,0 +1,24 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSteerVehicle",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "sideways",
+          "type": "f32"
+        },
+        {
+          "name": "forward",
+          "type": "f32"
+        },
+        {
+          "name": "jump",
+          "type": "u8"
+        }
+      ]
+    ],
+    "768-772": null
+  }
+}

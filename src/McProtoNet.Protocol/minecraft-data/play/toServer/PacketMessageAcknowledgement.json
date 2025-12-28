@@ -1,0 +1,49 @@
+{
+  "path": "play.toServer",
+  "name": "PacketMessageAcknowledgement",
+  "history": {
+    "735-759": null,
+    "760": [
+      "container",
+      [
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "lastRejectedMessage",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "sender",
+                  "type": "UUID"
+                },
+                {
+                  "name": "signature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "761-772": [
+      "container",
+      [
+        {
+          "name": "count",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

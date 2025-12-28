@@ -1,0 +1,54 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTags",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "blockTags",
+          "type": "tags"
+        },
+        {
+          "name": "itemTags",
+          "type": "tags"
+        },
+        {
+          "name": "fluidTags",
+          "type": "tags"
+        },
+        {
+          "name": "entityTags",
+          "type": "tags"
+        }
+      ]
+    ],
+    "755-772": [
+      "container",
+      [
+        {
+          "name": "tags",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "tagType",
+                    "type": "string"
+                  },
+                  {
+                    "name": "tags",
+                    "type": "tags"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

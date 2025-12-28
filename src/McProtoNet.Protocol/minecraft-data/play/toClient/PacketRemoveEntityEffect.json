@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketRemoveEntityEffect",
+  "history": {
+    "735-757": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "i8"
+        }
+      ]
+    ],
+    "758-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

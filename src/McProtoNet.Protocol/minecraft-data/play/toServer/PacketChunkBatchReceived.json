@@ -1,0 +1,16 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChunkBatchReceived",
+  "history": {
+    "735-763": null,
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "chunksPerTick",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

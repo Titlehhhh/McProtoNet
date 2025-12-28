@@ -1,0 +1,50 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketRegistryData",
+  "history": {
+    "735-763": null,
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "codec",
+          "type": "anonymousNbt"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "name": "entries",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": [
+                      "option",
+                      "anonymousNbt"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

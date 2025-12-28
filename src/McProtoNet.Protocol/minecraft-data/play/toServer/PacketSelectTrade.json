@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSelectTrade",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "path": "",
+  "name": "EntityMetadataWolfVariant",
+  "history": {
+    "735-765": null,
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "wildTexture",
+          "type": "string"
+        },
+        {
+          "name": "tameTexture",
+          "type": "string"
+        },
+        {
+          "name": "angryTexture",
+          "type": "string"
+        },
+        {
+          "name": "biome",
+          "type": "IDSet"
+        }
+      ]
+    ],
+    "770-772": null
+  }
+}

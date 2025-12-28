@@ -1,0 +1,11 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketResetChat",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      []
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "path": "play.toServer",
+  "name": "MovementFlags",
+  "history": {
+    "735-767": null,
+    "768": [
+      "bitflags",
+      {
+        "type": "u8",
+        "flags": [
+          "onGround",
+          "hasHorizontalCollision"
+        ]
+      }
+    ],
+    "769": [
+      "bitflags",
+      {
+        "type": "u8",
+        "flags": [
+          "onGround",
+          "hasHorizontalCollision"
+        ]
+      }
+    ],
+    "770": [
+      "bitflags",
+      {
+        "type": "u8",
+        "flags": [
+          "onGround",
+          "hasHorizontalCollision"
+        ]
+      }
+    ],
+    "771": [
+      "bitflags",
+      {
+        "type": "u8",
+        "flags": [
+          "onGround",
+          "hasHorizontalCollision"
+        ]
+      }
+    ],
+    "772": [
+      "bitflags",
+      {
+        "type": "u8",
+        "flags": [
+          "onGround",
+          "hasHorizontalCollision"
+        ]
+      }
+    ]
+  }
+}

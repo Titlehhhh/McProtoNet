@@ -1,0 +1,19 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityMetadata",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "metadata",
+          "type": "entityMetadata"
+        }
+      ]
+    ]
+  }
+}

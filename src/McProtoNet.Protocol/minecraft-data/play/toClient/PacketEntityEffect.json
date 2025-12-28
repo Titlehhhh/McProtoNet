@@ -1,0 +1,145 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityEffect",
+  "history": {
+    "735-757": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "i8"
+        },
+        {
+          "name": "amplifier",
+          "type": "i8"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "hideParticles",
+          "type": "i8"
+        }
+      ]
+    ],
+    "758": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "varint"
+        },
+        {
+          "name": "amplifier",
+          "type": "i8"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "hideParticles",
+          "type": "i8"
+        }
+      ]
+    ],
+    "759-763": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "varint"
+        },
+        {
+          "name": "amplifier",
+          "type": "i8"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "hideParticles",
+          "type": "i8"
+        },
+        {
+          "name": "factorCodec",
+          "type": [
+            "option",
+            "nbt"
+          ]
+        }
+      ]
+    ],
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "varint"
+        },
+        {
+          "name": "amplifier",
+          "type": "i8"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "hideParticles",
+          "type": "i8"
+        },
+        {
+          "name": "factorCodec",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "effectId",
+          "type": "varint"
+        },
+        {
+          "name": "amplifier",
+          "type": "varint"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "flags",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,43 @@
+{
+  "path": "play.toClient",
+  "name": "PacketStopSound",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "flags",
+          "type": "i8"
+        },
+        {
+          "name": "source",
+          "type": [
+            "switch",
+            {
+              "compareTo": "flags",
+              "fields": {
+                "1": "varint",
+                "3": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "sound",
+          "type": [
+            "switch",
+            {
+              "compareTo": "flags",
+              "fields": {
+                "2": "string",
+                "3": "string"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

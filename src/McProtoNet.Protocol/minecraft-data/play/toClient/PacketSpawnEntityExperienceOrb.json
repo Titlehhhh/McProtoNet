@@ -1,0 +1,32 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSpawnEntityExperienceOrb",
+  "history": {
+    "735-769": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "count",
+          "type": "i16"
+        }
+      ]
+    ],
+    "770-772": null
+  }
+}

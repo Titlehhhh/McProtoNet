@@ -1,0 +1,39 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityTeleport",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "y",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        },
+        {
+          "name": "yaw",
+          "type": "i8"
+        },
+        {
+          "name": "pitch",
+          "type": "i8"
+        },
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

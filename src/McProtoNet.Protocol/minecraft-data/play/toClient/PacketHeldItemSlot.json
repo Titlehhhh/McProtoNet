@@ -1,0 +1,24 @@
+{
+  "path": "play.toClient",
+  "name": "PacketHeldItemSlot",
+  "history": {
+    "735-768": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "i8"
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

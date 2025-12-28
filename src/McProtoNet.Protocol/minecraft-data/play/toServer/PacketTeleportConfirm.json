@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketTeleportConfirm",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "teleportId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

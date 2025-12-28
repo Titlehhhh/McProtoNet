@@ -1,0 +1,17 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDestroyEntity",
+  "history": {
+    "735-754": null,
+    "755": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "756-772": null
+  }
+}

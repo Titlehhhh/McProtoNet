@@ -1,0 +1,38 @@
+{
+  "path": "",
+  "name": "EntityMetadataPaintingVariant",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "width",
+          "type": "i32"
+        },
+        {
+          "name": "height",
+          "type": "i32"
+        },
+        {
+          "name": "assetId",
+          "type": "string"
+        },
+        {
+          "name": "title",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        },
+        {
+          "name": "author",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTestInstanceBlockStatus",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "status",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "size",
+          "type": [
+            "option",
+            "vec3i"
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSteerBoat",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "leftPaddle",
+          "type": "bool"
+        },
+        {
+          "name": "rightPaddle",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

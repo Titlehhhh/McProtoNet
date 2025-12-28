@@ -1,0 +1,251 @@
+{
+  "path": "play.toClient",
+  "name": "PacketMultiBlockChange",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "chunkX",
+          "type": "i32"
+        },
+        {
+          "name": "chunkZ",
+          "type": "i32"
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "horizontalPos",
+                    "type": "u8"
+                  },
+                  {
+                    "name": "y",
+                    "type": "u8"
+                  },
+                  {
+                    "name": "blockId",
+                    "type": "varint"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "751-756": [
+      "container",
+      [
+        {
+          "name": "chunkCoordinates",
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "z",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "y",
+                "size": 20,
+                "signed": false
+              }
+            ]
+          ]
+        },
+        {
+          "name": "notTrustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": "varlong",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "757-758": [
+      "container",
+      [
+        {
+          "name": "chunkCoordinates",
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "z",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "y",
+                "size": 20,
+                "signed": true
+              }
+            ]
+          ]
+        },
+        {
+          "name": "notTrustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": "varlong",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "759": [
+      "container",
+      [
+        {
+          "name": "chunkCoordinates",
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "z",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "y",
+                "size": 20,
+                "signed": true
+              }
+            ]
+          ]
+        },
+        {
+          "name": "notTrustEdges",
+          "type": "bool"
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": "varint",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "760-762": [
+      "container",
+      [
+        {
+          "name": "chunkCoordinates",
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "z",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "y",
+                "size": 20,
+                "signed": true
+              }
+            ]
+          ]
+        },
+        {
+          "name": "suppressLightUpdates",
+          "type": "bool"
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": "varint",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "763-772": [
+      "container",
+      [
+        {
+          "name": "chunkCoordinates",
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "z",
+                "size": 22,
+                "signed": true
+              },
+              {
+                "name": "y",
+                "size": 20,
+                "signed": true
+              }
+            ]
+          ]
+        },
+        {
+          "name": "records",
+          "type": [
+            "array",
+            {
+              "type": "varint",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

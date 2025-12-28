@@ -1,0 +1,635 @@
+{
+  "path": "play.toClient",
+  "name": "PacketLogin",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "u8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "dimension",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "u8"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "751-754": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "u8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "dimension",
+          "type": "nbt"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "755-756": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "i8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "dimension",
+          "type": "nbt"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "757-758": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "i8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "dimension",
+          "type": "nbt"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "simulationDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        }
+      ]
+    ],
+    "759-762": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "i8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "worldType",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "simulationDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "763": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "i8"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "dimensionCodec",
+          "type": "nbt"
+        },
+        {
+          "name": "worldType",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "simulationDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        }
+      ]
+    ],
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "simulationDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "doLimitedCrafting",
+          "type": "bool"
+        },
+        {
+          "name": "worldType",
+          "type": "string"
+        },
+        {
+          "name": "worldName",
+          "type": "string"
+        },
+        {
+          "name": "hashedSeed",
+          "type": "i64"
+        },
+        {
+          "name": "gameMode",
+          "type": "u8"
+        },
+        {
+          "name": "previousGameMode",
+          "type": "i8"
+        },
+        {
+          "name": "isDebug",
+          "type": "bool"
+        },
+        {
+          "name": "isFlat",
+          "type": "bool"
+        },
+        {
+          "name": "death",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "dimensionName",
+                  "type": "string"
+                },
+                {
+                  "name": "location",
+                  "type": "position"
+                }
+              ]
+            ]
+          ]
+        },
+        {
+          "name": "portalCooldown",
+          "type": "varint"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "i32"
+        },
+        {
+          "name": "isHardcore",
+          "type": "bool"
+        },
+        {
+          "name": "worldNames",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "maxPlayers",
+          "type": "varint"
+        },
+        {
+          "name": "viewDistance",
+          "type": "varint"
+        },
+        {
+          "name": "simulationDistance",
+          "type": "varint"
+        },
+        {
+          "name": "reducedDebugInfo",
+          "type": "bool"
+        },
+        {
+          "name": "enableRespawnScreen",
+          "type": "bool"
+        },
+        {
+          "name": "doLimitedCrafting",
+          "type": "bool"
+        },
+        {
+          "name": "worldState",
+          "type": "SpawnInfo"
+        },
+        {
+          "name": "enforcesSecureChat",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

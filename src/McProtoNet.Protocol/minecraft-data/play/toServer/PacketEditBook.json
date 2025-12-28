@@ -1,0 +1,49 @@
+{
+  "path": "play.toServer",
+  "name": "PacketEditBook",
+  "history": {
+    "735-755": [
+      "container",
+      [
+        {
+          "name": "new_book",
+          "type": "slot"
+        },
+        {
+          "name": "signing",
+          "type": "bool"
+        },
+        {
+          "name": "hand",
+          "type": "varint"
+        }
+      ]
+    ],
+    "756-772": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "pages",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "title",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "path": "play.toClient",
+  "name": "ChatType",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "translationKey",
+          "type": "string"
+        },
+        {
+          "name": "parameters",
+          "type": [
+            "array",
+            {
+              "type": "ChatTypeParameterType",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "style",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

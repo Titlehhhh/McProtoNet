@@ -1,0 +1,25 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetTitleSubtitle",
+  "history": {
+    "735-754": null,
+    "755-764": [
+      "container",
+      [
+        {
+          "name": "text",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "text",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

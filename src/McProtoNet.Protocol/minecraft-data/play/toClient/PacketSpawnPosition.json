@@ -1,0 +1,28 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSpawnPosition",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        }
+      ]
+    ],
+    "755-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "angle",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

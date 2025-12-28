@@ -1,0 +1,24 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSetTestBlock",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "position",
+          "type": "position"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "message",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

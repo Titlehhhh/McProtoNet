@@ -1,0 +1,23 @@
+{
+  "path": "",
+  "name": "ItemBookPage",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "filteredContent",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ]
+  }
+}

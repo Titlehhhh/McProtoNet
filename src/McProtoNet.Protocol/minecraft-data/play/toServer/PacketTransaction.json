@@ -1,0 +1,24 @@
+{
+  "path": "play.toServer",
+  "name": "PacketTransaction",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "i8"
+        },
+        {
+          "name": "action",
+          "type": "i16"
+        },
+        {
+          "name": "accepted",
+          "type": "bool"
+        }
+      ]
+    ],
+    "755-772": null
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWorldBorderCenter",
+  "history": {
+    "735-754": null,
+    "755-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "f64"
+        },
+        {
+          "name": "z",
+          "type": "f64"
+        }
+      ]
+    ]
+  }
+}

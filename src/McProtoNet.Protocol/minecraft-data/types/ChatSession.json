@@ -1,0 +1,49 @@
+{
+  "path": "",
+  "name": "ChatSession",
+  "history": {
+    "735-760": null,
+    "761-772": [
+      "option",
+      [
+        "container",
+        [
+          {
+            "name": "uuid",
+            "type": "UUID"
+          },
+          {
+            "name": "publicKey",
+            "type": [
+              "container",
+              [
+                {
+                  "name": "expireTime",
+                  "type": "i64"
+                },
+                {
+                  "name": "keyBytes",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                },
+                {
+                  "name": "keySignature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          }
+        ]
+      ]
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketDisconnect",
+  "history": {
+    "735-763": null,
+    "764": [
+      "container",
+      [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "reason",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

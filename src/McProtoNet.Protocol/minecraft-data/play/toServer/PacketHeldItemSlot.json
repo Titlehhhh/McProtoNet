@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketHeldItemSlot",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "slotId",
+          "type": "i16"
+        }
+      ]
+    ]
+  }
+}

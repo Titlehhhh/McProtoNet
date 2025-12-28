@@ -1,0 +1,73 @@
+{
+  "path": "play.toServer",
+  "name": "PacketCraftingBookData",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "anon": true,
+          "type": [
+            "switch",
+            {
+              "compareTo": "type",
+              "fields": {
+                "0": [
+                  "container",
+                  [
+                    {
+                      "name": "displayedRecipe",
+                      "type": "string"
+                    }
+                  ]
+                ],
+                "1": [
+                  "container",
+                  [
+                    {
+                      "name": "craftingBookOpen",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "craftingFilter",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "smeltingBookOpen",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "smeltingFilter",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "blastingBookOpen",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "blastingFilter",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "smokingBookOpen",
+                      "type": "bool"
+                    },
+                    {
+                      "name": "smokingFilter",
+                      "type": "bool"
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "751-772": null
+  }
+}

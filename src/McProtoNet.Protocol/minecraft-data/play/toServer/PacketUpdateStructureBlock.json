@@ -1,0 +1,224 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUpdateStructureBlock",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "offset_x",
+          "type": "i8"
+        },
+        {
+          "name": "offset_y",
+          "type": "i8"
+        },
+        {
+          "name": "offset_z",
+          "type": "i8"
+        },
+        {
+          "name": "size_x",
+          "type": "i8"
+        },
+        {
+          "name": "size_y",
+          "type": "i8"
+        },
+        {
+          "name": "size_z",
+          "type": "i8"
+        },
+        {
+          "name": "mirror",
+          "type": "varint"
+        },
+        {
+          "name": "rotation",
+          "type": "varint"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "integrity",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "varlong"
+        },
+        {
+          "name": "flags",
+          "type": "u8"
+        }
+      ]
+    ],
+    "759-769": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "offset_x",
+          "type": "i8"
+        },
+        {
+          "name": "offset_y",
+          "type": "i8"
+        },
+        {
+          "name": "offset_z",
+          "type": "i8"
+        },
+        {
+          "name": "size_x",
+          "type": "i8"
+        },
+        {
+          "name": "size_y",
+          "type": "i8"
+        },
+        {
+          "name": "size_z",
+          "type": "i8"
+        },
+        {
+          "name": "mirror",
+          "type": "varint"
+        },
+        {
+          "name": "rotation",
+          "type": "varint"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "integrity",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "varint"
+        },
+        {
+          "name": "flags",
+          "type": "u8"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "offset_x",
+          "type": "i8"
+        },
+        {
+          "name": "offset_y",
+          "type": "i8"
+        },
+        {
+          "name": "offset_z",
+          "type": "i8"
+        },
+        {
+          "name": "size_x",
+          "type": "i8"
+        },
+        {
+          "name": "size_y",
+          "type": "i8"
+        },
+        {
+          "name": "size_z",
+          "type": "i8"
+        },
+        {
+          "name": "mirror",
+          "type": "varint"
+        },
+        {
+          "name": "rotation",
+          "type": "varint"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "name": "integrity",
+          "type": "f32"
+        },
+        {
+          "name": "seed",
+          "type": "varint"
+        },
+        {
+          "name": "flags",
+          "type": [
+            "mapper",
+            {
+              "type": "u8",
+              "mappings": {
+                "0": "ignore_entities",
+                "1": "show_air",
+                "2": "show_bounding_box",
+                "3": "strict"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "path": "play.toServer",
+  "name": "PacketSelectBundleItem",
+  "history": {
+    "735-767": null,
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "slotId",
+          "type": "varint"
+        },
+        {
+          "name": "selectedItemIndex",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "path": "play.toClient",
+  "name": "PacketKickDisconnect",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "reason",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "reason",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

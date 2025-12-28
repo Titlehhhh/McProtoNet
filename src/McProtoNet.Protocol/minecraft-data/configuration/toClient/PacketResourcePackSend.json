@@ -1,0 +1,32 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketResourcePackSend",
+  "history": {
+    "735-763": null,
+    "764": [
+      "container",
+      [
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "name": "forced",
+          "type": "bool"
+        },
+        {
+          "name": "promptMessage",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "765-772": null
+  }
+}

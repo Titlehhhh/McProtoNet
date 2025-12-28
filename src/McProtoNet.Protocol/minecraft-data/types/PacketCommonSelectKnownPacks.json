@@ -1,0 +1,38 @@
+{
+  "path": "",
+  "name": "PacketCommonSelectKnownPacks",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "packs",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "namespace",
+                    "type": "string"
+                  },
+                  {
+                    "name": "id",
+                    "type": "string"
+                  },
+                  {
+                    "name": "version",
+                    "type": "string"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

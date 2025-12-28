@@ -1,0 +1,90 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTabComplete",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "transactionId",
+          "type": "varint"
+        },
+        {
+          "name": "start",
+          "type": "varint"
+        },
+        {
+          "name": "length",
+          "type": "varint"
+        },
+        {
+          "name": "matches",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "match",
+                    "type": "string"
+                  },
+                  {
+                    "name": "tooltip",
+                    "type": [
+                      "option",
+                      "string"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "transactionId",
+          "type": "varint"
+        },
+        {
+          "name": "start",
+          "type": "varint"
+        },
+        {
+          "name": "length",
+          "type": "varint"
+        },
+        {
+          "name": "matches",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "match",
+                    "type": "string"
+                  },
+                  {
+                    "name": "tooltip",
+                    "type": [
+                      "option",
+                      "anonymousNbt"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "path": "",
+  "name": "String",
+  "history": {
+    "735-772": [
+      "pstring",
+      {
+        "countType": "varint"
+      }
+    ]
+  }
+}

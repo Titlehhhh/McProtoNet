@@ -1,0 +1,45 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUseItem",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        }
+      ]
+    ],
+    "759-766": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "sequence",
+          "type": "varint"
+        }
+      ]
+    ],
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "sequence",
+          "type": "varint"
+        },
+        {
+          "name": "rotation",
+          "type": "vec2f"
+        }
+      ]
+    ]
+  }
+}

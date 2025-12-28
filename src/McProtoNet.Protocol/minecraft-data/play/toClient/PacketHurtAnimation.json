@@ -1,0 +1,20 @@
+{
+  "path": "play.toClient",
+  "name": "PacketHurtAnimation",
+  "history": {
+    "735-761": null,
+    "762-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "yaw",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

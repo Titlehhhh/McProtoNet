@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketAbilities",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "flags",
+          "type": "i8"
+        }
+      ]
+    ]
+  }
+}

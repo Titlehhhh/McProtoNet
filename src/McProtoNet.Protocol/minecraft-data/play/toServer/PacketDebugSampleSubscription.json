@@ -1,0 +1,16 @@
+{
+  "path": "play.toServer",
+  "name": "PacketDebugSampleSubscription",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "type",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

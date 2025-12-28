@@ -1,0 +1,27 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWorldEvent",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "effectId",
+          "type": "i32"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "data",
+          "type": "i32"
+        },
+        {
+          "name": "global",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

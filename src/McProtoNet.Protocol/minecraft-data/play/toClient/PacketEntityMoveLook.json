@@ -1,0 +1,39 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityMoveLook",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "dX",
+          "type": "i16"
+        },
+        {
+          "name": "dY",
+          "type": "i16"
+        },
+        {
+          "name": "dZ",
+          "type": "i16"
+        },
+        {
+          "name": "yaw",
+          "type": "i8"
+        },
+        {
+          "name": "pitch",
+          "type": "i8"
+        },
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "path": "",
+  "name": "SoundSource",
+  "history": {
+    "735-760": null,
+    "761-770": [
+      "mapper",
+      {
+        "type": "varint",
+        "mappings": {
+          "0": "master",
+          "1": "music",
+          "2": "record",
+          "3": "weather",
+          "4": "block",
+          "5": "hostile",
+          "6": "neutral",
+          "7": "player",
+          "8": "ambient",
+          "9": "voice"
+        }
+      }
+    ],
+    "771-772": [
+      "mapper",
+      {
+        "type": "varint",
+        "mappings": {
+          "0": "master",
+          "1": "music",
+          "2": "record",
+          "3": "weather",
+          "4": "block",
+          "5": "hostile",
+          "6": "neutral",
+          "7": "player",
+          "8": "ambient",
+          "9": "voice",
+          "10": "ui"
+        }
+      }
+    ]
+  }
+}

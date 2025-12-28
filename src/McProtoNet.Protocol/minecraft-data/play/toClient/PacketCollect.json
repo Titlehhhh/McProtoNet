@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCollect",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "collectedEntityId",
+          "type": "varint"
+        },
+        {
+          "name": "collectorEntityId",
+          "type": "varint"
+        },
+        {
+          "name": "pickupItemCount",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

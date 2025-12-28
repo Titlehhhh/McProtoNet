@@ -1,0 +1,117 @@
+{
+  "path": "play.toServer",
+  "name": "PacketBlockPlace",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "direction",
+          "type": "varint"
+        },
+        {
+          "name": "cursorX",
+          "type": "f32"
+        },
+        {
+          "name": "cursorY",
+          "type": "f32"
+        },
+        {
+          "name": "cursorZ",
+          "type": "f32"
+        },
+        {
+          "name": "insideBlock",
+          "type": "bool"
+        }
+      ]
+    ],
+    "759-767": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "direction",
+          "type": "varint"
+        },
+        {
+          "name": "cursorX",
+          "type": "f32"
+        },
+        {
+          "name": "cursorY",
+          "type": "f32"
+        },
+        {
+          "name": "cursorZ",
+          "type": "f32"
+        },
+        {
+          "name": "insideBlock",
+          "type": "bool"
+        },
+        {
+          "name": "sequence",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "hand",
+          "type": "varint"
+        },
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "direction",
+          "type": "varint"
+        },
+        {
+          "name": "cursorX",
+          "type": "f32"
+        },
+        {
+          "name": "cursorY",
+          "type": "f32"
+        },
+        {
+          "name": "cursorZ",
+          "type": "f32"
+        },
+        {
+          "name": "insideBlock",
+          "type": "bool"
+        },
+        {
+          "name": "worldBorderHit",
+          "type": "bool"
+        },
+        {
+          "name": "sequence",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

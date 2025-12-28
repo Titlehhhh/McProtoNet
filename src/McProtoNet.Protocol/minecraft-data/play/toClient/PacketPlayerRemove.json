@@ -1,0 +1,22 @@
+{
+  "path": "play.toClient",
+  "name": "PacketPlayerRemove",
+  "history": {
+    "735-760": null,
+    "761-772": [
+      "container",
+      [
+        {
+          "name": "players",
+          "type": [
+            "array",
+            {
+              "type": "UUID",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

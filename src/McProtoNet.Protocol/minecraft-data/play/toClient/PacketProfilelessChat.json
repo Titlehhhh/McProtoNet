@@ -1,0 +1,79 @@
+{
+  "path": "play.toClient",
+  "name": "PacketProfilelessChat",
+  "history": {
+    "735-760": null,
+    "761-764": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "765-766": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "name",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "target",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ],
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "type",
+          "type": "ChatTypesHolder"
+        },
+        {
+          "name": "name",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "target",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ]
+  }
+}

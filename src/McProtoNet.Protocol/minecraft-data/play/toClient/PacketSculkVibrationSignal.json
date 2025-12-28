@@ -1,0 +1,39 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSculkVibrationSignal",
+  "history": {
+    "735-754": null,
+    "755-758": [
+      "container",
+      [
+        {
+          "name": "sourcePosition",
+          "type": "position"
+        },
+        {
+          "name": "destinationIdentifier",
+          "type": "string"
+        },
+        {
+          "name": "destination",
+          "type": [
+            "switch",
+            {
+              "compareTo": "destinationIdentifier",
+              "fields": {
+                "block": "position",
+                "entityId": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "arrivalTicks",
+          "type": "varint"
+        }
+      ]
+    ],
+    "759-772": null
+  }
+}

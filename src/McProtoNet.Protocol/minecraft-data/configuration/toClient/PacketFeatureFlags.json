@@ -1,0 +1,22 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketFeatureFlags",
+  "history": {
+    "735-763": null,
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "features",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

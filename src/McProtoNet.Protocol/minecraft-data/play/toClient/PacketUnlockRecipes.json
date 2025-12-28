@@ -1,0 +1,131 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUnlockRecipes",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "craftingBookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringCraftable",
+          "type": "bool"
+        },
+        {
+          "name": "smeltingBookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringSmeltable",
+          "type": "bool"
+        },
+        {
+          "name": "recipes1",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "recipes2",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": [
+                  "array",
+                  {
+                    "type": "string",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "751-767": [
+      "container",
+      [
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "craftingBookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringCraftable",
+          "type": "bool"
+        },
+        {
+          "name": "smeltingBookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringSmeltable",
+          "type": "bool"
+        },
+        {
+          "name": "blastFurnaceOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringBlastFurnace",
+          "type": "bool"
+        },
+        {
+          "name": "smokerBookOpen",
+          "type": "bool"
+        },
+        {
+          "name": "filteringSmoker",
+          "type": "bool"
+        },
+        {
+          "name": "recipes1",
+          "type": [
+            "array",
+            {
+              "type": "string",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "recipes2",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": [
+                  "array",
+                  {
+                    "type": "string",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "768-772": null
+  }
+}

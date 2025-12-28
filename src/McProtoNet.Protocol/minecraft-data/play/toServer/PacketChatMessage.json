@@ -1,0 +1,229 @@
+{
+  "path": "play.toServer",
+  "name": "PacketChatMessage",
+  "history": {
+    "735-758": null,
+    "759": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "signedPreview",
+          "type": "bool"
+        }
+      ]
+    ],
+    "760": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "signedPreview",
+          "type": "bool"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "lastRejectedMessage",
+          "type": [
+            "option",
+            [
+              "container",
+              [
+                {
+                  "name": "sender",
+                  "type": "UUID"
+                },
+                {
+                  "name": "signature",
+                  "type": [
+                    "buffer",
+                    {
+                      "countType": "varint"
+                    }
+                  ]
+                }
+              ]
+            ]
+          ]
+        }
+      ]
+    ],
+    "761-769": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "offset",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        }
+      ]
+    ],
+    "770-771": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "offset",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        },
+        {
+          "name": "checksum",
+          "type": "i8"
+        }
+      ]
+    ],
+    "772": [
+      "container",
+      [
+        {
+          "name": "message",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "offset",
+          "type": "varint"
+        },
+        {
+          "name": "acknowledged",
+          "type": [
+            "buffer",
+            {
+              "count": 3
+            }
+          ]
+        },
+        {
+          "name": "checksum",
+          "type": "u8"
+        }
+      ]
+    ]
+  }
+}

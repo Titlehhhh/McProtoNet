@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketNameItem",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

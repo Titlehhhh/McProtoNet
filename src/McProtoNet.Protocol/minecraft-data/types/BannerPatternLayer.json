@@ -1,0 +1,64 @@
+{
+  "path": "",
+  "name": "BannerPatternLayer",
+  "history": {
+    "735-765": null,
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "pattern",
+          "type": [
+            "registryEntryHolder",
+            {
+              "baseName": "patternId",
+              "otherwise": {
+                "name": "data",
+                "type": "BannerPattern"
+              }
+            }
+          ]
+        },
+        {
+          "name": "colorId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "768": [
+      "container",
+      [
+        {
+          "name": "pattern",
+          "type": "ItemSoundHolder"
+        },
+        {
+          "name": "colorId",
+          "type": "varint"
+        }
+      ]
+    ],
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "pattern",
+          "type": [
+            "registryEntryHolder",
+            {
+              "baseName": "patternId",
+              "otherwise": {
+                "name": "data",
+                "type": "BannerPattern"
+              }
+            }
+          ]
+        },
+        {
+          "name": "colorId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

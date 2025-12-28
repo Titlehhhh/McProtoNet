@@ -1,0 +1,65 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetSlot",
+  "history": {
+    "735-755": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "i8"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "slot"
+        }
+      ]
+    ],
+    "756-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "i8"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "slot"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "item",
+          "type": "Slot"
+        }
+      ]
+    ]
+  }
+}

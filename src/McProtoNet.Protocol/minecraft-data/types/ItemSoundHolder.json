@@ -1,0 +1,17 @@
+{
+  "path": "",
+  "name": "ItemSoundHolder",
+  "history": {
+    "735-760": null,
+    "761-772": [
+      "registryEntryHolder",
+      {
+        "baseName": "soundId",
+        "otherwise": {
+          "name": "data",
+          "type": "ItemSoundEvent"
+        }
+      }
+    ]
+  }
+}

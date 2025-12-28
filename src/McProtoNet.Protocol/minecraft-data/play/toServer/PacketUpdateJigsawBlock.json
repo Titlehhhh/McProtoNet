@@ -1,0 +1,72 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUpdateJigsawBlock",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "type": "string"
+        },
+        {
+          "name": "pool",
+          "type": "string"
+        },
+        {
+          "name": "finalState",
+          "type": "string"
+        },
+        {
+          "name": "jointType",
+          "type": "string"
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "target",
+          "type": "string"
+        },
+        {
+          "name": "pool",
+          "type": "string"
+        },
+        {
+          "name": "finalState",
+          "type": "string"
+        },
+        {
+          "name": "jointType",
+          "type": "string"
+        },
+        {
+          "name": "selection_priority",
+          "type": "varint"
+        },
+        {
+          "name": "placement_priority",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

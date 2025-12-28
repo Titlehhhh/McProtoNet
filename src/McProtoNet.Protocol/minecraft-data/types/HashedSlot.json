@@ -1,0 +1,60 @@
+{
+  "path": "",
+  "name": "HashedSlot",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "itemId",
+          "type": "varint"
+        },
+        {
+          "name": "itemCount",
+          "type": "varint"
+        },
+        {
+          "name": "components",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "SlotComponentType"
+                  },
+                  {
+                    "name": "hash",
+                    "type": "i32"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "removeComponents",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "SlotComponentType"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

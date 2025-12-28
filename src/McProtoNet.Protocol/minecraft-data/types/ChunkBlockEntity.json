@@ -1,0 +1,77 @@
+{
+  "path": "",
+  "name": "ChunkBlockEntity",
+  "history": {
+    "735-756": null,
+    "757-763": [
+      "container",
+      [
+        {
+          "anon": true,
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 4,
+                "signed": false
+              },
+              {
+                "name": "z",
+                "size": 4,
+                "signed": false
+              }
+            ]
+          ]
+        },
+        {
+          "name": "y",
+          "type": "i16"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "nbtData",
+          "type": "optionalNbt"
+        }
+      ]
+    ],
+    "764-772": [
+      "container",
+      [
+        {
+          "anon": true,
+          "type": [
+            "bitfield",
+            [
+              {
+                "name": "x",
+                "size": 4,
+                "signed": false
+              },
+              {
+                "name": "z",
+                "size": 4,
+                "signed": false
+              }
+            ]
+          ]
+        },
+        {
+          "name": "y",
+          "type": "i16"
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "nbtData",
+          "type": "anonOptionalNbt"
+        }
+      ]
+    ]
+  }
+}

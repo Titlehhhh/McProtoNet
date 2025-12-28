@@ -1,0 +1,44 @@
+{
+  "path": "play.toClient",
+  "name": "PacketResourcePackSend",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "hash",
+          "type": "string"
+        }
+      ]
+    ],
+    "755-764": [
+      "container",
+      [
+        {
+          "name": "url",
+          "type": "string"
+        },
+        {
+          "name": "hash",
+          "type": "string"
+        },
+        {
+          "name": "forced",
+          "type": "bool"
+        },
+        {
+          "name": "promptMessage",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "765-772": null
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "path": "play.toClient",
+  "name": "PacketRecipeBookSettings",
+  "history": {
+    "735-767": null,
+    "768-770": [
+      "container",
+      [
+        {
+          "name": "craftingGuiOpen",
+          "type": "bool"
+        },
+        {
+          "name": "craftingFilteringCraftable",
+          "type": "bool"
+        },
+        {
+          "name": "smeltingGuiOpen",
+          "type": "bool"
+        },
+        {
+          "name": "smeltingFilteringCraftable",
+          "type": "bool"
+        },
+        {
+          "name": "blastGuiOpen",
+          "type": "bool"
+        },
+        {
+          "name": "blastFilteringCraftable",
+          "type": "bool"
+        },
+        {
+          "name": "smokerGuiOpen",
+          "type": "bool"
+        },
+        {
+          "name": "smokerFilteringCraftable",
+          "type": "bool"
+        }
+      ]
+    ],
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "crafting",
+          "type": "RecipeBookSetting"
+        },
+        {
+          "name": "furnace",
+          "type": "RecipeBookSetting"
+        },
+        {
+          "name": "blast",
+          "type": "RecipeBookSetting"
+        },
+        {
+          "name": "smoker",
+          "type": "RecipeBookSetting"
+        }
+      ]
+    ]
+  }
+}

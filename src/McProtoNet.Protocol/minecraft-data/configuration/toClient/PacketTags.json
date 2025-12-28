@@ -1,0 +1,34 @@
+{
+  "path": "configuration.toClient",
+  "name": "PacketTags",
+  "history": {
+    "735-763": null,
+    "764-772": [
+      "container",
+      [
+        {
+          "name": "tags",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "tagType",
+                    "type": "string"
+                  },
+                  {
+                    "name": "tags",
+                    "type": "tags"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

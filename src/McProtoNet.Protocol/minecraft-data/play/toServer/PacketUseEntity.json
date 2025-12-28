@@ -1,0 +1,76 @@
+{
+  "path": "play.toServer",
+  "name": "PacketUseEntity",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "target",
+          "type": "varint"
+        },
+        {
+          "name": "mouse",
+          "type": "varint"
+        },
+        {
+          "name": "x",
+          "type": [
+            "switch",
+            {
+              "compareTo": "mouse",
+              "fields": {
+                "2": "f32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "y",
+          "type": [
+            "switch",
+            {
+              "compareTo": "mouse",
+              "fields": {
+                "2": "f32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "z",
+          "type": [
+            "switch",
+            {
+              "compareTo": "mouse",
+              "fields": {
+                "2": "f32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "hand",
+          "type": [
+            "switch",
+            {
+              "compareTo": "mouse",
+              "fields": {
+                "0": "varint",
+                "2": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "sneaking",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

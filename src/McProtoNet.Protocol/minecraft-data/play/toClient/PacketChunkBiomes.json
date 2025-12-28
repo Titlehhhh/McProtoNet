@@ -1,0 +1,66 @@
+{
+  "path": "play.toClient",
+  "name": "PacketChunkBiomes",
+  "history": {
+    "735-761": null,
+    "762-765": [
+      "container",
+      [
+        {
+          "name": "biomes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "position",
+                    "type": "packedChunkPos"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "buffer",
+                      {
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "biomes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "position",
+                    "type": "packedChunkPos"
+                  },
+                  {
+                    "name": "data",
+                    "type": "ByteArray"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

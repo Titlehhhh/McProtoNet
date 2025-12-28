@@ -1,0 +1,16 @@
+{
+  "path": "play.toClient",
+  "name": "PacketStepTick",
+  "history": {
+    "735-764": null,
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "tick_steps",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

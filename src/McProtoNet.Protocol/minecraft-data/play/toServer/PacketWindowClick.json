@@ -1,0 +1,241 @@
+{
+  "path": "play.toServer",
+  "name": "PacketWindowClick",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "mouseButton",
+          "type": "i8"
+        },
+        {
+          "name": "action",
+          "type": "i16"
+        },
+        {
+          "name": "mode",
+          "type": "i8"
+        },
+        {
+          "name": "item",
+          "type": "slot"
+        }
+      ]
+    ],
+    "755": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "mouseButton",
+          "type": "i8"
+        },
+        {
+          "name": "mode",
+          "type": "i8"
+        },
+        {
+          "name": "changedSlots",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "location",
+                    "type": "i16"
+                  },
+                  {
+                    "name": "item",
+                    "type": "slot"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "cursorItem",
+          "type": "slot"
+        }
+      ]
+    ],
+    "756-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "mouseButton",
+          "type": "i8"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "changedSlots",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "location",
+                    "type": "i16"
+                  },
+                  {
+                    "name": "item",
+                    "type": "slot"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "cursorItem",
+          "type": "slot"
+        }
+      ]
+    ],
+    "766-769": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "mouseButton",
+          "type": "i8"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "changedSlots",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "location",
+                    "type": "i16"
+                  },
+                  {
+                    "name": "item",
+                    "type": "Slot"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "cursorItem",
+          "type": "Slot"
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        },
+        {
+          "name": "stateId",
+          "type": "varint"
+        },
+        {
+          "name": "slot",
+          "type": "i16"
+        },
+        {
+          "name": "mouseButton",
+          "type": "i8"
+        },
+        {
+          "name": "mode",
+          "type": "varint"
+        },
+        {
+          "name": "changedSlots",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "location",
+                    "type": "i16"
+                  },
+                  {
+                    "name": "item",
+                    "type": [
+                      "option",
+                      "HashedSlot"
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "cursorItem",
+          "type": [
+            "option",
+            "HashedSlot"
+          ]
+        }
+      ]
+    ]
+  }
+}

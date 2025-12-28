@@ -1,0 +1,26 @@
+{
+  "path": "",
+  "name": "DataComponentMatchers",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "exactMatchers",
+          "type": "ExactComponentMatcher"
+        },
+        {
+          "name": "partialMatchers",
+          "type": [
+            "array",
+            {
+              "type": "varint",
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

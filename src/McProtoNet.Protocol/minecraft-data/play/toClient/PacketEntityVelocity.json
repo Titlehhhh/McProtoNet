@@ -1,0 +1,27 @@
+{
+  "path": "play.toClient",
+  "name": "PacketEntityVelocity",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "entityId",
+          "type": "varint"
+        },
+        {
+          "name": "velocityX",
+          "type": "i16"
+        },
+        {
+          "name": "velocityY",
+          "type": "i16"
+        },
+        {
+          "name": "velocityZ",
+          "type": "i16"
+        }
+      ]
+    ]
+  }
+}

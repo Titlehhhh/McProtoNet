@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketResetScore",
+  "history": {
+    "735-764": null,
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "entity_name",
+          "type": "string"
+        },
+        {
+          "name": "objective_name",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "path": "",
+  "name": "ByteArray",
+  "history": {
+    "735-772": [
+      "buffer",
+      {
+        "countType": "varint"
+      }
+    ]
+  }
+}

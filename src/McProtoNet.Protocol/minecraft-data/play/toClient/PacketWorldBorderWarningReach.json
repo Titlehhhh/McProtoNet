@@ -1,0 +1,16 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWorldBorderWarningReach",
+  "history": {
+    "735-754": null,
+    "755-772": [
+      "container",
+      [
+        {
+          "name": "warningBlocks",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

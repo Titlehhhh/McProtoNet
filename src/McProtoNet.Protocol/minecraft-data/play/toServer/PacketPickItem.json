@@ -1,0 +1,16 @@
+{
+  "path": "play.toServer",
+  "name": "PacketPickItem",
+  "history": {
+    "735-768": [
+      "container",
+      [
+        {
+          "name": "slot",
+          "type": "varint"
+        }
+      ]
+    ],
+    "769-772": null
+  }
+}

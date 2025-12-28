@@ -1,0 +1,23 @@
+{
+  "path": "play.toClient",
+  "name": "PacketUpdateHealth",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "health",
+          "type": "f32"
+        },
+        {
+          "name": "food",
+          "type": "varint"
+        },
+        {
+          "name": "foodSaturation",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

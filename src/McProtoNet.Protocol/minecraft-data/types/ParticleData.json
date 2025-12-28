@@ -1,0 +1,989 @@
+{
+  "path": "",
+  "name": "ParticleData",
+  "history": {
+    "735-754": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "23": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "34": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "755-756": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "4": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "16": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "25": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "36": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "37": [
+            "container",
+            [
+              {
+                "name": "origin",
+                "type": "position"
+              },
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "757-758": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "2": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "24": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "35": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "36": [
+            "container",
+            [
+              {
+                "name": "origin",
+                "type": "position"
+              },
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "759-761": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "2": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "25": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "30": [
+            "container",
+            [
+              {
+                "name": "rotation",
+                "type": "f32"
+              }
+            ]
+          ],
+          "39": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "40": [
+            "container",
+            [
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "entityId",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "entityEyeHeight",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ],
+          "92": [
+            "container",
+            [
+              {
+                "name": "delayInTicksBeforeShown",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "762": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "2": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "25": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "33": [
+            "container",
+            [
+              {
+                "name": "rotation",
+                "type": "f32"
+              }
+            ]
+          ],
+          "42": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "43": [
+            "container",
+            [
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "entityId",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "entityEyeHeight",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ],
+          "95": [
+            "container",
+            [
+              {
+                "name": "delayInTicksBeforeShown",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "763-764": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "2": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "25": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "31": [
+            "container",
+            [
+              {
+                "name": "rotation",
+                "type": "f32"
+              }
+            ]
+          ],
+          "40": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "41": [
+            "container",
+            [
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "entityId",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "entityEyeHeight",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ],
+          "93": [
+            "container",
+            [
+              {
+                "name": "delayInTicksBeforeShown",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "765": [
+      "switch",
+      {
+        "compareTo": "$compareTo",
+        "fields": {
+          "2": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "3": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "14": [
+            "container",
+            [
+              {
+                "name": "red",
+                "type": "f32"
+              },
+              {
+                "name": "green",
+                "type": "f32"
+              },
+              {
+                "name": "blue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              }
+            ]
+          ],
+          "15": [
+            "container",
+            [
+              {
+                "name": "fromRed",
+                "type": "f32"
+              },
+              {
+                "name": "fromGreen",
+                "type": "f32"
+              },
+              {
+                "name": "fromBlue",
+                "type": "f32"
+              },
+              {
+                "name": "scale",
+                "type": "f32"
+              },
+              {
+                "name": "toRed",
+                "type": "f32"
+              },
+              {
+                "name": "toGreen",
+                "type": "f32"
+              },
+              {
+                "name": "toBlue",
+                "type": "f32"
+              }
+            ]
+          ],
+          "27": [
+            "container",
+            [
+              {
+                "name": "blockState",
+                "type": "varint"
+              }
+            ]
+          ],
+          "33": [
+            "container",
+            [
+              {
+                "name": "rotation",
+                "type": "f32"
+              }
+            ]
+          ],
+          "42": [
+            "container",
+            [
+              {
+                "name": "item",
+                "type": "slot"
+              }
+            ]
+          ],
+          "43": [
+            "container",
+            [
+              {
+                "name": "positionType",
+                "type": "string"
+              },
+              {
+                "name": "entityId",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "entityEyeHeight",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:entity": "varint"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              {
+                "name": "destination",
+                "type": [
+                  "switch",
+                  {
+                    "compareTo": "positionType",
+                    "fields": {
+                      "minecraft:block": "position",
+                      "minecraft:entity": "varint"
+                    }
+                  }
+                ]
+              },
+              {
+                "name": "ticks",
+                "type": "varint"
+              }
+            ]
+          ],
+          "96": [
+            "container",
+            [
+              {
+                "name": "delayInTicksBeforeShown",
+                "type": "varint"
+              }
+            ]
+          ]
+        },
+        "default": "void"
+      }
+    ],
+    "766-772": null
+  }
+}

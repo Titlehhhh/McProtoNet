@@ -1,0 +1,28 @@
+{
+  "path": "play.toClient",
+  "name": "PacketOpenSignEntity",
+  "history": {
+    "735-762": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        }
+      ]
+    ],
+    "763-772": [
+      "container",
+      [
+        {
+          "name": "location",
+          "type": "position"
+        },
+        {
+          "name": "isFrontText",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

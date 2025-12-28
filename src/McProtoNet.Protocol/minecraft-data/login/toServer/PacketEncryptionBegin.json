@@ -1,0 +1,113 @@
+{
+  "path": "login.toServer",
+  "name": "PacketEncryptionBegin",
+  "history": {
+    "735-758": [
+      "container",
+      [
+        {
+          "name": "sharedSecret",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "verifyToken",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "759-760": [
+      "container",
+      [
+        {
+          "name": "sharedSecret",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "hasVerifyToken",
+          "type": "bool"
+        },
+        {
+          "name": "crypto",
+          "type": [
+            "switch",
+            {
+              "compareTo": "hasVerifyToken",
+              "fields": {
+                "true": [
+                  "container",
+                  [
+                    {
+                      "name": "verifyToken",
+                      "type": [
+                        "buffer",
+                        {
+                          "countType": "varint"
+                        }
+                      ]
+                    }
+                  ]
+                ],
+                "false": [
+                  "container",
+                  [
+                    {
+                      "name": "salt",
+                      "type": "i64"
+                    },
+                    {
+                      "name": "messageSignature",
+                      "type": [
+                        "buffer",
+                        {
+                          "countType": "varint"
+                        }
+                      ]
+                    }
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "761-772": [
+      "container",
+      [
+        {
+          "name": "sharedSecret",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "verifyToken",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

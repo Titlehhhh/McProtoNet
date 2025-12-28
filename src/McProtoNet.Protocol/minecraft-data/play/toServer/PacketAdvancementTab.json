@@ -1,0 +1,28 @@
+{
+  "path": "play.toServer",
+  "name": "PacketAdvancementTab",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "tabId",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "string",
+                "1": "void"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "path": "",
+  "name": "ServerLinkType",
+  "history": {
+    "735-766": null,
+    "767-772": [
+      "mapper",
+      {
+        "type": "varint",
+        "mappings": {
+          "0": "bug_report",
+          "1": "community_guidelines",
+          "2": "support",
+          "3": "status",
+          "4": "feedback",
+          "5": "community",
+          "6": "website",
+          "7": "forums",
+          "8": "news",
+          "9": "announcements"
+        }
+      }
+    ]
+  }
+}

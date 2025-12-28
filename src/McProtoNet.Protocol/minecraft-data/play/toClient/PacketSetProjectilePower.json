@@ -1,0 +1,33 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSetProjectilePower",
+  "history": {
+    "735-765": null,
+    "766": [
+      "container",
+      [
+        {
+          "name": "id",
+          "type": "varint"
+        },
+        {
+          "name": "power",
+          "type": "vec3f64"
+        }
+      ]
+    ],
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "id",
+          "type": "varint"
+        },
+        {
+          "name": "accelerationPower",
+          "type": "f64"
+        }
+      ]
+    ]
+  }
+}

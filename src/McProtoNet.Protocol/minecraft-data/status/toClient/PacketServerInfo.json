@@ -1,0 +1,15 @@
+{
+  "path": "status.toClient",
+  "name": "PacketServerInfo",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "response",
+          "type": "string"
+        }
+      ]
+    ]
+  }
+}

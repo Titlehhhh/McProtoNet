@@ -1,0 +1,1452 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDeclareRecipes",
+  "history": {
+    "735-736": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "void",
+                          "minecraft:crafting_special_bookcloning": "void",
+                          "minecraft:crafting_special_mapcloning": "void",
+                          "minecraft:crafting_special_mapextending": "void",
+                          "minecraft:crafting_special_firework_rocket": "void",
+                          "minecraft:crafting_special_firework_star": "void",
+                          "minecraft:crafting_special_firework_star_fade": "void",
+                          "minecraft:crafting_special_repairitem": "void",
+                          "minecraft:crafting_special_tippedarrow": "void",
+                          "minecraft:crafting_special_bannerduplicate": "void",
+                          "minecraft:crafting_special_banneraddpattern": "void",
+                          "minecraft:crafting_special_shielddecoration": "void",
+                          "minecraft:crafting_special_shulkerboxcoloring": "void",
+                          "minecraft:crafting_special_suspiciousstew": "void",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing": [
+                            "container",
+                            [
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "751-754": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "width"
+                                      }
+                                    ],
+                                    "count": "height"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "void",
+                          "minecraft:crafting_special_bookcloning": "void",
+                          "minecraft:crafting_special_mapcloning": "void",
+                          "minecraft:crafting_special_mapextending": "void",
+                          "minecraft:crafting_special_firework_rocket": "void",
+                          "minecraft:crafting_special_firework_star": "void",
+                          "minecraft:crafting_special_firework_star_fade": "void",
+                          "minecraft:crafting_special_repairitem": "void",
+                          "minecraft:crafting_special_tippedarrow": "void",
+                          "minecraft:crafting_special_bannerduplicate": "void",
+                          "minecraft:crafting_special_banneraddpattern": "void",
+                          "minecraft:crafting_special_shielddecoration": "void",
+                          "minecraft:crafting_special_shulkerboxcoloring": "void",
+                          "minecraft:crafting_special_suspiciousstew": "void",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing": [
+                            "container",
+                            [
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-760": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "void",
+                          "minecraft:crafting_special_bookcloning": "void",
+                          "minecraft:crafting_special_mapcloning": "void",
+                          "minecraft:crafting_special_mapextending": "void",
+                          "minecraft:crafting_special_firework_rocket": "void",
+                          "minecraft:crafting_special_firework_star": "void",
+                          "minecraft:crafting_special_firework_star_fade": "void",
+                          "minecraft:crafting_special_repairitem": "void",
+                          "minecraft:crafting_special_tippedarrow": "void",
+                          "minecraft:crafting_special_bannerduplicate": "void",
+                          "minecraft:crafting_special_banneraddpattern": "void",
+                          "minecraft:crafting_special_shielddecoration": "void",
+                          "minecraft:crafting_special_shulkerboxcoloring": "void",
+                          "minecraft:crafting_special_suspiciousstew": "void",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing": [
+                            "container",
+                            [
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "761": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bookcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapextending": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_rocket": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star_fade": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_repairitem": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_tippedarrow": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bannerduplicate": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_banneraddpattern": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shielddecoration": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shulkerboxcoloring": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_suspiciousstew": "minecraft_simple_recipe_format",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing": [
+                            "container",
+                            [
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "762": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              },
+                              {
+                                "name": "showNotification",
+                                "type": "bool"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bookcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapextending": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_rocket": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star_fade": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_repairitem": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_tippedarrow": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bannerduplicate": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_banneraddpattern": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shielddecoration": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shulkerboxcoloring": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_suspiciousstew": "minecraft_simple_recipe_format",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing": [
+                            "container",
+                            [
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_transform": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_trim": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_decorated_pot": "minecraft_simple_recipe_format"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "763-764": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              },
+                              {
+                                "name": "showNotification",
+                                "type": "bool"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bookcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapextending": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_rocket": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star_fade": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_repairitem": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_tippedarrow": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bannerduplicate": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_banneraddpattern": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shielddecoration": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shulkerboxcoloring": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_suspiciousstew": "minecraft_simple_recipe_format",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_transform": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_trim": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_decorated_pot": "minecraft_simple_recipe_format"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "765": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "type",
+                    "type": "string"
+                  },
+                  {
+                    "name": "recipeId",
+                    "type": "string"
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "width",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "height",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "height"
+                                      }
+                                    ],
+                                    "count": "width"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              },
+                              {
+                                "name": "showNotification",
+                                "type": "bool"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bookcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapextending": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_rocket": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star_fade": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_repairitem": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_tippedarrow": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bannerduplicate": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_banneraddpattern": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shielddecoration": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shulkerboxcoloring": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_suspiciousstew": "minecraft_simple_recipe_format",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_transform": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_trim": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_decorated_pot": "minecraft_simple_recipe_format"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "766-767": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "type",
+                    "type": [
+                      "mapper",
+                      {
+                        "type": "varint",
+                        "mappings": {
+                          "0": "minecraft:crafting_shaped",
+                          "1": "minecraft:crafting_shapeless",
+                          "2": "minecraft:crafting_special_armordye",
+                          "3": "minecraft:crafting_special_bookcloning",
+                          "4": "minecraft:crafting_special_mapcloning",
+                          "5": "minecraft:crafting_special_mapextending",
+                          "6": "minecraft:crafting_special_firework_rocket",
+                          "7": "minecraft:crafting_special_firework_star",
+                          "8": "minecraft:crafting_special_firework_star_fade",
+                          "9": "minecraft:crafting_special_tippedarrow",
+                          "10": "minecraft:crafting_special_bannerduplicate",
+                          "11": "minecraft:crafting_special_shielddecoration",
+                          "12": "minecraft:crafting_special_shulkerboxcoloring",
+                          "13": "minecraft:crafting_special_suspiciousstew",
+                          "14": "minecraft:crafting_special_repairitem",
+                          "15": "minecraft:smelting",
+                          "16": "minecraft:blasting",
+                          "17": "minecraft:smoking",
+                          "18": "minecraft:campfire_cooking",
+                          "19": "minecraft:stonecutting",
+                          "20": "minecraft:smithing_transform",
+                          "21": "minecraft:smithing_trim",
+                          "22": "minecraft:crafting_decorated_pot"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "name": "data",
+                    "type": [
+                      "switch",
+                      {
+                        "compareTo": "type",
+                        "fields": {
+                          "minecraft:crafting_shapeless": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": "ingredient",
+                                    "countType": "varint"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "Slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_shaped": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "category",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "gridWidth",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "gridHeight",
+                                "type": "varint"
+                              },
+                              {
+                                "name": "ingredients",
+                                "type": [
+                                  "array",
+                                  {
+                                    "type": [
+                                      "array",
+                                      {
+                                        "type": "ingredient",
+                                        "count": "gridHeight"
+                                      }
+                                    ],
+                                    "count": "gridWidth"
+                                  }
+                                ]
+                              },
+                              {
+                                "name": "result",
+                                "type": "Slot"
+                              },
+                              {
+                                "name": "showNotification",
+                                "type": "bool"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_special_armordye": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bookcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapcloning": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_mapextending": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_rocket": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_firework_star_fade": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_repairitem": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_tippedarrow": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_bannerduplicate": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_banneraddpattern": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shielddecoration": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_shulkerboxcoloring": "minecraft_simple_recipe_format",
+                          "minecraft:crafting_special_suspiciousstew": "minecraft_simple_recipe_format",
+                          "minecraft:smelting": "minecraft_smelting_format",
+                          "minecraft:blasting": "minecraft_smelting_format",
+                          "minecraft:smoking": "minecraft_smelting_format",
+                          "minecraft:campfire_cooking": "minecraft_smelting_format",
+                          "minecraft:stonecutting": [
+                            "container",
+                            [
+                              {
+                                "name": "group",
+                                "type": "string"
+                              },
+                              {
+                                "name": "ingredient",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "Slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_transform": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "result",
+                                "type": "Slot"
+                              }
+                            ]
+                          ],
+                          "minecraft:smithing_trim": [
+                            "container",
+                            [
+                              {
+                                "name": "template",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "base",
+                                "type": "ingredient"
+                              },
+                              {
+                                "name": "addition",
+                                "type": "ingredient"
+                              }
+                            ]
+                          ],
+                          "minecraft:crafting_decorated_pot": "minecraft_simple_recipe_format"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "recipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "name": "items",
+                    "type": [
+                      "array",
+                      {
+                        "type": "varint",
+                        "countType": "varint"
+                      }
+                    ]
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "stoneCutterRecipes",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "input",
+                    "type": "IDSet"
+                  },
+                  {
+                    "name": "slotDisplay",
+                    "type": "SlotDisplay"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "path": "play.toServer",
+  "name": "PacketLockDifficulty",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "locked",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

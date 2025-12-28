@@ -1,0 +1,140 @@
+{
+  "path": "play.toClient",
+  "name": "PacketWorldBorder",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "radius",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "f64"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "x",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "2": "f64",
+                "3": "f64"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "z",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "2": "f64",
+                "3": "f64"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "old_radius",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "1": "f64",
+                "3": "f64"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "new_radius",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "1": "f64",
+                "3": "f64"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "speed",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "1": "varlong",
+                "3": "varlong"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "portalBoundary",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "warning_time",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "varint",
+                "4": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "warning_blocks",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "varint",
+                "5": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-772": null
+  }
+}

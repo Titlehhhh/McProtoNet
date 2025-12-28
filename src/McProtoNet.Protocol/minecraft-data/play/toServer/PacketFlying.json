@@ -1,0 +1,24 @@
+{
+  "path": "play.toServer",
+  "name": "PacketFlying",
+  "history": {
+    "735-767": [
+      "container",
+      [
+        {
+          "name": "onGround",
+          "type": "bool"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "flags",
+          "type": "MovementFlags"
+        }
+      ]
+    ]
+  }
+}

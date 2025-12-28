@@ -1,0 +1,25 @@
+{
+  "path": "play.toClient",
+  "name": "PacketDeclareCommands",
+  "history": {
+    "735-772": [
+      "container",
+      [
+        {
+          "name": "nodes",
+          "type": [
+            "array",
+            {
+              "type": "command_node",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "rootIndex",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

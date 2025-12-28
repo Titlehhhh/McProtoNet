@@ -1,0 +1,58 @@
+{
+  "path": "play.toServer",
+  "name": "PacketTestInstanceBlockAction",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "pos",
+          "type": "position"
+        },
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "data",
+          "type": [
+            "container",
+            [
+              {
+                "name": "test",
+                "type": [
+                  "option",
+                  "string"
+                ]
+              },
+              {
+                "name": "size",
+                "type": "vec3i"
+              },
+              {
+                "name": "rotation",
+                "type": "varint"
+              },
+              {
+                "name": "ignoreEntities",
+                "type": "bool"
+              },
+              {
+                "name": "status",
+                "type": "varint"
+              },
+              {
+                "name": "errorMessage",
+                "type": [
+                  "option",
+                  "anonymousNbt"
+                ]
+              }
+            ]
+          ]
+        }
+      ]
+    ]
+  }
+}

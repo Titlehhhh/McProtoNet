@@ -1,0 +1,56 @@
+{
+  "path": "",
+  "name": "ItemFireworkExplosion",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "shape",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0": "small_ball",
+                "1": "large_ball",
+                "2": "star",
+                "3": "creeper",
+                "4": "burst"
+              }
+            }
+          ]
+        },
+        {
+          "name": "colors",
+          "type": [
+            "array",
+            {
+              "type": "i32",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "fadeColors",
+          "type": [
+            "array",
+            {
+              "type": "i32",
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "hasTrail",
+          "type": "bool"
+        },
+        {
+          "name": "hasTwinkle",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "path": "play.toClient",
+  "name": "PacketTitle",
+  "history": {
+    "735-754": [
+      "container",
+      [
+        {
+          "name": "action",
+          "type": "varint"
+        },
+        {
+          "name": "text",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "string",
+                "1": "string",
+                "2": "string"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "fadeIn",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "i32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "stay",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "i32"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "fadeOut",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "3": "i32"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "755-772": null
+  }
+}

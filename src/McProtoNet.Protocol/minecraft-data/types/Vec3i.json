@@ -1,0 +1,24 @@
+{
+  "path": "",
+  "name": "Vec3i",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "x",
+          "type": "varint"
+        },
+        {
+          "name": "y",
+          "type": "varint"
+        },
+        {
+          "name": "z",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

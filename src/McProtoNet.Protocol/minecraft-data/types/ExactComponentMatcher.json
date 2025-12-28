@@ -1,0 +1,14 @@
+{
+  "path": "",
+  "name": "ExactComponentMatcher",
+  "history": {
+    "735-769": null,
+    "770-772": [
+      "array",
+      {
+        "type": "SlotComponent",
+        "countType": "varint"
+      }
+    ]
+  }
+}

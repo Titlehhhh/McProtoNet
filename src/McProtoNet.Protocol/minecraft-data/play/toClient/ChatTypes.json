@@ -1,0 +1,20 @@
+{
+  "path": "play.toClient",
+  "name": "ChatTypes",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "chat",
+          "type": "ChatType"
+        },
+        {
+          "name": "narration",
+          "type": "ChatType"
+        }
+      ]
+    ]
+  }
+}

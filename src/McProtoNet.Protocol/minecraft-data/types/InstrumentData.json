@@ -1,0 +1,28 @@
+{
+  "path": "",
+  "name": "InstrumentData",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "soundEvent",
+          "type": "ItemSoundHolder"
+        },
+        {
+          "name": "useDuration",
+          "type": "f32"
+        },
+        {
+          "name": "range",
+          "type": "f32"
+        },
+        {
+          "name": "description",
+          "type": "anonymousNbt"
+        }
+      ]
+    ]
+  }
+}

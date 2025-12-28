@@ -1,0 +1,505 @@
+{
+  "path": "play.toClient",
+  "name": "PacketPlayerChat",
+  "history": {
+    "735-758": null,
+    "759": [
+      "container",
+      [
+        {
+          "name": "signedChatContent",
+          "type": "string"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "senderName",
+          "type": "string"
+        },
+        {
+          "name": "senderTeam",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ],
+    "760": [
+      "container",
+      [
+        {
+          "name": "previousSignature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "countType": "varint"
+              }
+            ]
+          ]
+        },
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "buffer",
+            {
+              "countType": "varint"
+            }
+          ]
+        },
+        {
+          "name": "plainMessage",
+          "type": "string"
+        },
+        {
+          "name": "formattedMessage",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "filterType",
+          "type": "varint"
+        },
+        {
+          "name": "filterTypeMask",
+          "type": [
+            "switch",
+            {
+              "compareTo": "filterType",
+              "fields": {
+                "2": [
+                  "array",
+                  {
+                    "type": "i64",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "networkName",
+          "type": "string"
+        },
+        {
+          "name": "networkTargetName",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "761-764": [
+      "container",
+      [
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "index",
+          "type": "varint"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "plainMessage",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "string"
+          ]
+        },
+        {
+          "name": "filterType",
+          "type": "varint"
+        },
+        {
+          "name": "filterTypeMask",
+          "type": [
+            "switch",
+            {
+              "compareTo": "filterType",
+              "fields": {
+                "2": [
+                  "array",
+                  {
+                    "type": "i64",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "networkName",
+          "type": "string"
+        },
+        {
+          "name": "networkTargetName",
+          "type": [
+            "option",
+            "string"
+          ]
+        }
+      ]
+    ],
+    "765-766": [
+      "container",
+      [
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "index",
+          "type": "varint"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "plainMessage",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        },
+        {
+          "name": "filterType",
+          "type": "varint"
+        },
+        {
+          "name": "filterTypeMask",
+          "type": [
+            "switch",
+            {
+              "compareTo": "filterType",
+              "fields": {
+                "2": [
+                  "array",
+                  {
+                    "type": "i64",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "varint"
+        },
+        {
+          "name": "networkName",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "networkTargetName",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ],
+    "767-769": [
+      "container",
+      [
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "index",
+          "type": "varint"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "plainMessage",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        },
+        {
+          "name": "filterType",
+          "type": "varint"
+        },
+        {
+          "name": "filterTypeMask",
+          "type": [
+            "switch",
+            {
+              "compareTo": "filterType",
+              "fields": {
+                "2": [
+                  "array",
+                  {
+                    "type": "i64",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "ChatTypesHolder"
+        },
+        {
+          "name": "networkName",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "networkTargetName",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ],
+    "770-772": [
+      "container",
+      [
+        {
+          "name": "globalIndex",
+          "type": "varint"
+        },
+        {
+          "name": "senderUuid",
+          "type": "UUID"
+        },
+        {
+          "name": "index",
+          "type": "varint"
+        },
+        {
+          "name": "signature",
+          "type": [
+            "option",
+            [
+              "buffer",
+              {
+                "count": 256
+              }
+            ]
+          ]
+        },
+        {
+          "name": "plainMessage",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "i64"
+        },
+        {
+          "name": "salt",
+          "type": "i64"
+        },
+        {
+          "name": "previousMessages",
+          "type": "previousMessages"
+        },
+        {
+          "name": "unsignedChatContent",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        },
+        {
+          "name": "filterType",
+          "type": "varint"
+        },
+        {
+          "name": "filterTypeMask",
+          "type": [
+            "switch",
+            {
+              "compareTo": "filterType",
+              "fields": {
+                "2": [
+                  "array",
+                  {
+                    "type": "i64",
+                    "countType": "varint"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": "ChatTypesHolder"
+        },
+        {
+          "name": "networkName",
+          "type": "anonymousNbt"
+        },
+        {
+          "name": "networkTargetName",
+          "type": [
+            "option",
+            "anonymousNbt"
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "path": "",
+  "name": "ItemEffectDetail",
+  "history": {
+    "735-765": null,
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "amplifier",
+          "type": "varint"
+        },
+        {
+          "name": "duration",
+          "type": "varint"
+        },
+        {
+          "name": "ambient",
+          "type": "bool"
+        },
+        {
+          "name": "showParticles",
+          "type": "bool"
+        },
+        {
+          "name": "showIcon",
+          "type": "bool"
+        },
+        {
+          "name": "hiddenEffect",
+          "type": [
+            "option",
+            "ItemEffectDetail"
+          ]
+        }
+      ]
+    ]
+  }
+}

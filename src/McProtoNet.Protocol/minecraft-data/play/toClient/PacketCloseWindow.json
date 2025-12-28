@@ -1,0 +1,24 @@
+{
+  "path": "play.toClient",
+  "name": "PacketCloseWindow",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "u8"
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "windowId",
+          "type": "ContainerID"
+        }
+      ]
+    ]
+  }
+}

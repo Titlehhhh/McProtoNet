@@ -1,0 +1,34 @@
+{
+  "path": "",
+  "name": "PacketCommonCustomReportDetails",
+  "history": {
+    "735-766": null,
+    "767-772": [
+      "container",
+      [
+        {
+          "name": "details",
+          "type": [
+            "array",
+            {
+              "type": [
+                "container",
+                [
+                  {
+                    "name": "key",
+                    "type": "string"
+                  },
+                  {
+                    "name": "value",
+                    "type": "string"
+                  }
+                ]
+              ],
+              "countType": "varint"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,142 @@
+{
+  "path": "play.toClient",
+  "name": "PacketScoreboardObjective",
+  "history": {
+    "735-764": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "type": "i8"
+        },
+        {
+          "name": "displayText",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "string",
+                "2": "string"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "2": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ],
+    "765-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "action",
+          "type": "i8"
+        },
+        {
+          "name": "displayText",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "anonymousNbt",
+                "2": "anonymousNbt"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "type",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": "varint",
+                "2": "varint"
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "number_format",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": [
+                  "option",
+                  "varint"
+                ],
+                "2": [
+                  "option",
+                  "varint"
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        },
+        {
+          "name": "styling",
+          "type": [
+            "switch",
+            {
+              "compareTo": "action",
+              "fields": {
+                "0": [
+                  "switch",
+                  {
+                    "compareTo": "number_format",
+                    "fields": {
+                      "1": "anonymousNbt",
+                      "2": "anonymousNbt"
+                    },
+                    "default": "void"
+                  }
+                ],
+                "2": [
+                  "switch",
+                  {
+                    "compareTo": "number_format",
+                    "fields": {
+                      "1": "anonymousNbt",
+                      "2": "anonymousNbt"
+                    },
+                    "default": "void"
+                  }
+                ]
+              },
+              "default": "void"
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "path": "play.toClient",
+  "name": "PacketPlayerRotation",
+  "history": {
+    "735-767": null,
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "yaw",
+          "type": "f32"
+        },
+        {
+          "name": "pitch",
+          "type": "f32"
+        }
+      ]
+    ]
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "path": "play.toClient",
+  "name": "PacketSimulationDistance",
+  "history": {
+    "735-756": null,
+    "757-772": [
+      "container",
+      [
+        {
+          "name": "distance",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}

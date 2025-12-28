@@ -1,0 +1,20 @@
+{
+  "path": "play.toServer",
+  "name": "PacketPickItemFromBlock",
+  "history": {
+    "735-768": null,
+    "769-772": [
+      "container",
+      [
+        {
+          "name": "position",
+          "type": "position"
+        },
+        {
+          "name": "includeData",
+          "type": "bool"
+        }
+      ]
+    ]
+  }
+}

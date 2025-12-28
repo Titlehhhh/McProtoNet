@@ -1,0 +1,25 @@
+{
+  "path": "play.toServer",
+  "name": "PacketDisplayedRecipe",
+  "history": {
+    "735-736": null,
+    "751-767": [
+      "container",
+      [
+        {
+          "name": "recipeId",
+          "type": "string"
+        }
+      ]
+    ],
+    "768-772": [
+      "container",
+      [
+        {
+          "name": "recipeId",
+          "type": "varint"
+        }
+      ]
+    ]
+  }
+}
