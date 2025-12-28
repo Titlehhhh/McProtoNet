@@ -32,41 +32,41 @@ public static class GenericExtensions
         public void WriteVec2f(Vec2f vec, int protocolVersion)
         {
             ThrowHelper.ThrowIfProtocolNotSupported<Vec2f>(protocolVersion);
-            writer.WriteFloat(vec.x);
-            writer.WriteFloat(vec.y);
+            writer.WriteFloat(vec.X);
+            writer.WriteFloat(vec.Y);
         }
 
         public void WriteVec3f(Vec3f vec, int protocolVersion)
         {
             ThrowHelper.ThrowIfProtocolNotSupported<Vec3f>(protocolVersion);
-            writer.WriteFloat(vec.x);
-            writer.WriteFloat(vec.y);
-            writer.WriteFloat(vec.z);
+            writer.WriteFloat(vec.X);
+            writer.WriteFloat(vec.Y);
+            writer.WriteFloat(vec.Z);
         }
 
         public void WriteVec3f64(Vec3f64 vec, int protocolVersion)
         {
             ThrowHelper.ThrowIfProtocolNotSupported<Vec3f64>(protocolVersion);
-            writer.WriteDouble(vec.x);
-            writer.WriteDouble(vec.y);
-            writer.WriteDouble(vec.z);
+            writer.WriteDouble(vec.X);
+            writer.WriteDouble(vec.Y);
+            writer.WriteDouble(vec.Z);
         }
 
         public void WriteVec3i(Vec3i vec, int protocolVersion)
         {
             ThrowHelper.ThrowIfProtocolNotSupported<Vec3i>(protocolVersion);
-            writer.WriteVarInt(vec.x);
-            writer.WriteVarInt(vec.y);
-            writer.WriteVarInt(vec.z);
+            writer.WriteVarInt(vec.X);
+            writer.WriteVarInt(vec.Y);
+            writer.WriteVarInt(vec.Z);
         }
 
         public void WriteVec4f(Vec4f vec, int protocolVersion)
         {
             ThrowHelper.ThrowIfProtocolNotSupported<Vec4f>(protocolVersion);
-            writer.WriteFloat(vec.x);
-            writer.WriteFloat(vec.y);
-            writer.WriteFloat(vec.z);
-            writer.WriteFloat(vec.w);
+            writer.WriteFloat(vec.X);
+            writer.WriteFloat(vec.Y);
+            writer.WriteFloat(vec.Z);
+            writer.WriteFloat(vec.W);
         }
     }
 

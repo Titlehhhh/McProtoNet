@@ -3,4 +3,4 @@
 namespace McProtoNet.Protocol;
 
 [ProtocolSupport(762, 772)]
-public readonly partial record struct Vec3f(float x, float y, float z);
+public readonly partial record struct Vec3f(float X, float Y, float Z);
