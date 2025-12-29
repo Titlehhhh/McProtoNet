@@ -136,6 +136,27 @@ ONLY JSON structure and `history` define semantics.
 
 ---
 
+## Component-Based Variant Types (CRITICAL)
+
+Some data types represent a collection of keyed components
+(e.g. SlotComponent), where each component ID has its own evolving schema.
+
+Rules:
+- Such types MUST be modeled as tagged unions / variants.
+- The component key (ID) selects the variant type.
+- Each variant corresponds to a specific component ID.
+- Variant data types MAY contain a superset of fields across versions.
+- Protocol versions MUST be handled in Read*/Write*, not in the type shape.
+
+Forbidden:
+- Inferring semantics beyond JSON structure.
+- Making variants version-aware.
+- Splitting variants purely by version ranges.
+
+If a component ID has incompatible schemas across versions,
+a variant type MUST be generated instead of a unified struct.
+
+
 ## 9. Algorithm for Complex Type Generation
 
 The agent MUST follow this order:
