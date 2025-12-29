@@ -2,7 +2,7 @@
 
 namespace McProtoNet.Protocol.Extensions;
 
-public static class GenericExtensions
+public static partial class ProtocolSerializationExtensions
 {
     extension(ref MinecraftPrimitiveWriter writer)
     {

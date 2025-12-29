@@ -7,7 +7,7 @@ public struct VarInt;
 public struct VarLong;
 
 
-public static class TypeExtensions
+public static partial class ProtocolSerializationExtensions
 {
     public static NbtTag? ReadNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
