@@ -88,6 +88,29 @@ These values define the **absolute supported protocol range**.
 
 ---
 
+## 6.1 Protocol Serialization Extension Layer
+
+McProtoNet.Protocol defines protocol-level serialization primitives as
+extension methods on:
+
+* `MinecraftPrimitiveReader`
+* `MinecraftPrimitiveWriter`
+
+These live in `Extensions/ProtocolSerializationExtensions*.cs` under the
+`McProtoNet.Protocol.Extensions` namespace.
+
+Rules:
+
+* Extension methods here implement **primitive protocol serialization** only.
+* Generic helpers like `WriteType<T>` are **extension points**, not implementations.
+* Data types MUST remain semantic and version-agnostic; they must not contain
+  serialization logic beyond invoking these extensions in `Read*`/`Write*`.
+* Packets orchestrate serialization by calling `Read*`/`Write*` methods, not by
+  embedding primitive serialization logic directly.
+* Agents MUST NOT add reflection-based or generic serializers to this layer.
+
+---
+
 ## 7. Packets vs Data Types (CRITICAL)
 
 ### Packets
@@ -274,5 +297,4 @@ The agent MUST:
 
 > When in doubt, STOP.
 > Incorrect code generation is worse than no code generation.
-
 
