@@ -1,48 +1,257 @@
-# Правила генерации C# кода из minecraft-data
+# AGENTS.md
 
-## Источник данных
-- Папка `minecraft-data` содержит:
-  - `types/`
-  - пакеты: `configuration/`, `login/`, `play/`, `status/`, `handshaking/`
-  - `info.txt`
-- `minecraft-data/info.txt` содержит глобальные границы поддержки протоколов:
-  - `startVersion=735`
-  - `latestVersion=772`
+## Rules for Generating C# Code from `minecraft-data`
 
-## Правила версий протокола
-- Хардкод промежуточных версий протокола РАЗРЕШЁН.
-- Хардкод `startVersion` и `latestVersion` ЗАПРЕЩЁН.
-- При совпадении границы диапазона с `startVersion` использовать `MinecraftVersion.StartProtocol`.
-- При совпадении границы диапазона с `latestVersion` использовать `MinecraftVersion.LatestProtocol`.
+This document defines **strict rules** for AI agents that generate C# code from the `minecraft-data` repository.
+The agent MUST follow these rules exactly.
+If any rule cannot be satisfied, the agent MUST stop generation and report the reason.
 
-## Формат history в JSON
-- Ключ — диапазон версий (включительно).
-- Значение `null` — тип или пакет отсутствует.
-- Ненулевое значение — структура существует.
-- Диапазоны берутся строго из JSON и не угадываются.
+---
 
-## Соответствие структур JSON и C#
-- C# структура типа или пакета ОБЯЗАНА соответствовать JSON структуре 1:1.
-- Порядок полей сохраняется.
-- Типы соответствуют JSON.
-- Имена полей меняются только по стилю (camelCase → PascalCase).
-- Запрещено добавлять, удалять или переупорядочивать поля.
+## 1. Data Sources
 
-## Генерация ProtocolSupport
-- Промежуточные версии можно указывать числом.
-- `start` / `latest` — только через `MinecraftVersion.*`.
+The `minecraft-data` directory contains:
 
-## Генерация методов Read*/Write*
-- Методы принимают `protocolVersion`.
-- Первая строка — проверка `ThrowIfProtocolNotSupported<T>`.
-- Порядок чтения/записи соответствует JSON.
+* `types/` — protocol data types
+* packet folders:
 
-## Дополнительные правила
-- `null`-диапазоны history не генерируют код.
-- `partial`-типы используются для разделения автокода и ручного кода.
-- Обновление `minecraft-data` не должно требовать ручной правки C# кода.
+   * `configuration/`
+   * `login/`
+   * `play/`
+   * `status/`
+   * `handshaking/`
+* `info.txt`
 
-## Запрещено
-- Хардкодить `startVersion` / `latestVersion` числом.
-- Выдумывать структуры, которых нет в JSON.
-- Генерировать код при неясных правилах (в этом случае агент обязан остановиться).
+### `info.txt`
+
+`minecraft-data/info.txt` defines global protocol version bounds:
+
+* `startVersion`
+* `latestVersion`
+
+These values define the **absolute supported protocol range**.
+
+---
+
+## 2. Protocol Version Rules
+
+* Hardcoding **intermediate protocol versions** is ALLOWED.
+* Hardcoding `startVersion` or `latestVersion` as numeric literals is FORBIDDEN.
+* If a version range boundary equals `startVersion`, use:
+
+   * `MinecraftVersion.StartProtocol`
+* If a version range boundary equals `latestVersion`, use:
+
+   * `MinecraftVersion.LatestProtocol`
+
+---
+
+## 3. JSON `history` Format
+
+* Each `history` entry key is a **version range (inclusive)**.
+* A `null` value means the type or packet does NOT exist in that range.
+* A non-null value means the structure exists.
+* Version ranges MUST be taken **strictly from JSON**.
+* Version ranges MUST NOT be guessed or inferred.
+
+---
+
+## 4. JSON ↔ C# Structure Mapping
+
+* Generated C# structures MUST match JSON structures **1:1**.
+* Field order MUST be preserved.
+* Field types MUST match JSON definitions.
+* Field names MAY be renamed ONLY for style:
+
+   * `camelCase` → `PascalCase`
+* Adding, removing, or reordering fields is FORBIDDEN.
+
+---
+
+## 5. ProtocolSupport Generation
+
+* Intermediate protocol versions MAY be specified as numbers.
+* `start` / `latest` MUST be expressed using:
+
+   * `MinecraftVersion.StartProtocol`
+   * `MinecraftVersion.LatestProtocol`
+
+---
+
+## 6. Read / Write Method Rules
+
+* `Read*` / `Write*` methods MUST accept `protocolVersion`.
+* The FIRST line MUST call:
+
+   * `ThrowIfProtocolNotSupported<T>()`
+* Read/write order MUST exactly follow JSON field order.
+
+---
+
+## 7. Packets vs Data Types (CRITICAL)
+
+### Packets
+
+* Packets are **versioned protocol containers**.
+* Packets MAY contain version-specific field groups
+  (e.g. `V765To767Fields`).
+* Packets MAY expose protocol-version-dependent structure.
+* Packets consume data types but do NOT define data type modeling rules.
+
+### Data Types
+
+* Data types MUST NOT be version-aware.
+* Data types MUST represent **semantic data**, not historical layouts.
+* Protocol versions affect **HOW data is serialized**, not **WHAT the type represents**.
+
+Forbidden for data types:
+
+* Version-specific field groups (`VxxxToYyyFields`)
+* Storing `protocolVersion` inside the type
+* Duplicating historical layouts as separate fields
+
+Allowed data type forms:
+
+1. Simple struct/class for stable data
+2. Unified semantic type with version-dependent serialization
+3. Wrapper / modifier types (e.g. `UntrustedSlot`, `HashedSlot`)
+
+---
+
+## 8. Complex / Evolving Types (CRITICAL)
+
+Some types are **evolving type families**, not single structures
+(example: `Slot`).
+
+Such types may:
+
+* Have multiple historical names
+* Change internal structure across versions
+* Be decomposed into components
+* Become aliases of other types
+* Gain semantic modifiers (e.g. `Untrusted`, `Hashed`)
+
+Type names are NOT a source of truth.
+ONLY JSON structure and `history` define semantics.
+
+---
+
+## 9. Algorithm for Complex Type Generation
+
+The agent MUST follow this order:
+
+1. Collect ALL related types
+   (e.g. `Slot`, `slot`, `*Slot`, `*Component`)
+2. Analyze FULL history of ALL collected types
+3. Build a complete version → structure map
+4. Detect:
+
+   * Renames
+   * Decomposition into components
+   * Aliases
+   * Modifiers / wrappers
+5. Generate **core (base) data types first**
+6. Generate component types
+7. Generate modifier / wrapper types
+8. Generate alias types
+9. ONLY AFTER ALL TYPES are generated:
+
+   * Generate packets
+
+Forbidden:
+
+* Generating packets before all data types exist
+* Generating code without full history analysis
+* Inferring relationships not proven by JSON
+
+---
+
+## 10. Decomposition Rule
+
+If a type is decomposed over time
+(e.g. monolithic structure → `Item + Component[]`):
+
+* Components MUST be generated as separate data types
+* The main type MUST reference components via composition
+* Historical monolithic layouts MUST NOT be duplicated as fields
+
+---
+
+## 11. Modifiers and Wrappers
+
+Types such as:
+
+* `UntrustedSlot`
+* `HashedSlot`
+
+MUST be treated as:
+
+* Wrappers, derived types, or tagged types
+
+Rules:
+
+* Modifiers MUST NOT duplicate core type structure
+* Modifiers MUST NOT be generated before core types
+* Modifiers MAY add semantic constraints or extra fields
+
+---
+
+## 12. Alias Types
+
+If a type is an alias in some version ranges:
+
+* Alias code MUST be generated only after the target type exists
+* Alias types MUST NOT contain their own serialization logic
+
+---
+
+## 13. Null History Ranges
+
+* `null` ranges in `history` MUST NOT generate any code.
+* Absence is NOT a structure.
+
+---
+
+## 14. Partial Types
+
+* `partial` MUST be used to separate:
+
+   * auto-generated code
+   * manual / handwritten code
+* Updating `minecraft-data` MUST NOT require manual C# edits.
+
+---
+
+## 15. Behavior on Uncertainty
+
+If:
+
+* Type evolution is ambiguous
+* Structure changes cannot be reconciled
+* Relationships cannot be determined unambiguously
+
+The agent MUST:
+
+* STOP generation
+* Report the exact reason
+* NOT guess
+* NOT invent structures
+
+---
+
+## 16. Explicitly Forbidden
+
+* Hardcoding `startVersion` / `latestVersion` as numbers
+* Inventing structures not present in JSON
+* Making data types version-aware
+* Generating packets before completing data type generation
+* Proceeding when rules are unclear
+
+---
+
+## Final Rule
+
+> When in doubt, STOP.
+> Incorrect code generation is worse than no code generation.
+
+
