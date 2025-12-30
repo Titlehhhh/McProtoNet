@@ -68,6 +68,25 @@ public static partial class ProtocolSerializationExtensions
             writer.WriteFloat(vec.Z);
             writer.WriteFloat(vec.W);
         }
+
+        public void WritePosition(Position position, int protocolVersion)
+        {
+            ThrowHelper.ThrowIfProtocolNotSupported<Position>(protocolVersion);
+            if (protocolVersion >= 477)
+            {
+                var encoded = (((ulong)position.X & 0x3FFFFFF) << 38) |
+                              (((ulong)position.Z & 0x3FFFFFF) << 12) |
+                              ((ulong)position.Y & 0xFFF);
+                writer.WriteUnsignedLong(encoded);
+            }
+            else
+            {
+                var encoded = (((ulong)position.X & 0x3FFFFFF) << 38) |
+                              (((ulong)position.Y & 0xFFF) << 26) |
+                              ((ulong)position.Z & 0x3FFFFFF);
+                writer.WriteUnsignedLong(encoded);
+            }
+        }
     }
 
     extension(ref MinecraftPrimitiveReader reader)
