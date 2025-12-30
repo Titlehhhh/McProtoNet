@@ -305,6 +305,30 @@ The agent MUST:
 
 ---
 
+## Dependency Scope for Complex Types (CRITICAL)
+
+Some complex types (e.g. SlotComponent) reference other non-slot data types
+as part of their payload schemas.
+
+Rules:
+- Agents are NOT required to fully generate all transitive dependencies
+  of a complex type unless explicitly instructed.
+- If a referenced dependency is:
+  - non-native
+  - outside the current task scope
+    then the agent MAY generate a placeholder data type.
+
+Placeholder rules:
+- The placeholder type MUST have a name matching the JSON reference.
+- The placeholder MUST NOT invent fields or semantics.
+- Read*/Write* methods for placeholders MUST:
+  - throw NotImplementedException, or
+  - contain an explicit TODO indicating the missing dependency.
+- Using placeholders for non-native dependencies is NOT considered guessing.
+
+This rule applies ONLY to dependencies of complex types
+and MUST NOT be used to bypass core modeling rules.
+
 ## Final Rule
 
 > When in doubt, STOP.
