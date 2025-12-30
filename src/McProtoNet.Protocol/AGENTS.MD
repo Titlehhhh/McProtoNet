@@ -15,12 +15,13 @@ The `minecraft-data` directory contains:
 * `types/` — protocol data types
 * packet folders:
 
-   * `configuration/`
-   * `login/`
-   * `play/`
-   * `status/`
-   * `handshaking/`
+    * `configuration/`
+    * `login/`
+    * `play/`
+    * `status/`
+    * `handshaking/`
 * `info.txt`
+* `PROTODEF.md` — authoritative reference for ProtoDef native types and their wire semantics
 
 ### `info.txt`
 
@@ -39,10 +40,10 @@ These values define the **absolute supported protocol range**.
 * Hardcoding `startVersion` or `latestVersion` as numeric literals is FORBIDDEN.
 * If a version range boundary equals `startVersion`, use:
 
-   * `MinecraftVersion.StartProtocol`
+    * `MinecraftVersion.StartProtocol`
 * If a version range boundary equals `latestVersion`, use:
 
-   * `MinecraftVersion.LatestProtocol`
+    * `MinecraftVersion.LatestProtocol`
 
 ---
 
@@ -63,7 +64,7 @@ These values define the **absolute supported protocol range**.
 * Field types MUST match JSON definitions.
 * Field names MAY be renamed ONLY for style:
 
-   * `camelCase` → `PascalCase`
+    * `camelCase` → `PascalCase`
 * Adding, removing, or reordering fields is FORBIDDEN.
 
 ---
@@ -73,8 +74,8 @@ These values define the **absolute supported protocol range**.
 * Intermediate protocol versions MAY be specified as numbers.
 * `start` / `latest` MUST be expressed using:
 
-   * `MinecraftVersion.StartProtocol`
-   * `MinecraftVersion.LatestProtocol`
+    * `MinecraftVersion.StartProtocol`
+    * `MinecraftVersion.LatestProtocol`
 
 ---
 
@@ -83,7 +84,7 @@ These values define the **absolute supported protocol range**.
 * `Read*` / `Write*` methods MUST accept `protocolVersion`.
 * The FIRST line MUST call:
 
-   * `ThrowIfProtocolNotSupported<T>()`
+    * `ThrowIfProtocolNotSupported<T>()`
 * Read/write order MUST exactly follow JSON field order.
 
 ---
@@ -159,26 +160,52 @@ ONLY JSON structure and `history` define semantics.
 
 ---
 
+## ProtoDef Native Types (CRITICAL)
+
+minecraft-data schemas use ProtoDef and reference **native types** (e.g. varint, switch, container,
+registryEntryHolder, registryEntryHolderSet). Native types are built-in wire primitives/combinators
+and are NOT required to have their own JSON type definitions in `minecraft-data/types/*.json`.
+
+The authoritative description of ProtoDef native types and their intended wire semantics
+is provided in `minecraft-data/PROTODEF.md`.
+
+Rules:
+
+* Agents MUST NOT stop generation due to missing JSON definitions for native types.
+* Native types MUST be implemented in the repository’s serialization extension layer
+  (MinecraftPrimitiveReader/MinecraftPrimitiveWriter extensions).
+* If a referenced native type is not implemented yet:
+
+    * The agent MUST NOT guess its wire format.
+    * The agent MUST create a TODO task/change in the serialization layer (or stop with a message:
+      "missing native primitive implementation"), but MUST NOT treat it as a schema ambiguity.
+* For baseline primitive encodings, follow the protocol specification (VarInt/VarLong/Position/etc.).
+
+---
+
 ## Component-Based Variant Types (CRITICAL)
 
 Some data types represent a collection of keyed components
 (e.g. SlotComponent), where each component ID has its own evolving schema.
 
 Rules:
-- Such types MUST be modeled as tagged unions / variants.
-- The component key (ID) selects the variant type.
-- Each variant corresponds to a specific component ID.
-- Variant data types MAY contain a superset of fields across versions.
-- Protocol versions MUST be handled in Read*/Write*, not in the type shape.
+
+* Such types MUST be modeled as tagged unions / variants.
+* The component key (ID) selects the variant type.
+* Each variant corresponds to a specific component ID.
+* Variant data types MAY contain a superset of fields across versions.
+* Protocol versions MUST be handled in Read*/Write*, not in the type shape.
 
 Forbidden:
-- Inferring semantics beyond JSON structure.
-- Making variants version-aware.
-- Splitting variants purely by version ranges.
+
+* Inferring semantics beyond JSON structure.
+* Making variants version-aware.
+* Splitting variants purely by version ranges.
 
 If a component ID has incompatible schemas across versions,
 a variant type MUST be generated instead of a unified struct.
 
+---
 
 ## 9. Algorithm for Complex Type Generation
 
@@ -190,17 +217,17 @@ The agent MUST follow this order:
 3. Build a complete version → structure map
 4. Detect:
 
-   * Renames
-   * Decomposition into components
-   * Aliases
-   * Modifiers / wrappers
+    * Renames
+    * Decomposition into components
+    * Aliases
+    * Modifiers / wrappers
 5. Generate **core (base) data types first**
 6. Generate component types
 7. Generate modifier / wrapper types
 8. Generate alias types
 9. ONLY AFTER ALL TYPES are generated:
 
-   * Generate packets
+    * Generate packets
 
 Forbidden:
 
@@ -260,8 +287,8 @@ If a type is an alias in some version ranges:
 
 * `partial` MUST be used to separate:
 
-   * auto-generated code
-   * manual / handwritten code
+    * auto-generated code
+    * manual / handwritten code
 * Updating `minecraft-data` MUST NOT require manual C# edits.
 
 ---
@@ -297,4 +324,3 @@ The agent MUST:
 
 > When in doubt, STOP.
 > Incorrect code generation is worse than no code generation.
-
