@@ -18,6 +18,36 @@ public static partial class ProtocolSerializationExtensions
     {
         return reader.ReadOptionalNbtTag(protocolVersion < 764);
     }
+
+    public static NbtTag? ReadAnonymousNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        return reader.ReadNbtTag(readRootTag: false);
+    }
+
+    public static NbtTag? ReadAnonOptionalNbtTag(this ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        return reader.ReadOptionalNbtTag(readRootTag: false);
+    }
+
+    public static void WriteNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
+    {
+        writer.WriteNbt(value);
+    }
+
+    public static void WriteOptionalNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
+    {
+        writer.WriteOptionalNbt(value);
+    }
+
+    public static void WriteAnonymousNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
+    {
+        writer.WriteNbt(value);
+    }
+
+    public static void WriteAnonOptionalNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
+    {
+        writer.WriteOptionalNbt(value);
+    }
     //
     // public static Position ReadPosition(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     // {
