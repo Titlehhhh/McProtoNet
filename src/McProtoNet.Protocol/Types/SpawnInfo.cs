@@ -1,6 +1,9 @@
-﻿namespace McProtoNet.Protocol;
+﻿using McProtoNet.Protocol.Attributes;
 
-public sealed class SpawnInfo
+namespace McProtoNet.Protocol;
+
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+public sealed partial class SpawnInfo
 {
     public int Dimension { get; }
     public string Name { get; }
