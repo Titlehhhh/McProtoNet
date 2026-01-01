@@ -106,6 +106,34 @@ Rules:
 * Data types MUST NOT embed primitive serialization logic.
 * `Read*` / `Write*` methods orchestrate serialization by calling these extensions.
 
+
+## 6.2 Location of Read / Write Methods (CRITICAL)
+
+Read* / Write* methods MUST NOT be declared inside data type definitions.
+
+Rules:
+- Data types (including Slot, SlotComponent, union variants, modifiers, aliases)
+  MUST contain semantic data ONLY.
+- Data types MUST NOT contain:
+  - instance Read/Write methods
+  - static Read/Write methods
+  - any serialization logic
+- All Read* / Write* methods for data types MUST be implemented as
+  EXTENSION METHODS on:
+    - MinecraftPrimitiveReader
+    - MinecraftPrimitiveWriter
+- These extension methods MUST live under the
+  `McProtoNet.Protocol.Extensions` namespace.
+
+Allowed:
+- `reader.ReadSlot(protocolVersion)`
+- `writer.WriteSlot(slot, protocolVersion)`
+
+Forbidden:
+- `Slot.Read(ref reader, protocolVersion)`
+- `slot.Write(ref writer, protocolVersion)`
+- any Read/Write method declared inside a data type
+
 ---
 
 ## 7. Packets vs Data Types (CRITICAL)
