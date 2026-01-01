@@ -1277,7 +1277,8 @@ public static partial class ProtocolSerializationExtensions
     private static FireworksData ReadFireworks(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         int flightDuration = reader.ReadVarInt();
-        ItemFireworkExplosion[] explosions = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemFireworkExplosion.Read(ref r, protocolVersion));
+        ItemFireworkExplosion[] explosions = ReadArray(ref reader,
+            (ref MinecraftPrimitiveReader r) => r.ReadItemFireworkExplosion(protocolVersion));
         return new FireworksData(flightDuration, explosions);
     }
 
@@ -1316,7 +1317,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static BannerPatternLayer[] ReadBannerPatterns(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => BannerPatternLayer.Read(ref r, protocolVersion));
+        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadBannerPatternLayer(protocolVersion));
     }
 
     private static void WriteBannerPatterns(ref MinecraftPrimitiveWriter writer, IReadOnlyList<BannerPatternLayer> layers, int protocolVersion)
@@ -1559,7 +1560,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static Slot[] ReadSlotArray(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => Slot.Read(ref r, protocolVersion));
+        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadSlot(protocolVersion));
     }
 
     private static void WriteSlotArray(ref MinecraftPrimitiveWriter writer, IReadOnlyList<Slot> slots, int protocolVersion)

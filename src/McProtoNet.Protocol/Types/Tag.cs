@@ -1,7 +1,16 @@
-﻿namespace McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 
-public sealed class Tag
+namespace McProtoNet.Protocol;
+
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+public sealed partial class Tag
 {
     public string TagName { get; }
     public int[] Entries { get; }
+
+    public Tag(string tagName, int[] entries)
+    {
+        TagName = tagName;
+        Entries = entries;
+    }
 }
