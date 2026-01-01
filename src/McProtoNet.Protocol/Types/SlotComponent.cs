@@ -1,7 +1,6 @@
 using Dunet;
 using McProtoNet.NBT;
 using McProtoNet.Protocol.Attributes;
-using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
 
@@ -144,14 +143,4 @@ public partial record SlotComponent
     public sealed record WeaponData(int ItemDamagePerAttack, float DisableBlockingForSeconds);
     public sealed record WrittenBookContentData(string RawTitle, string? FilteredTitle, string Author, int Generation,
         ItemWrittenBookPage[] Pages, bool Resolved);
-
-    public static SlotComponent Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        return reader.ReadSlotComponent(protocolVersion);
-    }
-
-    public void Write(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        writer.WriteSlotComponent(this, protocolVersion);
-    }
 }

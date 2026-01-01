@@ -8,8 +8,9 @@ public static partial class ProtocolSerializationExtensions
     public static UntrustedSlotComponent ReadUntrustedSlotComponent(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UntrustedSlotComponent>(protocolVersion);
-        var type = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
-        var data = ByteArray.Read(ref reader, protocolVersion);
+        var type = reader.ReadSlotComponentType(protocolVersion);
+        int length = reader.ReadVarInt();
+        var data = reader.ReadBuffer(length);
         return new UntrustedSlotComponent(type, data);
     }
 
@@ -17,8 +18,9 @@ public static partial class ProtocolSerializationExtensions
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UntrustedSlotComponent>(protocolVersion);
-        component.Type.Write(ref writer, protocolVersion);
-        component.Data.Write(ref writer, protocolVersion);
+        writer.WriteSlotComponentType(component.Type, protocolVersion);
+        writer.WriteVarInt(component.Data.Length);
+        writer.WriteBuffer(component.Data);
     }
 
     public static UntrustedSlot ReadUntrustedSlot(this ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -67,7 +69,7 @@ public static partial class ProtocolSerializationExtensions
         {
             foreach (var removed in untrustedSlot.Slot.RemovedComponents)
             {
-                removed.Write(ref writer, protocolVersion);
+                writer.WriteSlotComponentType(removed, protocolVersion);
             }
         }
     }
@@ -82,7 +84,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new UntrustedSlotComponent[count];
         for (int i = 0; i < count; i++)
         {
-            components[i] = UntrustedSlotComponent.Read(ref reader, protocolVersion);
+            components[i] = reader.ReadUntrustedSlotComponent(protocolVersion);
         }
 
         return components;
@@ -98,7 +100,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new SlotComponentType[count];
         for (int i = 0; i < count; i++)
         {
-            components[i] = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
+            components[i] = reader.ReadSlotComponentType(protocolVersion);
         }
 
         return components;
@@ -128,7 +130,7 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteVarInt(hashedSlot.Components.Count);
         for (int i = 0; i < hashedSlot.Components.Count; i++)
         {
-            hashedSlot.Components[i].Type.Write(ref writer, protocolVersion);
+            writer.WriteSlotComponentType(hashedSlot.Components[i].Type, protocolVersion);
             writer.WriteSignedInt(hashedSlot.Components[i].Hash);
         }
         writer.WriteVarInt(hashedSlot.Slot.RemovedComponents?.Count ?? 0);
@@ -136,7 +138,7 @@ public static partial class ProtocolSerializationExtensions
         {
             foreach (var removed in hashedSlot.Slot.RemovedComponents)
             {
-                removed.Write(ref writer, protocolVersion);
+                writer.WriteSlotComponentType(removed, protocolVersion);
             }
         }
     }
@@ -152,7 +154,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new HashedSlotComponent[count];
         for (int i = 0; i < count; i++)
         {
-            var type = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
+            var type = reader.ReadSlotComponentType(protocolVersion);
             int hash = reader.ReadSignedInt();
             components[i] = new HashedSlotComponent(type, hash);
         }
@@ -171,7 +173,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new SlotComponentType[count];
         for (int i = 0; i < count; i++)
         {
-            components[i] = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
+            components[i] = reader.ReadSlotComponentType(protocolVersion);
         }
 
         return components;

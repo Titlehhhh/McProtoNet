@@ -1,5 +1,4 @@
 using McProtoNet.Protocol.Attributes;
-using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
 
@@ -109,35 +108,7 @@ public enum SlotComponentType
 
 public static class SlotComponentTypeExtensions
 {
-    public static SlotComponentType Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        ThrowHelper.ThrowIfProtocolNotSupported<SlotComponentType>(protocolVersion);
-        int id = reader.ReadVarInt();
-        return protocolVersion switch
-        {
-            766 => FromId766(id, protocolVersion),
-            767 => FromId767(id, protocolVersion),
-            >= 768 and <= 769 => FromId768To769(id, protocolVersion),
-            >= 770 and <= 772 => FromId770To772(id, protocolVersion),
-            _ => throw new InvalidOperationException($"Unknown SlotComponentType id {id} for protocol {protocolVersion}.")
-        };
-    }
-
-    public static void Write(this SlotComponentType value, ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        ThrowHelper.ThrowIfProtocolNotSupported<SlotComponentType>(protocolVersion);
-        int id = protocolVersion switch
-        {
-            766 => ToId766(value, protocolVersion),
-            767 => ToId767(value, protocolVersion),
-            >= 768 and <= 769 => ToId768To769(value, protocolVersion),
-            >= 770 and <= 772 => ToId770To772(value, protocolVersion),
-            _ => throw new InvalidOperationException($"Unknown SlotComponentType {value} for protocol {protocolVersion}.")
-        };
-        writer.WriteVarInt(id);
-    }
-
-    private static SlotComponentType FromId766(int id, int protocolVersion)
+    internal static SlotComponentType FromId766(int id, int protocolVersion)
     {
         switch (id)
         {
@@ -201,7 +172,7 @@ public static class SlotComponentTypeExtensions
         }
     }
 
-    private static SlotComponentType FromId767(int id, int protocolVersion)
+    internal static SlotComponentType FromId767(int id, int protocolVersion)
     {
         switch (id)
         {
@@ -266,7 +237,7 @@ public static class SlotComponentTypeExtensions
         }
     }
 
-    private static SlotComponentType FromId768To769(int id, int protocolVersion)
+    internal static SlotComponentType FromId768To769(int id, int protocolVersion)
     {
         switch (id)
         {
@@ -341,7 +312,7 @@ public static class SlotComponentTypeExtensions
         }
     }
 
-    private static SlotComponentType FromId770To772(int id, int protocolVersion)
+    internal static SlotComponentType FromId770To772(int id, int protocolVersion)
     {
         switch (id)
         {
@@ -445,7 +416,7 @@ public static class SlotComponentTypeExtensions
         }
     }
 
-    private static int ToId766(SlotComponentType value, int protocolVersion)
+    internal static int ToId766(SlotComponentType value, int protocolVersion)
     {
         return value switch
         {
@@ -509,7 +480,7 @@ public static class SlotComponentTypeExtensions
         };
     }
 
-    private static int ToId767(SlotComponentType value, int protocolVersion)
+    internal static int ToId767(SlotComponentType value, int protocolVersion)
     {
         return value switch
         {
@@ -574,7 +545,7 @@ public static class SlotComponentTypeExtensions
         };
     }
 
-    private static int ToId768To769(SlotComponentType value, int protocolVersion)
+    internal static int ToId768To769(SlotComponentType value, int protocolVersion)
     {
         return value switch
         {
@@ -649,7 +620,7 @@ public static class SlotComponentTypeExtensions
         };
     }
 
-    private static int ToId770To772(SlotComponentType value, int protocolVersion)
+    internal static int ToId770To772(SlotComponentType value, int protocolVersion)
     {
         return value switch
         {

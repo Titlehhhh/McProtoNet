@@ -160,7 +160,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new SlotComponent[count];
         for (int i = 0; i < count; i++)
         {
-            components[i] = SlotComponent.Read(ref reader, protocolVersion);
+            components[i] = reader.ReadSlotComponent(protocolVersion);
         }
 
         return components;
@@ -176,7 +176,7 @@ public static partial class ProtocolSerializationExtensions
         var components = new SlotComponentType[count];
         for (int i = 0; i < count; i++)
         {
-            components[i] = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
+            components[i] = reader.ReadSlotComponentType(protocolVersion);
         }
 
         return components;
@@ -194,7 +194,7 @@ public static partial class ProtocolSerializationExtensions
     {
         for (int i = 0; i < components.Count; i++)
         {
-            components[i].Write(ref writer, protocolVersion);
+            writer.WriteSlotComponent(components[i], protocolVersion);
         }
     }
 
@@ -203,7 +203,7 @@ public static partial class ProtocolSerializationExtensions
     {
         for (int i = 0; i < removed.Count; i++)
         {
-            removed[i].Write(ref writer, protocolVersion);
+            writer.WriteSlotComponentType(removed[i], protocolVersion);
         }
     }
 }

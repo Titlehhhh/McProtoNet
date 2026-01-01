@@ -9,7 +9,7 @@ public static partial class ProtocolSerializationExtensions
     public static SlotComponent ReadSlotComponent(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotComponent>(protocolVersion);
-        var type = SlotComponentTypeExtensions.Read(ref reader, protocolVersion);
+        var type = reader.ReadSlotComponentType(protocolVersion);
         return type switch
         {
             SlotComponentType.CustomData => new CustomData(reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("custom_data missing")),
@@ -78,7 +78,7 @@ public static partial class ProtocolSerializationExtensions
             SlotComponentType.OminousBottleAmplifier => new OminousBottleAmplifier(reader.ReadVarInt()),
             SlotComponentType.Recipes => new Recipes(reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("recipes missing")),
             SlotComponentType.LodestoneTracker => new LodestoneTracker(ReadLodestoneTracker(ref reader, protocolVersion)),
-            SlotComponentType.FireworkExplosion => new FireworkExplosion(ItemFireworkExplosion.Read(ref reader, protocolVersion)),
+            SlotComponentType.FireworkExplosion => new FireworkExplosion(reader.ReadItemFireworkExplosion(protocolVersion)),
             SlotComponentType.Fireworks => new Fireworks(ReadFireworks(ref reader, protocolVersion)),
             SlotComponentType.Profile => new Profile(ReadProfile(ref reader, protocolVersion)),
             SlotComponentType.NoteBlockSound => new NoteBlockSound(reader.ReadString()),
@@ -97,7 +97,7 @@ public static partial class ProtocolSerializationExtensions
                 ? new Consumable(ReadConsumable(ref reader, protocolVersion))
                 : throw new InvalidOperationException("consumable is not supported before protocol 768"),
             SlotComponentType.UseRemainder => protocolVersion >= 768
-                ? new UseRemainder(Slot.Read(ref reader, protocolVersion))
+                ? new UseRemainder(reader.ReadSlot(protocolVersion))
                 : throw new InvalidOperationException("use_remainder is not supported before protocol 768"),
             SlotComponentType.UseCooldown => protocolVersion >= 768
                 ? new UseCooldown(ReadUseCooldown(ref reader))
@@ -112,7 +112,7 @@ public static partial class ProtocolSerializationExtensions
                 ? new Equippable(ReadEquippable(ref reader, protocolVersion))
                 : throw new InvalidOperationException("equippable is not supported before protocol 768"),
             SlotComponentType.Repairable => protocolVersion >= 768
-                ? new Repairable(IDSet.Read(ref reader, protocolVersion))
+                ? new Repairable(reader.ReadIDSet(protocolVersion))
                 : throw new InvalidOperationException("repairable is not supported before protocol 768"),
             SlotComponentType.Glider => protocolVersion >= 768
                 ? new Glider()
@@ -139,7 +139,7 @@ public static partial class ProtocolSerializationExtensions
                 ? new ProvidesBannerPatterns(reader.ReadString())
                 : throw new InvalidOperationException("provides_banner_patterns is not supported before protocol 770"),
             SlotComponentType.BreakSound => protocolVersion >= 770
-                ? new BreakSound(ItemSoundHolder.Read(ref reader, protocolVersion))
+                ? new BreakSound(reader.ReadItemSoundHolder(protocolVersion))
                 : throw new InvalidOperationException("break_sound is not supported before protocol 770"),
             SlotComponentType.VillagerVariant => protocolVersion >= 770
                 ? new VillagerVariant(reader.ReadVarInt())
@@ -184,7 +184,7 @@ public static partial class ProtocolSerializationExtensions
                 ? new CowVariant(reader.ReadVarInt())
                 : throw new InvalidOperationException("cow/variant is not supported before protocol 770"),
             SlotComponentType.ChickenVariant => protocolVersion >= 770
-                ? new ChickenVariant(RegistryEntryHolder<string>.Read(ref reader, protocolVersion))
+                ? new ChickenVariant(reader.ReadRegistryEntryHolder<string>(protocolVersion))
                 : throw new InvalidOperationException("chicken/variant is not supported before protocol 770"),
             SlotComponentType.FrogVariant => protocolVersion >= 770
                 ? new FrogVariant(reader.ReadVarInt())
@@ -193,7 +193,7 @@ public static partial class ProtocolSerializationExtensions
                 ? new HorseVariant(reader.ReadVarInt())
                 : throw new InvalidOperationException("horse/variant is not supported before protocol 770"),
             SlotComponentType.PaintingVariant => protocolVersion >= 770
-                ? new PaintingVariant(RegistryEntryHolder<EntityMetadataPaintingVariant>.Read(ref reader, protocolVersion))
+                ? new PaintingVariant(reader.ReadRegistryEntryHolder<EntityMetadataPaintingVariant>(protocolVersion))
                 : throw new InvalidOperationException("painting/variant is not supported before protocol 770"),
             SlotComponentType.LlamaVariant => protocolVersion >= 770
                 ? new LlamaVariant(reader.ReadVarInt())
@@ -221,7 +221,7 @@ public static partial class ProtocolSerializationExtensions
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotComponent>(protocolVersion);
         var type = GetComponentType(component);
-        type.Write(ref writer, protocolVersion);
+        writer.WriteSlotComponentType(type, protocolVersion);
         switch (component)
         {
             case CustomData customData:
@@ -406,7 +406,7 @@ public static partial class ProtocolSerializationExtensions
                 WriteLodestoneTracker(ref writer, lodestoneTracker.Data, protocolVersion);
                 break;
             case FireworkExplosion fireworkExplosion:
-                fireworkExplosion.Explosion.Write(ref writer, protocolVersion);
+                writer.WriteItemFireworkExplosion(fireworkExplosion.Explosion, protocolVersion);
                 break;
             case Fireworks fireworks:
                 WriteFireworks(ref writer, fireworks.Data, protocolVersion);
@@ -460,7 +460,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("use_remainder is not supported before protocol 768");
                 }
-                useRemainder.Value.Write(ref writer, protocolVersion);
+                writer.WriteSlot(useRemainder.Value, protocolVersion);
                 break;
             case UseCooldown useCooldown:
                 if (protocolVersion < 768)
@@ -495,7 +495,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("repairable is not supported before protocol 768");
                 }
-                repairable.Items.Write(ref writer, protocolVersion);
+                writer.WriteIDSet(repairable.Items, protocolVersion);
                 break;
             case Glider:
                 if (protocolVersion < 768)
@@ -557,7 +557,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("break_sound is not supported before protocol 770");
                 }
-                breakSound.Sound.Write(ref writer, protocolVersion);
+                writer.WriteItemSoundHolder(breakSound.Sound, protocolVersion);
                 break;
             case VillagerVariant villagerVariant:
                 if (protocolVersion < 770)
@@ -662,7 +662,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("chicken/variant is not supported before protocol 770");
                 }
-                chickenVariant.Variant.Write(ref writer, protocolVersion);
+                writer.WriteRegistryEntryHolder(chickenVariant.Variant, protocolVersion);
                 break;
             case FrogVariant frogVariant:
                 if (protocolVersion < 770)
@@ -683,7 +683,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("painting/variant is not supported before protocol 770");
                 }
-                paintingVariant.Variant.Write(ref writer, protocolVersion);
+                writer.WriteRegistryEntryHolder(paintingVariant.Variant, protocolVersion);
                 break;
             case LlamaVariant llamaVariant:
                 if (protocolVersion < 770)
@@ -1000,7 +1000,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static ItemBlockPredicate[] ReadItemBlockPredicates(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemBlockPredicate.Read(ref r, protocolVersion));
+        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemBlockPredicate(protocolVersion));
     }
 
     private static void WriteItemBlockPredicates(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBlockPredicate> predicates,
@@ -1008,7 +1008,7 @@ public static partial class ProtocolSerializationExtensions
     {
         WriteArray(ref writer, predicates, (ref MinecraftPrimitiveWriter w, ItemBlockPredicate predicate) =>
         {
-            predicate.Write(ref w, protocolVersion);
+            w.WriteItemBlockPredicate(predicate, protocolVersion);
         });
     }
 
@@ -1023,7 +1023,7 @@ public static partial class ProtocolSerializationExtensions
         if (protocolVersion <= 767)
         {
             secondsToEat = reader.ReadFloat();
-            usingConvertsTo = Slot.Read(ref reader, protocolVersion);
+            usingConvertsTo = reader.ReadSlot(protocolVersion);
             effects = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => new FoodEffect(r.ReadVarInt(), r.ReadFloat()));
         }
         return new FoodData(nutrition, saturation, canAlwaysEat, secondsToEat, usingConvertsTo, effects);
@@ -1037,7 +1037,7 @@ public static partial class ProtocolSerializationExtensions
         if (protocolVersion <= 767)
         {
             writer.WriteFloat(data.SecondsToEat ?? 0f);
-            (data.UsingConvertsTo ?? new Slot()).Write(ref writer, protocolVersion);
+            writer.WriteSlot(data.UsingConvertsTo ?? new Slot(), protocolVersion);
             WriteArray(ref writer, data.Effects ?? Array.Empty<FoodEffect>(), (ref MinecraftPrimitiveWriter w, FoodEffect effect) =>
             {
                 w.WriteVarInt(effect.Effect);
@@ -1050,7 +1050,7 @@ public static partial class ProtocolSerializationExtensions
     {
         ToolRule[] rules = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) =>
         {
-            var blocks = IDSet.Read(ref r, protocolVersion);
+            var blocks = r.ReadIDSet(protocolVersion);
             float? speed = ReadOptionalFloat(ref r);
             bool? correct = ReadOptionalBool(ref r);
             return new ToolRule(blocks, speed, correct);
@@ -1069,7 +1069,7 @@ public static partial class ProtocolSerializationExtensions
     {
         WriteArray(ref writer, data.Rules, (ref MinecraftPrimitiveWriter w, ToolRule rule) =>
         {
-            rule.Blocks.Write(ref w, protocolVersion);
+            w.WriteIDSet(rule.Blocks, protocolVersion);
             WriteOptionalFloat(ref w, rule.Speed);
             WriteOptionalBool(ref w, rule.CorrectDropForBlocks);
         });
@@ -1085,7 +1085,7 @@ public static partial class ProtocolSerializationExtensions
     {
         int? potionId = ReadOptionalVarInt(ref reader);
         int? customColor = ReadOptionalSignedInt(ref reader);
-        ItemPotionEffect[] effects = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemPotionEffect.Read(ref r, protocolVersion));
+        ItemPotionEffect[] effects = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemPotionEffect(protocolVersion));
         string? customName = ReadOptionalString(ref reader);
         return new PotionContentsData(potionId, customColor, effects, customName);
     }
@@ -1094,7 +1094,8 @@ public static partial class ProtocolSerializationExtensions
     {
         WriteOptionalVarInt(ref writer, data.PotionId);
         WriteOptionalSignedInt(ref writer, data.CustomColor);
-        WriteArray(ref writer, data.CustomEffects, (ref MinecraftPrimitiveWriter w, ItemPotionEffect effect) => effect.Write(ref w, protocolVersion));
+        WriteArray(ref writer, data.CustomEffects,
+            (ref MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
         WriteOptionalString(ref writer, data.CustomName);
     }
 
@@ -1114,12 +1115,12 @@ public static partial class ProtocolSerializationExtensions
 
     private static ItemBookPage[] ReadItemBookPages(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemBookPage.Read(ref r, protocolVersion));
+        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemBookPage(protocolVersion));
     }
 
     private static void WriteItemBookPages(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBookPage> pages, int protocolVersion)
     {
-        WriteArray(ref writer, pages, (ref MinecraftPrimitiveWriter w, ItemBookPage page) => page.Write(ref w, protocolVersion));
+        WriteArray(ref writer, pages, (ref MinecraftPrimitiveWriter w, ItemBookPage page) => w.WriteItemBookPage(page, protocolVersion));
     }
 
     private static WrittenBookContentData ReadWrittenBookContent(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1128,7 +1129,7 @@ public static partial class ProtocolSerializationExtensions
         string? filteredTitle = ReadOptionalString(ref reader);
         string author = reader.ReadString();
         int generation = reader.ReadVarInt();
-        ItemWrittenBookPage[] pages = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemWrittenBookPage.Read(ref r, protocolVersion));
+        ItemWrittenBookPage[] pages = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemWrittenBookPage(protocolVersion));
         bool resolved = reader.ReadBoolean();
         return new WrittenBookContentData(rawTitle, filteredTitle, author, generation, pages, resolved);
     }
@@ -1139,14 +1140,15 @@ public static partial class ProtocolSerializationExtensions
         WriteOptionalString(ref writer, data.FilteredTitle);
         writer.WriteString(data.Author);
         writer.WriteVarInt(data.Generation);
-        WriteArray(ref writer, data.Pages, (ref MinecraftPrimitiveWriter w, ItemWrittenBookPage page) => page.Write(ref w, protocolVersion));
+        WriteArray(ref writer, data.Pages,
+            (ref MinecraftPrimitiveWriter w, ItemWrittenBookPage page) => w.WriteItemWrittenBookPage(page, protocolVersion));
         writer.WriteBoolean(data.Resolved);
     }
 
     private static TrimData ReadTrim(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        var material = RegistryEntryHolder<ArmorTrimMaterial>.Read(ref reader, protocolVersion);
-        var pattern = RegistryEntryHolder<ArmorTrimPattern>.Read(ref reader, protocolVersion);
+        var material = reader.ReadRegistryEntryHolder<ArmorTrimMaterial>(protocolVersion);
+        var pattern = reader.ReadRegistryEntryHolder<ArmorTrimPattern>(protocolVersion);
         bool? showInTooltip = null;
         if (protocolVersion <= 769)
         {
@@ -1157,8 +1159,8 @@ public static partial class ProtocolSerializationExtensions
 
     private static void WriteTrim(ref MinecraftPrimitiveWriter writer, TrimData data, int protocolVersion)
     {
-        data.Material.Write(ref writer, protocolVersion);
-        data.Pattern.Write(ref writer, protocolVersion);
+        writer.WriteRegistryEntryHolder(data.Material, protocolVersion);
+        writer.WriteRegistryEntryHolder(data.Pattern, protocolVersion);
         if (protocolVersion <= 769)
         {
             writer.WriteBoolean(data.ShowInTooltip ?? false);
@@ -1169,14 +1171,14 @@ public static partial class ProtocolSerializationExtensions
     {
         if (protocolVersion <= 769)
         {
-            var holder = RegistryEntryHolder<InstrumentData>.Read(ref reader, protocolVersion);
+            var holder = reader.ReadRegistryEntryHolder<InstrumentData>(protocolVersion);
             return new InstrumentComponentData(holder, null);
         }
 
         bool hasHolder = reader.ReadBoolean();
         if (hasHolder)
         {
-            return new InstrumentComponentData(RegistryEntryHolder<InstrumentData>.Read(ref reader, protocolVersion), null);
+            return new InstrumentComponentData(reader.ReadRegistryEntryHolder<InstrumentData>(protocolVersion), null);
         }
 
         return new InstrumentComponentData(null, reader.ReadString());
@@ -1186,7 +1188,8 @@ public static partial class ProtocolSerializationExtensions
     {
         if (protocolVersion <= 769)
         {
-            (data.Holder ?? throw new InvalidOperationException("instrument holder missing")).Write(ref writer, protocolVersion);
+            writer.WriteRegistryEntryHolder(data.Holder ?? throw new InvalidOperationException("instrument holder missing"),
+                protocolVersion);
             return;
         }
 
@@ -1194,7 +1197,7 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            data.Holder!.Write(ref writer, protocolVersion);
+            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
         }
         else
         {
@@ -1209,7 +1212,7 @@ public static partial class ProtocolSerializationExtensions
         string? song = null;
         if (hasHolder)
         {
-            holder = RegistryEntryHolder<JukeboxSongData>.Read(ref reader, protocolVersion);
+            holder = reader.ReadRegistryEntryHolder<JukeboxSongData>(protocolVersion);
         }
         else
         {
@@ -1230,7 +1233,7 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            data.Holder!.Write(ref writer, protocolVersion);
+            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
         }
         else
         {
@@ -1281,7 +1284,8 @@ public static partial class ProtocolSerializationExtensions
     private static void WriteFireworks(ref MinecraftPrimitiveWriter writer, FireworksData data, int protocolVersion)
     {
         writer.WriteVarInt(data.FlightDuration);
-        WriteArray(ref writer, data.Explosions, (ref MinecraftPrimitiveWriter w, ItemFireworkExplosion explosion) => explosion.Write(ref w, protocolVersion));
+        WriteArray(ref writer, data.Explosions,
+            (ref MinecraftPrimitiveWriter w, ItemFireworkExplosion explosion) => w.WriteItemFireworkExplosion(explosion, protocolVersion));
     }
 
     private static ProfileData ReadProfile(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1317,7 +1321,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static void WriteBannerPatterns(ref MinecraftPrimitiveWriter writer, IReadOnlyList<BannerPatternLayer> layers, int protocolVersion)
     {
-        WriteArray(ref writer, layers, (ref MinecraftPrimitiveWriter w, BannerPatternLayer layer) => layer.Write(ref w, protocolVersion));
+        WriteArray(ref writer, layers, (ref MinecraftPrimitiveWriter w, BannerPatternLayer layer) => w.WriteBannerPatternLayer(layer, protocolVersion));
     }
 
     private static int[] ReadVarIntArray(ref MinecraftPrimitiveReader reader)
@@ -1375,9 +1379,9 @@ public static partial class ProtocolSerializationExtensions
     {
         float seconds = reader.ReadFloat();
         string animation = ReadConsumableAnimation(reader.ReadVarInt(), protocolVersion);
-        var sound = ItemSoundHolder.Read(ref reader, protocolVersion);
+        var sound = reader.ReadItemSoundHolder(protocolVersion);
         bool makesParticles = reader.ReadBoolean();
-        ItemConsumeEffect[] effects = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemConsumeEffect.Read(ref r, protocolVersion));
+        ItemConsumeEffect[] effects = ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemConsumeEffect(protocolVersion));
         return new ConsumableData(seconds, animation, sound, makesParticles, effects);
     }
 
@@ -1385,9 +1389,10 @@ public static partial class ProtocolSerializationExtensions
     {
         writer.WriteFloat(data.ConsumeSeconds);
         writer.WriteVarInt(WriteConsumableAnimation(data.Animation, protocolVersion));
-        data.Sound.Write(ref writer, protocolVersion);
+        writer.WriteItemSoundHolder(data.Sound, protocolVersion);
         writer.WriteBoolean(data.MakesParticles);
-        WriteArray(ref writer, data.Effects, (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => effect.Write(ref w, protocolVersion));
+        WriteArray(ref writer, data.Effects,
+            (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
     }
 
     private static UseCooldownData ReadUseCooldown(ref MinecraftPrimitiveReader reader)
@@ -1406,7 +1411,7 @@ public static partial class ProtocolSerializationExtensions
     private static EquippableData ReadEquippable(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         string slot = ReadEquippableSlot(reader.ReadVarInt(), protocolVersion);
-        ItemSoundHolder sound = ItemSoundHolder.Read(ref reader, protocolVersion);
+        ItemSoundHolder sound = reader.ReadItemSoundHolder(protocolVersion);
         string? model = ReadOptionalString(ref reader);
         string? cameraOverlay = ReadOptionalString(ref reader);
         IDSet? allowedEntities = ReadOptionalIdSet(ref reader, protocolVersion);
@@ -1423,7 +1428,7 @@ public static partial class ProtocolSerializationExtensions
         if (protocolVersion >= 771)
         {
             shearable = reader.ReadBoolean();
-            shearingSound = ItemSoundHolder.Read(ref reader, protocolVersion);
+            shearingSound = reader.ReadItemSoundHolder(protocolVersion);
         }
         return new EquippableData(slot, sound, model, cameraOverlay, allowedEntities, dispensable, swappable, damageable, equipOnInteract,
             shearable, shearingSound);
@@ -1432,7 +1437,7 @@ public static partial class ProtocolSerializationExtensions
     private static void WriteEquippable(ref MinecraftPrimitiveWriter writer, EquippableData data, int protocolVersion)
     {
         writer.WriteVarInt(WriteEquippableSlot(data.Slot, protocolVersion));
-        data.Sound.Write(ref writer, protocolVersion);
+        writer.WriteItemSoundHolder(data.Sound, protocolVersion);
         WriteOptionalString(ref writer, data.Model);
         WriteOptionalString(ref writer, data.CameraOverlay);
         WriteOptionalIdSet(ref writer, data.AllowedEntities, protocolVersion);
@@ -1446,19 +1451,20 @@ public static partial class ProtocolSerializationExtensions
         if (protocolVersion >= 771)
         {
             writer.WriteBoolean(data.Shearable ?? false);
-            (data.ShearingSound ?? new ItemSoundHolder()).Write(ref writer, protocolVersion);
+            writer.WriteItemSoundHolder(data.ShearingSound ?? new ItemSoundHolder(), protocolVersion);
         }
     }
 
     private static ItemConsumeEffect[] ReadItemConsumeEffects(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => ItemConsumeEffect.Read(ref r, protocolVersion));
+        return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemConsumeEffect(protocolVersion));
     }
 
     private static void WriteItemConsumeEffects(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemConsumeEffect> effects,
         int protocolVersion)
     {
-        WriteArray(ref writer, effects, (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => effect.Write(ref w, protocolVersion));
+        WriteArray(ref writer, effects,
+            (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
     }
 
     private static TooltipDisplayData ReadTooltipDisplay(ref MinecraftPrimitiveReader reader)
@@ -1530,7 +1536,7 @@ public static partial class ProtocolSerializationExtensions
         bool hasHolder = reader.ReadBoolean();
         if (hasHolder)
         {
-            var holder = RegistryEntryHolder<ArmorTrimMaterial>.Read(ref reader, protocolVersion);
+            var holder = reader.ReadRegistryEntryHolder<ArmorTrimMaterial>(protocolVersion);
             return new ProvidesTrimMaterialData(holder, null);
         }
 
@@ -1543,7 +1549,7 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            data.Holder!.Write(ref writer, protocolVersion);
+            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
         }
         else
         {
@@ -1558,7 +1564,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static void WriteSlotArray(ref MinecraftPrimitiveWriter writer, IReadOnlyList<Slot> slots, int protocolVersion)
     {
-        WriteArray(ref writer, slots, (ref MinecraftPrimitiveWriter w, Slot slot) => slot.Write(ref w, protocolVersion));
+        WriteArray(ref writer, slots, (ref MinecraftPrimitiveWriter w, Slot slot) => w.WriteSlot(slot, protocolVersion));
     }
 
     private static string ReadRarity(int id)
@@ -1786,10 +1792,10 @@ public static partial class ProtocolSerializationExtensions
         => reader.ReadBoolean() ? reader.ReadUUID() : null;
 
     private static IDSet? ReadOptionalIdSet(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => reader.ReadBoolean() ? IDSet.Read(ref reader, protocolVersion) : null;
+        => reader.ReadBoolean() ? reader.ReadIDSet(protocolVersion) : null;
 
     private static ItemSoundHolder? ReadOptionalItemSoundHolder(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => reader.ReadBoolean() ? ItemSoundHolder.Read(ref reader, protocolVersion) : null;
+        => reader.ReadBoolean() ? reader.ReadItemSoundHolder(protocolVersion) : null;
 
     private static void WriteOptionalVarInt(ref MinecraftPrimitiveWriter writer, int? value)
     {
@@ -1878,7 +1884,7 @@ public static partial class ProtocolSerializationExtensions
         else
         {
             writer.WriteBoolean(true);
-            value.Write(ref writer, protocolVersion);
+            writer.WriteIDSet(value, protocolVersion);
         }
     }
 
@@ -1892,7 +1898,7 @@ public static partial class ProtocolSerializationExtensions
         else
         {
             writer.WriteBoolean(true);
-            value.Write(ref writer, protocolVersion);
+            writer.WriteItemSoundHolder(value, protocolVersion);
         }
     }
 }
