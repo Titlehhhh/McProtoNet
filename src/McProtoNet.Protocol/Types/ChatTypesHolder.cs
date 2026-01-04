@@ -2,24 +2,24 @@ using McProtoNet.Protocol.Attributes;
 
 namespace McProtoNet.Protocol;
 
-[ProtocolSupport(761, MinecraftVersion.LatestProtocol)]
-public sealed partial class ItemSoundHolder
+[ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
+public sealed partial class ChatTypesHolder
 {
     public bool HasInline { get; }
     public int? RegistryId { get; }
-    public ItemSoundEvent? Inline { get; }
+    public ChatTypes? Data { get; }
 
-    public ItemSoundHolder(int registryId)
+    public ChatTypesHolder(int registryId)
     {
         HasInline = false;
         RegistryId = registryId;
-        Inline = null;
+        Data = null;
     }
 
-    public ItemSoundHolder(ItemSoundEvent inline)
+    public ChatTypesHolder(ChatTypes data)
     {
         HasInline = true;
         RegistryId = null;
-        Inline = inline;
+        Data = data;
     }
 }

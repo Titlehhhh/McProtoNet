@@ -157,13 +157,28 @@ public static partial class ProtocolSerializationExtensions
     public static IDSet ReadIDSet(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<IDSet>(protocolVersion);
-        throw new NotImplementedException("TODO: Implement IDSet serialization.");
+        int count = reader.ReadVarInt();
+        if (count == 0)
+        {
+            return new IDSet(Array.Empty<RegistryEntryHolder<int>>());
+        }
+
+        var entries = new RegistryEntryHolder<int>[count];
+        for (int i = 0; i < count; i++)
+        {
+            entries[i] = reader.ReadRegistryEntryHolder<int>(protocolVersion);
+        }
+        return new IDSet(entries);
     }
 
     public static void WriteIDSet(this ref MinecraftPrimitiveWriter writer, IDSet value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<IDSet>(protocolVersion);
-        throw new NotImplementedException("TODO: Implement IDSet serialization.");
+        writer.WriteVarInt(value.Entries.Length);
+        for (int i = 0; i < value.Entries.Length; i++)
+        {
+            writer.WriteRegistryEntryHolder(value.Entries[i], protocolVersion);
+        }
     }
 
     public static InstrumentData ReadInstrumentData(this ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -365,14 +380,30 @@ public static partial class ProtocolSerializationExtensions
     public static ItemSoundHolder ReadItemSoundHolder(this ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemSoundHolder>(protocolVersion);
-        throw new NotImplementedException("TODO: Implement ItemSoundHolder serialization.");
+        bool hasInline = reader.ReadBoolean();
+        if (!hasInline)
+        {
+            int registryId = reader.ReadVarInt();
+            return new ItemSoundHolder(registryId);
+        }
+
+        ItemSoundEvent inline = reader.ReadItemSoundEvent(protocolVersion);
+        return new ItemSoundHolder(inline);
     }
 
     public static void WriteItemSoundHolder(this ref MinecraftPrimitiveWriter writer, ItemSoundHolder value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemSoundHolder>(protocolVersion);
-        throw new NotImplementedException("TODO: Implement ItemSoundHolder serialization.");
+        writer.WriteBoolean(value.HasInline);
+        if (!value.HasInline)
+        {
+            writer.WriteVarInt(value.RegistryId ?? 0);
+            return;
+        }
+
+        writer.WriteItemSoundEvent(value.Inline ?? throw new InvalidOperationException("ItemSoundHolder inline missing."),
+            protocolVersion);
     }
 
     public static ItemWrittenBookPage ReadItemWrittenBookPage(this ref MinecraftPrimitiveReader reader, int protocolVersion)

@@ -1452,7 +1452,8 @@ public static partial class ProtocolSerializationExtensions
         if (protocolVersion >= 771)
         {
             writer.WriteBoolean(data.Shearable ?? false);
-            writer.WriteItemSoundHolder(data.ShearingSound ?? new ItemSoundHolder(), protocolVersion);
+            writer.WriteItemSoundHolder(data.ShearingSound
+                ?? throw new InvalidOperationException("Equippable.shearingSound missing."), protocolVersion);
         }
     }
 
