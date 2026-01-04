@@ -21,7 +21,19 @@ The `minecraft-data` directory contains:
     * `status/`
     * `handshaking/`
 * `info.txt`
-* `PROTODEF.md` — authoritative reference for ProtoDef native types and wire semantics
+* `PROTODEF.MD` — authoritative reference for ProtoDef native types and wire semantics
+  (path: `src/McProtoNet.Protocol/minecraft-data/PROTODEF.MD`)
+* File names may appear with `.MD` or `.md` casing; search both when locating agent docs.
+
+### Naming note (minecraft-data quirks)
+
+The upstream `minecraft-data` repository contains historical name changes such as:
+- `slot` → `Slot`
+- `particle` → `Particle`
+
+Some generated JSON files therefore appear as `Slot_1.json`, `Particle_1.json`, etc.
+These are **name artifacts**, not distinct types. Treat them as the same semantic
+types as `Slot` and `Particle`, and do NOT generate duplicate C# types.
 
 ### `info.txt`
 

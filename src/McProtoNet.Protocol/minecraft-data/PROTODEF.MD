@@ -86,27 +86,52 @@ These types describe *how* to encode/decode fields:
 - `anonOptionalNbt`  
   Optional NBT payload (presence defined by protocol rules or schema).
 
-## Registry holder natives
+## Other types
 
-### `registryEntryHolder`
+### registryEntryHolder
 
-Represents a reference to a value from a registry (a "holder" concept).
-Minecraft uses registries extensively (items, blocks, trims, instruments, etc.),
-and holders are used to represent registry entries and/or references. 
+Wire format:
 
-Important:
-- In minecraft-data schemas, `registryEntryHolder` appears as a native type.
-- Its **wire encoding is defined by the ProtoDef runtime + Minecraft’s registry/codec rules**,
-  and is NOT expected to have a separate JSON definition in `types/*.json`.
+- boolean hasInline
+- if hasInline == false:
+    - VarInt registryId
+- else:
+    - inline value T, encoded using T's Read/Write logic
 
-This project must provide a C# implementation of the wire shape for
-`registryEntryHolder` inside the serialization layer.
+Notes:
+- The registry type is context-dependent.
+- Inline values are used for datapack-defined registry entries.
+- Reference form is used for built-in registry entries.
 
-### `registryEntryHolderSet`
 
-Represents a set/collection form of `registryEntryHolder` (schema-driven).
-As with `registryEntryHolder`, its wire encoding is a native ProtoDef/runtime concern,
-and must be implemented in the serialization layer.
+### registryEntryHolderSet
+
+Wire format:
+
+- VarInt count
+- repeated registryEntryHolder<T> entries
+
+Notes:
+- Each entry follows the registryEntryHolder wire format.
+- The registry type is context-dependent.
+
+
+### entityMetadataLoop
+
+Wire format:
+
+- Repeating entries until index == 0xFF
+- Each entry:
+  - byte index
+  - VarInt typeId
+  - value encoded according to typeId
+
+Notes:
+- TypeId determines the value wire format.
+- The loop terminates with index 0xFF.
+- The mapping of typeId → value type is protocol-version dependent,
+  but the loop structure itself is stable.
+
 
 ## Implementation rule for this repository
 

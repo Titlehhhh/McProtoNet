@@ -1,0 +1,181 @@
+{
+  "path": "configuration.toServer",
+  "name": "Packet",
+  "history": {
+    "735-763": null,
+    "764-765": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "settings",
+                "0x01": "custom_payload",
+                "0x02": "finish_configuration",
+                "0x03": "keep_alive",
+                "0x04": "pong",
+                "0x05": "resource_pack_receive"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "settings": "packet_settings",
+                "custom_payload": "packet_custom_payload",
+                "finish_configuration": "packet_finish_configuration",
+                "keep_alive": "packet_keep_alive",
+                "pong": "packet_pong",
+                "resource_pack_receive": "packet_resource_pack_receive"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "766": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "settings",
+                "0x01": "cookie_response",
+                "0x02": "custom_payload",
+                "0x03": "finish_configuration",
+                "0x04": "keep_alive",
+                "0x05": "pong",
+                "0x06": "resource_pack_receive",
+                "0x07": "select_known_packs"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "settings": "packet_common_settings",
+                "cookie_response": "packet_common_cookie_response",
+                "custom_payload": "packet_custom_payload",
+                "finish_configuration": "packet_finish_configuration",
+                "keep_alive": "packet_keep_alive",
+                "pong": "packet_pong",
+                "resource_pack_receive": "packet_resource_pack_receive",
+                "select_known_packs": "packet_common_select_known_packs"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "767-770": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "settings",
+                "0x01": "cookie_response",
+                "0x02": "custom_payload",
+                "0x03": "finish_configuration",
+                "0x04": "keep_alive",
+                "0x05": "pong",
+                "0x06": "resource_pack_receive",
+                "0x07": "select_known_packs",
+                "0x08": "custom_report_details",
+                "0x09": "server_links"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "settings": "packet_common_settings",
+                "cookie_response": "packet_common_cookie_response",
+                "custom_payload": "packet_custom_payload",
+                "finish_configuration": "packet_finish_configuration",
+                "keep_alive": "packet_keep_alive",
+                "pong": "packet_pong",
+                "resource_pack_receive": "packet_resource_pack_receive",
+                "select_known_packs": "packet_common_select_known_packs",
+                "custom_report_details": "packet_common_custom_report_details",
+                "server_links": "packet_common_server_links"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "771-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "settings",
+                "0x01": "cookie_response",
+                "0x02": "custom_payload",
+                "0x03": "finish_configuration",
+                "0x04": "keep_alive",
+                "0x05": "pong",
+                "0x06": "resource_pack_receive",
+                "0x07": "select_known_packs",
+                "0x08": "custom_click_action"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "settings": "packet_common_settings",
+                "cookie_response": "packet_common_cookie_response",
+                "custom_payload": "packet_custom_payload",
+                "finish_configuration": "packet_finish_configuration",
+                "keep_alive": "packet_keep_alive",
+                "pong": "packet_pong",
+                "resource_pack_receive": "packet_resource_pack_receive",
+                "select_known_packs": "packet_common_select_known_packs",
+                "custom_click_action": "packet_common_custom_click_action"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
