@@ -1,0 +1,82 @@
+{
+  "path": "login.toClient",
+  "name": "Packet",
+  "history": {
+    "735-765": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "disconnect",
+                "0x01": "encryption_begin",
+                "0x02": "success",
+                "0x03": "compress",
+                "0x04": "login_plugin_request"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "disconnect": "packet_disconnect",
+                "encryption_begin": "packet_encryption_begin",
+                "success": "packet_success",
+                "compress": "packet_compress",
+                "login_plugin_request": "packet_login_plugin_request"
+              }
+            }
+          ]
+        }
+      ]
+    ],
+    "766-772": [
+      "container",
+      [
+        {
+          "name": "name",
+          "type": [
+            "mapper",
+            {
+              "type": "varint",
+              "mappings": {
+                "0x00": "disconnect",
+                "0x01": "encryption_begin",
+                "0x02": "success",
+                "0x03": "compress",
+                "0x04": "login_plugin_request",
+                "0x05": "cookie_request"
+              }
+            }
+          ]
+        },
+        {
+          "name": "params",
+          "type": [
+            "switch",
+            {
+              "compareTo": "name",
+              "fields": {
+                "disconnect": "packet_disconnect",
+                "encryption_begin": "packet_encryption_begin",
+                "success": "packet_success",
+                "compress": "packet_compress",
+                "login_plugin_request": "packet_login_plugin_request",
+                "cookie_request": "packet_common_cookie_request"
+              }
+            }
+          ]
+        }
+      ]
+    ]
+  }
+}
