@@ -1,21 +1,21 @@
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
-[PacketInfo("Disconnect", PacketState.Login, PacketDirection.Clientbound)]
-public sealed partial class DisconnectPacket : IServerPacket
+[PacketInfo("LegacyServerListPing", PacketState.Handshaking, PacketDirection.Serverbound)]
+public sealed class LegacyServerListPingPacket : IClientPacket
 {
-    public string Reason { get; set; } = string.Empty;
+    public byte Payload { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Reason);
+                writer.WriteUnsignedByte(Payload);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.LegacyServerListPing), protocolVersion);
         }
     }
 
@@ -24,10 +24,10 @@ public sealed partial class DisconnectPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Reason = reader.ReadString();
+                Payload = reader.ReadUnsignedByte();
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.LegacyServerListPing), protocolVersion);
         }
     }
 

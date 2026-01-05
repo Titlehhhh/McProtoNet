@@ -1,27 +1,46 @@
-using McProtoNet.Protocol;
+using System;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("LoginPluginRequest", PacketState.Login, PacketDirection.Clientbound)]
-public abstract partial class LoginPluginRequestPacket : IServerPacket
+public sealed partial class LoginPluginRequestPacket : IServerPacket
 {
     public int MessageId { get; set; }
-    public string Channel { get; set; }
-    public byte[] Data { get; set; }
+    public string Channel { get; set; } = string.Empty;
+    public byte[] Data { get; set; } = Array.Empty<byte>();
 
-
-    [PacketSubInfo(393, 769)]
-    public sealed partial class V393_769 : LoginPluginRequestPacket
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        switch (protocolVersion)
         {
-            MessageId = reader.ReadVarInt();
-            Channel = reader.ReadString();
-            Data = reader.ReadRestBuffer();
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(MessageId);
+                writer.WriteString(Channel);
+                writer.WriteBuffer(Data);
+                return;
+            default:
+                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.LoginPluginRequest), protocolVersion);
         }
     }
 
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                MessageId = reader.ReadVarInt();
+                Channel = reader.ReadString();
+                Data = reader.ReadRestBuffer();
+                return;
+            default:
+                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.LoginPluginRequest), protocolVersion);
+        }
+    }
 
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

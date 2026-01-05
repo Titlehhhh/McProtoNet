@@ -1,18 +1,22 @@
+using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
-[PacketInfo("LoginAcknowledged", PacketState.Login, PacketDirection.Serverbound)]
-public sealed partial class LoginAcknowledgedPacket : IClientPacket
+[PacketInfo("CookieResponse", PacketState.Login, PacketDirection.Serverbound)]
+public sealed partial class CookieResponsePacket : IClientPacket
 {
+    public PacketCommonCookieResponse Data { get; set; } = null!;
+
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                writer.WritePacketCommonCookieResponse(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.CookieResponse), protocolVersion);
         }
     }
 
@@ -20,10 +24,11 @@ public sealed partial class LoginAcknowledgedPacket : IClientPacket
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonCookieResponse(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.CookieResponse), protocolVersion);
         }
     }
 

@@ -1,35 +1,48 @@
-﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
+[PacketInfo("SetProtocol", PacketState.Handshaking, PacketDirection.Serverbound)]
 public sealed class SetProtocolPacket : IClientPacket
 {
     public int ProtocolVersion { get; set; }
-    public string ServerHost { get; set; }
+    public string ServerHost { get; set; } = string.Empty;
     public ushort ServerPort { get; set; }
     public int NextState { get; set; }
 
-    public static PacketIdentifier PacketId => ClientHandshakingPacket.SetProtocol;
-
-    public PacketIdentifier GetPacketId() => PacketId;
-
-
-    public static bool IsSupportedVersionStatic(int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        return protocolVersion is >= 340 and <= 769;
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(ProtocolVersion);
+                writer.WriteString(ServerHost);
+                writer.WriteUnsignedShort(ServerPort);
+                writer.WriteVarInt(NextState);
+                return;
+            default:
+                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion);
+        }
     }
 
-    public bool IsSupportedVersion(int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        return protocolVersion is >= 340 and <= 769;
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                ProtocolVersion = reader.ReadVarInt();
+                ServerHost = reader.ReadString();
+                ServerPort = reader.ReadUnsignedShort();
+                NextState = reader.ReadVarInt();
+                return;
+            default:
+                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion);
+        }
     }
 
-    public void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        writer.WriteVarInt(ProtocolVersion);
-        writer.WriteString(ServerHost);
-        writer.WriteUnsignedShort(ServerPort);
-        writer.WriteVarInt(NextState);
-    }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

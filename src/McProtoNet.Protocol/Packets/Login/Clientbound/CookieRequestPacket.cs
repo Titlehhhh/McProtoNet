@@ -1,21 +1,22 @@
+using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
-[PacketInfo("Disconnect", PacketState.Login, PacketDirection.Clientbound)]
-public sealed partial class DisconnectPacket : IServerPacket
+[PacketInfo("CookieRequest", PacketState.Login, PacketDirection.Clientbound)]
+public sealed partial class CookieRequestPacket : IServerPacket
 {
-    public string Reason { get; set; } = string.Empty;
+    public PacketCommonCookieRequest Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Reason);
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                writer.WritePacketCommonCookieRequest(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.CookieRequest), protocolVersion);
         }
     }
 
@@ -23,11 +24,11 @@ public sealed partial class DisconnectPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Reason = reader.ReadString();
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonCookieRequest(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.CookieRequest), protocolVersion);
         }
     }
 
