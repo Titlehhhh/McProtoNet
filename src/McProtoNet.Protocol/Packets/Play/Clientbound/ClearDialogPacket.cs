@@ -1,26 +1,19 @@
 using System;
-using McProtoNet.NBT;
-using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
-[PacketInfo("CustomClickAction", PacketState.Configuration, PacketDirection.Serverbound)]
-public sealed partial class CustomClickActionPacket : IClientPacket
+[PacketInfo("ClearDialog", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class ClearDialogPacket : IServerPacket
 {
-    public string Id { get; set; } = string.Empty;
-    public NbtTag? Nbt { get; set; }
-
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= 771 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Id);
-                writer.WriteAnonOptionalNbtTag(Nbt, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CustomClickAction), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.ClearDialog), protocolVersion);
         }
     }
 
@@ -29,11 +22,9 @@ public sealed partial class CustomClickActionPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Id = reader.ReadString();
-                Nbt = reader.ReadAnonOptionalNbtTag(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CustomClickAction), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.ClearDialog), protocolVersion);
         }
     }
 

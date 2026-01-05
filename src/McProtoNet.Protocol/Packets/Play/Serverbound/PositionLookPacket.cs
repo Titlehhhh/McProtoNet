@@ -1,71 +1,96 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
-using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol.Extensions;
+using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("PositionLook", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class PositionLookPacket : IClientPacket
 {
-    [PacketInfo("PositionLook", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class PositionLookPacket : IClientPacket
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Z { get; set; }
+    public float Yaw { get; set; }
+    public float Pitch { get; set; }
+
+    public VFirst_767Fields? VFirst_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public float Yaw { get; set; }
-        public float Pitch { get; set; }
-
-        [PacketSubInfo(340, 767)]
-        public sealed partial class V340_767 : PositionLookPacket
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, OnGround);
+                var fields = VFirst_767 ?? throw new InvalidOperationException("PositionLook VFirst_767 missing.");
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                writer.WriteBoolean(fields.OnGround);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
-                double y, double z, float yaw, float pitch, bool onGround)
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteDouble(x);
-                writer.WriteDouble(y);
-                writer.WriteDouble(z);
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-                writer.WriteBoolean(onGround);
+                var fields = V768_Last ?? throw new InvalidOperationException("PositionLook V768_Last missing.");
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                writer.WriteMovementFlags(fields.Flags, protocolVersion);
+                return;
             }
-
-            public bool OnGround { get; set; }
-        }
-
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : PositionLookPacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, Flags);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
-                double y, double z, float yaw, float pitch, byte flags)
-            {
-                writer.WriteDouble(x);
-                writer.WriteDouble(y);
-                writer.WriteDouble(z);
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-                writer.WriteUnsignedByte(flags);
-            }
-
-            public byte Flags { get; set; }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_767.IsSupportedVersionStatic(protocolVersion))
-                V340_767.SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, false);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, default);
-            else
+            default:
                 throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PositionLook), protocolVersion);
         }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                X = reader.ReadDouble();
+                Y = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                VFirst_767 = new VFirst_767Fields
+                {
+                    OnGround = reader.ReadBoolean()
+                };
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                X = reader.ReadDouble();
+                Y = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                V768_Last = new V768_LastFields
+                {
+                    Flags = reader.ReadMovementFlags(protocolVersion)
+                };
+                return;
+            default:
+                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PositionLook), protocolVersion);
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_767Fields
+    {
+        public bool OnGround { get; set; }
+    }
+
+    public struct V768_LastFields
+    {
+        public MovementFlags Flags { get; set; }
     }
 }

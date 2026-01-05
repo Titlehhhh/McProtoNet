@@ -1,24 +1,23 @@
 using System;
-using McProtoNet.NBT;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-[PacketInfo("ShowDialog", PacketState.Configuration, PacketDirection.Clientbound)]
-public sealed partial class ShowDialogPacket : IServerPacket
+[PacketInfo("Transfer", PacketState.Configuration, PacketDirection.Clientbound)]
+public sealed partial class TransferPacket : IServerPacket
 {
-    public NbtTag Dialog { get; set; } = null!;
+    public PacketCommonTransfer Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteAnonymousNbtTag(Dialog, protocolVersion);
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                writer.WritePacketCommonTransfer(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.Transfer), protocolVersion);
         }
     }
 
@@ -26,12 +25,11 @@ public sealed partial class ShowDialogPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Dialog = reader.ReadAnonymousNbtTag(protocolVersion)
-                    ?? throw new InvalidOperationException("ShowDialog.dialog missing.");
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonTransfer(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.Transfer), protocolVersion);
         }
     }
 

@@ -1,24 +1,23 @@
 using System;
-using McProtoNet.NBT;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
-[PacketInfo("ShowDialog", PacketState.Configuration, PacketDirection.Clientbound)]
-public sealed partial class ShowDialogPacket : IServerPacket
+[PacketInfo("CustomReportDetails", PacketState.Configuration, PacketDirection.Clientbound)]
+public sealed partial class CustomReportDetailsPacket : IServerPacket
 {
-    public NbtTag Dialog { get; set; } = null!;
+    public PacketCommonCustomReportDetails Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteAnonymousNbtTag(Dialog, protocolVersion);
+            case >= 767 and <= MinecraftVersion.LatestProtocol:
+                writer.WritePacketCommonCustomReportDetails(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion);
         }
     }
 
@@ -26,12 +25,11 @@ public sealed partial class ShowDialogPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Dialog = reader.ReadAnonymousNbtTag(protocolVersion)
-                    ?? throw new InvalidOperationException("ShowDialog.dialog missing.");
+            case >= 767 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonCustomReportDetails(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion);
         }
     }
 
