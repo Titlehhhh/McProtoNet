@@ -4,20 +4,26 @@ These notes define the preferred packet format for new multi-version packet gene
 
 ## Preferred packet shape
 
-- Use an abstract packet class with a private nested implementation:
-  - `public abstract class XPacket : IClientPacket` (serverbound) or `IServerPacket` (clientbound)
-  - `public static XPacket Create() => new Impl();`
-  - `internal abstract void ReadPacket(...)` / `WritePacket(...)`
-  - `IClientPacket.Serialize` or `IServerPacket.Deserialize` should call the internal method
-- Keep payload fields on the abstract class as `get/set` properties.
-- Version-specific data should live in small nested structs with **semantic names** (no numeric ranges in names).
-- Do not hardcode protocol numbers in the **struct names** (range numbers are allowed in switch cases).
-- Read/Write should switch on `protocolVersion` and only serialize fields valid for that range.
-- Keep Manual packets untouched.
+- Use a single sealed packet class (no nested impl, no Create method, no base class).
+- Keep version-specific fields inside `Fields` structs when required.
+- Do not generate empty Fields structs.
+- If a packet supports a single continuous range, do NOT add a `Vxxx_yyyFields` struct.
+- `Serialize` / `Deserialize` methods must be `internal` on the packet.
+- Do not add extra helper Read/Write methods.
+- Implement `IPacket.Serialize` / `IPacket.Deserialize` explicitly and route to the internal methods.
+- Use protocol-version switches inside `Serialize` / `Deserialize`.
+- When a range boundary equals the global start or latest version, use
+  `MinecraftVersion.StartProtocol` / `MinecraftVersion.LatestProtocol` in the switch.
+
+## Fields naming
+
+- Use `VFirst_###Fields` instead of hardcoding the first protocol number.
+- Use `V###_LastFields` instead of hardcoding the last protocol number.
 
 ## Common packets
 
 - `packet_common_*` are payload types reused across stages.
-- For now, generate stage-specific packet classes that wrap the common payload.
+- Packets that wrap common payloads should store the payload as a normal property when the
+  packet has a single supported range.
 - IDs are handled later by a marshaller, so do not add ID-specific logic yet.
 

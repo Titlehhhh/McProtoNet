@@ -91,7 +91,7 @@ This rule applies **unless explicitly overridden** by a more specific rule below
 
 ## 6. Read / Write Method Rules
 
-* `Read*` / `Write*` methods MUST accept `protocolVersion`.
+* Read* / Write* methods MUST accept `protocolVersion`.
 * The FIRST line MUST call:
 
     * `ThrowIfProtocolNotSupported<T>()`
@@ -153,7 +153,7 @@ Forbidden:
 ### Packets
 
 * Packets are **versioned protocol containers**.
-* Packets MAY contain version-specific field groups (e.g. `V765To767Fields`).
+* Packets MAY contain version-specific field groups.
 * Packets MAY expose protocol-version-dependent structure.
 * Packets consume data types but do NOT define data type modeling rules.
 
@@ -199,177 +199,16 @@ ONLY JSON structure and `history` define semantics.
 ## 9. ProtoDef Native Types (CRITICAL)
 
 minecraft-data schemas use ProtoDef and reference **native types**
-(e.g. `varint`, `switch`, `container`,
-`registryEntryHolder`, `registryEntryHolderSet`).
+(see `PROTODEF.MD`).
 
-Native types:
-
-* Are built-in ProtoDef wire primitives or combinators
-* Do NOT require JSON definitions in `minecraft-data/types/*.json`
-
-The authoritative description of these types is `minecraft-data/PROTODEF.md`.
-
-Rules:
-
-* Agents MUST NOT stop generation due to missing JSON definitions for native types.
-* Native types MUST be handled in the serialization extension layer.
-* If a native type is referenced but not yet implemented:
-
-    * The agent MUST NOT guess its wire format.
-    * The agent MUST generate a TODO / placeholder in serialization code.
-    * This is NOT a schema ambiguity.
+If a schema references a native ProtoDef type:
+- Do NOT look for a JSON type definition for it.
+- Use the project’s serialization primitives (reader/writer extensions) that implement it.
+- If the primitive is missing, treat it as a TODO in the serialization layer, not a schema ambiguity.
 
 ---
 
-## 10. Component-Based Variant Types (CRITICAL)
+## 10. Packet Generation Notes
 
-Some data types represent a collection of keyed components
-(example: `SlotComponent`).
+Packet format rules live in `src/McProtoNet.Protocol/Packets/AGENTS.MD`.
 
-Each component ID has its own schema which may evolve across versions.
-
-### Variant Model Rule
-
-* Component-based types MUST be modeled as **tagged unions / discriminated unions**.
-* Each component ID corresponds to ONE semantic variant.
-* Variants represent **meaning**, not protocol versions.
-
-### Dunet
-
-* Discriminated union libraries (e.g. **Dunet**) are ALLOWED and RECOMMENDED.
-* Union cases represent semantic variants, not historical layouts.
-
----
-
-### Exception to 1:1 Mapping Rule (CRITICAL)
-
-For **Component-Based Variant Types only**:
-
-* The “1:1 JSON ↔ C# structure mapping” rule DOES NOT apply
-  to the **variant data model shape**.
-* Variant data models represent a **semantic superset**
-  of all JSON schemas for that component ID.
-* Fields absent in some versions MUST be nullable or optional.
-* Primitive ↔ container ↔ void shape changes MUST be unified
-  into a single semantic representation.
-* Exact JSON layouts MUST be handled **exclusively in Read*/Write***.
-
-The 1:1 mapping rule REMAINS mandatory for:
-
-* Packet layouts
-* Non-component data types
-* Serialization logic inside `Read*/Write*`
-
----
-
-## 11. Void / Presence Semantics
-
-For component variants:
-
-* `void` represents **presence-only semantics**.
-* Presence-only components MAY be represented as:
-
-    * nullable fields
-    * boolean flags
-    * empty marker union cases
-
-As long as wire semantics are preserved in serialization,
-the internal representation is considered valid.
-
----
-
-## 12. Modifiers and Wrappers
-
-Types such as:
-
-* `UntrustedSlot`
-* `HashedSlot`
-
-Rules:
-
-* MUST be wrappers or tagged types over core types.
-* MUST NOT duplicate core structure.
-* MUST NOT be generated before the core type exists.
-
----
-
-## 13. Alias Types
-
-If a type is an alias in some version ranges:
-
-* Alias code MUST be generated only after the target type exists.
-* Alias types MUST NOT contain serialization logic.
-
----
-
-## 14. Null History Ranges
-
-* `null` ranges in `history` MUST NOT generate any code.
-* Absence is NOT a structure.
-
----
-
-## 15. Partial Types
-
-* `partial` MUST be used to separate:
-
-    * auto-generated code
-    * manual / handwritten code
-* Updating `minecraft-data` MUST NOT require manual C# edits.
-
----
-
-## 16. Behavior on Uncertainty
-
-If:
-
-* Type evolution is ambiguous **after applying the above exceptions**
-* Serialization semantics cannot be implemented without guessing
-
-The agent MUST:
-
-* STOP generation
-* Report the exact blocking reason
-* NOT guess
-* NOT invent structures
-
----
-
-## 17. Explicitly Forbidden
-
-* Hardcoding `startVersion` / `latestVersion` as numbers
-* Inventing structures not present or permitted by rules
-* Making data types version-aware
-* Generating packets before completing data type generation
-* Proceeding when rules are unclear
-
----
-
-## Dependency Scope for Complex Types (CRITICAL)
-
-Some complex types (e.g. SlotComponent) reference other non-slot data types
-as part of their payload schemas.
-
-Rules:
-- Agents are NOT required to fully generate all transitive dependencies
-  of a complex type unless explicitly instructed.
-- If a referenced dependency is:
-  - non-native
-  - outside the current task scope
-    then the agent MAY generate a placeholder data type.
-
-Placeholder rules:
-- The placeholder type MUST have a name matching the JSON reference.
-- The placeholder MUST NOT invent fields or semantics.
-- Read*/Write* methods for placeholders MUST:
-  - throw NotImplementedException, or
-  - contain an explicit TODO indicating the missing dependency.
-- Using placeholders for non-native dependencies is NOT considered guessing.
-
-This rule applies ONLY to dependencies of complex types
-and MUST NOT be used to bypass core modeling rules.
-
-## Final Rule
-
-> When in doubt, STOP.
-> Incorrect code generation is worse than no code generation.
