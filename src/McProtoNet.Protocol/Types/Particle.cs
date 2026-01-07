@@ -24,25 +24,25 @@ public sealed partial class Particle
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 public partial record ParticlePayload
 {
-    public sealed record Block(int BlockState) : ParticlePayload;
-    public sealed record BlockMarker(int BlockState) : ParticlePayload;
-    public sealed record FallingDust(int BlockState) : ParticlePayload;
-    public sealed record DustPillar(int BlockState) : ParticlePayload;
-    public sealed record BlockCrumble(int BlockState) : ParticlePayload;
-    public sealed record Dust(float Red, float Green, float Blue, float Scale) : ParticlePayload;
-    public sealed record DustColorTransition(float FromRed, float FromGreen, float FromBlue, float Scale,
+    public sealed partial record Block(int BlockState) : ParticlePayload;
+    public sealed partial record BlockMarker(int BlockState) : ParticlePayload;
+    public sealed partial record FallingDust(int BlockState) : ParticlePayload;
+    public sealed partial record DustPillar(int BlockState) : ParticlePayload;
+    public sealed partial record BlockCrumble(int BlockState) : ParticlePayload;
+    public sealed partial record Dust(float Red, float Green, float Blue, float Scale) : ParticlePayload;
+    public sealed partial record DustColorTransition(float FromRed, float FromGreen, float FromBlue, float Scale,
         float ToRed, float ToGreen, float ToBlue) : ParticlePayload;
-    public sealed record EntityEffect(int Color) : ParticlePayload;
-    public sealed record Item(Slot ItemStack) : ParticlePayload;
-    public sealed record SculkCharge(float Value) : ParticlePayload;
-    public sealed record Shriek(int Delay) : ParticlePayload;
-    public sealed record Vibration(ParticleVibrationData Data) : ParticlePayload;
-    public sealed record Trail(ParticleTrailData Data) : ParticlePayload;
-    public sealed record TintedLeaves(int Color) : ParticlePayload;
-    public sealed record Firefly() : ParticlePayload;
+    public sealed partial record EntityEffect(int Color) : ParticlePayload;
+    public sealed partial record Item(Slot ItemStack) : ParticlePayload;
+    public sealed partial record SculkCharge(float Value) : ParticlePayload;
+    public sealed partial record Shriek(int Delay) : ParticlePayload;
+    public sealed partial record Vibration(ParticleVibrationData Data) : ParticlePayload;
+    public sealed partial record Trail(ParticleTrailData Data) : ParticlePayload;
+    public sealed partial record TintedLeaves(int Color) : ParticlePayload;
+    public sealed partial record Firefly() : ParticlePayload;
 
-    public sealed record ParticleVibrationData(string PositionType, Position? BlockPosition, int? EntityId,
+    public sealed partial record ParticleVibrationData(string PositionType, Position? BlockPosition, int? EntityId,
         float? EntityEyeHeight, int Ticks);
 
-    public sealed record ParticleTrailData(Vec3f64 Target, byte Color);
+    public sealed partial record ParticleTrailData(Vec3f64 Target, byte Color);
 }

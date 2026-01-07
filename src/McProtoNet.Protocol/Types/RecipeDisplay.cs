@@ -20,18 +20,18 @@ public sealed partial class RecipeDisplay
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 public partial record RecipeDisplayData
 {
-    public sealed record CraftingShapeless(SlotDisplay[] Ingredients, SlotDisplay Result,
+    public sealed partial record CraftingShapeless(SlotDisplay[] Ingredients, SlotDisplay Result,
         SlotDisplay CraftingStation) : RecipeDisplayData;
 
-    public sealed record CraftingShaped(int Width, int Height, SlotDisplay[] Ingredients, SlotDisplay Result,
+    public sealed partial record CraftingShaped(int Width, int Height, SlotDisplay[] Ingredients, SlotDisplay Result,
         SlotDisplay CraftingStation) : RecipeDisplayData;
 
-    public sealed record Furnace(SlotDisplay Ingredient, SlotDisplay Fuel, SlotDisplay Result,
+    public sealed partial record Furnace(SlotDisplay Ingredient, SlotDisplay Fuel, SlotDisplay Result,
         SlotDisplay CraftingStation, int Duration, float Experience) : RecipeDisplayData;
 
-    public sealed record Stonecutter(SlotDisplay Ingredient, SlotDisplay Result,
+    public sealed partial record Stonecutter(SlotDisplay Ingredient, SlotDisplay Result,
         SlotDisplay CraftingStation) : RecipeDisplayData;
 
-    public sealed record Smithing(SlotDisplay Template, SlotDisplay Base, SlotDisplay Addition,
+    public sealed partial record Smithing(SlotDisplay Template, SlotDisplay Base, SlotDisplay Addition,
         SlotDisplay Result, SlotDisplay CraftingStation) : RecipeDisplayData;
 }

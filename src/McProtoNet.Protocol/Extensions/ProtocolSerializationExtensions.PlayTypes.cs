@@ -280,10 +280,10 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteVarInt(item.ItemId);
                 return;
             case "item_stack" when value.Data is SlotDisplayData.ItemStack stack:
-                writer.WriteSlot(stack.ItemStack, protocolVersion);
+                writer.WriteSlot(stack.Stack, protocolVersion);
                 return;
             case "tag" when value.Data is SlotDisplayData.Tag tag:
-                writer.WriteString(tag.Tag);
+                writer.WriteString(tag.TagId);
                 return;
             case "smithing_trim" when value.Data is SlotDisplayData.SmithingTrim smithing:
                 writer.WriteSlotDisplay(smithing.Base, protocolVersion);

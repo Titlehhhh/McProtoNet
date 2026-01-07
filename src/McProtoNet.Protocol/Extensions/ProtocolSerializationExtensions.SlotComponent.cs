@@ -1,6 +1,7 @@
 using McProtoNet.NBT;
 using McProtoNet.Protocol;
 using McProtoNet.Serialization;
+using static McProtoNet.Protocol.SlotComponent;
 
 namespace McProtoNet.Protocol.Extensions;
 
@@ -88,7 +89,8 @@ public static partial class ProtocolSerializationExtensions
             SlotComponentType.Container => new Container(ReadSlotArray(ref reader, protocolVersion)),
             SlotComponentType.BlockState => new BlockState(ReadBlockState(ref reader, protocolVersion)),
             SlotComponentType.Bees => new Bees(ReadBees(ref reader, protocolVersion)),
-            SlotComponentType.Lock => new Lock(reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("lock missing")),
+            SlotComponentType.Lock => new SlotComponent.Lock(reader.ReadAnonymousNbtTag(protocolVersion)
+                ?? throw new InvalidOperationException("lock missing")),
             SlotComponentType.ContainerLoot => new ContainerLoot(reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("container_loot missing")),
             SlotComponentType.JukeboxPlayable => protocolVersion >= 767
                 ? new JukeboxPlayable(ReadJukeboxPlayable(ref reader, protocolVersion))
@@ -262,7 +264,7 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteVarInt(WriteRarity(rarity.Value));
                 break;
             case Enchantments enchantments:
-                WriteEnchantments(ref writer, enchantments.Enchantments);
+                WriteEnchantments(ref writer, enchantments.Entries);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(enchantments.ShowTooltip ?? false);
@@ -335,7 +337,7 @@ public static partial class ProtocolSerializationExtensions
                 WriteTool(ref writer, tool.Data, protocolVersion);
                 break;
             case StoredEnchantments storedEnchantments:
-                WriteEnchantments(ref writer, storedEnchantments.Enchantments);
+                WriteEnchantments(ref writer, storedEnchantments.Entries);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(storedEnchantments.ShowInTooltip ?? false);
@@ -433,9 +435,9 @@ public static partial class ProtocolSerializationExtensions
                 WriteBlockState(ref writer, blockState.Properties, protocolVersion);
                 break;
             case Bees bees:
-                WriteBees(ref writer, bees.Bees, protocolVersion);
+                WriteBees(ref writer, bees.BeeEntries, protocolVersion);
                 break;
-            case Lock lockData:
+            case SlotComponent.Lock lockData:
                 writer.WriteAnonymousNbtTag(lockData.Data, protocolVersion);
                 break;
             case ContainerLoot containerLoot:
@@ -784,7 +786,7 @@ public static partial class ProtocolSerializationExtensions
             ItemName => SlotComponentType.ItemName,
             JukeboxPlayable => SlotComponentType.JukeboxPlayable,
             LlamaVariant => SlotComponentType.LlamaVariant,
-            Lock => SlotComponentType.Lock,
+            SlotComponent.Lock => SlotComponentType.Lock,
             LodestoneTracker => SlotComponentType.LodestoneTracker,
             Lore => SlotComponentType.Lore,
             MapColor => SlotComponentType.MapColor,
@@ -1096,7 +1098,7 @@ public static partial class ProtocolSerializationExtensions
         WriteOptionalSignedInt(ref writer, data.CustomColor);
         WriteArray(ref writer, data.CustomEffects,
             (ref MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
-        WriteOptionalString(ref writer, data.CustomName);
+        WriteOptionalString(ref writer, data.CustomNameText);
     }
 
     private static SuspiciousStewEffect[] ReadSuspiciousStewEffects(ref MinecraftPrimitiveReader reader)
@@ -1197,7 +1199,9 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
+            writer.WriteRegistryEntryHolder<InstrumentData>(
+                data.Holder ?? throw new InvalidOperationException("instrument holder missing"),
+                protocolVersion);
         }
         else
         {
@@ -1233,7 +1237,9 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
+            writer.WriteRegistryEntryHolder<JukeboxSongData>(
+                data.Holder ?? throw new InvalidOperationException("jukebox song holder missing"),
+                protocolVersion);
         }
         else
         {
@@ -1478,7 +1484,7 @@ public static partial class ProtocolSerializationExtensions
 
     private static void WriteTooltipDisplay(ref MinecraftPrimitiveWriter writer, TooltipDisplayData data)
     {
-        writer.WriteBoolean(data.HideTooltip);
+        writer.WriteBoolean(data.HideTooltipFlag);
         WriteVarIntArray(ref writer, data.HiddenComponents);
     }
 
@@ -1551,7 +1557,9 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteBoolean(hasHolder);
         if (hasHolder)
         {
-            writer.WriteRegistryEntryHolder(data.Holder!, protocolVersion);
+            writer.WriteRegistryEntryHolder<ArmorTrimMaterial>(
+                data.Holder ?? throw new InvalidOperationException("trim material holder missing"),
+                protocolVersion);
         }
         else
         {
