@@ -1,10 +1,15 @@
-using McProtoNet.Serialization;
+﻿using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
 [PacketInfo("LoginAcknowledged", PacketState.Login, PacketDirection.Serverbound)]
 public sealed partial class LoginAcknowledgedPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
@@ -12,7 +17,7 @@ public sealed partial class LoginAcknowledgedPacket : IClientPacket
             case >= 764 and <= MinecraftVersion.LatestProtocol:
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -23,7 +28,7 @@ public sealed partial class LoginAcknowledgedPacket : IClientPacket
             case >= 764 and <= MinecraftVersion.LatestProtocol:
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginAcknowledged), protocolVersion, SupportedVersionsStatic);
         }
     }
 

@@ -1,27 +1,27 @@
 ﻿using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 
-[PacketInfo("LegacyServerListPing", PacketState.Handshaking, PacketDirection.Serverbound)]
-public sealed partial class LegacyServerListPingPacket : IClientPacket
+[PacketInfo("Ping", PacketState.Status, PacketDirection.Clientbound)]
+public sealed partial class PingPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
         new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
     };
 
-    public byte Payload { get; set; }
+    public long Time { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteUnsignedByte(Payload);
+                writer.WriteSignedLong(Time);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerStatusPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -30,11 +30,11 @@ public sealed partial class LegacyServerListPingPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Payload = reader.ReadUnsignedByte();
+                Time = reader.ReadSignedLong();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerStatusPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

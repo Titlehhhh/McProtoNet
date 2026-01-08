@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.NBT;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
@@ -8,6 +8,11 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("ShowDialog", PacketState.Configuration, PacketDirection.Clientbound)]
 public sealed partial class ShowDialogPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(771, MinecraftVersion.LatestProtocol)
+    };
+
     public NbtTag Dialog { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -18,7 +23,7 @@ public sealed partial class ShowDialogPacket : IServerPacket
                 writer.WriteAnonymousNbtTag(Dialog, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -31,7 +36,7 @@ public sealed partial class ShowDialogPacket : IServerPacket
                     ?? throw new InvalidOperationException("ShowDialog.dialog missing.");
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion, SupportedVersionsStatic);
         }
     }
 

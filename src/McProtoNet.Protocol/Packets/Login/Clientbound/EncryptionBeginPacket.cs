@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
@@ -6,6 +6,12 @@ namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [PacketInfo("EncryptionBegin", PacketState.Login, PacketDirection.Clientbound)]
 public sealed partial class EncryptionBeginPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 765),
+        new(766, MinecraftVersion.LatestProtocol)
+    };
+
     public string ServerId { get; set; } = string.Empty;
     public byte[] PublicKey { get; set; } = Array.Empty<byte>();
     public byte[] VerifyToken { get; set; } = Array.Empty<byte>();
@@ -35,7 +41,7 @@ public sealed partial class EncryptionBeginPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.EncryptionBegin), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -58,7 +64,7 @@ public sealed partial class EncryptionBeginPacket : IServerPacket
                 };
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.EncryptionBegin), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
         }
     }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +7,11 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("ServerLinks", PacketState.Configuration, PacketDirection.Clientbound)]
 public sealed partial class ServerLinksPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(767, MinecraftVersion.LatestProtocol)
+    };
+
     public PacketCommonServerLinks Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -17,7 +22,9 @@ public sealed partial class ServerLinksPacket : IServerPacket
                 writer.WritePacketCommonServerLinks(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -29,7 +36,9 @@ public sealed partial class ServerLinksPacket : IServerPacket
                 Data = reader.ReadPacketCommonServerLinks(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 

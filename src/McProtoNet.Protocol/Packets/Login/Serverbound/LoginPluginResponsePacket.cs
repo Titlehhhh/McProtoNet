@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
@@ -6,6 +6,11 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [PacketInfo("LoginPluginResponse", PacketState.Login, PacketDirection.Serverbound)]
 public sealed partial class LoginPluginResponsePacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
+
     public int MessageId { get; set; }
     public byte[]? Data { get; set; }
 
@@ -22,7 +27,7 @@ public sealed partial class LoginPluginResponsePacket : IClientPacket
                 }
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginPluginResponse), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginPluginResponse), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -36,7 +41,7 @@ public sealed partial class LoginPluginResponsePacket : IClientPacket
                 Data = hasData ? reader.ReadRestBuffer() : null;
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginPluginResponse), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginPluginResponse), protocolVersion, SupportedVersionsStatic);
         }
     }
 

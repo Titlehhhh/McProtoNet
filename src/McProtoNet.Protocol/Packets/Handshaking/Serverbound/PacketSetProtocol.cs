@@ -3,8 +3,13 @@ using McProtoNet.Serialization;
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
 [PacketInfo("SetProtocol", PacketState.Handshaking, PacketDirection.Serverbound)]
-public sealed class SetProtocolPacket : IClientPacket
+public sealed partial class SetProtocolPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
+
     public int ProtocolVersion { get; set; }
     public string ServerHost { get; set; } = string.Empty;
     public ushort ServerPort { get; set; }
@@ -19,9 +24,10 @@ public sealed class SetProtocolPacket : IClientPacket
                 writer.WriteString(ServerHost);
                 writer.WriteUnsignedShort(ServerPort);
                 writer.WriteVarInt(NextState);
-                return;
+                break;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion, SupportedVersionsStatic);
+           
         }
     }
 
@@ -36,7 +42,7 @@ public sealed class SetProtocolPacket : IClientPacket
                 NextState = reader.ReadVarInt();
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.SetProtocol), protocolVersion, SupportedVersionsStatic);
         }
     }
 

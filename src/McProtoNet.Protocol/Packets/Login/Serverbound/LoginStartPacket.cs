@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
@@ -6,6 +6,15 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [PacketInfo("LoginStart", PacketState.Login, PacketDirection.Serverbound)]
 public sealed partial class LoginStartPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, 759),
+        new(760, 760),
+        new(761, 763),
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+
     public string Username { get; set; } = string.Empty;
 
     public V759Fields? V759 { get; set; }
@@ -90,7 +99,7 @@ public sealed partial class LoginStartPacket : IClientPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginStart), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginStart), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -169,7 +178,7 @@ public sealed partial class LoginStartPacket : IClientPacket
                 };
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientLoginPacket.LoginStart), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginStart), protocolVersion, SupportedVersionsStatic);
         }
     }
 

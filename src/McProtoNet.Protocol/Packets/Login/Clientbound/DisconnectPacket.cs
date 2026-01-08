@@ -1,10 +1,15 @@
-using McProtoNet.Serialization;
+﻿using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("Disconnect", PacketState.Login, PacketDirection.Clientbound)]
 public sealed partial class DisconnectPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
+
     public string Reason { get; set; } = string.Empty;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -15,7 +20,7 @@ public sealed partial class DisconnectPacket : IServerPacket
                 writer.WriteString(Reason);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -27,7 +32,7 @@ public sealed partial class DisconnectPacket : IServerPacket
                 Reason = reader.ReadString();
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerLoginPacket.Disconnect), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
         }
     }
 

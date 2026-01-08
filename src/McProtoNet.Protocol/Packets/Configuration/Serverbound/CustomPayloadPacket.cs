@@ -1,37 +1,50 @@
+﻿using System;
 using McProtoNet.Serialization;
-using McProtoNet.NBT;
-using McProtoNet.Protocol;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("CustomPayload", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class CustomPayloadPacket : IClientPacket
+public sealed partial class CustomPayloadPacket : IClientPacket
 {
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : CustomPayloadPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public string Channel { get; set; }
-        public byte[] Data { get; set; }
+        new(764, MinecraftVersion.LatestProtocol)
+    };
 
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, string channel,
-            byte[] data)
-        {
-            writer.WriteString(channel);
-            writer.WriteBuffer(data);
-        }
+    public string Channel { get; set; } = string.Empty;
+    public byte[] Data { get; set; } = Array.Empty<byte>();
 
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Channel, Data);
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteString(Channel);
+                writer.WriteBuffer(Data);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (V764_769.IsSupportedVersionStatic(protocolVersion))
-            V764_769.SerializeInternal(ref writer, protocolVersion, String.Empty, []);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion);
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                Channel = reader.ReadString();
+                Data = reader.ReadRestBuffer();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

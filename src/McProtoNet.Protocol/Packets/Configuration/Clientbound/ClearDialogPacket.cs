@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
@@ -6,14 +6,27 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("ClearDialog", PacketState.Configuration, PacketDirection.Clientbound)]
 public sealed partial class ClearDialogPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(771, MinecraftVersion.LatestProtocol)
+    };
+
+    public PacketCommonClearDialog? Data { get; set; }
+
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= 771 and <= MinecraftVersion.LatestProtocol:
+            {
+                var data = Data ?? new PacketCommonClearDialog();
+                writer.WritePacketCommonClearDialog(data, protocolVersion);
                 return;
+            }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -22,9 +35,12 @@ public sealed partial class ClearDialogPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= 771 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonClearDialog(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 

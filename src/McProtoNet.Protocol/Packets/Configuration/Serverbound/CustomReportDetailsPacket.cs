@@ -1,28 +1,30 @@
 ﻿using System;
-using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
-[PacketInfo("CustomReportDetails", PacketState.Configuration, PacketDirection.Clientbound)]
-public sealed partial class CustomReportDetailsPacket : IServerPacket
+[PacketInfo("CustomReportDetails", PacketState.Configuration, PacketDirection.Serverbound)]
+public sealed partial class CustomReportDetailsPacket : IClientPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(767, MinecraftVersion.LatestProtocol)
+        new(767, 770)
     };
 
-    public PacketCommonCustomReportDetails Data { get; set; } = null!;
+    public PacketCommonCustomReportDetails? Data { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePacketCommonCustomReportDetails(Data, protocolVersion);
+            case >= 767 and <= 770:
+            {
+                var data = Data ?? throw new InvalidOperationException("CustomReportDetails data missing.");
+                writer.WritePacketCommonCustomReportDetails(data, protocolVersion);
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion,
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomReportDetails), protocolVersion,
                     SupportedVersionsStatic);
                 return;
         }
@@ -32,11 +34,11 @@ public sealed partial class CustomReportDetailsPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
+            case >= 767 and <= 770:
                 Data = reader.ReadPacketCommonCustomReportDetails(protocolVersion);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion,
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomReportDetails), protocolVersion,
                     SupportedVersionsStatic);
                 return;
         }

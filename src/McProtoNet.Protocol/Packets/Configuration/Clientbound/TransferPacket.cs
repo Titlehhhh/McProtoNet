@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +7,11 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketInfo("Transfer", PacketState.Configuration, PacketDirection.Clientbound)]
 public sealed partial class TransferPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(771, MinecraftVersion.LatestProtocol)
+    };
+
     public PacketCommonTransfer Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -17,7 +22,7 @@ public sealed partial class TransferPacket : IServerPacket
                 writer.WritePacketCommonTransfer(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.Transfer), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Transfer), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -29,7 +34,7 @@ public sealed partial class TransferPacket : IServerPacket
                 Data = reader.ReadPacketCommonTransfer(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerConfigurationPacket.Transfer), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Transfer), protocolVersion, SupportedVersionsStatic);
         }
     }
 

@@ -3,31 +3,44 @@
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("KeepAlive", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class KeepAlivePacket : IClientPacket
+public sealed partial class KeepAlivePacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+
     public long KeepAliveId { get; set; }
 
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : KeepAlivePacket
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, KeepAliveId);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-            long keepAliveId)
-        {
-            writer.WriteSignedLong(keepAliveId);
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedLong(KeepAliveId);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.KeepAlive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (V764_769.IsSupportedVersionStatic(protocolVersion))
-            V764_769.SerializeInternal(ref writer, protocolVersion, KeepAliveId);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.KeepAlive), protocolVersion);
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                KeepAliveId = reader.ReadSignedLong();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.KeepAlive), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,32 +1,77 @@
-﻿using McProtoNet.NBT;
+﻿using System;
+using McProtoNet.NBT;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("Disconnect", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class DisconnectPacket : IServerPacket
+public sealed partial class DisconnectPacket : IServerPacket
 {
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-
-    [PacketSubInfo(764, 764)]
-    public sealed partial class V764 : DisconnectPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public string Reason { get; set; }
+        new(764, 764),
+        new(765, MinecraftVersion.LatestProtocol)
+    };
+    public V764Fields? V764 { get; set; }
+    public V765_769Fields? V765_769 { get; set; }
 
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            Reason = reader.ReadString();
+            case 764:
+            {
+                var fields = V764 ?? throw new InvalidOperationException("Disconnect V764 fields missing.");
+                writer.WriteString(fields.Reason);
+                return;
+            }
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V765_769 ?? throw new InvalidOperationException("Disconnect V765_769 fields missing.");
+                writer.WriteAnonymousNbtTag(fields.Reason, protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-    [PacketSubInfo(765, 769)]
-    public sealed partial class V765_769 : DisconnectPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        public NbtTag Reason { get; set; }
-
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        switch (protocolVersion)
         {
-            Reason = reader.ReadNbtTag(readRootTag: false);
+            case 764:
+                V764 = new V764Fields
+                {
+                    Reason = reader.ReadString()
+                };
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+                V765_769 = new V765_769Fields
+                {
+                    Reason = reader.ReadNbtTag(readRootTag: false)
+                };
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V764Fields
+    {
+        public string Reason { get; set; }
+    }
+
+    public struct V765_769Fields
+    {
+        public NbtTag? Reason { get; set; }
     }
 }

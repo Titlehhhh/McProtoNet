@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +7,11 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [PacketInfo("CookieResponse", PacketState.Configuration, PacketDirection.Serverbound)]
 public sealed partial class CookieResponsePacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(766, MinecraftVersion.LatestProtocol)
+    };
+
     public PacketCommonCookieResponse Data { get; set; } = null!;
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -17,7 +22,7 @@ public sealed partial class CookieResponsePacket : IClientPacket
                 writer.WritePacketCommonCookieResponse(Data, protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CookieResponse), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CookieResponse), protocolVersion, SupportedVersionsStatic);
         }
     }
 
@@ -29,7 +34,7 @@ public sealed partial class CookieResponsePacket : IClientPacket
                 Data = reader.ReadPacketCommonCookieResponse(protocolVersion);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.CookieResponse), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CookieResponse), protocolVersion, SupportedVersionsStatic);
         }
     }
 

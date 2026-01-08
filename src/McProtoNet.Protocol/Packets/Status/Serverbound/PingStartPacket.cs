@@ -1,27 +1,24 @@
 ﻿using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+namespace McProtoNet.Protocol.Packets.Status.Serverbound;
 
-[PacketInfo("LegacyServerListPing", PacketState.Handshaking, PacketDirection.Serverbound)]
-public sealed partial class LegacyServerListPingPacket : IClientPacket
+[PacketInfo("PingStart", PacketState.Status, PacketDirection.Serverbound)]
+public sealed partial class PingStartPacket : IClientPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
         new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
     };
 
-    public byte Payload { get; set; }
-
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteUnsignedByte(Payload);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientStatusPacket.PingStart), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -30,11 +27,10 @@ public sealed partial class LegacyServerListPingPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Payload = reader.ReadUnsignedByte();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientStatusPacket.PingStart), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

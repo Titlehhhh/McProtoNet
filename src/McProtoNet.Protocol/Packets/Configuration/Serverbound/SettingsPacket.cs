@@ -1,80 +1,94 @@
-﻿using McProtoNet.Serialization;
+﻿using System;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("Settings", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class SettingsPacket : IClientPacket
+public sealed partial class SettingsPacket : IClientPacket
 {
-    public string Locale { get; set; }
-    public sbyte ViewDistance { get; set; }
-    public int ChatFlags { get; set; }
-    public bool ChatColors { get; set; }
-    public byte SkinParts { get; set; }
-    public int MainHand { get; set; }
-    public bool EnableTextFiltering { get; set; }
-    public bool EnableServerListing { get; set; }
-
-    [PacketSubInfo(764, 767)]
-    public sealed partial class V764_767 : SettingsPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors, SkinParts,
-                MainHand, EnableTextFiltering, EnableServerListing);
-        }
+        new(764, 765),
+        new(766, MinecraftVersion.LatestProtocol)
+    };
 
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, string locale,
-            sbyte viewDistance, int chatFlags, bool chatColors, byte skinParts, int mainHand, bool enableTextFiltering,
-            bool enableServerListing)
+    public V764_765Fields? V764_765 { get; set; }
+    public PacketCommonSettings? Data { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            writer.WriteString(locale);
-            writer.WriteSignedByte(viewDistance);
-            writer.WriteVarInt(chatFlags);
-            writer.WriteBoolean(chatColors);
-            writer.WriteUnsignedByte(skinParts);
-            writer.WriteVarInt(mainHand);
-            writer.WriteBoolean(enableTextFiltering);
-            writer.WriteBoolean(enableServerListing);
+            case >= 764 and <= 765:
+            {
+                var fields = V764_765 ?? throw new InvalidOperationException("Settings V764_765 fields missing.");
+                writer.WriteString(fields.Locale);
+                writer.WriteSignedByte(fields.ViewDistance);
+                writer.WriteVarInt(fields.ChatFlags);
+                writer.WriteBoolean(fields.ChatColors);
+                writer.WriteUnsignedByte(fields.SkinParts);
+                writer.WriteVarInt(fields.MainHand);
+                writer.WriteBoolean(fields.EnableTextFiltering);
+                writer.WriteBoolean(fields.EnableServerListing);
+                return;
+            }
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            {
+                var data = Data ?? throw new InvalidOperationException("Settings data missing.");
+                writer.WritePacketCommonSettings(data, protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Settings), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
-    [PacketSubInfo(768, 769)]
-    public sealed partial class V768_769 : SettingsPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        public int Particles { get; set; }
-
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors, SkinParts,
-                MainHand, EnableTextFiltering, EnableServerListing, Particles);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, string locale,
-            sbyte viewDistance, int chatFlags, bool chatColors, byte skinParts, int mainHand, bool enableTextFiltering,
-            bool enableServerListing, int particles)
-        {
-            writer.WriteString(locale);
-            writer.WriteSignedByte(viewDistance);
-            writer.WriteVarInt(chatFlags);
-            writer.WriteBoolean(chatColors);
-            writer.WriteUnsignedByte(skinParts);
-            writer.WriteVarInt(mainHand);
-            writer.WriteBoolean(enableTextFiltering);
-            writer.WriteBoolean(enableServerListing);
-            writer.WriteVarInt(particles);
+            case >= 764 and <= 765:
+                V764_765 = new V764_765Fields
+                {
+                    Locale = reader.ReadString(),
+                    ViewDistance = reader.ReadSignedByte(),
+                    ChatFlags = reader.ReadVarInt(),
+                    ChatColors = reader.ReadBoolean(),
+                    SkinParts = reader.ReadUnsignedByte(),
+                    MainHand = reader.ReadVarInt(),
+                    EnableTextFiltering = reader.ReadBoolean(),
+                    EnableServerListing = reader.ReadBoolean()
+                };
+                Data = null;
+                return;
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonSettings(protocolVersion);
+                V764_765 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Settings), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V764_765Fields
     {
-        if (V764_767.IsSupportedVersionStatic(protocolVersion))
-            V764_767.SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors,
-                SkinParts, MainHand, EnableTextFiltering, EnableServerListing);
-        else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-            V768_769.SerializeInternal(ref writer, protocolVersion, Locale, ViewDistance, ChatFlags, ChatColors,
-                SkinParts, MainHand, EnableTextFiltering, EnableServerListing, 0);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.Settings), protocolVersion);
+        public string Locale { get; set; }
+        public sbyte ViewDistance { get; set; }
+        public int ChatFlags { get; set; }
+        public bool ChatColors { get; set; }
+        public byte SkinParts { get; set; }
+        public int MainHand { get; set; }
+        public bool EnableTextFiltering { get; set; }
+        public bool EnableServerListing { get; set; }
     }
 }

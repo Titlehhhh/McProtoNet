@@ -1,25 +1,46 @@
-﻿using McProtoNet.Serialization;
+﻿using System;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("FeatureFlags", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class FeatureFlagsPacket : IServerPacket
+public sealed partial class FeatureFlagsPacket : IServerPacket
 {
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : FeatureFlagsPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public string[] Features { get; set; }
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+    public string[] Features { get; set; } = Array.Empty<string>();
 
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            var count = reader.ReadVarInt();
-            Features = new string[count];
-            for (var i = 0; i < count; i++)
-            {
-                Features[i] = reader.ReadString();
-            }
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteArray(Features, LengthFormat.VarInt);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.FeatureFlags), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                Features = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString());
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.FeatureFlags), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }
