@@ -11,7 +11,7 @@ public sealed partial class UpdateLightPacket : IServerPacket
     {
         new(MinecraftVersion.StartProtocol, 754),
         new(755, 762),
-        new(763, MinecraftVersion.LatestProtocol)
+        new(763, MinecraftVersion.LatestProtocol),
     };
 
     public int ChunkX { get; set; }

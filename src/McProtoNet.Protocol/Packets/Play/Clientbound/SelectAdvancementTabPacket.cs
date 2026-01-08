@@ -3,22 +3,55 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("SelectAdvancementTab", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class SelectAdvancementTabPacket : IServerPacket
 {
-    [PacketInfo("SelectAdvancementTab", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class SelectAdvancementTabPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public string? Id { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(340, 769)]
-        internal sealed partial class V340_769 : SelectAdvancementTabPacket
+    public string? Id { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Id = reader.ReadOptional(ReadDelegates.String);
-            }
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                if (Id is null)
+                {
+                    writer.WriteBoolean(false);
+                }
+                else
+                {
+                    writer.WriteBoolean(true);
+                    writer.WriteString(Id);
+                }
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SelectAdvancementTab), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Id = reader.ReadOptional(ReadDelegates.String);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SelectAdvancementTab), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

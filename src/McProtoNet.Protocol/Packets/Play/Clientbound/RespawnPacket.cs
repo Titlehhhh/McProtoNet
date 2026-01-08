@@ -17,7 +17,7 @@ public sealed partial class RespawnPacket : IServerPacket
         new(760, 762),
         new(763, 763),
         new(764, 765),
-        new(766, MinecraftVersion.LatestProtocol)
+        new(766, MinecraftVersion.LatestProtocol),
     };
 
     public string Dimension { get; set; } = string.Empty;

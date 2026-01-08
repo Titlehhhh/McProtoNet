@@ -2,34 +2,68 @@
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol.Extensions;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("KickDisconnect", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class KickDisconnectPacket : IServerPacket
 {
-    [PacketInfo("KickDisconnect", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class KickDisconnectPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(340, 764)]
-        public sealed partial class V340_764 : KickDisconnectPacket
+        new(MinecraftVersion.StartProtocol, 764),
+        new(765, MinecraftVersion.LatestProtocol),
+    };
+
+    public string Reason { get; set; }
+
+
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 764:
+            {
+                writer.WriteString(Reason);
+                return;
+            }
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            {
+                writer.WriteAnonymousNbtTag(Reason ?? throw new InvalidOperationException("KickDisconnect Reason missing."), protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.KickDisconnect), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 764:
             {
                 Reason = reader.ReadString();
+                return;
             }
-
-            public string Reason { get; set; }
-        }
-
-        [PacketSubInfo(765, 769)]
-        public sealed partial class V765_769 : KickDisconnectPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
                 Reason = reader.ReadNbtTag(false);
+                return;
             }
-
-            public NbtTag Reason { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.KickDisconnect), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+
 }

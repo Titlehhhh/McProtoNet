@@ -10,7 +10,7 @@ public sealed partial class SetTickingStatePacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(765, MinecraftVersion.LatestProtocol)
+        new(765, MinecraftVersion.LatestProtocol),
     };
 
     public float TickRate { get; set; }

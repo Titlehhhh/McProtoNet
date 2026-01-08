@@ -10,7 +10,7 @@ public sealed partial class SpawnEntityExperienceOrbPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+        new(MinecraftVersion.StartProtocol, 769),
     };
 
     public int EntityId { get; set; }
@@ -23,7 +23,7 @@ public sealed partial class SpawnEntityExperienceOrbPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            case >= MinecraftVersion.StartProtocol and <= 769:
                 writer.WriteVarInt(EntityId);
                 writer.WriteDouble(X);
                 writer.WriteDouble(Y);
@@ -40,7 +40,7 @@ public sealed partial class SpawnEntityExperienceOrbPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            case >= MinecraftVersion.StartProtocol and <= 769:
                 EntityId = reader.ReadVarInt();
                 X = reader.ReadDouble();
                 Y = reader.ReadDouble();

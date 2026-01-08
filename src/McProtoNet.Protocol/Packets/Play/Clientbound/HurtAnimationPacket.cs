@@ -10,7 +10,7 @@ public sealed partial class HurtAnimationPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(762, MinecraftVersion.LatestProtocol)
+        new(762, MinecraftVersion.LatestProtocol),
     };
 
     public int EntityId { get; set; }

@@ -10,7 +10,7 @@ public sealed partial class EntityVelocityPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
     };
 
     public int EntityId { get; set; }

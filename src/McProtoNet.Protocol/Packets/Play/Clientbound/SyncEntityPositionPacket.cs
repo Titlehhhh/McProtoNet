@@ -10,7 +10,7 @@ public sealed partial class SyncEntityPositionPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(768, MinecraftVersion.LatestProtocol)
+        new(768, MinecraftVersion.LatestProtocol),
     };
 
     public int EntityId { get; set; }

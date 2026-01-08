@@ -13,7 +13,7 @@ public sealed partial class WorldParticlesPacket : IServerPacket
         new(MinecraftVersion.StartProtocol, 758),
         new(759, 765),
         new(766, 768),
-        new(769, MinecraftVersion.LatestProtocol)
+        new(769, MinecraftVersion.LatestProtocol),
     };
 
     public bool LongDistance { get; set; }

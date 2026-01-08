@@ -2,35 +2,73 @@
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol.Extensions;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("NbtQueryResponse", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class NbtQueryResponsePacket : IServerPacket
 {
-    [PacketInfo("NbtQueryResponse", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class NbtQueryResponsePacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int TransactionId { get; set; }
-        public NbtTag? Nbt { get; set; }
+        new(MinecraftVersion.StartProtocol, 763),
+        new(764, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(393, 763)]
-        public sealed partial class V393_763 : NbtQueryResponsePacket
+    public int TransactionId { get; set; }
+    public NbtTag? Nbt { get; set; }
+
+
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 763:
+            {
+                writer.WriteVarInt(TransactionId);
+                writer.WriteOptionalNbtTag(Nbt, protocolVersion);
+                return;
+            }
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            {
+                writer.WriteVarInt(TransactionId);
+                writer.WriteAnonOptionalNbtTag(Nbt, protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NbtQueryResponse), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 763:
             {
                 TransactionId = reader.ReadVarInt();
                 Nbt = reader.ReadOptionalNbtTag(true);
+                return;
             }
-        }
-
-        [PacketSubInfo(764, 769)]
-        public sealed partial class V764_769 : NbtQueryResponsePacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
             {
                 TransactionId = reader.ReadVarInt();
                 Nbt = reader.ReadOptionalNbtTag(false);
+                return;
             }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NbtQueryResponse), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+
 }

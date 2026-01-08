@@ -2,52 +2,90 @@
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol.Extensions;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("DeathCombatEvent", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class DeathCombatEventPacket : IServerPacket
 {
-    [PacketInfo("DeathCombatEvent", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class DeathCombatEventPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int PlayerId { get; set; }
+        new(755, 762),
+        new(763, 764),
+        new(765, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(755, 762)]
-        public sealed partial class V755_762 : DeathCombatEventPacket
+    public int PlayerId { get; set; }
+    public int EntityId { get; set; }
+    public string Message { get; set; }
+    public string Message { get; set; }
+
+
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 755 and <= 762:
+            {
+                writer.WriteVarInt(PlayerId);
+                writer.WriteSignedInt(EntityId);
+                writer.WriteString(Message);
+                return;
+            }
+            case >= 763 and <= 764:
+            {
+                writer.WriteVarInt(PlayerId);
+                writer.WriteString(Message);
+                return;
+            }
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            {
+                writer.WriteVarInt(PlayerId);
+                writer.WriteAnonymousNbtTag(Message ?? throw new InvalidOperationException("DeathCombatEvent Message missing."), protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.DeathCombatEvent), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 755 and <= 762:
             {
                 PlayerId = reader.ReadVarInt();
                 EntityId = reader.ReadSignedInt();
                 Message = reader.ReadString();
+                return;
             }
-
-            public int EntityId { get; set; }
-            public string Message { get; set; }
-        }
-
-        [PacketSubInfo(763, 764)]
-        public sealed partial class V763_764 : DeathCombatEventPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 763 and <= 764:
             {
                 PlayerId = reader.ReadVarInt();
                 Message = reader.ReadString();
+                return;
             }
-
-            public string Message { get; set; }
-        }
-
-        [PacketSubInfo(765, 769)]
-        public sealed partial class V765_769 : DeathCombatEventPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
                 PlayerId = reader.ReadVarInt();
                 Message = reader.ReadNbtTag(false);
+                return;
             }
-
-            public NbtTag Message { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.DeathCombatEvent), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+
 }

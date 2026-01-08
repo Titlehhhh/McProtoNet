@@ -10,7 +10,7 @@ public sealed partial class DestroyEntityPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(755, 755)
+        new(755, 755),
     };
 
     public int EntityId { get; set; }

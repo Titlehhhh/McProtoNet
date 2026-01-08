@@ -10,7 +10,7 @@ public sealed partial class UpdateHealthPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
     };
 
     public float Health { get; set; }

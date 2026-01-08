@@ -3,22 +3,55 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("RemoveResourcePack", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class RemoveResourcePackPacket : IServerPacket
 {
-    [PacketInfo("RemoveResourcePack", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class RemoveResourcePackPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Guid? Uuid { get; set; }
+        new(765, 765),
+    };
 
-        [PacketSubInfo(765, 767)]
-        public sealed partial class V765_767 : RemoveResourcePackPacket
+    public Guid? Uuid { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Uuid = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadUUID());
-            }
+            case >= 765 and <= 765:
+                if (Uuid is null)
+                {
+                    writer.WriteBoolean(false);
+                }
+                else
+                {
+                    writer.WriteBoolean(true);
+                    writer.WriteUUID(Uuid.Value);
+                }
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RemoveResourcePack), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 765 and <= 765:
+                Uuid = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadUUID());
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RemoveResourcePack), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

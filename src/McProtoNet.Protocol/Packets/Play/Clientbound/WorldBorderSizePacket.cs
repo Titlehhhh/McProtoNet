@@ -10,7 +10,7 @@ public sealed partial class WorldBorderSizePacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(755, MinecraftVersion.LatestProtocol)
+        new(755, MinecraftVersion.LatestProtocol),
     };
 
     public double Diameter { get; set; }

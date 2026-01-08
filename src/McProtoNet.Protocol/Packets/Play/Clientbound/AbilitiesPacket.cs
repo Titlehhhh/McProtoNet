@@ -10,7 +10,7 @@ public sealed partial class AbilitiesPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
     };
 
     public sbyte Flags { get; set; }

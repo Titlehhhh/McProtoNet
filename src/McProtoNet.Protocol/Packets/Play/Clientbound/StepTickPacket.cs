@@ -10,7 +10,7 @@ public sealed partial class StepTickPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(765, MinecraftVersion.LatestProtocol)
+        new(765, MinecraftVersion.LatestProtocol),
     };
 
     public int TickSteps { get; set; }

@@ -1,7 +1,5 @@
-﻿using McProtoNet.Protocol;
-using McProtoNet.NBT;
+﻿﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -10,7 +8,8 @@ public sealed partial class GameStateChangePacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+        new(MinecraftVersion.StartProtocol, 770),
+        new(771, MinecraftVersion.LatestProtocol)
     };
 
     public byte Reason { get; set; }
@@ -20,7 +19,11 @@ public sealed partial class GameStateChangePacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            case >= MinecraftVersion.StartProtocol and <= 770:
+                writer.WriteUnsignedByte(Reason);
+                writer.WriteFloat(GameMode);
+                return;
+            case >= 771 and <= MinecraftVersion.LatestProtocol:
                 writer.WriteUnsignedByte(Reason);
                 writer.WriteFloat(GameMode);
                 return;
@@ -34,7 +37,11 @@ public sealed partial class GameStateChangePacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            case >= MinecraftVersion.StartProtocol and <= 770:
+                Reason = reader.ReadUnsignedByte();
+                GameMode = reader.ReadFloat();
+                return;
+            case >= 771 and <= MinecraftVersion.LatestProtocol:
                 Reason = reader.ReadUnsignedByte();
                 GameMode = reader.ReadFloat();
                 return;

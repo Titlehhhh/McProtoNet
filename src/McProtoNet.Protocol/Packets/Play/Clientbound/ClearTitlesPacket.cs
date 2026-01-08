@@ -10,7 +10,7 @@ public sealed partial class ClearTitlesPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(755, MinecraftVersion.LatestProtocol)
+        new(755, MinecraftVersion.LatestProtocol),
     };
 
     public bool Reset { get; set; }

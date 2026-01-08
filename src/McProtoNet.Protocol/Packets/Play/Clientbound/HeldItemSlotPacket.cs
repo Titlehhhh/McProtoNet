@@ -3,33 +3,66 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("HeldItemSlot", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class HeldItemSlotPacket : IServerPacket
 {
-    [PacketInfo("HeldItemSlot", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class HeldItemSlotPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(340, 768)]
-        public sealed partial class V340_768 : HeldItemSlotPacket
+        new(MinecraftVersion.StartProtocol, 768),
+        new(769, MinecraftVersion.LatestProtocol),
+    };
+
+    public sbyte Slot { get; set; }
+
+
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 768:
+            {
+                writer.WriteSignedByte(Slot);
+                return;
+            }
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+            {
+                writer.WriteVarInt(Slot);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.HeldItemSlot), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 768:
             {
                 Slot = reader.ReadSignedByte();
+                return;
             }
-
-            public sbyte Slot { get; set; }
-        }
-
-        [PacketSubInfo(769, 769)]
-        public sealed partial class V769 : HeldItemSlotPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
             {
                 Slot = reader.ReadVarInt();
+                return;
             }
-
-            public int Slot { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.HeldItemSlot), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+
 }

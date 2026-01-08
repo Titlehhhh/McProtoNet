@@ -10,7 +10,7 @@ public sealed partial class ChunkBatchFinishedPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(764, MinecraftVersion.LatestProtocol)
+        new(764, MinecraftVersion.LatestProtocol),
     };
 
     public int BatchSize { get; set; }

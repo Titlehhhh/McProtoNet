@@ -1,52 +1,80 @@
-﻿using McProtoNet.Protocol;
-using McProtoNet.NBT;
+﻿﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("SpawnEntity", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class SpawnEntityPacket : IServerPacket
 {
-    [PacketInfo("SpawnEntity", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class SpawnEntityPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int EntityId { get; set; }
-        public Guid ObjectUUID { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public sbyte Pitch { get; set; }
-        public sbyte Yaw { get; set; }
-        public int ObjectData { get; set; }
-        public short VelocityX { get; set; }
-        public short VelocityY { get; set; }
-        public short VelocityZ { get; set; }
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(340, 404)]
-        public sealed partial class V340_404 : SpawnEntityPacket
+    public int EntityId { get; set; }
+    public Guid ObjectUUID { get; set; }
+    public int Type { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Z { get; set; }
+    public sbyte Pitch { get; set; }
+    public sbyte Yaw { get; set; }
+    public int ObjectData { get; set; }
+    public short VelocityX { get; set; }
+    public short VelocityY { get; set; }
+    public short VelocityZ { get; set; }
+
+    public V759_LastFields? V759_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                writer.WriteVarInt(EntityId);
+                writer.WriteUUID(ObjectUUID);
+                writer.WriteVarInt(Type);
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteSignedByte(Pitch);
+                writer.WriteSignedByte(Yaw);
+                writer.WriteSignedInt(ObjectData);
+                writer.WriteSignedShort(VelocityX);
+                writer.WriteSignedShort(VelocityY);
+                writer.WriteSignedShort(VelocityZ);
+                return;
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                EntityId = reader.ReadVarInt();
-                ObjectUUID = reader.ReadUUID();
-                Type = reader.ReadSignedByte();
-                X = reader.ReadDouble();
-                Y = reader.ReadDouble();
-                Z = reader.ReadDouble();
-                Pitch = reader.ReadSignedByte();
-                Yaw = reader.ReadSignedByte();
-                ObjectData = reader.ReadSignedInt();
-                VelocityX = reader.ReadSignedShort();
-                VelocityY = reader.ReadSignedShort();
-                VelocityZ = reader.ReadSignedShort();
+                var fields = V759_Last ?? throw new InvalidOperationException("SpawnEntity V759_Last missing.");
+                writer.WriteVarInt(EntityId);
+                writer.WriteUUID(ObjectUUID);
+                writer.WriteVarInt(Type);
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteSignedByte(Pitch);
+                writer.WriteSignedByte(Yaw);
+                writer.WriteSignedByte(fields.HeadPitch);
+                writer.WriteVarInt(ObjectData);
+                writer.WriteSignedShort(VelocityX);
+                writer.WriteSignedShort(VelocityY);
+                writer.WriteSignedShort(VelocityZ);
+                return;
             }
-
-            public sbyte Type { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SpawnEntity), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(477, 758)]
-        public sealed partial class V477_758 : SpawnEntityPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
+            case >= MinecraftVersion.StartProtocol and <= 758:
                 EntityId = reader.ReadVarInt();
                 ObjectUUID = reader.ReadUUID();
                 Type = reader.ReadVarInt();
@@ -59,16 +87,10 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 VelocityX = reader.ReadSignedShort();
                 VelocityY = reader.ReadSignedShort();
                 VelocityZ = reader.ReadSignedShort();
-            }
-
-            public int Type { get; set; }
-        }
-
-        [PacketSubInfo(759, 769)]
-        public sealed partial class V759_769 : SpawnEntityPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+                return;
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
+                var fields = new V759_LastFields();
                 EntityId = reader.ReadVarInt();
                 ObjectUUID = reader.ReadUUID();
                 Type = reader.ReadVarInt();
@@ -77,17 +99,28 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 Z = reader.ReadDouble();
                 Pitch = reader.ReadSignedByte();
                 Yaw = reader.ReadSignedByte();
-                HeadPitch = reader.ReadSignedByte();
+                fields.HeadPitch = reader.ReadSignedByte();
                 ObjectData = reader.ReadVarInt();
                 VelocityX = reader.ReadSignedShort();
                 VelocityY = reader.ReadSignedShort();
                 VelocityZ = reader.ReadSignedShort();
+                V759_Last = fields;
+                return;
             }
-
-            public int Type { get; set; }
-            public sbyte HeadPitch { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SpawnEntity), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V759_LastFields
+    {
+        public sbyte HeadPitch { get; set; }
     }
 }

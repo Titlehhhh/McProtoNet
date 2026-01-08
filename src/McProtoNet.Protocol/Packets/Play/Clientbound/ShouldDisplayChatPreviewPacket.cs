@@ -10,7 +10,7 @@ public sealed partial class ShouldDisplayChatPreviewPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(759, 760)
+        new(759, 760),
     };
 
     public bool ShouldDisplayChatPreview { get; set; }

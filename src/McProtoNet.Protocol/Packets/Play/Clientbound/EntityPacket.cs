@@ -10,7 +10,7 @@ public sealed partial class EntityPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(MinecraftVersion.StartProtocol, 754)
+        new(MinecraftVersion.StartProtocol, 754),
     };
 
     public int EntityId { get; set; }

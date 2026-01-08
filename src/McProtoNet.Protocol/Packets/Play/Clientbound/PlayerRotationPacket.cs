@@ -10,7 +10,7 @@ public sealed partial class PlayerRotationPacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(768, MinecraftVersion.LatestProtocol)
+        new(768, MinecraftVersion.LatestProtocol),
     };
 
     public float Yaw { get; set; }

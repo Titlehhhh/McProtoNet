@@ -10,7 +10,7 @@ public sealed partial class SimulationDistancePacket : IServerPacket
 {
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        new(757, MinecraftVersion.LatestProtocol)
+        new(757, MinecraftVersion.LatestProtocol),
     };
 
     public int Distance { get; set; }

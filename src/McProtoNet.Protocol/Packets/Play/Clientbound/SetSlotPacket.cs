@@ -1,74 +1,130 @@
-﻿using McProtoNet.Protocol;
-using McProtoNet.NBT;
+﻿﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("SetSlot", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class SetSlotPacket : IServerPacket
 {
-    [PacketInfo("SetSlot", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class SetSlotPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public short Slot { get; set; }
-        public Slot? Item { get; set; }
+        new(MinecraftVersion.StartProtocol, 755),
+        new(756, 765),
+        new(766, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(340, 755)]
-        public sealed partial class V340_755 : SetSlotPacket
+    public short Slot { get; set; }
+    public Slot? Item { get; set; }
+
+    public VFirst_755Fields? VFirst_755 { get; set; }
+    public V756_765Fields? V756_765 { get; set; }
+    public V766_LastFields? V766_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 755:
             {
-                WindowId = reader.ReadSignedByte();
+                var fields = VFirst_755 ?? throw new InvalidOperationException("SetSlot VFirst_755 missing.");
+                writer.WriteSignedByte(fields.WindowId);
+                writer.WriteSignedShort(Slot);
+                writer.WriteSlot(Item ?? throw new InvalidOperationException("SetSlot Item missing."), protocolVersion);
+                return;
+            }
+            case >= 756 and <= 765:
+            {
+                var fields = V756_765 ?? throw new InvalidOperationException("SetSlot V756_765 missing.");
+                writer.WriteSignedByte(fields.WindowId);
+                writer.WriteVarInt(fields.StateId);
+                writer.WriteSignedShort(Slot);
+                writer.WriteSlot(Item ?? throw new InvalidOperationException("SetSlot Item missing."), protocolVersion);
+                return;
+            }
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V766_Last ?? throw new InvalidOperationException("SetSlot V766_Last missing.");
+                if (protocolVersion <= 767)
+                {
+                    writer.WriteUnsignedByte((byte)fields.WindowId);
+                }
+                else
+                {
+                    writer.WriteVarInt(fields.WindowId);
+                }
+                writer.WriteVarInt(fields.StateId);
+                writer.WriteSignedShort(Slot);
+                writer.WriteSlot(Item ?? throw new InvalidOperationException("SetSlot Item missing."), protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetSlot), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 755:
+            {
+                var fields = new VFirst_755Fields();
+                fields.WindowId = reader.ReadSignedByte();
                 Slot = reader.ReadSignedShort();
                 Item = reader.ReadSlot(protocolVersion);
+                VFirst_755 = fields;
+                return;
             }
-
-            public sbyte WindowId { get; set; }
-        }
-
-        [PacketSubInfo(756, 765)]
-        public sealed partial class V756_765 : SetSlotPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 756 and <= 765:
             {
-                WindowId = reader.ReadSignedByte();
-                StateId = reader.ReadVarInt();
+                var fields = new V756_765Fields();
+                fields.WindowId = reader.ReadSignedByte();
+                fields.StateId = reader.ReadVarInt();
                 Slot = reader.ReadSignedShort();
                 Item = reader.ReadSlot(protocolVersion);
+                V756_765 = fields;
+                return;
             }
-
-            public sbyte WindowId { get; set; }
-            public int StateId { get; set; }
-        }
-
-        [PacketSubInfo(766, 767)]
-        public sealed partial class V766_767 : SetSlotPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
-                WindowId = reader.ReadSignedByte();
-                StateId = reader.ReadVarInt();
+                var fields = new V766_LastFields();
+                fields.WindowId = protocolVersion <= 767
+                    ? reader.ReadUnsignedByte()
+                    : reader.ReadVarInt();
+                fields.StateId = reader.ReadVarInt();
                 Slot = reader.ReadSignedShort();
                 Item = reader.ReadSlot(protocolVersion);
+                V766_Last = fields;
+                return;
             }
-
-            public sbyte WindowId { get; set; }
-            public int StateId { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetSlot), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : SetSlotPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                WindowId = reader.ReadVarInt();
-                StateId = reader.ReadVarInt();
-                Slot = reader.ReadSignedShort();
-                Item = reader.ReadSlot(protocolVersion);
-            }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-            public int WindowId { get; set; }
-            public int StateId { get; set; }
-        }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    public struct VFirst_755Fields
+    {
+        public sbyte WindowId { get; set; }
+    }
+
+    public struct V756_765Fields
+    {
+        public sbyte WindowId { get; set; }
+        public int StateId { get; set; }
+    }
+
+    public struct V766_LastFields
+    {
+        public int WindowId { get; set; }
+        public int StateId { get; set; }
     }
 }

@@ -1,50 +1,53 @@
-﻿using McProtoNet.Protocol;
-using McProtoNet.NBT;
+﻿﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("Experience", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class ExperiencePacket : IServerPacket
 {
-    [PacketInfo("Experience", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class ExperiencePacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public float ExperienceBar { get; set; }
-        public int Level { get; set; }
-        public int TotalExperience { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 760)]
-        internal sealed partial class V340_760 : ExperiencePacket
+    public float ExperienceBar { get; set; }
+    public int Level { get; set; }
+    public int TotalExperience { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                ExperienceBar = reader.ReadFloat();
-                Level = reader.ReadVarInt();
-                TotalExperience = reader.ReadVarInt();
-            }
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteFloat(ExperienceBar);
+                writer.WriteVarInt(Level);
+                writer.WriteVarInt(TotalExperience);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Experience), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        [PacketSubInfo(761, 763)]
-        internal sealed partial class V761_763 : ExperiencePacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                ExperienceBar = reader.ReadFloat();
-                TotalExperience = reader.ReadVarInt();
-                Level = reader.ReadVarInt();
-            }
-        }
-
-        [PacketSubInfo(764, 769)]
-        internal sealed partial class V764_769 : ExperiencePacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                ExperienceBar = reader.ReadFloat();
-                Level = reader.ReadVarInt();
-                TotalExperience = reader.ReadVarInt();
-            }
-        }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                ExperienceBar = reader.ReadFloat();
+                Level = reader.ReadVarInt();
+                TotalExperience = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Experience), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }
