@@ -23,7 +23,7 @@ public static class PacketFactory
             PacketIdentifier identifier = packet.GetPacketId();
 
 
-            foreach (var eversion in Enum.GetValues<MinecraftVersion>())
+            foreach (var eversion in MinecraftVersion.AllVersions)
             {
                 int version = (int)eversion;
                 if (packet.IsSupportedVersion(version))

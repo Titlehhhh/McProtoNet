@@ -1,4 +1,4 @@
-using McProtoNet.NBT;
+﻿using McProtoNet.NBT;
 using McProtoNet.Protocol.Attributes;
 
 namespace McProtoNet.Protocol;

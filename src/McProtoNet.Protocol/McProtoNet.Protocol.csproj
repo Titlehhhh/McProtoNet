@@ -28,18 +28,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Packets\Play\"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
 
-    <ItemGroup>
-        <Compile Remove="Internal\**\*.cs" />
-        <Compile Remove="Packets\**\*.cs" />
-        
-    </ItemGroup>
 
 </Project>

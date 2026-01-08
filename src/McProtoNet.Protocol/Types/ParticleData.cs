@@ -1,4 +1,4 @@
-using Dunet;
+﻿using Dunet;
 using McProtoNet.Protocol.Attributes;
 
 namespace McProtoNet.Protocol;

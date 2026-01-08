@@ -49,6 +49,7 @@ public static class WriteExtensions
             }
         }
 
-        throw new ProtocolNotSupportException(packet.GetPacketId().ToString(), client.ProtocolVersion);
+        ThrowHelper.ThrowProtocolNotSupported(packet.GetPacketId().ToString(), client.ProtocolVersion,
+            packet.SupportedVersions);
     }
 }

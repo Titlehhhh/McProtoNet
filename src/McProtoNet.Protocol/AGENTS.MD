@@ -1,4 +1,4 @@
-# AGENTS.md
+﻿# AGENTS.md
 
 ## Rules for Generating C# Code from `minecraft-data`
 
@@ -23,6 +23,7 @@ The `minecraft-data` directory contains:
 * `info.txt`
 * `PROTODEF.MD` — authoritative reference for ProtoDef native types and wire semantics
   (path: `src/McProtoNet.Protocol/minecraft-data/PROTODEF.MD`)
+* `AGENTS_SERIALIZATION.MD` — compact index of available read/write helpers
 * File names may appear with `.MD` or `.md` casing; search both when locating agent docs.
 
 ### Naming note (minecraft-data quirks)
@@ -56,6 +57,11 @@ These values define the **absolute supported protocol range**.
 * If a version range boundary equals `latestVersion`, use:
 
     * `MinecraftVersion.LatestProtocol`
+
+### Current Update Target
+
+* Treat existing generated code as legacy; regeneration may replace or break it.
+* Current target range is **1.16–1.21.8** (may extend to **1.21.10**).
 
 ---
 
@@ -96,6 +102,13 @@ This rule applies **unless explicitly overridden** by a more specific rule below
 
     * `ThrowIfProtocolNotSupported<T>()`
 * Read/write order MUST exactly follow JSON field order **for the active schema of that version**.
+
+---
+
+## 6.0 ThrowHelper Usage (CRITICAL)
+
+* Use `ThrowHelper` helpers instead of `new` exceptions in generated code.
+* Protocol support failures MUST call `ThrowHelper` (especially `ProtocolNotSupportException`).
 
 ---
 
@@ -211,4 +224,3 @@ If a schema references a native ProtoDef type:
 ## 10. Packet Generation Notes
 
 Packet format rules live in `src/McProtoNet.Protocol/Packets/AGENTS.MD`.
-

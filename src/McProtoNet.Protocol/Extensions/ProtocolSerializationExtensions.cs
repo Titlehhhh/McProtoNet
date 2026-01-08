@@ -9,11 +9,39 @@ public static partial class ProtocolSerializationExtensions
     {
         public void WriteArray<T>(ReadOnlySpan<T> arr)
         {
-            //TODO
+            WriteArray(ref arr, LengthFormat.VarInt);
+        }
+
+        public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat)
+        {
+            WriteLength(ref writer, lengthFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                WriteTypeWithoutProtocolVersion(ref writer, arr[i]);
+            }
+        }
+
+        public void WriteArray<T>(ReadOnlySpan<T> arr, int protocolVersion)
+        {
+            WriteArray(arr, LengthFormat.VarInt, protocolVersion);
+        }
+
+        public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat, int protocolVersion)
+        {
+            WriteLength(ref writer, lengthFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+            {
+                writer.WriteType(arr[i], protocolVersion);
+            }
         }
 
         public void WriteBuffer(ReadOnlySpan<byte> buff, int length)
         {
+            if ((uint)length > (uint)buff.Length)
+            {
+                ThrowHelper.ThrowBufferLengthOutOfRange(length, buff.Length);
+            }
+            writer.WriteBuffer(buff[..length]);
         }
 
         public void WriteBuffer<TLen>(ReadOnlySpan<byte> buff)
@@ -187,6 +215,45 @@ public static partial class ProtocolSerializationExtensions
 
     extension(ref MinecraftPrimitiveReader reader)
     {
+        public T[] ReadArray<T>(LengthFormat lengthFormat)
+        {
+            int length = ReadLength(ref reader, lengthFormat);
+            if (length == 0)
+            {
+                return Array.Empty<T>();
+            }
+
+            var result = new T[length];
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = ReadTypeWithoutProtocolVersion<T>(ref reader);
+            }
+
+            return result;
+        }
+
+        public T[] ReadArray<T>(LengthFormat lengthFormat, int protocolVersion)
+        {
+            int length = ReadLength(ref reader, lengthFormat);
+            return reader.ReadArray<T>(length, protocolVersion);
+        }
+
+        public T[] ReadArray<T>(int length, int protocolVersion)
+        {
+            if (length == 0)
+            {
+                return Array.Empty<T>();
+            }
+
+            var result = new T[length];
+            for (int i = 0; i < length; i++)
+            {
+                result[i] = reader.ReadType<T>(protocolVersion);
+            }
+
+            return result;
+        }
+
         public T ReadType<T>(int protocolVersion)
         {
             if (typeof(T) == typeof(bool)) return (T)(object)reader.ReadBoolean();
@@ -410,5 +477,78 @@ public static partial class ProtocolSerializationExtensions
         }
 
         throw new NotSupportedException($"WriteType<RegistryEntryHolder<{valueType.Name}>> is not registered.");
+    }
+
+    private static int ReadLength(ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat)
+    {
+        return lengthFormat switch
+        {
+            LengthFormat.VarInt => reader.ReadVarInt(),
+            LengthFormat.Byte => reader.ReadUnsignedByte(),
+            LengthFormat.Short => reader.ReadSignedShort(),
+            LengthFormat.Int => reader.ReadSignedInt(),
+            _ => throw new ArgumentOutOfRangeException(nameof(lengthFormat), lengthFormat, null)
+        };
+    }
+
+    private static void WriteLength(ref MinecraftPrimitiveWriter writer, LengthFormat lengthFormat, int length)
+    {
+        switch (lengthFormat)
+        {
+            case LengthFormat.VarInt:
+                writer.WriteVarInt(length);
+                return;
+            case LengthFormat.Byte:
+                writer.WriteUnsignedByte((byte)length);
+                return;
+            case LengthFormat.Short:
+                writer.WriteSignedShort((short)length);
+                return;
+            case LengthFormat.Int:
+                writer.WriteSignedInt(length);
+                return;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(lengthFormat), lengthFormat, null);
+        }
+    }
+
+    private static T ReadTypeWithoutProtocolVersion<T>(ref MinecraftPrimitiveReader reader)
+    {
+        if (typeof(T) == typeof(bool)) return (T)(object)reader.ReadBoolean();
+        if (typeof(T) == typeof(byte)) return (T)(object)reader.ReadUnsignedByte();
+        if (typeof(T) == typeof(sbyte)) return (T)(object)reader.ReadSignedByte();
+        if (typeof(T) == typeof(short)) return (T)(object)reader.ReadSignedShort();
+        if (typeof(T) == typeof(ushort)) return (T)(object)reader.ReadUnsignedShort();
+        if (typeof(T) == typeof(int)) return (T)(object)reader.ReadSignedInt();
+        if (typeof(T) == typeof(uint)) return (T)(object)reader.ReadUnsignedInt();
+        if (typeof(T) == typeof(long)) return (T)(object)reader.ReadSignedLong();
+        if (typeof(T) == typeof(ulong)) return (T)(object)reader.ReadUnsignedLong();
+        if (typeof(T) == typeof(float)) return (T)(object)reader.ReadFloat();
+        if (typeof(T) == typeof(double)) return (T)(object)reader.ReadDouble();
+        if (typeof(T) == typeof(string)) return (T)(object)reader.ReadString();
+        if (typeof(T) == typeof(Guid)) return (T)(object)reader.ReadUUID();
+
+        throw new NotSupportedException(
+            $"ReadArray<{typeof(T).Name}> without protocolVersion is not supported. Use ReadArray<T>(..., int).");
+    }
+
+    private static void WriteTypeWithoutProtocolVersion<T>(ref MinecraftPrimitiveWriter writer, T value)
+    {
+        if (typeof(T) == typeof(bool)) { writer.WriteBoolean((bool)(object)value!); return; }
+        if (typeof(T) == typeof(byte)) { writer.WriteUnsignedByte((byte)(object)value!); return; }
+        if (typeof(T) == typeof(sbyte)) { writer.WriteSignedByte((sbyte)(object)value!); return; }
+        if (typeof(T) == typeof(short)) { writer.WriteSignedShort((short)(object)value!); return; }
+        if (typeof(T) == typeof(ushort)) { writer.WriteUnsignedShort((ushort)(object)value!); return; }
+        if (typeof(T) == typeof(int)) { writer.WriteSignedInt((int)(object)value!); return; }
+        if (typeof(T) == typeof(uint)) { writer.WriteUnsignedInt((uint)(object)value!); return; }
+        if (typeof(T) == typeof(long)) { writer.WriteSignedLong((long)(object)value!); return; }
+        if (typeof(T) == typeof(ulong)) { writer.WriteUnsignedLong((ulong)(object)value!); return; }
+        if (typeof(T) == typeof(float)) { writer.WriteFloat((float)(object)value!); return; }
+        if (typeof(T) == typeof(double)) { writer.WriteDouble((double)(object)value!); return; }
+        if (typeof(T) == typeof(string)) { writer.WriteString((string)(object)value!); return; }
+        if (typeof(T) == typeof(Guid)) { writer.WriteUUID((Guid)(object)value!); return; }
+
+        throw new NotSupportedException(
+            $"WriteArray<{typeof(T).Name}> without protocolVersion is not supported. Use WriteArray<T>(..., int).");
     }
 }

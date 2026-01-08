@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using McProtoNet.Abstractions;
 using McProtoNet.Serialization;
@@ -137,8 +137,24 @@ public static class ReadExtensions
     public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, int length)
         where TReader : IArrayReader<T>
     {
+        return ReadArray<T, TReader>(ref reader, length, 0);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, LengthFormat lengthFormat,
+        int protocolVersion)
+        where TReader : IArrayReader<T>
+    {
+        int length = reader.ReadLength(lengthFormat);
+        return ReadArray<T, TReader>(ref reader, length, protocolVersion);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static T[] ReadArray<T, TReader>(this ref MinecraftPrimitiveReader reader, int length, int protocolVersion)
+        where TReader : IArrayReader<T>
+    {
         T[] result = new T[length];
-        TReader.Read(ref reader, 0, result);
+        TReader.Read(ref reader, protocolVersion, result);
         return result;
     }
 

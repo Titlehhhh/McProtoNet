@@ -1,4 +1,4 @@
-using McProtoNet.Serialization;
+﻿using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
 

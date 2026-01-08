@@ -1,4 +1,4 @@
-using Dunet;
+﻿using Dunet;
 using McProtoNet.NBT;
 using McProtoNet.Protocol.Attributes;
 
