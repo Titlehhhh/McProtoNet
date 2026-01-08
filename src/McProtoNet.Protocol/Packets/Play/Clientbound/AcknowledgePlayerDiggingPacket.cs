@@ -19,7 +19,7 @@ public sealed partial class AcknowledgePlayerDiggingPacket : IServerPacket
     public int Status { get; set; }
     public bool Successful { get; set; }
 
-    public V759_769Fields? V759_769 { get; set; }
+    public V759_LastFields? V759_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -35,7 +35,7 @@ public sealed partial class AcknowledgePlayerDiggingPacket : IServerPacket
             }
             case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V759_769 ?? throw new InvalidOperationException("AcknowledgePlayerDigging V759_769 fields missing.");
+                var fields = V759_Last ?? throw new InvalidOperationException("AcknowledgePlayerDigging V759_Last fields missing.");
                 writer.WriteVarInt(fields.SequenceId);
                 return;
             }
@@ -59,9 +59,9 @@ public sealed partial class AcknowledgePlayerDiggingPacket : IServerPacket
             }
             case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V759_769Fields();
+                var fields = new V759_LastFields();
                 fields.SequenceId = reader.ReadVarInt();
-                V759_769 = fields;
+                V759_Last = fields;
                 return;
             }
             default:
@@ -76,7 +76,7 @@ public sealed partial class AcknowledgePlayerDiggingPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V759_769Fields
+    public struct V759_LastFields
     {
         public int SequenceId { get; set; }
     }

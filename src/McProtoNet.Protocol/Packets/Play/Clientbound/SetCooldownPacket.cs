@@ -17,7 +17,7 @@ public sealed partial class SetCooldownPacket : IServerPacket
     public int CooldownTicks { get; set; }
     public int ItemID { get; set; }
 
-    public V768_769Fields? V768_769 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -31,7 +31,7 @@ public sealed partial class SetCooldownPacket : IServerPacket
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V768_769 ?? throw new InvalidOperationException("SetCooldown V768_769 fields missing.");
+                var fields = V768_Last ?? throw new InvalidOperationException("SetCooldown V768_Last fields missing.");
                 writer.WriteString(fields.CooldownGroup);
                 writer.WriteVarInt(CooldownTicks);
                 return;
@@ -54,10 +54,10 @@ public sealed partial class SetCooldownPacket : IServerPacket
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V768_769Fields();
+                var fields = new V768_LastFields();
                 fields.CooldownGroup = reader.ReadString();
                 CooldownTicks = reader.ReadVarInt();
-                V768_769 = fields;
+                V768_Last = fields;
                 return;
             }
             default:
@@ -72,7 +72,7 @@ public sealed partial class SetCooldownPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V768_769Fields
+    public struct V768_LastFields
     {
         public string CooldownGroup { get; set; }
     }

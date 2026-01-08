@@ -14,7 +14,7 @@ public sealed partial class RegistryDataPacket : IServerPacket
         new(766, MinecraftVersion.LatestProtocol)
     };
     public V764_765Fields? V764_765 { get; set; }
-    public V766_769Fields? V766_769 { get; set; }
+    public V766_LastFields? V766_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -29,7 +29,7 @@ public sealed partial class RegistryDataPacket : IServerPacket
             }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V766_769 ?? throw new InvalidOperationException("RegistryData V766_769 fields missing.");
+                var fields = V766_Last ?? throw new InvalidOperationException("RegistryData V766_Last fields missing.");
                 writer.WriteString(fields.Id);
                 writer.WriteVarInt(fields.Entries.Count);
                 for (int i = 0; i < fields.Entries.Count; i++)
@@ -72,7 +72,7 @@ public sealed partial class RegistryDataPacket : IServerPacket
                     entries.Add(entry);
                 }
 
-                V766_769 = new V766_769Fields
+                V766_Last = new V766_LastFields
                 {
                     Id = id,
                     Entries = entries
@@ -96,7 +96,7 @@ public sealed partial class RegistryDataPacket : IServerPacket
         public NbtTag? Codec { get; set; }
     }
 
-    public struct V766_769Fields
+    public struct V766_LastFields
     {
         public string Id { get; set; }
         public List<RegistryEntry> Entries { get; set; }

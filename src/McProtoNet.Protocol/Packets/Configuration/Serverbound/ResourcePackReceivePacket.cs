@@ -13,7 +13,7 @@ public sealed partial class ResourcePackReceivePacket : IClientPacket
     };
 
     public int Result { get; set; }
-    public V765_769Fields? V765_769 { get; set; }
+    public V765_LastFields? V765_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -24,7 +24,7 @@ public sealed partial class ResourcePackReceivePacket : IClientPacket
                 return;
             case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V765_769 ?? throw new InvalidOperationException("ResourcePackReceive V765_769 fields missing.");
+                var fields = V765_Last ?? throw new InvalidOperationException("ResourcePackReceive V765_Last fields missing.");
                 writer.WriteUUID(fields.Uuid);
                 writer.WriteVarInt(Result);
                 return;
@@ -41,10 +41,10 @@ public sealed partial class ResourcePackReceivePacket : IClientPacket
         {
             case 764:
                 Result = reader.ReadVarInt();
-                V765_769 = null;
+                V765_Last = null;
                 return;
             case >= 765 and <= MinecraftVersion.LatestProtocol:
-                V765_769 = new V765_769Fields
+                V765_Last = new V765_LastFields
                 {
                     Uuid = reader.ReadUUID()
                 };
@@ -62,7 +62,7 @@ public sealed partial class ResourcePackReceivePacket : IClientPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V765_769Fields
+    public struct V765_LastFields
     {
         public Guid Uuid { get; set; }
     }

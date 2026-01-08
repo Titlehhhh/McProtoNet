@@ -16,7 +16,7 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
 
     public Position Location { get; set; }
 
-    public V763_769Fields? V763_769 { get; set; }
+    public V763_LastFields? V763_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -29,7 +29,7 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
             }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V763_769 ?? throw new InvalidOperationException("OpenSignEntity V763_769 fields missing.");
+                var fields = V763_Last ?? throw new InvalidOperationException("OpenSignEntity V763_Last fields missing.");
                 writer.WritePosition(Location, protocolVersion);
                 writer.WriteBoolean(fields.IsFrontText);
                 return;
@@ -51,10 +51,10 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
             }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V763_769Fields();
+                var fields = new V763_LastFields();
                 Location = reader.ReadPosition(protocolVersion);
                 fields.IsFrontText = reader.ReadBoolean();
-                V763_769 = fields;
+                V763_Last = fields;
                 return;
             }
             default:
@@ -69,7 +69,7 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V763_769Fields
+    public struct V763_LastFields
     {
         public bool IsFrontText { get; set; }
     }

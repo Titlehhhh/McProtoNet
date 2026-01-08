@@ -17,7 +17,7 @@ public sealed partial class SetProjectilePowerPacket : IServerPacket
     public int Id { get; set; }
     public Vec3f64 Power { get; set; }
 
-    public V767_769Fields? V767_769 { get; set; }
+    public V767_LastFields? V767_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -31,7 +31,7 @@ public sealed partial class SetProjectilePowerPacket : IServerPacket
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V767_769 ?? throw new InvalidOperationException("SetProjectilePower V767_769 fields missing.");
+                var fields = V767_Last ?? throw new InvalidOperationException("SetProjectilePower V767_Last fields missing.");
                 writer.WriteVarInt(Id);
                 writer.WriteDouble(fields.AccelerationPower);
                 return;
@@ -54,10 +54,10 @@ public sealed partial class SetProjectilePowerPacket : IServerPacket
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V767_769Fields();
+                var fields = new V767_LastFields();
                 Id = reader.ReadVarInt();
                 fields.AccelerationPower = reader.ReadDouble();
-                V767_769 = fields;
+                V767_Last = fields;
                 return;
             }
             default:
@@ -72,7 +72,7 @@ public sealed partial class SetProjectilePowerPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V767_769Fields
+    public struct V767_LastFields
     {
         public double AccelerationPower { get; set; }
     }
