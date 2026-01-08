@@ -1,31 +1,47 @@
 ﻿using McProtoNet.Serialization;
+using McProtoNet.Protocol;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("Chat", PacketState.Play, PacketDirection.Serverbound)]
-public partial class ChatPacket : IClientPacket
+public sealed partial class ChatPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 758)
+    };
+
     public string Message { get; set; }
 
-    [PacketSubInfo(340, 758)]
-    public sealed partial class V340_758 : ChatPacket
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Message);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, string message)
-        {
-            writer.WriteString(message);
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                writer.WriteString(Message);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Chat), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (V340_758.IsSupportedVersionStatic(protocolVersion))
-            V340_758.SerializeInternal(ref writer, protocolVersion, Message);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientPlayPacket.Chat), protocolVersion);
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                Message = reader.ReadString();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Chat), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

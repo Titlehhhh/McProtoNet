@@ -1,38 +1,52 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("QueryBlockNbt", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class QueryBlockNbtPacket : IClientPacket
 {
-    [PacketInfo("QueryBlockNbt", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class QueryBlockNbtPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int TransactionId { get; set; }
-        public Position Location { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(393, 769)]
-        public sealed partial class V393_769 : QueryBlockNbtPacket
+    public int TransactionId { get; set; }
+    public Position Location { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, TransactionId, Location);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int transactionId, Position location)
-            {
-                writer.WriteVarInt(transactionId);
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(TransactionId);
                 writer.WritePosition(location, protocolVersion);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V393_769.IsSupportedVersionStatic(protocolVersion))
-                V393_769.SerializeInternal(ref writer, protocolVersion, TransactionId, Location);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.QueryBlockNbt), protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.QueryBlockNbt), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                TransactionId = reader.ReadVarInt();
+                location, protocolVersion = reader.ReadPosition(protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.QueryBlockNbt), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

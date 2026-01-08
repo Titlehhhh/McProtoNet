@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +8,12 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [PacketInfo("PositionLook", PacketState.Play, PacketDirection.Serverbound)]
 public sealed partial class PositionLookPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
+
     public double X { get; set; }
     public double Y { get; set; }
     public double Z { get; set; }
@@ -43,7 +50,8 @@ public sealed partial class PositionLookPacket : IClientPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PositionLook), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PositionLook), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -74,7 +82,8 @@ public sealed partial class PositionLookPacket : IClientPacket
                 };
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PositionLook), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PositionLook), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

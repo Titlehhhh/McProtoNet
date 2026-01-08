@@ -1,106 +1,101 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("UpdateJigsawBlock", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class UpdateJigsawBlockPacket : IClientPacket
 {
-    [PacketInfo("UpdateJigsawBlock", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class UpdateJigsawBlockPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Position Location { get; set; }
-        public string FinalState { get; set; }
+        new(MinecraftVersion.StartProtocol, 764),
+        new(765, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(477, 578)]
-        public sealed partial class V477_578 : UpdateJigsawBlockPacket
+    public Position Location { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public string Target { get; set; } = string.Empty;
+    public string Pool { get; set; } = string.Empty;
+    public string FinalState { get; set; } = string.Empty;
+    public string JointType { get; set; } = string.Empty;
+
+    public V765_LastFields? V765_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 764:
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteString(Name);
+                writer.WriteString(Target);
+                writer.WriteString(Pool);
+                writer.WriteString(FinalState);
+                writer.WriteString(JointType);
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, Location, AttachmentType, TargetPool, FinalState);
+                var fields = V765_Last ?? throw new InvalidOperationException("UpdateJigsawBlock V765_Last fields missing.");
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteString(Name);
+                writer.WriteString(Target);
+                writer.WriteString(Pool);
+                writer.WriteString(FinalState);
+                writer.WriteString(JointType);
+                writer.WriteVarInt(fields.SelectionPriority);
+                writer.WriteVarInt(fields.PlacementPriority);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Position location, string attachmentType, string targetPool, string finalState)
-            {
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteString(attachmentType);
-                writer.WriteString(targetPool);
-                writer.WriteString(finalState);
-            }
-
-            public string AttachmentType { get; set; }
-            public string TargetPool { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.UpdateJigsawBlock), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(709, 764)]
-        public sealed partial class V709_764 : UpdateJigsawBlockPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Location, Name, Target, Pool, FinalState, JointType);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Position location, string name, string target, string pool, string finalState, string jointType)
-            {
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteString(name);
-                writer.WriteString(target);
-                writer.WriteString(pool);
-                writer.WriteString(finalState);
-                writer.WriteString(jointType);
-            }
-
-            public string Name { get; set; }
-            public string Target { get; set; }
-            public string Pool { get; set; }
-            public string JointType { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 764:
+                Location = reader.ReadPosition(protocolVersion);
+                Name = reader.ReadString();
+                Target = reader.ReadString();
+                Pool = reader.ReadString();
+                FinalState = reader.ReadString();
+                JointType = reader.ReadString();
+                V765_Last = null;
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+                Location = reader.ReadPosition(protocolVersion);
+                Name = reader.ReadString();
+                Target = reader.ReadString();
+                Pool = reader.ReadString();
+                FinalState = reader.ReadString();
+                JointType = reader.ReadString();
+                V765_Last = new V765_LastFields
+                {
+                    SelectionPriority = reader.ReadVarInt(),
+                    PlacementPriority = reader.ReadVarInt()
+                };
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.UpdateJigsawBlock), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(765, 769)]
-        public sealed partial class V765_769 : UpdateJigsawBlockPacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Location, Name, Target, Pool, FinalState, JointType,
-                    SelectionPriority, PlacementPriority);
-            }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Position location, string name, string target, string pool, string finalState, string jointType,
-                int selectionPriority, int placementPriority)
-            {
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteString(name);
-                writer.WriteString(target);
-                writer.WriteString(pool);
-                writer.WriteString(finalState);
-                writer.WriteString(jointType);
-                writer.WriteVarInt(selectionPriority);
-                writer.WriteVarInt(placementPriority);
-            }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 
-            public string Name { get; set; }
-            public string Target { get; set; }
-            public string Pool { get; set; }
-            public string JointType { get; set; }
-            public int SelectionPriority { get; set; }
-            public int PlacementPriority { get; set; }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V477_578.IsSupportedVersionStatic(protocolVersion))
-                V477_578.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
-                    FinalState);
-            else if (V709_764.IsSupportedVersionStatic(protocolVersion))
-                V709_764.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
-                    string.Empty, FinalState, string.Empty);
-            else if (V765_769.IsSupportedVersionStatic(protocolVersion))
-                V765_769.SerializeInternal(ref writer, protocolVersion, Location, string.Empty, string.Empty,
-                    string.Empty, FinalState, string.Empty, 0, 0);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.UpdateJigsawBlock), protocolVersion);
-        }
+    public struct V765_LastFields
+    {
+        public int SelectionPriority { get; set; }
+        public int PlacementPriority { get; set; }
     }
 }

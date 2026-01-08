@@ -1,55 +1,82 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("DisplayedRecipe", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class DisplayedRecipePacket : IClientPacket
 {
-    [PacketInfo("DisplayedRecipe", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class DisplayedRecipePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(751, 767)]
-        public sealed partial class V751_767 : DisplayedRecipePacket
+        new(751, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
+
+    public V751_767Fields? V751_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= 751 and <= 767:
             {
-                SerializeInternal(ref writer, protocolVersion, RecipeId);
+                var fields = V751_767 ?? throw new InvalidOperationException("DisplayedRecipe V751_767 fields missing.");
+                writer.WriteString(fields.RecipeId);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                string recipeId)
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteString(recipeId);
+                var fields = V768_Last ?? throw new InvalidOperationException("DisplayedRecipe V768_Last fields missing.");
+                writer.WriteVarInt(fields.RecipeId);
+                return;
             }
-
-            public string RecipeId { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DisplayedRecipe), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : DisplayedRecipePacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, RecipeId);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int recipeId)
-            {
-                writer.WriteVarInt(recipeId);
-            }
-
-            public int RecipeId { get; set; }
+            case >= 751 and <= 767:
+                V751_767 = new V751_767Fields
+                {
+                    RecipeId = reader.ReadString()
+                };
+                V768_Last = null;
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                V768_Last = new V768_LastFields
+                {
+                    RecipeId = reader.ReadVarInt()
+                };
+                V751_767 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DisplayedRecipe), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V751_767.IsSupportedVersionStatic(protocolVersion))
-                V751_767.SerializeInternal(ref writer, protocolVersion, string.Empty);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, 0);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.DisplayedRecipe), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V751_767Fields
+    {
+        public string RecipeId { get; set; }
+    }
+
+    public struct V768_LastFields
+    {
+        public int RecipeId { get; set; }
     }
 }

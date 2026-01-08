@@ -1,40 +1,55 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("SteerVehicle", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class SteerVehiclePacket : IClientPacket
 {
-    [PacketInfo("SteerVehicle", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class SteerVehiclePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public float Sideways { get; set; }
-        public float Forward { get; set; }
-        public byte Jump { get; set; }
+        new(MinecraftVersion.StartProtocol, 767)
+    };
 
-        [PacketSubInfo(340, 767)]
-        public sealed partial class V340_767 : SteerVehiclePacket
+    public float Sideways { get; set; }
+    public float Forward { get; set; }
+    public byte Jump { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Sideways, Forward, Jump);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                float sideways, float forward, byte jump)
-            {
-                writer.WriteFloat(sideways);
-                writer.WriteFloat(forward);
-                writer.WriteUnsignedByte(jump);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_767.IsSupportedVersionStatic(protocolVersion))
-                V340_767.SerializeInternal(ref writer, protocolVersion, Sideways, Forward, Jump);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.SteerVehicle), protocolVersion);
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                writer.WriteFloat(Sideways);
+                writer.WriteFloat(Forward);
+                writer.WriteUnsignedByte(Jump);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SteerVehicle), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                Sideways = reader.ReadFloat();
+                Forward = reader.ReadFloat();
+                Jump = reader.ReadUnsignedByte();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SteerVehicle), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

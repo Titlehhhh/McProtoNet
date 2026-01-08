@@ -1,40 +1,55 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("GenerateStructure", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class GenerateStructurePacket : IClientPacket
 {
-    [PacketInfo("GenerateStructure", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class GenerateStructurePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Position Location { get; set; }
-        public int Levels { get; set; }
-        public bool KeepJigsaws { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(734, 769)]
-        public sealed partial class V734_769 : GenerateStructurePacket
+    public Position Location { get; set; }
+    public int Levels { get; set; }
+    public bool KeepJigsaws { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Location, Levels, KeepJigsaws);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Position location, int levels, bool keepJigsaws)
-            {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(levels);
-                writer.WriteBoolean(keepJigsaws);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V734_769.IsSupportedVersionStatic(protocolVersion))
-                V734_769.SerializeInternal(ref writer, protocolVersion, Location, Levels, KeepJigsaws);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.GenerateStructure), protocolVersion);
+                writer.WriteVarInt(Levels);
+                writer.WriteBoolean(KeepJigsaws);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.GenerateStructure), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                location, protocolVersion = reader.ReadPosition(protocolVersion);
+                Levels = reader.ReadVarInt();
+                KeepJigsaws = reader.ReadBoolean();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.GenerateStructure), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +8,12 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [PacketInfo("ChatCommand", PacketState.Play, PacketDirection.Serverbound)]
 public sealed partial class ChatCommandPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(759, 765),
+        new(766, MinecraftVersion.LatestProtocol)
+    };
+
     public string Command { get; set; } = string.Empty;
 
     public V759Fields? V759 { get; set; }
@@ -89,7 +96,8 @@ public sealed partial class ChatCommandPacket : IClientPacket
                 writer.WriteString(Command);
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ChatCommand), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatCommand), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -194,7 +202,8 @@ public sealed partial class ChatCommandPacket : IClientPacket
                 Command = reader.ReadString();
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ChatCommand), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatCommand), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

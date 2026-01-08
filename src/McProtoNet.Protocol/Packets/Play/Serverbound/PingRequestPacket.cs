@@ -1,35 +1,49 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("PingRequest", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class PingRequestPacket : IClientPacket
 {
-    [PacketInfo("PingRequest", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class PingRequestPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public long Id { get; set; }
+        new(764, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(764, 769)]
-        public sealed partial class V764_769 : PingRequestPacket
+    public long Id { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Id);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, long id)
-            {
-                writer.WriteSignedLong(id);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V764_769.IsSupportedVersionStatic(protocolVersion))
-                V764_769.SerializeInternal(ref writer, protocolVersion, Id);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PingRequest), protocolVersion);
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedLong(Id);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PingRequest), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                Id = reader.ReadSignedLong();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PingRequest), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

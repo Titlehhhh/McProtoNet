@@ -1,56 +1,52 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
+﻿using McProtoNet.Protocol;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("SetCreativeSlot", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class SetCreativeSlotPacket : IClientPacket
 {
-    [PacketInfo("SetCreativeSlot", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class SetCreativeSlotPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public short Slot { get; set; }
-        public Slot Item { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 765)]
-        internal sealed partial class V340_765 : SetCreativeSlotPacket
+    public short Slot { get; set; }
+    public Slot Item { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Slot, Item);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, short slot,
-                Slot item)
-            {
-                writer.WriteSignedShort(slot);
-                writer.WriteSlot(item, protocolVersion);
-            }
-        }
-
-        [PacketSubInfo(766, 769)]
-        internal sealed partial class V766_769 : SetCreativeSlotPacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Slot, Item);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, short slot,
-                Slot item)
-            {
-                writer.WriteSignedShort(slot);
-                writer.WriteSlot(item, protocolVersion);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_765.IsSupportedVersionStatic(protocolVersion))
-                V340_765.SerializeInternal(ref writer, protocolVersion, Slot, Item);
-            else if (V766_769.IsSupportedVersionStatic(protocolVersion))
-                V766_769.SerializeInternal(ref writer, protocolVersion, Slot, Item);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.SetCreativeSlot), protocolVersion);
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedShort(Slot);
+                writer.WriteSlot(Item, protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SetCreativeSlot), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Slot = reader.ReadSignedShort();
+                Item = reader.ReadSlot(protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SetCreativeSlot), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

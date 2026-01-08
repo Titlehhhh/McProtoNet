@@ -1,68 +1,91 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("VehicleMove", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class VehicleMovePacket : IClientPacket
 {
-    [PacketInfo("VehicleMove", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class VehicleMovePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public float Yaw { get; set; }
-        public float Pitch { get; set; }
+        new(MinecraftVersion.StartProtocol, 768),
+        new(769, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 768)]
-        public sealed partial class V340_768 : VehicleMovePacket
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Z { get; set; }
+    public float Yaw { get; set; }
+    public float Pitch { get; set; }
+
+    public V769_LastFields? V769_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 768:
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                return;
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch);
+                var fields = V769_Last ?? throw new InvalidOperationException("VehicleMove V769_Last fields missing.");
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                writer.WriteBoolean(fields.OnGround);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
-                double y, double z, float yaw, float pitch)
-            {
-                writer.WriteDouble(x);
-                writer.WriteDouble(y);
-                writer.WriteDouble(z);
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.VehicleMove), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(769, 769)]
-        public sealed partial class V769 : VehicleMovePacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, OnGround);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, double x,
-                double y, double z, float yaw, float pitch, bool onGround)
-            {
-                writer.WriteDouble(x);
-                writer.WriteDouble(y);
-                writer.WriteDouble(z);
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-                writer.WriteBoolean(onGround);
-            }
-
-            public bool OnGround { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 768:
+                X = reader.ReadDouble();
+                Y = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                V769_Last = null;
+                return;
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+                X = reader.ReadDouble();
+                Y = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                V769_Last = new V769_LastFields
+                {
+                    OnGround = reader.ReadBoolean()
+                };
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.VehicleMove), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_768.IsSupportedVersionStatic(protocolVersion))
-                V340_768.SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch);
-            else if (V769.IsSupportedVersionStatic(protocolVersion))
-                V769.SerializeInternal(ref writer, protocolVersion, X, Y, Z, Yaw, Pitch, false);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.VehicleMove), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V769_LastFields
+    {
+        public bool OnGround { get; set; }
     }
 }

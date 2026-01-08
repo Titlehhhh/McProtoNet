@@ -1,62 +1,91 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("Look", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class LookPacket : IClientPacket
 {
-    [PacketInfo("Look", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class LookPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public float Yaw { get; set; }
-        public float Pitch { get; set; }
+        new(MinecraftVersion.StartProtocol, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 767)]
-        public sealed partial class V340_767 : LookPacket
+    public float Yaw { get; set; }
+    public float Pitch { get; set; }
+
+    public VFirst_767Fields? VFirst_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                SerializeInternal(ref writer, protocolVersion, Yaw, Pitch, OnGround);
+                var fields = VFirst_767 ?? throw new InvalidOperationException("Look VFirst_767 fields missing.");
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                writer.WriteBoolean(fields.OnGround);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, float yaw,
-                float pitch, bool onGround)
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-                writer.WriteBoolean(onGround);
+                var fields = V768_Last ?? throw new InvalidOperationException("Look V768_Last fields missing.");
+                writer.WriteFloat(Yaw);
+                writer.WriteFloat(Pitch);
+                writer.WriteUnsignedByte(fields.Flags);
+                return;
             }
-
-            public bool OnGround { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Look), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : LookPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Yaw, Pitch, Flags);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, float yaw,
-                float pitch, byte flags)
-            {
-                writer.WriteFloat(yaw);
-                writer.WriteFloat(pitch);
-                writer.WriteUnsignedByte(flags);
-            }
-
-            public byte Flags { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                VFirst_767 = new VFirst_767Fields
+                {
+                    OnGround = reader.ReadBoolean()
+                };
+                V768_Last = null;
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                Yaw = reader.ReadFloat();
+                Pitch = reader.ReadFloat();
+                V768_Last = new V768_LastFields
+                {
+                    Flags = reader.ReadUnsignedByte()
+                };
+                VFirst_767 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Look), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_767.IsSupportedVersionStatic(protocolVersion))
-                V340_767.SerializeInternal(ref writer, protocolVersion, Yaw, Pitch, false);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, Yaw, Pitch, default);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.Look), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_767Fields
+    {
+        public bool OnGround { get; set; }
+    }
+
+    public struct V768_LastFields
+    {
+        public byte Flags { get; set; }
     }
 }

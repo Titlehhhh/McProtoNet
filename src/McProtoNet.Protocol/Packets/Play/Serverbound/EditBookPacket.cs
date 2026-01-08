@@ -1,88 +1,109 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("EditBook", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class EditBookPacket : IClientPacket
 {
-    [PacketInfo("EditBook", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class EditBookPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(393, 393)]
-        public sealed partial class V393 : EditBookPacket
+        new(MinecraftVersion.StartProtocol, 755),
+        new(756, MinecraftVersion.LatestProtocol)
+    };
+
+    public int Hand { get; set; }
+
+    public VFirst_755Fields? VFirst_755 { get; set; }
+    public V756_LastFields? V756_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 755:
             {
-                SerializeInternal(ref writer, protocolVersion, NewBook, Signing);
+                var fields = VFirst_755 ?? throw new InvalidOperationException("EditBook VFirst_755 fields missing.");
+                writer.WriteSlot(fields.NewBook, protocolVersion);
+                writer.WriteBoolean(fields.Signing);
+                writer.WriteVarInt(Hand);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Slot newBook, bool signing)
+            case >= 756 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteSlot(newBook, protocolVersion);
-                writer.WriteBoolean(signing);
+                var fields = V756_Last ?? throw new InvalidOperationException("EditBook V756_Last fields missing.");
+                writer.WriteVarInt(Hand);
+                writer.WriteVarInt(fields.Pages.Length);
+                for (int i = 0; i < fields.Pages.Length; i++)
+                {
+                    writer.WriteString(fields.Pages[i]);
+                }
+                writer.WriteBoolean(fields.Title is not null);
+                if (fields.Title is not null)
+                {
+                    writer.WriteString(fields.Title);
+                }
+                return;
             }
-
-            public Slot NewBook { get; set; }
-            public bool Signing { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EditBook), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(401, 755)]
-        public sealed partial class V401_755 : EditBookPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 755:
+                VFirst_755 = new VFirst_755Fields
+                {
+                    NewBook = reader.ReadSlot(protocolVersion),
+                    Signing = reader.ReadBoolean()
+                };
+                Hand = reader.ReadVarInt();
+                V756_Last = null;
+                return;
+            case >= 756 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, NewBook, Signing, Hand);
+                Hand = reader.ReadVarInt();
+                int length = reader.ReadVarInt();
+                var pages = new string[length];
+                for (int i = 0; i < length; i++)
+                {
+                    pages[i] = reader.ReadString();
+                }
+                string? title = reader.ReadBoolean() ? reader.ReadString() : null;
+                V756_Last = new V756_LastFields
+                {
+                    Pages = pages,
+                    Title = title
+                };
+                VFirst_755 = null;
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Slot newBook, bool signing, int hand)
-            {
-                writer.WriteSlot(newBook, protocolVersion);
-                writer.WriteBoolean(signing);
-                writer.WriteVarInt(hand);
-            }
-
-            public Slot NewBook { get; set; }
-            public bool Signing { get; set; }
-            public int Hand { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EditBook), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(756, 769)]
-        public sealed partial class V756_769 : EditBookPacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Hand, Pages, Title);
-            }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
-                string[] pages, string? title)
-            {
-                writer.WriteVarInt(hand);
-                writer.WriteVarInt(pages.Length);
-                foreach (var pages_item in pages)
-                    writer.WriteString(pages_item);
-                writer.WriteBoolean(title is not null);
-                if (title is not null)
-                    writer.WriteString((string)title);
-            }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 
-            public int Hand { get; set; }
-            public string[] Pages { get; set; }
-            public string? Title { get; set; }
-        }
+    public struct VFirst_755Fields
+    {
+        public Slot NewBook { get; set; }
+        public bool Signing { get; set; }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V393.IsSupportedVersionStatic(protocolVersion))
-                V393.SerializeInternal(ref writer, protocolVersion, default, false);
-            else if (V401_755.IsSupportedVersionStatic(protocolVersion))
-                V401_755.SerializeInternal(ref writer, protocolVersion, default, false, 0);
-            else if (V756_769.IsSupportedVersionStatic(protocolVersion))
-                V756_769.SerializeInternal(ref writer, protocolVersion, 0, [], null);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.EditBook), protocolVersion);
-        }
+    public struct V756_LastFields
+    {
+        public string[] Pages { get; set; }
+        public string? Title { get; set; }
     }
 }

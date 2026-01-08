@@ -1,85 +1,94 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("CraftRecipeRequest", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class CraftRecipeRequestPacket : IClientPacket
 {
-    [PacketInfo("CraftRecipeRequest", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class CraftRecipeRequestPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public bool MakeAll { get; set; }
+        new(MinecraftVersion.StartProtocol, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 340)]
-        public sealed partial class V340 : CraftRecipeRequestPacket
+    public bool MakeAll { get; set; }
+
+    public VFirst_767Fields? VFirst_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
+                var fields = VFirst_767 ?? throw new InvalidOperationException("CraftRecipeRequest VFirst_767 fields missing.");
+                writer.WriteSignedByte(fields.WindowId);
+                writer.WriteString(fields.Recipe);
+                writer.WriteBoolean(MakeAll);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                sbyte windowId, int recipe, bool makeAll)
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteSignedByte(windowId);
-                writer.WriteVarInt(recipe);
-                writer.WriteBoolean(makeAll);
+                var fields = V768_Last ?? throw new InvalidOperationException("CraftRecipeRequest V768_Last fields missing.");
+                writer.WriteVarInt(fields.WindowId);
+                writer.WriteVarInt(fields.RecipeId);
+                writer.WriteBoolean(MakeAll);
+                return;
             }
-
-            public sbyte WindowId { get; set; }
-            public int Recipe { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CraftRecipeRequest), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(351, 767)]
-        public sealed partial class V351_767 : CraftRecipeRequestPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, WindowId, Recipe, MakeAll);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                sbyte windowId, string recipe, bool makeAll)
-            {
-                writer.WriteSignedByte(windowId);
-                writer.WriteString(recipe);
-                writer.WriteBoolean(makeAll);
-            }
-
-            public sbyte WindowId { get; set; }
-            public string Recipe { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                VFirst_767 = new VFirst_767Fields
+                {
+                    WindowId = reader.ReadSignedByte(),
+                    Recipe = reader.ReadString()
+                };
+                MakeAll = reader.ReadBoolean();
+                V768_Last = null;
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                V768_Last = new V768_LastFields
+                {
+                    WindowId = reader.ReadVarInt(),
+                    RecipeId = reader.ReadVarInt()
+                };
+                MakeAll = reader.ReadBoolean();
+                VFirst_767 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CraftRecipeRequest), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : CraftRecipeRequestPacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, WindowId, RecipeId, MakeAll);
-            }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int windowId, int recipeId, bool makeAll)
-            {
-                writer.WriteVarInt(windowId);
-                writer.WriteVarInt(recipeId);
-                writer.WriteBoolean(makeAll);
-            }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 
-            public int WindowId { get; set; }
-            public int RecipeId { get; set; }
-        }
+    public struct VFirst_767Fields
+    {
+        public sbyte WindowId { get; set; }
+        public string Recipe { get; set; }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340.IsSupportedVersionStatic(protocolVersion))
-                V340.SerializeInternal(ref writer, protocolVersion, 0, 0, MakeAll);
-            else if (V351_767.IsSupportedVersionStatic(protocolVersion))
-                V351_767.SerializeInternal(ref writer, protocolVersion, 0, string.Empty, MakeAll);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, default, 0, MakeAll);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.CraftRecipeRequest), protocolVersion);
-        }
+    public struct V768_LastFields
+    {
+        public int WindowId { get; set; }
+        public int RecipeId { get; set; }
     }
 }

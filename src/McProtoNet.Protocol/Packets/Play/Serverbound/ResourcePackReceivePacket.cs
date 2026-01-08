@@ -1,55 +1,70 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("ResourcePackReceive", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class ResourcePackReceivePacket : IClientPacket
 {
-    [PacketInfo("ResourcePackReceive", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class ResourcePackReceivePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Result { get; set; }
+        new(MinecraftVersion.StartProtocol, 764),
+        new(765, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 764)]
-        public sealed partial class V340_764 : ResourcePackReceivePacket
+    public int Result { get; set; }
+    public V765_LastFields? V765_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 764:
+                writer.WriteVarInt(Result);
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, Result);
+                var fields = V765_Last ?? throw new InvalidOperationException("ResourcePackReceive V765_Last fields missing.");
+                writer.WriteUUID(fields.Uuid);
+                writer.WriteVarInt(Result);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int result)
-            {
-                writer.WriteVarInt(result);
-            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ResourcePackReceive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(765, 769)]
-        public sealed partial class V765_769 : ResourcePackReceivePacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Uuid, Result);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid uuid,
-                int result)
-            {
-                writer.WriteUUID(uuid);
-                writer.WriteVarInt(result);
-            }
-
-            public Guid Uuid { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 764:
+                Result = reader.ReadVarInt();
+                V765_Last = null;
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+                V765_Last = new V765_LastFields
+                {
+                    Uuid = reader.ReadUUID()
+                };
+                Result = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ResourcePackReceive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_764.IsSupportedVersionStatic(protocolVersion))
-                V340_764.SerializeInternal(ref writer, protocolVersion, Result);
-            else if (V765_769.IsSupportedVersionStatic(protocolVersion))
-                V765_769.SerializeInternal(ref writer, protocolVersion, default, Result);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ResourcePackReceive), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V765_LastFields
+    {
+        public Guid Uuid { get; set; }
     }
 }

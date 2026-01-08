@@ -1,55 +1,80 @@
+﻿using System;
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
-using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("CloseWindow", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class CloseWindowPacket : IClientPacket
 {
-    [PacketInfo("CloseWindow", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class CloseWindowPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(340, 767)]
-        public sealed partial class V340_767 : CloseWindowPacket
+        new(MinecraftVersion.StartProtocol, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
+
+    public VFirst_767Fields? VFirst_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                SerializeInternal(ref writer, protocolVersion, WindowId);
+                var fields = VFirst_767 ?? throw new InvalidOperationException("CloseWindow VFirst_767 fields missing.");
+                writer.WriteUnsignedByte(fields.WindowId);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                byte windowId)
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteUnsignedByte(windowId);
+                var fields = V768_Last ?? throw new InvalidOperationException("CloseWindow V768_Last fields missing.");
+                writer.WriteVarInt(fields.WindowId);
+                return;
             }
-
-            public byte WindowId { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CloseWindow), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : CloseWindowPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, WindowId);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int windowId)
-            {
-                writer.WriteVarInt(windowId);
-            }
-
-            public int WindowId { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                VFirst_767 = new VFirst_767Fields
+                {
+                    WindowId = reader.ReadUnsignedByte()
+                };
+                V768_Last = null;
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                V768_Last = new V768_LastFields
+                {
+                    WindowId = reader.ReadVarInt()
+                };
+                VFirst_767 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CloseWindow), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_767.IsSupportedVersionStatic(protocolVersion))
-                V340_767.SerializeInternal(ref writer, protocolVersion, 0);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, default);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.CloseWindow), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_767Fields
+    {
+        public byte WindowId { get; set; }
+    }
+
+    public struct V768_LastFields
+    {
+        public int WindowId { get; set; }
     }
 }

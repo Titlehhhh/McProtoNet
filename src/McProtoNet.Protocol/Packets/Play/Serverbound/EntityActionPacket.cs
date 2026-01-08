@@ -1,40 +1,55 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("EntityAction", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class EntityActionPacket : IClientPacket
 {
-    [PacketInfo("EntityAction", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class EntityActionPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int EntityId { get; set; }
-        public int ActionId { get; set; }
-        public int JumpBoost { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 769)]
-        internal sealed partial class V340_769 : EntityActionPacket
+    public int EntityId { get; set; }
+    public int ActionId { get; set; }
+    public int JumpBoost { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, EntityId, ActionId, JumpBoost);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int entityId, int actionId, int jumpBoost)
-            {
-                writer.WriteVarInt(entityId);
-                writer.WriteVarInt(actionId);
-                writer.WriteVarInt(jumpBoost);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_769.IsSupportedVersionStatic(protocolVersion))
-                V340_769.SerializeInternal(ref writer, protocolVersion, EntityId, ActionId, JumpBoost);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.EntityAction), protocolVersion);
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(EntityId);
+                writer.WriteVarInt(ActionId);
+                writer.WriteVarInt(JumpBoost);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EntityAction), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                EntityId = reader.ReadVarInt();
+                ActionId = reader.ReadVarInt();
+                JumpBoost = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EntityAction), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

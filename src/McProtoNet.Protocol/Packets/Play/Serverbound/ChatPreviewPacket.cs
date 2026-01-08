@@ -1,38 +1,52 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("ChatPreview", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class ChatPreviewPacket : IClientPacket
 {
-    [PacketInfo("ChatPreview", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class ChatPreviewPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Query { get; set; }
-        public string Message { get; set; }
+        new(759, 760)
+    };
 
-        [PacketSubInfo(759, 760)]
-        public sealed partial class V759_760 : ChatPreviewPacket
+    public int Query { get; set; }
+    public string Message { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Query, Message);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int query,
-                string message)
-            {
-                writer.WriteSignedInt(query);
-                writer.WriteString(message);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V759_760.IsSupportedVersionStatic(protocolVersion))
-                V759_760.SerializeInternal(ref writer, protocolVersion, Query, Message);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ChatPreview), protocolVersion);
+            case >= 759 and <= 760:
+                writer.WriteSignedInt(Query);
+                writer.WriteString(Message);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatPreview), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 759 and <= 760:
+                Query = reader.ReadSignedInt();
+                Message = reader.ReadString();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatPreview), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }
