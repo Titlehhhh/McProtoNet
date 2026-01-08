@@ -1,24 +1,49 @@
-using McProtoNet.Protocol;
+﻿using McProtoNet.Protocol;
 using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("SimulationDistance", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class SimulationDistancePacket : IServerPacket
 {
-    [PacketInfo("SimulationDistance", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class SimulationDistancePacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Distance { get; set; }
+        new(757, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(757, 769)]
-        public sealed partial class V757_769 : SimulationDistancePacket
+    public int Distance { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Distance = reader.ReadVarInt();
-            }
+            case >= 757 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(Distance);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SimulationDistance), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 757 and <= MinecraftVersion.LatestProtocol:
+                Distance = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SimulationDistance), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

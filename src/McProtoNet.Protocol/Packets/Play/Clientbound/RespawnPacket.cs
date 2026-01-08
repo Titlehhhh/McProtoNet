@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using McProtoNet.NBT;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -8,6 +9,17 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketInfo("Respawn", PacketState.Play, PacketDirection.Clientbound)]
 public sealed partial class RespawnPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 736),
+        new(751, 758),
+        new(759, 759),
+        new(760, 762),
+        new(763, 763),
+        new(764, 765),
+        new(766, MinecraftVersion.LatestProtocol)
+    };
+
     public string Dimension { get; set; } = string.Empty;
     public NbtTag? DimensionTag { get; set; }
     public string WorldName { get; set; } = string.Empty;
@@ -151,7 +163,8 @@ public sealed partial class RespawnPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.Respawn), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Respawn), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -282,7 +295,8 @@ public sealed partial class RespawnPacket : IServerPacket
                 };
                 return;
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.Respawn), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Respawn), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

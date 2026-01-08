@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -6,6 +7,13 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketInfo("UpdateLight", PacketState.Play, PacketDirection.Clientbound)]
 public sealed partial class UpdateLightPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 754),
+        new(755, 762),
+        new(763, MinecraftVersion.LatestProtocol)
+    };
+
     public int ChunkX { get; set; }
     public int ChunkZ { get; set; }
 
@@ -86,7 +94,8 @@ public sealed partial class UpdateLightPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.UpdateLight), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.UpdateLight), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -193,7 +202,8 @@ public sealed partial class UpdateLightPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.UpdateLight), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.UpdateLight), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 

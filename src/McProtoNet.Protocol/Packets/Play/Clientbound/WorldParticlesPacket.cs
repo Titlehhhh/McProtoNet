@@ -1,4 +1,5 @@
-using System;
+﻿using System;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
@@ -7,6 +8,14 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketInfo("WorldParticles", PacketState.Play, PacketDirection.Clientbound)]
 public sealed partial class WorldParticlesPacket : IServerPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, 765),
+        new(766, 768),
+        new(769, MinecraftVersion.LatestProtocol)
+    };
+
     public bool LongDistance { get; set; }
     public double X { get; set; }
     public double Y { get; set; }
@@ -88,7 +97,8 @@ public sealed partial class WorldParticlesPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.WorldParticles), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldParticles), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -169,7 +179,8 @@ public sealed partial class WorldParticlesPacket : IServerPacket
                 return;
             }
             default:
-                throw new ProtocolNotSupportException(nameof(ServerPlayPacket.WorldParticles), protocolVersion);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldParticles), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
