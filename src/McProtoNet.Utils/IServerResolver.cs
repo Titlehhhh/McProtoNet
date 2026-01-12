@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Utils;
+namespace McProtoNet.Utils;
 
 /// <summary>
 /// Resolves server records asynchronously

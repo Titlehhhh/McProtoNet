@@ -1,4 +1,4 @@
-﻿# AGENTS_SERIALIZATION.MD
+# AGENTS_SERIALIZATION.MD
 
 ## Purpose
 This file is a compact index of available protocol read/write helpers to avoid scanning the full

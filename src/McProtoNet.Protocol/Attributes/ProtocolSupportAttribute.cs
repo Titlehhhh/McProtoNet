@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol.Attributes;
+namespace McProtoNet.Protocol.Attributes;
 
 [AttributeUsage(AttributeTargets.Struct | AttributeTargets.Class | AttributeTargets.Enum, AllowMultiple = true)]
 public sealed class ProtocolSupportAttribute : Attribute

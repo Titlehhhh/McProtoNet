@@ -1,4 +1,4 @@
-﻿using DotNext.IO.Pipelines;
+using DotNext.IO.Pipelines;
 using McProtoNet.Client;
 using McProtoNet.Net;
 using McProtoNet.Serialization;

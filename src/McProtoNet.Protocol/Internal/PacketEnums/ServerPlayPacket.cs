@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol;
+namespace McProtoNet.Protocol;
 
 public static class ServerPlayPacket
 {

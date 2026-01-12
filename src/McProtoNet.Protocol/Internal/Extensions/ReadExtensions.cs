@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using McProtoNet.Abstractions;
 using McProtoNet.Serialization;

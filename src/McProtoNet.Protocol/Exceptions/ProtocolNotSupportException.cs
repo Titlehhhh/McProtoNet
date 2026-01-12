@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol;
+namespace McProtoNet.Protocol;
 
 /// <summary>
 /// Exception thrown when a protocol is not supported

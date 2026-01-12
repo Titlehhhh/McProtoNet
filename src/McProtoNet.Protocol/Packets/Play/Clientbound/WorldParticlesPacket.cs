@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;

@@ -1,4 +1,4 @@
-﻿using DotNext.Buffers;
+using DotNext.Buffers;
 using McProtoNet.Abstractions;
 using McProtoNet.Client;
 using McProtoNet.Serialization;

@@ -1,4 +1,4 @@
-﻿# ProtoDef Native Types Reference (minecraft-data / PrismarineJS)
+# ProtoDef Native Types Reference (minecraft-data / PrismarineJS)
 
 This repository uses `minecraft-data` schemas that follow the ProtoDef format
 from PrismarineJS. The JSON files in `minecraft-data/types/*.json` reference a

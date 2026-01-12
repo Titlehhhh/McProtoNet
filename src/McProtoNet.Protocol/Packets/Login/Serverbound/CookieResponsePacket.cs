@@ -1,4 +1,4 @@
-﻿using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol.Extensions;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;

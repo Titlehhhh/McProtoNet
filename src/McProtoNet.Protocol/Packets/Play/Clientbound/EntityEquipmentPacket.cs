@@ -1,4 +1,4 @@
-﻿using McProtoNet.Protocol;
+using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 using System;
 using System.Collections.Generic;

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using BenchmarkDotNet.Attributes;
 using DotNext;
 using DotNext.Collections.Generic;

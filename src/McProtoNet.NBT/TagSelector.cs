@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.NBT;
+namespace McProtoNet.NBT;
 
 /// <summary>
 ///     Delegate used to skip loading certain tags of an NBT stream/file.

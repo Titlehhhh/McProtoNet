@@ -1,4 +1,4 @@
-﻿using System.IO.Pipelines;
+using System.IO.Pipelines;
 using McProtoNet.Tests.Infrastructure;
 
 namespace McProtoNet.Tests.Pipelines;

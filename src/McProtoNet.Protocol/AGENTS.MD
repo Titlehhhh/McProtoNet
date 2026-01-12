@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 ## Rules for Generating C# Code from `minecraft-data`
 

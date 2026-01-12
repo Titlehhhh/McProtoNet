@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Benchmark.Pipelines;
+namespace McProtoNet.Benchmark.Pipelines;
 
 public enum BenchType
 {

@@ -1,4 +1,4 @@
-﻿using McProtoNet.Abstractions;
+using McProtoNet.Abstractions;
 using McProtoNet.Client;
 
 namespace McProtoNet.Protocol;

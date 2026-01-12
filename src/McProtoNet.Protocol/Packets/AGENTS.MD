@@ -1,4 +1,4 @@
-﻿# Packet Generation Notes
+# Packet Generation Notes
 
 These notes define the preferred packet format for new multi-version packet generation.
 

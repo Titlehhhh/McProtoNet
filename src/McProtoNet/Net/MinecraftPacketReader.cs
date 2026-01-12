@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Threading.Tasks.Sources;
 using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;

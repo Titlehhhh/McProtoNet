@@ -1,4 +1,4 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 using McProtoNet.Protocol;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;

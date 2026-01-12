@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Utils;
+namespace McProtoNet.Utils;
 
 public struct SrvRecord(string host, ushort port)
 {

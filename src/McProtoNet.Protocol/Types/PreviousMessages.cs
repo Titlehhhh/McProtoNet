@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using McProtoNet.Protocol.Attributes;
 
 namespace McProtoNet.Protocol;

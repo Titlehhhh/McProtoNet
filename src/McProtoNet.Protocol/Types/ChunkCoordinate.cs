@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol;
+namespace McProtoNet.Protocol;
 
 public readonly struct ChunkCoordinate(int x, int z, int y)
 {

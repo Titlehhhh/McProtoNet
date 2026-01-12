@@ -1,4 +1,4 @@
-﻿using McProtoNet.NBT;
+using McProtoNet.NBT;
 using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 using static McProtoNet.Protocol.SlotComponent;

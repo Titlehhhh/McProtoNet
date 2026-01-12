@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Net;
+namespace McProtoNet.Net;
 
 internal static class ThrowHelper
 {
