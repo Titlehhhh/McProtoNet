@@ -36,7 +36,7 @@ public sealed partial class CustomPayloadPacket : IClientPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 Channel = reader.ReadString();
-                Data = reader.ReadBuffer();
+                Data = reader.ReadRestBuffer();
                 return;
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);

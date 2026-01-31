@@ -12,7 +12,7 @@ public sealed partial class ActionBarPacket : IServerPacket
     public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
         new(755, 764),
-        new(765, MinecraftVersion.LatestProtocol),
+        new(765, 772),
     };
 
     public string Text { get; set; }
@@ -28,7 +28,7 @@ public sealed partial class ActionBarPacket : IServerPacket
                 writer.WriteString(Text);
                 return;
             }
-            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            case >= 765 and <= 772:
             {
                 writer.WriteAnonymousNbtTag(Text ?? throw new InvalidOperationException("ActionBar Text missing."), protocolVersion);
                 return;
@@ -48,7 +48,7 @@ public sealed partial class ActionBarPacket : IServerPacket
                 Text = reader.ReadString();
                 return;
             }
-            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            case >= 765 and <= 772:
             {
                 Text = reader.ReadNbtTag(false);
                 return;

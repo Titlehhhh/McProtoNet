@@ -39,7 +39,7 @@ public sealed partial class LoginPacket : IServerPacket
                 writer.WriteSignedInt(fields.EntityId);
                 writer.WriteUnsignedByte(fields.GameMode);
                 writer.WriteUnsignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
                 writer.WriteString(fields.Dimension);
                 writer.WriteString(fields.WorldName);
@@ -57,56 +57,13 @@ public sealed partial class LoginPacket : IServerPacket
                 var fields = V751_754 ?? throw new InvalidOperationException("Login V751_754 fields missing.");
                 writer.WriteSignedInt(fields.EntityId);
                 writer.WriteBoolean(fields.IsHardcore);
-                writer.WriteUnsignedByte(fields.GameMode);
-                writer.WriteUnsignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
                 writer.WriteNbtTag(fields.Dimension ?? throw new InvalidOperationException("Login dimension missing."), protocolVersion);
                 writer.WriteString(fields.WorldName);
                 writer.WriteSignedLong(fields.HashedSeed);
                 writer.WriteVarInt(fields.MaxPlayers);
                 writer.WriteVarInt(fields.ViewDistance);
-                writer.WriteBoolean(fields.ReducedDebugInfo);
-                writer.WriteBoolean(fields.EnableRespawnScreen);
-                writer.WriteBoolean(fields.IsDebug);
-                writer.WriteBoolean(fields.IsFlat);
-                return;
-            }
-            case >= 755 and <= 756:
-            {
-                var fields = V755_756 ?? throw new InvalidOperationException("Login V755_756 fields missing.");
-                writer.WriteSignedInt(fields.EntityId);
-                writer.WriteBoolean(fields.IsHardcore);
-                writer.WriteUnsignedByte(fields.GameMode);
-                writer.WriteSignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
-                writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
-                writer.WriteNbtTag(fields.Dimension ?? throw new InvalidOperationException("Login dimension missing."), protocolVersion);
-                writer.WriteString(fields.WorldName);
-                writer.WriteSignedLong(fields.HashedSeed);
-                writer.WriteVarInt(fields.MaxPlayers);
-                writer.WriteVarInt(fields.ViewDistance);
-                writer.WriteBoolean(fields.ReducedDebugInfo);
-                writer.WriteBoolean(fields.EnableRespawnScreen);
-                writer.WriteBoolean(fields.IsDebug);
-                writer.WriteBoolean(fields.IsFlat);
-                return;
-            }
-            case >= 757 and <= 758:
-            {
-                var fields = V757_758 ?? throw new InvalidOperationException("Login V757_758 fields missing.");
-                writer.WriteSignedInt(fields.EntityId);
-                writer.WriteBoolean(fields.IsHardcore);
-                writer.WriteUnsignedByte(fields.GameMode);
-                writer.WriteSignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
-                writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
-                writer.WriteNbtTag(fields.Dimension ?? throw new InvalidOperationException("Login dimension missing."), protocolVersion);
-                writer.WriteString(fields.WorldName);
-                writer.WriteSignedLong(fields.HashedSeed);
-                writer.WriteVarInt(fields.MaxPlayers);
-                writer.WriteVarInt(fields.ViewDistance);
-                writer.WriteVarInt(fields.SimulationDistance);
                 writer.WriteBoolean(fields.ReducedDebugInfo);
                 writer.WriteBoolean(fields.EnableRespawnScreen);
                 writer.WriteBoolean(fields.IsDebug);
@@ -120,7 +77,7 @@ public sealed partial class LoginPacket : IServerPacket
                 writer.WriteBoolean(fields.IsHardcore);
                 writer.WriteUnsignedByte(fields.GameMode);
                 writer.WriteSignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
                 writer.WriteString(fields.WorldType);
                 writer.WriteString(fields.WorldName);
@@ -150,7 +107,7 @@ public sealed partial class LoginPacket : IServerPacket
                 writer.WriteBoolean(fields.IsHardcore);
                 writer.WriteUnsignedByte(fields.GameMode);
                 writer.WriteSignedByte(fields.PreviousGameMode);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteNbtTag(fields.DimensionCodec ?? throw new InvalidOperationException("Login dimensionCodec missing."), protocolVersion);
                 writer.WriteString(fields.WorldType);
                 writer.WriteString(fields.WorldName);
@@ -179,7 +136,7 @@ public sealed partial class LoginPacket : IServerPacket
                 var fields = V764_765 ?? throw new InvalidOperationException("Login V764_765 fields missing.");
                 writer.WriteSignedInt(fields.EntityId);
                 writer.WriteBoolean(fields.IsHardcore);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteVarInt(fields.MaxPlayers);
                 writer.WriteVarInt(fields.ViewDistance);
                 writer.WriteVarInt(fields.SimulationDistance);
@@ -210,7 +167,7 @@ public sealed partial class LoginPacket : IServerPacket
                 var fields = V766_Last ?? throw new InvalidOperationException("Login V766_Last fields missing.");
                 writer.WriteSignedInt(fields.EntityId);
                 writer.WriteBoolean(fields.IsHardcore);
-                WriteStringArray(ref writer, fields.WorldNames);
+                writer.WriteArray(fields.WorldNames, LengthFormat.VarInt);
                 writer.WriteVarInt(fields.MaxPlayers);
                 writer.WriteVarInt(fields.ViewDistance);
                 writer.WriteVarInt(fields.SimulationDistance);
@@ -237,7 +194,7 @@ public sealed partial class LoginPacket : IServerPacket
                     EntityId = reader.ReadSignedInt(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadUnsignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     Dimension = reader.ReadString(),
                     WorldName = reader.ReadString(),
@@ -257,7 +214,7 @@ public sealed partial class LoginPacket : IServerPacket
                     IsHardcore = reader.ReadBoolean(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadUnsignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     Dimension = reader.ReadNbtTag(protocolVersion),
                     WorldName = reader.ReadString(),
@@ -277,7 +234,7 @@ public sealed partial class LoginPacket : IServerPacket
                     IsHardcore = reader.ReadBoolean(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadSignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     Dimension = reader.ReadNbtTag(protocolVersion),
                     WorldName = reader.ReadString(),
@@ -297,7 +254,7 @@ public sealed partial class LoginPacket : IServerPacket
                     IsHardcore = reader.ReadBoolean(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadSignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     Dimension = reader.ReadNbtTag(protocolVersion),
                     WorldName = reader.ReadString(),
@@ -318,7 +275,7 @@ public sealed partial class LoginPacket : IServerPacket
                     IsHardcore = reader.ReadBoolean(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadSignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     WorldType = reader.ReadString(),
                     WorldName = reader.ReadString(),
@@ -340,7 +297,7 @@ public sealed partial class LoginPacket : IServerPacket
                     IsHardcore = reader.ReadBoolean(),
                     GameMode = reader.ReadUnsignedByte(),
                     PreviousGameMode = reader.ReadSignedByte(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     DimensionCodec = reader.ReadNbtTag(protocolVersion),
                     WorldType = reader.ReadString(),
                     WorldName = reader.ReadString(),
@@ -361,7 +318,7 @@ public sealed partial class LoginPacket : IServerPacket
                 {
                     EntityId = reader.ReadSignedInt(),
                     IsHardcore = reader.ReadBoolean(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     MaxPlayers = reader.ReadVarInt(),
                     ViewDistance = reader.ReadVarInt(),
                     SimulationDistance = reader.ReadVarInt(),
@@ -384,7 +341,7 @@ public sealed partial class LoginPacket : IServerPacket
                 {
                     EntityId = reader.ReadSignedInt(),
                     IsHardcore = reader.ReadBoolean(),
-                    WorldNames = ReadStringArray(ref reader),
+                    WorldNames = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadString()),
                     MaxPlayers = reader.ReadVarInt(),
                     ViewDistance = reader.ReadVarInt(),
                     SimulationDistance = reader.ReadVarInt(),
@@ -398,31 +355,6 @@ public sealed partial class LoginPacket : IServerPacket
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Login), protocolVersion, SupportedVersionsStatic);
                 return;
-        }
-    }
-
-    private static string[] ReadStringArray(ref MinecraftPrimitiveReader reader)
-    {
-        int count = reader.ReadVarInt();
-        if (count == 0)
-        {
-            return Array.Empty<string>();
-        }
-
-        var items = new string[count];
-        for (int i = 0; i < items.Length; i++)
-        {
-            items[i] = reader.ReadString();
-        }
-        return items;
-    }
-
-    private static void WriteStringArray(ref MinecraftPrimitiveWriter writer, string[] items)
-    {
-        writer.WriteVarInt(items.Length);
-        for (int i = 0; i < items.Length; i++)
-        {
-            writer.WriteString(items[i]);
         }
     }
 

@@ -9,7 +9,7 @@ public static partial class ProtocolSerializationExtensions
     {
         public void WriteArray<T>(ReadOnlySpan<T> arr)
         {
-            WriteArray(ref arr, LengthFormat.VarInt);
+            //WriteArray(ref arr, LengthFormat.VarInt);
         }
 
         public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat)
@@ -23,7 +23,7 @@ public static partial class ProtocolSerializationExtensions
 
         public void WriteArray<T>(ReadOnlySpan<T> arr, int protocolVersion)
         {
-            WriteArray(arr, LengthFormat.VarInt, protocolVersion);
+            //WriteArray(arr, LengthFormat.VarInt, protocolVersion);
         }
 
         public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat, int protocolVersion)

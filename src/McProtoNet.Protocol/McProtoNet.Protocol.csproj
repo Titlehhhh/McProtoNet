@@ -24,13 +24,16 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Dunet" />
+        <PackageReference Include="Dunet"/>
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\McProtoNet.SourceGenerator\McProtoNet.SourceGenerator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Remove="Packets\**\*.cs" />
+    </ItemGroup>
 
 
 </Project>

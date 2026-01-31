@@ -18,111 +18,102 @@ public sealed partial class MapChunkPacket : IServerPacket
         new(764, MinecraftVersion.LatestProtocol),
     };
 
-    public VFirst_736Fields? VFirst_736 { get; set; }
-    public V751_754Fields? V751_754 { get; set; }
-    public V755_756Fields? V755_756 { get; set; }
-    public V757_762Fields? V757_762 { get; set; }
-    public V763Fields? V763 { get; set; }
-    public V764_LastFields? V764_Last { get; set; }
+    public int X { get; set; }
+    public int Z { get; set; }
+    public bool GroundUp { get; set; }
+    public bool IgnoreOldData { get; set; }
+    public int BitMap { get; set; }
+    public long[] BitMapLong { get; set; } = Array.Empty<long>();
+    public NbtTag Heightmaps { get; set; }
+    public int[] Biomes { get; set; } = Array.Empty<int>();
+    public byte[] ChunkData { get; set; } = Array.Empty<byte>();
+    public NbtTag[] BlockEntitiesOld { get; set; } = Array.Empty<NbtTag>();
+    public ChunkBlockEntity[] BlockEntities { get; set; } = Array.Empty<ChunkBlockEntity>();
+    public bool TrustEdges { get; set; }
+    public long[] SkyLightMask { get; set; } = Array.Empty<long>();
+    public long[] BlockLightMask { get; set; } = Array.Empty<long>();
+    public long[] EmptySkyLightMask { get; set; } = Array.Empty<long>();
+    public long[] EmptyBlockLightMask { get; set; } = Array.Empty<long>();
+    public byte[][] SkyLight { get; set; } = Array.Empty<byte[]>();
+    public byte[][] BlockLight { get; set; } = Array.Empty<byte[]>();
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 736:
-            {
-                var fields = VFirst_736 ?? throw new InvalidOperationException("MapChunk VFirst_736 fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteBoolean(fields.GroundUp);
-                writer.WriteBoolean(fields.IgnoreOldData);
-                writer.WriteVarInt(fields.BitMap);
-                writer.WriteNbtTag(fields.Heightmaps, protocolVersion);
-                if (fields.GroundUp)
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteBoolean(GroundUp);
+                writer.WriteBoolean(IgnoreOldData);
+                writer.WriteVarInt(BitMap);
+                writer.WriteNbtTag(Heightmaps, protocolVersion);
+                if (GroundUp)
                 {
-                    WriteFixedIntArray(ref writer, fields.Biomes, 1024);
+                    WriteFixedIntArray(ref writer, Biomes, 1024);
                 }
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteNbtArray(ref writer, fields.BlockEntities, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
                 return;
-            }
             case >= 751 and <= 754:
-            {
-                var fields = V751_754 ?? throw new InvalidOperationException("MapChunk V751_754 fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteBoolean(fields.GroundUp);
-                writer.WriteVarInt(fields.BitMap);
-                writer.WriteNbtTag(fields.Heightmaps, protocolVersion);
-                if (fields.GroundUp)
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteBoolean(GroundUp);
+                writer.WriteVarInt(BitMap);
+                writer.WriteNbtTag(Heightmaps, protocolVersion);
+                if (GroundUp)
                 {
-                    writer.WriteVarInt(fields.Biomes.Length);
-                    for (int i = 0; i < fields.Biomes.Length; i++)
+                    writer.WriteVarInt(Biomes.Length);
+                    for (int i = 0; i < Biomes.Length; i++)
                     {
-                        writer.WriteVarInt(fields.Biomes[i]);
+                        writer.WriteVarInt(Biomes[i]);
                     }
                 }
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteNbtArray(ref writer, fields.BlockEntities, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
                 return;
-            }
             case >= 755 and <= 756:
-            {
-                var fields = V755_756 ?? throw new InvalidOperationException("MapChunk V755_756 fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteVarInt(fields.BitMap.Length);
-                for (int i = 0; i < fields.BitMap.Length; i++)
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteVarInt(BitMapLong.Length);
+                for (int i = 0; i < BitMapLong.Length; i++)
                 {
-                    writer.WriteSignedLong(fields.BitMap[i]);
+                    writer.WriteSignedLong(BitMapLong[i]);
                 }
-                writer.WriteNbtTag(fields.Heightmaps, protocolVersion);
-                writer.WriteVarInt(fields.Biomes.Length);
-                for (int i = 0; i < fields.Biomes.Length; i++)
+                writer.WriteNbtTag(Heightmaps, protocolVersion);
+                writer.WriteVarInt(Biomes.Length);
+                for (int i = 0; i < Biomes.Length; i++)
                 {
-                    writer.WriteVarInt(fields.Biomes[i]);
+                    writer.WriteVarInt(Biomes[i]);
                 }
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteNbtArray(ref writer, fields.BlockEntities, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
                 return;
-            }
             case >= 757 and <= 762:
-            {
-                var fields = V757_762 ?? throw new InvalidOperationException("MapChunk V757_762 fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteNbtTag(fields.Heightmaps, protocolVersion);
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteChunkBlockEntities(ref writer, fields.BlockEntities, protocolVersion);
-                writer.WriteBoolean(fields.TrustEdges);
-                WriteLightArrays(ref writer, fields.SkyLightMask, fields.BlockLightMask, fields.EmptySkyLightMask,
-                    fields.EmptyBlockLightMask, fields.SkyLight, fields.BlockLight);
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteNbtTag(Heightmaps, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
+                writer.WriteBoolean(TrustEdges);
+                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
-            }
             case 763:
-            {
-                var fields = V763 ?? throw new InvalidOperationException("MapChunk V763 fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteNbtTag(fields.Heightmaps, protocolVersion);
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteChunkBlockEntities(ref writer, fields.BlockEntities, protocolVersion);
-                WriteLightArrays(ref writer, fields.SkyLightMask, fields.BlockLightMask, fields.EmptySkyLightMask,
-                    fields.EmptyBlockLightMask, fields.SkyLight, fields.BlockLight);
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteNbtTag(Heightmaps, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
+                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
-            }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
-            {
-                var fields = V764_Last ?? throw new InvalidOperationException("MapChunk V764_Last fields missing.");
-                writer.WriteSignedInt(fields.X);
-                writer.WriteSignedInt(fields.Z);
-                writer.WriteAnonymousNbtTag(fields.Heightmaps, protocolVersion);
-                writer.WriteBuffer<VarInt>(fields.ChunkData);
-                WriteChunkBlockEntities(ref writer, fields.BlockEntities, protocolVersion);
-                WriteLightArrays(ref writer, fields.SkyLightMask, fields.BlockLightMask, fields.EmptySkyLightMask,
-                    fields.EmptyBlockLightMask, fields.SkyLight, fields.BlockLight);
+                writer.WriteSignedInt(X);
+                writer.WriteSignedInt(Z);
+                writer.WriteAnonymousNbtTag(Heightmaps, protocolVersion);
+                writer.WriteBuffer<VarInt>(ChunkData);
+                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
+                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
-            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.MapChunk), protocolVersion, SupportedVersionsStatic);
                 return;
@@ -134,160 +125,128 @@ public sealed partial class MapChunkPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 736:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                bool groundUp = reader.ReadBoolean();
-                bool ignoreOldData = reader.ReadBoolean();
-                int bitMap = reader.ReadVarInt();
-                NbtTag heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                int[]? biomes = groundUp ? ReadFixedIntArray(ref reader, 1024) : null;
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                NbtTag[] blockEntities = ReadNbtArray(ref reader, protocolVersion);
-
-                VFirst_736 = new VFirst_736Fields
-                {
-                    X = x,
-                    Z = z,
-                    GroundUp = groundUp,
-                    IgnoreOldData = ignoreOldData,
-                    BitMap = bitMap,
-                    Heightmaps = heightmaps,
-                    Biomes = biomes ?? Array.Empty<int>(),
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                GroundUp = reader.ReadBoolean();
+                IgnoreOldData = reader.ReadBoolean();
+                BitMap = reader.ReadVarInt();
+                Heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                Biomes = GroundUp ? ReadFixedIntArray(ref reader, 1024) : Array.Empty<int>();
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntitiesOld = ReadNbtArray(ref reader, protocolVersion);
+                BlockEntities = Array.Empty<ChunkBlockEntity>();
+                TrustEdges = false;
+                SkyLightMask = Array.Empty<long>();
+                BlockLightMask = Array.Empty<long>();
+                EmptySkyLightMask = Array.Empty<long>();
+                EmptyBlockLightMask = Array.Empty<long>();
+                SkyLight = Array.Empty<byte[]>();
+                BlockLight = Array.Empty<byte[]>();
+                BitMapLong = Array.Empty<long>();
                 return;
-            }
             case >= 751 and <= 754:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                bool groundUp = reader.ReadBoolean();
-                int bitMap = reader.ReadVarInt();
-                NbtTag heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                int[] biomes = groundUp ? ReadVarIntArray(ref reader) : Array.Empty<int>();
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                NbtTag[] blockEntities = ReadNbtArray(ref reader, protocolVersion);
-
-                V751_754 = new V751_754Fields
-                {
-                    X = x,
-                    Z = z,
-                    GroundUp = groundUp,
-                    BitMap = bitMap,
-                    Heightmaps = heightmaps,
-                    Biomes = biomes,
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                GroundUp = reader.ReadBoolean();
+                BitMap = reader.ReadVarInt();
+                Heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                Biomes = GroundUp ? ReadVarIntArray(ref reader) : Array.Empty<int>();
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntitiesOld = ReadNbtArray(ref reader, protocolVersion);
+                BlockEntities = Array.Empty<ChunkBlockEntity>();
+                IgnoreOldData = false;
+                TrustEdges = false;
+                SkyLightMask = Array.Empty<long>();
+                BlockLightMask = Array.Empty<long>();
+                EmptySkyLightMask = Array.Empty<long>();
+                EmptyBlockLightMask = Array.Empty<long>();
+                SkyLight = Array.Empty<byte[]>();
+                BlockLight = Array.Empty<byte[]>();
+                BitMapLong = Array.Empty<long>();
                 return;
-            }
             case >= 755 and <= 756:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                long[] bitMap = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
-                NbtTag heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                int[] biomes = ReadVarIntArray(ref reader);
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                NbtTag[] blockEntities = ReadNbtArray(ref reader, protocolVersion);
-
-                V755_756 = new V755_756Fields
-                {
-                    X = x,
-                    Z = z,
-                    BitMap = bitMap,
-                    Heightmaps = heightmaps,
-                    Biomes = biomes,
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                BitMapLong = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
+                Heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                Biomes = ReadVarIntArray(ref reader);
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntitiesOld = ReadNbtArray(ref reader, protocolVersion);
+                BlockEntities = Array.Empty<ChunkBlockEntity>();
+                GroundUp = true;
+                IgnoreOldData = false;
+                BitMap = 0;
+                TrustEdges = false;
+                SkyLightMask = Array.Empty<long>();
+                BlockLightMask = Array.Empty<long>();
+                EmptySkyLightMask = Array.Empty<long>();
+                EmptyBlockLightMask = Array.Empty<long>();
+                SkyLight = Array.Empty<byte[]>();
+                BlockLight = Array.Empty<byte[]>();
                 return;
-            }
             case >= 757 and <= 762:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                NbtTag heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                ChunkBlockEntity[] blockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
-                bool trustEdges = reader.ReadBoolean();
-                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask,
-                    out long[] emptySkyLightMask, out long[] emptyBlockLightMask,
-                    out byte[][] skyLight, out byte[][] blockLight);
-
-                V757_762 = new V757_762Fields
-                {
-                    X = x,
-                    Z = z,
-                    Heightmaps = heightmaps,
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities,
-                    TrustEdges = trustEdges,
-                    SkyLightMask = skyLightMask,
-                    BlockLightMask = blockLightMask,
-                    EmptySkyLightMask = emptySkyLightMask,
-                    EmptyBlockLightMask = emptyBlockLightMask,
-                    SkyLight = skyLight,
-                    BlockLight = blockLight
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                Heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
+                TrustEdges = reader.ReadBoolean();
+                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask, out long[] emptySkyLightMask, out long[] emptyBlockLightMask, out byte[][] skyLight, out byte[][] blockLight);
+                SkyLightMask = skyLightMask;
+                BlockLightMask = blockLightMask;
+                EmptySkyLightMask = emptySkyLightMask;
+                EmptyBlockLightMask = emptyBlockLightMask;
+                SkyLight = skyLight;
+                BlockLight = blockLight;
+                GroundUp = true;
+                IgnoreOldData = false;
+                BitMap = 0;
+                Biomes = Array.Empty<int>();
+                BlockEntitiesOld = Array.Empty<NbtTag>();
+                BitMapLong = Array.Empty<long>();
                 return;
-            }
             case 763:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                NbtTag heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                ChunkBlockEntity[] blockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
-                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask,
-                    out long[] emptySkyLightMask, out long[] emptyBlockLightMask,
-                    out byte[][] skyLight, out byte[][] blockLight);
-
-                V763 = new V763Fields
-                {
-                    X = x,
-                    Z = z,
-                    Heightmaps = heightmaps,
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities,
-                    SkyLightMask = skyLightMask,
-                    BlockLightMask = blockLightMask,
-                    EmptySkyLightMask = emptySkyLightMask,
-                    EmptyBlockLightMask = emptyBlockLightMask,
-                    SkyLight = skyLight,
-                    BlockLight = blockLight
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                Heightmaps = reader.ReadNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
+                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask, out long[] emptySkyLightMask, out long[] emptyBlockLightMask, out byte[][] skyLight, out byte[][] blockLight);
+                SkyLightMask = skyLightMask;
+                BlockLightMask = blockLightMask;
+                EmptySkyLightMask = emptySkyLightMask;
+                EmptyBlockLightMask = emptyBlockLightMask;
+                SkyLight = skyLight;
+                BlockLight = blockLight;
+                GroundUp = true;
+                IgnoreOldData = false;
+                BitMap = 0;
+                Biomes = Array.Empty<int>();
+                BlockEntitiesOld = Array.Empty<NbtTag>();
+                TrustEdges = false;
+                BitMapLong = Array.Empty<long>();
                 return;
-            }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
-            {
-                int x = reader.ReadSignedInt();
-                int z = reader.ReadSignedInt();
-                NbtTag heightmaps = reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
-                byte[] chunkData = reader.ReadBuffer(LengthFormat.VarInt);
-                ChunkBlockEntity[] blockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
-                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask,
-                    out long[] emptySkyLightMask, out long[] emptyBlockLightMask,
-                    out byte[][] skyLight, out byte[][] blockLight);
-
-                V764_Last = new V764_LastFields
-                {
-                    X = x,
-                    Z = z,
-                    Heightmaps = heightmaps,
-                    ChunkData = chunkData,
-                    BlockEntities = blockEntities,
-                    SkyLightMask = skyLightMask,
-                    BlockLightMask = blockLightMask,
-                    EmptySkyLightMask = emptySkyLightMask,
-                    EmptyBlockLightMask = emptyBlockLightMask,
-                    SkyLight = skyLight,
-                    BlockLight = blockLight
-                };
+                X = reader.ReadSignedInt();
+                Z = reader.ReadSignedInt();
+                Heightmaps = reader.ReadAnonymousNbtTag(protocolVersion) ?? throw new InvalidOperationException("heightmaps missing");
+                ChunkData = reader.ReadBuffer(LengthFormat.VarInt);
+                BlockEntities = ReadChunkBlockEntities(ref reader, protocolVersion);
+                ReadLightArrays(ref reader, out long[] skyLightMask, out long[] blockLightMask, out long[] emptySkyLightMask, out long[] emptyBlockLightMask, out byte[][] skyLight, out byte[][] blockLight);
+                SkyLightMask = skyLightMask;
+                BlockLightMask = blockLightMask;
+                EmptySkyLightMask = emptySkyLightMask;
+                EmptyBlockLightMask = emptyBlockLightMask;
+                SkyLight = skyLight;
+                BlockLight = blockLight;
+                GroundUp = true;
+                IgnoreOldData = false;
+                BitMap = 0;
+                Biomes = Array.Empty<int>();
+                BlockEntitiesOld = Array.Empty<NbtTag>();
+                TrustEdges = false;
+                BitMapLong = Array.Empty<long>();
                 return;
-            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.MapChunk), protocolVersion, SupportedVersionsStatic);
                 return;
@@ -377,21 +336,13 @@ public sealed partial class MapChunkPacket : IServerPacket
             NbtTag? nbt = protocolVersion >= 764
                 ? reader.ReadAnonOptionalNbtTag(protocolVersion)
                 : reader.ReadOptionalNbtTag(protocolVersion);
-            entities[i] = new ChunkBlockEntity
-            {
-                X = x,
-                Z = z,
-                Y = y,
-                Type = type,
-                NbtData = nbt
-            };
+            entities[i] = new ChunkBlockEntity(x, z, y, type, nbt);
         }
 
         return entities;
     }
 
-    private static void WriteChunkBlockEntities(ref MinecraftPrimitiveWriter writer, ChunkBlockEntity[] entities,
-        int protocolVersion)
+    private static void WriteChunkBlockEntities(ref MinecraftPrimitiveWriter writer, ChunkBlockEntity[] entities, int protocolVersion)
     {
         writer.WriteVarInt(entities.Length);
         for (int i = 0; i < entities.Length; i++)
@@ -411,9 +362,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         }
     }
 
-    private static void ReadLightArrays(ref MinecraftPrimitiveReader reader, out long[] skyLightMask,
-        out long[] blockLightMask, out long[] emptySkyLightMask, out long[] emptyBlockLightMask,
-        out byte[][] skyLight, out byte[][] blockLight)
+    private static void ReadLightArrays(ref MinecraftPrimitiveReader reader, out long[] skyLightMask, out long[] blockLightMask, out long[] emptySkyLightMask, out long[] emptyBlockLightMask, out byte[][] skyLight, out byte[][] blockLight)
     {
         skyLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
         blockLightMask = reader.ReadArray<long, LongArrayReader>(LengthFormat.VarInt);
@@ -423,8 +372,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         blockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadArray<byte>(LengthFormat.VarInt));
     }
 
-    private static void WriteLightArrays(ref MinecraftPrimitiveWriter writer, long[] skyLightMask, long[] blockLightMask,
-        long[] emptySkyLightMask, long[] emptyBlockLightMask, byte[][] skyLight, byte[][] blockLight)
+    private static void WriteLightArrays(ref MinecraftPrimitiveWriter writer, long[] skyLightMask, long[] blockLightMask, long[] emptySkyLightMask, long[] emptyBlockLightMask, byte[][] skyLight, byte[][] blockLight)
     {
         writer.WriteVarInt(skyLightMask.Length);
         for (int i = 0; i < skyLightMask.Length; i++)
@@ -466,94 +414,5 @@ public sealed partial class MapChunkPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct VFirst_736Fields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public bool GroundUp { get; set; }
-        public bool IgnoreOldData { get; set; }
-        public int BitMap { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public int[] Biomes { get; set; }
-        public byte[] ChunkData { get; set; }
-        public NbtTag[] BlockEntities { get; set; }
-    }
 
-    public struct V751_754Fields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public bool GroundUp { get; set; }
-        public int BitMap { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public int[] Biomes { get; set; }
-        public byte[] ChunkData { get; set; }
-        public NbtTag[] BlockEntities { get; set; }
-    }
-
-    public struct V755_756Fields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public long[] BitMap { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public int[] Biomes { get; set; }
-        public byte[] ChunkData { get; set; }
-        public NbtTag[] BlockEntities { get; set; }
-    }
-
-    public struct V757_762Fields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public byte[] ChunkData { get; set; }
-        public ChunkBlockEntity[] BlockEntities { get; set; }
-        public bool TrustEdges { get; set; }
-        public long[] SkyLightMask { get; set; }
-        public long[] BlockLightMask { get; set; }
-        public long[] EmptySkyLightMask { get; set; }
-        public long[] EmptyBlockLightMask { get; set; }
-        public byte[][] SkyLight { get; set; }
-        public byte[][] BlockLight { get; set; }
-    }
-
-    public struct V763Fields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public byte[] ChunkData { get; set; }
-        public ChunkBlockEntity[] BlockEntities { get; set; }
-        public long[] SkyLightMask { get; set; }
-        public long[] BlockLightMask { get; set; }
-        public long[] EmptySkyLightMask { get; set; }
-        public long[] EmptyBlockLightMask { get; set; }
-        public byte[][] SkyLight { get; set; }
-        public byte[][] BlockLight { get; set; }
-    }
-
-    public struct V764_LastFields
-    {
-        public int X { get; set; }
-        public int Z { get; set; }
-        public NbtTag Heightmaps { get; set; }
-        public byte[] ChunkData { get; set; }
-        public ChunkBlockEntity[] BlockEntities { get; set; }
-        public long[] SkyLightMask { get; set; }
-        public long[] BlockLightMask { get; set; }
-        public long[] EmptySkyLightMask { get; set; }
-        public long[] EmptyBlockLightMask { get; set; }
-        public byte[][] SkyLight { get; set; }
-        public byte[][] BlockLight { get; set; }
-    }
-
-    public struct ChunkBlockEntity
-    {
-        public byte X { get; set; }
-        public byte Z { get; set; }
-        public short Y { get; set; }
-        public int Type { get; set; }
-        public NbtTag? NbtData { get; set; }
-    }
 }
