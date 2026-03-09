@@ -1,18 +1,21 @@
-# Claude Code Instructions
-
-## База знаний
-
-В начале каждой сессии читать файлы из `../mcprotonet-knowledge/`:
-
-- `DOMAIN.md` — предметная область, pipeline, Protodef формат
-- `STATUS.md` — текущий статус генерации (что сделано, что нет)
-- `PACKET_DESIGN.md` — правила дизайна пакетов и типов
-- `TRICKS.md` — баги, приколы, workarounds
-- `PROBLEMS.md` — известные проблемы и решения
+# Claude Code Instructions — McProtoNet
 
 ## Правила генерации пакетов и типов
 
-`ai/AGENTS_PACKETS.MD`
-`ai/AGENTS_TYPES.MD`
-`ai/README.md`
-`src/McProtoNet.Protocol/AGENTS_SERIALIZATION.MD`
+Читать перед любой работой с пакетами:
+
+- `ai/AGENTS_PACKETS.MD` — правила генерации пакетов
+- `ai/AGENTS_TYPES.MD` — правила генерации типов
+- `ai/README.md` — общий обзор
+- `src/McProtoNet.Protocol/AGENTS_SERIALIZATION.MD` — доступные методы сериализации
+
+## Структура проекта
+
+- `src/McProtoNet.Protocol/Packets/` — сгенерированные пакеты
+- `src/McProtoNet.Protocol/Types/` — мультиверсионные типы
+
+## Важно
+
+- Версии: `MinecraftVersion.StartProtocol` … `MinecraftVersion.LatestProtocol`
+- Никогда не хардкодить числовые значения этих констант
+- Пакеты: `partial`, `sealed`, атрибут `[PacketInfo]`, внутренние `Serialize`/`Deserialize`
