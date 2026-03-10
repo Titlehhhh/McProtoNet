@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace McProtoNet.SourceGenerator;
 
-[Generator]
+// [Generator] — отключён, заменён на PacketFactoryGenerator + VersionRangeGenerator
 public class PacketGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)

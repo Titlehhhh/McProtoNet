@@ -86,14 +86,15 @@ public sealed class VersionRangeGenerator : IIncrementalGenerator
         ProtocolTypeInfo type)
     {
         var symbol = type.Symbol;
-        var ns = symbol.ContainingNamespace.ToDisplayString();
         var name = symbol.Name;
 
         var sb = new StringBuilder();
+        sb.AppendLine("using McProtoNet.Protocol;");
+        sb.AppendLine();
 
-        if (!string.IsNullOrEmpty(ns))
+        if (!symbol.ContainingNamespace.IsGlobalNamespace)
         {
-            sb.AppendLine($"namespace {ns};");
+            sb.AppendLine($"namespace {symbol.ContainingNamespace.ToDisplayString()};");
             sb.AppendLine();
         }
 

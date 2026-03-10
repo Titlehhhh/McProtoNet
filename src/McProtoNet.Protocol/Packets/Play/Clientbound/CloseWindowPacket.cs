@@ -28,7 +28,7 @@ public sealed partial class CloseWindowPacket : IServerPacket
             case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V766_Last ?? throw new InvalidOperationException("CloseWindowPacket 766-last fields missing.");
-                writer.WriteType(fields.WindowId, protocolVersion);
+                writer.WriteVarInt(fields.WindowId);
                 return;
             }
             default:
@@ -46,7 +46,7 @@ public sealed partial class CloseWindowPacket : IServerPacket
                 V766_Last = null;
                 return;
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-                V766_Last = new V766_LastFields { WindowId = reader.ReadType<ContainerID>(protocolVersion) };
+                V766_Last = new V766_LastFields { WindowId = reader.ReadVarInt() };
                 VFirst_765 = null;
                 return;
             default:
@@ -71,6 +71,6 @@ public sealed partial class CloseWindowPacket : IServerPacket
 
     public struct V766_LastFields
     {
-        public ContainerID WindowId { get; set; }
+        public int WindowId { get; set; }
     }
 }

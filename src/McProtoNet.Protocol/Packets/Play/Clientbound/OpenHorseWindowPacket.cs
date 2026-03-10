@@ -41,7 +41,7 @@ public sealed partial class OpenHorseWindowPacket : IServerPacket
                 var fields = V766_Last ?? throw new InvalidOperationException("OpenHorseWindowPacket 766-last fields missing.");
                 writer.WriteVarInt(NbSlots);
                 writer.WriteSignedInt(EntityId);
-                writer.WriteType<ContainerID>(fields.WindowId, protocolVersion);
+                writer.WriteVarInt(fields.WindowId);
                 return;
             }
             default:
@@ -62,7 +62,7 @@ public sealed partial class OpenHorseWindowPacket : IServerPacket
                 V766_Last = null;
                 return;
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-                V766_Last = new V766_LastFields { WindowId = reader.ReadType<ContainerID>(protocolVersion) };
+                V766_Last = new V766_LastFields { WindowId = reader.ReadVarInt() };
                 VFirst_765 = null;
                 return;
             default:
@@ -78,5 +78,5 @@ public sealed partial class OpenHorseWindowPacket : IServerPacket
         => Deserialize(ref reader, protocolVersion);
 
     public struct VFirst_765Fields { public byte WindowId { get; set; } }
-    public struct V766_LastFields { public ContainerID WindowId { get; set; } }
+    public struct V766_LastFields { public int WindowId { get; set; } }
 }

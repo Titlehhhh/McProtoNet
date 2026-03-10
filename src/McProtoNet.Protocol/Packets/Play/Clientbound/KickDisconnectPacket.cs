@@ -1,3 +1,4 @@
+using McProtoNet.NBT;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
@@ -30,7 +31,7 @@ public sealed partial class KickDisconnectPacket : IServerPacket
             case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V765_Last ?? throw new InvalidOperationException("KickDisconnectPacket 765-last fields missing.");
-                writer.WriteAnonymousNbtTag(fields.Reason);
+                writer.WriteAnonymousNbtTag(fields.Reason, protocolVersion);
                 return;
             }
             default:
@@ -48,7 +49,7 @@ public sealed partial class KickDisconnectPacket : IServerPacket
                 V765_Last = null;
                 return;
             case >= 765 and <= MinecraftVersion.LatestProtocol:
-                V765_Last = new V765_LastFields { Reason = reader.ReadAnonymousNbtTag() };
+                V765_Last = new V765_LastFields { Reason = reader.ReadAnonymousNbtTag(protocolVersion) };
                 VFirst_764 = null;
                 return;
             default:

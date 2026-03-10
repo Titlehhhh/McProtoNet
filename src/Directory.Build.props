@@ -3,7 +3,6 @@
     <MSBuildEnableWorkloadResolver>false</MSBuildEnableWorkloadResolver>
     <UseSharedCompilation>false</UseSharedCompilation>
     <RestoreFallbackFolders></RestoreFallbackFolders>
-    <RestoreConfigFile>$(MSBuildThisFileDirectory)NuGet.config</RestoreConfigFile>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
 </Project>
