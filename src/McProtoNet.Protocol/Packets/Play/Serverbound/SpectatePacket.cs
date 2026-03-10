@@ -1,18 +1,21 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("Spectate", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x2C)]
+[PacketId(751, 758, 0x2D)]
+[PacketId(759, 759, 0x2F)]
+[PacketId(760, 763, 0x30)]
+[PacketId(764, 764, 0x33)]
+[PacketId(765, 765, 0x34)]
+[PacketId(766, 767, 0x37)]
+[PacketId(768, 768, 0x39)]
+[PacketId(769, 769, 0x3B)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x3D)]
 public sealed partial class SpectatePacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public Guid Target { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -23,7 +26,7 @@ public sealed partial class SpectatePacket : IClientPacket
                 writer.WriteUUID(Target);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Spectate), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SpectatePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -36,7 +39,7 @@ public sealed partial class SpectatePacket : IClientPacket
                 Target = reader.ReadUUID();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Spectate), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SpectatePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

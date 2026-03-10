@@ -1,18 +1,21 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("EntityStatus", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x1B)]
+[PacketId(751, 754, 0x1A)]
+[PacketId(755, 758, 0x1B)]
+[PacketId(759, 759, 0x18)]
+[PacketId(760, 760, 0x1A)]
+[PacketId(761, 761, 0x19)]
+[PacketId(762, 763, 0x1C)]
+[PacketId(764, 765, 0x1D)]
+[PacketId(766, 769, 0x1F)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x1E)]
 public sealed partial class EntityStatusPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public sbyte EntityStatus { get; set; }
 
@@ -25,7 +28,7 @@ public sealed partial class EntityStatusPacket : IServerPacket
                 writer.WriteSignedByte(EntityStatus);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityStatus), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityStatusPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -39,7 +42,7 @@ public sealed partial class EntityStatusPacket : IServerPacket
                 EntityStatus = reader.ReadSignedByte();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityStatus), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityStatusPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

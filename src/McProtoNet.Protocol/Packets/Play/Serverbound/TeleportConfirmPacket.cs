@@ -1,18 +1,13 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("TeleportConfirm", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x00)]
+[PacketId(751, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class TeleportConfirmPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public int TeleportId { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -23,7 +18,7 @@ public sealed partial class TeleportConfirmPacket : IClientPacket
                 writer.WriteVarInt(TeleportId);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.TeleportConfirm), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(TeleportConfirmPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -36,7 +31,7 @@ public sealed partial class TeleportConfirmPacket : IClientPacket
                 TeleportId = reader.ReadVarInt();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.TeleportConfirm), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(TeleportConfirmPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

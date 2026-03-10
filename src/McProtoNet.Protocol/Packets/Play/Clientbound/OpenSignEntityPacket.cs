@@ -1,21 +1,24 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("OpenSignEntity", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 762)]
+[ProtocolSupport(763, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x2F)]
+[PacketId(751, 754, 0x2E)]
+[PacketId(755, 758, 0x2F)]
+[PacketId(759, 759, 0x2C)]
+[PacketId(760, 760, 0x2E)]
+[PacketId(761, 761, 0x2D)]
+[PacketId(762, 763, 0x31)]
+[PacketId(764, 765, 0x32)]
+[PacketId(766, 767, 0x34)]
+[PacketId(768, 769, 0x36)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x35)]
 public sealed partial class OpenSignEntityPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 762),
-        new(763, MinecraftVersion.LatestProtocol),
-    };
-
     public Position Location { get; set; }
-
     public V763_LastFields? V763_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -23,19 +26,17 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 762:
-            {
-                writer.WritePosition(Location, protocolVersion);
+                writer.WriteType(Location, protocolVersion);
                 return;
-            }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V763_Last ?? throw new InvalidOperationException("OpenSignEntity V763_Last fields missing.");
-                writer.WritePosition(Location, protocolVersion);
+                var fields = V763_Last ?? throw new InvalidOperationException("OpenSignEntityPacket 763-last fields missing.");
+                writer.WriteType(Location, protocolVersion);
                 writer.WriteBoolean(fields.IsFrontText);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenSignEntity), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenSignEntityPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -45,20 +46,15 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 762:
-            {
-                Location = reader.ReadPosition(protocolVersion);
+                Location = reader.ReadType<Position>(protocolVersion);
+                V763_Last = null;
                 return;
-            }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
-            {
-                var fields = new V763_LastFields();
-                Location = reader.ReadPosition(protocolVersion);
-                fields.IsFrontText = reader.ReadBoolean();
-                V763_Last = fields;
+                Location = reader.ReadType<Position>(protocolVersion);
+                V763_Last = new V763_LastFields { IsFrontText = reader.ReadBoolean() };
                 return;
-            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenSignEntity), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenSignEntityPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -73,5 +69,4 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
     {
         public bool IsFrontText { get; set; }
     }
-
 }

@@ -1,18 +1,18 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("BlockAction", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x0A)]
+[PacketId(751, 754, 0x0A)]
+[PacketId(755, 758, 0x0B)]
+[PacketId(759, 761, 0x08)]
+[PacketId(762, 763, 0x09)]
+[PacketId(764, 769, 0x08)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x07)]
 public sealed partial class BlockActionPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public Position Location { get; set; }
     public byte Byte1 { get; set; }
     public byte Byte2 { get; set; }
@@ -23,13 +23,15 @@ public sealed partial class BlockActionPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WritePosition(Location, protocolVersion);
+            {
+                writer.WriteType(Location, protocolVersion);
                 writer.WriteUnsignedByte(Byte1);
                 writer.WriteUnsignedByte(Byte2);
                 writer.WriteVarInt(BlockId);
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.BlockAction), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockActionPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -39,13 +41,15 @@ public sealed partial class BlockActionPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Location = reader.ReadPosition(protocolVersion);
+            {
+                Location = reader.ReadType<Position>(protocolVersion);
                 Byte1 = reader.ReadUnsignedByte();
                 Byte2 = reader.ReadUnsignedByte();
                 BlockId = reader.ReadVarInt();
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.BlockAction), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockActionPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

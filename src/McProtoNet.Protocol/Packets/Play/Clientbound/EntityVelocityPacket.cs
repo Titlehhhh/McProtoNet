@@ -1,18 +1,22 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("EntityVelocity", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x46)]
+[PacketId(751, 754, 0x46)]
+[PacketId(755, 759, 0x4F)]
+[PacketId(760, 760, 0x52)]
+[PacketId(761, 761, 0x50)]
+[PacketId(762, 763, 0x54)]
+[PacketId(764, 764, 0x56)]
+[PacketId(765, 765, 0x58)]
+[PacketId(766, 767, 0x5A)]
+[PacketId(768, 769, 0x5F)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x5E)]
 public sealed partial class EntityVelocityPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public short VelocityX { get; set; }
     public short VelocityY { get; set; }
@@ -23,13 +27,15 @@ public sealed partial class EntityVelocityPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            {
                 writer.WriteVarInt(EntityId);
                 writer.WriteSignedShort(VelocityX);
                 writer.WriteSignedShort(VelocityY);
                 writer.WriteSignedShort(VelocityZ);
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityVelocity), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityVelocityPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -45,7 +51,7 @@ public sealed partial class EntityVelocityPacket : IServerPacket
                 VelocityZ = reader.ReadSignedShort();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityVelocity), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityVelocityPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

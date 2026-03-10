@@ -1,18 +1,18 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("BlockBreakAnimation", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x08)]
+[PacketId(751, 754, 0x08)]
+[PacketId(755, 758, 0x09)]
+[PacketId(759, 761, 0x06)]
+[PacketId(762, 763, 0x07)]
+[PacketId(764, 769, 0x06)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x05)]
 public sealed partial class BlockBreakAnimationPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public Position Location { get; set; }
     public sbyte DestroyStage { get; set; }
@@ -23,11 +23,11 @@ public sealed partial class BlockBreakAnimationPacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 writer.WriteVarInt(EntityId);
-                writer.WritePosition(Location, protocolVersion);
+                writer.WriteType(Location, protocolVersion);
                 writer.WriteSignedByte(DestroyStage);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.BlockBreakAnimation), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockBreakAnimationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -38,11 +38,11 @@ public sealed partial class BlockBreakAnimationPacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 EntityId = reader.ReadVarInt();
-                Location = reader.ReadPosition(protocolVersion);
+                Location = reader.ReadType<Position>(protocolVersion);
                 DestroyStage = reader.ReadSignedByte();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.BlockBreakAnimation), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockBreakAnimationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

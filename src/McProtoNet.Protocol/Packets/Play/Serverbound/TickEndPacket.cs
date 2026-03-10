@@ -1,24 +1,23 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound;
-
 [PacketInfo("TickEnd", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, 770, 0x0B)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x0C)]
 public sealed partial class TickEndPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol)
-    };
-
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                return;
             case >= 768 and <= MinecraftVersion.LatestProtocol:
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.TickEnd), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(TickEndPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -27,10 +26,12 @@ public sealed partial class TickEndPacket : IClientPacket
     {
         switch (protocolVersion)
         {
+            case >= MinecraftVersion.StartProtocol and <= 767:
+                return;
             case >= 768 and <= MinecraftVersion.LatestProtocol:
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.TickEnd), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(TickEndPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

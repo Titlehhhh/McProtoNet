@@ -1,29 +1,33 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("PingRequest", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 764, 0x1D)]
+[PacketId(765, 765, 0x1E)]
+[PacketId(766, 767, 0x21)]
+[PacketId(768, 768, 0x23)]
+[PacketId(769, 770, 0x24)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x25)]
 public sealed partial class PingRequestPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol)
-    };
-
-    public long Id { get; set; }
+    public V764_LastFields? V764_Last { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedLong(Id);
+            case >= MinecraftVersion.StartProtocol and <= 763:
                 return;
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V764_Last ?? throw new InvalidOperationException("PingRequestPacket 764-last fields missing.");
+                writer.WriteSignedLong(fields.Id);
+                return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PingRequest), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(PingRequestPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -32,11 +36,13 @@ public sealed partial class PingRequestPacket : IClientPacket
     {
         switch (protocolVersion)
         {
+            case >= MinecraftVersion.StartProtocol and <= 763:
+                return;
             case >= 764 and <= MinecraftVersion.LatestProtocol:
-                Id = reader.ReadSignedLong();
+                V764_Last = new V764_LastFields { Id = reader.ReadSignedLong() };
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PingRequest), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(PingRequestPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -46,4 +52,9 @@ public sealed partial class PingRequestPacket : IClientPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
+    public struct V764_LastFields
+    {
+        public long Id { get; set; }
+    }
 }

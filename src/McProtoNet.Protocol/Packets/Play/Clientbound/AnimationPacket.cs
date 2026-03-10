@@ -1,18 +1,18 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("Animation", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x05)]
+[PacketId(751, 754, 0x05)]
+[PacketId(755, 758, 0x06)]
+[PacketId(759, 761, 0x03)]
+[PacketId(762, 763, 0x04)]
+[PacketId(764, 769, 0x03)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x02)]
 public sealed partial class AnimationPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public byte Animation { get; set; }
 
@@ -25,7 +25,7 @@ public sealed partial class AnimationPacket : IServerPacket
                 writer.WriteUnsignedByte(Animation);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Animation), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(AnimationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -39,7 +39,7 @@ public sealed partial class AnimationPacket : IServerPacket
                 Animation = reader.ReadUnsignedByte();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Animation), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(AnimationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

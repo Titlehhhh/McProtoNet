@@ -1,18 +1,24 @@
-using System;
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound;
-
 [PacketInfo("Look", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 767)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x14)]
+[PacketId(751, 754, 0x14)]
+[PacketId(755, 758, 0x13)]
+[PacketId(759, 759, 0x15)]
+[PacketId(760, 760, 0x16)]
+[PacketId(761, 761, 0x15)]
+[PacketId(762, 763, 0x16)]
+[PacketId(764, 764, 0x18)]
+[PacketId(765, 765, 0x19)]
+[PacketId(766, 767, 0x1C)]
+[PacketId(768, 770, 0x1E)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x1F)]
 public sealed partial class LookPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 767),
-        new(768, MinecraftVersion.LatestProtocol)
-    };
-
     public float Yaw { get; set; }
     public float Pitch { get; set; }
 
@@ -24,23 +30,23 @@ public sealed partial class LookPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
-            {
-                var fields = VFirst_767 ?? throw new InvalidOperationException("Look VFirst_767 fields missing.");
                 writer.WriteFloat(Yaw);
                 writer.WriteFloat(Pitch);
-                writer.WriteBoolean(fields.OnGround);
+                {
+                    var fields = VFirst_767 ?? throw new InvalidOperationException("LookPacket first-767 fields missing.");
+                    writer.WriteBoolean(fields.OnGround);
+                }
                 return;
-            }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
-            {
-                var fields = V768_Last ?? throw new InvalidOperationException("Look V768_Last fields missing.");
                 writer.WriteFloat(Yaw);
                 writer.WriteFloat(Pitch);
-                writer.WriteUnsignedByte(fields.Flags);
+                {
+                    var fields = V768_Last ?? throw new InvalidOperationException("LookPacket 768-last fields missing.");
+                    writer.WriteType<MovementFlags>(fields.Flags, protocolVersion);
+                }
                 return;
-            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Look), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(LookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -52,23 +58,17 @@ public sealed partial class LookPacket : IClientPacket
             case >= MinecraftVersion.StartProtocol and <= 767:
                 Yaw = reader.ReadFloat();
                 Pitch = reader.ReadFloat();
-                VFirst_767 = new VFirst_767Fields
-                {
-                    OnGround = reader.ReadBoolean()
-                };
+                VFirst_767 = new VFirst_767Fields { OnGround = reader.ReadBoolean() };
                 V768_Last = null;
                 return;
             case >= 768 and <= MinecraftVersion.LatestProtocol:
                 Yaw = reader.ReadFloat();
                 Pitch = reader.ReadFloat();
-                V768_Last = new V768_LastFields
-                {
-                    Flags = reader.ReadUnsignedByte()
-                };
+                V768_Last = new V768_LastFields { Flags = reader.ReadType<MovementFlags>(protocolVersion) };
                 VFirst_767 = null;
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Look), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(LookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -86,6 +86,6 @@ public sealed partial class LookPacket : IClientPacket
 
     public struct V768_LastFields
     {
-        public byte Flags { get; set; }
+        public MovementFlags Flags { get; set; }
     }
 }

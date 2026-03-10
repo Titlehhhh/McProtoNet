@@ -1,18 +1,23 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("OpenBook", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x2D)]
+[PacketId(751, 754, 0x2C)]
+[PacketId(755, 758, 0x2D)]
+[PacketId(759, 759, 0x2A)]
+[PacketId(760, 760, 0x2C)]
+[PacketId(761, 761, 0x2B)]
+[PacketId(762, 763, 0x2F)]
+[PacketId(764, 765, 0x30)]
+[PacketId(766, 767, 0x32)]
+[PacketId(768, 769, 0x34)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x33)]
 public sealed partial class OpenBookPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
+    public Slot Container { get; set; }
     public int Hand { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -20,10 +25,11 @@ public sealed partial class OpenBookPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteType(Container, protocolVersion);
                 writer.WriteVarInt(Hand);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenBook), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenBookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -33,10 +39,11 @@ public sealed partial class OpenBookPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Container = reader.ReadType<Slot>(protocolVersion);
                 Hand = reader.ReadVarInt();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenBook), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenBookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

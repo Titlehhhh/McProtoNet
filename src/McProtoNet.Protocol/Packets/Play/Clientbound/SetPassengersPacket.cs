@@ -1,18 +1,22 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
-namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("SetPassengers", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x4B)]
+[PacketId(751, 754, 0x4B)]
+[PacketId(755, 759, 0x54)]
+[PacketId(760, 760, 0x57)]
+[PacketId(761, 761, 0x55)]
+[PacketId(762, 763, 0x59)]
+[PacketId(764, 764, 0x5B)]
+[PacketId(765, 765, 0x5D)]
+[PacketId(766, 767, 0x5F)]
+[PacketId(768, 769, 0x65)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x64)]
 public sealed partial class SetPassengersPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public int[] Passengers { get; set; }
 
@@ -22,14 +26,10 @@ public sealed partial class SetPassengersPacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 writer.WriteVarInt(EntityId);
-                writer.WriteVarInt(Passengers.Length);
-                for (int i = 0; i < Passengers.Length; i++)
-                {
-                    writer.WriteVarInt(Passengers[i]);
-                }
+                writer.WriteArray(Passengers, LengthFormat.VarInt);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetPassengers), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetPassengersPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -40,10 +40,10 @@ public sealed partial class SetPassengersPacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 EntityId = reader.ReadVarInt();
-                Passengers = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
+                Passengers = reader.ReadArray<int>(LengthFormat.VarInt);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetPassengers), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetPassengersPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
