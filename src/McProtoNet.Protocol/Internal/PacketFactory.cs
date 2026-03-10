@@ -1,23 +1,11 @@
-using System.Collections.Frozen;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-
 namespace McProtoNet.Protocol;
 
 public static class PacketFactory
 {
-    internal static void Init()
+    public static IPacket? Create(int hexId, int protocolVersion, PacketState state, PacketDirection direction)
     {
-    }
-
-    static PacketFactory()
-    {
-        
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static long Combine(int a, int b)
-    {
-        return (long)a << 32 | (uint)b;
+        if (PacketIdHelper.TryGetFactory(hexId, protocolVersion, state, direction, out var factory))
+            return factory!();
+        return null;
     }
 }

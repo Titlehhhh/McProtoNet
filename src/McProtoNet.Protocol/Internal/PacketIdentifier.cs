@@ -10,7 +10,7 @@ public sealed class PacketIdentifier
     public readonly PacketState State;
     public readonly PacketDirection Direction;
 
-    internal PacketIdentifier(int order, string name, PacketState state, PacketDirection direction)
+    public PacketIdentifier(int order, string name, PacketState state, PacketDirection direction)
     {
         Order = order;
         Name = name;
