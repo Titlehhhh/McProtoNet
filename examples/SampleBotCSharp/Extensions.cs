@@ -1,4 +1,4 @@
-﻿// using McProtoNet.Abstractions;
+// using McProtoNet.Abstractions;
 // using McProtoNet.Cryptography;
 // using McProtoNet.Protocol;
 // using McProtoNet.Protocol.Packets.Handshaking.Serverbound;

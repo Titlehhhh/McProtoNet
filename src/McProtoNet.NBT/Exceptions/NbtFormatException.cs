@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.NBT;
+namespace McProtoNet.NBT;
 
 /// <summary>
 ///     Exception thrown when a format violation is detected while

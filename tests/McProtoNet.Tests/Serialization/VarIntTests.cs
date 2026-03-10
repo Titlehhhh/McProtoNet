@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Diagnostics;
 using DotNext.Buffers;
 using McProtoNet.Serialization;

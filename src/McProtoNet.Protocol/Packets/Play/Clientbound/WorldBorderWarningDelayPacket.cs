@@ -3,22 +3,47 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("WorldBorderWarningDelay", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class WorldBorderWarningDelayPacket : IServerPacket
 {
-    [PacketInfo("WorldBorderWarningDelay", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class WorldBorderWarningDelayPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int WarningTime { get; set; }
+        new(755, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(755, 769)]
-        public sealed partial class V755_769 : WorldBorderWarningDelayPacket
+    public int WarningTime { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                WarningTime = reader.ReadVarInt();
-            }
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(WarningTime);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningDelay), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                WarningTime = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningDelay), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

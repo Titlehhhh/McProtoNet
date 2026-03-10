@@ -1,4 +1,4 @@
-﻿module SimpleBot
+module SimpleBot
 
 
 printfn "asd"

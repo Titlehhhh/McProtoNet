@@ -121,7 +121,7 @@ public static partial class ProtocolSerializationExtensions
                 else
                 {
                     writer.WriteBoolean(true);
-                    writer.WritePosition(data.Value, protocolVersion);
+                    writer.WritePosition(data.Value.Value, protocolVersion);
                 }
                 break;
             case "direction" when value.Value is EntityMetadataValue.Direction data:

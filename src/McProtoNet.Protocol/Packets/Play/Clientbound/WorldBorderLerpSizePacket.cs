@@ -1,42 +1,91 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("WorldBorderLerpSize", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class WorldBorderLerpSizePacket : IServerPacket
 {
-    [PacketInfo("WorldBorderLerpSize", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class WorldBorderLerpSizePacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public double OldDiameter { get; set; }
-        public double NewDiameter { get; set; }
+        new(755, 758),
+        new(759, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(755, 758)]
-        public sealed partial class V755_758 : WorldBorderLerpSizePacket
+    public double OldDiameter { get; set; }
+    public double NewDiameter { get; set; }
+
+    public VFirst_758Fields? VFirst_758 { get; set; }
+    public V759_LastFields? V759_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 755 and <= 758:
             {
+                var fields = VFirst_758 ?? throw new InvalidOperationException("WorldBorderLerpSize VFirst_758 missing.");
+                writer.WriteDouble(OldDiameter);
+                writer.WriteDouble(NewDiameter);
+                writer.WriteVarLong(fields.Speed);
+                return;
+            }
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V759_Last ?? throw new InvalidOperationException("WorldBorderLerpSize V759_Last missing.");
+                writer.WriteDouble(OldDiameter);
+                writer.WriteDouble(NewDiameter);
+                writer.WriteVarInt(fields.Speed);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderLerpSize), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 755 and <= 758:
+            {
+                var fields = new VFirst_758Fields();
                 OldDiameter = reader.ReadDouble();
                 NewDiameter = reader.ReadDouble();
-                Speed = reader.ReadVarLong();
+                fields.Speed = reader.ReadVarLong();
+                VFirst_758 = fields;
+                return;
             }
-
-            public long Speed { get; set; }
-        }
-
-        [PacketSubInfo(759, 769)]
-        public sealed partial class V759_769 : WorldBorderLerpSizePacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
+                var fields = new V759_LastFields();
                 OldDiameter = reader.ReadDouble();
                 NewDiameter = reader.ReadDouble();
-                Speed = reader.ReadVarInt();
+                fields.Speed = reader.ReadVarInt();
+                V759_Last = fields;
+                return;
             }
-
-            public int Speed { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderLerpSize), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_758Fields
+    {
+        public long Speed { get; set; }
+    }
+
+    public struct V759_LastFields
+    {
+        public int Speed { get; set; }
     }
 }

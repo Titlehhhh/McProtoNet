@@ -1,66 +1,59 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
-using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol;
+using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("ChatSessionUpdate", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class ChatSessionUpdatePacket : IClientPacket
 {
-    [PacketInfo("ChatSessionUpdate", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class ChatSessionUpdatePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Guid SessionUUID { get; set; }
-        public long ExpireTime { get; set; }
-        public byte[] PublicKey { get; set; }
-        public byte[] Signature { get; set; }
+        new(761, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(761, 765)]
-        public sealed partial class V761_765 : ChatSessionUpdatePacket
+    public Guid SessionUUID { get; set; }
+    public long ExpireTime { get; set; }
+    public byte[] PublicKey { get; set; } = Array.Empty<byte>();
+    public byte[] Signature { get; set; } = Array.Empty<byte>();
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
-            {
-                writer.WriteUUID(sessionUUID);
-                writer.WriteSignedLong(expireTime);
-                writer.WriteVarInt(publicKey.Length);
-                writer.WriteBuffer(publicKey);
-                writer.WriteVarInt(signature.Length);
-                writer.WriteBuffer(signature);
-            }
-        }
-
-        [PacketSubInfo(766, 769)]
-        public sealed partial class V766_769 : ChatSessionUpdatePacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Guid sessionUUID, long expireTime, byte[] publicKey, byte[] signature)
-            {
-                writer.WriteUUID(sessionUUID);
-                writer.WriteSignedLong(expireTime);
-                writer.WriteVarInt(publicKey.Length);
-                writer.WriteBuffer(publicKey);
-                writer.WriteVarInt(signature.Length);
-                writer.WriteBuffer(signature);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V761_765.IsSupportedVersionStatic(protocolVersion))
-                V761_765.SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
-            else if (V766_769.IsSupportedVersionStatic(protocolVersion))
-                V766_769.SerializeInternal(ref writer, protocolVersion, SessionUUID, ExpireTime, PublicKey, Signature);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.ChatSessionUpdate), protocolVersion);
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteUUID(SessionUUID);
+                writer.WriteSignedLong(ExpireTime);
+                writer.WriteVarInt(PublicKey.Length);
+                writer.WriteBuffer(PublicKey);
+                writer.WriteVarInt(Signature.Length);
+                writer.WriteBuffer(Signature);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatSessionUpdate), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+                SessionUUID = reader.ReadUUID();
+                ExpireTime = reader.ReadSignedLong();
+                PublicKey = reader.ReadBuffer(reader.ReadVarInt());
+                Signature = reader.ReadBuffer(reader.ReadVarInt());
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatSessionUpdate), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

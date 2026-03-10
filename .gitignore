@@ -291,6 +291,9 @@ FakesAssemblies/
 # Node.js Tools for Visual Studio
 .ntvs_analysis.dat
 node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
 
 # Visual Studio 6 build log
 *.plg
@@ -368,3 +371,9 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Claude Code
+.claude/
+
+# Session files
+session-*.md

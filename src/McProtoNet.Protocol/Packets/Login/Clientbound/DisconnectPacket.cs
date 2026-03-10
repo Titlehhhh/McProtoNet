@@ -1,22 +1,44 @@
-using McProtoNet.Protocol;
 using McProtoNet.Serialization;
-
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("Disconnect", PacketState.Login, PacketDirection.Clientbound)]
-public abstract partial class DisconnectPacket : IServerPacket
+public sealed partial class DisconnectPacket : IServerPacket
 {
-    public string Reason { get; set; }
-
-    [PacketSubInfo(340, 769)]
-    internal sealed partial class V340_769 : DisconnectPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
+
+    public string Reason { get; set; } = string.Empty;
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            Reason = reader.ReadString();
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteString(Reason);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
         }
     }
 
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Reason = reader.ReadString();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Disconnect), protocolVersion, SupportedVersionsStatic);
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

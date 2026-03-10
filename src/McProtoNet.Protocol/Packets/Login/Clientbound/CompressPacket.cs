@@ -1,22 +1,44 @@
 using McProtoNet.Serialization;
-using McProtoNet.Protocol;
 
-namespace McProtoNet.Protocol.Packets.Login.Clientbound
+namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+
+[PacketInfo("Compress", PacketState.Login, PacketDirection.Clientbound)]
+public sealed partial class CompressPacket : IServerPacket
 {
-    [PacketInfo("Compress", PacketState.Login, PacketDirection.Clientbound)]
-    public abstract partial class CompressPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Threshold { get; set; }
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 769)]
-        public sealed partial class V340_769 : CompressPacket
+    public int Threshold { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Threshold = reader.ReadVarInt();
-            }
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(Threshold);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Compress), protocolVersion, SupportedVersionsStatic);
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Threshold = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Compress), protocolVersion, SupportedVersionsStatic);
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

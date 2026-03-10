@@ -1,39 +1,54 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("Chat", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class ChatPacket : IServerPacket
 {
-    [PacketInfo("Chat", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class ChatPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public string Message { get; set; }
-        public sbyte Position { get; set; }
+        new(MinecraftVersion.StartProtocol, 758)
+    };
 
-        [PacketSubInfo(340, 710)]
-        public sealed partial class V340_710 : ChatPacket
+    public string Message { get; set; } = string.Empty;
+    public sbyte Position { get; set; }
+    public Guid Sender { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Message = reader.ReadString();
-                Position = reader.ReadSignedByte();
-            }
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                writer.WriteString(Message);
+                writer.WriteSignedByte(Position);
+                writer.WriteUUID(Sender);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Chat), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(734, 758)]
-        public sealed partial class V734_758 : ChatPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
+            case >= MinecraftVersion.StartProtocol and <= 758:
                 Message = reader.ReadString();
                 Position = reader.ReadSignedByte();
                 Sender = reader.ReadUUID();
-            }
-
-            public Guid Sender { get; set; }
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Chat), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

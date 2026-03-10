@@ -1,4 +1,7 @@
-﻿namespace McProtoNet.Protocol;
+using System.Collections.Generic;
+using System.Reflection;
+
+namespace McProtoNet.Protocol;
 
 /// <summary>
 /// Represents Minecraft versions with their corresponding protocol numbers
@@ -142,7 +145,26 @@ public readonly struct MinecraftVersion :
     public static MinecraftVersion StartVersion => V1_16_4_To_1_16_5;
     public static MinecraftVersion Latest => V1_21_7_To_1_21_8;
 
+    public static IReadOnlyList<MinecraftVersion> AllVersions { get; } = BuildKnownVersions();
+
     #endregion
+
+    private static MinecraftVersion[] BuildKnownVersions()
+    {
+        var fields = typeof(MinecraftVersion).GetFields(BindingFlags.Public | BindingFlags.Static);
+        var versions = new List<MinecraftVersion>(fields.Length);
+
+        foreach (var field in fields)
+        {
+            if (field.FieldType == typeof(MinecraftVersion))
+            {
+                versions.Add((MinecraftVersion)field.GetValue(null)!);
+            }
+        }
+
+        versions.Sort((left, right) => left.Protocol.CompareTo(right.Protocol));
+        return versions.ToArray();
+    }
 
     public static MinecraftVersion FromProtocol(int protocol)
     {

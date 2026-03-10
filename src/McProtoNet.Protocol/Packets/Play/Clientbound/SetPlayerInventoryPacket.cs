@@ -1,26 +1,68 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("SetPlayerInventory", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class SetPlayerInventoryPacket : IServerPacket
 {
-    [PacketInfo("SetPlayerInventory", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class SetPlayerInventoryPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int SlotId { get; set; }
-        public Slot? Contents { get; set; }
+        new(768, 768),
+        new(769, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : SetPlayerInventoryPacket
+    public int SlotId { get; set; }
+    public Slot? Contents { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                SlotId = reader.ReadVarInt();
-                Contents = reader.ReadOptional((ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
-            }
+            case 768:
+                writer.WriteVarInt(SlotId);
+                if (Contents is null)
+                {
+                    writer.WriteBoolean(false);
+                }
+                else
+                {
+                    writer.WriteBoolean(true);
+                    writer.WriteSlot(Contents.Value, protocolVersion);
+                }
+                return;
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(SlotId);
+                writer.WriteSlot(Contents ?? throw new InvalidOperationException("SetPlayerInventory Contents missing."), protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetPlayerInventory), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case 768:
+                SlotId = reader.ReadVarInt();
+                Contents = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadSlot(protocolVersion));
+                return;
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+                SlotId = reader.ReadVarInt();
+                Contents = reader.ReadSlot(protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetPlayerInventory), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

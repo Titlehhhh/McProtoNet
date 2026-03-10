@@ -3,22 +3,51 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("PlayerRemove", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class PlayerRemovePacket : IServerPacket
 {
-    [PacketInfo("PlayerRemove", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class PlayerRemovePacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Guid[] Players { get; set; }
+        new(761, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(761, 769)]
-        public sealed partial class V761_769 : PlayerRemovePacket
+    public Guid[] Players { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                Players = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r_0) => r_0.ReadUUID());
-            }
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(Players.Length);
+                for (int i = 0; i < Players.Length; i++)
+                {
+                    writer.WriteUUID(Players[i]);
+                }
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PlayerRemove), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+                Players = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadUUID());
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PlayerRemove), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

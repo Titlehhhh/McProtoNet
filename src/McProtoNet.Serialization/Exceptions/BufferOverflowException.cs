@@ -1,4 +1,4 @@
-﻿
+
 namespace McProtoNet.Serialization;
 
 public class BufferOverflowException : Exception

@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Protocol;
+namespace McProtoNet.Protocol;
 /// <summary>
 /// Exception thrown when a packet fails to serialize
 /// </summary>

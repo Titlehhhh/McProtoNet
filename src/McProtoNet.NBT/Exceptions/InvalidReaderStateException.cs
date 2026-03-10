@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.NBT;
+namespace McProtoNet.NBT;
 
 /// <summary>
 ///     Exception thrown when an operation is attempted on an NbtReader that

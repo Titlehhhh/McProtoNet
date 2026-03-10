@@ -1,20 +1,45 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("Ping", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class PingPacket : IServerPacket
+public sealed partial class PingPacket : IServerPacket
 {
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : PingPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Id { get; set; }
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+    public int Id { get; set; }
 
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            Id = reader.ReadSignedInt();
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedInt(Id);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                Id = reader.ReadSignedInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

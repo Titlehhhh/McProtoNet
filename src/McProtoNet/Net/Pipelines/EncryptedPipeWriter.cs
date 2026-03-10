@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using System.Diagnostics;
 using System.IO.Pipelines;
 using Org.BouncyCastle.Crypto;

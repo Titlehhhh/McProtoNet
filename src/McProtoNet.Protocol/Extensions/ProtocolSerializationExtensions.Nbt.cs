@@ -1,4 +1,4 @@
-﻿using McProtoNet.NBT;
+using McProtoNet.NBT;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Extensions;

@@ -1,2 +1,0 @@
-﻿startVersion=735
-latestVersion=772

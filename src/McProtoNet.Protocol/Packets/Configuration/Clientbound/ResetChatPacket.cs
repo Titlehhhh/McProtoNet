@@ -1,17 +1,41 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("ResetChat", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class ResetChatPacket : IServerPacket
+public sealed partial class ResetChatPacket : IServerPacket
 {
-    [PacketSubInfo(766, 769)]
-    public sealed partial class V766_769 : ResetChatPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        new(766, MinecraftVersion.LatestProtocol)
+    };
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ResetChat), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ResetChat), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

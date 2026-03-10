@@ -1,54 +1,69 @@
-﻿using McProtoNet.Serialization;
+using System;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("ResourcePackReceive", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class ResourcePackReceivePacket : IClientPacket
+public sealed partial class ResourcePackReceivePacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(764, 764),
+        new(765, MinecraftVersion.LatestProtocol)
+    };
+
     public int Result { get; set; }
+    public V765_LastFields? V765_Last { get; set; }
 
-    public Guid Uuid { get; set; }
-
-    [PacketSubInfo(764, 764)]
-    public sealed partial class V764 : ResourcePackReceivePacket
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Result);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int result)
-        {
-            writer.WriteVarInt(result);
+            case 764:
+                writer.WriteVarInt(Result);
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V765_Last ?? throw new InvalidOperationException("ResourcePackReceive V765_Last fields missing.");
+                writer.WriteUUID(fields.Uuid);
+                writer.WriteVarInt(Result);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.ResourcePackReceive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-
-    [PacketSubInfo(765, 769)]
-    public sealed partial class V765_769 : ResourcePackReceivePacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Uuid, Result);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Guid uuid,
-            int result)
-        {
-            writer.WriteUUID(uuid);
-            writer.WriteVarInt(result);
+            case 764:
+                Result = reader.ReadVarInt();
+                V765_Last = null;
+                return;
+            case >= 765 and <= MinecraftVersion.LatestProtocol:
+                V765_Last = new V765_LastFields
+                {
+                    Uuid = reader.ReadUUID()
+                };
+                Result = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.ResourcePackReceive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V765_LastFields
     {
-        if (V764.IsSupportedVersionStatic(protocolVersion))
-            V764.SerializeInternal(ref writer, protocolVersion, Result);
-        else if (V765_769.IsSupportedVersionStatic(protocolVersion))
-            V765_769.SerializeInternal(ref writer, protocolVersion, Uuid, Result);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.ResourcePackReceive),
-                protocolVersion);
+        public Guid Uuid { get; set; }
     }
 }

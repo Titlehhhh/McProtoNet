@@ -1,32 +1,46 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("Pong", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class PongPacket : IClientPacket
+public sealed partial class PongPacket : IClientPacket
 {
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+
     public int Id { get; set; }
 
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : PongPacket
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        switch (protocolVersion)
         {
-            SerializeInternal(ref writer, protocolVersion, Id);
-        }
-
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int id)
-        {
-            writer.WriteSignedInt(id);
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedInt(Id);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Pong), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
-
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (V764_769.IsSupportedVersionStatic(protocolVersion))
-            V764_769.SerializeInternal(ref writer, protocolVersion, Id);
-        else
-            throw new ProtocolNotSupportException(nameof(ClientConfigurationPacket.Pong), protocolVersion);
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                Id = reader.ReadSignedInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Pong), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

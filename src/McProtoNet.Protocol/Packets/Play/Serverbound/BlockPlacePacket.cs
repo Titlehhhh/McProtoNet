@@ -1,137 +1,156 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
-using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
+using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("BlockPlace", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class BlockPlacePacket : IClientPacket
 {
-    [PacketInfo("BlockPlace", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class BlockPlacePacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Position Location { get; set; }
-        public int Direction { get; set; }
-        public int Hand { get; set; }
-        public float CursorX { get; set; }
-        public float CursorY { get; set; }
-        public float CursorZ { get; set; }
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, 767),
+        new(768, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 404)]
-        public sealed partial class V340_404 : BlockPlacePacket
+    public Position Location { get; set; }
+    public int Direction { get; set; }
+    public int Hand { get; set; }
+    public float CursorX { get; set; }
+    public float CursorY { get; set; }
+    public float CursorZ { get; set; }
+
+    public VFirst_758Fields? VFirst_758 { get; set; }
+    public V759_767Fields? V759_767 { get; set; }
+    public V768_LastFields? V768_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 758:
             {
-                SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY, CursorZ);
+                var fields = VFirst_758 ?? throw new InvalidOperationException("BlockPlace VFirst_758 fields missing.");
+                writer.WriteVarInt(Hand);
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteVarInt(Direction);
+                writer.WriteFloat(CursorX);
+                writer.WriteFloat(CursorY);
+                writer.WriteFloat(CursorZ);
+                writer.WriteBoolean(fields.InsideBlock);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                Position location, int direction, int hand, float cursorX, float cursorY, float cursorZ)
+            case >= 759 and <= 767:
             {
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(direction);
-                writer.WriteVarInt(hand);
-                writer.WriteFloat(cursorX);
-                writer.WriteFloat(cursorY);
-                writer.WriteFloat(cursorZ);
+                var fields = V759_767 ?? throw new InvalidOperationException("BlockPlace V759_767 fields missing.");
+                writer.WriteVarInt(Hand);
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteVarInt(Direction);
+                writer.WriteFloat(CursorX);
+                writer.WriteFloat(CursorY);
+                writer.WriteFloat(CursorZ);
+                writer.WriteBoolean(fields.InsideBlock);
+                writer.WriteVarInt(fields.Sequence);
+                return;
             }
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V768_Last ?? throw new InvalidOperationException("BlockPlace V768_Last fields missing.");
+                writer.WriteVarInt(Hand);
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteVarInt(Direction);
+                writer.WriteFloat(CursorX);
+                writer.WriteFloat(CursorY);
+                writer.WriteFloat(CursorZ);
+                writer.WriteBoolean(fields.InsideBlock);
+                writer.WriteBoolean(fields.WorldBorderHit);
+                writer.WriteVarInt(fields.Sequence);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockPlace), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(477, 758)]
-        public sealed partial class V477_758 : BlockPlacePacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
-                    InsideBlock);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
-                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock)
-            {
-                writer.WriteVarInt(hand);
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(direction);
-                writer.WriteFloat(cursorX);
-                writer.WriteFloat(cursorY);
-                writer.WriteFloat(cursorZ);
-                writer.WriteBoolean(insideBlock);
-            }
-
-            public bool InsideBlock { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                Hand = reader.ReadVarInt();
+                Location = reader.ReadPosition(protocolVersion);
+                Direction = reader.ReadVarInt();
+                CursorX = reader.ReadFloat();
+                CursorY = reader.ReadFloat();
+                CursorZ = reader.ReadFloat();
+                VFirst_758 = new VFirst_758Fields
+                {
+                    InsideBlock = reader.ReadBoolean()
+                };
+                V759_767 = null;
+                V768_Last = null;
+                return;
+            case >= 759 and <= 767:
+                Hand = reader.ReadVarInt();
+                Location = reader.ReadPosition(protocolVersion);
+                Direction = reader.ReadVarInt();
+                CursorX = reader.ReadFloat();
+                CursorY = reader.ReadFloat();
+                CursorZ = reader.ReadFloat();
+                V759_767 = new V759_767Fields
+                {
+                    InsideBlock = reader.ReadBoolean(),
+                    Sequence = reader.ReadVarInt()
+                };
+                VFirst_758 = null;
+                V768_Last = null;
+                return;
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                Hand = reader.ReadVarInt();
+                Location = reader.ReadPosition(protocolVersion);
+                Direction = reader.ReadVarInt();
+                CursorX = reader.ReadFloat();
+                CursorY = reader.ReadFloat();
+                CursorZ = reader.ReadFloat();
+                V768_Last = new V768_LastFields
+                {
+                    InsideBlock = reader.ReadBoolean(),
+                    WorldBorderHit = reader.ReadBoolean(),
+                    Sequence = reader.ReadVarInt()
+                };
+                VFirst_758 = null;
+                V759_767 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockPlace), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(759, 767)]
-        public sealed partial class V759_767 : BlockPlacePacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
-                    InsideBlock, Sequence);
-            }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
-                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock,
-                int sequence)
-            {
-                writer.WriteVarInt(hand);
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(direction);
-                writer.WriteFloat(cursorX);
-                writer.WriteFloat(cursorY);
-                writer.WriteFloat(cursorZ);
-                writer.WriteBoolean(insideBlock);
-                writer.WriteVarInt(sequence);
-            }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 
-            public bool InsideBlock { get; set; }
-            public int Sequence { get; set; }
-        }
+    public struct VFirst_758Fields
+    {
+        public bool InsideBlock { get; set; }
+    }
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : BlockPlacePacket
-        {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY, CursorZ,
-                    InsideBlock, WorldBorderHit, Sequence);
-            }
+    public struct V759_767Fields
+    {
+        public bool InsideBlock { get; set; }
+        public int Sequence { get; set; }
+    }
 
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int hand,
-                Position location, int direction, float cursorX, float cursorY, float cursorZ, bool insideBlock,
-                bool worldBorderHit, int sequence)
-            {
-                writer.WriteVarInt(hand);
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(direction);
-                writer.WriteFloat(cursorX);
-                writer.WriteFloat(cursorY);
-                writer.WriteFloat(cursorZ);
-                writer.WriteBoolean(insideBlock);
-                writer.WriteBoolean(worldBorderHit);
-                writer.WriteVarInt(sequence);
-            }
-
-            public bool InsideBlock { get; set; }
-            public bool WorldBorderHit { get; set; }
-            public int Sequence { get; set; }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_404.IsSupportedVersionStatic(protocolVersion))
-                V340_404.SerializeInternal(ref writer, protocolVersion, Location, Direction, Hand, CursorX, CursorY,
-                    CursorZ);
-            else if (V477_758.IsSupportedVersionStatic(protocolVersion))
-                V477_758.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
-                    CursorZ, false);
-            else if (V759_767.IsSupportedVersionStatic(protocolVersion))
-                V759_767.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
-                    CursorZ, false, 0);
-            else if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, Hand, Location, Direction, CursorX, CursorY,
-                    CursorZ, false, false, 0);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.BlockPlace), protocolVersion);
-        }
+    public struct V768_LastFields
+    {
+        public bool InsideBlock { get; set; }
+        public bool WorldBorderHit { get; set; }
+        public int Sequence { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿// using McProtoNet.Abstractions;
+// using McProtoNet.Abstractions;
 // using McProtoNet.Client;
 // using McProtoNet.Protocol;
 // using McProtoNet.Protocol.Packets.Configuration.Serverbound;

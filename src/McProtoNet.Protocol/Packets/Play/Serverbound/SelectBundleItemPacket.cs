@@ -3,36 +3,50 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("SelectBundleItem", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class SelectBundleItemPacket : IClientPacket
 {
-    [PacketInfo("SelectBundleItem", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class SelectBundleItemPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int SlotId { get; set; }
-        public int SelectedItemIndex { get; set; }
+        new(768, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : SelectBundleItemPacket
+    public int SlotId { get; set; }
+    public int SelectedItemIndex { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, SlotId, SelectedItemIndex);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int slotId,
-                int selectedItemIndex)
-            {
-                writer.WriteVarInt(slotId);
-                writer.WriteVarInt(selectedItemIndex);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V768_769.IsSupportedVersionStatic(protocolVersion))
-                V768_769.SerializeInternal(ref writer, protocolVersion, SlotId, SelectedItemIndex);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.SelectBundleItem), protocolVersion);
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(SlotId);
+                writer.WriteVarInt(SelectedItemIndex);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SelectBundleItem), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+                SlotId = reader.ReadVarInt();
+                SelectedItemIndex = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SelectBundleItem), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

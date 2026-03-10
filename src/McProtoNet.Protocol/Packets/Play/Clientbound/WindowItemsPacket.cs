@@ -1,79 +1,129 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("WindowItems", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class WindowItemsPacket : IServerPacket
 {
-    [PacketInfo("WindowItems", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class WindowItemsPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Slot?[] Items { get; set; }
+        new(MinecraftVersion.StartProtocol, 755),
+        new(756, 765),
+        new(766, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(340, 755)]
-        public sealed partial class V340_755 : WindowItemsPacket
+    public Slot?[] Items { get; set; }
+
+    public VFirst_755Fields? VFirst_755 { get; set; }
+    public V756_765Fields? V756_765 { get; set; }
+    public V766_LastFields? V766_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 755:
             {
-                WindowId = reader.ReadUnsignedByte();
-                Items = reader.ReadArray(LengthFormat.Short,
-                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
+                var fields = VFirst_755 ?? throw new InvalidOperationException("WindowItems VFirst_755 missing.");
+                writer.WriteUnsignedByte(fields.WindowId);
+                writer.WriteArray(Items ?? throw new InvalidOperationException("WindowItems Items missing."), LengthFormat.Short, protocolVersion);
+                return;
             }
-
-            public byte WindowId { get; set; }
+            case >= 756 and <= 765:
+            {
+                var fields = V756_765 ?? throw new InvalidOperationException("WindowItems V756_765 missing.");
+                writer.WriteUnsignedByte(fields.WindowId);
+                writer.WriteVarInt(fields.StateId);
+                writer.WriteArray(Items ?? throw new InvalidOperationException("WindowItems Items missing."), LengthFormat.VarInt, protocolVersion);
+                writer.WriteSlot(fields.CarriedItem, protocolVersion);
+                return;
+            }
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V766_Last ?? throw new InvalidOperationException("WindowItems V766_Last missing.");
+                if (protocolVersion <= 767)
+                {
+                    writer.WriteUnsignedByte((byte)fields.WindowId);
+                }
+                else
+                {
+                    writer.WriteVarInt(fields.WindowId);
+                }
+                writer.WriteVarInt(fields.StateId);
+                writer.WriteArray(Items ?? throw new InvalidOperationException("WindowItems Items missing."), LengthFormat.VarInt, protocolVersion);
+                writer.WriteSlot(fields.CarriedItem, protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WindowItems), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(756, 765)]
-        public sealed partial class V756_765 : WindowItemsPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 755:
             {
-                WindowId = reader.ReadUnsignedByte();
-                StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt,
-                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
-                CarriedItem = reader.ReadSlot(protocolVersion);
+                var fields = new VFirst_755Fields();
+                fields.WindowId = reader.ReadUnsignedByte();
+                Items = reader.ReadArray<Slot>(LengthFormat.Short, protocolVersion);
+                VFirst_755 = fields;
+                return;
             }
-
-            public byte WindowId { get; set; }
-            public int StateId { get; set; }
-            public Slot CarriedItem { get; set; }
-        }
-
-        [PacketSubInfo(766, 767)]
-        public sealed partial class V766_767 : WindowItemsPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 756 and <= 765:
             {
-                WindowId = reader.ReadUnsignedByte();
-                StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt,
-                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
-                CarriedItem = reader.ReadSlot(protocolVersion);
+                var fields = new V756_765Fields();
+                fields.WindowId = reader.ReadUnsignedByte();
+                fields.StateId = reader.ReadVarInt();
+                Items = reader.ReadArray<Slot>(LengthFormat.VarInt, protocolVersion);
+                fields.CarriedItem = reader.ReadSlot(protocolVersion);
+                V756_765 = fields;
+                return;
             }
-
-            public byte WindowId { get; set; }
-            public int StateId { get; set; }
-            public Slot CarriedItem { get; set; }
-        }
-
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : WindowItemsPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
-                WindowId = reader.ReadVarInt();
-                StateId = reader.ReadVarInt();
-                Items = reader.ReadArray(LengthFormat.VarInt,
-                    (ref MinecraftPrimitiveReader r_0) => r_0.ReadSlot(protocolVersion));
-                CarriedItem = reader.ReadSlot(protocolVersion);
+                var fields = new V766_LastFields();
+                fields.WindowId = protocolVersion <= 767
+                    ? reader.ReadUnsignedByte()
+                    : reader.ReadVarInt();
+                fields.StateId = reader.ReadVarInt();
+                Items = reader.ReadArray<Slot>(LengthFormat.VarInt, protocolVersion);
+                fields.CarriedItem = reader.ReadSlot(protocolVersion);
+                V766_Last = fields;
+                return;
             }
-
-            public int WindowId { get; set; }
-            public int StateId { get; set; }
-            public Slot CarriedItem { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WindowItems), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_755Fields
+    {
+        public byte WindowId { get; set; }
+    }
+
+    public struct V756_765Fields
+    {
+        public byte WindowId { get; set; }
+        public int StateId { get; set; }
+        public Slot CarriedItem { get; set; }
+    }
+
+    public struct V766_LastFields
+    {
+        public int WindowId { get; set; }
+        public int StateId { get; set; }
+        public Slot CarriedItem { get; set; }
     }
 }

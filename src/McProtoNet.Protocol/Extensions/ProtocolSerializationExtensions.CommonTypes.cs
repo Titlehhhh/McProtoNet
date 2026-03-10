@@ -257,8 +257,8 @@ public static partial class ProtocolSerializationExtensions
             if (protocolVersion == 760)
             {
                 Guid sender = r.ReadUUID();
-                byte[] signature = r.ReadBuffer(r.ReadVarInt());
-                return new PreviousMessages.PreviousMessage(sender, signature, null, null);
+                byte[] signatureBytes = r.ReadBuffer(r.ReadVarInt());
+                return new PreviousMessages.PreviousMessage(sender, signatureBytes, null, null);
             }
 
             int id = r.ReadVarInt();

@@ -1,28 +1,81 @@
-﻿using McProtoNet.Serialization;
+using System;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("RemoveResourcePack", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class RemoveResourcePackPacket : IServerPacket
+public sealed partial class RemoveResourcePackPacket : IServerPacket
 {
-    [PacketSubInfo(765, 767)]
-    public sealed partial class V765_767 : RemoveResourcePackPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Guid? UUID { get; set; }
+        new(765, 765),
+        new(766, MinecraftVersion.LatestProtocol)
+    };
 
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        {
-            UUID = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadUUID());
-        }
+    public V765Fields? V765 { get; set; }
+    public PacketCommonRemoveResourcePack? Data { get; set; }
 
-        public new static bool SupportedVersion(int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            return protocolVersion is >= 765 and <= 767;
+            case 765:
+            {
+                var fields = V765 ?? throw new InvalidOperationException("RemoveResourcePack V765 fields missing.");
+                if (fields.Uuid is null)
+                {
+                    writer.WriteBoolean(false);
+                }
+                else
+                {
+                    writer.WriteBoolean(true);
+                    writer.WriteUUID(fields.Uuid.Value);
+                }
+                return;
+            }
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            {
+                var data = Data ?? throw new InvalidOperationException("RemoveResourcePack data missing.");
+                writer.WritePacketCommonRemoveResourcePack(data, protocolVersion);
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.RemoveResourcePack), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case 765:
+                V765 = new V765Fields
+                {
+                    Uuid = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadUUID())
+                };
+                Data = null;
+                return;
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonRemoveResourcePack(protocolVersion);
+                V765 = null;
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.RemoveResourcePack), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
+        }
+    }
 
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
 
-    public Guid? UUID { get; set; }
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V765Fields
+    {
+        public Guid? Uuid { get; set; }
+    }
 }

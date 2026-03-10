@@ -3,38 +3,53 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("Transaction", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class TransactionPacket : IClientPacket
 {
-    [PacketInfo("Transaction", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class TransactionPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public sbyte WindowId { get; set; }
-        public short Action { get; set; }
-        public bool Accepted { get; set; }
+        new(MinecraftVersion.StartProtocol, 754)
+    };
 
-        [PacketSubInfo(340, 754)]
-        public sealed partial class V340_754 : TransactionPacket
+    public sbyte WindowId { get; set; }
+    public short Action { get; set; }
+    public bool Accepted { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, WindowId, Action, Accepted);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                sbyte windowId, short action, bool accepted)
-            {
-                writer.WriteSignedByte(windowId);
-                writer.WriteSignedShort(action);
-                writer.WriteBoolean(accepted);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_754.IsSupportedVersionStatic(protocolVersion))
-                V340_754.SerializeInternal(ref writer, protocolVersion, WindowId, Action, Accepted);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.Transaction), protocolVersion);
+            case >= MinecraftVersion.StartProtocol and <= 754:
+                writer.WriteSignedByte(WindowId);
+                writer.WriteSignedShort(Action);
+                writer.WriteBoolean(Accepted);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Transaction), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 754:
+                WindowId = reader.ReadSignedByte();
+                Action = reader.ReadSignedShort();
+                Accepted = reader.ReadBoolean();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Transaction), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,63 +1,82 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
-using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol;
 using McProtoNet.Protocol.Extensions;
+using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("BlockDig", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class BlockDigPacket : IClientPacket
 {
-    [PacketInfo("BlockDig", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class BlockDigPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Status { get; set; }
-        public Position Location { get; set; }
-        public sbyte Face { get; set; }
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(340, 758)]
-        public sealed partial class V340_758 : BlockDigPacket
+    public int Status { get; set; }
+    public Position Location { get; set; }
+    public sbyte Face { get; set; }
+
+    public V759_LastFields? V759_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                writer.WriteVarInt(Status);
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteSignedByte(Face);
+                return;
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, Status, Location, Face);
+                var fields = V759_Last ?? throw new InvalidOperationException("BlockDig V759_Last fields missing.");
+                writer.WriteVarInt(Status);
+                writer.WritePosition(Location, protocolVersion);
+                writer.WriteSignedByte(Face);
+                writer.WriteVarInt(fields.Sequence);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status,
-                Position location, sbyte face)
-            {
-                writer.WriteVarInt(status);
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteSignedByte(face);
-            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockDig), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(759, 769)]
-        public sealed partial class V759_769 : BlockDigPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Status, Location, Face, Sequence);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int status,
-                Position location, sbyte face, int sequence)
-            {
-                writer.WriteVarInt(status);
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteSignedByte(face);
-                writer.WriteVarInt(sequence);
-            }
-
-            public int Sequence { get; set; }
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                Status = reader.ReadVarInt();
+                Location = reader.ReadPosition(protocolVersion);
+                Face = reader.ReadSignedByte();
+                V759_Last = null;
+                return;
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
+                Status = reader.ReadVarInt();
+                Location = reader.ReadPosition(protocolVersion);
+                Face = reader.ReadSignedByte();
+                V759_Last = new V759_LastFields
+                {
+                    Sequence = reader.ReadVarInt()
+                };
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockDig), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V340_758.IsSupportedVersionStatic(protocolVersion))
-                V340_758.SerializeInternal(ref writer, protocolVersion, Status, Location, Face);
-            else if (V759_769.IsSupportedVersionStatic(protocolVersion))
-                V759_769.SerializeInternal(ref writer, protocolVersion, Status, Location, Face, 0);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.BlockDig), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct V759_LastFields
+    {
+        public int Sequence { get; set; }
     }
 }

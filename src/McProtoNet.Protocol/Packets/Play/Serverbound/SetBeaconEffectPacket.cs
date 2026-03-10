@@ -1,63 +1,98 @@
-using McProtoNet.Protocol;
-using McProtoNet.NBT;
-using McProtoNet.Serialization;
 using System;
+using McProtoNet.Protocol;
+using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("SetBeaconEffect", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class SetBeaconEffectPacket : IClientPacket
 {
-    [PacketInfo("SetBeaconEffect", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class SetBeaconEffectPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(393, 758)]
-        public sealed partial class V393_758 : SetBeaconEffectPacket
+        new(MinecraftVersion.StartProtocol, 758),
+        new(759, MinecraftVersion.LatestProtocol)
+    };
+
+    public VFirst_758Fields? VFirst_758 { get; set; }
+    public V759_LastFields? V759_Last { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 758:
             {
-                SerializeInternal(ref writer, protocolVersion, PrimaryEffect, SecondaryEffect);
+                var fields = VFirst_758 ?? throw new InvalidOperationException("SetBeaconEffect VFirst_758 fields missing.");
+                writer.WriteVarInt(fields.PrimaryEffect);
+                writer.WriteVarInt(fields.SecondaryEffect);
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int primaryEffect, int secondaryEffect)
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteVarInt(primaryEffect);
-                writer.WriteVarInt(secondaryEffect);
+                var fields = V759_Last ?? throw new InvalidOperationException("SetBeaconEffect V759_Last fields missing.");
+                writer.WriteBoolean(fields.PrimaryEffect is not null);
+                if (fields.PrimaryEffect is not null)
+                {
+                    writer.WriteVarInt(fields.PrimaryEffect.Value);
+                }
+                writer.WriteBoolean(fields.SecondaryEffect is not null);
+                if (fields.SecondaryEffect is not null)
+                {
+                    writer.WriteVarInt(fields.SecondaryEffect.Value);
+                }
+                return;
             }
-
-            public int PrimaryEffect { get; set; }
-            public int SecondaryEffect { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SetBeaconEffect), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        [PacketSubInfo(759, 769)]
-        public sealed partial class V759_769 : SetBeaconEffectPacket
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 758:
+                VFirst_758 = new VFirst_758Fields
+                {
+                    PrimaryEffect = reader.ReadVarInt(),
+                    SecondaryEffect = reader.ReadVarInt()
+                };
+                V759_Last = null;
+                return;
+            case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                SerializeInternal(ref writer, protocolVersion, PrimaryEffect, SecondaryEffect);
+                int? primary = reader.ReadBoolean() ? reader.ReadVarInt() : null;
+                int? secondary = reader.ReadBoolean() ? reader.ReadVarInt() : null;
+                V759_Last = new V759_LastFields
+                {
+                    PrimaryEffect = primary,
+                    SecondaryEffect = secondary
+                };
+                VFirst_758 = null;
+                return;
             }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int? primaryEffect, int? secondaryEffect)
-            {
-                writer.WriteBoolean(primaryEffect is not null);
-                if (primaryEffect is not null)
-                    writer.WriteVarInt((int)primaryEffect);
-                writer.WriteBoolean(secondaryEffect is not null);
-                if (secondaryEffect is not null)
-                    writer.WriteVarInt((int)secondaryEffect);
-            }
-
-            public int? PrimaryEffect { get; set; }
-            public int? SecondaryEffect { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SetBeaconEffect), protocolVersion, SupportedVersionsStatic);
+                return;
         }
+    }
 
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V393_758.IsSupportedVersionStatic(protocolVersion))
-                V393_758.SerializeInternal(ref writer, protocolVersion, 0, 0);
-            else if (V759_769.IsSupportedVersionStatic(protocolVersion))
-                V759_769.SerializeInternal(ref writer, protocolVersion, null, null);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.SetBeaconEffect), protocolVersion);
-        }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+    public struct VFirst_758Fields
+    {
+        public int PrimaryEffect { get; set; }
+        public int SecondaryEffect { get; set; }
+    }
+
+    public struct V759_LastFields
+    {
+        public int? PrimaryEffect { get; set; }
+        public int? SecondaryEffect { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Buffers;
+using System.Buffers;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Net;

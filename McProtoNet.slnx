@@ -1,4 +1,4 @@
-﻿<Solution>
+<Solution>
   <Folder Name="/benchmarks/">
     <Project Path="benchmarks\McProtoNet.Benchmark\McProtoNet.Benchmark.csproj" Type="Classic C#" />
   </Folder>

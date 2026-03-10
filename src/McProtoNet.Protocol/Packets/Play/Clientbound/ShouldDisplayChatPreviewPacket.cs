@@ -3,22 +3,47 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("ShouldDisplayChatPreview", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class ShouldDisplayChatPreviewPacket : IServerPacket
 {
-    [PacketInfo("ShouldDisplayChatPreview", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class ShouldDisplayChatPreviewPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public bool ShouldDisplayChatPreview { get; set; }
+        new(759, 760),
+    };
 
-        [PacketSubInfo(759, 760)]
-        public sealed partial class V759_760 : ShouldDisplayChatPreviewPacket
+    public bool ShouldDisplayChatPreview { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                ShouldDisplayChatPreview = reader.ReadBoolean();
-            }
+            case >= 759 and <= 760:
+                writer.WriteBoolean(ShouldDisplayChatPreview);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ShouldDisplayChatPreview), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 759 and <= 760:
+                ShouldDisplayChatPreview = reader.ReadBoolean();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ShouldDisplayChatPreview), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.FSharp
+namespace McProtoNet.FSharp
 
 open System
 open QuickProxyNet

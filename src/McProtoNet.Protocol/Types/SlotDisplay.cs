@@ -20,15 +20,15 @@ public sealed partial class SlotDisplay
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 public partial record SlotDisplayData
 {
-    public sealed record Empty() : SlotDisplayData;
-    public sealed record AnyFuel() : SlotDisplayData;
-    public sealed record Item(int ItemId) : SlotDisplayData;
-    public sealed record ItemStack(Slot ItemStack) : SlotDisplayData;
-    public sealed record Tag(string Tag) : SlotDisplayData;
+    public sealed partial record Empty() : SlotDisplayData;
+    public sealed partial record AnyFuel() : SlotDisplayData;
+    public sealed partial record Item(int ItemId) : SlotDisplayData;
+    public sealed partial record ItemStack(Slot Stack) : SlotDisplayData;
+    public sealed partial record Tag(string TagId) : SlotDisplayData;
 
-    public sealed record SmithingTrim(SlotDisplay Base, SlotDisplay Material, SlotDisplay? PatternDisplay,
+    public sealed partial record SmithingTrim(SlotDisplay Base, SlotDisplay Material, SlotDisplay? PatternDisplay,
         RegistryEntryHolder<ArmorTrimPattern>? Pattern) : SlotDisplayData;
 
-    public sealed record WithRemainder(SlotDisplay Input, SlotDisplay Remainder) : SlotDisplayData;
-    public sealed record Composite(SlotDisplay[] Entries) : SlotDisplayData;
+    public sealed partial record WithRemainder(SlotDisplay Input, SlotDisplay Remainder) : SlotDisplayData;
+    public sealed partial record Composite(SlotDisplay[] Entries) : SlotDisplayData;
 }

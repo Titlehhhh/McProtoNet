@@ -1,48 +1,52 @@
-﻿using McProtoNet.Serialization;
+using System;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("SelectKnownPacks", PacketState.Configuration, PacketDirection.Serverbound)]
-public partial class SelectKnownPacksPacket : IClientPacket
+public sealed partial class SelectKnownPacksPacket : IClientPacket
 {
-    [PacketSubInfo(766, 769)]
-    public sealed partial class V766_769 : SelectKnownPacksPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public Packs[] Packs { get; set; }
+        new(766, MinecraftVersion.LatestProtocol)
+    };
 
-        internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, Packs[] packs)
+    public PacketCommonSelectKnownPacks? Data { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            writer.WriteVarInt(packs.Length);
-            foreach (var pack in packs)
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteString(pack.Namespace);
-                writer.WriteString(pack.Id);
-                writer.WriteString(pack.Version);
+                var data = Data ?? throw new InvalidOperationException("SelectKnownPacks data missing.");
+                writer.WritePacketCommonSelectKnownPacks(data, protocolVersion);
+                return;
             }
-        }
-
-        public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            SerializeInternal(ref writer, protocolVersion, Packs);
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.SelectKnownPacks), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
-    public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        if (V766_769.IsSupportedVersionStatic(protocolVersion))
+        switch (protocolVersion)
         {
-            V766_769.SerializeInternal(ref writer, protocolVersion, []);
-        }
-        else
-        {
-            throw new ProtocolNotSupportException(nameof(SelectKnownPacksPacket), protocolVersion);
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Data = reader.ReadPacketCommonSelectKnownPacks(protocolVersion);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.SelectKnownPacks), protocolVersion,
+                    SupportedVersionsStatic);
+                return;
         }
     }
 
-    public sealed class Packs
-    {
-        public string Namespace { get; set; }
-        public string Id { get; set; }
-        public string Version { get; set; }
-    }
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

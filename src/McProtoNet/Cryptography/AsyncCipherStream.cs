@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Cryptography;

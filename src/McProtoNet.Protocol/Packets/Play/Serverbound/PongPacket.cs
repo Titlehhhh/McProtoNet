@@ -3,33 +3,47 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("Pong", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class PongPacket : IClientPacket
 {
-    [PacketInfo("Pong", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class PongPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Id { get; set; }
+        new(755, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(755, 769)]
-        public sealed partial class V755_769 : PongPacket
+    public int Id { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Id);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int id)
-            {
-                writer.WriteSignedInt(id);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V755_769.IsSupportedVersionStatic(protocolVersion))
-                V755_769.SerializeInternal(ref writer, protocolVersion, Id);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.Pong), protocolVersion);
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedInt(Id);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Pong), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                Id = reader.ReadSignedInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.Pong), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

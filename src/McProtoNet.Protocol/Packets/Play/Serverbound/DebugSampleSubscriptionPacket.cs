@@ -3,34 +3,47 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("DebugSampleSubscription", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class DebugSampleSubscriptionPacket : IClientPacket
 {
-    [PacketInfo("DebugSampleSubscription", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class DebugSampleSubscriptionPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int Type { get; set; }
+        new(766, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(766, 769)]
-        public sealed partial class V766_769 : DebugSampleSubscriptionPacket
+    public int Type { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, Type);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion, int type)
-            {
-                writer.WriteVarInt(type);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V766_769.IsSupportedVersionStatic(protocolVersion))
-                V766_769.SerializeInternal(ref writer, protocolVersion, Type);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.DebugSampleSubscription),
-                    protocolVersion);
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(Type);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DebugSampleSubscription), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+                Type = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DebugSampleSubscription), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,4 +1,4 @@
-﻿using QuickProxyNet;
+using QuickProxyNet;
 
 namespace McProtoNet.Abstractions;
 

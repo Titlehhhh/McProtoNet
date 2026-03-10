@@ -1,4 +1,4 @@
-﻿namespace SampleBotCSharp;
+namespace SampleBotCSharp;
 
 using System;
 using System.IO;

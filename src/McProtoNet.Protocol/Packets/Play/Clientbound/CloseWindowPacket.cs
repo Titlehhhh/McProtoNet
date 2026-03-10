@@ -3,33 +3,75 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("CloseWindow", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class CloseWindowPacket : IServerPacket
 {
-    [PacketInfo("CloseWindow", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class CloseWindowPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        [PacketSubInfo(340, 767)]
-        public sealed partial class V340_767 : CloseWindowPacket
+        new(MinecraftVersion.StartProtocol, 765),
+        new(766, MinecraftVersion.LatestProtocol),
+    };
+
+    public int WindowId { get; set; }
+
+
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= MinecraftVersion.StartProtocol and <= 765:
+            {
+                writer.WriteUnsignedByte(WindowId);
+                return;
+            }
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            {
+                if (protocolVersion <= 767)
+                {
+                    writer.WriteUnsignedByte((byte)WindowId);
+                }
+                else
+                {
+                    writer.WriteVarInt(WindowId);
+                }
+                return;
+            }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CloseWindow), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= 765:
             {
                 WindowId = reader.ReadUnsignedByte();
+                return;
             }
-
-            public byte WindowId { get; set; }
-        }
-
-        [PacketSubInfo(768, 769)]
-        public sealed partial class V768_769 : CloseWindowPacket
-        {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
-                WindowId = reader.ReadVarInt();
+                WindowId = protocolVersion <= 767
+                    ? reader.ReadUnsignedByte()
+                    : reader.ReadVarInt();
+                return;
             }
-
-            public int WindowId { get; set; }
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CloseWindow), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
+
+
 }

@@ -3,22 +3,47 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
+[PacketInfo("WorldBorderWarningReach", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class WorldBorderWarningReachPacket : IServerPacket
 {
-    [PacketInfo("WorldBorderWarningReach", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class WorldBorderWarningReachPacket : IServerPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int WarningBlocks { get; set; }
+        new(755, MinecraftVersion.LatestProtocol),
+    };
 
-        [PacketSubInfo(755, 769)]
-        public sealed partial class V755_769 : WorldBorderWarningReachPacket
+    public int WarningBlocks { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
-                WarningBlocks = reader.ReadVarInt();
-            }
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(WarningBlocks);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningReach), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 755 and <= MinecraftVersion.LatestProtocol:
+                WarningBlocks = reader.ReadVarInt();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningReach), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

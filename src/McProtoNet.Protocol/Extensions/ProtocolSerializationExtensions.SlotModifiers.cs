@@ -35,8 +35,8 @@ public static partial class ProtocolSerializationExtensions
         int itemId = reader.ReadVarInt();
         int addedCount = reader.ReadVarInt();
         int removedCount = reader.ReadVarInt();
-        UntrustedSlotComponent[] components = ReadComponents(ref reader, protocolVersion, addedCount);
-        SlotComponentType[] removed = ReadRemovedComponents(ref reader, protocolVersion, removedCount);
+        UntrustedSlotComponent[] components = ReadUntrustedComponents(ref reader, protocolVersion, addedCount);
+        SlotComponentType[] removed = ReadUntrustedRemovedComponents(ref reader, protocolVersion, removedCount);
 
         var slot = new Slot
         {
@@ -74,7 +74,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static UntrustedSlotComponent[] ReadComponents(ref MinecraftPrimitiveReader reader, int protocolVersion, int count)
+    private static UntrustedSlotComponent[] ReadUntrustedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion, int count)
     {
         if (count == 0)
         {
@@ -90,7 +90,8 @@ public static partial class ProtocolSerializationExtensions
         return components;
     }
 
-    private static SlotComponentType[] ReadRemovedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion, int count)
+    private static SlotComponentType[] ReadUntrustedRemovedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion,
+        int count)
     {
         if (count == 0)
         {
@@ -111,8 +112,8 @@ public static partial class ProtocolSerializationExtensions
         ThrowHelper.ThrowIfProtocolNotSupported<HashedSlot>(protocolVersion);
         int itemId = reader.ReadVarInt();
         int itemCount = reader.ReadVarInt();
-        HashedSlotComponent[] components = ReadComponents(ref reader, protocolVersion);
-        SlotComponentType[] removed = ReadRemovedComponents(ref reader, protocolVersion);
+        HashedSlotComponent[] components = ReadHashedComponents(ref reader, protocolVersion);
+        SlotComponentType[] removed = ReadHashedRemovedComponents(ref reader, protocolVersion);
         var slot = new Slot
         {
             ItemId = itemId,
@@ -143,7 +144,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static HashedSlotComponent[] ReadComponents(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    private static HashedSlotComponent[] ReadHashedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         int count = reader.ReadVarInt();
         if (count == 0)
@@ -162,7 +163,7 @@ public static partial class ProtocolSerializationExtensions
         return components;
     }
 
-    private static SlotComponentType[] ReadRemovedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    private static SlotComponentType[] ReadHashedRemovedComponents(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         int count = reader.ReadVarInt();
         if (count == 0)

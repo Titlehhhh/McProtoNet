@@ -1,21 +1,45 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("KeepAlive", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class KeepAlivePacket : IServerPacket
+public sealed partial class KeepAlivePacket : IServerPacket
 {
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
-
-
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : KeepAlivePacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public long KeepAliveId { get; set; }
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+    public long KeepAliveId { get; set; }
 
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            KeepAliveId = reader.ReadSignedLong();
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteSignedLong(KeepAliveId);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.KeepAlive), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                KeepAliveId = reader.ReadSignedLong();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.KeepAlive), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

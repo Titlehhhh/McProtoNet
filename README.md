@@ -1,4 +1,4 @@
-﻿<h1 align="center">
+<h1 align="center">
      <img height="200" alt="Fiber" src="assets/icon.svg">
   <br>
   <a href="https://www.nuget.org/packages/McProtoNet">

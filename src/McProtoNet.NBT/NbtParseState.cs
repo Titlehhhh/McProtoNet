@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.NBT;
+namespace McProtoNet.NBT;
 
 internal enum NbtParseState
 {

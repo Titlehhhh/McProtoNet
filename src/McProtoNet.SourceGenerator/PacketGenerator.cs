@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -102,6 +102,8 @@ public class PacketGenerator : IIncrementalGenerator
         
 
         var sb = new StringBuilder();
+        sb.AppendLine("using McProtoNet.Protocol;");
+        sb.AppendLine();
         sb.AppendLine($"namespace {parentClass.ContainingNamespace.ToDisplayString()}");
         sb.AppendLine("{");
         sb.AppendLine($"    public partial class {parentClass.Name}");
@@ -127,19 +129,39 @@ public class PacketGenerator : IIncrementalGenerator
             sb.AppendLine("        }");
         }
  
+        if (nestedClasses.Length > 0)
+        {
+            sb.AppendLine();
+            sb.AppendLine("        public static readonly ProtocolRange[] SupportedVersionsStatic =");
+            sb.AppendLine("        {");
+            foreach (var (_, subInfoAttribute) in nestedClasses)
+            {
+                var minVersion = subInfoAttribute.ConstructorArguments[0].Value;
+                var maxVersion = subInfoAttribute.ConstructorArguments[1].Value;
+                sb.AppendLine($"            new ProtocolRange({minVersion}, {maxVersion}),");
+            }
+            sb.AppendLine("        };");
+        }
+
         // Генерация общих методов
         sb.AppendLine($"        public static bool IsSupportedVersionStatic(int protocolVersion)");
         sb.AppendLine("        {");
 
-        List<string> equalities = [];
-        foreach (var (nestedClass, _) in nestedClasses)
+        if (nestedClasses.Length > 0)
         {
-            var gg = $"{nestedClass.Name}.IsSupportedVersionStatic(protocolVersion)";
-            equalities.Add(gg);
+            List<string> equalities = [];
+            foreach (var (nestedClass, _) in nestedClasses)
+            {
+                var gg = $"{nestedClass.Name}.IsSupportedVersionStatic(protocolVersion)";
+                equalities.Add(gg);
+            }
+            string condition = string.Join("||", equalities);
+            sb.AppendLine($"            return {condition};");
         }
-        string condition = string.Join("||", equalities);
-
-        sb.AppendLine($"            return {condition};");
+        else
+        {
+            sb.AppendLine("            return ProtocolRange.IsSupported(SupportedVersionsStatic, protocolVersion);");
+        }
         sb.AppendLine("        }");
         sb.AppendLine();
 
@@ -151,6 +173,9 @@ public class PacketGenerator : IIncrementalGenerator
         {
             sb.AppendLine("        public virtual bool IsSupportedVersion(int protocolVersion) => IsSupportedVersionStatic(protocolVersion);");
         }
+
+        sb.AppendLine();
+        sb.AppendLine("        public virtual ProtocolRange[] SupportedVersions => SupportedVersionsStatic;");
 
         sb.AppendLine();
         sb.AppendLine($"        public static PacketIdentifier PacketId => {direction}{stage}Packet.{packetName};");

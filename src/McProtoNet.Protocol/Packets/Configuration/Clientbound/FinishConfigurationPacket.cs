@@ -1,18 +1,41 @@
-﻿using McProtoNet.Serialization;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("FinishConfiguration", PacketState.Configuration, PacketDirection.Clientbound)]
-public abstract partial class FinishConfigurationPacket : IServerPacket
+public sealed partial class FinishConfigurationPacket : IServerPacket
 {
-    [PacketSubInfo(764, 769)]
-    public sealed partial class V764_769 : FinishConfigurationPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        new(764, MinecraftVersion.LatestProtocol)
+    };
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.FinishConfiguration), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.FinishConfiguration), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
 
-    public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

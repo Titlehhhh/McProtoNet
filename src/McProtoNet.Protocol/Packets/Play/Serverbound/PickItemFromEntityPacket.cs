@@ -3,36 +3,50 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Serverbound
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[PacketInfo("PickItemFromEntity", PacketState.Play, PacketDirection.Serverbound)]
+public sealed partial class PickItemFromEntityPacket : IClientPacket
 {
-    [PacketInfo("PickItemFromEntity", PacketState.Play, PacketDirection.Serverbound)]
-    public partial class PickItemFromEntityPacket : IClientPacket
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
     {
-        public int EntityId { get; set; }
-        public bool IncludeData { get; set; }
+        new(769, MinecraftVersion.LatestProtocol)
+    };
 
-        [PacketSubInfo(769, 769)]
-        public sealed partial class V769 : PickItemFromEntityPacket
+    public int EntityId { get; set; }
+    public bool IncludeData { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-            {
-                SerializeInternal(ref writer, protocolVersion, EntityId, IncludeData);
-            }
-
-            internal static void SerializeInternal(ref MinecraftPrimitiveWriter writer, int protocolVersion,
-                int entityId, bool includeData)
-            {
-                writer.WriteVarInt(entityId);
-                writer.WriteBoolean(includeData);
-            }
-        }
-
-        public virtual void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        {
-            if (V769.IsSupportedVersionStatic(protocolVersion))
-                V769.SerializeInternal(ref writer, protocolVersion, EntityId, IncludeData);
-            else
-                throw new ProtocolNotSupportException(nameof(ClientPlayPacket.PickItemFromEntity), protocolVersion);
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(EntityId);
+                writer.WriteBoolean(IncludeData);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PickItemFromEntity), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= 769 and <= MinecraftVersion.LatestProtocol:
+                EntityId = reader.ReadVarInt();
+                IncludeData = reader.ReadBoolean();
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PickItemFromEntity), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }

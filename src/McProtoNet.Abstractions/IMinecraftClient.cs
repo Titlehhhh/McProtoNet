@@ -1,4 +1,4 @@
-﻿namespace McProtoNet.Abstractions;
+namespace McProtoNet.Abstractions;
 
 
 /// <summary>

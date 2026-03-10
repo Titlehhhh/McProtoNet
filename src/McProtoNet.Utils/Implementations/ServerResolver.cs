@@ -1,4 +1,4 @@
-﻿using DnsClient;
+using DnsClient;
 
 namespace McProtoNet.Utils;
 

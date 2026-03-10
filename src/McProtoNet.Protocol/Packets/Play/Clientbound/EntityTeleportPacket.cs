@@ -3,24 +3,48 @@ using McProtoNet.NBT;
 using McProtoNet.Serialization;
 using System;
 
-namespace McProtoNet.Protocol.Packets.Play.Clientbound
-{
-    [PacketInfo("EntityTeleport", PacketState.Play, PacketDirection.Clientbound)]
-    public abstract partial class EntityTeleportPacket : IServerPacket
-    {
-        public int EntityId { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double Z { get; set; }
-        public sbyte Yaw { get; set; }
-        public sbyte Pitch { get; set; }
-        public bool OnGround { get; set; }
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
-        [PacketSubInfo(340, 769)]
-        internal sealed partial class V340_769 : EntityTeleportPacket
+[PacketInfo("EntityTeleport", PacketState.Play, PacketDirection.Clientbound)]
+public sealed partial class EntityTeleportPacket : IServerPacket
+{
+    public static readonly ProtocolRange[] SupportedVersionsStatic =
+    {
+        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
+    };
+
+    public int EntityId { get; set; }
+    public double X { get; set; }
+    public double Y { get; set; }
+    public double Z { get; set; }
+    public sbyte Yaw { get; set; }
+    public sbyte Pitch { get; set; }
+    public bool OnGround { get; set; }
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        switch (protocolVersion)
         {
-            public override void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-            {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(EntityId);
+                writer.WriteDouble(X);
+                writer.WriteDouble(Y);
+                writer.WriteDouble(Z);
+                writer.WriteSignedByte(Yaw);
+                writer.WriteSignedByte(Pitch);
+                writer.WriteBoolean(OnGround);
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityTeleport), protocolVersion, SupportedVersionsStatic);
+                return;
+        }
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        switch (protocolVersion)
+        {
+            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
                 EntityId = reader.ReadVarInt();
                 X = reader.ReadDouble();
                 Y = reader.ReadDouble();
@@ -28,9 +52,16 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound
                 Yaw = reader.ReadSignedByte();
                 Pitch = reader.ReadSignedByte();
                 OnGround = reader.ReadBoolean();
-            }
+                return;
+            default:
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityTeleport), protocolVersion, SupportedVersionsStatic);
+                return;
         }
-
-        public abstract void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion);
     }
+
+    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(ref writer, protocolVersion);
+
+    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => Deserialize(ref reader, protocolVersion);
 }
