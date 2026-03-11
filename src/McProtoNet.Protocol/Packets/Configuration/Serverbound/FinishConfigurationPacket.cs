@@ -1,23 +1,29 @@
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("FinishConfiguration", PacketState.Configuration, PacketDirection.Serverbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 765, 0x02)]
+[PacketId(766, MinecraftVersion.LatestProtocol, 0x03)]
 public sealed partial class FinishConfigurationPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol)
-    };
-
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            case >= MinecraftVersion.StartProtocol and <= 763:
                 return;
+            case >= 764 and <= MinecraftVersion.LatestProtocol:
+            {
+                var fields = V764_Last ?? throw new InvalidOperationException("FinishConfigurationPacket 764-last fields missing.");
+                writer.WriteVarInt(fields.Container);
+                return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.FinishConfiguration), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(FinishConfigurationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -26,10 +32,13 @@ public sealed partial class FinishConfigurationPacket : IClientPacket
     {
         switch (protocolVersion)
         {
+            case >= MinecraftVersion.StartProtocol and <= 763:
+                return;
             case >= 764 and <= MinecraftVersion.LatestProtocol:
+                V764_Last = new V764_LastFields { Container = reader.ReadVarInt() };
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.FinishConfiguration), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(FinishConfigurationPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -39,4 +48,11 @@ public sealed partial class FinishConfigurationPacket : IClientPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
+    public V764_LastFields? V764_Last { get; set; }
+
+    public struct V764_LastFields
+    {
+        public int Container { get; set; }
+    }
 }

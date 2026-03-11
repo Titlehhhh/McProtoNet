@@ -140,7 +140,10 @@ public class PacketFactoryGenerator : IIncrementalGenerator
 
         sb.AppendLine("}");
 
-        ctx.AddSource($"{data.ClassName}.PacketId.g.cs", sb.ToString());
+        var fileHint = string.IsNullOrEmpty(data.Namespace)
+            ? data.ClassName
+            : data.Namespace.Replace(".", "_") + "_" + data.ClassName;
+        ctx.AddSource($"{fileHint}.PacketId.g.cs", sb.ToString());
     }
 
     private static void GeneratePacketIdHelper(SourceProductionContext ctx, List<(PacketData Data, int Order)> packets)

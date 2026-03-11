@@ -25,7 +25,7 @@ public sealed partial class KeepAlivePacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarLong(KeepAliveId);
+                writer.WriteSignedLong(KeepAliveId);
                 break;
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(KeepAlivePacket), protocolVersion, SupportedVersions);
@@ -38,7 +38,7 @@ public sealed partial class KeepAlivePacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                KeepAliveId = reader.ReadVarLong();
+                KeepAliveId = reader.ReadSignedLong();
                 break;
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(KeepAlivePacket), protocolVersion, SupportedVersions);

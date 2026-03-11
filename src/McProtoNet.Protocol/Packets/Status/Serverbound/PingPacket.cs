@@ -1,15 +1,14 @@
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Status.Serverbound;
 
 [PacketInfo("Ping", PacketState.Status, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x01)]
 public sealed partial class PingPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public long Time { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -20,7 +19,7 @@ public sealed partial class PingPacket : IClientPacket
                 writer.WriteSignedLong(Time);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientStatusPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -33,7 +32,7 @@ public sealed partial class PingPacket : IClientPacket
                 Time = reader.ReadSignedLong();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientStatusPacket.Ping), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

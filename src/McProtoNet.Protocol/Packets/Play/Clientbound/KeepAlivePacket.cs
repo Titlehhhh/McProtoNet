@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("KeepAlive", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x20)]
@@ -25,7 +27,7 @@ public sealed partial class KeepAlivePacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteVarLong(KeepAliveId);
+                writer.WriteSignedLong(KeepAliveId);
                 return;
             }
             default:
@@ -40,7 +42,7 @@ public sealed partial class KeepAlivePacket : IServerPacket
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
             {
-                KeepAliveId = reader.ReadVarLong();
+                KeepAliveId = reader.ReadSignedLong();
                 return;
             }
             default:

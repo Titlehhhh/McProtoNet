@@ -1,24 +1,18 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
 [PacketInfo("LoginStart", PacketState.Login, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class LoginStartPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-        new(759, 759),
-        new(760, 760),
-        new(761, 763),
-        new(764, MinecraftVersion.LatestProtocol)
-    };
+    public string Username { get; set; }
 
-    public string Username { get; set; } = string.Empty;
-
-    public V759Fields? V759 { get; set; }
-    public V760Fields? V760 { get; set; }
+    public V759_759Fields? V759_759 { get; set; }
+    public V760_760Fields? V760_760 { get; set; }
     public V761_763Fields? V761_763 { get; set; }
     public V764_LastFields? V764_Last { get; set; }
 
@@ -29,77 +23,58 @@ public sealed partial class LoginStartPacket : IClientPacket
             case >= MinecraftVersion.StartProtocol and <= 758:
                 writer.WriteString(Username);
                 return;
-            case 759:
+            case >= 759 and <= 759:
             {
-                var fields = V759 ?? throw new InvalidOperationException("LoginStart V759 missing.");
+                var fields = V759_759 ?? throw new InvalidOperationException("LoginStartPacket 759-759 fields missing.");
                 writer.WriteString(Username);
                 writer.WriteBoolean(fields.HasSignature);
                 if (fields.HasSignature)
                 {
-                    if (fields.Timestamp is null || fields.PublicKey is null || fields.Signature is null)
-                    {
-                        throw new InvalidOperationException("LoginStart signature data missing.");
-                    }
-                    writer.WriteSignedLong(fields.Timestamp.Value);
-                    writer.WriteVarInt(fields.PublicKey.Length);
-                    writer.WriteBuffer(fields.PublicKey);
-                    writer.WriteVarInt(fields.Signature.Length);
-                    writer.WriteBuffer(fields.Signature);
+                    writer.WriteSignedLong(fields.Timestamp);
+                    writer.WriteVarInt(fields.PublicKey.Length); writer.WriteBuffer(fields.PublicKey);
+                    writer.WriteVarInt(fields.Signature.Length); writer.WriteBuffer(fields.Signature);
                 }
                 return;
             }
-            case 760:
+            case >= 760 and <= 760:
             {
-                var fields = V760 ?? throw new InvalidOperationException("LoginStart V760 missing.");
+                var fields = V760_760 ?? throw new InvalidOperationException("LoginStartPacket 760-760 fields missing.");
                 writer.WriteString(Username);
                 writer.WriteBoolean(fields.HasSignature);
                 if (fields.HasSignature)
                 {
-                    if (fields.Timestamp is null || fields.PublicKey is null || fields.Signature is null)
-                    {
-                        throw new InvalidOperationException("LoginStart signature data missing.");
-                    }
-                    writer.WriteSignedLong(fields.Timestamp.Value);
-                    writer.WriteVarInt(fields.PublicKey.Length);
-                    writer.WriteBuffer(fields.PublicKey);
-                    writer.WriteVarInt(fields.Signature.Length);
-                    writer.WriteBuffer(fields.Signature);
+                    writer.WriteSignedLong(fields.Timestamp);
+                    writer.WriteVarInt(fields.PublicKey.Length); writer.WriteBuffer(fields.PublicKey);
+                    writer.WriteVarInt(fields.Signature.Length); writer.WriteBuffer(fields.Signature);
                 }
-                writer.WriteBoolean(fields.HasPlayerUuid);
-                if (fields.HasPlayerUuid)
+                writer.WriteBoolean(fields.PlayerUUID.HasValue);
+                if (fields.PlayerUUID.HasValue)
                 {
-                    if (fields.PlayerUuid is null)
-                    {
-                        throw new InvalidOperationException("LoginStart player uuid missing.");
-                    }
-                    writer.WriteUUID(fields.PlayerUuid.Value);
+                    writer.WriteUUID(fields.PlayerUUID.Value);
                 }
                 return;
             }
             case >= 761 and <= 763:
             {
-                var fields = V761_763 ?? throw new InvalidOperationException("LoginStart V761_763 missing.");
+                var fields = V761_763 ?? throw new InvalidOperationException("LoginStartPacket 761-763 fields missing.");
                 writer.WriteString(Username);
-                writer.WriteBoolean(fields.HasPlayerUuid);
-                if (fields.HasPlayerUuid)
+                writer.WriteBoolean(fields.PlayerUUID.HasValue);
+                if (fields.PlayerUUID.HasValue)
                 {
-                    if (fields.PlayerUuid is null)
-                    {
-                        throw new InvalidOperationException("LoginStart player uuid missing.");
-                    }
-                    writer.WriteUUID(fields.PlayerUuid.Value);
+                    writer.WriteUUID(fields.PlayerUUID.Value);
                 }
                 return;
             }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V764_Last ?? throw new InvalidOperationException("LoginStart V764_Last missing.");
+                var fields = V764_Last ?? throw new InvalidOperationException("LoginStartPacket 764-last fields missing.");
                 writer.WriteString(Username);
-                writer.WriteUUID(fields.PlayerUuid);
+                writer.WriteUUID(fields.PlayerUUID);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginStart), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(LoginStartPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 
@@ -109,76 +84,67 @@ public sealed partial class LoginStartPacket : IClientPacket
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
                 Username = reader.ReadString();
+                V759_759 = null;
+                V760_760 = null;
+                V761_763 = null;
+                V764_Last = null;
                 return;
-            case 759:
-            {
+            case >= 759 and <= 759:
                 Username = reader.ReadString();
-                bool hasSignature = reader.ReadBoolean();
-                long? timestamp = null;
-                byte[]? publicKey = null;
-                byte[]? signature = null;
-                if (hasSignature)
+                var fields759 = new V759_759Fields
                 {
-                    timestamp = reader.ReadSignedLong();
-                    publicKey = reader.ReadBuffer(reader.ReadVarInt());
-                    signature = reader.ReadBuffer(reader.ReadVarInt());
-                }
-                V759 = new V759Fields
-                {
-                    HasSignature = hasSignature,
-                    Timestamp = timestamp,
-                    PublicKey = publicKey,
-                    Signature = signature
+                    HasSignature = reader.ReadBoolean()
                 };
+                if (fields759.HasSignature)
+                {
+                    fields759.Timestamp = reader.ReadSignedLong();
+                    fields759.PublicKey = reader.ReadBuffer(reader.ReadVarInt());
+                    fields759.Signature = reader.ReadBuffer(reader.ReadVarInt());
+                }
+                V759_759 = fields759;
+                V760_760 = null;
+                V761_763 = null;
+                V764_Last = null;
                 return;
-            }
-            case 760:
-            {
+            case >= 760 and <= 760:
                 Username = reader.ReadString();
-                bool hasSignature = reader.ReadBoolean();
-                long? timestamp = null;
-                byte[]? publicKey = null;
-                byte[]? signature = null;
-                if (hasSignature)
+                var fields760 = new V760_760Fields
                 {
-                    timestamp = reader.ReadSignedLong();
-                    publicKey = reader.ReadBuffer(reader.ReadVarInt());
-                    signature = reader.ReadBuffer(reader.ReadVarInt());
-                }
-                bool hasPlayerUuid = reader.ReadBoolean();
-                Guid? playerUuid = hasPlayerUuid ? reader.ReadUUID() : null;
-                V760 = new V760Fields
-                {
-                    HasSignature = hasSignature,
-                    Timestamp = timestamp,
-                    PublicKey = publicKey,
-                    Signature = signature,
-                    HasPlayerUuid = hasPlayerUuid,
-                    PlayerUuid = playerUuid
+                    HasSignature = reader.ReadBoolean()
                 };
+                if (fields760.HasSignature)
+                {
+                    fields760.Timestamp = reader.ReadSignedLong();
+                    fields760.PublicKey = reader.ReadBuffer(reader.ReadVarInt());
+                    fields760.Signature = reader.ReadBuffer(reader.ReadVarInt());
+                }
+                fields760.PlayerUUID = reader.ReadBoolean() ? reader.ReadUUID() : (Guid?)null;
+                V760_760 = fields760;
+                V759_759 = null;
+                V761_763 = null;
+                V764_Last = null;
                 return;
-            }
             case >= 761 and <= 763:
-            {
                 Username = reader.ReadString();
-                bool hasPlayerUuid = reader.ReadBoolean();
-                Guid? playerUuid = hasPlayerUuid ? reader.ReadUUID() : null;
-                V761_763 = new V761_763Fields
+                var fields761 = new V761_763Fields
                 {
-                    HasPlayerUuid = hasPlayerUuid,
-                    PlayerUuid = playerUuid
+                    PlayerUUID = reader.ReadBoolean() ? reader.ReadUUID() : (Guid?)null
                 };
+                V761_763 = fields761;
+                V759_759 = null;
+                V760_760 = null;
+                V764_Last = null;
                 return;
-            }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
                 Username = reader.ReadString();
-                V764_Last = new V764_LastFields
-                {
-                    PlayerUuid = reader.ReadUUID()
-                };
+                V764_Last = new V764_LastFields { PlayerUUID = reader.ReadUUID() };
+                V759_759 = null;
+                V760_760 = null;
+                V761_763 = null;
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.LoginStart), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(LoginStartPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 
@@ -188,32 +154,30 @@ public sealed partial class LoginStartPacket : IClientPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct V759Fields
+    public struct V759_759Fields
     {
         public bool HasSignature { get; set; }
-        public long? Timestamp { get; set; }
-        public byte[]? PublicKey { get; set; }
-        public byte[]? Signature { get; set; }
+        public long Timestamp { get; set; }
+        public byte[] PublicKey { get; set; }
+        public byte[] Signature { get; set; }
     }
 
-    public struct V760Fields
+    public struct V760_760Fields
     {
         public bool HasSignature { get; set; }
-        public long? Timestamp { get; set; }
-        public byte[]? PublicKey { get; set; }
-        public byte[]? Signature { get; set; }
-        public bool HasPlayerUuid { get; set; }
-        public Guid? PlayerUuid { get; set; }
+        public long Timestamp { get; set; }
+        public byte[] PublicKey { get; set; }
+        public byte[] Signature { get; set; }
+        public Guid? PlayerUUID { get; set; }
     }
 
     public struct V761_763Fields
     {
-        public bool HasPlayerUuid { get; set; }
-        public Guid? PlayerUuid { get; set; }
+        public Guid? PlayerUUID { get; set; }
     }
 
     public struct V764_LastFields
     {
-        public Guid PlayerUuid { get; set; }
+        public Guid PlayerUUID { get; set; }
     }
 }

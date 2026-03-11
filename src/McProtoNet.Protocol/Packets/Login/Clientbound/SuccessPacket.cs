@@ -1,22 +1,17 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("Success", PacketState.Login, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x02)]
 public sealed partial class SuccessPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-        new(759, 765),
-        new(766, 767),
-        new(768, MinecraftVersion.LatestProtocol)
-    };
+    public Guid Uuid { get; set; }
+    public string Username { get; set; }
 
-    public string Username { get; set; } = string.Empty;
-
-    public VFirst_758Fields? VFirst_758 { get; set; }
     public V759_765Fields? V759_765 { get; set; }
     public V766_767Fields? V766_767 { get; set; }
     public V768_LastFields? V768_Last { get; set; }
@@ -26,84 +21,40 @@ public sealed partial class SuccessPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
-            {
-                var fields = VFirst_758 ?? throw new InvalidOperationException("Success VFirst_758 missing.");
-                writer.WriteUUID(fields.Uuid);
+                writer.WriteUUID(Uuid);
                 writer.WriteString(Username);
                 return;
-            }
             case >= 759 and <= 765:
             {
-                var fields = V759_765 ?? throw new InvalidOperationException("Success V759_765 missing.");
-                writer.WriteUUID(fields.Uuid);
+                var fields = V759_765 ?? throw new InvalidOperationException("SuccessPacket 759-765 fields missing.");
+                writer.WriteUUID(Uuid);
                 writer.WriteString(Username);
-                var properties = fields.Properties ?? Array.Empty<Property>();
-                writer.WriteVarInt(properties.Length);
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    writer.WriteString(properties[i].Name ?? string.Empty);
-                    writer.WriteString(properties[i].Value ?? string.Empty);
-                    if (properties[i].Signature is null)
-                    {
-                        writer.WriteBoolean(false);
-                    }
-                    else
-                    {
-                        writer.WriteBoolean(true);
-                        writer.WriteString(properties[i].Signature);
-                    }
-                }
+                writer.WriteVarInt(fields.Properties.Length);
+                foreach (var p in fields.Properties) { writer.WriteString(p.Name); writer.WriteString(p.Value); writer.WriteString(p.Signature); }
                 return;
             }
             case >= 766 and <= 767:
             {
-                var fields = V766_767 ?? throw new InvalidOperationException("Success V766_767 missing.");
-                writer.WriteUUID(fields.Uuid);
+                var fields = V766_767 ?? throw new InvalidOperationException("SuccessPacket 766-767 fields missing.");
+                writer.WriteUUID(Uuid);
                 writer.WriteString(Username);
-                var properties = fields.Properties ?? Array.Empty<Property>();
-                writer.WriteVarInt(properties.Length);
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    writer.WriteString(properties[i].Name ?? string.Empty);
-                    writer.WriteString(properties[i].Value ?? string.Empty);
-                    if (properties[i].Signature is null)
-                    {
-                        writer.WriteBoolean(false);
-                    }
-                    else
-                    {
-                        writer.WriteBoolean(true);
-                        writer.WriteString(properties[i].Signature);
-                    }
-                }
+                writer.WriteVarInt(fields.Properties.Length);
+                foreach (var p in fields.Properties) { writer.WriteString(p.Name); writer.WriteString(p.Value); writer.WriteString(p.Signature); }
                 writer.WriteBoolean(fields.StrictErrorHandling);
                 return;
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V768_Last ?? throw new InvalidOperationException("Success V768_Last missing.");
-                writer.WriteUUID(fields.Uuid);
+                var fields = V768_Last ?? throw new InvalidOperationException("SuccessPacket 768-last fields missing.");
+                writer.WriteUUID(Uuid);
                 writer.WriteString(Username);
-                var properties = fields.Properties ?? Array.Empty<Property>();
-                writer.WriteVarInt(properties.Length);
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    writer.WriteString(properties[i].Name ?? string.Empty);
-                    writer.WriteString(properties[i].Value ?? string.Empty);
-                    if (properties[i].Signature is null)
-                    {
-                        writer.WriteBoolean(false);
-                    }
-                    else
-                    {
-                        writer.WriteBoolean(true);
-                        writer.WriteString(properties[i].Signature);
-                    }
-                }
+                writer.WriteVarInt(fields.Properties.Length);
+                foreach (var p in fields.Properties) { writer.WriteString(p.Name); writer.WriteString(p.Value); writer.WriteString(p.Signature); }
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Success), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SuccessPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 
@@ -112,93 +63,42 @@ public sealed partial class SuccessPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
-                VFirst_758 = new VFirst_758Fields
-                {
-                    Uuid = reader.ReadUUID()
-                };
+                Uuid = reader.ReadUUID();
                 Username = reader.ReadString();
                 return;
             case >= 759 and <= 765:
             {
-                Guid uuid = reader.ReadUUID();
+                Uuid = reader.ReadUUID();
                 Username = reader.ReadString();
-                int count = reader.ReadVarInt();
-                var properties = count == 0 ? Array.Empty<Property>() : new Property[count];
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    string name = reader.ReadString();
-                    string value = reader.ReadString();
-                    bool hasSignature = reader.ReadBoolean();
-                    string? signature = hasSignature ? reader.ReadString() : null;
-                    properties[i] = new Property
-                    {
-                        Name = name,
-                        Value = value,
-                        Signature = signature
-                    };
-                }
-                V759_765 = new V759_765Fields
-                {
-                    Uuid = uuid,
-                    Properties = properties
-                };
+                var c759 = reader.ReadVarInt();
+                var p759 = new Property[c759];
+                for (int i = 0; i < c759; i++) p759[i] = new Property { Name = reader.ReadString(), Value = reader.ReadString(), Signature = reader.ReadString() };
+                V759_765 = new V759_765Fields { Properties = p759 };
                 return;
             }
             case >= 766 and <= 767:
             {
-                Guid uuid = reader.ReadUUID();
+                Uuid = reader.ReadUUID();
                 Username = reader.ReadString();
-                int count = reader.ReadVarInt();
-                var properties = count == 0 ? Array.Empty<Property>() : new Property[count];
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    string name = reader.ReadString();
-                    string value = reader.ReadString();
-                    bool hasSignature = reader.ReadBoolean();
-                    string? signature = hasSignature ? reader.ReadString() : null;
-                    properties[i] = new Property
-                    {
-                        Name = name,
-                        Value = value,
-                        Signature = signature
-                    };
-                }
-                V766_767 = new V766_767Fields
-                {
-                    Uuid = uuid,
-                    Properties = properties,
-                    StrictErrorHandling = reader.ReadBoolean()
-                };
+                var c766 = reader.ReadVarInt();
+                var p766 = new Property[c766];
+                for (int i = 0; i < c766; i++) p766[i] = new Property { Name = reader.ReadString(), Value = reader.ReadString(), Signature = reader.ReadString() };
+                V766_767 = new V766_767Fields { Properties = p766, StrictErrorHandling = reader.ReadBoolean() };
                 return;
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                Guid uuid = reader.ReadUUID();
+                Uuid = reader.ReadUUID();
                 Username = reader.ReadString();
-                int count = reader.ReadVarInt();
-                var properties = count == 0 ? Array.Empty<Property>() : new Property[count];
-                for (int i = 0; i < properties.Length; i++)
-                {
-                    string name = reader.ReadString();
-                    string value = reader.ReadString();
-                    bool hasSignature = reader.ReadBoolean();
-                    string? signature = hasSignature ? reader.ReadString() : null;
-                    properties[i] = new Property
-                    {
-                        Name = name,
-                        Value = value,
-                        Signature = signature
-                    };
-                }
-                V768_Last = new V768_LastFields
-                {
-                    Uuid = uuid,
-                    Properties = properties
-                };
+                var c768 = reader.ReadVarInt();
+                var p768 = new Property[c768];
+                for (int i = 0; i < c768; i++) p768[i] = new Property { Name = reader.ReadString(), Value = reader.ReadString(), Signature = reader.ReadString() };
+                V768_Last = new V768_LastFields { Properties = p768 };
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Success), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SuccessPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 
@@ -208,34 +108,26 @@ public sealed partial class SuccessPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public struct VFirst_758Fields
-    {
-        public Guid Uuid { get; set; }
-    }
-
     public struct V759_765Fields
     {
-        public Guid Uuid { get; set; }
-        public Property[]? Properties { get; set; }
+        public Property[] Properties { get; set; }
     }
 
     public struct V766_767Fields
     {
-        public Guid Uuid { get; set; }
-        public Property[]? Properties { get; set; }
+        public Property[] Properties { get; set; }
         public bool StrictErrorHandling { get; set; }
     }
 
     public struct V768_LastFields
     {
-        public Guid Uuid { get; set; }
-        public Property[]? Properties { get; set; }
+        public Property[] Properties { get; set; }
     }
 
-    public class Property
+    public struct Property
     {
-        public string? Name { get; set; }
-        public string? Value { get; set; }
-        public string? Signature { get; set; }
+        public string Name { get; set; }
+        public string Value { get; set; }
+        public string Signature { get; set; }
     }
 }

@@ -70,13 +70,13 @@
         <Compile Include="Packets\Play\Clientbound\EntityStatusPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\UnloadChunkPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\OpenHorseWindowPacket.cs" />
-        <!-- KeepAlivePacket: конфликт с Serverbound — отключено до фикса namespace -->
+        <Compile Include="Packets\Play\Clientbound\KeepAlivePacket.cs" />
         <Compile Include="Packets\Play\Clientbound\VehicleMovePacket.cs" />
         <Compile Include="Packets\Play\Clientbound\OpenBookPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\OpenSignEntityPacket.cs" />
-        <!-- AbilitiesPacket: конфликт с Serverbound — отключено до фикса namespace -->
+        <Compile Include="Packets\Play\Clientbound\AbilitiesPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\CameraPacket.cs" />
-        <!-- HeldItemSlotPacket: конфликт с Serverbound — отключено до фикса namespace -->
+        <Compile Include="Packets\Play\Clientbound\HeldItemSlotPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\UpdateViewPositionPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\UpdateViewDistancePacket.cs" />
         <Compile Include="Packets\Play\Clientbound\ScoreboardDisplayObjectivePacket.cs" />
@@ -85,6 +85,25 @@
         <Compile Include="Packets\Play\Clientbound\ExperiencePacket.cs" />
         <Compile Include="Packets\Play\Clientbound\SetPassengersPacket.cs" />
         <Compile Include="Packets\Play\Clientbound\SpawnPositionPacket.cs" />
+        <!-- Handshaking -->
+        <Compile Include="Packets\Handshaking\Serverbound\SetProtocolPacket.cs" />
+        <!-- Status -->
+        <Compile Include="Packets\Status\Clientbound\ServerInfoPacket.cs" />
+        <Compile Include="Packets\Status\Clientbound\PingPacket.cs" />
+        <Compile Include="Packets\Status\Serverbound\PingStartPacket.cs" />
+        <Compile Include="Packets\Status\Serverbound\PingPacket.cs" />
+        <!-- Login -->
+        <Compile Include="Packets\Login\Serverbound\LoginStartPacket.cs" />
+        <Compile Include="Packets\Login\Serverbound\LoginAcknowledgedPacket.cs" />
+        <Compile Include="Packets\Login\Clientbound\DisconnectPacket.cs" />
+        <Compile Include="Packets\Login\Clientbound\SuccessPacket.cs" />
+        <Compile Include="Packets\Login\Clientbound\CompressPacket.cs" />
+        <!-- Configuration -->
+        <Compile Include="Packets\Configuration\Serverbound\FinishConfigurationPacket.cs" />
+        <Compile Include="Packets\Configuration\Serverbound\KeepAlivePacket.cs" />
+        <Compile Include="Packets\Configuration\Clientbound\FinishConfigurationPacket.cs" />
+        <Compile Include="Packets\Configuration\Clientbound\DisconnectPacket.cs" />
+        <Compile Include="Packets\Configuration\Clientbound\KeepAlivePacket.cs" />
     </ItemGroup>
 
 

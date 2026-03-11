@@ -130,7 +130,13 @@ public sealed class VersionRangeGenerator : IIncrementalGenerator
 
         sb.AppendLine("}");
 
-        ctx.AddSource($"{name}.Protocol.g.cs", sb.ToString());
+        var ns = symbol.ContainingNamespace.IsGlobalNamespace
+            ? string.Empty
+            : symbol.ContainingNamespace.ToDisplayString();
+        var fileHint = string.IsNullOrEmpty(ns)
+            ? name
+            : ns.Replace(".", "_") + "_" + name;
+        ctx.AddSource($"{fileHint}.Protocol.g.cs", sb.ToString());
     }
 
 
@@ -153,14 +159,15 @@ public sealed class VersionRangeGenerator : IIncrementalGenerator
 
         foreach (var type in types)
         {
+            if (type.Symbol.TypeParameters.Length > 0) continue;
+
             var fullName = type.Symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
-            var shortName = type.Symbol.Name;
 
             sb.AppendLine($"        if (typeof(T) == typeof({fullName}))");
             sb.AppendLine("        {");
-            sb.AppendLine($"            if (!{shortName}.IsSupportedVersion(protocol))");
+            sb.AppendLine($"            if (!{fullName}.IsSupportedVersion(protocol))");
             sb.AppendLine(
-                $"                ThrowProtocolNotSupported(typeof({shortName}), protocol, {shortName}.SupportedVersions);");
+                $"                ThrowProtocolNotSupported(typeof({fullName}), protocol, {fullName}.SupportedVersions);");
             sb.AppendLine("            return;");
             sb.AppendLine("        }");
             sb.AppendLine();

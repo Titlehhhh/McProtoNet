@@ -1,26 +1,27 @@
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 
 [PacketInfo("ServerInfo", PacketState.Status, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class ServerInfoPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
-    public string Response { get; set; } = string.Empty;
+    public int Container { get; set; }
+    public string Response { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                writer.WriteVarInt(Container);
                 writer.WriteString(Response);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerStatusPacket.ServerInfo), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerInfoPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -30,10 +31,11 @@ public sealed partial class ServerInfoPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+                Container = reader.ReadVarInt();
                 Response = reader.ReadString();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerStatusPacket.ServerInfo), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerInfoPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

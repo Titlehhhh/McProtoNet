@@ -1,15 +1,14 @@
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("Compress", PacketState.Login, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x03)]
 public sealed partial class CompressPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public int Threshold { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -20,7 +19,8 @@ public sealed partial class CompressPacket : IServerPacket
                 writer.WriteVarInt(Threshold);
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Compress), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(CompressPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 
@@ -32,7 +32,8 @@ public sealed partial class CompressPacket : IServerPacket
                 Threshold = reader.ReadVarInt();
                 return;
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.Compress), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(CompressPacket), protocolVersion, SupportedVersions);
+                return;
         }
     }
 

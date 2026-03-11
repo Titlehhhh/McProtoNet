@@ -2,24 +2,32 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
-namespace McProtoNet.Protocol.Packets.Status.Serverbound;
+namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
-[PacketInfo("PingStart", PacketState.Status, PacketDirection.Serverbound)]
+[PacketInfo("SetProtocol", PacketState.Handshaking, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x00)]
-public sealed partial class PingStartPacket : IClientPacket
+public sealed partial class SetProtocolPacket : IClientPacket
 {
-    public int Container { get; set; }
+    public int ProtocolVersion { get; set; }
+    public string ServerHost { get; set; }
+    public ushort ServerPort { get; set; }
+    public int NextState { get; set; }
 
     internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Container);
+            {
+                writer.WriteVarInt(ProtocolVersion);
+                writer.WriteString(ServerHost);
+                writer.WriteUnsignedShort(ServerPort);
+                writer.WriteVarInt(NextState);
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingStartPacket), protocolVersion, SupportedVersions);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetProtocolPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -29,10 +37,15 @@ public sealed partial class PingStartPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Container = reader.ReadVarInt();
+            {
+                ProtocolVersion = reader.ReadVarInt();
+                ServerHost = reader.ReadString();
+                ServerPort = reader.ReadUnsignedShort();
+                NextState = reader.ReadVarInt();
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingStartPacket), protocolVersion, SupportedVersions);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetProtocolPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }

@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("Abilities", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x31)]
