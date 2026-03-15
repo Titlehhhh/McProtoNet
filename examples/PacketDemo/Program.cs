@@ -7,6 +7,7 @@ using McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using McProtoNet.Protocol.Packets.Play.Clientbound;
 using McProtoNet.Serialization;
+using FinishConfigurationPacket = McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket;
 
 const int Version = 769;
 
@@ -62,7 +63,10 @@ Console.WriteLine("--- Login ---");
     var loginStart = new LoginStartPacket
     {
         Username = "TestPlayer",
-        V764_Last = new LoginStartPacket.V764_LastFields { PlayerUUID = Guid.NewGuid() }
+        V764_Last = new()
+        {
+            PlayerUUID = Guid.NewGuid()
+        }
     };
     var buf = Serialize(loginStart, Version);
     var loginStart2 = new LoginStartPacket();
@@ -84,7 +88,10 @@ Console.WriteLine("--- Configuration ---");
 {
     var finish = new McProtoNet.Protocol.Packets.Configuration.Clientbound.FinishConfigurationPacket
     {
-        V764_Last = new McProtoNet.Protocol.Packets.Configuration.Clientbound.FinishConfigurationPacket.V764_LastFields { Container = 42 }
+        V764_Last = new ()
+        {
+            Container = 42
+        }
     };
     var buf = Serialize(finish, Version);
     var finish2 = new McProtoNet.Protocol.Packets.Configuration.Clientbound.FinishConfigurationPacket();
@@ -92,9 +99,12 @@ Console.WriteLine("--- Configuration ---");
     Assert(finish2.V764_Last!.Value.Container == 42, "FinishConfiguration.Container");
     Console.WriteLine($"FinishConfigurationPacket (CB) OK (container={finish2.V764_Last!.Value.Container})");
 
-    var finishSb = new McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket
+    var finishSb = new McProtoNet.Protocol.Packets.Configuration.Clientbound.FinishConfigurationPacket
     {
-        V764_Last = new McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket.V764_LastFields { Container = 7 }
+        V764_Last = new ()
+        {
+            Container = 5
+        }
     };
     var sbBuf = Serialize(finishSb, Version);
     var finishSb2 = new McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket();

@@ -1,4 +1,6 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Extensions;
@@ -7,12 +9,11 @@ public static partial class ProtocolSerializationExtensions
 {
     extension(ref MinecraftPrimitiveWriter writer)
     {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteArray<T>(ReadOnlySpan<T> arr)
-        {
-            //WriteArray(ref arr, LengthFormat.VarInt);
-        }
+            => writer.WriteArray(arr, LengthFormat.VarInt);
 
-        public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat)
+        public void WriteArray<T>(ReadOnlySpan<T> arr, [ConstantExpected] LengthFormat lengthFormat)
         {
             WriteLength(ref writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
@@ -21,12 +22,11 @@ public static partial class ProtocolSerializationExtensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteArray<T>(ReadOnlySpan<T> arr, int protocolVersion)
-        {
-            //WriteArray(arr, LengthFormat.VarInt, protocolVersion);
-        }
+            => writer.WriteArray(arr, LengthFormat.VarInt, protocolVersion);
 
-        public void WriteArray<T>(ReadOnlySpan<T> arr, LengthFormat lengthFormat, int protocolVersion)
+        public void WriteArray<T>(ReadOnlySpan<T> arr, [ConstantExpected] LengthFormat lengthFormat, int protocolVersion)
         {
             WriteLength(ref writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)

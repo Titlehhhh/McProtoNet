@@ -9,13 +9,11 @@ public interface IPacket
     static virtual ProtocolRange[] SupportedVersions => System.Array.Empty<ProtocolRange>();
 
     PacketIdentifier GetPacketId();
-    
 
-    void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+
+    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
         => throw new NotSupportedException($"{GetType().Name} does not support serialization.");
 
-    void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => throw new NotSupportedException($"{GetType().Name} does not support deserialization.");
 }
-
-
