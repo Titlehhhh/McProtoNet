@@ -176,6 +176,10 @@ public class PacketGenerator : IIncrementalGenerator
 
         sb.AppendLine();
         sb.AppendLine("        public virtual ProtocolRange[] SupportedVersions => SupportedVersionsStatic;");
+        sb.AppendLine();
+        // IPacket instance members
+        sb.AppendLine("        public bool IsVersionSupported(int protocolVersion) => IsSupportedVersionStatic(protocolVersion);");
+        sb.AppendLine("        public ProtocolRange[] GetSupportedVersions() => SupportedVersionsStatic;");
 
         sb.AppendLine();
         sb.AppendLine($"        public static PacketIdentifier PacketId => {direction}{stage}Packet.{packetName};");

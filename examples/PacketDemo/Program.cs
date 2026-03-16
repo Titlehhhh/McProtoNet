@@ -161,22 +161,13 @@ Console.WriteLine("All assertions passed!");
 // --- Helpers ---
 static byte[] Serialize(IPacket packet, int version)
 {
-    var writer = new MinecraftPrimitiveWriter();
-    try
-    {
-        packet.Serialize(ref writer, version);
-        return writer.WrittenSpan.ToArray();
-    }
-    finally
-    {
-        writer.Dispose();
-    }
+    using var owner = PacketMarshaller.Serialize(packet, version);
+    return owner.Memory.ToArray();
 }
 
 static void Deserialize(IPacket packet, byte[] data, int version)
 {
-    var reader = new MinecraftPrimitiveReader(data);
-    packet.Deserialize(ref reader, version);
+    PacketMarshaller.Deserialize(packet, (ReadOnlyMemory<byte>)data, version);
 }
 
 static void Assert(bool condition, string name)
