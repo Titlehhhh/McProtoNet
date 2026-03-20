@@ -35,6 +35,42 @@ public static partial class ProtocolSerializationExtensions
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteVarIntArray(ReadOnlySpan<int> arr)
+            => writer.WriteVarIntArray(arr, LengthFormat.VarInt);
+
+        public void WriteVarIntArray(ReadOnlySpan<int> arr, [ConstantExpected] LengthFormat lengthFormat)
+        {
+            WriteLength(ref writer, lengthFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+                writer.WriteVarInt(arr[i]);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void WriteVarLongArray(ReadOnlySpan<long> arr)
+            => writer.WriteVarLongArray(arr, LengthFormat.VarInt);
+
+        public void WriteVarLongArray(ReadOnlySpan<long> arr, [ConstantExpected] LengthFormat lengthFormat)
+        {
+            WriteLength(ref writer, lengthFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+                writer.WriteVarLong(arr[i]);
+        }
+
+        public void WriteArray2d<T>(ReadOnlySpan<T[]> arr, [ConstantExpected] LengthFormat outerFormat, [ConstantExpected] LengthFormat innerFormat)
+        {
+            WriteLength(ref writer, outerFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+                writer.WriteArray<T>(arr[i], innerFormat);
+        }
+
+        public void WriteArray2d<T>(ReadOnlySpan<T[]> arr, [ConstantExpected] LengthFormat outerFormat, [ConstantExpected] LengthFormat innerFormat, int protocolVersion)
+        {
+            WriteLength(ref writer, outerFormat, arr.Length);
+            for (int i = 0; i < arr.Length; i++)
+                writer.WriteArray<T>(arr[i], innerFormat, protocolVersion);
+        }
+
         public void WriteBuffer(ReadOnlySpan<byte> buff, int length)
         {
             if ((uint)length > (uint)buff.Length)
@@ -251,6 +287,46 @@ public static partial class ProtocolSerializationExtensions
                 result[i] = reader.ReadType<T>(protocolVersion);
             }
 
+            return result;
+        }
+
+        public int[] ReadVarIntArray(LengthFormat lengthFormat)
+        {
+            int length = ReadLength(ref reader, lengthFormat);
+            if (length == 0) return Array.Empty<int>();
+            var result = new int[length];
+            for (int i = 0; i < length; i++)
+                result[i] = reader.ReadVarInt();
+            return result;
+        }
+
+        public long[] ReadVarLongArray(LengthFormat lengthFormat)
+        {
+            int length = ReadLength(ref reader, lengthFormat);
+            if (length == 0) return Array.Empty<long>();
+            var result = new long[length];
+            for (int i = 0; i < length; i++)
+                result[i] = reader.ReadVarLong();
+            return result;
+        }
+
+        public T[][] ReadArray2d<T>(LengthFormat outerFormat, LengthFormat innerFormat)
+        {
+            int outerLen = ReadLength(ref reader, outerFormat);
+            if (outerLen == 0) return Array.Empty<T[]>();
+            var result = new T[outerLen][];
+            for (int i = 0; i < outerLen; i++)
+                result[i] = reader.ReadArray<T>(innerFormat);
+            return result;
+        }
+
+        public T[][] ReadArray2d<T>(LengthFormat outerFormat, LengthFormat innerFormat, int protocolVersion)
+        {
+            int outerLen = ReadLength(ref reader, outerFormat);
+            if (outerLen == 0) return Array.Empty<T[]>();
+            var result = new T[outerLen][];
+            for (int i = 0; i < outerLen; i++)
+                result[i] = reader.ReadArray<T>(innerFormat, protocolVersion);
             return result;
         }
 
