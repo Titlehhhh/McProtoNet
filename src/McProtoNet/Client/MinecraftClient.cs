@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
-using McProtoNet.Abstractions;
 using McProtoNet.Cryptography;
 using McProtoNet.Net;
 

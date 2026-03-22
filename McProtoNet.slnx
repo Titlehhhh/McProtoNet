@@ -8,7 +8,6 @@
     <Project Path="examples\SimpleBotFSharp\SimpleBotFSharp.fsproj" Type="Classic F#" />
   </Folder>
   <Folder Name="/src/">
-    <Project Path="src\McProtoNet.Abstractions\McProtoNet.Abstractions.csproj" Type="Classic C#" />
     <Project Path="src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj" Type="Classic F#" />
     <Project Path="src\McProtoNet.NBT\McProtoNet.NBT.csproj" Type="Classic C#" />
     <Project Path="src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" Type="Classic C#" />

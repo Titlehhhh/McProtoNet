@@ -1,6 +1,4 @@
 using System.Buffers;
-using System.Threading.Tasks.Sources;
-using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 
@@ -22,8 +20,6 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
 
     private volatile int _readState = NotRead;
     private volatile int _state;
-
-    private readonly PacketSourceCore _sourceCore = new();
 
     private const int NotRead = 0;
     private const int Reading = 1;
@@ -66,7 +62,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
     /// <param name="token">Cancellation token to cancel the operation</param>
     /// <returns>The read packet data</returns>
     /// <exception cref="Exception">Thrown when decompression fails or packet size is invalid</exception>
-    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
+    public async ValueTask<InputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         token.ThrowIfCancellationRequested();
         ThrowIfDisposed();
@@ -159,12 +155,11 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
         var old = Interlocked.Exchange(ref _bytes, null);
         if (old is not null)
         {
-            _sourceCore.Reset();
             _pool.Return(old);
         }
     }
 
-    private NewInputPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
+    private InputPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
     {
         var old = Interlocked.Exchange(ref _bytes, pooledArr);
         if (old is not null)
@@ -175,10 +170,7 @@ public sealed class MinecraftPacketReader : IDisposable, IAsyncDisposable
         var id = readData.Span.ReadVarInt(out var len);
         var data = new ReadOnlySequence<byte>(readData[len..]);
 
-        _sourceCore.Id = id;
-        _sourceCore.Data = data;
-
-        return new NewInputPacket(_sourceCore, _sourceCore.Version);
+        return new InputPacket(id, data);
     }
 
     /// <summary>

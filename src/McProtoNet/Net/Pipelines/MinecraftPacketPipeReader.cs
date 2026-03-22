@@ -1,9 +1,7 @@
 using System.Buffers;
-using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using DotNext.Buffers;
-using McProtoNet.Internal;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
@@ -27,8 +25,6 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 
 
     private volatile IMemoryOwner<byte>? _desompressedBuffer;
-
-    private readonly PacketSourceCore _sourceCore = new();
 
     public MinecraftPacketPipeReader(PipeReader pipeReader)
     {
@@ -122,7 +118,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
     }
 
 
-    public async ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
+    public async ValueTask<InputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
         while (true)
@@ -167,7 +163,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         }
     }
 
-    public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(
+    public IAsyncEnumerable<InputPacket> ReadPacketsAsync(
         CancellationToken cancellationToken = default)
     {
         if (_positionState.HasValue)
@@ -182,7 +178,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         return ReadPacketsAsyncCore(cancellationToken);
     }
 
-    private async IAsyncEnumerable<NewInputPacket> ReadPacketsAsyncCore(
+    private async IAsyncEnumerable<InputPacket> ReadPacketsAsyncCore(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         MemoryOwner<byte> decompressedBuffer = default;
@@ -231,7 +227,6 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         }
         finally
         {
-            _sourceCore.Reset();
             decompressedBuffer.Dispose();
         }
     }
@@ -263,26 +258,21 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private NewInputPacket CreatePacket(
+    private InputPacket CreatePacket(
         ReadOnlySequence<byte> data,
         ref MemoryOwner<byte> decompressedBuffer)
     {
-        bool isSingle1 = data.IsSingleSegment;
         if (CompressionThreshold < 0)
         {
             if (data.TryReadVarInt(out var id, out int idLen))
             {
                 data = data.Slice(idLen);
-                _sourceCore.Reset();
-                _sourceCore.Id = id;
-                _sourceCore.Data = data;
-                return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                return new InputPacket(id, data);
             }
 
             throw new InvalidOperationException("Unable to read packet ID");
         }
 
-        var isSingle2 = data.IsSingleSegment;
         if (data.TryReadVarInt(out var sizeUncompressed, out var len))
         {
             data = data.Slice(len);
@@ -291,38 +281,27 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
                 if (data.TryReadVarInt(out var id, out int idLen))
                 {
                     data = data.Slice(idLen);
-                    _sourceCore.Reset();
-                    _sourceCore.Id = id;
-                    _sourceCore.Data = data;
-                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                    return new InputPacket(id, data);
                 }
 
                 throw new InvalidOperationException("Unable to read packet ID");
             }
 
-
             if (!decompressedBuffer.TryResize(sizeUncompressed))
             {
                 decompressedBuffer.Dispose();
-                decompressedBuffer =
-                    new(ArrayPool<byte>.Shared, sizeUncompressed);
+                decompressedBuffer = new(ArrayPool<byte>.Shared, sizeUncompressed);
             }
 
             try
             {
-                var test = data.Decompress(sizeUncompressed);
-                
                 data.Decompress(ref decompressedBuffer);
                 data = new ReadOnlySequence<byte>(decompressedBuffer.Memory);
 
                 if (data.TryReadVarInt(out var id, out int idLen))
                 {
                     data = data.Slice(idLen);
-                    _sourceCore.Reset();
-                    _sourceCore.Id = id;
-                    _sourceCore.Data = data;
-
-                    return new NewInputPacket(_sourceCore, _sourceCore.Version);
+                    return new InputPacket(id, data);
                 }
 
                 throw new InvalidOperationException("Unable to read packet ID");

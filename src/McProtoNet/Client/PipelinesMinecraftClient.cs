@@ -100,13 +100,13 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
         }
     }
 
-    public IAsyncEnumerable<NewInputPacket> ReadPacketsAsync(CancellationToken token = default)
+    public IAsyncEnumerable<InputPacket> ReadPacketsAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
         return _pipeReader.ReadPacketsAsync(token);
     }
 
-    public ValueTask<NewInputPacket> ReadPacketAsync(CancellationToken token = default)
+    public ValueTask<InputPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfDisposed();
         return _pipeReader.ReadPacketAsync(token);

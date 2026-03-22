@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using DotNext.Buffers;
-using McProtoNet.Abstractions;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 
