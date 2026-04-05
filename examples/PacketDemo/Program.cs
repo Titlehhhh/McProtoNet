@@ -99,7 +99,7 @@ Console.WriteLine("--- Configuration ---");
     Assert(finish2.V764_Last!.Value.Container == 42, "FinishConfiguration.Container");
     Console.WriteLine($"FinishConfigurationPacket (CB) OK (container={finish2.V764_Last!.Value.Container})");
 
-    var finishSb = new McProtoNet.Protocol.Packets.Configuration.Clientbound.FinishConfigurationPacket
+    var finishSb = new McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket
     {
         V764_Last = new ()
         {
@@ -109,7 +109,7 @@ Console.WriteLine("--- Configuration ---");
     var sbBuf = Serialize(finishSb, Version);
     var finishSb2 = new McProtoNet.Protocol.Packets.Configuration.Serverbound.FinishConfigurationPacket();
     Deserialize(finishSb2, sbBuf, Version);
-    Assert(finishSb2.V764_Last!.Value.Container == 7, "FinishConfiguration SB.Container");
+    Assert(finishSb2.V764_Last!.Value.Container == 5, "FinishConfiguration SB.Container");
     Console.WriteLine($"FinishConfigurationPacket (SB) OK (container={finishSb2.V764_Last!.Value.Container})");
 }
 
