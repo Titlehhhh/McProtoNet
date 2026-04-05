@@ -4,8 +4,6 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using BenchmarkDotNet.Attributes;
-using DotNext.Buffers;
-
 namespace McProtoNet.Benchmark;
 
 [MemoryDiagnoser(true)]
@@ -31,11 +29,12 @@ public class ReadBigEndianBenchmarks
         // int Count = 10;
         TestArr = new byte[sizeof(long) * Count];
 
-        scoped SpanWriter<byte> writer = new SpanWriter<byte>(TestArr);
+        var writeSpan = TestArr.AsSpan();
         for (int i = 0; i < Count; i++)
         {
             long v = r.NextInt64();
-            writer.WriteBigEndian(v);
+            BinaryPrimitives.WriteInt64BigEndian(writeSpan, v);
+            writeSpan = writeSpan[sizeof(long)..];
         }
 
         consumedArr = new long[Count];
@@ -45,11 +44,11 @@ public class ReadBigEndianBenchmarks
     //[Benchmark]
     public void SpanReader()
     {
-        scoped SpanReader<byte> reader = new SpanReader<byte>(TestArr);
-
+        var readSpan = TestArr.AsSpan();
         for (int i = 0; i < Count; i++)
         {
-            consumedArr[i] = reader.ReadBigEndian<long>();
+            consumedArr[i] = BinaryPrimitives.ReadInt64BigEndian(readSpan);
+            readSpan = readSpan[sizeof(long)..];
         }
     }
 

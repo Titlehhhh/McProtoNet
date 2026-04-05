@@ -5,7 +5,6 @@ using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNext.IO;
 using McProtoNet.Net;
 
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
@@ -49,8 +48,8 @@ public class Pipelines2SendBench : ISendBench
                 {
                     if (!buffer.IsEmpty)
                     {
-                        // Пишем в сеть по сегментам — безопасно и без лишних аллокаций
-                        await _stream.WriteAsync(buffer).ConfigureAwait(false);
+                        foreach (var segment in buffer)
+                            await _stream.WriteAsync(segment).ConfigureAwait(false);
                     }
 
                     if (result.IsCanceled || result.IsCompleted)
