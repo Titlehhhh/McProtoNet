@@ -19,9 +19,9 @@
 
     <ItemGroup>
        
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
-       
-        <PackageReference Include="xunit.v3" Version="3.2.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.3.0" />
+
+        <PackageReference Include="xunit.v3" Version="3.2.2" />
         
     </ItemGroup>
 
@@ -30,6 +30,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\src\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>

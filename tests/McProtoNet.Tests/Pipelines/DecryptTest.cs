@@ -10,7 +10,7 @@ public class DecryptTest
 {
     private readonly Random random = new Random(55);
 
-    private static readonly byte[] PrivateKey = Enumerable.Sequence<byte>(0, 15, 1).ToArray();
+    private static readonly byte[] PrivateKey = Enumerable.Range(0, 16).Select(i => (byte)i).ToArray();
 
     private byte[] GenTestBuffer(int len)
     {
