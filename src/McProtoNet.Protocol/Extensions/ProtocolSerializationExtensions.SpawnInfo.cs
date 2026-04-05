@@ -32,7 +32,7 @@ public static partial class ProtocolSerializationExtensions
             portalCooldown, seaLevel);
     }
 
-    public static void WriteSpawnInfo(this ref MinecraftPrimitiveWriter writer, SpawnInfo value, int protocolVersion)
+    public static void WriteSpawnInfo(this MinecraftPrimitiveWriter writer, SpawnInfo value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SpawnInfo>(protocolVersion);
         writer.WriteVarInt(value.Dimension);
@@ -67,7 +67,7 @@ public static partial class ProtocolSerializationExtensions
         return new DeathLocation(dimensionName, location);
     }
 
-    public static void WriteDeathLocation(this ref MinecraftPrimitiveWriter writer, DeathLocation value, int protocolVersion)
+    public static void WriteDeathLocation(this MinecraftPrimitiveWriter writer, DeathLocation value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<DeathLocation>(protocolVersion);
         writer.WriteString(value.DimensionName);

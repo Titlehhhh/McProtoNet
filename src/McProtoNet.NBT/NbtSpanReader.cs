@@ -7,18 +7,17 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Text;
-using DotNext.Buffers;
 
 namespace McProtoNet.NBT;
 
 public ref struct NbtSpanReader
 {
-    private SpanReader<byte> _reader;
+    private SpanBinaryReader _reader;
     public int ConsumedCount => _reader.ConsumedCount;
 
     public NbtSpanReader(ReadOnlySpan<byte> data)
     {
-        _reader = new SpanReader<byte>(data);
+        _reader = new SpanBinaryReader(data);
     }
 
 
@@ -49,7 +48,7 @@ public ref struct NbtSpanReader
         if (type == NbtTagType.List)
         {
             var listType = ReadTagType();
-            var length = _reader.ReadBigEndian<int>();
+            var length = _reader.ReadBigEndian32();
             if (length < 0) throw new NbtFormatException($"Negative tag length given: {length}");
 
             if (TryReadNbtListPrimitive(listType, length, out var resultList))
@@ -119,7 +118,7 @@ public ref struct NbtSpanReader
         if (type == NbtTagType.List)
         {
             NbtTagType listType = ReadTagType();
-            int length = _reader.ReadBigEndian<int>();
+            int length = _reader.ReadBigEndian32();
             if (length < 0) throw new NbtFormatException($"Negative tag length given: {length}");
 
             if (TryReadNbtListPrimitive(listType, length, out var resultList))
@@ -180,30 +179,22 @@ public ref struct NbtSpanReader
             ReadOnlySpan<short> cast = MemoryMarshal.Cast<byte, short>(bytes);
             if (BitConverter.IsLittleEndian)
             {
-                SpanOwner<short> source = length switch
-                {
-                    >= 128 => new SpanOwner<short>(MemoryPool<short>.Shared, length),
-                    _ => new SpanOwner<short>(stackalloc short[length])
-                };
+                short[] rented = ArrayPool<short>.Shared.Rent(length);
                 try
                 {
-                    BinaryPrimitives.ReverseEndianness(cast, source.Span);
-                    foreach (var i in source.Span)
-                    {
+                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
+                    foreach (var i in rented.AsSpan(0, length))
                         list.Add(new NbtShort(i));
-                    }
                 }
                 finally
                 {
-                    source.Dispose();
+                    ArrayPool<short>.Shared.Return(rented);
                 }
             }
             else
             {
                 foreach (var i in cast)
-                {
                     list.Add(new NbtShort(i));
-                }
             }
 
             return true;
@@ -216,30 +207,22 @@ public ref struct NbtSpanReader
             ReadOnlySpan<int> cast = MemoryMarshal.Cast<byte, int>(bytes);
             if (BitConverter.IsLittleEndian)
             {
-                SpanOwner<int> source = length switch
-                {
-                    >= 64 => new SpanOwner<int>(MemoryPool<int>.Shared, length),
-                    _ => new SpanOwner<int>(stackalloc int[length])
-                };
+                int[] rented = ArrayPool<int>.Shared.Rent(length);
                 try
                 {
-                    BinaryPrimitives.ReverseEndianness(cast, source.Span);
-                    foreach (var i in source.Span)
-                    {
+                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
+                    foreach (var i in rented.AsSpan(0, length))
                         list.Add(new NbtInt(i));
-                    }
                 }
                 finally
                 {
-                    source.Dispose();
+                    ArrayPool<int>.Shared.Return(rented);
                 }
             }
             else
             {
                 foreach (var i in cast)
-                {
                     list.Add(new NbtInt(i));
-                }
             }
 
             return true;
@@ -252,30 +235,22 @@ public ref struct NbtSpanReader
             ReadOnlySpan<long> cast = MemoryMarshal.Cast<byte, long>(bytes);
             if (BitConverter.IsLittleEndian)
             {
-                SpanOwner<long> source = length switch
-                {
-                    >= 32 => new SpanOwner<long>(MemoryPool<long>.Shared, length),
-                    _ => new SpanOwner<long>(stackalloc long[length])
-                };
+                long[] rented = ArrayPool<long>.Shared.Rent(length);
                 try
                 {
-                    BinaryPrimitives.ReverseEndianness(cast, source.Span);
-                    foreach (var i in source.Span)
-                    {
+                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
+                    foreach (var i in rented.AsSpan(0, length))
                         list.Add(new NbtLong(i));
-                    }
                 }
                 finally
                 {
-                    source.Dispose();
+                    ArrayPool<long>.Shared.Return(rented);
                 }
             }
             else
             {
                 foreach (var i in cast)
-                {
                     list.Add(new NbtLong(i));
-                }
             }
 
             return true;
@@ -289,32 +264,23 @@ public ref struct NbtSpanReader
             if (BitConverter.IsLittleEndian)
             {
                 ReadOnlySpan<int> cast = MemoryMarshal.Cast<byte, int>(bytes);
-                SpanOwner<int> source = length switch
-                {
-                    >= 64 => new SpanOwner<int>(MemoryPool<int>.Shared, length),
-                    _ => new SpanOwner<int>(stackalloc int[length])
-                };
+                int[] rented = ArrayPool<int>.Shared.Rent(length);
                 try
                 {
-                    BinaryPrimitives.ReverseEndianness(cast, source.Span);
-
-                    foreach (var i in MemoryMarshal.Cast<int, float>(source.Span))
-                    {
+                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
+                    foreach (var i in MemoryMarshal.Cast<int, float>(rented.AsSpan(0, length)))
                         list.Add(new NbtFloat(i));
-                    }
                 }
                 finally
                 {
-                    source.Dispose();
+                    ArrayPool<int>.Shared.Return(rented);
                 }
             }
             else
             {
                 ReadOnlySpan<float> cast = MemoryMarshal.Cast<byte, float>(bytes);
                 foreach (var i in cast)
-                {
                     list.Add(new NbtFloat(i));
-                }
             }
 
             return true;
@@ -328,32 +294,23 @@ public ref struct NbtSpanReader
             if (BitConverter.IsLittleEndian)
             {
                 ReadOnlySpan<long> cast = MemoryMarshal.Cast<byte, long>(bytes);
-                SpanOwner<long> source = length switch
-                {
-                    >= 32 => new SpanOwner<long>(MemoryPool<long>.Shared, length),
-                    _ => new SpanOwner<long>(stackalloc long[length])
-                };
+                long[] rented = ArrayPool<long>.Shared.Rent(length);
                 try
                 {
-                    BinaryPrimitives.ReverseEndianness(cast, source.Span);
-
-                    foreach (var i in MemoryMarshal.Cast<long, double>(source.Span))
-                    {
+                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
+                    foreach (var i in MemoryMarshal.Cast<long, double>(rented.AsSpan(0, length)))
                         list.Add(new NbtDouble(i));
-                    }
                 }
                 finally
                 {
-                    source.Dispose();
+                    ArrayPool<long>.Shared.Return(rented);
                 }
             }
             else
             {
                 ReadOnlySpan<double> cast = MemoryMarshal.Cast<byte, double>(bytes);
                 foreach (var i in cast)
-                {
                     list.Add(new NbtDouble(i));
-                }
             }
 
             return true;
@@ -372,17 +329,17 @@ public ref struct NbtSpanReader
 
         if (type == NbtTagType.Short)
         {
-            return new NbtShort(name, _reader.ReadBigEndian<short>());
+            return new NbtShort(name, _reader.ReadBigEndian16());
         }
 
         if (type == NbtTagType.Int)
         {
-            return new NbtInt(name, _reader.ReadBigEndian<int>());
+            return new NbtInt(name, _reader.ReadBigEndian32());
         }
 
         if (type == NbtTagType.Long)
         {
-            return new NbtLong(name, _reader.ReadBigEndian<long>());
+            return new NbtLong(name, _reader.ReadBigEndian64());
         }
 
         if (type == NbtTagType.Float)
@@ -397,7 +354,7 @@ public ref struct NbtSpanReader
 
         if (type == NbtTagType.ByteArray)
         {
-            int length = _reader.ReadBigEndian<int>();
+            int length = _reader.ReadBigEndian32();
             if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
             byte[] arr = _reader.Read(length).ToArray();
             return NbtByteArray.CreateFromArray(arr, name);
@@ -410,10 +367,9 @@ public ref struct NbtSpanReader
 
         if (type == NbtTagType.IntArray)
         {
-            int length = _reader.ReadBigEndian<int>();
+            int length = _reader.ReadBigEndian32();
             if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
             int[] result = new int[length];
-
 
             ReadOnlySpan<byte> bytes = _reader.Read(sizeof(int) * length);
             ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
@@ -432,7 +388,7 @@ public ref struct NbtSpanReader
 
         if (type == NbtTagType.LongArray)
         {
-            int length = _reader.ReadBigEndian<int>();
+            int length = _reader.ReadBigEndian32();
             if (length < 0) throw new NbtFormatException("Negative array length given: " + length);
 
             ReadOnlySpan<byte> bytes = _reader.Read(sizeof(long) * length);
@@ -446,7 +402,7 @@ public ref struct NbtSpanReader
             {
                 longs.CopyTo(result);
             }
-            
+
             return NbtLongArray.CreateFromArray(result, name);
         }
 
@@ -455,13 +411,13 @@ public ref struct NbtSpanReader
 
     private double ReadDouble()
     {
-        long l = _reader.ReadBigEndian<long>();
+        long l = _reader.ReadBigEndian64();
         return Unsafe.BitCast<long, double>(l);
     }
 
     private float ReadFloat()
     {
-        int l = _reader.ReadBigEndian<int>();
+        int l = _reader.ReadBigEndian32();
         return Unsafe.BitCast<int, float>(l);
     }
 
@@ -477,7 +433,7 @@ public ref struct NbtSpanReader
 
     internal string ReadString()
     {
-        int len = _reader.ReadBigEndian<short>();
+        int len = _reader.ReadBigEndian16();
         if (len == 0)
             return "";
         return Encoding.UTF8.GetString(_reader.Read(len));

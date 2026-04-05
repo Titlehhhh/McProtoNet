@@ -14,7 +14,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypeParameterType(ReadChatTypeParameterTypeValue(id));
     }
 
-    public static void WriteChatTypeParameterType(this ref MinecraftPrimitiveWriter writer, ChatTypeParameterType value,
+    public static void WriteChatTypeParameterType(this MinecraftPrimitiveWriter writer, ChatTypeParameterType value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypeParameterType>(protocolVersion);
@@ -32,7 +32,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatType(translationKey, parameters, style);
     }
 
-    public static void WriteChatType(this ref MinecraftPrimitiveWriter writer, ChatType value, int protocolVersion)
+    public static void WriteChatType(this MinecraftPrimitiveWriter writer, ChatType value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatType>(protocolVersion);
         writer.WriteString(value.TranslationKey);
@@ -49,7 +49,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypes(chat, narration);
     }
 
-    public static void WriteChatTypes(this ref MinecraftPrimitiveWriter writer, ChatTypes value, int protocolVersion)
+    public static void WriteChatTypes(this MinecraftPrimitiveWriter writer, ChatTypes value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypes>(protocolVersion);
         writer.WriteChatType(value.Chat, protocolVersion);
@@ -70,7 +70,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypesHolder(data);
     }
 
-    public static void WriteChatTypesHolder(this ref MinecraftPrimitiveWriter writer, ChatTypesHolder value,
+    public static void WriteChatTypesHolder(this MinecraftPrimitiveWriter writer, ChatTypesHolder value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypesHolder>(protocolVersion);
@@ -116,7 +116,7 @@ public static partial class ProtocolSerializationExtensions
             (value & 0x100) != 0);
     }
 
-    public static void WritePositionUpdateRelatives(this ref MinecraftPrimitiveWriter writer, PositionUpdateRelatives value,
+    public static void WritePositionUpdateRelatives(this MinecraftPrimitiveWriter writer, PositionUpdateRelatives value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PositionUpdateRelatives>(protocolVersion);
@@ -153,7 +153,7 @@ public static partial class ProtocolSerializationExtensions
         return new RecipeBookSetting(open, filtering);
     }
 
-    public static void WriteRecipeBookSetting(this ref MinecraftPrimitiveWriter writer, RecipeBookSetting value,
+    public static void WriteRecipeBookSetting(this MinecraftPrimitiveWriter writer, RecipeBookSetting value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<RecipeBookSetting>(protocolVersion);
@@ -199,7 +199,7 @@ public static partial class ProtocolSerializationExtensions
         return new RecipeDisplay(type, data);
     }
 
-    public static void WriteRecipeDisplay(this ref MinecraftPrimitiveWriter writer, RecipeDisplay value,
+    public static void WriteRecipeDisplay(this MinecraftPrimitiveWriter writer, RecipeDisplay value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<RecipeDisplay>(protocolVersion);
@@ -267,7 +267,7 @@ public static partial class ProtocolSerializationExtensions
         return new SlotDisplay(type, data);
     }
 
-    public static void WriteSlotDisplay(this ref MinecraftPrimitiveWriter writer, SlotDisplay value, int protocolVersion)
+    public static void WriteSlotDisplay(this MinecraftPrimitiveWriter writer, SlotDisplay value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotDisplay>(protocolVersion);
         writer.WriteVarInt(WriteSlotDisplayType(value.Type));
@@ -323,7 +323,7 @@ public static partial class ProtocolSerializationExtensions
             (value & 0x02) != 0);
     }
 
-    public static void WriteMovementFlags(this ref MinecraftPrimitiveWriter writer, MovementFlags value,
+    public static void WriteMovementFlags(this MinecraftPrimitiveWriter writer, MovementFlags value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<MovementFlags>(protocolVersion);

@@ -4,7 +4,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using DotNext.Buffers;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Serialization;

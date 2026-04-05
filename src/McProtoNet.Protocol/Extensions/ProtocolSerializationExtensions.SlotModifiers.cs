@@ -14,7 +14,7 @@ public static partial class ProtocolSerializationExtensions
         return new UntrustedSlotComponent(type, data);
     }
 
-    public static void WriteUntrustedSlotComponent(this ref MinecraftPrimitiveWriter writer, UntrustedSlotComponent component,
+    public static void WriteUntrustedSlotComponent(this MinecraftPrimitiveWriter writer, UntrustedSlotComponent component,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UntrustedSlotComponent>(protocolVersion);
@@ -48,7 +48,7 @@ public static partial class ProtocolSerializationExtensions
         return new UntrustedSlot(slot, components);
     }
 
-    public static void WriteUntrustedSlot(this ref MinecraftPrimitiveWriter writer, UntrustedSlot untrustedSlot, int protocolVersion)
+    public static void WriteUntrustedSlot(this MinecraftPrimitiveWriter writer, UntrustedSlot untrustedSlot, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UntrustedSlot>(protocolVersion);
         int count = untrustedSlot.Slot.ItemCount.GetValueOrDefault(0);
@@ -123,7 +123,7 @@ public static partial class ProtocolSerializationExtensions
         return new HashedSlot(slot, components);
     }
 
-    public static void WriteHashedSlot(this ref MinecraftPrimitiveWriter writer, HashedSlot hashedSlot, int protocolVersion)
+    public static void WriteHashedSlot(this MinecraftPrimitiveWriter writer, HashedSlot hashedSlot, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<HashedSlot>(protocolVersion);
         writer.WriteVarInt(hashedSlot.Slot.ItemId ?? 0);

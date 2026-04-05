@@ -608,7 +608,7 @@ public static partial class ProtocolSerializationExtensions
         return new Particle(null, null, type, payload);
     }
 
-    public static void WriteParticle(this ref MinecraftPrimitiveWriter writer, Particle value, int protocolVersion)
+    public static void WriteParticle(this MinecraftPrimitiveWriter writer, Particle value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<Particle>(protocolVersion);
         if (protocolVersion <= 764)
@@ -727,7 +727,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    public static void WriteParticleData(this ref MinecraftPrimitiveWriter writer, int protocolVersion, int particleId,
+    public static void WriteParticleData(this MinecraftPrimitiveWriter writer, int protocolVersion, int particleId,
         ParticleData? data)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ParticleData>(protocolVersion);

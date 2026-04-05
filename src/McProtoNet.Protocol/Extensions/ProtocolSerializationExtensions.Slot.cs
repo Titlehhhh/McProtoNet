@@ -89,7 +89,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    public static void WriteSlot(this ref MinecraftPrimitiveWriter writer, Slot slot, int protocolVersion)
+    public static void WriteSlot(this MinecraftPrimitiveWriter writer, Slot slot, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<Slot>(protocolVersion);
         if (protocolVersion <= 763)

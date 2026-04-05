@@ -29,7 +29,7 @@ public static partial class ProtocolSerializationExtensions
         return new ArmorTrimMaterial(null, assetBase, null, overrideAssets, updatedDescription);
     }
 
-    public static void WriteArmorTrimMaterial(this ref MinecraftPrimitiveWriter writer, ArmorTrimMaterial value,
+    public static void WriteArmorTrimMaterial(this MinecraftPrimitiveWriter writer, ArmorTrimMaterial value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ArmorTrimMaterial>(protocolVersion);
@@ -72,7 +72,7 @@ public static partial class ProtocolSerializationExtensions
         return new ArmorTrimPattern(assetId, templateItemId, description, decal);
     }
 
-    public static void WriteArmorTrimPattern(this ref MinecraftPrimitiveWriter writer, ArmorTrimPattern value,
+    public static void WriteArmorTrimPattern(this MinecraftPrimitiveWriter writer, ArmorTrimPattern value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ArmorTrimPattern>(protocolVersion);
@@ -100,7 +100,7 @@ public static partial class ProtocolSerializationExtensions
         return new BannerPatternLayer(pattern, null, color);
     }
 
-    public static void WriteBannerPatternLayer(this ref MinecraftPrimitiveWriter writer, BannerPatternLayer value,
+    public static void WriteBannerPatternLayer(this MinecraftPrimitiveWriter writer, BannerPatternLayer value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<BannerPatternLayer>(protocolVersion);
@@ -127,7 +127,7 @@ public static partial class ProtocolSerializationExtensions
         return new EntityMetadataPaintingVariant(width, height, assetId, title, author);
     }
 
-    public static void WriteEntityMetadataPaintingVariant(this ref MinecraftPrimitiveWriter writer,
+    public static void WriteEntityMetadataPaintingVariant(this MinecraftPrimitiveWriter writer,
         EntityMetadataPaintingVariant value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EntityMetadataPaintingVariant>(protocolVersion);
@@ -171,7 +171,7 @@ public static partial class ProtocolSerializationExtensions
         return new IDSet(entries);
     }
 
-    public static void WriteIDSet(this ref MinecraftPrimitiveWriter writer, IDSet value, int protocolVersion)
+    public static void WriteIDSet(this MinecraftPrimitiveWriter writer, IDSet value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<IDSet>(protocolVersion);
         writer.WriteVarInt(value.Entries.Length);
@@ -192,7 +192,7 @@ public static partial class ProtocolSerializationExtensions
         return new InstrumentData(soundEvent, useDuration, range, description);
     }
 
-    public static void WriteInstrumentData(this ref MinecraftPrimitiveWriter writer, InstrumentData value,
+    public static void WriteInstrumentData(this MinecraftPrimitiveWriter writer, InstrumentData value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<InstrumentData>(protocolVersion);
@@ -224,7 +224,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemBlockPredicate(blockSet, properties, nbt, components);
     }
 
-    public static void WriteItemBlockPredicate(this ref MinecraftPrimitiveWriter writer, ItemBlockPredicate value,
+    public static void WriteItemBlockPredicate(this MinecraftPrimitiveWriter writer, ItemBlockPredicate value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemBlockPredicate>(protocolVersion);
@@ -262,7 +262,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemBookPage(content, filteredContent);
     }
 
-    public static void WriteItemBookPage(this ref MinecraftPrimitiveWriter writer, ItemBookPage value, int protocolVersion)
+    public static void WriteItemBookPage(this MinecraftPrimitiveWriter writer, ItemBookPage value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemBookPage>(protocolVersion);
         writer.WriteString(value.Content);
@@ -311,7 +311,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemConsumeEffect(type, effects, probability, removedEffects, diameter, sound);
     }
 
-    public static void WriteItemConsumeEffect(this ref MinecraftPrimitiveWriter writer, ItemConsumeEffect value,
+    public static void WriteItemConsumeEffect(this MinecraftPrimitiveWriter writer, ItemConsumeEffect value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemConsumeEffect>(protocolVersion);
@@ -350,7 +350,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemFireworkExplosion(shape, colors, fadeColors, hasTrail, hasTwinkle);
     }
 
-    public static void WriteItemFireworkExplosion(this ref MinecraftPrimitiveWriter writer, ItemFireworkExplosion value,
+    public static void WriteItemFireworkExplosion(this MinecraftPrimitiveWriter writer, ItemFireworkExplosion value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemFireworkExplosion>(protocolVersion);
@@ -369,7 +369,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemPotionEffect(id, details);
     }
 
-    public static void WriteItemPotionEffect(this ref MinecraftPrimitiveWriter writer, ItemPotionEffect value,
+    public static void WriteItemPotionEffect(this MinecraftPrimitiveWriter writer, ItemPotionEffect value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemPotionEffect>(protocolVersion);
@@ -391,7 +391,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemSoundHolder(inline);
     }
 
-    public static void WriteItemSoundHolder(this ref MinecraftPrimitiveWriter writer, ItemSoundHolder value,
+    public static void WriteItemSoundHolder(this MinecraftPrimitiveWriter writer, ItemSoundHolder value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemSoundHolder>(protocolVersion);
@@ -415,7 +415,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemWrittenBookPage(content, filteredContent);
     }
 
-    public static void WriteItemWrittenBookPage(this ref MinecraftPrimitiveWriter writer, ItemWrittenBookPage value,
+    public static void WriteItemWrittenBookPage(this MinecraftPrimitiveWriter writer, ItemWrittenBookPage value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemWrittenBookPage>(protocolVersion);
@@ -434,7 +434,7 @@ public static partial class ProtocolSerializationExtensions
         return new JukeboxSongData(soundEvent, description, lengthInSeconds, comparatorOutput);
     }
 
-    public static void WriteJukeboxSongData(this ref MinecraftPrimitiveWriter writer, JukeboxSongData value,
+    public static void WriteJukeboxSongData(this MinecraftPrimitiveWriter writer, JukeboxSongData value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<JukeboxSongData>(protocolVersion);

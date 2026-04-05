@@ -62,7 +62,7 @@ public static partial class ProtocolSerializationExtensions
         return new EntityMetadataEntry(key, type, value);
     }
 
-    public static void WriteEntityMetadataEntry(this ref MinecraftPrimitiveWriter writer, EntityMetadataEntry value,
+    public static void WriteEntityMetadataEntry(this MinecraftPrimitiveWriter writer, EntityMetadataEntry value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EntityMetadataEntry>(protocolVersion);
@@ -247,7 +247,7 @@ public static partial class ProtocolSerializationExtensions
         return new EntityMetadataWolfVariant(wildTexture, tameTexture, angryTexture, biome);
     }
 
-    public static void WriteEntityMetadataWolfVariant(this ref MinecraftPrimitiveWriter writer, EntityMetadataWolfVariant value,
+    public static void WriteEntityMetadataWolfVariant(this MinecraftPrimitiveWriter writer, EntityMetadataWolfVariant value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EntityMetadataWolfVariant>(protocolVersion);

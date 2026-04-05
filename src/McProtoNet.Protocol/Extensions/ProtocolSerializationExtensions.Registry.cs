@@ -19,7 +19,7 @@ public static partial class ProtocolSerializationExtensions
         return new RegistryEntryHolder<T>(inlineValue);
     }
 
-    public static void WriteRegistryEntryHolder<T>(this ref MinecraftPrimitiveWriter writer, RegistryEntryHolder<T> value,
+    public static void WriteRegistryEntryHolder<T>(this MinecraftPrimitiveWriter writer, RegistryEntryHolder<T> value,
         int protocolVersion)
     {
         writer.WriteBoolean(value.HasInline);

@@ -12,10 +12,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="DotNext.IO"/>
-        <PackageReference Include="DotNext"/>
-    </ItemGroup>
-    <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
     </ItemGroup>

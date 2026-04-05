@@ -29,22 +29,22 @@ public static partial class ProtocolSerializationExtensions
         return reader.ReadOptionalNbtTag(readRootTag: false);
     }
 
-    public static void WriteNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
+    public static void WriteNbtTag(this MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
     {
         writer.WriteNbt(value);
     }
 
-    public static void WriteOptionalNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
+    public static void WriteOptionalNbtTag(this MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
     {
         writer.WriteOptionalNbt(value);
     }
 
-    public static void WriteAnonymousNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
+    public static void WriteAnonymousNbtTag(this MinecraftPrimitiveWriter writer, NbtTag value, int protocolVersion)
     {
         writer.WriteNbt(value);
     }
 
-    public static void WriteAnonOptionalNbtTag(this ref MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
+    public static void WriteAnonOptionalNbtTag(this MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
     {
         writer.WriteOptionalNbt(value);
     }
@@ -232,7 +232,7 @@ public static partial class ProtocolSerializationExtensions
     // }
     //
     //
-    // public static void WriteSlot(this ref MinecraftPrimitiveWriter writer, Slot? slot, int protocolVersion)
+    // public static void WriteSlot(this MinecraftPrimitiveWriter writer, Slot? slot, int protocolVersion)
     // {
     //     if (slot is null)
     //     {

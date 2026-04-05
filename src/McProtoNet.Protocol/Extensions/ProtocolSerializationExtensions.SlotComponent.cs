@@ -219,7 +219,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    public static void WriteSlotComponent(this ref MinecraftPrimitiveWriter writer, SlotComponent component, int protocolVersion)
+    public static void WriteSlotComponent(this MinecraftPrimitiveWriter writer, SlotComponent component, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotComponent>(protocolVersion);
         var type = GetComponentType(component);

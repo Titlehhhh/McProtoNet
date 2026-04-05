@@ -2,39 +2,33 @@ using System.Buffers;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
-using DotNext;
-using DotNext.Buffers;
-using DotNext.IO;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Net.Zlib;
 
 internal static class Extensions
 {
-    private static MemoryAllocator<byte> s_allocator = ArrayPool<byte>.Shared.ToAllocator();
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static MemoryOwner<byte> Decompress(this in ReadOnlySequence<byte> compressedSequence,
         int decompressSize)
     {
-        MemoryOwner<byte> decompress = s_allocator.AllocateExactly(decompressSize);
+        var decompress = MemoryOwner<byte>.Allocate(decompressSize);
         try
         {
-            var stream = compressedSequence.AsStream();
-
-            using ZLibStream zLibStream = new(stream, mode: CompressionMode.Decompress);
-
-            var read = zLibStream.ReadAtLeast(decompress.Span, decompressSize);
-            
-            if (read != decompressSize)
+            byte[] rented = ArrayPool<byte>.Shared.Rent((int)compressedSequence.Length);
+            try
             {
-                throw new InvalidOperationException("Zlib decompress error: " + read);
+                compressedSequence.CopyTo(rented);
+                using var ms = new MemoryStream(rented, 0, (int)compressedSequence.Length, writable: false);
+                using var zLibStream = new ZLibStream(ms, CompressionMode.Decompress);
+                var read = zLibStream.ReadAtLeast(decompress.Span, decompressSize);
+                if (read != decompressSize)
+                    throw new InvalidOperationException("Zlib decompress error: " + read);
             }
-
-            return decompress;
-            
-                
-
-            Decompress(compressedSequence, ref decompress);
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rented);
+            }
 
             return decompress;
         }
@@ -57,7 +51,7 @@ internal static class Extensions
             {
                 Debugger.Break();
             }
-            
+
             if (status != OperationStatus.Done)
             {
                 throw new InvalidOperationException("Zlib decompress error: " + status);
@@ -65,22 +59,20 @@ internal static class Extensions
         }
         else
         {
-            var tempBuffer = s_allocator.AllocateExactly((int)compressedSequence.Length);
-
+            byte[] rented = ArrayPool<byte>.Shared.Rent((int)compressedSequence.Length);
             try
             {
-                compressedSequence.CopyTo(tempBuffer.Span);
-
-                var status = LibDeflateStatic.Decompress(tempBuffer.Span, owner.Span, out _);
+                compressedSequence.CopyTo(rented);
+                var status = LibDeflateStatic.Decompress(
+                    rented.AsSpan(0, (int)compressedSequence.Length),
+                    owner.Span, out _);
 
                 if (status != OperationStatus.Done)
-                {
                     throw new InvalidOperationException("Zlib decompress error: " + status);
-                }
             }
             finally
             {
-                tempBuffer.Dispose();
+                ArrayPool<byte>.Shared.Return(rented);
             }
         }
     }

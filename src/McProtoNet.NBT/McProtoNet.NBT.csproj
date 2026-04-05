@@ -13,7 +13,4 @@
         <Description>Library for working with NBT</Description>
         <PackageTags>minecraft;nbt</PackageTags>
     </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="DotNext"/>
-    </ItemGroup>
 </Project>

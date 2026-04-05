@@ -1,5 +1,4 @@
 using System.Buffers;
-using DotNext.Buffers;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
