@@ -32,7 +32,7 @@ public sealed partial class UpdateStructureBlockPacket : IClientPacket
     public VFirst_758Fields? VFirst_758 { get; set; }
     public V759_LastFields? V759_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -140,8 +140,8 @@ public sealed partial class UpdateStructureBlockPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

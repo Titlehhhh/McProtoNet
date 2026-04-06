@@ -13,7 +13,7 @@ public sealed partial class SetDifficultyPacket : IClientPacket
     public VFirst_770Fields? VFirst_770 { get; set; }
     public V771_LastFields? V771_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -53,8 +53,8 @@ public sealed partial class SetDifficultyPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

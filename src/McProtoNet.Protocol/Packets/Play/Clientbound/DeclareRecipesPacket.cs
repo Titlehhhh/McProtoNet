@@ -16,7 +16,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
     public VFirst_767Fields? VFirst_767 { get; set; }
     public V768_LastFields? V768_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -26,7 +26,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
                 writer.WriteVarInt(fields.Recipes.Length);
                 for (int i = 0; i < fields.Recipes.Length; i++)
                 {
-                    WriteRecipeEntry(ref writer, fields.Recipes[i], protocolVersion);
+                    WriteRecipeEntry(writer, fields.Recipes[i], protocolVersion);
                 }
                 return;
             }
@@ -216,7 +216,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         }
     }
 
-    private static void WriteRecipeEntry(ref MinecraftPrimitiveWriter writer, RecipeEntry entry, int protocolVersion)
+    private static void WriteRecipeEntry(MinecraftPrimitiveWriter writer, RecipeEntry entry, int protocolVersion)
     {
         if (protocolVersion >= 766)
         {
@@ -228,10 +228,10 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         }
 
         writer.WriteString(entry.RecipeId);
-        WriteRecipeData(ref writer, entry.Data, entry.Type, protocolVersion);
+        WriteRecipeData(writer, entry.Data, entry.Type, protocolVersion);
     }
 
-    private static void WriteRecipeData(ref MinecraftPrimitiveWriter writer, RecipeData data, string type,
+    private static void WriteRecipeData(MinecraftPrimitiveWriter writer, RecipeData data, string type,
         int protocolVersion)
     {
         switch (data)
@@ -242,7 +242,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
                 {
                     writer.WriteVarInt(shapeless.Category ?? 0);
                 }
-                WriteIngredientArray(ref writer, shapeless.Ingredients, protocolVersion);
+                WriteIngredientArray(writer, shapeless.Ingredients, protocolVersion);
                 writer.WriteSlot(shapeless.Result, protocolVersion);
                 return;
             case RecipeData.CraftingShaped shaped:
@@ -252,7 +252,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
                     writer.WriteVarInt(shaped.Category ?? 0);
                     writer.WriteVarInt(shaped.Width);
                     writer.WriteVarInt(shaped.Height);
-                    WriteShapedIngredients(ref writer, shaped.Ingredients, shaped.Width, shaped.Height, protocolVersion,
+                    WriteShapedIngredients(writer, shaped.Ingredients, shaped.Width, shaped.Height, protocolVersion,
                         outerIsWidth: true);
                     writer.WriteSlot(shaped.Result, protocolVersion);
                     writer.WriteBoolean(shaped.ShowNotification ?? false);
@@ -266,7 +266,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
                 {
                     writer.WriteVarInt(shaped.Category ?? 0);
                 }
-                WriteShapedIngredients(ref writer, shaped.Ingredients, shaped.Width, shaped.Height, protocolVersion,
+                WriteShapedIngredients(writer, shaped.Ingredients, shaped.Width, shaped.Height, protocolVersion,
                     outerIsWidth: protocolVersion < 751 || protocolVersion > 754);
                 writer.WriteSlot(shaped.Result, protocolVersion);
                 if (protocolVersion >= 762)
@@ -281,28 +281,28 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
                 }
                 return;
             case RecipeData.Smelting smelting:
-                WriteSmeltingFormat(ref writer, smelting.Format, protocolVersion);
+                WriteSmeltingFormat(writer, smelting.Format, protocolVersion);
                 return;
             case RecipeData.Stonecutting stonecutting:
                 writer.WriteString(stonecutting.Group);
-                WriteIngredient(ref writer, stonecutting.Ingredient, protocolVersion);
+                WriteIngredient(writer, stonecutting.Ingredient, protocolVersion);
                 writer.WriteSlot(stonecutting.Result, protocolVersion);
                 return;
             case RecipeData.Smithing smithing:
-                WriteIngredient(ref writer, smithing.Base, protocolVersion);
-                WriteIngredient(ref writer, smithing.Addition, protocolVersion);
+                WriteIngredient(writer, smithing.Base, protocolVersion);
+                WriteIngredient(writer, smithing.Addition, protocolVersion);
                 writer.WriteSlot(smithing.Result, protocolVersion);
                 return;
             case RecipeData.SmithingTransform smithingTransform:
-                WriteIngredient(ref writer, smithingTransform.Template, protocolVersion);
-                WriteIngredient(ref writer, smithingTransform.Base, protocolVersion);
-                WriteIngredient(ref writer, smithingTransform.Addition, protocolVersion);
+                WriteIngredient(writer, smithingTransform.Template, protocolVersion);
+                WriteIngredient(writer, smithingTransform.Base, protocolVersion);
+                WriteIngredient(writer, smithingTransform.Addition, protocolVersion);
                 writer.WriteSlot(smithingTransform.Result, protocolVersion);
                 return;
             case RecipeData.SmithingTrim smithingTrim:
-                WriteIngredient(ref writer, smithingTrim.Template, protocolVersion);
-                WriteIngredient(ref writer, smithingTrim.Base, protocolVersion);
-                WriteIngredient(ref writer, smithingTrim.Addition, protocolVersion);
+                WriteIngredient(writer, smithingTrim.Template, protocolVersion);
+                WriteIngredient(writer, smithingTrim.Base, protocolVersion);
+                WriteIngredient(writer, smithingTrim.Addition, protocolVersion);
                 return;
             default:
                 throw new InvalidOperationException($"Unknown recipe data for type {type}.");
@@ -355,7 +355,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         return result;
     }
 
-    private static void WriteIngredient(ref MinecraftPrimitiveWriter writer, Ingredient ingredient, int protocolVersion)
+    private static void WriteIngredient(MinecraftPrimitiveWriter writer, Ingredient ingredient, int protocolVersion)
     {
         writer.WriteVarInt(ingredient.Count);
         for (int i = 0; i < ingredient.Count; i++)
@@ -364,17 +364,17 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         }
     }
 
-    private static void WriteIngredientArray(ref MinecraftPrimitiveWriter writer, Ingredient[] ingredients,
+    private static void WriteIngredientArray(MinecraftPrimitiveWriter writer, Ingredient[] ingredients,
         int protocolVersion)
     {
         writer.WriteVarInt(ingredients.Length);
         for (int i = 0; i < ingredients.Length; i++)
         {
-            WriteIngredient(ref writer, ingredients[i], protocolVersion);
+            WriteIngredient(writer, ingredients[i], protocolVersion);
         }
     }
 
-    private static void WriteShapedIngredients(ref MinecraftPrimitiveWriter writer, Ingredient[][] ingredients, int width,
+    private static void WriteShapedIngredients(MinecraftPrimitiveWriter writer, Ingredient[][] ingredients, int width,
         int height, int protocolVersion, bool outerIsWidth)
     {
         int outerCount = outerIsWidth ? width : height;
@@ -383,7 +383,7 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         {
             for (int j = 0; j < innerCount; j++)
             {
-                WriteIngredient(ref writer, ingredients[i][j], protocolVersion);
+                WriteIngredient(writer, ingredients[i][j], protocolVersion);
             }
         }
     }
@@ -407,14 +407,14 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         };
     }
 
-    private static void WriteSmeltingFormat(ref MinecraftPrimitiveWriter writer, SmeltingFormat format, int protocolVersion)
+    private static void WriteSmeltingFormat(MinecraftPrimitiveWriter writer, SmeltingFormat format, int protocolVersion)
     {
         writer.WriteString(format.Group);
         if (protocolVersion >= 761)
         {
             writer.WriteVarInt(format.Category ?? 0);
         }
-        WriteIngredient(ref writer, format.Ingredient, protocolVersion);
+        WriteIngredient(writer, format.Ingredient, protocolVersion);
         writer.WriteSlot(format.Result, protocolVersion);
         writer.WriteFloat(format.Experience);
         writer.WriteVarInt(format.CookTime);
@@ -440,8 +440,8 @@ public sealed partial class DeclareRecipesPacket : IServerPacket
         return id;
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

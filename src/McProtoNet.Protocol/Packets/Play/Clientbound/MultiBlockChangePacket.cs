@@ -24,7 +24,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
     public V760_762Fields? V760_762 { get; set; }
     public V763_LastFields? V763_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -45,7 +45,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
             case >= 751 and <= 756:
             {
                 var fields = V751_756 ?? throw new InvalidOperationException("MultiBlockChange V751_756 fields missing.");
-                WriteChunkCoordinates(ref writer, fields.ChunkCoordinates);
+                WriteChunkCoordinates(writer, fields.ChunkCoordinates);
                 writer.WriteBoolean(fields.NotTrustEdges);
                 writer.WriteVarInt(fields.Records.Length);
                 for (int i = 0; i < fields.Records.Length; i++)
@@ -57,7 +57,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
             case >= 757 and <= 758:
             {
                 var fields = V757_758 ?? throw new InvalidOperationException("MultiBlockChange V757_758 fields missing.");
-                WriteChunkCoordinates(ref writer, fields.ChunkCoordinates);
+                WriteChunkCoordinates(writer, fields.ChunkCoordinates);
                 writer.WriteBoolean(fields.NotTrustEdges);
                 writer.WriteVarInt(fields.Records.Length);
                 for (int i = 0; i < fields.Records.Length; i++)
@@ -69,7 +69,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
             case 759:
             {
                 var fields = V759 ?? throw new InvalidOperationException("MultiBlockChange V759 fields missing.");
-                WriteChunkCoordinates(ref writer, fields.ChunkCoordinates);
+                WriteChunkCoordinates(writer, fields.ChunkCoordinates);
                 writer.WriteBoolean(fields.NotTrustEdges);
                 writer.WriteVarInt(fields.Records.Length);
                 for (int i = 0; i < fields.Records.Length; i++)
@@ -81,7 +81,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
             case >= 760 and <= 762:
             {
                 var fields = V760_762 ?? throw new InvalidOperationException("MultiBlockChange V760_762 fields missing.");
-                WriteChunkCoordinates(ref writer, fields.ChunkCoordinates);
+                WriteChunkCoordinates(writer, fields.ChunkCoordinates);
                 writer.WriteBoolean(fields.SuppressLightUpdates);
                 writer.WriteVarInt(fields.Records.Length);
                 for (int i = 0; i < fields.Records.Length; i++)
@@ -93,7 +93,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
             case >= 763 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V763_Last ?? throw new InvalidOperationException("MultiBlockChange V763_Last fields missing.");
-                WriteChunkCoordinates(ref writer, fields.ChunkCoordinates);
+                WriteChunkCoordinates(writer, fields.ChunkCoordinates);
                 writer.WriteVarInt(fields.Records.Length);
                 for (int i = 0; i < fields.Records.Length; i++)
                 {
@@ -232,7 +232,7 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
         return new ChunkCoordinates(x, z, y);
     }
 
-    private static void WriteChunkCoordinates(ref MinecraftPrimitiveWriter writer, ChunkCoordinates coords)
+    private static void WriteChunkCoordinates(MinecraftPrimitiveWriter writer, ChunkCoordinates coords)
     {
         ulong x = (uint)coords.X & 0x3FFFFF;
         ulong z = (uint)coords.Z & 0x3FFFFF;
@@ -247,8 +247,8 @@ public sealed partial class MultiBlockChangePacket : IServerPacket
         return (value << shift) >> shift;
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

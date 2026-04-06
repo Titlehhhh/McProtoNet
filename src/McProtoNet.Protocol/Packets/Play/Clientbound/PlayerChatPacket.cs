@@ -25,7 +25,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
     public V767_769Fields? V767_769 { get; set; }
     public V770_LastFields? V770_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -98,7 +98,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
                 writer.WriteVarInt(fields.FilterType);
                 if (fields.FilterType == 2)
                 {
-                    WriteFilterMask(ref writer, fields.FilterTypeMask);
+                    WriteFilterMask(writer, fields.FilterTypeMask);
                 }
                 writer.WriteVarInt(fields.Type);
                 writer.WriteString(fields.NetworkName);
@@ -143,7 +143,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
                 writer.WriteVarInt(fields.FilterType);
                 if (fields.FilterType == 2)
                 {
-                    WriteFilterMask(ref writer, fields.FilterTypeMask);
+                    WriteFilterMask(writer, fields.FilterTypeMask);
                 }
                 writer.WriteVarInt(fields.Type);
                 writer.WriteString(fields.NetworkName);
@@ -188,7 +188,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
                 writer.WriteVarInt(fields.FilterType);
                 if (fields.FilterType == 2)
                 {
-                    WriteFilterMask(ref writer, fields.FilterTypeMask);
+                    WriteFilterMask(writer, fields.FilterTypeMask);
                 }
                 writer.WriteVarInt(fields.Type);
                 writer.WriteAnonymousNbtTag(fields.NetworkName, protocolVersion);
@@ -233,7 +233,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
                 writer.WriteVarInt(fields.FilterType);
                 if (fields.FilterType == 2)
                 {
-                    WriteFilterMask(ref writer, fields.FilterTypeMask);
+                    WriteFilterMask(writer, fields.FilterTypeMask);
                 }
                 writer.WriteChatTypesHolder(fields.Type, protocolVersion);
                 writer.WriteAnonymousNbtTag(fields.NetworkName, protocolVersion);
@@ -279,7 +279,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
                 writer.WriteVarInt(fields.FilterType);
                 if (fields.FilterType == 2)
                 {
-                    WriteFilterMask(ref writer, fields.FilterTypeMask);
+                    WriteFilterMask(writer, fields.FilterTypeMask);
                 }
                 writer.WriteChatTypesHolder(fields.Type, protocolVersion);
                 writer.WriteAnonymousNbtTag(fields.NetworkName, protocolVersion);
@@ -465,7 +465,7 @@ public sealed partial class PlayerChatPacket : IServerPacket
         return mask;
     }
 
-    private static void WriteFilterMask(ref MinecraftPrimitiveWriter writer, long[]? mask)
+    private static void WriteFilterMask(MinecraftPrimitiveWriter writer, long[]? mask)
     {
         if (mask is null)
         {
@@ -480,8 +480,8 @@ public sealed partial class PlayerChatPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

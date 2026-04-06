@@ -37,8 +37,8 @@ public static partial class ProtocolSerializationExtensions
         {
             writer.WriteString(value.AssetName ?? value.AssetBase ?? string.Empty);
             writer.WriteVarInt(value.IngredientId ?? 0);
-            WriteArray(ref writer, value.OverrideArmorAssets,
-                (ref MinecraftPrimitiveWriter w, ArmorTrimMaterial.ArmorTrimMaterialOverride entry) =>
+            WriteArray(writer, value.OverrideArmorAssets,
+                (MinecraftPrimitiveWriter w, ArmorTrimMaterial.ArmorTrimMaterialOverride entry) =>
                 {
                     w.WriteString(entry.Key);
                     w.WriteString(entry.Value);
@@ -48,8 +48,8 @@ public static partial class ProtocolSerializationExtensions
         }
 
         writer.WriteString(value.AssetBase ?? value.AssetName ?? string.Empty);
-        WriteArray(ref writer, value.OverrideArmorAssets,
-            (ref MinecraftPrimitiveWriter w, ArmorTrimMaterial.ArmorTrimMaterialOverride entry) =>
+        WriteArray(writer, value.OverrideArmorAssets,
+            (MinecraftPrimitiveWriter w, ArmorTrimMaterial.ArmorTrimMaterialOverride entry) =>
             {
                 w.WriteString(entry.Key);
                 w.WriteString(entry.Value);
@@ -244,8 +244,8 @@ public static partial class ProtocolSerializationExtensions
         else
         {
             writer.WriteBoolean(true);
-            WriteArray(ref writer, value.Properties,
-                (ref MinecraftPrimitiveWriter w, ItemBlockProperty property) => w.WriteItemBlockProperty(property, protocolVersion));
+            WriteArray(writer, value.Properties,
+                (MinecraftPrimitiveWriter w, ItemBlockProperty property) => w.WriteItemBlockProperty(property, protocolVersion));
         }
         writer.WriteAnonOptionalNbtTag(value.Nbt, protocolVersion);
         if (protocolVersion >= 770)
@@ -319,8 +319,8 @@ public static partial class ProtocolSerializationExtensions
         switch (value.Type)
         {
             case "apply_effects":
-                WriteArray(ref writer, value.Effects ?? Array.Empty<ItemPotionEffect>(),
-                    (ref MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
+                WriteArray(writer, value.Effects ?? Array.Empty<ItemPotionEffect>(),
+                    (MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
                 writer.WriteFloat(value.Probability ?? 0f);
                 break;
             case "remove_effects":
@@ -355,8 +355,8 @@ public static partial class ProtocolSerializationExtensions
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemFireworkExplosion>(protocolVersion);
         writer.WriteVarInt(WriteItemFireworkExplosionShape(value.Shape));
-        WriteArray(ref writer, value.Colors, (ref MinecraftPrimitiveWriter w, int color) => w.WriteSignedInt(color));
-        WriteArray(ref writer, value.FadeColors, (ref MinecraftPrimitiveWriter w, int color) => w.WriteSignedInt(color));
+        WriteArray(writer, value.Colors, (MinecraftPrimitiveWriter w, int color) => w.WriteSignedInt(color));
+        WriteArray(writer, value.FadeColors, (MinecraftPrimitiveWriter w, int color) => w.WriteSignedInt(color));
         writer.WriteBoolean(value.HasTrail);
         writer.WriteBoolean(value.HasTwinkle);
     }

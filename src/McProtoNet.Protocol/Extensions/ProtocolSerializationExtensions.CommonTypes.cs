@@ -35,7 +35,7 @@ public static partial class ProtocolSerializationExtensions
     {
         ThrowHelper.ThrowIfProtocolNotSupported<DataComponentMatchers>(protocolVersion);
         writer.WriteExactComponentMatcher(value.ExactMatchers, protocolVersion);
-        WriteArray(ref writer, value.PartialMatchers, (ref MinecraftPrimitiveWriter w, int entry) => w.WriteVarInt(entry));
+        WriteArray(writer, value.PartialMatchers, (MinecraftPrimitiveWriter w, int entry) => w.WriteVarInt(entry));
     }
 
     public static ExactComponentMatcher ReadExactComponentMatcher(this ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -49,7 +49,7 @@ public static partial class ProtocolSerializationExtensions
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ExactComponentMatcher>(protocolVersion);
-        WriteArray(ref writer, value.Components, (ref MinecraftPrimitiveWriter w, SlotComponent component) =>
+        WriteArray(writer, value.Components, (MinecraftPrimitiveWriter w, SlotComponent component) =>
             w.WriteSlotComponent(component, protocolVersion));
     }
 
@@ -71,7 +71,7 @@ public static partial class ProtocolSerializationExtensions
     {
         ThrowHelper.ThrowIfProtocolNotSupported<GameProfile>(protocolVersion);
         writer.WriteString(value.Name);
-        WriteArray(ref writer, value.Properties, (ref MinecraftPrimitiveWriter w, GameProfile.GameProfileProperty property) =>
+        WriteArray(writer, value.Properties, (MinecraftPrimitiveWriter w, GameProfile.GameProfileProperty property) =>
         {
             w.WriteString(property.Name);
             w.WriteString(property.Value);
@@ -276,7 +276,7 @@ public static partial class ProtocolSerializationExtensions
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PreviousMessages>(protocolVersion);
-        WriteArray(ref writer, value.Messages, (ref MinecraftPrimitiveWriter w, PreviousMessages.PreviousMessage message) =>
+        WriteArray(writer, value.Messages, (MinecraftPrimitiveWriter w, PreviousMessages.PreviousMessage message) =>
         {
             if (protocolVersion == 760)
             {
@@ -347,10 +347,10 @@ public static partial class ProtocolSerializationExtensions
     public static void WriteTags(this MinecraftPrimitiveWriter writer, Tags value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<Tags>(protocolVersion);
-        WriteArray(ref writer, value.Values, (ref MinecraftPrimitiveWriter w, Tag tag) =>
+        WriteArray(writer, value.Values, (MinecraftPrimitiveWriter w, Tag tag) =>
         {
             w.WriteString(tag.TagName);
-            WriteArray(ref w, tag.Entries, (ref MinecraftPrimitiveWriter w2, int entry) => w2.WriteVarInt(entry));
+            WriteArray(w, tag.Entries, (MinecraftPrimitiveWriter w2, int entry) => w2.WriteVarInt(entry));
         });
     }
 

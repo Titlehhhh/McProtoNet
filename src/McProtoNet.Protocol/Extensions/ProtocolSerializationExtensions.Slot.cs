@@ -132,9 +132,9 @@ public static partial class ProtocolSerializationExtensions
             }
 
             writer.WriteVarInt(slot.ItemId ?? 0);
-            WriteComponentCounts(ref writer, slot.Components, slot.RemovedComponents);
-            WriteComponentsWithoutCount(ref writer, protocolVersion, slot.Components ?? Array.Empty<SlotComponent>());
-            WriteRemovedComponentsWithoutCount(ref writer, protocolVersion, slot.RemovedComponents ?? Array.Empty<SlotComponentType>());
+            WriteComponentCounts(writer, slot.Components, slot.RemovedComponents);
+            WriteComponentsWithoutCount(writer, protocolVersion, slot.Components ?? Array.Empty<SlotComponent>());
+            WriteRemovedComponentsWithoutCount(writer, protocolVersion, slot.RemovedComponents ?? Array.Empty<SlotComponentType>());
             return;
         }
 
@@ -145,9 +145,9 @@ public static partial class ProtocolSerializationExtensions
         }
 
         writer.WriteVarInt(slot.ItemId ?? 0);
-        WriteComponentCounts(ref writer, slot.Components, slot.RemovedComponents);
-        WriteComponentsWithoutCount(ref writer, protocolVersion, slot.Components ?? Array.Empty<SlotComponent>());
-        WriteRemovedComponentsWithoutCount(ref writer, protocolVersion, slot.RemovedComponents ?? Array.Empty<SlotComponentType>());
+        WriteComponentCounts(writer, slot.Components, slot.RemovedComponents);
+        WriteComponentsWithoutCount(writer, protocolVersion, slot.Components ?? Array.Empty<SlotComponent>());
+        WriteRemovedComponentsWithoutCount(writer, protocolVersion, slot.RemovedComponents ?? Array.Empty<SlotComponentType>());
     }
 
     private static SlotComponent[] ReadComponents(ref MinecraftPrimitiveReader reader, int protocolVersion, int count)
@@ -182,14 +182,14 @@ public static partial class ProtocolSerializationExtensions
         return components;
     }
 
-    private static void WriteComponentCounts(ref MinecraftPrimitiveWriter writer, IReadOnlyList<SlotComponent>? components,
+    private static void WriteComponentCounts(MinecraftPrimitiveWriter writer, IReadOnlyList<SlotComponent>? components,
         IReadOnlyList<SlotComponentType>? removed)
     {
         writer.WriteVarInt(components?.Count ?? 0);
         writer.WriteVarInt(removed?.Count ?? 0);
     }
 
-    private static void WriteComponentsWithoutCount(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+    private static void WriteComponentsWithoutCount(MinecraftPrimitiveWriter writer, int protocolVersion,
         IReadOnlyList<SlotComponent> components)
     {
         for (int i = 0; i < components.Count; i++)
@@ -198,7 +198,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteRemovedComponentsWithoutCount(ref MinecraftPrimitiveWriter writer, int protocolVersion,
+    private static void WriteRemovedComponentsWithoutCount(MinecraftPrimitiveWriter writer, int protocolVersion,
         IReadOnlyList<SlotComponentType> removed)
     {
         for (int i = 0; i < removed.Count; i++)

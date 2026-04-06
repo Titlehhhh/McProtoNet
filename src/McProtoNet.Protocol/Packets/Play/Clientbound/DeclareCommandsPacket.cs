@@ -15,7 +15,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
     public CommandNodeEntry[] Nodes { get; set; } = Array.Empty<CommandNodeEntry>();
     public int RootIndex { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -23,7 +23,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
                 writer.WriteVarInt(Nodes.Length);
                 for (int i = 0; i < Nodes.Length; i++)
                 {
-                    WriteCommandNode(ref writer, Nodes[i], protocolVersion);
+                    WriteCommandNode(writer, Nodes[i], protocolVersion);
                 }
                 writer.WriteVarInt(RootIndex);
                 return;
@@ -99,7 +99,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         };
     }
 
-    private static void WriteCommandNode(ref MinecraftPrimitiveWriter writer, CommandNodeEntry node, int protocolVersion)
+    private static void WriteCommandNode(MinecraftPrimitiveWriter writer, CommandNodeEntry node, int protocolVersion)
     {
         byte flagsRaw = (byte)((int)node.NodeType & 0x03);
         if (node.HasCommand) flagsRaw |= 0x04;
@@ -124,8 +124,8 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
 
         if (node.NodeType == CommandNodeType.Argument)
         {
-            WriteCommandParser(ref writer, node.Parser ?? string.Empty, protocolVersion);
-            WriteCommandNodeProperties(ref writer, node.Parser ?? string.Empty, node.Properties, protocolVersion);
+            WriteCommandParser(writer, node.Parser ?? string.Empty, protocolVersion);
+            WriteCommandNodeProperties(writer, node.Parser ?? string.Empty, node.Properties, protocolVersion);
             if (node.SuggestionType is not null)
             {
                 writer.WriteString(node.SuggestionType);
@@ -150,7 +150,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         return mapping[id];
     }
 
-    private static void WriteCommandParser(ref MinecraftPrimitiveWriter writer, string parser, int protocolVersion)
+    private static void WriteCommandParser(MinecraftPrimitiveWriter writer, string parser, int protocolVersion)
     {
         if (protocolVersion <= 758)
         {
@@ -183,31 +183,31 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         };
     }
 
-    private static void WriteCommandNodeProperties(ref MinecraftPrimitiveWriter writer, string parser, object? value,
+    private static void WriteCommandNodeProperties(MinecraftPrimitiveWriter writer, string parser, object? value,
         int protocolVersion)
     {
         switch (parser)
         {
             case "brigadier:float":
-                WriteFloatProperties(ref writer, Expect<BrigadierFloatProperties>(parser, value));
+                WriteFloatProperties(writer, Expect<BrigadierFloatProperties>(parser, value));
                 return;
             case "brigadier:double":
-                WriteDoubleProperties(ref writer, Expect<BrigadierDoubleProperties>(parser, value));
+                WriteDoubleProperties(writer, Expect<BrigadierDoubleProperties>(parser, value));
                 return;
             case "brigadier:integer":
-                WriteIntProperties(ref writer, Expect<BrigadierIntProperties>(parser, value));
+                WriteIntProperties(writer, Expect<BrigadierIntProperties>(parser, value));
                 return;
             case "brigadier:long":
-                WriteLongProperties(ref writer, Expect<BrigadierLongProperties>(parser, value));
+                WriteLongProperties(writer, Expect<BrigadierLongProperties>(parser, value));
                 return;
             case "brigadier:string":
                 writer.WriteVarInt((int)Expect<BrigadierStringProperties>(parser, value).Type);
                 return;
             case "minecraft:entity":
-                WriteEntityProperties(ref writer, Expect<EntityProperties>(parser, value));
+                WriteEntityProperties(writer, Expect<EntityProperties>(parser, value));
                 return;
             case "minecraft:score_holder":
-                WriteScoreHolderProperties(ref writer, Expect<ScoreHolderProperties>(parser, value));
+                WriteScoreHolderProperties(writer, Expect<ScoreHolderProperties>(parser, value));
                 return;
             case "minecraft:range" when protocolVersion <= 758:
                 writer.WriteBoolean(Expect<RangeProperties>(parser, value).AllowDecimals);
@@ -293,7 +293,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         return new ScoreHolderProperties(allowMultiple);
     }
 
-    private static void WriteFloatProperties(ref MinecraftPrimitiveWriter writer, BrigadierFloatProperties props)
+    private static void WriteFloatProperties(MinecraftPrimitiveWriter writer, BrigadierFloatProperties props)
     {
         byte flags = 0;
         if (props.Min.HasValue) flags |= 0x01;
@@ -303,7 +303,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         if (props.Max.HasValue) writer.WriteFloat(props.Max.Value);
     }
 
-    private static void WriteDoubleProperties(ref MinecraftPrimitiveWriter writer, BrigadierDoubleProperties props)
+    private static void WriteDoubleProperties(MinecraftPrimitiveWriter writer, BrigadierDoubleProperties props)
     {
         byte flags = 0;
         if (props.Min.HasValue) flags |= 0x01;
@@ -313,7 +313,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         if (props.Max.HasValue) writer.WriteDouble(props.Max.Value);
     }
 
-    private static void WriteIntProperties(ref MinecraftPrimitiveWriter writer, BrigadierIntProperties props)
+    private static void WriteIntProperties(MinecraftPrimitiveWriter writer, BrigadierIntProperties props)
     {
         byte flags = 0;
         if (props.Min.HasValue) flags |= 0x01;
@@ -323,7 +323,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         if (props.Max.HasValue) writer.WriteSignedInt(props.Max.Value);
     }
 
-    private static void WriteLongProperties(ref MinecraftPrimitiveWriter writer, BrigadierLongProperties props)
+    private static void WriteLongProperties(MinecraftPrimitiveWriter writer, BrigadierLongProperties props)
     {
         byte flags = 0;
         if (props.Min.HasValue) flags |= 0x01;
@@ -333,7 +333,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         if (props.Max.HasValue) writer.WriteSignedLong(props.Max.Value);
     }
 
-    private static void WriteEntityProperties(ref MinecraftPrimitiveWriter writer, EntityProperties props)
+    private static void WriteEntityProperties(MinecraftPrimitiveWriter writer, EntityProperties props)
     {
         byte flags = 0;
         if (props.OnlyAllowEntities) flags |= 0x01;
@@ -341,7 +341,7 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         writer.WriteUnsignedByte(flags);
     }
 
-    private static void WriteScoreHolderProperties(ref MinecraftPrimitiveWriter writer, ScoreHolderProperties props)
+    private static void WriteScoreHolderProperties(MinecraftPrimitiveWriter writer, ScoreHolderProperties props)
     {
         byte flags = 0;
         if (props.AllowMultiple) flags |= 0x01;
@@ -382,8 +382,8 @@ public sealed partial class DeclareCommandsPacket : IServerPacket
         return id;
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

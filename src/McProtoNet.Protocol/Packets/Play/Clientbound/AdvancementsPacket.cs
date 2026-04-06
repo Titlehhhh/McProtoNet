@@ -21,7 +21,7 @@ public sealed partial class AdvancementsPacket : IServerPacket
     public V764Fields? V764 { get; set; }
     public V765_LastFields? V765_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -29,39 +29,39 @@ public sealed partial class AdvancementsPacket : IServerPacket
             {
                 var fields = VFirst_762 ?? throw new InvalidOperationException("Advancements VFirst_762 fields missing.");
                 writer.WriteBoolean(fields.Reset);
-                WriteAdvancementMapping(ref writer, fields.AdvancementMapping, includeCriteria: true, includeTelemetry: false,
+                WriteAdvancementMapping(writer, fields.AdvancementMapping, includeCriteria: true, includeTelemetry: false,
                     protocolVersion);
-                WriteStringArray(ref writer, fields.Identifiers);
-                WriteProgressMapping(ref writer, fields.ProgressMapping);
+                WriteStringArray(writer, fields.Identifiers);
+                WriteProgressMapping(writer, fields.ProgressMapping);
                 return;
             }
             case 763:
             {
                 var fields = V763 ?? throw new InvalidOperationException("Advancements V763 fields missing.");
                 writer.WriteBoolean(fields.Reset);
-                WriteAdvancementMapping(ref writer, fields.AdvancementMapping, includeCriteria: true, includeTelemetry: true,
+                WriteAdvancementMapping(writer, fields.AdvancementMapping, includeCriteria: true, includeTelemetry: true,
                     protocolVersion);
-                WriteStringArray(ref writer, fields.Identifiers);
-                WriteProgressMapping(ref writer, fields.ProgressMapping);
+                WriteStringArray(writer, fields.Identifiers);
+                WriteProgressMapping(writer, fields.ProgressMapping);
                 return;
             }
             case 764:
             {
                 var fields = V764 ?? throw new InvalidOperationException("Advancements V764 fields missing.");
                 writer.WriteBoolean(fields.Reset);
-                WriteAdvancementMapping(ref writer, fields.AdvancementMapping, includeCriteria: false, includeTelemetry: true,
+                WriteAdvancementMapping(writer, fields.AdvancementMapping, includeCriteria: false, includeTelemetry: true,
                     protocolVersion);
-                WriteStringArray(ref writer, fields.Identifiers);
-                WriteProgressMapping(ref writer, fields.ProgressMapping);
+                WriteStringArray(writer, fields.Identifiers);
+                WriteProgressMapping(writer, fields.ProgressMapping);
                 return;
             }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V765_Last ?? throw new InvalidOperationException("Advancements V765_Last fields missing.");
                 writer.WriteBoolean(fields.Reset);
-                WriteAdvancementMappingNbt(ref writer, fields.AdvancementMapping, includeTelemetry: true, protocolVersion);
-                WriteStringArray(ref writer, fields.Identifiers);
-                WriteProgressMapping(ref writer, fields.ProgressMapping);
+                WriteAdvancementMappingNbt(writer, fields.AdvancementMapping, includeTelemetry: true, protocolVersion);
+                WriteStringArray(writer, fields.Identifiers);
+                WriteProgressMapping(writer, fields.ProgressMapping);
                 return;
             }
             default:
@@ -350,30 +350,30 @@ public sealed partial class AdvancementsPacket : IServerPacket
         return entries;
     }
 
-    private static void WriteAdvancementMapping(ref MinecraftPrimitiveWriter writer, AdvancementMappingEntry[] entries,
+    private static void WriteAdvancementMapping(MinecraftPrimitiveWriter writer, AdvancementMappingEntry[] entries,
         bool includeCriteria, bool includeTelemetry, int protocolVersion)
     {
         writer.WriteVarInt(entries.Length);
         for (int i = 0; i < entries.Length; i++)
         {
             writer.WriteString(entries[i].Key);
-            WriteAdvancementDefinition(ref writer, entries[i].Value, includeCriteria, includeTelemetry,
+            WriteAdvancementDefinition(writer, entries[i].Value, includeCriteria, includeTelemetry,
                 protocolVersion);
         }
     }
 
-    private static void WriteAdvancementMappingNbt(ref MinecraftPrimitiveWriter writer, AdvancementMappingEntryNbt[] entries,
+    private static void WriteAdvancementMappingNbt(MinecraftPrimitiveWriter writer, AdvancementMappingEntryNbt[] entries,
         bool includeTelemetry, int protocolVersion)
     {
         writer.WriteVarInt(entries.Length);
         for (int i = 0; i < entries.Length; i++)
         {
             writer.WriteString(entries[i].Key);
-            WriteAdvancementDefinitionNbt(ref writer, entries[i].Value, includeTelemetry, protocolVersion);
+            WriteAdvancementDefinitionNbt(writer, entries[i].Value, includeTelemetry, protocolVersion);
         }
     }
 
-    private static void WriteAdvancementDefinition(ref MinecraftPrimitiveWriter writer, AdvancementDefinition value,
+    private static void WriteAdvancementDefinition(MinecraftPrimitiveWriter writer, AdvancementDefinition value,
         bool includeCriteria, bool includeTelemetry, int protocolVersion)
     {
         if (value.ParentId is null)
@@ -393,22 +393,22 @@ public sealed partial class AdvancementsPacket : IServerPacket
         else
         {
             writer.WriteBoolean(true);
-            WriteAdvancementDisplayData(ref writer, value.DisplayData.Value, protocolVersion);
+            WriteAdvancementDisplayData(writer, value.DisplayData.Value, protocolVersion);
         }
 
         if (includeCriteria)
         {
-            WriteStringArray(ref writer, value.Criteria);
+            WriteStringArray(writer, value.Criteria);
         }
 
-        WriteRequirements(ref writer, value.Requirements);
+        WriteRequirements(writer, value.Requirements);
         if (includeTelemetry)
         {
             writer.WriteBoolean(value.SendsTelemetryData);
         }
     }
 
-    private static void WriteAdvancementDefinitionNbt(ref MinecraftPrimitiveWriter writer, AdvancementDefinitionNbt value,
+    private static void WriteAdvancementDefinitionNbt(MinecraftPrimitiveWriter writer, AdvancementDefinitionNbt value,
         bool includeTelemetry, int protocolVersion)
     {
         if (value.ParentId is null)
@@ -428,17 +428,17 @@ public sealed partial class AdvancementsPacket : IServerPacket
         else
         {
             writer.WriteBoolean(true);
-            WriteAdvancementDisplayDataNbt(ref writer, value.DisplayData.Value, protocolVersion);
+            WriteAdvancementDisplayDataNbt(writer, value.DisplayData.Value, protocolVersion);
         }
 
-        WriteRequirements(ref writer, value.Requirements);
+        WriteRequirements(writer, value.Requirements);
         if (includeTelemetry)
         {
             writer.WriteBoolean(value.SendsTelemetryData);
         }
     }
 
-    private static void WriteAdvancementDisplayData(ref MinecraftPrimitiveWriter writer, AdvancementDisplayData value,
+    private static void WriteAdvancementDisplayData(MinecraftPrimitiveWriter writer, AdvancementDisplayData value,
         int protocolVersion)
     {
         writer.WriteString(value.Title);
@@ -458,7 +458,7 @@ public sealed partial class AdvancementsPacket : IServerPacket
         writer.WriteFloat(value.Y);
     }
 
-    private static void WriteAdvancementDisplayDataNbt(ref MinecraftPrimitiveWriter writer, AdvancementDisplayDataNbt value,
+    private static void WriteAdvancementDisplayDataNbt(MinecraftPrimitiveWriter writer, AdvancementDisplayDataNbt value,
         int protocolVersion)
     {
         writer.WriteAnonymousNbtTag(value.Title, protocolVersion);
@@ -478,7 +478,7 @@ public sealed partial class AdvancementsPacket : IServerPacket
         writer.WriteFloat(value.Y);
     }
 
-    private static void WriteStringArray(ref MinecraftPrimitiveWriter writer, string[] values)
+    private static void WriteStringArray(MinecraftPrimitiveWriter writer, string[] values)
     {
         writer.WriteVarInt(values.Length);
         for (int i = 0; i < values.Length; i++)
@@ -504,7 +504,7 @@ public sealed partial class AdvancementsPacket : IServerPacket
         return values;
     }
 
-    private static void WriteRequirements(ref MinecraftPrimitiveWriter writer, string[][] requirements)
+    private static void WriteRequirements(MinecraftPrimitiveWriter writer, string[][] requirements)
     {
         writer.WriteVarInt(requirements.Length);
         for (int i = 0; i < requirements.Length; i++)
@@ -517,7 +517,7 @@ public sealed partial class AdvancementsPacket : IServerPacket
         }
     }
 
-    private static void WriteProgressMapping(ref MinecraftPrimitiveWriter writer, ProgressMappingEntry[] entries)
+    private static void WriteProgressMapping(MinecraftPrimitiveWriter writer, ProgressMappingEntry[] entries)
     {
         writer.WriteVarInt(entries.Length);
         for (int i = 0; i < entries.Length; i++)
@@ -540,8 +540,8 @@ public sealed partial class AdvancementsPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

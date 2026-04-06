@@ -151,7 +151,7 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteParticle(data.Value, protocolVersion);
                 break;
             case "particles" when value.Value is EntityMetadataValue.Particles data:
-                WriteArray(ref writer, data.Values, (ref MinecraftPrimitiveWriter w, Particle particle) =>
+                WriteArray(writer, data.Values, (MinecraftPrimitiveWriter w, Particle particle) =>
                     w.WriteParticle(particle, protocolVersion));
                 break;
             case "villager_data" when value.Value is EntityMetadataValue.VillagerData data:

@@ -179,7 +179,7 @@ public static partial class ProtocolSerializationExtensions
     //     throw new InvalidOperationException("Protocol version not supported");
     // }
     //
-    // public static void WritePosition(this scoped ref MinecraftPrimitiveWriter writer, Position position,
+    // public static void WritePosition(this scoped MinecraftPrimitiveWriter writer, Position position,
     //     int protocolVersion)
     // {
     //     if (protocolVersion >= 477)
@@ -204,7 +204,7 @@ public static partial class ProtocolSerializationExtensions
     //     }
     // }
     //
-    // public static void WriteVector2(this scoped ref MinecraftPrimitiveWriter writer, Vector2 rotation,
+    // public static void WriteVector2(this scoped MinecraftPrimitiveWriter writer, Vector2 rotation,
     //     int protocolVersion)
     // {
     //     if (protocolVersion is >= 767 and <= 769)
@@ -216,7 +216,7 @@ public static partial class ProtocolSerializationExtensions
     //     throw new InvalidOperationException("Protocol version not supported");
     // }
     //
-    // public static void WriteVector3F64(this scoped ref MinecraftPrimitiveWriter writer, Vector3F64 rotation,
+    // public static void WriteVector3F64(this scoped MinecraftPrimitiveWriter writer, Vector3F64 rotation,
     //     int protocolVersion)
     // {
     //     if (protocolVersion is >= 762 and <= 769)

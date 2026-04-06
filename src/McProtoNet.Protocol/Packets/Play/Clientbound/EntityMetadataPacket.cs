@@ -17,7 +17,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
     public V762_765Fields? V762_765 { get; set; }
     public V766_LastFields? V766_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -25,7 +25,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
             {
                 var fields = VFirst_761 ?? throw new InvalidOperationException("EntityMetadata VFirst_761 fields missing.");
                 writer.WriteVarInt(fields.EntityId);
-                WriteLegacyMetadataEntries(ref writer, fields.Metadata, protocolVersion);
+                WriteLegacyMetadataEntries(writer, fields.Metadata, protocolVersion);
                 writer.WriteUnsignedByte(0xFF);
                 return;
             }
@@ -33,7 +33,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
             {
                 var fields = V762_765 ?? throw new InvalidOperationException("EntityMetadata V762_765 fields missing.");
                 writer.WriteVarInt(fields.EntityId);
-                WriteModernMetadataEntries(ref writer, fields.Metadata, protocolVersion);
+                WriteModernMetadataEntries(writer, fields.Metadata, protocolVersion);
                 writer.WriteUnsignedByte(0xFF);
                 return;
             }
@@ -41,7 +41,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
             {
                 var fields = V766_Last ?? throw new InvalidOperationException("EntityMetadata V766_Last fields missing.");
                 writer.WriteVarInt(fields.EntityId);
-                WriteCurrentMetadataEntries(ref writer, fields.Metadata, protocolVersion);
+                WriteCurrentMetadataEntries(writer, fields.Metadata, protocolVersion);
                 writer.WriteUnsignedByte(0xFF);
                 return;
             }
@@ -153,36 +153,36 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         return entries.Count == 0 ? Array.Empty<EntityMetadataEntry>() : entries.ToArray();
     }
 
-    private static void WriteLegacyMetadataEntries(ref MinecraftPrimitiveWriter writer, LegacyMetadataEntry[] entries,
+    private static void WriteLegacyMetadataEntries(MinecraftPrimitiveWriter writer, LegacyMetadataEntry[] entries,
         int protocolVersion)
     {
         for (int i = 0; i < entries.Length; i++)
         {
             writer.WriteUnsignedByte(entries[i].Key);
             writer.WriteVarInt(entries[i].TypeId);
-            WriteLegacyMetadataValue(ref writer, entries[i].TypeId, entries[i].Value, protocolVersion);
+            WriteLegacyMetadataValue(writer, entries[i].TypeId, entries[i].Value, protocolVersion);
         }
     }
 
-    private static void WriteModernMetadataEntries(ref MinecraftPrimitiveWriter writer, ModernMetadataEntry[] entries,
+    private static void WriteModernMetadataEntries(MinecraftPrimitiveWriter writer, ModernMetadataEntry[] entries,
         int protocolVersion)
     {
         for (int i = 0; i < entries.Length; i++)
         {
             writer.WriteUnsignedByte(entries[i].Key);
             writer.WriteVarInt(GetModernMetadataTypeId(entries[i].Type));
-            WriteModernMetadataValue(ref writer, entries[i].Type, entries[i].Value, protocolVersion);
+            WriteModernMetadataValue(writer, entries[i].Type, entries[i].Value, protocolVersion);
         }
     }
 
-    private static void WriteCurrentMetadataEntries(ref MinecraftPrimitiveWriter writer, EntityMetadataEntry[] entries,
+    private static void WriteCurrentMetadataEntries(MinecraftPrimitiveWriter writer, EntityMetadataEntry[] entries,
         int protocolVersion)
     {
         for (int i = 0; i < entries.Length; i++)
         {
             writer.WriteUnsignedByte(entries[i].Key);
             writer.WriteVarInt(GetCurrentMetadataTypeId(entries[i].Type));
-            WriteCurrentMetadataValue(ref writer, entries[i].Type, entries[i].Value, protocolVersion);
+            WriteCurrentMetadataValue(writer, entries[i].Type, entries[i].Value, protocolVersion);
         }
     }
 
@@ -367,7 +367,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         };
     }
 
-    private static void WriteLegacyMetadataValue(ref MinecraftPrimitiveWriter writer, int typeId, object value,
+    private static void WriteLegacyMetadataValue(MinecraftPrimitiveWriter writer, int typeId, object value,
         int protocolVersion)
     {
         if (protocolVersion <= 759)
@@ -379,19 +379,19 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 case 2: writer.WriteFloat((float)value); return;
                 case 3: writer.WriteString((string)value); return;
                 case 4: writer.WriteString((string)value); return;
-                case 5: WriteOptionalString(ref writer, (string?)value); return;
+                case 5: WriteOptionalString(writer, (string?)value); return;
                 case 6: writer.WriteSlot((Slot)value, protocolVersion); return;
                 case 7: writer.WriteBoolean((bool)value); return;
-                case 8: WriteRotations(ref writer, (Rotations)value); return;
+                case 8: WriteRotations(writer, (Rotations)value); return;
                 case 9: writer.WritePosition((Position)value, protocolVersion); return;
-                case 10: WriteOptionalPosition(ref writer, (Position?)value, protocolVersion); return;
+                case 10: WriteOptionalPosition(writer, (Position?)value, protocolVersion); return;
                 case 11: writer.WriteVarInt((int)value); return;
-                case 12: WriteOptionalUuid(ref writer, (Guid?)value); return;
+                case 12: WriteOptionalUuid(writer, (Guid?)value); return;
                 case 13: writer.WriteVarInt((int)value); return;
                 case 14: writer.WriteNbtTag((NbtTag)value, protocolVersion); return;
                 case 15: writer.WriteParticle((Particle)value, protocolVersion); return;
-                case 16: WriteVillagerData(ref writer, (VillagerData)value); return;
-                case 17: WriteOptionalVarInt(ref writer, (int?)value); return;
+                case 16: WriteVillagerData(writer, (VillagerData)value); return;
+                case 17: WriteOptionalVarInt(writer, (int?)value); return;
                 case 18: writer.WriteVarInt((int)value); return;
                 default: throw new InvalidOperationException($"Unknown legacy metadata type {typeId}.");
             }
@@ -406,23 +406,23 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 case 2: writer.WriteFloat((float)value); return;
                 case 3: writer.WriteString((string)value); return;
                 case 4: writer.WriteString((string)value); return;
-                case 5: WriteOptionalString(ref writer, (string?)value); return;
+                case 5: WriteOptionalString(writer, (string?)value); return;
                 case 6: writer.WriteSlot((Slot)value, protocolVersion); return;
                 case 7: writer.WriteBoolean((bool)value); return;
-                case 8: WriteRotations(ref writer, (Rotations)value); return;
+                case 8: WriteRotations(writer, (Rotations)value); return;
                 case 9: writer.WritePosition((Position)value, protocolVersion); return;
-                case 10: WriteOptionalPosition(ref writer, (Position?)value, protocolVersion); return;
+                case 10: WriteOptionalPosition(writer, (Position?)value, protocolVersion); return;
                 case 11: writer.WriteVarInt((int)value); return;
-                case 12: WriteOptionalUuid(ref writer, (Guid?)value); return;
+                case 12: WriteOptionalUuid(writer, (Guid?)value); return;
                 case 13: writer.WriteVarInt((int)value); return;
                 case 14: writer.WriteNbtTag((NbtTag)value, protocolVersion); return;
                 case 15: writer.WriteParticle((Particle)value, protocolVersion); return;
-                case 16: WriteVillagerData(ref writer, (VillagerData)value); return;
-                case 17: WriteOptionalVarInt(ref writer, (int?)value); return;
+                case 16: WriteVillagerData(writer, (VillagerData)value); return;
+                case 17: WriteOptionalVarInt(writer, (int?)value); return;
                 case 18: writer.WriteVarInt((int)value); return;
                 case 19: writer.WriteVarInt((int)value); return;
                 case 20: writer.WriteVarInt((int)value); return;
-                case 21: WriteOptionalString(ref writer, (string?)value); return;
+                case 21: WriteOptionalString(writer, (string?)value); return;
                 case 22: writer.WriteVarInt((int)value); return;
                 default: throw new InvalidOperationException($"Unknown legacy metadata type {typeId}.");
             }
@@ -436,29 +436,29 @@ public sealed partial class EntityMetadataPacket : IServerPacket
             case 3: writer.WriteFloat((float)value); return;
             case 4: writer.WriteString((string)value); return;
             case 5: writer.WriteString((string)value); return;
-            case 6: WriteOptionalString(ref writer, (string?)value); return;
+            case 6: WriteOptionalString(writer, (string?)value); return;
             case 7: writer.WriteSlot((Slot)value, protocolVersion); return;
             case 8: writer.WriteBoolean((bool)value); return;
-            case 9: WriteRotations(ref writer, (Rotations)value); return;
+            case 9: WriteRotations(writer, (Rotations)value); return;
             case 10: writer.WritePosition((Position)value, protocolVersion); return;
-            case 11: WriteOptionalPosition(ref writer, (Position?)value, protocolVersion); return;
+            case 11: WriteOptionalPosition(writer, (Position?)value, protocolVersion); return;
             case 12: writer.WriteVarInt((int)value); return;
-            case 13: WriteOptionalUuid(ref writer, (Guid?)value); return;
+            case 13: WriteOptionalUuid(writer, (Guid?)value); return;
             case 14: writer.WriteVarInt((int)value); return;
             case 15: writer.WriteNbtTag((NbtTag)value, protocolVersion); return;
             case 16: writer.WriteParticle((Particle)value, protocolVersion); return;
-            case 17: WriteVillagerData(ref writer, (VillagerData)value); return;
-            case 18: WriteOptionalVarInt(ref writer, (int?)value); return;
+            case 17: WriteVillagerData(writer, (VillagerData)value); return;
+            case 18: WriteOptionalVarInt(writer, (int?)value); return;
             case 19: writer.WriteVarInt((int)value); return;
             case 20: writer.WriteVarInt((int)value); return;
             case 21: writer.WriteVarInt((int)value); return;
-            case 22: WriteOptionalString(ref writer, (string?)value); return;
+            case 22: WriteOptionalString(writer, (string?)value); return;
             case 23: writer.WriteVarInt((int)value); return;
             default: throw new InvalidOperationException($"Unknown legacy metadata type {typeId}.");
         }
     }
 
-    private static void WriteModernMetadataValue(ref MinecraftPrimitiveWriter writer, string type, object value,
+    private static void WriteModernMetadataValue(MinecraftPrimitiveWriter writer, string type, object value,
         int protocolVersion)
     {
         switch (type)
@@ -481,22 +481,22 @@ public sealed partial class EntityMetadataPacket : IServerPacket
             case "optional_component":
                 if (protocolVersion >= 765)
                 {
-                    WriteOptionalAnonymousNbt(ref writer, (NbtTag?)value, protocolVersion);
+                    WriteOptionalAnonymousNbt(writer, (NbtTag?)value, protocolVersion);
                 }
                 else
                 {
-                    WriteOptionalString(ref writer, (string?)value);
+                    WriteOptionalString(writer, (string?)value);
                 }
                 return;
             case "item_stack": writer.WriteSlot((Slot)value, protocolVersion); return;
             case "boolean": writer.WriteBoolean((bool)value); return;
-            case "rotations": WriteRotations(ref writer, (Rotations)value); return;
+            case "rotations": WriteRotations(writer, (Rotations)value); return;
             case "block_pos": writer.WritePosition((Position)value, protocolVersion); return;
-            case "optional_block_pos": WriteOptionalPosition(ref writer, (Position?)value, protocolVersion); return;
+            case "optional_block_pos": WriteOptionalPosition(writer, (Position?)value, protocolVersion); return;
             case "direction": writer.WriteVarInt((int)value); return;
-            case "optional_uuid": WriteOptionalUuid(ref writer, (Guid?)value); return;
+            case "optional_uuid": WriteOptionalUuid(writer, (Guid?)value); return;
             case "block_state": writer.WriteVarInt((int)value); return;
-            case "optional_block_state": WriteOptionalVarInt(ref writer, (int?)value); return;
+            case "optional_block_state": WriteOptionalVarInt(writer, (int?)value); return;
             case "compound_tag":
                 if (protocolVersion >= 764)
                 {
@@ -508,12 +508,12 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 }
                 return;
             case "particle": writer.WriteParticle((Particle)value, protocolVersion); return;
-            case "villager_data": WriteVillagerData(ref writer, (VillagerData)value); return;
-            case "optional_unsigned_int": WriteOptionalVarInt(ref writer, (int?)value); return;
+            case "villager_data": WriteVillagerData(writer, (VillagerData)value); return;
+            case "optional_unsigned_int": WriteOptionalVarInt(writer, (int?)value); return;
             case "pose": writer.WriteVarInt((int)value); return;
             case "cat_variant": writer.WriteVarInt((int)value); return;
             case "frog_variant": writer.WriteVarInt((int)value); return;
-            case "optional_global_pos": WriteOptionalString(ref writer, (string?)value); return;
+            case "optional_global_pos": WriteOptionalString(writer, (string?)value); return;
             case "painting_variant": writer.WriteVarInt((int)value); return;
             case "sniffer_state": writer.WriteVarInt((int)value); return;
             case "vector3": writer.WriteVec3f((Vec3f)value, protocolVersion); return;
@@ -522,7 +522,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         }
     }
 
-    private static void WriteCurrentMetadataValue(ref MinecraftPrimitiveWriter writer, string type,
+    private static void WriteCurrentMetadataValue(MinecraftPrimitiveWriter writer, string type,
         EntityMetadataValue value, int protocolVersion)
     {
         switch (type)
@@ -546,7 +546,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 writer.WriteAnonymousNbtTag(data.Value, protocolVersion);
                 return;
             case "optional_component" when value is EntityMetadataValue.OptionalComponent data:
-                WriteOptionalAnonymousNbt(ref writer, data.Value, protocolVersion);
+                WriteOptionalAnonymousNbt(writer, data.Value, protocolVersion);
                 return;
             case "item_stack" when value is EntityMetadataValue.ItemStack data:
                 writer.WriteSlot(data.Value, protocolVersion);
@@ -555,25 +555,25 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 writer.WriteBoolean(data.Value);
                 return;
             case "rotations" when value is EntityMetadataValue.Rotations data:
-                WriteRotations(ref writer, new Rotations(data.Pitch, data.Yaw, data.Roll));
+                WriteRotations(writer, new Rotations(data.Pitch, data.Yaw, data.Roll));
                 return;
             case "block_pos" when value is EntityMetadataValue.BlockPos data:
                 writer.WritePosition(data.Value, protocolVersion);
                 return;
             case "optional_block_pos" when value is EntityMetadataValue.OptionalBlockPos data:
-                WriteOptionalPosition(ref writer, data.Value, protocolVersion);
+                WriteOptionalPosition(writer, data.Value, protocolVersion);
                 return;
             case "direction" when value is EntityMetadataValue.Direction data:
                 writer.WriteVarInt(data.Value);
                 return;
             case "optional_uuid" when value is EntityMetadataValue.OptionalUuid data:
-                WriteOptionalUuid(ref writer, data.Value);
+                WriteOptionalUuid(writer, data.Value);
                 return;
             case "block_state" when value is EntityMetadataValue.BlockState data:
                 writer.WriteVarInt(data.Value);
                 return;
             case "optional_block_state" when value is EntityMetadataValue.OptionalBlockState data:
-                WriteOptionalVarInt(ref writer, data.Value);
+                WriteOptionalVarInt(writer, data.Value);
                 return;
             case "compound_tag" when value is EntityMetadataValue.CompoundTag data:
                 writer.WriteAnonymousNbtTag(data.Value, protocolVersion);
@@ -589,10 +589,10 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 }
                 return;
             case "villager_data" when value is EntityMetadataValue.VillagerData data:
-                WriteVillagerData(ref writer, new VillagerData(data.VillagerType, data.VillagerProfession, data.Level));
+                WriteVillagerData(writer, new VillagerData(data.VillagerType, data.VillagerProfession, data.Level));
                 return;
             case "optional_unsigned_int" when value is EntityMetadataValue.OptionalUnsignedInt data:
-                WriteOptionalVarInt(ref writer, data.Value);
+                WriteOptionalVarInt(writer, data.Value);
                 return;
             case "pose" when value is EntityMetadataValue.Pose data:
                 writer.WriteVarInt(data.Value);
@@ -607,7 +607,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
                 writer.WriteVarInt(data.Value);
                 return;
             case "optional_global_pos" when value is EntityMetadataValue.OptionalGlobalPos data:
-                WriteOptionalString(ref writer, data.Value);
+                WriteOptionalString(writer, data.Value);
                 return;
             case "painting_variant" when value is EntityMetadataValue.PaintingVariant data:
                 writer.WriteRegistryEntryHolder(data.Value, protocolVersion);
@@ -675,12 +675,12 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         return value == 0 ? null : value - 1;
     }
 
-    private static void WriteOptionalVarInt(ref MinecraftPrimitiveWriter writer, int? value)
+    private static void WriteOptionalVarInt(MinecraftPrimitiveWriter writer, int? value)
     {
         writer.WriteVarInt(value is null ? 0 : value.Value + 1);
     }
 
-    private static void WriteOptionalString(ref MinecraftPrimitiveWriter writer, string? value)
+    private static void WriteOptionalString(MinecraftPrimitiveWriter writer, string? value)
     {
         if (value is null)
         {
@@ -693,7 +693,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         }
     }
 
-    private static void WriteOptionalUuid(ref MinecraftPrimitiveWriter writer, Guid? value)
+    private static void WriteOptionalUuid(MinecraftPrimitiveWriter writer, Guid? value)
     {
         if (value is null)
         {
@@ -706,7 +706,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         }
     }
 
-    private static void WriteOptionalPosition(ref MinecraftPrimitiveWriter writer, Position? value, int protocolVersion)
+    private static void WriteOptionalPosition(MinecraftPrimitiveWriter writer, Position? value, int protocolVersion)
     {
         if (value is null)
         {
@@ -719,7 +719,7 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         }
     }
 
-    private static void WriteOptionalAnonymousNbt(ref MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
+    private static void WriteOptionalAnonymousNbt(MinecraftPrimitiveWriter writer, NbtTag? value, int protocolVersion)
     {
         if (value is null)
         {
@@ -732,22 +732,22 @@ public sealed partial class EntityMetadataPacket : IServerPacket
         }
     }
 
-    private static void WriteRotations(ref MinecraftPrimitiveWriter writer, Rotations rotations)
+    private static void WriteRotations(MinecraftPrimitiveWriter writer, Rotations rotations)
     {
         writer.WriteFloat(rotations.Pitch);
         writer.WriteFloat(rotations.Yaw);
         writer.WriteFloat(rotations.Roll);
     }
 
-    private static void WriteVillagerData(ref MinecraftPrimitiveWriter writer, VillagerData data)
+    private static void WriteVillagerData(MinecraftPrimitiveWriter writer, VillagerData data)
     {
         writer.WriteVarInt(data.VillagerType);
         writer.WriteVarInt(data.VillagerProfession);
         writer.WriteVarInt(data.Level);
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

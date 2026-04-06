@@ -29,7 +29,7 @@ public static partial class ProtocolSerializationExtensions
             return;
         }
 
-        WriteRegistryEntryHolderInline(ref writer, value.Inline, protocolVersion);
+        WriteRegistryEntryHolderInline(writer, value.Inline, protocolVersion);
     }
 
     private static T ReadRegistryEntryHolderInline<T>(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -78,7 +78,7 @@ public static partial class ProtocolSerializationExtensions
         throw new NotImplementedException($"Inline registryEntryHolder<{typeof(T).Name}> is not implemented.");
     }
 
-    private static void WriteRegistryEntryHolderInline<T>(ref MinecraftPrimitiveWriter writer, T? value, int protocolVersion)
+    private static void WriteRegistryEntryHolderInline<T>(MinecraftPrimitiveWriter writer, T? value, int protocolVersion)
     {
         if (value is null)
         {
