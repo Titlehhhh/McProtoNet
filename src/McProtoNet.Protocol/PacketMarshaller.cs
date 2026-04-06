@@ -19,7 +19,7 @@ public static class PacketMarshaller
         var writer = new MinecraftPrimitiveWriter();
         try
         {
-            packet.Serialize(ref writer, protocolVersion);
+            packet.Serialize(writer, protocolVersion);
             return writer.GetWrittenMemory();
         }
         catch (PacketSerializationException)
@@ -69,14 +69,14 @@ public static class PacketMarshaller
     /// Serializes the packet directly into an existing <see cref="MinecraftPrimitiveWriter"/>.
     /// Caller controls buffer lifetime.
     /// </summary>
-    public static void Serialize(IPacket packet, ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    public static void Serialize(IPacket packet, MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         if (!packet.IsVersionSupported(protocolVersion))
             throw new ProtocolNotSupportException(packet.GetPacketId().Name, protocolVersion, packet.GetSupportedVersions());
 
         try
         {
-            packet.Serialize(ref writer, protocolVersion);
+            packet.Serialize(writer, protocolVersion);
         }
         catch (PacketSerializationException) { throw; }
         catch (Exception ex)
