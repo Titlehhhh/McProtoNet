@@ -11,9 +11,6 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using BenchmarkDotNet.Attributes;
-using CommandLine;
-using DotNext;
-using DotNext.Buffers;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Benchmark;

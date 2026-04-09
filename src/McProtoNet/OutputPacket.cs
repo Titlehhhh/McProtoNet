@@ -1,5 +1,5 @@
 using System.Runtime.CompilerServices;
-using DotNext.Buffers;
+using McProtoNet.Serialization;
 
 namespace McProtoNet;
 

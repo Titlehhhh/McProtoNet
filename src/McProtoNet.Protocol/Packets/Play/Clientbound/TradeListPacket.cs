@@ -24,7 +24,7 @@ public sealed partial class TradeListPacket : IServerPacket
     public V766_769Fields? V766_769 { get; set; }
     public V770_LastFields? V770_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -111,11 +111,11 @@ public sealed partial class TradeListPacket : IServerPacket
             case >= 766 and <= 769:
             {
                 var fields = V766_769 ?? throw new InvalidOperationException("TradeList V766_769 fields missing.");
-                WriteContainerId(ref writer, WindowId, protocolVersion);
+                WriteContainerId(writer, WindowId, protocolVersion);
                 writer.WriteVarInt(fields.Trades.Length);
                 for (int i = 0; i < fields.Trades.Length; i++)
                 {
-                    WriteItemWithComponents(ref writer, fields.Trades[i].InputItem1, protocolVersion);
+                    WriteItemWithComponents(writer, fields.Trades[i].InputItem1, protocolVersion);
                     writer.WriteSlot(fields.Trades[i].OutputItem, protocolVersion);
                     if (fields.Trades[i].InputItem2 is null)
                     {
@@ -124,7 +124,7 @@ public sealed partial class TradeListPacket : IServerPacket
                     else
                     {
                         writer.WriteBoolean(true);
-                        WriteItemWithComponents(ref writer, fields.Trades[i].InputItem2.Value, protocolVersion);
+                        WriteItemWithComponents(writer, fields.Trades[i].InputItem2.Value, protocolVersion);
                     }
                     writer.WriteBoolean(fields.Trades[i].TradeDisabled);
                     writer.WriteSignedInt(fields.Trades[i].NbTradeUses);
@@ -143,11 +143,11 @@ public sealed partial class TradeListPacket : IServerPacket
             case >= 770 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V770_Last ?? throw new InvalidOperationException("TradeList V770_Last fields missing.");
-                WriteContainerId(ref writer, WindowId, protocolVersion);
+                WriteContainerId(writer, WindowId, protocolVersion);
                 writer.WriteVarInt(fields.Trades.Length);
                 for (int i = 0; i < fields.Trades.Length; i++)
                 {
-                    WriteExactItem(ref writer, fields.Trades[i].InputItem1, protocolVersion);
+                    WriteExactItem(writer, fields.Trades[i].InputItem1, protocolVersion);
                     writer.WriteSlot(fields.Trades[i].OutputItem, protocolVersion);
                     if (fields.Trades[i].InputItem2 is null)
                     {
@@ -156,7 +156,7 @@ public sealed partial class TradeListPacket : IServerPacket
                     else
                     {
                         writer.WriteBoolean(true);
-                        WriteExactItem(ref writer, fields.Trades[i].InputItem2.Value, protocolVersion);
+                        WriteExactItem(writer, fields.Trades[i].InputItem2.Value, protocolVersion);
                     }
                     writer.WriteBoolean(fields.Trades[i].TradeDisabled);
                     writer.WriteSignedInt(fields.Trades[i].NbTradeUses);
@@ -351,7 +351,7 @@ public sealed partial class TradeListPacket : IServerPacket
         return protocolVersion <= 767 ? reader.ReadUnsignedByte() : reader.ReadVarInt();
     }
 
-    private static void WriteContainerId(ref MinecraftPrimitiveWriter writer, int value, int protocolVersion)
+    private static void WriteContainerId(MinecraftPrimitiveWriter writer, int value, int protocolVersion)
     {
         if (protocolVersion <= 767)
         {
@@ -381,7 +381,7 @@ public sealed partial class TradeListPacket : IServerPacket
         };
     }
 
-    private static void WriteItemWithComponents(ref MinecraftPrimitiveWriter writer, ItemWithComponents item, int protocolVersion)
+    private static void WriteItemWithComponents(MinecraftPrimitiveWriter writer, ItemWithComponents item, int protocolVersion)
     {
         writer.WriteVarInt(item.ItemId);
         writer.WriteVarInt(item.ItemCount);
@@ -402,15 +402,15 @@ public sealed partial class TradeListPacket : IServerPacket
         };
     }
 
-    private static void WriteExactItem(ref MinecraftPrimitiveWriter writer, ExactItem item, int protocolVersion)
+    private static void WriteExactItem(MinecraftPrimitiveWriter writer, ExactItem item, int protocolVersion)
     {
         writer.WriteVarInt(item.ItemId);
         writer.WriteVarInt(item.ItemCount);
         writer.WriteExactComponentMatcher(item.Components, protocolVersion);
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

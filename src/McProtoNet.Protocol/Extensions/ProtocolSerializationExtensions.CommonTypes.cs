@@ -15,7 +15,7 @@ public static partial class ProtocolSerializationExtensions
         return new BannerPattern(assetId, translationKey);
     }
 
-    public static void WriteBannerPattern(this ref MinecraftPrimitiveWriter writer, BannerPattern value, int protocolVersion)
+    public static void WriteBannerPattern(this MinecraftPrimitiveWriter writer, BannerPattern value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<BannerPattern>(protocolVersion);
         writer.WriteString(value.AssetId);
@@ -30,12 +30,12 @@ public static partial class ProtocolSerializationExtensions
         return new DataComponentMatchers(exactMatchers, partialMatchers);
     }
 
-    public static void WriteDataComponentMatchers(this ref MinecraftPrimitiveWriter writer, DataComponentMatchers value,
+    public static void WriteDataComponentMatchers(this MinecraftPrimitiveWriter writer, DataComponentMatchers value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<DataComponentMatchers>(protocolVersion);
         writer.WriteExactComponentMatcher(value.ExactMatchers, protocolVersion);
-        WriteArray(ref writer, value.PartialMatchers, (ref MinecraftPrimitiveWriter w, int entry) => w.WriteVarInt(entry));
+        WriteArray(writer, value.PartialMatchers, (MinecraftPrimitiveWriter w, int entry) => w.WriteVarInt(entry));
     }
 
     public static ExactComponentMatcher ReadExactComponentMatcher(this ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -45,11 +45,11 @@ public static partial class ProtocolSerializationExtensions
         return new ExactComponentMatcher(components);
     }
 
-    public static void WriteExactComponentMatcher(this ref MinecraftPrimitiveWriter writer, ExactComponentMatcher value,
+    public static void WriteExactComponentMatcher(this MinecraftPrimitiveWriter writer, ExactComponentMatcher value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ExactComponentMatcher>(protocolVersion);
-        WriteArray(ref writer, value.Components, (ref MinecraftPrimitiveWriter w, SlotComponent component) =>
+        WriteArray(writer, value.Components, (MinecraftPrimitiveWriter w, SlotComponent component) =>
             w.WriteSlotComponent(component, protocolVersion));
     }
 
@@ -67,11 +67,11 @@ public static partial class ProtocolSerializationExtensions
         return new GameProfile(name, properties);
     }
 
-    public static void WriteGameProfile(this ref MinecraftPrimitiveWriter writer, GameProfile value, int protocolVersion)
+    public static void WriteGameProfile(this MinecraftPrimitiveWriter writer, GameProfile value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<GameProfile>(protocolVersion);
         writer.WriteString(value.Name);
-        WriteArray(ref writer, value.Properties, (ref MinecraftPrimitiveWriter w, GameProfile.GameProfileProperty property) =>
+        WriteArray(writer, value.Properties, (MinecraftPrimitiveWriter w, GameProfile.GameProfileProperty property) =>
         {
             w.WriteString(property.Name);
             w.WriteString(property.Value);
@@ -107,7 +107,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemBlockProperty(name, isExactMatch, exactValue, minValue, maxValue);
     }
 
-    public static void WriteItemBlockProperty(this ref MinecraftPrimitiveWriter writer, ItemBlockProperty value,
+    public static void WriteItemBlockProperty(this MinecraftPrimitiveWriter writer, ItemBlockProperty value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemBlockProperty>(protocolVersion);
@@ -140,7 +140,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemEffectDetail(amplifier, duration, ambient, showParticles, showIcon, hiddenEffect);
     }
 
-    public static void WriteItemEffectDetail(this ref MinecraftPrimitiveWriter writer, ItemEffectDetail value,
+    public static void WriteItemEffectDetail(this MinecraftPrimitiveWriter writer, ItemEffectDetail value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemEffectDetail>(protocolVersion);
@@ -168,7 +168,7 @@ public static partial class ProtocolSerializationExtensions
         return new ItemSoundEvent(soundName, fixedRange);
     }
 
-    public static void WriteItemSoundEvent(this ref MinecraftPrimitiveWriter writer, ItemSoundEvent value,
+    public static void WriteItemSoundEvent(this MinecraftPrimitiveWriter writer, ItemSoundEvent value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ItemSoundEvent>(protocolVersion);
@@ -200,7 +200,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatSession(uuid, publicKey);
     }
 
-    public static void WriteChatSession(this ref MinecraftPrimitiveWriter writer, ChatSession? value, int protocolVersion)
+    public static void WriteChatSession(this MinecraftPrimitiveWriter writer, ChatSession? value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatSession>(protocolVersion);
         if (value is null)
@@ -226,7 +226,7 @@ public static partial class ProtocolSerializationExtensions
         return new MinecraftSimpleRecipeFormat(category);
     }
 
-    public static void WriteMinecraftSimpleRecipeFormat(this ref MinecraftPrimitiveWriter writer,
+    public static void WriteMinecraftSimpleRecipeFormat(this MinecraftPrimitiveWriter writer,
         MinecraftSimpleRecipeFormat value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<MinecraftSimpleRecipeFormat>(protocolVersion);
@@ -241,7 +241,7 @@ public static partial class ProtocolSerializationExtensions
         return new PackedChunkPos(z, x);
     }
 
-    public static void WritePackedChunkPos(this ref MinecraftPrimitiveWriter writer, PackedChunkPos value,
+    public static void WritePackedChunkPos(this MinecraftPrimitiveWriter writer, PackedChunkPos value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PackedChunkPos>(protocolVersion);
@@ -272,11 +272,11 @@ public static partial class ProtocolSerializationExtensions
         return new PreviousMessages(messages);
     }
 
-    public static void WritePreviousMessages(this ref MinecraftPrimitiveWriter writer, PreviousMessages value,
+    public static void WritePreviousMessages(this MinecraftPrimitiveWriter writer, PreviousMessages value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PreviousMessages>(protocolVersion);
-        WriteArray(ref writer, value.Messages, (ref MinecraftPrimitiveWriter w, PreviousMessages.PreviousMessage message) =>
+        WriteArray(writer, value.Messages, (MinecraftPrimitiveWriter w, PreviousMessages.PreviousMessage message) =>
         {
             if (protocolVersion == 760)
             {
@@ -313,7 +313,7 @@ public static partial class ProtocolSerializationExtensions
         return new ServerLinkType(ReadServerLinkTypeValue(reader.ReadVarInt()));
     }
 
-    public static void WriteServerLinkType(this ref MinecraftPrimitiveWriter writer, ServerLinkType value, int protocolVersion)
+    public static void WriteServerLinkType(this MinecraftPrimitiveWriter writer, ServerLinkType value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ServerLinkType>(protocolVersion);
         writer.WriteVarInt(WriteServerLinkTypeValue(value.Value));
@@ -326,7 +326,7 @@ public static partial class ProtocolSerializationExtensions
         return new SoundSource(ReadSoundSourceValue(id, protocolVersion));
     }
 
-    public static void WriteSoundSource(this ref MinecraftPrimitiveWriter writer, SoundSource value, int protocolVersion)
+    public static void WriteSoundSource(this MinecraftPrimitiveWriter writer, SoundSource value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SoundSource>(protocolVersion);
         writer.WriteVarInt(WriteSoundSourceValue(value.Value, protocolVersion));
@@ -344,13 +344,13 @@ public static partial class ProtocolSerializationExtensions
         return new Tags(values);
     }
 
-    public static void WriteTags(this ref MinecraftPrimitiveWriter writer, Tags value, int protocolVersion)
+    public static void WriteTags(this MinecraftPrimitiveWriter writer, Tags value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<Tags>(protocolVersion);
-        WriteArray(ref writer, value.Values, (ref MinecraftPrimitiveWriter w, Tag tag) =>
+        WriteArray(writer, value.Values, (MinecraftPrimitiveWriter w, Tag tag) =>
         {
             w.WriteString(tag.TagName);
-            WriteArray(ref w, tag.Entries, (ref MinecraftPrimitiveWriter w2, int entry) => w2.WriteVarInt(entry));
+            WriteArray(w, tag.Entries, (MinecraftPrimitiveWriter w2, int entry) => w2.WriteVarInt(entry));
         });
     }
 

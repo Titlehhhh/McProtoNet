@@ -1,8 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Net.Sockets;
-using DotNext.IO;
-using DotNext.IO.Pipelines;
 using McProtoNet.Net;
 using McProtoNet.Serialization;
 
@@ -117,7 +115,7 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
         ThrowIfDisposed();
         _pipeWriter.WritePacket(packet.Span);
         var result = await _pipeWriter.FlushAsync(token).ConfigureAwait(false);
-        result.ThrowIfCancellationRequested(token);
+        if (result.IsCanceled) token.ThrowIfCancellationRequested();
         if (result.IsCompleted)
         {
             throw new InvalidOperationException("Stream is closed");
@@ -133,7 +131,7 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
 
 
         var result = await _pipeWriter.FlushAsync(token).ConfigureAwait(false);
-        result.ThrowIfCancellationRequested(token);
+        if (result.IsCanceled) token.ThrowIfCancellationRequested();
         if (result.IsCompleted)
         {
             throw new InvalidOperationException("Stream is closed");
@@ -197,7 +195,8 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
 
                
 
-                await stream.WriteAsync(result.Buffer, cancellationToken).ConfigureAwait(false);
+                foreach (var segment in result.Buffer)
+                    await stream.WriteAsync(segment, cancellationToken).ConfigureAwait(false);
 
                 await stream.FlushAsync(cancellationToken).ConfigureAwait(false);
 
@@ -236,7 +235,7 @@ public class PipelinesMinecraftClient : IDisposable, IAsyncDisposable
 
                 var result = await pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
 
-                result.ThrowIfCancellationRequested(cancellationToken);
+                if (result.IsCanceled) cancellationToken.ThrowIfCancellationRequested();
 
                 if (result.IsCompleted)
                 {

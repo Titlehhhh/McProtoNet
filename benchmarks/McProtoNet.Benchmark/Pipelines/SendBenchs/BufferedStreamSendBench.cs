@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using DotNext.IO;
 using McProtoNet.Net;
 
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
@@ -13,7 +12,7 @@ public class BufferedStreamSendBench : ISendBench
 
     public Task Setup(Stream stream, int compressionThreshold)
     {
-        stream = new PoolingBufferedStream(stream);
+        stream = new BufferedStream(stream);
         _sender = new MinecraftPacketSender(stream)
         {
             CompressionThreshold = compressionThreshold

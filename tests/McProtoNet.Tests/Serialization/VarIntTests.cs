@@ -1,6 +1,4 @@
 using System.Buffers;
-using System.Diagnostics;
-using DotNext.Buffers;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Tests.Serialization;
@@ -9,7 +7,7 @@ public class VarIntTests
 {
     public static IEnumerable<object[]> GetNumbers() =>
         Enumerable.Range(0, 10_000).Select(x => new object[] { x });
-    
+
     [Theory]
     [MemberData(nameof(GetNumbers))]
     public void Test1(int value)
@@ -23,13 +21,41 @@ public class VarIntTests
             Assert.Equal(value.GetVarIntLength(), length);
         }
     }
-    
+
     private static ReadOnlySequence<byte> CreateSequence(int value, int segmentSize)
     {
         var arr = value.VarIntToArray();
+        var segments = arr.Chunk(segmentSize)
+                          .Select(x => new ReadOnlyMemory<byte>(x))
+                          .ToList();
+        return BuildSequence(segments);
+    }
 
-        return arr.Chunk(segmentSize).Select(x =>
-            new ReadOnlyMemory<byte>(x)
-        ).ToReadOnlySequence();
+    private static ReadOnlySequence<byte> BuildSequence(IList<ReadOnlyMemory<byte>> segments)
+    {
+        if (segments.Count == 0) return ReadOnlySequence<byte>.Empty;
+        if (segments.Count == 1) return new ReadOnlySequence<byte>(segments[0]);
+
+        Seg? first = null, prev = null;
+        long pos = 0;
+        foreach (var mem in segments)
+        {
+            var seg = new Seg(mem, pos);
+            if (first == null) first = seg;
+            prev?.SetNext(seg);
+            prev = seg;
+            pos += mem.Length;
+        }
+        return new ReadOnlySequence<byte>(first!, 0, prev!, prev!.Memory.Length);
+    }
+
+    private sealed class Seg : ReadOnlySequenceSegment<byte>
+    {
+        public Seg(ReadOnlyMemory<byte> mem, long runningIndex)
+        {
+            Memory = mem;
+            RunningIndex = runningIndex;
+        }
+        public void SetNext(Seg next) => Next = next;
     }
 }

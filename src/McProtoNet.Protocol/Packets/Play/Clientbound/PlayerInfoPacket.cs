@@ -21,7 +21,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
     public V761_764Fields? V761_764 { get; set; }
     public V765_LastFields? V765_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -32,7 +32,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
                 writer.WriteVarInt(fields.Data.Length);
                 for (int i = 0; i < fields.Data.Length; i++)
                 {
-                    WriteLegacyEntry(ref writer, fields.Data[i], Action, protocolVersion, protocolVersion >= 759);
+                    WriteLegacyEntry(writer, fields.Data[i], Action, protocolVersion, protocolVersion >= 759);
                 }
                 return;
             }
@@ -44,7 +44,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
                 writer.WriteVarInt(fields.Data.Length);
                 for (int i = 0; i < fields.Data.Length; i++)
                 {
-                    WriteModernEntry(ref writer, fields.Data[i], fields.Flags, protocolVersion, useAnonymous: false);
+                    WriteModernEntry(writer, fields.Data[i], fields.Flags, protocolVersion, useAnonymous: false);
                 }
                 return;
             }
@@ -56,7 +56,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
                 writer.WriteVarInt(fields.Data.Length);
                 for (int i = 0; i < fields.Data.Length; i++)
                 {
-                    WriteModernEntry(ref writer, fields.Data[i], fields.Flags, protocolVersion, useAnonymous: true);
+                    WriteModernEntry(writer, fields.Data[i], fields.Flags, protocolVersion, useAnonymous: true);
                 }
                 return;
             }
@@ -165,7 +165,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
         return entry;
     }
 
-    private static void WriteLegacyEntry(ref MinecraftPrimitiveWriter writer, LegacyEntry entry, int action, int protocolVersion, bool hasCrypto)
+    private static void WriteLegacyEntry(MinecraftPrimitiveWriter writer, LegacyEntry entry, int action, int protocolVersion, bool hasCrypto)
     {
         writer.WriteUUID(entry.Uuid);
         switch (action)
@@ -268,7 +268,7 @@ public sealed partial class PlayerInfoPacket : IServerPacket
         return entry;
     }
 
-    private static void WriteModernEntry(ref MinecraftPrimitiveWriter writer, ModernEntry entry, PlayerInfoFlags flags, int protocolVersion, bool useAnonymous)
+    private static void WriteModernEntry(MinecraftPrimitiveWriter writer, ModernEntry entry, PlayerInfoFlags flags, int protocolVersion, bool useAnonymous)
     {
         writer.WriteUUID(entry.Uuid);
         if (flags.AddPlayer)
@@ -345,8 +345,8 @@ public sealed partial class PlayerInfoPacket : IServerPacket
         };
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

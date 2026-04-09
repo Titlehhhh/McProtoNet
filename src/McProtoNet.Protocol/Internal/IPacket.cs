@@ -16,7 +16,7 @@ public interface IPacket
     /// <summary>Protocol version ranges in which this packet exists.</summary>
     ProtocolRange[] GetSupportedVersions() => System.Array.Empty<ProtocolRange>();
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => throw new NotSupportedException($"{GetType().Name} does not support serialization.");
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)

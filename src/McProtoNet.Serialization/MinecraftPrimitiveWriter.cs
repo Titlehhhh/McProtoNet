@@ -1,316 +1,210 @@
 using System.Buffers;
 using System.Buffers.Binary;
-using System.Diagnostics;
-using System.Numerics;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Unicode;
-using DotNext.Buffers;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Serialization;
 
 /// <summary>
-/// Represents stack-allocated writer for primitive types of Minecraft
+/// Writer for Minecraft protocol primitive types. Backed by <see cref="ArrayBufferWriter{T}"/>.
 /// </summary>
-[StructLayout(LayoutKind.Auto)]
-public ref struct MinecraftPrimitiveWriter
+public sealed class MinecraftPrimitiveWriter
 {
+    private readonly ArrayBufferWriter<byte> _writer;
 
-    private BufferWriterSlim<byte> writerSlim;
+    public ReadOnlySpan<byte> WrittenSpan => _writer.WrittenSpan;
+    public ReadOnlyMemory<byte> WrittenMemory => _writer.WrittenMemory;
+    internal int Capacity => _writer.Capacity;
 
-    public ReadOnlySpan<byte> WrittenSpan => writerSlim.WrittenSpan;
+    public MinecraftPrimitiveWriter() : this(64) { }
 
-    public MinecraftPrimitiveWriter()
+    public MinecraftPrimitiveWriter(int initialCapacity)
     {
-        writerSlim = new BufferWriterSlim<byte>(64);
+        _writer = new ArrayBufferWriter<byte>(initialCapacity);
     }
 
-    public MinecraftPrimitiveWriter(Span<byte> initialBuffer)
-    {
-        writerSlim = new BufferWriterSlim<byte>(initialBuffer);
-    }
-    /// <summary>
-    /// Writes a boolean value to the buffer
-    /// </summary>
-    /// <param name="value">The boolean value to write</param>
+    internal void Reset() => _writer.ResetWrittenCount();
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBoolean(bool value)
     {
-        CheckDisposed();
-
-        writerSlim.Write(value ? 1 : 0);
+        var span = _writer.GetSpan(1);
+        span[0] = value ? (byte)1 : (byte)0;
+        _writer.Advance(1);
     }
 
     public void Write(ReadOnlySequence<byte> sequence)
     {
         if (sequence.IsSingleSegment)
         {
-            writerSlim.Write(sequence.FirstSpan);
+            _writer.Write(sequence.FirstSpan);
         }
         else
         {
             foreach (var memory in sequence)
-            {
-                writerSlim.Write(memory.Span);
-            }
+                _writer.Write(memory.Span);
         }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Span<byte> GetSpan(int size = 0)
-    {
-        return writerSlim.GetSpan();
-    }
+    public Span<byte> GetSpan(int size = 0) => _writer.GetSpan(size);
 
-    public void Advance(int count)
-    {
-        writerSlim.Advance(count);
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void Advance(int count) => _writer.Advance(count);
 
-    /// <summary>
-    /// Writes a signed byte value to the buffer
-    /// </summary>
-    /// <param name="value">The signed byte value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteSignedByte(sbyte value)
     {
-        CheckDisposed();
-        writerSlim.Write((byte)value);
+        var span = _writer.GetSpan(1);
+        span[0] = (byte)value;
+        _writer.Advance(1);
     }
 
-    /// <summary>
-    /// Writes an unsigned byte value to the buffer
-    /// </summary>
-    /// <param name="value">The unsigned byte value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteUnsignedByte(byte value)
     {
-        CheckDisposed();
-        writerSlim.Write(value);
+        var span = _writer.GetSpan(1);
+        span[0] = value;
+        _writer.Advance(1);
     }
 
-    /// <summary>
-    /// Writes an unsigned short value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The unsigned short value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteUnsignedShort(ushort value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(ushort));
+        BinaryPrimitives.WriteUInt16BigEndian(span, value);
+        _writer.Advance(sizeof(ushort));
     }
 
-    /// <summary>
-    /// Writes a signed short value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The signed short value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteSignedShort(short value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(short));
+        BinaryPrimitives.WriteInt16BigEndian(span, value);
+        _writer.Advance(sizeof(short));
     }
 
-    /// <summary>
-    /// Writes a signed integer value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The signed integer value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteSignedInt(int value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(int));
+        BinaryPrimitives.WriteInt32BigEndian(span, value);
+        _writer.Advance(sizeof(int));
     }
 
-    /// <summary>
-    /// Writes an unsigned integer value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The unsigned integer value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteUnsignedInt(uint value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(uint));
+        BinaryPrimitives.WriteUInt32BigEndian(span, value);
+        _writer.Advance(sizeof(uint));
     }
 
-    /// <summary>
-    /// Writes a signed long value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The signed long value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteSignedLong(long value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(long));
+        BinaryPrimitives.WriteInt64BigEndian(span, value);
+        _writer.Advance(sizeof(long));
     }
 
-    /// <summary>
-    /// Writes an unsigned long value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The unsigned long value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteUnsignedLong(ulong value)
     {
-        CheckDisposed();
-        writerSlim.WriteBigEndian(value);
+        var span = _writer.GetSpan(sizeof(ulong));
+        BinaryPrimitives.WriteUInt64BigEndian(span, value);
+        _writer.Advance(sizeof(ulong));
     }
 
-    /// <summary>
-    /// Writes a float value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The float value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteFloat(float value)
     {
-        CheckDisposed();
-        var val = BitConverter.SingleToInt32Bits(value);
-        writerSlim.WriteBigEndian(val);
+        var span = _writer.GetSpan(sizeof(float));
+        BinaryPrimitives.WriteInt32BigEndian(span, BitConverter.SingleToInt32Bits(value));
+        _writer.Advance(sizeof(float));
     }
 
-    /// <summary>
-    /// Writes a double value to the buffer in big-endian format
-    /// </summary>
-    /// <param name="value">The double value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteDouble(double value)
     {
-        CheckDisposed();
-        var val = BitConverter.DoubleToInt64Bits(value);
-        writerSlim.WriteBigEndian(val);
+        var span = _writer.GetSpan(sizeof(double));
+        BinaryPrimitives.WriteInt64BigEndian(span, BitConverter.DoubleToInt64Bits(value));
+        _writer.Advance(sizeof(double));
     }
 
-    /// <summary>
-    /// Writes a UUID (GUID) value to the buffer
-    /// </summary>
-    /// <param name="value">The UUID value to write</param>
-    /// <exception cref="InvalidOperationException">Thrown when the UUID cannot be written to the buffer</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteUUID(Guid value)
     {
-        CheckDisposed();
-        var span = writerSlim.GetSpan(16);
-
-        if (!value.TryWriteBytes(span)) throw new InvalidOperationException("Guid no write");
-        writerSlim.Advance(16);
+        var span = _writer.GetSpan(16);
+        if (!value.TryWriteBytes(span, bigEndian: true, out _))
+            throw new InvalidOperationException("Guid no write");
+        _writer.Advance(16);
     }
 
-    /// <summary>
-    /// Writes a byte buffer to the underlying buffer
-    /// </summary>
-    /// <param name="value">The byte buffer to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteBuffer(ReadOnlySpan<byte> value)
     {
-        CheckDisposed();
-        writerSlim.Write(value);
+        _writer.Write(value);
     }
 
-    /// <summary>
-    /// Writes a nullable VarInt value to the buffer
-    /// </summary>
-    /// <param name="value">The nullable VarInt value to write</param>
-    /// <exception cref="ArgumentNullException">Thrown when the value is null</exception>
     public void WriteVarInt(int? value)
     {
-        CheckDisposed();
         if (value is null)
-            throw new ArgumentNullException("value", "value is null");
+            throw new ArgumentNullException(nameof(value));
         WriteVarInt(value.Value);
     }
 
-    /// <summary>
-    /// Writes a VarInt value to the buffer
-    /// </summary>
-    /// <param name="value">The VarInt value to write</param>
-    /// <exception cref="ArithmeticException">Thrown when the VarInt is too big</exception>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteVarInt(int value)
     {
-        CheckDisposed();
         Span<byte> data = stackalloc byte[5];
-
         var unsigned = (uint)value;
-
         byte len = 0;
         do
         {
             var temp = (byte)(unsigned & 127);
             unsigned >>= 7;
-
-            if (unsigned != 0)
-                temp |= 128;
-
+            if (unsigned != 0) temp |= 128;
             data[len++] = temp;
         } while (unsigned != 0);
 
-        if (len > 5)
-            throw new ArithmeticException("Var int is too big");
-
-        writerSlim.Write(data.Slice(0, len));
+        _writer.Write(data.Slice(0, len));
     }
 
-    /// <summary>
-    /// Writes a VarLong value to the buffer
-    /// </summary>
-    /// <param name="value">The VarLong value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteVarLong(long value)
     {
-        CheckDisposed();
         var unsigned = (ulong)value;
-
         do
         {
             var temp = (byte)(unsigned & 127);
-
             unsigned >>= 7;
-
-            if (unsigned != 0)
-                temp |= 128;
-
-
-            writerSlim.Write(temp);
+            if (unsigned != 0) temp |= 128;
+            var span = _writer.GetSpan(1);
+            span[0] = temp;
+            _writer.Advance(1);
         } while (unsigned != 0);
     }
 
+    private static readonly Encoding _utf8 = new UTF8Encoding();
 
-    private static readonly Encoding encoding = new UTF8Encoding();
-
-    /// <summary>
-    /// Writes a string value to the buffer in UTF-8 format
-    /// </summary>
-    /// <param name="value">The string value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void WriteString(scoped ReadOnlySpan<char> chars)
     {
-        CheckDisposed();
-        int length = encoding.GetByteCount(chars);
+        int length = _utf8.GetByteCount(chars);
         WriteVarInt(length);
-        Span<byte> span = writerSlim.GetSpan(length);
-
-        if (!encoding.TryGetBytes(chars, span, out var written))
+        var span = _writer.GetSpan(length);
+        if (!_utf8.TryGetBytes(chars, span, out var written))
             throw new ArgumentException("Failed to write string to buffer", nameof(chars));
-        writerSlim.Advance(written);
+        _writer.Advance(written);
     }
 
-    /// <summary>
-    /// Writes a string value to the buffer in UTF-8 format
-    /// </summary>
-    /// <param name="value">The string value to write</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void WriteString(string value)
-    {
-        WriteString(value.AsSpan());
-    }
+    public void WriteString(string value) => WriteString(value.AsSpan());
 
-    /// <summary>
-    /// Writes an optional NBT tag to the buffer
-    /// </summary>
-    /// <param name="value">The optional NBT tag to write</param>
     public void WriteOptionalNbt(NbtTag? value)
     {
-        CheckDisposed();
         if (value is null)
         {
             WriteBoolean(false);
@@ -322,57 +216,27 @@ public ref struct MinecraftPrimitiveWriter
         }
     }
 
-    /// <summary>
-    /// Writes an NBT tag to the buffer
-    /// </summary>
-    /// <param name="value">The NBT tag to write</param>
     public void WriteNbt(NbtTag value)
     {
-        CheckDisposed();
-        MemoryStream ms = new MemoryStream();
-        NbtWriter nbtWriter = new NbtWriter(ms, "");
-
+        using var ms = new MemoryStream();
+        var nbtWriter = new NbtWriter(ms, "");
         nbtWriter.WriteTag(value);
-
-        this.WriteBuffer(ms.ToArray());
+        WriteBuffer(ms.ToArray());
     }
 
     /// <summary>
-    /// Checks if the writer has been disposed
+    /// Copies written bytes into a pooled <see cref="MemoryOwner{T}"/> buffer.
     /// </summary>
-    /// <exception cref="ObjectDisposedException">Thrown when the writer has been disposed</exception>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void CheckDisposed()
-    {
-        if (disposed)
-            throw new ObjectDisposedException(nameof(MinecraftPrimitiveWriter));
-    }
-
-    private bool disposed;
-
-    /// <summary>
-    /// Gets the written memory buffer and marks the writer as disposed
-    /// </summary>
-    /// <returns>The written memory buffer</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the buffer cannot be detached</exception>
     public MemoryOwner<byte> GetWrittenMemory()
     {
-        if (!writerSlim.TryDetachBuffer(out var result))
-            throw new InvalidOperationException("Don't detach buffer");
-
-        disposed = true;
-        return result;
+        var written = _writer.WrittenSpan;
+        var owner = MemoryOwner<byte>.Allocate(written.Length);
+        written.CopyTo(owner.Span);
+        return owner;
     }
 
     /// <summary>
-    /// Disposes the writer and releases any resources
+    /// No-op. <see cref="ArrayBufferWriter{T}"/> holds no rented resources.
     /// </summary>
-    public void Dispose()
-    {
-        if (disposed)
-            return;
-        disposed = true;
-
-        writerSlim.Dispose();
-    }
+    public void Dispose() { }
 }

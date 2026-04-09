@@ -4,8 +4,6 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using DotNext.Buffers;
-
 namespace McProtoNet.Serialization;
 
 /// <summary>
@@ -141,29 +139,25 @@ public static class Extensions
 
     public static bool TryReadVarInt(this in ReadOnlySpan<byte> span, out int result, out int len)
     {
-        scoped var reader = new SpanReader<byte>(span);
-
         var numRead = 0;
         result = 0;
-        byte read;
+        byte read = 0;
         do
         {
-            if (reader.TryRead(out read))
-            {
-                var value = read & 0b01111111;
-                result |= value << (7 * numRead);
-                numRead++;
-                if (numRead > 5)
-                    ThrowHelper.ThrowVarIntTooLong();
-            }
-            else
+            if (numRead >= span.Length)
             {
                 len = 0;
                 result = 0;
                 return false;
             }
-        } while ((read & 0b10000000) != 0);
 
+            read = span[numRead];
+            var value = read & 0b01111111;
+            result |= value << (7 * numRead);
+            numRead++;
+            if (numRead > 5)
+                ThrowHelper.ThrowVarIntTooLong();
+        } while ((read & 0b10000000) != 0);
 
         len = numRead;
         return true;

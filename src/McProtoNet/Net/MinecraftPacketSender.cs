@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
-using DotNext.Buffers;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 
@@ -18,7 +17,6 @@ public sealed class MinecraftPacketSender : IDisposable, IAsyncDisposable
     private readonly byte[] _varIntBuff = new byte[5];
 
     private readonly Stream _stream;
-    private readonly MemoryAllocator<byte> _allocator;
     private readonly bool _leaveOpen;
 
     private const int NonWrite = 0;
@@ -43,10 +41,8 @@ public sealed class MinecraftPacketSender : IDisposable, IAsyncDisposable
     public MinecraftPacketSender(Stream stream, ArrayPool<byte> pool, bool leaveOpen = false)
     {
         ArgumentNullException.ThrowIfNull(stream);
-        ArgumentNullException.ThrowIfNull(pool);
         _leaveOpen = leaveOpen;
         _stream = stream;
-        _allocator = pool.ToAllocator();
     }
 
     public bool AutoFlush
@@ -189,22 +185,19 @@ public sealed class MinecraftPacketSender : IDisposable, IAsyncDisposable
     private MemoryOwner<byte> Compress(in ReadOnlySpan<byte> data)
     {
         var compressor = LibDeflateCache.RentCompressor();
-        var length = compressor.GetBound(data.Length);
+        var maxLength = compressor.GetBound(data.Length);
 
-        var compressedBuffer = _allocator.AllocateExactly(length);
+        byte[] rented = ArrayPool<byte>.Shared.Rent(maxLength);
         try
         {
-            var bytesCompress = compressor.Compress(data, compressedBuffer.Span);
-
-
-            compressedBuffer.Resize(bytesCompress, _allocator);
-
-            return compressedBuffer;
+            var bytesCompress = compressor.Compress(data, rented.AsSpan(0, maxLength));
+            var result = MemoryOwner<byte>.Allocate(bytesCompress);
+            rented.AsSpan(0, bytesCompress).CopyTo(result.Span);
+            return result;
         }
-        catch
+        finally
         {
-            compressedBuffer.Dispose();
-            throw;
+            ArrayPool<byte>.Shared.Return(rented);
         }
     }
 

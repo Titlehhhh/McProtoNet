@@ -20,7 +20,7 @@ public sealed partial class EntityUpdateAttributesPacket : IServerPacket
     public V755_765Fields? V755_765 { get; set; }
     public V766_LastFields? V766_Last { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -28,21 +28,21 @@ public sealed partial class EntityUpdateAttributesPacket : IServerPacket
             {
                 var fields = VFirst_754 ?? throw new InvalidOperationException("EntityUpdateAttributes VFirst_754 missing.");
                 writer.WriteVarInt(EntityId);
-                WritePropertiesInt(ref writer, fields.Properties);
+                WritePropertiesInt(writer, fields.Properties);
                 return;
             }
             case >= 755 and <= 765:
             {
                 var fields = V755_765 ?? throw new InvalidOperationException("EntityUpdateAttributes V755_765 missing.");
                 writer.WriteVarInt(EntityId);
-                WritePropertiesVarInt(ref writer, fields.Properties);
+                WritePropertiesVarInt(writer, fields.Properties);
                 return;
             }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V766_Last ?? throw new InvalidOperationException("EntityUpdateAttributes V766_Last missing.");
                 writer.WriteVarInt(EntityId);
-                WriteMappedProperties(ref writer, fields.Properties);
+                WriteMappedProperties(writer, fields.Properties);
                 return;
             }
             default:
@@ -88,8 +88,8 @@ public sealed partial class EntityUpdateAttributesPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
@@ -202,40 +202,40 @@ public sealed partial class EntityUpdateAttributesPacket : IServerPacket
         return entries;
     }
 
-    private static void WritePropertiesInt(ref MinecraftPrimitiveWriter writer, PropertyEntryVFirst_754[] properties)
+    private static void WritePropertiesInt(MinecraftPrimitiveWriter writer, PropertyEntryVFirst_754[] properties)
     {
         writer.WriteSignedInt(properties.Length);
         for (int i = 0; i < properties.Length; i++)
         {
             writer.WriteString(properties[i].Key);
             writer.WriteDouble(properties[i].Value);
-            WriteModifiers(ref writer, properties[i].Modifiers);
+            WriteModifiers(writer, properties[i].Modifiers);
         }
     }
 
-    private static void WritePropertiesVarInt(ref MinecraftPrimitiveWriter writer, PropertyEntryV755_765[] properties)
+    private static void WritePropertiesVarInt(MinecraftPrimitiveWriter writer, PropertyEntryV755_765[] properties)
     {
         writer.WriteVarInt(properties.Length);
         for (int i = 0; i < properties.Length; i++)
         {
             writer.WriteString(properties[i].Name);
             writer.WriteDouble(properties[i].Value);
-            WriteModifiers(ref writer, properties[i].Modifiers);
+            WriteModifiers(writer, properties[i].Modifiers);
         }
     }
 
-    private static void WriteMappedProperties(ref MinecraftPrimitiveWriter writer, PropertyEntryV766_Last[] properties)
+    private static void WriteMappedProperties(MinecraftPrimitiveWriter writer, PropertyEntryV766_Last[] properties)
     {
         writer.WriteVarInt(properties.Length);
         for (int i = 0; i < properties.Length; i++)
         {
             writer.WriteVarInt(WriteAttributeName(properties[i].Key));
             writer.WriteDouble(properties[i].Value);
-            WriteModifiers(ref writer, properties[i].Modifiers);
+            WriteModifiers(writer, properties[i].Modifiers);
         }
     }
 
-    private static void WriteModifiers(ref MinecraftPrimitiveWriter writer, ModifierEntry[] modifiers)
+    private static void WriteModifiers(MinecraftPrimitiveWriter writer, ModifierEntry[] modifiers)
     {
         writer.WriteVarInt(modifiers.Length);
         for (int i = 0; i < modifiers.Length; i++)

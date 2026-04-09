@@ -608,7 +608,7 @@ public static partial class ProtocolSerializationExtensions
         return new Particle(null, null, type, payload);
     }
 
-    public static void WriteParticle(this ref MinecraftPrimitiveWriter writer, Particle value, int protocolVersion)
+    public static void WriteParticle(this MinecraftPrimitiveWriter writer, Particle value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<Particle>(protocolVersion);
         if (protocolVersion <= 764)
@@ -625,7 +625,7 @@ public static partial class ProtocolSerializationExtensions
         {
             return;
         }
-        WriteParticlePayload(ref writer, protocolVersion, type, value.Data);
+        WriteParticlePayload(writer, protocolVersion, type, value.Data);
     }
 
     public static ParticleData? ReadParticleData(this ref MinecraftPrimitiveReader reader, int protocolVersion, int particleId)
@@ -727,7 +727,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    public static void WriteParticleData(this ref MinecraftPrimitiveWriter writer, int protocolVersion, int particleId,
+    public static void WriteParticleData(this MinecraftPrimitiveWriter writer, int protocolVersion, int particleId,
         ParticleData? data)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ParticleData>(protocolVersion);
@@ -757,10 +757,10 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteSlot(item.ItemStack, protocolVersion);
                 return;
             case ParticleData.LegacyVibration legacyVibration:
-                WriteLegacyVibration(ref writer, legacyVibration.Data, protocolVersion);
+                WriteLegacyVibration(writer, legacyVibration.Data, protocolVersion);
                 return;
             case ParticleData.Vibration vibration:
-                WriteVibration(ref writer, vibration.Data, protocolVersion);
+                WriteVibration(writer, vibration.Data, protocolVersion);
                 return;
             case ParticleData.Rotation rotation:
                 writer.WriteFloat(rotation.Value);
@@ -797,7 +797,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    private static void WriteParticlePayload(ref MinecraftPrimitiveWriter writer, int protocolVersion, string type,
+    private static void WriteParticlePayload(MinecraftPrimitiveWriter writer, int protocolVersion, string type,
         ParticlePayload? payload)
     {
         switch (type)
@@ -845,10 +845,10 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteVarInt(data.Delay);
                 break;
             case "vibration" when payload is ParticlePayload.Vibration data:
-                WriteParticleVibration(ref writer, data.Data, protocolVersion);
+                WriteParticleVibration(writer, data.Data, protocolVersion);
                 break;
             case "trail" when payload is ParticlePayload.Trail data:
-                WriteParticleTrail(ref writer, data.Data, protocolVersion);
+                WriteParticleTrail(writer, data.Data, protocolVersion);
                 break;
             case "tinted_leaves" when payload is ParticlePayload.TintedLeaves data:
                 writer.WriteSignedInt(data.Color);
@@ -884,7 +884,7 @@ public static partial class ProtocolSerializationExtensions
         return new ParticlePayload.ParticleVibrationData(positionType, blockPosition, entityId, entityEyeHeight, ticks);
     }
 
-    private static void WriteParticleVibration(ref MinecraftPrimitiveWriter writer, ParticlePayload.ParticleVibrationData data,
+    private static void WriteParticleVibration(MinecraftPrimitiveWriter writer, ParticlePayload.ParticleVibrationData data,
         int protocolVersion)
     {
         writer.WriteVarInt(WriteParticleVibrationPositionType(data.PositionType));
@@ -908,7 +908,7 @@ public static partial class ProtocolSerializationExtensions
         return new ParticlePayload.ParticleTrailData(target, color);
     }
 
-    private static void WriteParticleTrail(ref MinecraftPrimitiveWriter writer, ParticlePayload.ParticleTrailData data,
+    private static void WriteParticleTrail(MinecraftPrimitiveWriter writer, ParticlePayload.ParticleTrailData data,
         int protocolVersion)
     {
         writer.WriteVec3f64(data.Target, protocolVersion);
@@ -933,7 +933,7 @@ public static partial class ProtocolSerializationExtensions
         return new ParticleData.LegacyVibrationData(origin, positionType, destinationBlock, destinationEntityId, ticks);
     }
 
-    private static void WriteLegacyVibration(ref MinecraftPrimitiveWriter writer, ParticleData.LegacyVibrationData data,
+    private static void WriteLegacyVibration(MinecraftPrimitiveWriter writer, ParticleData.LegacyVibrationData data,
         int protocolVersion)
     {
         writer.WritePosition(data.Origin, protocolVersion);
@@ -974,7 +974,7 @@ public static partial class ProtocolSerializationExtensions
         return new ParticleData.VibrationData(positionType, entityId, entityEyeHeight, destinationBlock, destinationEntityId, ticks);
     }
 
-    private static void WriteVibration(ref MinecraftPrimitiveWriter writer, ParticleData.VibrationData data,
+    private static void WriteVibration(MinecraftPrimitiveWriter writer, ParticleData.VibrationData data,
         int protocolVersion)
     {
         writer.WriteString(data.PositionType);

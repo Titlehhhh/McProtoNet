@@ -37,7 +37,7 @@ public sealed partial class MapChunkPacket : IServerPacket
     public byte[][] SkyLight { get; set; } = Array.Empty<byte[]>();
     public byte[][] BlockLight { get; set; } = Array.Empty<byte[]>();
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -50,10 +50,10 @@ public sealed partial class MapChunkPacket : IServerPacket
                 writer.WriteNbtTag(Heightmaps, protocolVersion);
                 if (GroundUp)
                 {
-                    WriteFixedIntArray(ref writer, Biomes, 1024);
+                    WriteFixedIntArray(writer, Biomes, 1024);
                 }
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
+                WriteNbtArray(writer, BlockEntitiesOld, protocolVersion);
                 return;
             case >= 751 and <= 754:
                 writer.WriteSignedInt(X);
@@ -70,7 +70,7 @@ public sealed partial class MapChunkPacket : IServerPacket
                     }
                 }
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
+                WriteNbtArray(writer, BlockEntitiesOld, protocolVersion);
                 return;
             case >= 755 and <= 756:
                 writer.WriteSignedInt(X);
@@ -87,32 +87,32 @@ public sealed partial class MapChunkPacket : IServerPacket
                     writer.WriteVarInt(Biomes[i]);
                 }
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteNbtArray(ref writer, BlockEntitiesOld, protocolVersion);
+                WriteNbtArray(writer, BlockEntitiesOld, protocolVersion);
                 return;
             case >= 757 and <= 762:
                 writer.WriteSignedInt(X);
                 writer.WriteSignedInt(Z);
                 writer.WriteNbtTag(Heightmaps, protocolVersion);
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
+                WriteChunkBlockEntities(writer, BlockEntities, protocolVersion);
                 writer.WriteBoolean(TrustEdges);
-                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
+                WriteLightArrays(writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
             case 763:
                 writer.WriteSignedInt(X);
                 writer.WriteSignedInt(Z);
                 writer.WriteNbtTag(Heightmaps, protocolVersion);
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
-                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
+                WriteChunkBlockEntities(writer, BlockEntities, protocolVersion);
+                WriteLightArrays(writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
             case >= 764 and <= MinecraftVersion.LatestProtocol:
                 writer.WriteSignedInt(X);
                 writer.WriteSignedInt(Z);
                 writer.WriteAnonymousNbtTag(Heightmaps, protocolVersion);
                 writer.WriteBuffer<VarInt>(ChunkData);
-                WriteChunkBlockEntities(ref writer, BlockEntities, protocolVersion);
-                WriteLightArrays(ref writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
+                WriteChunkBlockEntities(writer, BlockEntities, protocolVersion);
+                WriteLightArrays(writer, SkyLightMask, BlockLightMask, EmptySkyLightMask, EmptyBlockLightMask, SkyLight, BlockLight);
                 return;
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.MapChunk), protocolVersion, SupportedVersionsStatic);
@@ -253,7 +253,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         }
     }
 
-    private static void WriteFixedIntArray(ref MinecraftPrimitiveWriter writer, int[] values, int expectedLength)
+    private static void WriteFixedIntArray(MinecraftPrimitiveWriter writer, int[] values, int expectedLength)
     {
         if (values.Length != expectedLength)
         {
@@ -308,7 +308,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         return tags;
     }
 
-    private static void WriteNbtArray(ref MinecraftPrimitiveWriter writer, NbtTag[] tags, int protocolVersion)
+    private static void WriteNbtArray(MinecraftPrimitiveWriter writer, NbtTag[] tags, int protocolVersion)
     {
         writer.WriteVarInt(tags.Length);
         for (int i = 0; i < tags.Length; i++)
@@ -342,7 +342,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         return entities;
     }
 
-    private static void WriteChunkBlockEntities(ref MinecraftPrimitiveWriter writer, ChunkBlockEntity[] entities, int protocolVersion)
+    private static void WriteChunkBlockEntities(MinecraftPrimitiveWriter writer, ChunkBlockEntity[] entities, int protocolVersion)
     {
         writer.WriteVarInt(entities.Length);
         for (int i = 0; i < entities.Length; i++)
@@ -372,7 +372,7 @@ public sealed partial class MapChunkPacket : IServerPacket
         blockLight = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) => r.ReadArray<byte>(LengthFormat.VarInt));
     }
 
-    private static void WriteLightArrays(ref MinecraftPrimitiveWriter writer, long[] skyLightMask, long[] blockLightMask, long[] emptySkyLightMask, long[] emptyBlockLightMask, byte[][] skyLight, byte[][] blockLight)
+    private static void WriteLightArrays(MinecraftPrimitiveWriter writer, long[] skyLightMask, long[] blockLightMask, long[] emptySkyLightMask, long[] emptyBlockLightMask, byte[][] skyLight, byte[][] blockLight)
     {
         writer.WriteVarInt(skyLightMask.Length);
         for (int i = 0; i < skyLightMask.Length; i++)
@@ -408,8 +408,8 @@ public sealed partial class MapChunkPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

@@ -2,7 +2,6 @@ using System;
 using System.IO;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using DotNext.IO;
 using McProtoNet.Net;
 
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
@@ -35,7 +34,7 @@ public class QueueStreamSendBench : ISendBench
                 SingleReader = true
             });
         }
-        _stream = new PoolingBufferedStream(stream);
+        _stream = new BufferedStream(stream);
 
         _sender = new MinecraftPacketSender(_stream)
         {

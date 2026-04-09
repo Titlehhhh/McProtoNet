@@ -8,9 +8,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using DotNext.Buffers;
-using McProtoNet.Abstractions;
 using McProtoNet.Net;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Benchmark;
 
@@ -41,12 +40,9 @@ public class ReadPacketBenchmarks
 
         writer.CompressionThreshold = CompressionThreshold;
 
-        var allocator = ArrayPool<byte>.Shared.ToAllocator();
-
-
         for (int i = 0; i < PacketsCount; i++)
         {
-            var buffer = allocator.AllocateExactly(r.Next(20, 200));
+            var buffer = MemoryOwner<byte>.Allocate(r.Next(20, 200));
             RandomData(buffer.Span.Slice(5));
 
             OutputPacket packet = new OutputPacket(buffer);

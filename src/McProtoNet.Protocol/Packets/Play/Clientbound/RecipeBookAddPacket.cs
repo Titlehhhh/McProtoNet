@@ -15,7 +15,7 @@ public sealed partial class RecipeBookAddPacket : IServerPacket
     public RecipeEntry[] Entries { get; set; } = Array.Empty<RecipeEntry>();
     public bool Replace { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
@@ -23,7 +23,7 @@ public sealed partial class RecipeBookAddPacket : IServerPacket
                 writer.WriteVarInt(Entries.Length);
                 for (int i = 0; i < Entries.Length; i++)
                 {
-                    WriteRecipeData(ref writer, Entries[i].Recipe, protocolVersion);
+                    WriteRecipeData(writer, Entries[i].Recipe, protocolVersion);
                     byte flags = 0;
                     if (Entries[i].Notification) flags |= 0x01;
                     if (Entries[i].Highlight) flags |= 0x02;
@@ -101,7 +101,7 @@ public sealed partial class RecipeBookAddPacket : IServerPacket
         return requirements;
     }
 
-    private static void WriteRecipeData(ref MinecraftPrimitiveWriter writer, RecipeData recipe, int protocolVersion)
+    private static void WriteRecipeData(MinecraftPrimitiveWriter writer, RecipeData recipe, int protocolVersion)
     {
         writer.WriteVarInt(recipe.DisplayId);
         writer.WriteRecipeDisplay(recipe.Display, protocolVersion);
@@ -122,8 +122,8 @@ public sealed partial class RecipeBookAddPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);

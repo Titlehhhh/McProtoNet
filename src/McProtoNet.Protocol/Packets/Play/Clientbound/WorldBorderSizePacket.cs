@@ -1,49 +1,35 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("WorldBorderSize", PacketState.Play, PacketDirection.Clientbound)]
-public sealed partial class WorldBorderSizePacket : IServerPacket
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x44)]
+[PacketId(759, 759, 0x43)]
+[PacketId(760, 760, 0x46)]
+[PacketId(761, 761, 0x45)]
+[PacketId(762, 763, 0x49)]
+[PacketId(764, 764, 0x4B)]
+[PacketId(765, 765, 0x4D)]
+[PacketId(766, 767, 0x4F)]
+[PacketId(768, 769, 0x54)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x53)]
+public sealed partial class WorldBorderSizePacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, MinecraftVersion.LatestProtocol),
-    };
-
     public double Diameter { get; set; }
 
-    internal void Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteDouble(Diameter);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderSize), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => writer.WriteFloat(Diameter);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                Diameter = reader.ReadDouble();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderSize), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => Diameter = reader.ReadFloat();
 
-    void IPacket.Serialize(ref MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(ref writer, protocolVersion);
+    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+        => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
 }

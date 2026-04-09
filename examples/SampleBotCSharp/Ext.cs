@@ -1,4 +1,3 @@
-using DotNext.IO.Pipelines;
 using McProtoNet.Client;
 using McProtoNet.Net;
 using McProtoNet.Serialization;
@@ -28,8 +27,7 @@ static class Ext
         
         public async ValueTask SendPacketAsync(IPacket packet, int id, CancellationToken cancellationToken = default)
         {
-            Span<byte> buffer = stackalloc byte[128];
-            var writer = new MinecraftPrimitiveWriter(buffer);
+            var writer = new MinecraftPrimitiveWriter(128);
             try
             {
                 writer.WriteVarInt(id);
@@ -43,7 +41,7 @@ static class Ext
 
 
             var result = await client.PacketWriter.FlushAsync(cancellationToken);
-            result.ThrowIfCancellationRequested(cancellationToken);
+            if (result.IsCanceled) cancellationToken.ThrowIfCancellationRequested();
             if (result.IsCompleted)
             {
                 throw new InvalidOperationException("Flush failed");
@@ -69,7 +67,7 @@ static class Ext
         }
     }
 
-    extension(NewInputPacket packet)
+    extension(InputPacket packet)
     {
         public MinecraftPrimitiveReader CreateReader()
         {

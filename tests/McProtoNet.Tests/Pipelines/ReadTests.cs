@@ -75,7 +75,7 @@ public class ReadTests
         var reader = new MinecraftPacketPipeReader(pipe.Reader);
 
         int count = 0;
-        NewInputPacket test = default;
+        InputPacket test = default;
         await foreach (var packet in reader.ReadPacketsAsync(TestContext.Current.CancellationToken))
         {
             var lengg = packet.FullLength;

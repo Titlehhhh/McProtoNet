@@ -5,9 +5,6 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using DotNext.Buffers;
-using DotNext.Collections.Generic;
-using DotNext.IO;
 using McProtoNet.Net.Zlib;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 

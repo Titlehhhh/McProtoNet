@@ -19,7 +19,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonAddResourcePack(uuid, url, hash, forced, promptMessage);
     }
 
-    public static void WritePacketCommonAddResourcePack(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonAddResourcePack(this MinecraftPrimitiveWriter writer,
         PacketCommonAddResourcePack value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonAddResourcePack>(protocolVersion);
@@ -45,7 +45,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonClearDialog();
     }
 
-    public static void WritePacketCommonClearDialog(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonClearDialog(this MinecraftPrimitiveWriter writer,
         PacketCommonClearDialog value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonClearDialog>(protocolVersion);
@@ -59,7 +59,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonCookieRequest(cookie);
     }
 
-    public static void WritePacketCommonCookieRequest(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonCookieRequest(this MinecraftPrimitiveWriter writer,
         PacketCommonCookieRequest value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonCookieRequest>(protocolVersion);
@@ -75,7 +75,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonCookieResponse(key, value);
     }
 
-    public static void WritePacketCommonCookieResponse(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonCookieResponse(this MinecraftPrimitiveWriter writer,
         PacketCommonCookieResponse value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonCookieResponse>(protocolVersion);
@@ -87,7 +87,7 @@ public static partial class ProtocolSerializationExtensions
         else
         {
             writer.WriteBoolean(true);
-            WriteByteArray(ref writer, value.Value);
+            WriteByteArray(writer, value.Value);
         }
     }
 
@@ -100,7 +100,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonCustomClickAction(id, nbt);
     }
 
-    public static void WritePacketCommonCustomClickAction(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonCustomClickAction(this MinecraftPrimitiveWriter writer,
         PacketCommonCustomClickAction value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonCustomClickAction>(protocolVersion);
@@ -129,11 +129,11 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonCustomReportDetails(details);
     }
 
-    public static void WritePacketCommonCustomReportDetails(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonCustomReportDetails(this MinecraftPrimitiveWriter writer,
         PacketCommonCustomReportDetails value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonCustomReportDetails>(protocolVersion);
-        WriteArray(ref writer, value.Details, (ref MinecraftPrimitiveWriter w, PacketCommonCustomReportDetails.DetailEntry entry) =>
+        WriteArray(writer, value.Details, (MinecraftPrimitiveWriter w, PacketCommonCustomReportDetails.DetailEntry entry) =>
         {
             w.WriteString(entry.Key);
             w.WriteString(entry.Value);
@@ -148,7 +148,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonRemoveResourcePack(uuid);
     }
 
-    public static void WritePacketCommonRemoveResourcePack(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonRemoveResourcePack(this MinecraftPrimitiveWriter writer,
         PacketCommonRemoveResourcePack value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonRemoveResourcePack>(protocolVersion);
@@ -177,11 +177,11 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonSelectKnownPacks(packs);
     }
 
-    public static void WritePacketCommonSelectKnownPacks(this ref MinecraftPrimitiveWriter writer,
+    public static void WritePacketCommonSelectKnownPacks(this MinecraftPrimitiveWriter writer,
         PacketCommonSelectKnownPacks value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonSelectKnownPacks>(protocolVersion);
-        WriteArray(ref writer, value.Packs, (ref MinecraftPrimitiveWriter w, PacketCommonSelectKnownPacks.PackEntry entry) =>
+        WriteArray(writer, value.Packs, (MinecraftPrimitiveWriter w, PacketCommonSelectKnownPacks.PackEntry entry) =>
         {
             w.WriteString(entry.Namespace);
             w.WriteString(entry.Id);
@@ -204,11 +204,11 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonServerLinks(links);
     }
 
-    public static void WritePacketCommonServerLinks(this ref MinecraftPrimitiveWriter writer, PacketCommonServerLinks value,
+    public static void WritePacketCommonServerLinks(this MinecraftPrimitiveWriter writer, PacketCommonServerLinks value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonServerLinks>(protocolVersion);
-        WriteArray(ref writer, value.Links, (ref MinecraftPrimitiveWriter w, PacketCommonServerLinks.ServerLinkEntry entry) =>
+        WriteArray(writer, value.Links, (MinecraftPrimitiveWriter w, PacketCommonServerLinks.ServerLinkEntry entry) =>
         {
             w.WriteBoolean(entry.HasKnownType);
             if (entry.HasKnownType)
@@ -243,7 +243,7 @@ public static partial class ProtocolSerializationExtensions
             enableTextFiltering, enableServerListing, particleStatus);
     }
 
-    public static void WritePacketCommonSettings(this ref MinecraftPrimitiveWriter writer, PacketCommonSettings value,
+    public static void WritePacketCommonSettings(this MinecraftPrimitiveWriter writer, PacketCommonSettings value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonSettings>(protocolVersion);
@@ -270,12 +270,12 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonStoreCookie(key, value);
     }
 
-    public static void WritePacketCommonStoreCookie(this ref MinecraftPrimitiveWriter writer, PacketCommonStoreCookie value,
+    public static void WritePacketCommonStoreCookie(this MinecraftPrimitiveWriter writer, PacketCommonStoreCookie value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonStoreCookie>(protocolVersion);
         writer.WriteString(value.Key);
-        WriteByteArray(ref writer, value.Value);
+        WriteByteArray(writer, value.Value);
     }
 
     public static PacketCommonTransfer ReadPacketCommonTransfer(this ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -286,7 +286,7 @@ public static partial class ProtocolSerializationExtensions
         return new PacketCommonTransfer(host, port);
     }
 
-    public static void WritePacketCommonTransfer(this ref MinecraftPrimitiveWriter writer, PacketCommonTransfer value,
+    public static void WritePacketCommonTransfer(this MinecraftPrimitiveWriter writer, PacketCommonTransfer value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PacketCommonTransfer>(protocolVersion);
@@ -300,7 +300,7 @@ public static partial class ProtocolSerializationExtensions
         return reader.ReadBuffer(length);
     }
 
-    private static void WriteByteArray(ref MinecraftPrimitiveWriter writer, byte[] value)
+    private static void WriteByteArray(MinecraftPrimitiveWriter writer, byte[] value)
     {
         writer.WriteVarInt(value.Length);
         writer.WriteBuffer(value);

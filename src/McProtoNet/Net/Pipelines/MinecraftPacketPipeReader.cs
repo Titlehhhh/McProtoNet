@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
-using DotNext.Buffers;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
@@ -290,7 +289,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
             if (!decompressedBuffer.TryResize(sizeUncompressed))
             {
                 decompressedBuffer.Dispose();
-                decompressedBuffer = new(ArrayPool<byte>.Shared, sizeUncompressed);
+                decompressedBuffer = MemoryOwner<byte>.Allocate(sizeUncompressed);
             }
 
             try

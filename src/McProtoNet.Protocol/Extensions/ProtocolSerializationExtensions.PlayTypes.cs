@@ -14,7 +14,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypeParameterType(ReadChatTypeParameterTypeValue(id));
     }
 
-    public static void WriteChatTypeParameterType(this ref MinecraftPrimitiveWriter writer, ChatTypeParameterType value,
+    public static void WriteChatTypeParameterType(this MinecraftPrimitiveWriter writer, ChatTypeParameterType value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypeParameterType>(protocolVersion);
@@ -32,12 +32,12 @@ public static partial class ProtocolSerializationExtensions
         return new ChatType(translationKey, parameters, style);
     }
 
-    public static void WriteChatType(this ref MinecraftPrimitiveWriter writer, ChatType value, int protocolVersion)
+    public static void WriteChatType(this MinecraftPrimitiveWriter writer, ChatType value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatType>(protocolVersion);
         writer.WriteString(value.TranslationKey);
-        WriteArray(ref writer, value.Parameters,
-            (ref MinecraftPrimitiveWriter w, ChatTypeParameterType entry) => w.WriteChatTypeParameterType(entry, protocolVersion));
+        WriteArray(writer, value.Parameters,
+            (MinecraftPrimitiveWriter w, ChatTypeParameterType entry) => w.WriteChatTypeParameterType(entry, protocolVersion));
         writer.WriteAnonymousNbtTag(value.Style, protocolVersion);
     }
 
@@ -49,7 +49,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypes(chat, narration);
     }
 
-    public static void WriteChatTypes(this ref MinecraftPrimitiveWriter writer, ChatTypes value, int protocolVersion)
+    public static void WriteChatTypes(this MinecraftPrimitiveWriter writer, ChatTypes value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypes>(protocolVersion);
         writer.WriteChatType(value.Chat, protocolVersion);
@@ -70,7 +70,7 @@ public static partial class ProtocolSerializationExtensions
         return new ChatTypesHolder(data);
     }
 
-    public static void WriteChatTypesHolder(this ref MinecraftPrimitiveWriter writer, ChatTypesHolder value,
+    public static void WriteChatTypesHolder(this MinecraftPrimitiveWriter writer, ChatTypesHolder value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypesHolder>(protocolVersion);
@@ -116,7 +116,7 @@ public static partial class ProtocolSerializationExtensions
             (value & 0x100) != 0);
     }
 
-    public static void WritePositionUpdateRelatives(this ref MinecraftPrimitiveWriter writer, PositionUpdateRelatives value,
+    public static void WritePositionUpdateRelatives(this MinecraftPrimitiveWriter writer, PositionUpdateRelatives value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PositionUpdateRelatives>(protocolVersion);
@@ -153,7 +153,7 @@ public static partial class ProtocolSerializationExtensions
         return new RecipeBookSetting(open, filtering);
     }
 
-    public static void WriteRecipeBookSetting(this ref MinecraftPrimitiveWriter writer, RecipeBookSetting value,
+    public static void WriteRecipeBookSetting(this MinecraftPrimitiveWriter writer, RecipeBookSetting value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<RecipeBookSetting>(protocolVersion);
@@ -199,7 +199,7 @@ public static partial class ProtocolSerializationExtensions
         return new RecipeDisplay(type, data);
     }
 
-    public static void WriteRecipeDisplay(this ref MinecraftPrimitiveWriter writer, RecipeDisplay value,
+    public static void WriteRecipeDisplay(this MinecraftPrimitiveWriter writer, RecipeDisplay value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<RecipeDisplay>(protocolVersion);
@@ -207,16 +207,16 @@ public static partial class ProtocolSerializationExtensions
         switch (value.Type)
         {
             case "crafting_shapeless" when value.Data is RecipeDisplayData.CraftingShapeless shapeless:
-                WriteArray(ref writer, shapeless.Ingredients,
-                    (ref MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
+                WriteArray(writer, shapeless.Ingredients,
+                    (MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
                 writer.WriteSlotDisplay(shapeless.Result, protocolVersion);
                 writer.WriteSlotDisplay(shapeless.CraftingStation, protocolVersion);
                 return;
             case "crafting_shaped" when value.Data is RecipeDisplayData.CraftingShaped shaped:
                 writer.WriteVarInt(shaped.Width);
                 writer.WriteVarInt(shaped.Height);
-                WriteArray(ref writer, shaped.Ingredients,
-                    (ref MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
+                WriteArray(writer, shaped.Ingredients,
+                    (MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
                 writer.WriteSlotDisplay(shaped.Result, protocolVersion);
                 writer.WriteSlotDisplay(shaped.CraftingStation, protocolVersion);
                 return;
@@ -267,7 +267,7 @@ public static partial class ProtocolSerializationExtensions
         return new SlotDisplay(type, data);
     }
 
-    public static void WriteSlotDisplay(this ref MinecraftPrimitiveWriter writer, SlotDisplay value, int protocolVersion)
+    public static void WriteSlotDisplay(this MinecraftPrimitiveWriter writer, SlotDisplay value, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotDisplay>(protocolVersion);
         writer.WriteVarInt(WriteSlotDisplayType(value.Type));
@@ -306,8 +306,8 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteSlotDisplay(remainder.Remainder, protocolVersion);
                 return;
             case "composite" when value.Data is SlotDisplayData.Composite composite:
-                WriteArray(ref writer, composite.Entries,
-                    (ref MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
+                WriteArray(writer, composite.Entries,
+                    (MinecraftPrimitiveWriter w, SlotDisplay entry) => w.WriteSlotDisplay(entry, protocolVersion));
                 return;
             default:
                 throw new InvalidOperationException($"SlotDisplay type/data mismatch for {value.Type}.");
@@ -323,7 +323,7 @@ public static partial class ProtocolSerializationExtensions
             (value & 0x02) != 0);
     }
 
-    public static void WriteMovementFlags(this ref MinecraftPrimitiveWriter writer, MovementFlags value,
+    public static void WriteMovementFlags(this MinecraftPrimitiveWriter writer, MovementFlags value,
         int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<MovementFlags>(protocolVersion);

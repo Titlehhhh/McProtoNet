@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Extensions;
 
 public static partial class ProtocolSerializationExtensions
 {
-    extension(ref MinecraftPrimitiveWriter writer)
+    extension(MinecraftPrimitiveWriter writer)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void WriteArray<T>(ReadOnlySpan<T> arr)
@@ -15,10 +15,10 @@ public static partial class ProtocolSerializationExtensions
 
         public void WriteArray<T>(ReadOnlySpan<T> arr, [ConstantExpected] LengthFormat lengthFormat)
         {
-            WriteLength(ref writer, lengthFormat, arr.Length);
+            WriteLength(writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
             {
-                WriteTypeWithoutProtocolVersion(ref writer, arr[i]);
+                WriteTypeWithoutProtocolVersion(writer, arr[i]);
             }
         }
 
@@ -28,7 +28,7 @@ public static partial class ProtocolSerializationExtensions
 
         public void WriteArray<T>(ReadOnlySpan<T> arr, [ConstantExpected] LengthFormat lengthFormat, int protocolVersion)
         {
-            WriteLength(ref writer, lengthFormat, arr.Length);
+            WriteLength(writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
             {
                 writer.WriteType(arr[i], protocolVersion);
@@ -41,7 +41,7 @@ public static partial class ProtocolSerializationExtensions
 
         public void WriteVarIntArray(ReadOnlySpan<int> arr, [ConstantExpected] LengthFormat lengthFormat)
         {
-            WriteLength(ref writer, lengthFormat, arr.Length);
+            WriteLength(writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
                 writer.WriteVarInt(arr[i]);
         }
@@ -52,21 +52,21 @@ public static partial class ProtocolSerializationExtensions
 
         public void WriteVarLongArray(ReadOnlySpan<long> arr, [ConstantExpected] LengthFormat lengthFormat)
         {
-            WriteLength(ref writer, lengthFormat, arr.Length);
+            WriteLength(writer, lengthFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
                 writer.WriteVarLong(arr[i]);
         }
 
         public void WriteArray2d<T>(ReadOnlySpan<T[]> arr, [ConstantExpected] LengthFormat outerFormat, [ConstantExpected] LengthFormat innerFormat)
         {
-            WriteLength(ref writer, outerFormat, arr.Length);
+            WriteLength(writer, outerFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
                 writer.WriteArray<T>(arr[i], innerFormat);
         }
 
         public void WriteArray2d<T>(ReadOnlySpan<T[]> arr, [ConstantExpected] LengthFormat outerFormat, [ConstantExpected] LengthFormat innerFormat, int protocolVersion)
         {
-            WriteLength(ref writer, outerFormat, arr.Length);
+            WriteLength(writer, outerFormat, arr.Length);
             for (int i = 0; i < arr.Length; i++)
                 writer.WriteArray<T>(arr[i], innerFormat, protocolVersion);
         }
@@ -113,7 +113,7 @@ public static partial class ProtocolSerializationExtensions
 
             if (typeof(T).IsGenericType && typeof(T).GetGenericTypeDefinition() == typeof(RegistryEntryHolder<>))
             {
-                WriteRegistryEntryHolderBoxed(ref writer, typeof(T).GetGenericArguments()[0], val!, protocolVersion);
+                WriteRegistryEntryHolderBoxed(writer, typeof(T).GetGenericArguments()[0], val!, protocolVersion);
                 return;
             }
 
@@ -498,7 +498,7 @@ public static partial class ProtocolSerializationExtensions
         throw new NotSupportedException($"ReadType<RegistryEntryHolder<{valueType.Name}>> is not registered.");
     }
 
-    private static void WriteRegistryEntryHolderBoxed(ref MinecraftPrimitiveWriter writer, Type valueType, object value,
+    private static void WriteRegistryEntryHolderBoxed(MinecraftPrimitiveWriter writer, Type valueType, object value,
         int protocolVersion)
     {
         if (valueType == typeof(string))
@@ -567,7 +567,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    private static void WriteLength(ref MinecraftPrimitiveWriter writer, LengthFormat lengthFormat, int length)
+    private static void WriteLength(MinecraftPrimitiveWriter writer, LengthFormat lengthFormat, int length)
     {
         switch (lengthFormat)
         {
@@ -608,7 +608,7 @@ public static partial class ProtocolSerializationExtensions
             $"ReadArray<{typeof(T).Name}> without protocolVersion is not supported. Use ReadArray<T>(..., int).");
     }
 
-    private static void WriteTypeWithoutProtocolVersion<T>(ref MinecraftPrimitiveWriter writer, T value)
+    private static void WriteTypeWithoutProtocolVersion<T>(MinecraftPrimitiveWriter writer, T value)
     {
         if (typeof(T) == typeof(bool)) { writer.WriteBoolean((bool)(object)value!); return; }
         if (typeof(T) == typeof(byte)) { writer.WriteUnsignedByte((byte)(object)value!); return; }

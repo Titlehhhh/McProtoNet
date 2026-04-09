@@ -219,7 +219,7 @@ public static partial class ProtocolSerializationExtensions
         };
     }
 
-    public static void WriteSlotComponent(this ref MinecraftPrimitiveWriter writer, SlotComponent component, int protocolVersion)
+    public static void WriteSlotComponent(this MinecraftPrimitiveWriter writer, SlotComponent component, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SlotComponent>(protocolVersion);
         var type = GetComponentType(component);
@@ -258,37 +258,37 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteString(itemModel.Model);
                 break;
             case Lore lore:
-                WriteLore(ref writer, lore.Lines, protocolVersion);
+                WriteLore(writer, lore.Lines, protocolVersion);
                 break;
             case Rarity rarity:
                 writer.WriteVarInt(WriteRarity(rarity.Value));
                 break;
             case Enchantments enchantments:
-                WriteEnchantments(ref writer, enchantments.Entries);
+                WriteEnchantments(writer, enchantments.Entries);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(enchantments.ShowTooltip ?? false);
                 }
                 break;
             case CanPlaceOn canPlaceOn:
-                WriteItemBlockPredicates(ref writer, canPlaceOn.Predicates, protocolVersion);
+                WriteItemBlockPredicates(writer, canPlaceOn.Predicates, protocolVersion);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(canPlaceOn.ShowTooltip ?? false);
                 }
                 break;
             case CanBreak canBreak:
-                WriteItemBlockPredicates(ref writer, canBreak.Predicates, protocolVersion);
+                WriteItemBlockPredicates(writer, canBreak.Predicates, protocolVersion);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(canBreak.ShowTooltip ?? false);
                 }
                 break;
             case AttributeModifiers attributeModifiers:
-                WriteAttributeModifiers(ref writer, attributeModifiers, protocolVersion);
+                WriteAttributeModifiers(writer, attributeModifiers, protocolVersion);
                 break;
             case CustomModelData customModelData:
-                WriteCustomModelData(ref writer, customModelData, protocolVersion);
+                WriteCustomModelData(writer, customModelData, protocolVersion);
                 break;
             case HideAdditionalTooltip:
                 if (protocolVersion >= 770)
@@ -307,7 +307,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("tooltip_display is not supported before protocol 770");
                 }
-                WriteTooltipDisplay(ref writer, tooltipDisplay.Data);
+                WriteTooltipDisplay(writer, tooltipDisplay.Data);
                 break;
             case RepairCost repairCost:
                 writer.WriteVarInt(repairCost.Value);
@@ -325,7 +325,7 @@ public static partial class ProtocolSerializationExtensions
                 }
                 break;
             case Food food:
-                WriteFood(ref writer, food.Data, protocolVersion);
+                WriteFood(writer, food.Data, protocolVersion);
                 break;
             case FireResistant:
                 if (protocolVersion >= 770)
@@ -334,10 +334,10 @@ public static partial class ProtocolSerializationExtensions
                 }
                 break;
             case Tool tool:
-                WriteTool(ref writer, tool.Data, protocolVersion);
+                WriteTool(writer, tool.Data, protocolVersion);
                 break;
             case StoredEnchantments storedEnchantments:
-                WriteEnchantments(ref writer, storedEnchantments.Entries);
+                WriteEnchantments(writer, storedEnchantments.Entries);
                 if (protocolVersion <= 769)
                 {
                     writer.WriteBoolean(storedEnchantments.ShowInTooltip ?? false);
@@ -363,25 +363,25 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteVarInt(mapPostProcessing.Value);
                 break;
             case ChargedProjectiles chargedProjectiles:
-                WriteSlotArray(ref writer, chargedProjectiles.Projectiles, protocolVersion);
+                WriteSlotArray(writer, chargedProjectiles.Projectiles, protocolVersion);
                 break;
             case BundleContents bundleContents:
-                WriteSlotArray(ref writer, bundleContents.Contents, protocolVersion);
+                WriteSlotArray(writer, bundleContents.Contents, protocolVersion);
                 break;
             case PotionContents potionContents:
-                WritePotionContents(ref writer, potionContents.Data, protocolVersion);
+                WritePotionContents(writer, potionContents.Data, protocolVersion);
                 break;
             case SuspiciousStewEffects suspiciousStewEffects:
-                WriteSuspiciousStewEffects(ref writer, suspiciousStewEffects.Effects);
+                WriteSuspiciousStewEffects(writer, suspiciousStewEffects.Effects);
                 break;
             case WritableBookContent writableBookContent:
-                WriteItemBookPages(ref writer, writableBookContent.Pages, protocolVersion);
+                WriteItemBookPages(writer, writableBookContent.Pages, protocolVersion);
                 break;
             case WrittenBookContent writtenBookContent:
-                WriteWrittenBookContent(ref writer, writtenBookContent.Data, protocolVersion);
+                WriteWrittenBookContent(writer, writtenBookContent.Data, protocolVersion);
                 break;
             case Trim trim:
-                WriteTrim(ref writer, trim.Data, protocolVersion);
+                WriteTrim(writer, trim.Data, protocolVersion);
                 break;
             case DebugStickState debugStickState:
                 writer.WriteAnonymousNbtTag(debugStickState.Data, protocolVersion);
@@ -396,7 +396,7 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteAnonymousNbtTag(blockEntityData.Data, protocolVersion);
                 break;
             case Instrument instrument:
-                WriteInstrument(ref writer, instrument.Data, protocolVersion);
+                WriteInstrument(writer, instrument.Data, protocolVersion);
                 break;
             case OminousBottleAmplifier ominousBottleAmplifier:
                 writer.WriteVarInt(ominousBottleAmplifier.Value);
@@ -405,37 +405,37 @@ public static partial class ProtocolSerializationExtensions
                 writer.WriteAnonymousNbtTag(recipes.Data, protocolVersion);
                 break;
             case LodestoneTracker lodestoneTracker:
-                WriteLodestoneTracker(ref writer, lodestoneTracker.Data, protocolVersion);
+                WriteLodestoneTracker(writer, lodestoneTracker.Data, protocolVersion);
                 break;
             case FireworkExplosion fireworkExplosion:
                 writer.WriteItemFireworkExplosion(fireworkExplosion.Explosion, protocolVersion);
                 break;
             case Fireworks fireworks:
-                WriteFireworks(ref writer, fireworks.Data, protocolVersion);
+                WriteFireworks(writer, fireworks.Data, protocolVersion);
                 break;
             case Profile profile:
-                WriteProfile(ref writer, profile.Data, protocolVersion);
+                WriteProfile(writer, profile.Data, protocolVersion);
                 break;
             case NoteBlockSound noteBlockSound:
                 writer.WriteString(noteBlockSound.Value);
                 break;
             case BannerPatterns bannerPatterns:
-                WriteBannerPatterns(ref writer, bannerPatterns.Layers, protocolVersion);
+                WriteBannerPatterns(writer, bannerPatterns.Layers, protocolVersion);
                 break;
             case BaseColor baseColor:
                 writer.WriteVarInt(baseColor.Value);
                 break;
             case PotDecorations potDecorations:
-                WriteVarIntArray(ref writer, potDecorations.Decorations);
+                WriteVarIntArray(writer, potDecorations.Decorations);
                 break;
             case Container container:
-                WriteSlotArray(ref writer, container.Contents, protocolVersion);
+                WriteSlotArray(writer, container.Contents, protocolVersion);
                 break;
             case BlockState blockState:
-                WriteBlockState(ref writer, blockState.Properties, protocolVersion);
+                WriteBlockState(writer, blockState.Properties, protocolVersion);
                 break;
             case Bees bees:
-                WriteBees(ref writer, bees.BeeEntries, protocolVersion);
+                WriteBees(writer, bees.BeeEntries, protocolVersion);
                 break;
             case SlotComponent.Lock lockData:
                 writer.WriteAnonymousNbtTag(lockData.Data, protocolVersion);
@@ -448,14 +448,14 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("jukebox_playable is not supported before protocol 767");
                 }
-                WriteJukeboxPlayable(ref writer, jukeboxPlayable.Data, protocolVersion);
+                WriteJukeboxPlayable(writer, jukeboxPlayable.Data, protocolVersion);
                 break;
             case Consumable consumable:
                 if (protocolVersion < 768)
                 {
                     throw new InvalidOperationException("consumable is not supported before protocol 768");
                 }
-                WriteConsumable(ref writer, consumable.Data, protocolVersion);
+                WriteConsumable(writer, consumable.Data, protocolVersion);
                 break;
             case UseRemainder useRemainder:
                 if (protocolVersion < 768)
@@ -469,7 +469,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("use_cooldown is not supported before protocol 768");
                 }
-                WriteUseCooldown(ref writer, useCooldown.Data);
+                WriteUseCooldown(writer, useCooldown.Data);
                 break;
             case DamageResistant damageResistant:
                 if (protocolVersion < 768)
@@ -490,7 +490,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("equippable is not supported before protocol 768");
                 }
-                WriteEquippable(ref writer, equippable.Data, protocolVersion);
+                WriteEquippable(writer, equippable.Data, protocolVersion);
                 break;
             case Repairable repairable:
                 if (protocolVersion < 768)
@@ -517,21 +517,21 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("death_protection is not supported before protocol 768");
                 }
-                WriteItemConsumeEffects(ref writer, deathProtection.Effects, protocolVersion);
+                WriteItemConsumeEffects(writer, deathProtection.Effects, protocolVersion);
                 break;
             case Weapon weapon:
                 if (protocolVersion < 770)
                 {
                     throw new InvalidOperationException("weapon is not supported before protocol 770");
                 }
-                WriteWeapon(ref writer, weapon.Data);
+                WriteWeapon(writer, weapon.Data);
                 break;
             case BlocksAttacks blocksAttacks:
                 if (protocolVersion < 770)
                 {
                     throw new InvalidOperationException("blocks_attacks is not supported before protocol 770");
                 }
-                WriteBlocksAttacks(ref writer, blocksAttacks.Data, protocolVersion);
+                WriteBlocksAttacks(writer, blocksAttacks.Data, protocolVersion);
                 break;
             case PotionDurationScale potionDurationScale:
                 if (protocolVersion < 770)
@@ -545,7 +545,7 @@ public static partial class ProtocolSerializationExtensions
                 {
                     throw new InvalidOperationException("provides_trim_material is not supported before protocol 770");
                 }
-                WriteProvidesTrimMaterial(ref writer, providesTrimMaterial.Data, protocolVersion);
+                WriteProvidesTrimMaterial(writer, providesTrimMaterial.Data, protocolVersion);
                 break;
             case ProvidesBannerPatterns providesBannerPatterns:
                 if (protocolVersion < 770)
@@ -886,11 +886,11 @@ public static partial class ProtocolSerializationExtensions
         return new AttributeModifierDisplay(type, component);
     }
 
-    private static void WriteAttributeModifiers(ref MinecraftPrimitiveWriter writer, AttributeModifiers data, int protocolVersion)
+    private static void WriteAttributeModifiers(MinecraftPrimitiveWriter writer, AttributeModifiers data, int protocolVersion)
     {
-        WriteArray(ref writer, data.Attributes, (ref MinecraftPrimitiveWriter w, AttributeModifierEntry entry) =>
+        WriteArray(writer, data.Attributes, (MinecraftPrimitiveWriter w, AttributeModifierEntry entry) =>
         {
-            WriteAttributeModifierEntry(ref w, entry, protocolVersion);
+            WriteAttributeModifierEntry(w, entry, protocolVersion);
         });
 
         if (protocolVersion <= 770)
@@ -899,11 +899,11 @@ public static partial class ProtocolSerializationExtensions
         }
         else
         {
-            WriteAttributeModifierDisplay(ref writer, data.Display, protocolVersion);
+            WriteAttributeModifierDisplay(writer, data.Display, protocolVersion);
         }
     }
 
-    private static void WriteAttributeModifierEntry(ref MinecraftPrimitiveWriter writer, AttributeModifierEntry entry, int protocolVersion)
+    private static void WriteAttributeModifierEntry(MinecraftPrimitiveWriter writer, AttributeModifierEntry entry, int protocolVersion)
     {
         writer.WriteVarInt(entry.TypeId);
         if (protocolVersion == 766)
@@ -920,7 +920,7 @@ public static partial class ProtocolSerializationExtensions
         writer.WriteVarInt(WriteAttributeSlot(entry.Slot, protocolVersion));
     }
 
-    private static void WriteAttributeModifierDisplay(ref MinecraftPrimitiveWriter writer, AttributeModifierDisplay? display,
+    private static void WriteAttributeModifierDisplay(MinecraftPrimitiveWriter writer, AttributeModifierDisplay? display,
         int protocolVersion)
     {
         if (display is null)
@@ -950,7 +950,7 @@ public static partial class ProtocolSerializationExtensions
         return new CustomModelData(null, floats, flags, strings, colors);
     }
 
-    private static void WriteCustomModelData(ref MinecraftPrimitiveWriter writer, CustomModelData data, int protocolVersion)
+    private static void WriteCustomModelData(MinecraftPrimitiveWriter writer, CustomModelData data, int protocolVersion)
     {
         if (protocolVersion <= 767)
         {
@@ -958,10 +958,10 @@ public static partial class ProtocolSerializationExtensions
             return;
         }
 
-        WriteArray(ref writer, data.Floats ?? Array.Empty<float>(), (ref MinecraftPrimitiveWriter w, float value) => w.WriteFloat(value));
-        WriteArray(ref writer, data.Flags ?? Array.Empty<bool>(), (ref MinecraftPrimitiveWriter w, bool value) => w.WriteBoolean(value));
-        WriteArray(ref writer, data.Strings ?? Array.Empty<string>(), (ref MinecraftPrimitiveWriter w, string value) => w.WriteString(value));
-        WriteArray(ref writer, data.Colors ?? Array.Empty<int>(), (ref MinecraftPrimitiveWriter w, int value) => w.WriteSignedInt(value));
+        WriteArray(writer, data.Floats ?? Array.Empty<float>(), (MinecraftPrimitiveWriter w, float value) => w.WriteFloat(value));
+        WriteArray(writer, data.Flags ?? Array.Empty<bool>(), (MinecraftPrimitiveWriter w, bool value) => w.WriteBoolean(value));
+        WriteArray(writer, data.Strings ?? Array.Empty<string>(), (MinecraftPrimitiveWriter w, string value) => w.WriteString(value));
+        WriteArray(writer, data.Colors ?? Array.Empty<int>(), (MinecraftPrimitiveWriter w, int value) => w.WriteSignedInt(value));
     }
 
     private static NbtTag?[] ReadLore(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -971,9 +971,9 @@ public static partial class ProtocolSerializationExtensions
             : r.ReadAnonymousNbtTag(protocolVersion));
     }
 
-    private static void WriteLore(ref MinecraftPrimitiveWriter writer, IReadOnlyList<NbtTag?> lines, int protocolVersion)
+    private static void WriteLore(MinecraftPrimitiveWriter writer, IReadOnlyList<NbtTag?> lines, int protocolVersion)
     {
-        WriteArray(ref writer, lines, (ref MinecraftPrimitiveWriter w, NbtTag? line) =>
+        WriteArray(writer, lines, (MinecraftPrimitiveWriter w, NbtTag? line) =>
         {
             if (protocolVersion <= 769)
             {
@@ -991,9 +991,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => new EnchantmentEntry(r.ReadVarInt(), r.ReadVarInt()));
     }
 
-    private static void WriteEnchantments(ref MinecraftPrimitiveWriter writer, IReadOnlyList<EnchantmentEntry> entries)
+    private static void WriteEnchantments(MinecraftPrimitiveWriter writer, IReadOnlyList<EnchantmentEntry> entries)
     {
-        WriteArray(ref writer, entries, (ref MinecraftPrimitiveWriter w, EnchantmentEntry entry) =>
+        WriteArray(writer, entries, (MinecraftPrimitiveWriter w, EnchantmentEntry entry) =>
         {
             w.WriteVarInt(entry.Id);
             w.WriteVarInt(entry.Level);
@@ -1005,10 +1005,10 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemBlockPredicate(protocolVersion));
     }
 
-    private static void WriteItemBlockPredicates(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBlockPredicate> predicates,
+    private static void WriteItemBlockPredicates(MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBlockPredicate> predicates,
         int protocolVersion)
     {
-        WriteArray(ref writer, predicates, (ref MinecraftPrimitiveWriter w, ItemBlockPredicate predicate) =>
+        WriteArray(writer, predicates, (MinecraftPrimitiveWriter w, ItemBlockPredicate predicate) =>
         {
             w.WriteItemBlockPredicate(predicate, protocolVersion);
         });
@@ -1031,7 +1031,7 @@ public static partial class ProtocolSerializationExtensions
         return new FoodData(nutrition, saturation, canAlwaysEat, secondsToEat, usingConvertsTo, effects);
     }
 
-    private static void WriteFood(ref MinecraftPrimitiveWriter writer, FoodData data, int protocolVersion)
+    private static void WriteFood(MinecraftPrimitiveWriter writer, FoodData data, int protocolVersion)
     {
         writer.WriteVarInt(data.Nutrition);
         writer.WriteFloat(data.SaturationModifier);
@@ -1040,7 +1040,7 @@ public static partial class ProtocolSerializationExtensions
         {
             writer.WriteFloat(data.SecondsToEat ?? 0f);
             writer.WriteSlot(data.UsingConvertsTo ?? new Slot(), protocolVersion);
-            WriteArray(ref writer, data.Effects ?? Array.Empty<FoodEffect>(), (ref MinecraftPrimitiveWriter w, FoodEffect effect) =>
+            WriteArray(writer, data.Effects ?? Array.Empty<FoodEffect>(), (MinecraftPrimitiveWriter w, FoodEffect effect) =>
             {
                 w.WriteVarInt(effect.Effect);
                 w.WriteFloat(effect.Probability);
@@ -1067,13 +1067,13 @@ public static partial class ProtocolSerializationExtensions
         return new ToolData(rules, defaultSpeed, damagePerBlock, canDestroyBlocks);
     }
 
-    private static void WriteTool(ref MinecraftPrimitiveWriter writer, ToolData data, int protocolVersion)
+    private static void WriteTool(MinecraftPrimitiveWriter writer, ToolData data, int protocolVersion)
     {
-        WriteArray(ref writer, data.Rules, (ref MinecraftPrimitiveWriter w, ToolRule rule) =>
+        WriteArray(writer, data.Rules, (MinecraftPrimitiveWriter w, ToolRule rule) =>
         {
             w.WriteIDSet(rule.Blocks, protocolVersion);
-            WriteOptionalFloat(ref w, rule.Speed);
-            WriteOptionalBool(ref w, rule.CorrectDropForBlocks);
+            WriteOptionalFloat(w, rule.Speed);
+            WriteOptionalBool(w, rule.CorrectDropForBlocks);
         });
         writer.WriteFloat(data.DefaultMiningSpeed);
         writer.WriteVarInt(data.DamagePerBlock);
@@ -1092,13 +1092,13 @@ public static partial class ProtocolSerializationExtensions
         return new PotionContentsData(potionId, customColor, effects, customName);
     }
 
-    private static void WritePotionContents(ref MinecraftPrimitiveWriter writer, PotionContentsData data, int protocolVersion)
+    private static void WritePotionContents(MinecraftPrimitiveWriter writer, PotionContentsData data, int protocolVersion)
     {
-        WriteOptionalVarInt(ref writer, data.PotionId);
-        WriteOptionalSignedInt(ref writer, data.CustomColor);
-        WriteArray(ref writer, data.CustomEffects,
-            (ref MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
-        WriteOptionalString(ref writer, data.CustomNameText);
+        WriteOptionalVarInt(writer, data.PotionId);
+        WriteOptionalSignedInt(writer, data.CustomColor);
+        WriteArray(writer, data.CustomEffects,
+            (MinecraftPrimitiveWriter w, ItemPotionEffect effect) => w.WriteItemPotionEffect(effect, protocolVersion));
+        WriteOptionalString(writer, data.CustomNameText);
     }
 
     private static SuspiciousStewEffect[] ReadSuspiciousStewEffects(ref MinecraftPrimitiveReader reader)
@@ -1106,9 +1106,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => new SuspiciousStewEffect(r.ReadVarInt(), r.ReadVarInt()));
     }
 
-    private static void WriteSuspiciousStewEffects(ref MinecraftPrimitiveWriter writer, IReadOnlyList<SuspiciousStewEffect> effects)
+    private static void WriteSuspiciousStewEffects(MinecraftPrimitiveWriter writer, IReadOnlyList<SuspiciousStewEffect> effects)
     {
-        WriteArray(ref writer, effects, (ref MinecraftPrimitiveWriter w, SuspiciousStewEffect effect) =>
+        WriteArray(writer, effects, (MinecraftPrimitiveWriter w, SuspiciousStewEffect effect) =>
         {
             w.WriteVarInt(effect.Effect);
             w.WriteVarInt(effect.Duration);
@@ -1120,9 +1120,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemBookPage(protocolVersion));
     }
 
-    private static void WriteItemBookPages(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBookPage> pages, int protocolVersion)
+    private static void WriteItemBookPages(MinecraftPrimitiveWriter writer, IReadOnlyList<ItemBookPage> pages, int protocolVersion)
     {
-        WriteArray(ref writer, pages, (ref MinecraftPrimitiveWriter w, ItemBookPage page) => w.WriteItemBookPage(page, protocolVersion));
+        WriteArray(writer, pages, (MinecraftPrimitiveWriter w, ItemBookPage page) => w.WriteItemBookPage(page, protocolVersion));
     }
 
     private static WrittenBookContentData ReadWrittenBookContent(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1136,14 +1136,14 @@ public static partial class ProtocolSerializationExtensions
         return new WrittenBookContentData(rawTitle, filteredTitle, author, generation, pages, resolved);
     }
 
-    private static void WriteWrittenBookContent(ref MinecraftPrimitiveWriter writer, WrittenBookContentData data, int protocolVersion)
+    private static void WriteWrittenBookContent(MinecraftPrimitiveWriter writer, WrittenBookContentData data, int protocolVersion)
     {
         writer.WriteString(data.RawTitle);
-        WriteOptionalString(ref writer, data.FilteredTitle);
+        WriteOptionalString(writer, data.FilteredTitle);
         writer.WriteString(data.Author);
         writer.WriteVarInt(data.Generation);
-        WriteArray(ref writer, data.Pages,
-            (ref MinecraftPrimitiveWriter w, ItemWrittenBookPage page) => w.WriteItemWrittenBookPage(page, protocolVersion));
+        WriteArray(writer, data.Pages,
+            (MinecraftPrimitiveWriter w, ItemWrittenBookPage page) => w.WriteItemWrittenBookPage(page, protocolVersion));
         writer.WriteBoolean(data.Resolved);
     }
 
@@ -1159,7 +1159,7 @@ public static partial class ProtocolSerializationExtensions
         return new TrimData(material, pattern, showInTooltip);
     }
 
-    private static void WriteTrim(ref MinecraftPrimitiveWriter writer, TrimData data, int protocolVersion)
+    private static void WriteTrim(MinecraftPrimitiveWriter writer, TrimData data, int protocolVersion)
     {
         writer.WriteRegistryEntryHolder(data.Material, protocolVersion);
         writer.WriteRegistryEntryHolder(data.Pattern, protocolVersion);
@@ -1186,7 +1186,7 @@ public static partial class ProtocolSerializationExtensions
         return new InstrumentComponentData(null, reader.ReadString());
     }
 
-    private static void WriteInstrument(ref MinecraftPrimitiveWriter writer, InstrumentComponentData data, int protocolVersion)
+    private static void WriteInstrument(MinecraftPrimitiveWriter writer, InstrumentComponentData data, int protocolVersion)
     {
         if (protocolVersion <= 769)
         {
@@ -1231,7 +1231,7 @@ public static partial class ProtocolSerializationExtensions
         return new JukeboxPlayableData(holder, song, showInTooltip);
     }
 
-    private static void WriteJukeboxPlayable(ref MinecraftPrimitiveWriter writer, JukeboxPlayableData data, int protocolVersion)
+    private static void WriteJukeboxPlayable(MinecraftPrimitiveWriter writer, JukeboxPlayableData data, int protocolVersion)
     {
         bool hasHolder = data.Holder is not null;
         writer.WriteBoolean(hasHolder);
@@ -1265,7 +1265,7 @@ public static partial class ProtocolSerializationExtensions
         return new LodestoneTrackerData(position, tracked);
     }
 
-    private static void WriteLodestoneTracker(ref MinecraftPrimitiveWriter writer, LodestoneTrackerData data, int protocolVersion)
+    private static void WriteLodestoneTracker(MinecraftPrimitiveWriter writer, LodestoneTrackerData data, int protocolVersion)
     {
         if (data.GlobalPosition is null)
         {
@@ -1288,11 +1288,11 @@ public static partial class ProtocolSerializationExtensions
         return new FireworksData(flightDuration, explosions);
     }
 
-    private static void WriteFireworks(ref MinecraftPrimitiveWriter writer, FireworksData data, int protocolVersion)
+    private static void WriteFireworks(MinecraftPrimitiveWriter writer, FireworksData data, int protocolVersion)
     {
         writer.WriteVarInt(data.FlightDuration);
-        WriteArray(ref writer, data.Explosions,
-            (ref MinecraftPrimitiveWriter w, ItemFireworkExplosion explosion) => w.WriteItemFireworkExplosion(explosion, protocolVersion));
+        WriteArray(writer, data.Explosions,
+            (MinecraftPrimitiveWriter w, ItemFireworkExplosion explosion) => w.WriteItemFireworkExplosion(explosion, protocolVersion));
     }
 
     private static ProfileData ReadProfile(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1309,15 +1309,15 @@ public static partial class ProtocolSerializationExtensions
         return new ProfileData(name, uuid, properties);
     }
 
-    private static void WriteProfile(ref MinecraftPrimitiveWriter writer, ProfileData data, int protocolVersion)
+    private static void WriteProfile(MinecraftPrimitiveWriter writer, ProfileData data, int protocolVersion)
     {
-        WriteOptionalString(ref writer, data.Name);
-        WriteOptionalUuid(ref writer, data.Uuid);
-        WriteArray(ref writer, data.Properties, (ref MinecraftPrimitiveWriter w, ProfileProperty property) =>
+        WriteOptionalString(writer, data.Name);
+        WriteOptionalUuid(writer, data.Uuid);
+        WriteArray(writer, data.Properties, (MinecraftPrimitiveWriter w, ProfileProperty property) =>
         {
             w.WriteString(property.Name);
             w.WriteString(property.Value);
-            WriteOptionalString(ref w, property.Signature);
+            WriteOptionalString(w, property.Signature);
         });
     }
 
@@ -1326,9 +1326,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadBannerPatternLayer(protocolVersion));
     }
 
-    private static void WriteBannerPatterns(ref MinecraftPrimitiveWriter writer, IReadOnlyList<BannerPatternLayer> layers, int protocolVersion)
+    private static void WriteBannerPatterns(MinecraftPrimitiveWriter writer, IReadOnlyList<BannerPatternLayer> layers, int protocolVersion)
     {
-        WriteArray(ref writer, layers, (ref MinecraftPrimitiveWriter w, BannerPatternLayer layer) => w.WriteBannerPatternLayer(layer, protocolVersion));
+        WriteArray(writer, layers, (MinecraftPrimitiveWriter w, BannerPatternLayer layer) => w.WriteBannerPatternLayer(layer, protocolVersion));
     }
 
     private static int[] ReadVarIntArray(ref MinecraftPrimitiveReader reader)
@@ -1336,9 +1336,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadVarInt());
     }
 
-    private static void WriteVarIntArray(ref MinecraftPrimitiveWriter writer, IReadOnlyList<int> values)
+    private static void WriteVarIntArray(MinecraftPrimitiveWriter writer, IReadOnlyList<int> values)
     {
-        WriteArray(ref writer, values, (ref MinecraftPrimitiveWriter w, int value) => w.WriteVarInt(value));
+        WriteArray(writer, values, (MinecraftPrimitiveWriter w, int value) => w.WriteVarInt(value));
     }
 
     private static BlockStateProperty[] ReadBlockState(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1351,10 +1351,10 @@ public static partial class ProtocolSerializationExtensions
         });
     }
 
-    private static void WriteBlockState(ref MinecraftPrimitiveWriter writer, IReadOnlyList<BlockStateProperty> properties,
+    private static void WriteBlockState(MinecraftPrimitiveWriter writer, IReadOnlyList<BlockStateProperty> properties,
         int protocolVersion)
     {
-        WriteArray(ref writer, properties, (ref MinecraftPrimitiveWriter w, BlockStateProperty property) =>
+        WriteArray(writer, properties, (MinecraftPrimitiveWriter w, BlockStateProperty property) =>
         {
             w.WriteString(property.Name);
             w.WriteString(property.Value);
@@ -1372,9 +1372,9 @@ public static partial class ProtocolSerializationExtensions
         });
     }
 
-    private static void WriteBees(ref MinecraftPrimitiveWriter writer, IReadOnlyList<BeeData> bees, int protocolVersion)
+    private static void WriteBees(MinecraftPrimitiveWriter writer, IReadOnlyList<BeeData> bees, int protocolVersion)
     {
-        WriteArray(ref writer, bees, (ref MinecraftPrimitiveWriter w, BeeData bee) =>
+        WriteArray(writer, bees, (MinecraftPrimitiveWriter w, BeeData bee) =>
         {
             w.WriteAnonymousNbtTag(bee.NbtData, protocolVersion);
             w.WriteVarInt(bee.TicksInHive);
@@ -1392,14 +1392,14 @@ public static partial class ProtocolSerializationExtensions
         return new ConsumableData(seconds, animation, sound, makesParticles, effects);
     }
 
-    private static void WriteConsumable(ref MinecraftPrimitiveWriter writer, ConsumableData data, int protocolVersion)
+    private static void WriteConsumable(MinecraftPrimitiveWriter writer, ConsumableData data, int protocolVersion)
     {
         writer.WriteFloat(data.ConsumeSeconds);
         writer.WriteVarInt(WriteConsumableAnimation(data.Animation, protocolVersion));
         writer.WriteItemSoundHolder(data.Sound, protocolVersion);
         writer.WriteBoolean(data.MakesParticles);
-        WriteArray(ref writer, data.Effects,
-            (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
+        WriteArray(writer, data.Effects,
+            (MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
     }
 
     private static UseCooldownData ReadUseCooldown(ref MinecraftPrimitiveReader reader)
@@ -1409,10 +1409,10 @@ public static partial class ProtocolSerializationExtensions
         return new UseCooldownData(seconds, cooldownGroup);
     }
 
-    private static void WriteUseCooldown(ref MinecraftPrimitiveWriter writer, UseCooldownData data)
+    private static void WriteUseCooldown(MinecraftPrimitiveWriter writer, UseCooldownData data)
     {
         writer.WriteFloat(data.Seconds);
-        WriteOptionalString(ref writer, data.CooldownGroup);
+        WriteOptionalString(writer, data.CooldownGroup);
     }
 
     private static EquippableData ReadEquippable(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1441,13 +1441,13 @@ public static partial class ProtocolSerializationExtensions
             shearable, shearingSound);
     }
 
-    private static void WriteEquippable(ref MinecraftPrimitiveWriter writer, EquippableData data, int protocolVersion)
+    private static void WriteEquippable(MinecraftPrimitiveWriter writer, EquippableData data, int protocolVersion)
     {
         writer.WriteVarInt(WriteEquippableSlot(data.Slot, protocolVersion));
         writer.WriteItemSoundHolder(data.Sound, protocolVersion);
-        WriteOptionalString(ref writer, data.Model);
-        WriteOptionalString(ref writer, data.CameraOverlay);
-        WriteOptionalIdSet(ref writer, data.AllowedEntities, protocolVersion);
+        WriteOptionalString(writer, data.Model);
+        WriteOptionalString(writer, data.CameraOverlay);
+        WriteOptionalIdSet(writer, data.AllowedEntities, protocolVersion);
         writer.WriteBoolean(data.Dispensable);
         writer.WriteBoolean(data.Swappable);
         writer.WriteBoolean(data.Damageable);
@@ -1468,11 +1468,11 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadItemConsumeEffect(protocolVersion));
     }
 
-    private static void WriteItemConsumeEffects(ref MinecraftPrimitiveWriter writer, IReadOnlyList<ItemConsumeEffect> effects,
+    private static void WriteItemConsumeEffects(MinecraftPrimitiveWriter writer, IReadOnlyList<ItemConsumeEffect> effects,
         int protocolVersion)
     {
-        WriteArray(ref writer, effects,
-            (ref MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
+        WriteArray(writer, effects,
+            (MinecraftPrimitiveWriter w, ItemConsumeEffect effect) => w.WriteItemConsumeEffect(effect, protocolVersion));
     }
 
     private static TooltipDisplayData ReadTooltipDisplay(ref MinecraftPrimitiveReader reader)
@@ -1482,10 +1482,10 @@ public static partial class ProtocolSerializationExtensions
         return new TooltipDisplayData(hideTooltip, hidden);
     }
 
-    private static void WriteTooltipDisplay(ref MinecraftPrimitiveWriter writer, TooltipDisplayData data)
+    private static void WriteTooltipDisplay(MinecraftPrimitiveWriter writer, TooltipDisplayData data)
     {
         writer.WriteBoolean(data.HideTooltipFlag);
-        WriteVarIntArray(ref writer, data.HiddenComponents);
+        WriteVarIntArray(writer, data.HiddenComponents);
     }
 
     private static WeaponData ReadWeapon(ref MinecraftPrimitiveReader reader)
@@ -1495,7 +1495,7 @@ public static partial class ProtocolSerializationExtensions
         return new WeaponData(itemDamage, disableBlocking);
     }
 
-    private static void WriteWeapon(ref MinecraftPrimitiveWriter writer, WeaponData data)
+    private static void WriteWeapon(MinecraftPrimitiveWriter writer, WeaponData data)
     {
         writer.WriteVarInt(data.ItemDamagePerAttack);
         writer.WriteFloat(data.DisableBlockingForSeconds);
@@ -1520,23 +1520,23 @@ public static partial class ProtocolSerializationExtensions
         return new BlocksAttacksData(blockDelay, disableCooldown, reductions, itemDamage, bypassedBy, blockSound, disableSound);
     }
 
-    private static void WriteBlocksAttacks(ref MinecraftPrimitiveWriter writer, BlocksAttacksData data, int protocolVersion)
+    private static void WriteBlocksAttacks(MinecraftPrimitiveWriter writer, BlocksAttacksData data, int protocolVersion)
     {
         writer.WriteFloat(data.BlockDelaySeconds);
         writer.WriteFloat(data.DisableCooldownScale);
-        WriteArray(ref writer, data.DamageReductions, (ref MinecraftPrimitiveWriter w, DamageReduction reduction) =>
+        WriteArray(writer, data.DamageReductions, (MinecraftPrimitiveWriter w, DamageReduction reduction) =>
         {
             w.WriteFloat(reduction.HorizontalBlockingAngle);
-            WriteOptionalIdSet(ref w, reduction.Type, protocolVersion);
+            WriteOptionalIdSet(w, reduction.Type, protocolVersion);
             w.WriteFloat(reduction.Base);
             w.WriteFloat(reduction.Factor);
         });
         writer.WriteFloat(data.ItemDamage.Threshold);
         writer.WriteFloat(data.ItemDamage.Base);
         writer.WriteFloat(data.ItemDamage.Factor);
-        WriteOptionalString(ref writer, data.BypassedBy);
-        WriteOptionalItemSoundHolder(ref writer, data.BlockSound, protocolVersion);
-        WriteOptionalItemSoundHolder(ref writer, data.DisableSound, protocolVersion);
+        WriteOptionalString(writer, data.BypassedBy);
+        WriteOptionalItemSoundHolder(writer, data.BlockSound, protocolVersion);
+        WriteOptionalItemSoundHolder(writer, data.DisableSound, protocolVersion);
     }
 
     private static ProvidesTrimMaterialData ReadProvidesTrimMaterial(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -1551,7 +1551,7 @@ public static partial class ProtocolSerializationExtensions
         return new ProvidesTrimMaterialData(null, reader.ReadString());
     }
 
-    private static void WriteProvidesTrimMaterial(ref MinecraftPrimitiveWriter writer, ProvidesTrimMaterialData data, int protocolVersion)
+    private static void WriteProvidesTrimMaterial(MinecraftPrimitiveWriter writer, ProvidesTrimMaterialData data, int protocolVersion)
     {
         bool hasHolder = data.Holder is not null;
         writer.WriteBoolean(hasHolder);
@@ -1572,9 +1572,9 @@ public static partial class ProtocolSerializationExtensions
         return ReadArray(ref reader, (ref MinecraftPrimitiveReader r) => r.ReadSlot(protocolVersion));
     }
 
-    private static void WriteSlotArray(ref MinecraftPrimitiveWriter writer, IReadOnlyList<Slot> slots, int protocolVersion)
+    private static void WriteSlotArray(MinecraftPrimitiveWriter writer, IReadOnlyList<Slot> slots, int protocolVersion)
     {
-        WriteArray(ref writer, slots, (ref MinecraftPrimitiveWriter w, Slot slot) => w.WriteSlot(slot, protocolVersion));
+        WriteArray(writer, slots, (MinecraftPrimitiveWriter w, Slot slot) => w.WriteSlot(slot, protocolVersion));
     }
 
     private static string ReadRarity(int id)
@@ -1754,7 +1754,7 @@ public static partial class ProtocolSerializationExtensions
     }
 
     private delegate T ReadElementDelegate<T>(ref MinecraftPrimitiveReader reader);
-    private delegate void WriteElementDelegate<T>(ref MinecraftPrimitiveWriter writer, T value);
+    private delegate void WriteElementDelegate<T>(MinecraftPrimitiveWriter writer, T value);
 
     private static T[] ReadArray<T>(ref MinecraftPrimitiveReader reader, ReadElementDelegate<T> read)
     {
@@ -1773,13 +1773,13 @@ public static partial class ProtocolSerializationExtensions
         return result;
     }
 
-    private static void WriteArray<T>(ref MinecraftPrimitiveWriter writer, IReadOnlyList<T> values,
+    private static void WriteArray<T>(MinecraftPrimitiveWriter writer, IReadOnlyList<T> values,
         WriteElementDelegate<T> write)
     {
         writer.WriteVarInt(values.Count);
         for (int i = 0; i < values.Count; i++)
         {
-            write(ref writer, values[i]);
+            write(writer, values[i]);
         }
     }
 
@@ -1807,7 +1807,7 @@ public static partial class ProtocolSerializationExtensions
     private static ItemSoundHolder? ReadOptionalItemSoundHolder(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => reader.ReadBoolean() ? reader.ReadItemSoundHolder(protocolVersion) : null;
 
-    private static void WriteOptionalVarInt(ref MinecraftPrimitiveWriter writer, int? value)
+    private static void WriteOptionalVarInt(MinecraftPrimitiveWriter writer, int? value)
     {
         if (value is null)
         {
@@ -1820,7 +1820,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalSignedInt(ref MinecraftPrimitiveWriter writer, int? value)
+    private static void WriteOptionalSignedInt(MinecraftPrimitiveWriter writer, int? value)
     {
         if (value is null)
         {
@@ -1833,7 +1833,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalFloat(ref MinecraftPrimitiveWriter writer, float? value)
+    private static void WriteOptionalFloat(MinecraftPrimitiveWriter writer, float? value)
     {
         if (value is null)
         {
@@ -1846,7 +1846,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalBool(ref MinecraftPrimitiveWriter writer, bool? value)
+    private static void WriteOptionalBool(MinecraftPrimitiveWriter writer, bool? value)
     {
         if (value is null)
         {
@@ -1859,7 +1859,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalString(ref MinecraftPrimitiveWriter writer, string? value)
+    private static void WriteOptionalString(MinecraftPrimitiveWriter writer, string? value)
     {
         if (value is null)
         {
@@ -1872,7 +1872,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalUuid(ref MinecraftPrimitiveWriter writer, Guid? value)
+    private static void WriteOptionalUuid(MinecraftPrimitiveWriter writer, Guid? value)
     {
         if (value is null)
         {
@@ -1885,7 +1885,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalIdSet(ref MinecraftPrimitiveWriter writer, IDSet? value, int protocolVersion)
+    private static void WriteOptionalIdSet(MinecraftPrimitiveWriter writer, IDSet? value, int protocolVersion)
     {
         if (value is null)
         {
@@ -1898,7 +1898,7 @@ public static partial class ProtocolSerializationExtensions
         }
     }
 
-    private static void WriteOptionalItemSoundHolder(ref MinecraftPrimitiveWriter writer, ItemSoundHolder? value,
+    private static void WriteOptionalItemSoundHolder(MinecraftPrimitiveWriter writer, ItemSoundHolder? value,
         int protocolVersion)
     {
         if (value is null)

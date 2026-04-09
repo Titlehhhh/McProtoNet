@@ -9,7 +9,7 @@ using MM = MemoryMarshal;
 
 public static class WriteArraySIMDExtensions
 {
-    extension(ref MinecraftPrimitiveWriter writer)
+    extension(MinecraftPrimitiveWriter writer)
     {
         private Span<T> GetSpan<T>(int size) where T : unmanaged
         {

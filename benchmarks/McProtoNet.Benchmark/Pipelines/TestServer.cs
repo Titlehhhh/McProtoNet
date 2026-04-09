@@ -5,10 +5,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using DotNext.Buffers;
-using DotNext.Diagnostics;
-using DotNext.IO;
-using McProtoNet.Abstractions;
 using McProtoNet.Net;
 using McProtoNet.Serialization;
 
