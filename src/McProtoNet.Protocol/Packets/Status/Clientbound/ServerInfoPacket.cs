@@ -9,36 +9,13 @@ namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 [PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class ServerInfoPacket : IServerPacket
 {
-    public int Container { get; set; }
-    public string Response { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Container);
-                writer.WriteString(Response);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerInfoPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteString(Name);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Container = reader.ReadVarInt();
-                Response = reader.ReadString();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerInfoPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => Name = reader.ReadString();
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);

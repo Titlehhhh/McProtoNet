@@ -12,30 +12,10 @@ public sealed partial class PingPacket : IClientPacket
     public long Time { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedLong(Time);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteSignedLong(Time);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Time = reader.ReadSignedLong();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => Time = reader.ReadSignedLong();
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);

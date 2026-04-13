@@ -9,36 +9,13 @@ namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 [PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x01)]
 public sealed partial class PingPacket : IServerPacket
 {
-    public int Container { get; set; }
     public long Time { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Container);
-                writer.WriteSignedLong(Time);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteSignedLong(Time);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Container = reader.ReadVarInt();
-                Time = reader.ReadSignedLong();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(PingPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => Time = reader.ReadSignedLong();
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);
