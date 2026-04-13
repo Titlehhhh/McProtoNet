@@ -1,42 +1,21 @@
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
 [PacketInfo("LegacyServerListPing", PacketState.Handshaking, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0xFE)]
 public sealed partial class LegacyServerListPingPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public byte Payload { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteUnsignedByte(Payload);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
-        }
-    }
+        => writer.WriteUnsignedByte(Payload);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Payload = reader.ReadUnsignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientHandshakingPacket.LegacyServerListPing),
-                    protocolVersion, SupportedVersionsStatic);
-        }
-    }
+        => Payload = reader.ReadUnsignedByte();
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);
