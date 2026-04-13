@@ -1,45 +1,28 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("CustomPayload", PacketState.Configuration, PacketDirection.Serverbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 765, 0x01)]
+[PacketId(766, MinecraftVersion.LatestProtocol, 0x02)]
 public sealed partial class CustomPayloadPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol)
-    };
-
-    public string Channel { get; set; } = string.Empty;
-    public byte[] Data { get; set; } = Array.Empty<byte>();
+    public string Channel { get; set; }
+    public byte[] Data { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Channel);
-                writer.WriteBuffer(Data);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteString(Channel);
+        writer.WriteBuffer(Data);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                Channel = reader.ReadString();
-                Data = reader.ReadRestBuffer();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Channel = reader.ReadString();
+        Data = reader.ReadRestBuffer();
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)

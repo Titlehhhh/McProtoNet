@@ -1,70 +1,27 @@
-using System;
-using McProtoNet.Serialization;
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
+using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("Tags", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 764, 0x08)]
+[PacketId(765, 765, 0x09)]
+[PacketId(766, MinecraftVersion.LatestProtocol, 0x0D)]
 public sealed partial class TagsPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol)
-    };
-    public TagTypeEntry[] Tags { get; set; } = Array.Empty<TagTypeEntry>();
+    public Tags[] Tags { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Tags.Length);
-                for (int i = 0; i < Tags.Length; i++)
-                {
-                    TagTypeEntry entry = Tags[i];
-                    writer.WriteString(entry.TagType);
-                    writer.WriteTags(entry.Tags, protocolVersion);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Tags), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteArray<Tags>(Tags, protocolVersion);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                Tags = reader.ReadArray(LengthFormat.VarInt, (ref MinecraftPrimitiveReader r) =>
-                {
-                    string tagType = r.ReadString();
-                    Tags tags = r.ReadTags(protocolVersion);
-                    return new TagTypeEntry(tagType, tags);
-                });
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.Tags), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => Tags = reader.ReadArray<Tags>(LengthFormat.VarInt, protocolVersion);
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
-
-    public sealed class TagTypeEntry
-    {
-        public string TagType { get; set; }
-        public Tags Tags { get; set; }
-
-        public TagTypeEntry(string tagType, Tags tags)
-        {
-            TagType = tagType;
-            Tags = tags;
-        }
-    }
 }

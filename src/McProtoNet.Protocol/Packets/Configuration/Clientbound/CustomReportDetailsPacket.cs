@@ -1,45 +1,39 @@
-using System;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("CustomReportDetails", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
+[PacketId(767, MinecraftVersion.LatestProtocol, 0x0F)]
 public sealed partial class CustomReportDetailsPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(767, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonCustomReportDetails Data { get; set; } = null!;
+    public DetailsEntry[] Details { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(Details.Length);
+        foreach (var entry in Details)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePacketCommonCustomReportDetails(Data, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            writer.WriteString(entry.Key);
+            writer.WriteString(entry.Value);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        int count = reader.ReadVarInt();
+        var details = new DetailsEntry[count];
+        for (int i = 0; i < count; i++)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonCustomReportDetails(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.CustomReportDetails), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            details[i] = new DetailsEntry
+            {
+                Key = reader.ReadString(),
+                Value = reader.ReadString()
+            };
         }
+        Details = details;
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -47,4 +41,10 @@ public sealed partial class CustomReportDetailsPacket : IServerPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
+    public struct DetailsEntry
+    {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
 }

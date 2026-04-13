@@ -1,44 +1,22 @@
-using System;
 using McProtoNet.NBT;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("ShowDialog", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x12)]
 public sealed partial class ShowDialogPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(771, MinecraftVersion.LatestProtocol)
-    };
-
-    public NbtTag Dialog { get; set; } = null!;
+    public NbtTag Dialog { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteAnonymousNbtTag(Dialog, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion, SupportedVersionsStatic);
-        }
-    }
+        => writer.WriteAnonymousNbtTag(Dialog, protocolVersion);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Dialog = reader.ReadAnonymousNbtTag(protocolVersion)
-                    ?? throw new InvalidOperationException("ShowDialog.dialog missing.");
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ShowDialog), protocolVersion, SupportedVersionsStatic);
-        }
-    }
+        => Dialog = reader.ReadAnonymousNbtTag(protocolVersion);
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);

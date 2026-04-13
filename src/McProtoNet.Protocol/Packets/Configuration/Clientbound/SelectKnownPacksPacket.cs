@@ -1,47 +1,41 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("SelectKnownPacks", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[PacketId(766, MinecraftVersion.LatestProtocol, 0x0E)]
 public sealed partial class SelectKnownPacksPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(766, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonSelectKnownPacks? Data { get; set; }
+    public PackInfo[] Packs { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(Packs.Length);
+        foreach (var pack in Packs)
         {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-            {
-                var data = Data ?? throw new InvalidOperationException("SelectKnownPacks data missing.");
-                writer.WritePacketCommonSelectKnownPacks(data, protocolVersion);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.SelectKnownPacks), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            writer.WriteString(pack.Name);
+            writer.WriteString(pack.Id);
+            writer.WriteString(pack.Version);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        int count = reader.ReadVarInt();
+        var packs = new PackInfo[count];
+        for (int i = 0; i < count; i++)
         {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonSelectKnownPacks(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.SelectKnownPacks), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            packs[i] = new PackInfo
+            {
+                Name = reader.ReadString(),
+                Id = reader.ReadString(),
+                Version = reader.ReadString()
+            };
         }
+        Packs = packs;
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -49,4 +43,11 @@ public sealed partial class SelectKnownPacksPacket : IServerPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
+    public struct PackInfo
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }
+        public string Version { get; set; }
+    }
 }

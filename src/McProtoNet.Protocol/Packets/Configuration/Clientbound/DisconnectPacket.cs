@@ -1,7 +1,7 @@
-using McProtoNet.NBT;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -11,23 +11,22 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [PacketId(766, MinecraftVersion.LatestProtocol, 0x02)]
 public sealed partial class DisconnectPacket : IServerPacket
 {
+    public VFirst_764Fields? VFirst_764 { get; set; }
+    public V765_LastFields? V765_Last { get; set; }
+
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 763:
-                return;
-            case >= 764 and <= 764:
+            case >= MinecraftVersion.StartProtocol and <= 764:
             {
-                var fields = V764_764 ?? throw new InvalidOperationException("DisconnectPacket 764-764 fields missing.");
-                writer.WriteVarInt(fields.Container);
+                var fields = VFirst_764 ?? throw new InvalidOperationException("DisconnectPacket 764 fields missing.");
                 writer.WriteString(fields.Reason);
                 return;
             }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V765_Last ?? throw new InvalidOperationException("DisconnectPacket 765-last fields missing.");
-                writer.WriteVarInt(fields.Container);
                 writer.WriteAnonymousNbtTag(fields.Reason, protocolVersion);
                 return;
             }
@@ -41,22 +40,18 @@ public sealed partial class DisconnectPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 763:
+            case >= MinecraftVersion.StartProtocol and <= 764:
+            {
+                VFirst_764 = new VFirst_764Fields { Reason = reader.ReadString() };
+                V765_Last = null;
                 return;
-            case >= 764 and <= 764:
-                V764_764 = new V764_764Fields
-                {
-                    Container = reader.ReadVarInt(),
-                    Reason = reader.ReadString()
-                };
-                return;
+            }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
-                V765_Last = new V765_LastFields
-                {
-                    Container = reader.ReadVarInt(),
-                    Reason = reader.ReadAnonymousNbtTag(protocolVersion)
-                };
+            {
+                V765_Last = new V765_LastFields { Reason = reader.ReadAnonymousNbtTag(protocolVersion) };
+                VFirst_764 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(DisconnectPacket), protocolVersion, SupportedVersions);
                 return;
@@ -69,18 +64,13 @@ public sealed partial class DisconnectPacket : IServerPacket
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
 
-    public V764_764Fields? V764_764 { get; set; }
-    public V765_LastFields? V765_Last { get; set; }
-
-    public struct V764_764Fields
+    public struct VFirst_764Fields
     {
-        public int Container { get; set; }
         public string Reason { get; set; }
     }
 
     public struct V765_LastFields
     {
-        public int Container { get; set; }
         public NbtTag Reason { get; set; }
     }
 }

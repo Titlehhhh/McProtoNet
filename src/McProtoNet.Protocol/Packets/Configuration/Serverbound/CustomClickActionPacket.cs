@@ -1,47 +1,28 @@
-using System;
+using McProtoNet.NBT;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("CustomClickAction", PacketState.Configuration, PacketDirection.Serverbound)]
+[ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x08)]
 public sealed partial class CustomClickActionPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(771, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonCustomClickAction? Data { get; set; }
+    public string Id { get; set; }
+    public NbtTag? Nbt { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-            {
-                var data = Data ?? throw new InvalidOperationException("CustomClickAction data missing.");
-                writer.WritePacketCommonCustomClickAction(data, protocolVersion);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomClickAction), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteString(Id);
+        writer.WriteAnonOptionalNbtTag(Nbt, protocolVersion);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonCustomClickAction(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.CustomClickAction), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
-        }
+        Id = reader.ReadString();
+        Nbt = reader.ReadAnonOptionalNbtTag(protocolVersion);
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)

@@ -1,45 +1,62 @@
-using System;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("ServerLinks", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
+[PacketId(767, MinecraftVersion.LatestProtocol, 0x10)]
 public sealed partial class ServerLinksPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(767, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonServerLinks Data { get; set; } = null!;
+    public LinkEntry[] Links { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(Links.Length);
+        foreach (var entry in Links)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePacketCommonServerLinks(Data, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            writer.WriteBoolean(entry.HasKnownType);
+            if (entry.HasKnownType)
+            {
+                writer.WriteType(entry.KnownType, protocolVersion);
+            }
+            else
+            {
+                writer.WriteNbtTag(entry.UnknownType, protocolVersion);
+            }
+            writer.WriteString(entry.Link);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        int count = reader.ReadVarInt();
+        var array = new LinkEntry[count];
+        for (int i = 0; i < count; i++)
         {
-            case >= 767 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonServerLinks(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ServerLinks), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
+            var hasKnownType = reader.ReadBoolean();
+            ServerLinkType? knownType = default;
+            NbtTag? unknownType = null;
+            if (hasKnownType)
+            {
+                knownType = reader.ReadType<ServerLinkType>(protocolVersion);
+            }
+            else
+            {
+                unknownType = reader.ReadAnonymousNbtTag(protocolVersion);
+            }
+            var link = reader.ReadString();
+            array[i] = new LinkEntry
+            {
+                HasKnownType = hasKnownType,
+                KnownType = knownType,
+                UnknownType = unknownType,
+                Link = link
+            };
         }
+        Links = array;
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -47,4 +64,12 @@ public sealed partial class ServerLinksPacket : IServerPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
+
+    public struct LinkEntry
+    {
+        public bool HasKnownType { get; set; }
+        public ServerLinkType? KnownType { get; set; }
+        public NbtTag? UnknownType { get; set; }
+        public string Link { get; set; }
+    }
 }

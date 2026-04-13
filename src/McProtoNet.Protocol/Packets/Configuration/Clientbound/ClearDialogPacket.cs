@@ -1,48 +1,16 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
 [PacketInfo("ClearDialog", PacketState.Configuration, PacketDirection.Clientbound)]
+[ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x11)]
 public sealed partial class ClearDialogPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(771, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonClearDialog? Data { get; set; }
-
-    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-            {
-                var data = Data ?? new PacketCommonClearDialog();
-                writer.WritePacketCommonClearDialog(data, protocolVersion);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 771 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonClearDialog(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerConfigurationPacket.ClearDialog), protocolVersion,
-                    SupportedVersionsStatic);
-                return;
-        }
-    }
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion) { }
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion) { }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);

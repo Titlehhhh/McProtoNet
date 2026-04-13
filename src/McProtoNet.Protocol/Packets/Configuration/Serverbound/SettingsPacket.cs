@@ -1,46 +1,55 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
 [PacketInfo("Settings", PacketState.Configuration, PacketDirection.Serverbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class SettingsPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, 765),
-        new(766, MinecraftVersion.LatestProtocol)
-    };
-
-    public V764_765Fields? V764_765 { get; set; }
-    public PacketCommonSettings? Data { get; set; }
+    public string Locale { get; set; }
+    public sbyte ViewDistance { get; set; }
+    public int ChatFlags { get; set; }
+    public bool ChatColors { get; set; }
+    public byte SkinParts { get; set; }
+    public int MainHand { get; set; }
+    public bool EnableTextFiltering { get; set; }
+    public bool EnableServerListing { get; set; }
+    public int? ParticleStatus { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= 765:
+            case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                var fields = V764_765 ?? throw new InvalidOperationException("Settings V764_765 fields missing.");
-                writer.WriteString(fields.Locale);
-                writer.WriteSignedByte(fields.ViewDistance);
-                writer.WriteVarInt(fields.ChatFlags);
-                writer.WriteBoolean(fields.ChatColors);
-                writer.WriteUnsignedByte(fields.SkinParts);
-                writer.WriteVarInt(fields.MainHand);
-                writer.WriteBoolean(fields.EnableTextFiltering);
-                writer.WriteBoolean(fields.EnableServerListing);
+                writer.WriteString(Locale);
+                writer.WriteSignedByte(ViewDistance);
+                writer.WriteVarInt(ChatFlags);
+                writer.WriteBoolean(ChatColors);
+                writer.WriteUnsignedByte(SkinParts);
+                writer.WriteVarInt(MainHand);
+                writer.WriteBoolean(EnableTextFiltering);
+                writer.WriteBoolean(EnableServerListing);
                 return;
             }
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                var data = Data ?? throw new InvalidOperationException("Settings data missing.");
-                writer.WritePacketCommonSettings(data, protocolVersion);
+                writer.WriteString(Locale);
+                writer.WriteSignedByte(ViewDistance);
+                writer.WriteVarInt(ChatFlags);
+                writer.WriteBoolean(ChatColors);
+                writer.WriteUnsignedByte(SkinParts);
+                writer.WriteVarInt(MainHand);
+                writer.WriteBoolean(EnableTextFiltering);
+                writer.WriteBoolean(EnableServerListing);
+                writer.WriteVarInt(ParticleStatus.Value);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Settings), protocolVersion,
-                    SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SettingsPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -49,27 +58,33 @@ public sealed partial class SettingsPacket : IClientPacket
     {
         switch (protocolVersion)
         {
-            case >= 764 and <= 765:
-                V764_765 = new V764_765Fields
-                {
-                    Locale = reader.ReadString(),
-                    ViewDistance = reader.ReadSignedByte(),
-                    ChatFlags = reader.ReadVarInt(),
-                    ChatColors = reader.ReadBoolean(),
-                    SkinParts = reader.ReadUnsignedByte(),
-                    MainHand = reader.ReadVarInt(),
-                    EnableTextFiltering = reader.ReadBoolean(),
-                    EnableServerListing = reader.ReadBoolean()
-                };
-                Data = null;
+            case >= MinecraftVersion.StartProtocol and <= 767:
+            {
+                Locale = reader.ReadString();
+                ViewDistance = reader.ReadSignedByte();
+                ChatFlags = reader.ReadVarInt();
+                ChatColors = reader.ReadBoolean();
+                SkinParts = reader.ReadUnsignedByte();
+                MainHand = reader.ReadVarInt();
+                EnableTextFiltering = reader.ReadBoolean();
+                EnableServerListing = reader.ReadBoolean();
                 return;
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonSettings(protocolVersion);
-                V764_765 = null;
+            }
+            case >= 768 and <= MinecraftVersion.LatestProtocol:
+            {
+                Locale = reader.ReadString();
+                ViewDistance = reader.ReadSignedByte();
+                ChatFlags = reader.ReadVarInt();
+                ChatColors = reader.ReadBoolean();
+                SkinParts = reader.ReadUnsignedByte();
+                MainHand = reader.ReadVarInt();
+                EnableTextFiltering = reader.ReadBoolean();
+                EnableServerListing = reader.ReadBoolean();
+                ParticleStatus = reader.ReadVarInt();
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientConfigurationPacket.Settings), protocolVersion,
-                    SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SettingsPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -79,16 +94,4 @@ public sealed partial class SettingsPacket : IClientPacket
 
     void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Deserialize(ref reader, protocolVersion);
-
-    public struct V764_765Fields
-    {
-        public string Locale { get; set; }
-        public sbyte ViewDistance { get; set; }
-        public int ChatFlags { get; set; }
-        public bool ChatColors { get; set; }
-        public byte SkinParts { get; set; }
-        public int MainHand { get; set; }
-        public bool EnableTextFiltering { get; set; }
-        public bool EnableServerListing { get; set; }
-    }
 }
