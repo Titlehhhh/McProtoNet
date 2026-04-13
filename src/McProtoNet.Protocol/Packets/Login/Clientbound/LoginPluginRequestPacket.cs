@@ -1,46 +1,30 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
 [PacketInfo("LoginPluginRequest", PacketState.Login, PacketDirection.Clientbound)]
-public sealed partial class LoginPluginRequestPacket : IServerPacket
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x04)]
+public sealed partial class LoginPluginRequestPacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public int MessageId { get; set; }
     public string Channel { get; set; } = string.Empty;
-    public byte[] Data { get; set; } = Array.Empty<byte>();
+    public byte[]? Data { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(MessageId);
-                writer.WriteString(Channel);
-                writer.WriteBuffer(Data);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.LoginPluginRequest), protocolVersion, SupportedVersionsStatic);
-        }
+        writer.WriteVarInt(MessageId);
+        writer.WriteString(Channel);
+        writer.WriteBuffer(Data);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                MessageId = reader.ReadVarInt();
-                Channel = reader.ReadString();
-                Data = reader.ReadRestBuffer();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerLoginPacket.LoginPluginRequest), protocolVersion, SupportedVersionsStatic);
-        }
+        MessageId = reader.ReadVarInt();
+        Channel = reader.ReadString();
+        Data = reader.ReadRestBuffer();
     }
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)

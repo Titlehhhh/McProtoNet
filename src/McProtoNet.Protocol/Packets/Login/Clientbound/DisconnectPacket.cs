@@ -9,36 +9,13 @@ namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x00)]
 public sealed partial class DisconnectPacket : IServerPacket
 {
-    public int Container { get; set; }
-    public string Reason { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Container);
-                writer.WriteString(Reason);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(DisconnectPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteString(Name);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Container = reader.ReadVarInt();
-                Reason = reader.ReadString();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(DisconnectPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => Name = reader.ReadString();
 
     void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         => Serialize(writer, protocolVersion);

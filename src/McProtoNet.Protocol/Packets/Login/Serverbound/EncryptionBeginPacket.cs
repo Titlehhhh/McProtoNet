@@ -53,6 +53,7 @@ public sealed partial class EncryptionBeginPacket : IClientPacket
                 return;
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
+                return;
         }
     }
 
@@ -86,6 +87,7 @@ public sealed partial class EncryptionBeginPacket : IClientPacket
             }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
+            return;
         }
     }
 
