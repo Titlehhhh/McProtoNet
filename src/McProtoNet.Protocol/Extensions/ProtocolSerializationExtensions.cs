@@ -162,20 +162,7 @@ public static partial class ProtocolSerializationExtensions
             if (typeof(T) == typeof(ItemSoundHolder)) { writer.WriteItemSoundHolder((ItemSoundHolder)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(ItemWrittenBookPage)) { writer.WriteItemWrittenBookPage((ItemWrittenBookPage)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(JukeboxSongData)) { writer.WriteJukeboxSongData((JukeboxSongData)(object)val!, protocolVersion); return; }
-
-            if (typeof(T) == typeof(PacketCommonAddResourcePack)) { writer.WritePacketCommonAddResourcePack((PacketCommonAddResourcePack)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonClearDialog)) { writer.WritePacketCommonClearDialog((PacketCommonClearDialog)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonCookieRequest)) { writer.WritePacketCommonCookieRequest((PacketCommonCookieRequest)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonCookieResponse)) { writer.WritePacketCommonCookieResponse((PacketCommonCookieResponse)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonCustomClickAction)) { writer.WritePacketCommonCustomClickAction((PacketCommonCustomClickAction)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonCustomReportDetails)) { writer.WritePacketCommonCustomReportDetails((PacketCommonCustomReportDetails)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonRemoveResourcePack)) { writer.WritePacketCommonRemoveResourcePack((PacketCommonRemoveResourcePack)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonSelectKnownPacks)) { writer.WritePacketCommonSelectKnownPacks((PacketCommonSelectKnownPacks)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonServerLinks)) { writer.WritePacketCommonServerLinks((PacketCommonServerLinks)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonSettings)) { writer.WritePacketCommonSettings((PacketCommonSettings)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonStoreCookie)) { writer.WritePacketCommonStoreCookie((PacketCommonStoreCookie)(object)val!, protocolVersion); return; }
-            if (typeof(T) == typeof(PacketCommonTransfer)) { writer.WritePacketCommonTransfer((PacketCommonTransfer)(object)val!, protocolVersion); return; }
-
+            
             if (typeof(T) == typeof(ChatType)) { writer.WriteChatType((ChatType)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(ChatTypeParameterType)) { writer.WriteChatTypeParameterType((ChatTypeParameterType)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(ChatTypes)) { writer.WriteChatTypes((ChatTypes)(object)val!, protocolVersion); return; }
@@ -397,20 +384,7 @@ public static partial class ProtocolSerializationExtensions
             if (typeof(T) == typeof(ItemSoundHolder)) return (T)(object)reader.ReadItemSoundHolder(protocolVersion);
             if (typeof(T) == typeof(ItemWrittenBookPage)) return (T)(object)reader.ReadItemWrittenBookPage(protocolVersion);
             if (typeof(T) == typeof(JukeboxSongData)) return (T)(object)reader.ReadJukeboxSongData(protocolVersion);
-
-            if (typeof(T) == typeof(PacketCommonAddResourcePack)) return (T)(object)reader.ReadPacketCommonAddResourcePack(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonClearDialog)) return (T)(object)reader.ReadPacketCommonClearDialog(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonCookieRequest)) return (T)(object)reader.ReadPacketCommonCookieRequest(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonCookieResponse)) return (T)(object)reader.ReadPacketCommonCookieResponse(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonCustomClickAction)) return (T)(object)reader.ReadPacketCommonCustomClickAction(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonCustomReportDetails)) return (T)(object)reader.ReadPacketCommonCustomReportDetails(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonRemoveResourcePack)) return (T)(object)reader.ReadPacketCommonRemoveResourcePack(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonSelectKnownPacks)) return (T)(object)reader.ReadPacketCommonSelectKnownPacks(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonServerLinks)) return (T)(object)reader.ReadPacketCommonServerLinks(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonSettings)) return (T)(object)reader.ReadPacketCommonSettings(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonStoreCookie)) return (T)(object)reader.ReadPacketCommonStoreCookie(protocolVersion);
-            if (typeof(T) == typeof(PacketCommonTransfer)) return (T)(object)reader.ReadPacketCommonTransfer(protocolVersion);
-
+            
             if (typeof(T) == typeof(ChatType)) return (T)(object)reader.ReadChatType(protocolVersion);
             if (typeof(T) == typeof(ChatTypeParameterType)) return (T)(object)reader.ReadChatTypeParameterType(protocolVersion);
             if (typeof(T) == typeof(ChatTypes)) return (T)(object)reader.ReadChatTypes(protocolVersion);
