@@ -16,23 +16,6 @@ public static class WriteArraySIMDExtensions
             return MM.Cast<byte, T>(writer.GetSpan(size));
         }
 
-        public void WriteVarIntArray(ReadOnlySpan<int> source)
-        {
-            // TODO: optimize with GetSpan / Advance / SIMD
-            foreach (int i in source)
-            {
-                writer.WriteVarInt(i);
-            }
-        }
-
-        public void WriteVarLongArray(ReadOnlySpan<long> source)
-        {
-            // TODO: optimize with GetSpan / Advance / SIMD
-            foreach (long l in source)
-            {
-                writer.WriteVarLong(l);
-            }
-        }
 
         public void WriteBigEndianArray<T>(ReadOnlySpan<T> val) where T : unmanaged
         {
