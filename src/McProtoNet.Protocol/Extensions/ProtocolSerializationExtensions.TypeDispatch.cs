@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Extensions;
@@ -64,6 +65,18 @@ public static partial class ProtocolSerializationExtensions
             if (typeof(T) == typeof(SoundSource)) { writer.WriteSoundSource((SoundSource)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(Tags)) { writer.WriteTags((Tags)(object)val!, protocolVersion); return; }
 
+            if (typeof(T) == typeof(DeathLocation))
+            {
+                writer.WriteDeathLocation((DeathLocation)(object)val!, protocolVersion);
+                return;
+            }
+            
+            if (typeof(T) == typeof(EntityMetadataEntry))
+            {
+                writer.WriteEntityMetadataEntry((EntityMetadataEntry)(object)val!, protocolVersion);
+                return;
+            }
+            
             if (typeof(T) == typeof(ArmorTrimMaterial)) { writer.WriteArmorTrimMaterial((ArmorTrimMaterial)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(ArmorTrimPattern)) { writer.WriteArmorTrimPattern((ArmorTrimPattern)(object)val!, protocolVersion); return; }
             if (typeof(T) == typeof(BannerPatternLayer)) { writer.WriteBannerPatternLayer((BannerPatternLayer)(object)val!, protocolVersion); return; }
@@ -118,6 +131,9 @@ public static partial class ProtocolSerializationExtensions
                 return (T)holder;
             }
 
+            if (typeof(T) == typeof(DeathLocation)) return (T)(object)reader.ReadDeathLocation(protocolVersion);
+            if (typeof(T) == typeof(EntityMetadataEntry)) return (T)(object)reader.ReadEntityMetadataEntry(protocolVersion);
+            
             if (typeof(T) == typeof(Position)) return (T)(object)reader.ReadPosition(protocolVersion);
             if (typeof(T) == typeof(Vec2f)) return (T)(object)reader.ReadVec2f(protocolVersion);
             if (typeof(T) == typeof(Vec3f)) return (T)(object)reader.ReadVec3f(protocolVersion);
