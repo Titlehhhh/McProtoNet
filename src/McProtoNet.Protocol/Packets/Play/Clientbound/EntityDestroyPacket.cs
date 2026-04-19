@@ -1,76 +1,34 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("EntityDestroy", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
+[ProtocolSupport(756, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x37)]
+[PacketId(751, 754, 0x36)]
+[PacketId(756, 758, 0x3A)]
+[PacketId(759, 759, 0x38)]
+[PacketId(760, 760, 0x3B)]
+[PacketId(761, 761, 0x3A)]
+[PacketId(762, 763, 0x3E)]
+[PacketId(764, 765, 0x40)]
+[PacketId(766, 767, 0x42)]
+[PacketId(768, 769, 0x47)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x46)]
 public sealed partial class EntityDestroyPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 754),
-        new(756, MinecraftVersion.LatestProtocol),
-    };
-
     public int[] EntityIds { get; set; }
-
-
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 754:
-            {
-                writer.WriteVarInt(EntityIds.Length);
-                for (int i = 0; i < EntityIds.Length; i++)
-                {
-                    writer.WriteVarInt(EntityIds[i]);
-                }
-                return;
-            }
-            case >= 756 and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteVarInt(EntityIds.Length);
-                for (int i = 0; i < EntityIds.Length; i++)
-                {
-                    writer.WriteVarInt(EntityIds[i]);
-                }
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityDestroy), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarIntArray(EntityIds);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 754:
-            {
-                EntityIds = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
-                return;
-            }
-            case >= 756 and <= MinecraftVersion.LatestProtocol:
-            {
-                EntityIds = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EntityDestroy), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityIds = reader.ReadVarIntArray(LengthFormat.VarInt);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-
 }

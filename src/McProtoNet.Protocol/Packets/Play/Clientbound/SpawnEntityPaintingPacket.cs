@@ -1,17 +1,16 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("SpawnEntityPainting", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 758)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x03)]
+[PacketId(751, 758, 0x03)]
 public sealed partial class SpawnEntityPaintingPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-    };
-
     public int EntityId { get; set; }
     public Guid EntityUUID { get; set; }
     public int Title { get; set; }
@@ -20,41 +19,19 @@ public sealed partial class SpawnEntityPaintingPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 758:
-                writer.WriteVarInt(EntityId);
-                writer.WriteUUID(EntityUUID);
-                writer.WriteVarInt(Title);
-                writer.WritePosition(Location, protocolVersion);
-                writer.WriteUnsignedByte(Direction);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SpawnEntityPainting), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteUUID(EntityUUID);
+        writer.WriteVarInt(Title);
+        writer.WriteType<Position>(Location, protocolVersion);
+        writer.WriteUnsignedByte(Direction);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 758:
-                EntityId = reader.ReadVarInt();
-                EntityUUID = reader.ReadUUID();
-                Title = reader.ReadVarInt();
-                Location = reader.ReadPosition(protocolVersion);
-                Direction = reader.ReadUnsignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SpawnEntityPainting), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        EntityUUID = reader.ReadUUID();
+        Title = reader.ReadVarInt();
+        Location = reader.ReadType<Position>(protocolVersion);
+        Direction = reader.ReadUnsignedByte();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

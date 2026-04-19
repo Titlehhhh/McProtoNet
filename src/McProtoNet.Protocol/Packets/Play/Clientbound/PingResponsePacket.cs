@@ -1,49 +1,22 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("PingResponse", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 765, 0x34)]
+[PacketId(766, 767, 0x36)]
+[PacketId(768, 769, 0x38)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x37)]
 public sealed partial class PingResponsePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol),
-    };
-
     public long Id { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedLong(Id);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PingResponse), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteSignedLong(Id);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                Id = reader.ReadSignedLong();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PingResponse), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Id = reader.ReadSignedLong();
 }

@@ -1,11 +1,12 @@
-using McProtoNet.NBT;
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
+
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("KickDisconnect", PacketState.Play, PacketDirection.Clientbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 764)]
-[ProtocolSupport(765, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x1A)]
 [PacketId(751, 754, 0x19)]
 [PacketId(755, 758, 0x1A)]
@@ -18,13 +19,16 @@ using McProtoNet.Serialization;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x1C)]
 public sealed partial class KickDisconnectPacket : IServerPacket
 {
+    public VFirst_764Fields? VFirst_764 { get; set; }
+    public V765_LastFields? V765_Last { get; set; }
+
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 764:
             {
-                var fields = VFirst_764 ?? throw new InvalidOperationException("KickDisconnectPacket first-764 fields missing.");
+                var fields = VFirst_764 ?? throw new InvalidOperationException("KickDisconnectPacket 1-764 fields missing.");
                 writer.WriteString(fields.Reason);
                 return;
             }
@@ -45,27 +49,22 @@ public sealed partial class KickDisconnectPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 764:
+            {
                 VFirst_764 = new VFirst_764Fields { Reason = reader.ReadString() };
                 V765_Last = null;
                 return;
+            }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
+            {
                 V765_Last = new V765_LastFields { Reason = reader.ReadAnonymousNbtTag(protocolVersion) };
                 VFirst_764 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(KickDisconnectPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public VFirst_764Fields? VFirst_764 { get; set; }
-    public V765_LastFields? V765_Last { get; set; }
 
     public struct VFirst_764Fields { public string Reason { get; set; } }
     public struct V765_LastFields { public NbtTag Reason { get; set; } }

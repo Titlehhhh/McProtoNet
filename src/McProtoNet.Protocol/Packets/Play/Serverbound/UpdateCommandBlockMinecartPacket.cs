@@ -1,55 +1,38 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("UpdateCommandBlockMinecart", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x26)]
+[PacketId(751, 758, 0x27)]
+[PacketId(759, 759, 0x29)]
+[PacketId(760, 763, 0x2A)]
+[PacketId(764, 764, 0x2D)]
+[PacketId(765, 765, 0x2E)]
+[PacketId(766, 767, 0x31)]
+[PacketId(768, 768, 0x33)]
+[PacketId(769, 770, 0x35)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x36)]
 public sealed partial class UpdateCommandBlockMinecartPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public int EntityId { get; set; }
-    public string Command { get; set; }
+    public string Command { get; set; } = string.Empty;
     public bool TrackOutput { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteString(Command);
-                writer.WriteBoolean(TrackOutput);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.UpdateCommandBlockMinecart), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteString(Command);
+        writer.WriteBoolean(TrackOutput);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                Command = reader.ReadString();
-                TrackOutput = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.UpdateCommandBlockMinecart), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        Command = reader.ReadString();
+        TrackOutput = reader.ReadBoolean();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

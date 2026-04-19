@@ -1,21 +1,17 @@
-using System;
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
 [PacketInfo("EncryptionBegin", PacketState.Login, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol, 0x01)]
 public sealed partial class EncryptionBeginPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-        new(759, 760),
-        new(761, MinecraftVersion.LatestProtocol)
-    };
-
-    public byte[] SharedSecret { get; set; } = Array.Empty<byte>();
+    public byte[] SharedSecret { get; set; }
     public byte[]? VerifyToken { get; set; }
-
     public V759_760Fields? V759_760 { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -23,37 +19,33 @@ public sealed partial class EncryptionBeginPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
-            case >= 761 and <= MinecraftVersion.LatestProtocol:
-                if (VerifyToken is null)
-                {
-                    throw new InvalidOperationException("EncryptionBegin verify token missing.");
-                }
-                writer.WriteVarInt(SharedSecret.Length);
-                writer.WriteBuffer(SharedSecret);
-                writer.WriteVarInt(VerifyToken.Length);
-                writer.WriteBuffer(VerifyToken);
+            {
+                writer.WriteBuffer(SharedSecret, LengthFormat.VarInt);
+                writer.WriteBuffer(VerifyToken ?? throw new InvalidOperationException("EncryptionBeginPacket VerifyToken missing."), LengthFormat.VarInt);
                 return;
+            }
             case >= 759 and <= 760:
-                writer.WriteVarInt(SharedSecret.Length);
-                writer.WriteBuffer(SharedSecret);
-                if (VerifyToken is not null)
+            {
+                writer.WriteBuffer(SharedSecret, LengthFormat.VarInt);
+                var fields = V759_760 ?? throw new InvalidOperationException("EncryptionBeginPacket 759-760 fields missing.");
+                writer.WriteBoolean(fields.HasVerifyToken);
+                if (fields.HasVerifyToken)
                 {
-                    writer.WriteBoolean(true);
-                    writer.WriteVarInt(VerifyToken.Length);
-                    writer.WriteBuffer(VerifyToken);
+                    writer.WriteBuffer(VerifyToken ?? throw new InvalidOperationException("EncryptionBeginPacket VerifyToken missing."), LengthFormat.VarInt);
                 }
                 else
                 {
-                    var fields = V759_760 ?? throw new InvalidOperationException("EncryptionBegin V759_760 missing.");
-                    writer.WriteBoolean(false);
                     writer.WriteSignedLong(fields.Salt);
-                    writer.WriteVarInt(fields.MessageSignature.Length);
-                    writer.WriteBuffer(fields.MessageSignature);
+                    writer.WriteBuffer(fields.MessageSignature, LengthFormat.VarInt);
                 }
                 return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
+            }
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+            {
+                writer.WriteBuffer(SharedSecret, LengthFormat.VarInt);
+                writer.WriteBuffer(VerifyToken ?? throw new InvalidOperationException("EncryptionBeginPacket VerifyToken missing."), LengthFormat.VarInt);
                 return;
+            }
         }
     }
 
@@ -62,43 +54,42 @@ public sealed partial class EncryptionBeginPacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
-            case >= 761 and <= MinecraftVersion.LatestProtocol:
-                SharedSecret = reader.ReadBuffer(reader.ReadVarInt());
-                VerifyToken = reader.ReadBuffer(reader.ReadVarInt());
+            {
+                SharedSecret = reader.ReadBuffer(LengthFormat.VarInt);
+                VerifyToken = reader.ReadBuffer(LengthFormat.VarInt);
+                V759_760 = null;
                 return;
+            }
             case >= 759 and <= 760:
             {
-                SharedSecret = reader.ReadBuffer(reader.ReadVarInt());
-                bool hasVerifyToken = reader.ReadBoolean();
+                SharedSecret = reader.ReadBuffer(LengthFormat.VarInt);
+                var hasVerifyToken = reader.ReadBoolean();
+                var fields = new V759_760Fields { HasVerifyToken = hasVerifyToken };
                 if (hasVerifyToken)
                 {
-                    VerifyToken = reader.ReadBuffer(reader.ReadVarInt());
+                    VerifyToken = reader.ReadBuffer(LengthFormat.VarInt);
                 }
                 else
                 {
-                    VerifyToken = null;
-                    V759_760 = new V759_760Fields
-                    {
-                        Salt = reader.ReadSignedLong(),
-                        MessageSignature = reader.ReadBuffer(reader.ReadVarInt())
-                    };
+                    fields.Salt = reader.ReadSignedLong();
+                    fields.MessageSignature = reader.ReadBuffer(LengthFormat.VarInt);
                 }
+                V759_760 = fields;
                 return;
             }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientLoginPacket.EncryptionBegin), protocolVersion, SupportedVersionsStatic);
-            return;
+            case >= 761 and <= MinecraftVersion.LatestProtocol:
+            {
+                SharedSecret = reader.ReadBuffer(LengthFormat.VarInt);
+                VerifyToken = reader.ReadBuffer(LengthFormat.VarInt);
+                V759_760 = null;
+                return;
+            }
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct V759_760Fields
     {
+        public bool HasVerifyToken { get; set; }
         public long Salt { get; set; }
         public byte[] MessageSignature { get; set; }
     }

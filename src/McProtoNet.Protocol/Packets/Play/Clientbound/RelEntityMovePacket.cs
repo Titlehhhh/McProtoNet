@@ -1,18 +1,24 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("RelEntityMove", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x28)]
+[PacketId(751, 754, 0x27)]
+[PacketId(755, 758, 0x29)]
+[PacketId(759, 759, 0x26)]
+[PacketId(760, 760, 0x28)]
+[PacketId(761, 761, 0x27)]
+[PacketId(762, 763, 0x2B)]
+[PacketId(764, 765, 0x2C)]
+[PacketId(766, 767, 0x2E)]
+[PacketId(768, 769, 0x2F)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x2E)]
 public sealed partial class RelEntityMovePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public short DX { get; set; }
     public short DY { get; set; }
@@ -21,41 +27,19 @@ public sealed partial class RelEntityMovePacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteSignedShort(DX);
-                writer.WriteSignedShort(DY);
-                writer.WriteSignedShort(DZ);
-                writer.WriteBoolean(OnGround);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RelEntityMove), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteSignedShort(DX);
+        writer.WriteSignedShort(DY);
+        writer.WriteSignedShort(DZ);
+        writer.WriteBoolean(OnGround);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                DX = reader.ReadSignedShort();
-                DY = reader.ReadSignedShort();
-                DZ = reader.ReadSignedShort();
-                OnGround = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RelEntityMove), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        DX = reader.ReadSignedShort();
+        DY = reader.ReadSignedShort();
+        DZ = reader.ReadSignedShort();
+        OnGround = reader.ReadBoolean();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("EntityAction", PacketState.Play, PacketDirection.Serverbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 770)]
-[ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x1C)]
 [PacketId(751, 754, 0x1C)]
 [PacketId(755, 758, 0x1B)]
@@ -26,22 +27,15 @@ public sealed partial class EntityActionPacket : IClientPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteVarInt(EntityId);
+        writer.WriteVarInt(ActionId);
+        writer.WriteVarInt(JumpBoost);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 770:
-            {
-                writer.WriteVarInt(EntityId);
-                writer.WriteVarInt(ActionId);
-                writer.WriteVarInt(JumpBoost);
                 return;
-            }
             case >= 771 and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteVarInt(EntityId);
-                writer.WriteVarInt(ActionId);
-                writer.WriteVarInt(JumpBoost);
                 return;
-            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(EntityActionPacket), protocolVersion, SupportedVersions);
                 return;
@@ -50,31 +44,22 @@ public sealed partial class EntityActionPacket : IClientPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        EntityId = reader.ReadVarInt();
+        ActionId = reader.ReadVarInt();
+        JumpBoost = reader.ReadVarInt();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 770:
-            {
-                EntityId = reader.ReadVarInt();
-                ActionId = reader.ReadVarInt();
-                JumpBoost = reader.ReadVarInt();
-                return;
-            }
+                {
+                    return;
+                }
             case >= 771 and <= MinecraftVersion.LatestProtocol:
-            {
-                EntityId = reader.ReadVarInt();
-                ActionId = reader.ReadVarInt();
-                JumpBoost = reader.ReadVarInt();
-                return;
-            }
+                {
+                    return;
+                }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(EntityActionPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

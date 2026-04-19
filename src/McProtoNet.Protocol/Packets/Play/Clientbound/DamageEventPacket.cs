@@ -1,18 +1,17 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("DamageEvent", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(762, MinecraftVersion.LatestProtocol)]
+[PacketId(762, 763, 0x18)]
+[PacketId(764, 765, 0x19)]
+[PacketId(766, 769, 0x1A)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x19)]
 public sealed partial class DamageEventPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(762, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public int SourceTypeId { get; set; }
     public int SourceCauseId { get; set; }
@@ -21,49 +20,19 @@ public sealed partial class DamageEventPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 762 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteVarInt(SourceTypeId);
-                writer.WriteVarInt(SourceCauseId);
-                writer.WriteVarInt(SourceDirectId);
-                if (SourcePosition is null)
-                {
-                    writer.WriteBoolean(false);
-                }
-                else
-                {
-                    writer.WriteBoolean(true);
-                    writer.WriteVec3f64(SourcePosition.Value, protocolVersion);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.DamageEvent), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteVarInt(SourceTypeId);
+        writer.WriteVarInt(SourceCauseId);
+        writer.WriteVarInt(SourceDirectId);
+        writer.WriteType(SourcePosition, protocolVersion);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 762 and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                SourceTypeId = reader.ReadVarInt();
-                SourceCauseId = reader.ReadVarInt();
-                SourceDirectId = reader.ReadVarInt();
-                SourcePosition = reader.ReadOptional((ref MinecraftPrimitiveReader r) => r.ReadVec3f64(protocolVersion));
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.DamageEvent), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        SourceTypeId = reader.ReadVarInt();
+        SourceCauseId = reader.ReadVarInt();
+        SourceDirectId = reader.ReadVarInt();
+        SourcePosition = reader.ReadType<Vec3f64>(protocolVersion);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

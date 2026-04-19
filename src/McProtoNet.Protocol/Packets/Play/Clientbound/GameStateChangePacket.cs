@@ -1,17 +1,24 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("GameStateChange", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x1E)]
+[PacketId(751, 754, 0x1D)]
+[PacketId(755, 758, 0x1E)]
+[PacketId(759, 759, 0x1B)]
+[PacketId(760, 760, 0x1D)]
+[PacketId(761, 761, 0x1C)]
+[PacketId(762, 763, 0x1F)]
+[PacketId(764, 765, 0x20)]
+[PacketId(766, 767, 0x22)]
+[PacketId(768, 769, 0x23)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x22)]
 public sealed partial class GameStateChangePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 770),
-        new(771, MinecraftVersion.LatestProtocol)
-    };
-
     public byte Reason { get; set; }
     public float GameMode { get; set; }
 
@@ -23,12 +30,14 @@ public sealed partial class GameStateChangePacket : IServerPacket
                 writer.WriteUnsignedByte(Reason);
                 writer.WriteFloat(GameMode);
                 return;
+
             case >= 771 and <= MinecraftVersion.LatestProtocol:
                 writer.WriteUnsignedByte(Reason);
                 writer.WriteFloat(GameMode);
                 return;
+
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.GameStateChange), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(GameStateChangePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -41,19 +50,15 @@ public sealed partial class GameStateChangePacket : IServerPacket
                 Reason = reader.ReadUnsignedByte();
                 GameMode = reader.ReadFloat();
                 return;
+
             case >= 771 and <= MinecraftVersion.LatestProtocol:
                 Reason = reader.ReadUnsignedByte();
                 GameMode = reader.ReadFloat();
                 return;
+
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.GameStateChange), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(GameStateChangePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

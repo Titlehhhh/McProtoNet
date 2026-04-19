@@ -25,10 +25,4 @@ public sealed partial class SetProtocolPacket : IPacket
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => (Name, ServerHost, ServerPort, NextState) = (reader.ReadVarInt(), reader.ReadString(),
             reader.ReadUnsignedShort(), reader.ReadVarInt());
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -13,6 +13,24 @@
     <PropertyGroup>
         <NoWarn>$(NoWarn);CS0535</NoWarn>
     </PropertyGroup>
+
+    <PropertyGroup>
+        <IncludeHandshakePackets>true</IncludeHandshakePackets>
+        <IncludeLoginPackets>true</IncludeLoginPackets>
+        <IncludeStatusPackets>true</IncludeStatusPackets>
+        <IncludeConfigurationPackets>true</IncludeConfigurationPackets>
+        <IncludePlayClientboundPackets>false</IncludePlayClientboundPackets>
+        <IncludePlayServerboundPackets>false</IncludePlayServerboundPackets>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Remove="Packets/Handshaking/**/*.cs" Condition="'$(IncludeHandshakePackets)' == 'false'" />
+        <Compile Remove="Packets/Login/**/*.cs" Condition="'$(IncludeLoginPackets)' == 'false'" />
+        <Compile Remove="Packets/Status/**/*.cs" Condition="'$(IncludeStatusPackets)' == 'false'" />
+        <Compile Remove="Packets/Configuration/**/*.cs" Condition="'$(IncludeConfigurationPackets)' == 'false'" />
+        <Compile Remove="Packets/Play/Clientbound/**/*.cs" Condition="'$(IncludePlayClientboundPackets)' == 'false'" />
+        <Compile Remove="Packets/Play/Serverbound/**/*.cs" Condition="'$(IncludePlayServerboundPackets)' == 'false'" />
+    </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>

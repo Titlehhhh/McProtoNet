@@ -5,4 +5,7 @@
     <RestoreFallbackFolders></RestoreFallbackFolders>
     <DisableImplicitNuGetFallbackFolder>true</DisableImplicitNuGetFallbackFolder>
   </PropertyGroup>
+  <PropertyGroup>
+    <IsAotCompatible>true</IsAotCompatible>
+  </PropertyGroup>
 </Project>

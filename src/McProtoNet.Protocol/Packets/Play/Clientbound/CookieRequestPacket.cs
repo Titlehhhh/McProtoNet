@@ -1,49 +1,24 @@
-using System;
 using McProtoNet.Protocol;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("CookieRequest", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[PacketId(766, 769, 0x16)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x15)]
 public sealed partial class CookieRequestPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(766, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonCookieRequest Data { get; set; } = null!;
+    public string Cookie { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePacketCommonCookieRequest(Data, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CookieRequest), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteString(Cookie);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonCookieRequest(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CookieRequest), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Cookie = reader.ReadString();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

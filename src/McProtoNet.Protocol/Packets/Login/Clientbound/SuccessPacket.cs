@@ -102,12 +102,6 @@ public sealed partial class SuccessPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct V759_765Fields
     {
         public Property[] Properties { get; set; }

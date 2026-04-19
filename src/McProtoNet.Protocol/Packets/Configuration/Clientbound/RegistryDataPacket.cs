@@ -78,12 +78,6 @@ public sealed partial class RegistryDataPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct V764_765Fields
     {
         public NbtTag Codec { get; set; }

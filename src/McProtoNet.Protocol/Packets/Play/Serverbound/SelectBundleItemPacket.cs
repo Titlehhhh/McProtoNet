@@ -1,52 +1,35 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("SelectBundleItem", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, MinecraftVersion.LatestProtocol, 0x02)]
 public sealed partial class SelectBundleItemPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol)
-    };
-
     public int SlotId { get; set; }
     public int SelectedItemIndex { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
+        => writer.WriteVarInt(SlotId);
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+        => SlotId = reader.ReadVarInt();
+    
+    // Since there is only one range (768-last), we handle the second field directly after the first.
+    // Note: The structure template requires a single Serialize/Deserialize method body if no switch is used, 
+    // but since I am implementing it manually for the single case, I must ensure all fields are read/written sequentially.
+
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
         {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(SlotId);
-                writer.WriteVarInt(SelectedItemIndex);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SelectBundleItem), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteVarInt(SlotId);
+            writer.WriteVarInt(SelectedItemIndex);
         }
-    }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
         {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                SlotId = reader.ReadVarInt();
-                SelectedItemIndex = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.SelectBundleItem), protocolVersion, SupportedVersionsStatic);
-                return;
+            SlotId = reader.ReadVarInt();
+            SelectedItemIndex = reader.ReadVarInt();
         }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("ConfigurationAcknowledged", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [PacketId(764, 765, 0x0B)]
@@ -14,10 +16,14 @@ public sealed partial class ConfigurationAcknowledgedPacket : IClientPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 763:
+            case >= MinecraftVersion.StartProtocol and <= 764:
                 return;
+
             case >= 764 and <= MinecraftVersion.LatestProtocol:
+            { 
+                // No fields defined for this range
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ConfigurationAcknowledgedPacket), protocolVersion, SupportedVersions);
                 return;
@@ -28,19 +34,17 @@ public sealed partial class ConfigurationAcknowledgedPacket : IClientPacket
     {
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 763:
+            case >= MinecraftVersion.StartProtocol and <= 764:
+                // No fields defined for this range
                 return;
             case >= 764 and <= MinecraftVersion.LatestProtocol:
+            {
+                // No fields defined for this range
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ConfigurationAcknowledgedPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

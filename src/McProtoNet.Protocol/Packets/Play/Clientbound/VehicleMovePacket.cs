@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("VehicleMove", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2C)]
@@ -17,53 +19,27 @@ using McProtoNet.Serialization;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x32)]
 public sealed partial class VehicleMovePacket : IServerPacket
 {
-    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteDouble(X);
-                writer.WriteDouble(Y);
-                writer.WriteDouble(Z);
-                writer.WriteFloat(Yaw);
-                writer.WriteFloat(Pitch);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(VehicleMovePacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                X = reader.ReadDouble();
-                Y = reader.ReadDouble();
-                Z = reader.ReadDouble();
-                Yaw = reader.ReadFloat();
-                Pitch = reader.ReadFloat();
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(VehicleMovePacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public double X { get; set; }
     public double Y { get; set; }
     public double Z { get; set; }
     public float Yaw { get; set; }
     public float Pitch { get; set; }
+
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        writer.WriteDouble(X);
+        writer.WriteDouble(Y);
+        writer.WriteDouble(Z);
+        writer.WriteFloat(Yaw);
+        writer.WriteFloat(Pitch);
+    }
+
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        X = reader.ReadDouble();
+        Y = reader.ReadDouble();
+        Z = reader.ReadDouble();
+        Yaw = reader.ReadFloat();
+        Pitch = reader.ReadFloat();
+    }
 }

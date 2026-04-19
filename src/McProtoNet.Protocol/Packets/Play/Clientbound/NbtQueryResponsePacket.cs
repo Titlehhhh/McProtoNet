@@ -1,74 +1,78 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("NbtQueryResponse", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x54)]
+[PacketId(751, 754, 0x54)]
+[PacketId(755, 756, 0x5F)]
+[PacketId(757, 758, 0x60)]
+[PacketId(759, 759, 0x61)]
+[PacketId(760, 760, 0x64)]
+[PacketId(761, 761, 0x62)]
+[PacketId(762, 763, 0x66)]
+[PacketId(764, 764, 0x69)]
+[PacketId(765, 765, 0x6B)]
+[PacketId(766, 767, 0x6E)]
+[PacketId(768, 769, 0x75)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x74)]
 public sealed partial class NbtQueryResponsePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 763),
-        new(764, MinecraftVersion.LatestProtocol),
-    };
-
     public int TransactionId { get; set; }
-    public NbtTag? Nbt { get; set; }
 
-
+    public VFirst_763Fields? VFirst_763 { get; set; }
+    public V764_LastFields? V764_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteVarInt(TransactionId);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 763:
             {
-                writer.WriteVarInt(TransactionId);
-                writer.WriteOptionalNbtTag(Nbt, protocolVersion);
+                var fields = VFirst_763 ?? throw new InvalidOperationException("NbtQueryResponsePacket 0-763 fields missing.");
+                writer.WriteOptionalNbtTag(fields.Nbt, protocolVersion);
                 return;
             }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteVarInt(TransactionId);
-                writer.WriteAnonOptionalNbtTag(Nbt, protocolVersion);
+                var fields = V764_Last ?? throw new InvalidOperationException("NbtQueryResponsePacket 764-last fields missing.");
+                writer.WriteAnonOptionalNbtTag(fields.Nbt, protocolVersion);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NbtQueryResponse), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(NbtQueryResponsePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        TransactionId = reader.ReadVarInt();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 763:
             {
-                TransactionId = reader.ReadVarInt();
-                Nbt = reader.ReadOptionalNbtTag(true);
+                VFirst_763 = new VFirst_763Fields { Nbt = reader.ReadOptionalNbtTag(protocolVersion) };
+                V764_Last = null;
                 return;
             }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
             {
-                TransactionId = reader.ReadVarInt();
-                Nbt = reader.ReadOptionalNbtTag(false);
+                V764_Last = new V764_LastFields { Nbt = reader.ReadAnonOptionalNbtTag(protocolVersion) };
+                VFirst_763 = null;
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NbtQueryResponse), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(NbtQueryResponsePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-
+    public struct VFirst_763Fields { public NbtTag? Nbt { get; set; } }
+    public struct V764_LastFields { public NbtTag? Nbt { get; set; } }
 }

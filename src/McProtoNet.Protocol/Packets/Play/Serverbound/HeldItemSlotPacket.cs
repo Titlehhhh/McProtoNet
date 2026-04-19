@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("HeldItemSlot", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x24)]
@@ -16,44 +18,11 @@ using McProtoNet.Serialization;
 [PacketId(771, MinecraftVersion.LatestProtocol, 0x34)]
 public sealed partial class HeldItemSlotPacket : IClientPacket
 {
-    public int ContainerId { get; set; }
     public short SlotId { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteVarInt(ContainerId);
-                writer.WriteSignedShort(SlotId);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(HeldItemSlotPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteSignedShort(SlotId);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                ContainerId = reader.ReadVarInt();
-                SlotId = reader.ReadSignedShort();
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(HeldItemSlotPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => SlotId = reader.ReadSignedShort();
 }

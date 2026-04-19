@@ -1,86 +1,54 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("MoveMinecart", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, 769, 0x31)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x30)]
 public sealed partial class MoveMinecartPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
-    public StepEntry[] Steps { get; set; } = Array.Empty<StepEntry>();
+    public Step[] Steps { get; set; } = Array.Empty<Step>();
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(EntityId);
+        writer.WriteVarInt(Steps.Length);
+        foreach (var step in Steps)
         {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteVarInt(Steps.Length);
-                for (int i = 0; i < Steps.Length; i++)
-                {
-                    writer.WriteVec3f(Steps[i].Position, protocolVersion);
-                    writer.WriteVec3f(Steps[i].Movement, protocolVersion);
-                    writer.WriteFloat(Steps[i].Yaw);
-                    writer.WriteFloat(Steps[i].Pitch);
-                    writer.WriteFloat(Steps[i].Weight);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.MoveMinecart), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteType<Position>(step.Position, protocolVersion);
+            writer.WriteType<Vec3f>(step.Movement, protocolVersion);
+            writer.WriteFloat(step.Yaw);
+            writer.WriteFloat(step.Pitch);
+            writer.WriteFloat(step.Weight);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        EntityId = reader.ReadVarInt();
+        int stepsCount = reader.ReadVarInt();
+        var steps = new Step[stepsCount];
+        for (int i = 0; i < stepsCount; i++)
         {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
+            steps[i] = new Step
             {
-                EntityId = reader.ReadVarInt();
-                int count = reader.ReadVarInt();
-                if (count == 0)
-                {
-                    Steps = Array.Empty<StepEntry>();
-                    return;
-                }
-
-                var steps = new StepEntry[count];
-                for (int i = 0; i < steps.Length; i++)
-                {
-                    steps[i] = new StepEntry
-                    {
-                        Position = reader.ReadVec3f(protocolVersion),
-                        Movement = reader.ReadVec3f(protocolVersion),
-                        Yaw = reader.ReadFloat(),
-                        Pitch = reader.ReadFloat(),
-                        Weight = reader.ReadFloat()
-                    };
-                }
-                Steps = steps;
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.MoveMinecart), protocolVersion, SupportedVersionsStatic);
-                return;
+                Position = reader.ReadType<Position>(protocolVersion),
+                Movement = reader.ReadType<Vec3f>(protocolVersion),
+                Yaw = reader.ReadFloat(),
+                Pitch = reader.ReadFloat(),
+                Weight = reader.ReadFloat()
+            };
         }
+        Steps = steps;
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct StepEntry
+    public struct Step
     {
-        public Vec3f Position { get; set; }
+        public Position Position { get; set; }
         public Vec3f Movement { get; set; }
         public float Yaw { get; set; }
         public float Pitch { get; set; }

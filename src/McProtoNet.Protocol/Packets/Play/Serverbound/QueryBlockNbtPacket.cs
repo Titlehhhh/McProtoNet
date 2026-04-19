@@ -1,52 +1,27 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("QueryBlockNbt", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x01)]
+[PacketId(751, MinecraftVersion.LatestProtocol, 0x01)]
 public sealed partial class QueryBlockNbtPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
     public int TransactionId { get; set; }
     public Position Location { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(TransactionId);
-                writer.WritePosition(location, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.QueryBlockNbt), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(TransactionId);
+        writer.WriteType(Location, protocolVersion);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                TransactionId = reader.ReadVarInt();
-                location, protocolVersion = reader.ReadPosition(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.QueryBlockNbt), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        TransactionId = reader.ReadVarInt();
+        Location = reader.ReadType<Position>(protocolVersion);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

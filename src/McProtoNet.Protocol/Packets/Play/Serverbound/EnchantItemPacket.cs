@@ -1,86 +1,72 @@
-using System;
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("EnchantItem", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x08)]
+[PacketId(751, 754, 0x08)]
+[PacketId(755, 758, 0x07)]
+[PacketId(759, 759, 0x09)]
+[PacketId(760, 760, 0x0A)]
+[PacketId(761, 761, 0x09)]
+[PacketId(762, 763, 0x0A)]
+[PacketId(764, 765, 0x0C)]
+[PacketId(766, 767, 0x0D)]
+[PacketId(768, 770, 0x0F)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x10)]
 public sealed partial class EnchantItemPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 767),
-        new(768, MinecraftVersion.LatestProtocol)
-    };
-
     public sbyte Enchantment { get; set; }
-
-    public VFirst_767Fields? VFirst_767 { get; set; }
-    public V768_LastFields? V768_Last { get; set; }
+    public VFirst_766Fields? VFirst_766 { get; set; }
+    public V767_LastFields? V767_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteSignedByte(Enchantment);
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 767:
+            case >= MinecraftVersion.StartProtocol and <= 766:
             {
-                var fields = VFirst_767 ?? throw new InvalidOperationException("EnchantItem VFirst_767 fields missing.");
+                var fields = VFirst_766 ?? throw new InvalidOperationException("EnchantItemPacket 0-766 fields missing.");
                 writer.WriteSignedByte(fields.WindowId);
-                writer.WriteSignedByte(Enchantment);
                 return;
             }
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
+            case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V768_Last ?? throw new InvalidOperationException("EnchantItem V768_Last fields missing.");
-                writer.WriteVarInt(fields.WindowId);
-                writer.WriteSignedByte(Enchantment);
+                var fields = V767_Last ?? throw new InvalidOperationException("EnchantItemPacket 767-last fields missing.");
+                writer.WriteUnsignedByte(fields.WindowId);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EnchantItem), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EnchantItemPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        Enchantment = reader.ReadSignedByte();
         switch (protocolVersion)
         {
-            case >= MinecraftVersion.StartProtocol and <= 767:
-                VFirst_767 = new VFirst_767Fields
-                {
-                    WindowId = reader.ReadSignedByte()
-                };
-                Enchantment = reader.ReadSignedByte();
-                V768_Last = null;
+            case >= MinecraftVersion.StartProtocol and <= 766:
+            {
+                VFirst_766 = new VFirst_766Fields { WindowId = reader.ReadSignedByte() };
                 return;
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                V768_Last = new V768_LastFields
-                {
-                    WindowId = reader.ReadVarInt()
-                };
-                Enchantment = reader.ReadSignedByte();
-                VFirst_767 = null;
+            }
+            case >= 767 and <= MinecraftVersion.LatestProtocol:
+            {
+                V767_Last = new V767_LastFields { WindowId = reader.ReadUnsignedByte() };
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.EnchantItem), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EnchantItemPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct VFirst_767Fields
-    {
-        public sbyte WindowId { get; set; }
-    }
-
-    public struct V768_LastFields
-    {
-        public int WindowId { get; set; }
-    }
+    public struct VFirst_766Fields { public sbyte WindowId { get; set; } }
+    public struct V767_LastFields { public byte WindowId { get; set; } }
 }

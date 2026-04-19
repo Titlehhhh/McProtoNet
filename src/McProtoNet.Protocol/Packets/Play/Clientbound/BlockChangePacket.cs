@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("BlockChange", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x0B)]
@@ -18,35 +20,13 @@ public sealed partial class BlockChangePacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteType(Location, protocolVersion);
-                writer.WriteVarInt(Type);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockChangePacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteType<Position>(Location, protocolVersion);
+        writer.WriteVarInt(Type);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Location = reader.ReadType<Position>(protocolVersion);
-                Type = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockChangePacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        Location = reader.ReadType<Position>(protocolVersion);
+        Type = reader.ReadVarInt();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

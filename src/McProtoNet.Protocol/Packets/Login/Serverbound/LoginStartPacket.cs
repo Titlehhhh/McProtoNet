@@ -148,12 +148,6 @@ public sealed partial class LoginStartPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct V759_759Fields
     {
         public bool HasSignature { get; set; }

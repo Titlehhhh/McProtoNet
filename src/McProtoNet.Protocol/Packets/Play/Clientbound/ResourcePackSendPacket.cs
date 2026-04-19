@@ -1,23 +1,25 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("ResourcePackSend", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 764)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x39)]
+[PacketId(751, 754, 0x38)]
+[PacketId(755, 758, 0x3C)]
+[PacketId(759, 759, 0x3A)]
+[PacketId(760, 760, 0x3D)]
+[PacketId(761, 761, 0x3C)]
+[PacketId(762, 763, 0x40)]
+[PacketId(764, 764, 0x42)]
 public sealed partial class ResourcePackSendPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 754),
-        new(755, 764),
-    };
-
     public string Url { get; set; }
     public string Hash { get; set; }
-
-    public V755_764Fields? V755_764 { get; set; }
+    public bool? Forced { get; set; }
+    public string? PromptMessage { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
@@ -31,23 +33,14 @@ public sealed partial class ResourcePackSendPacket : IServerPacket
             }
             case >= 755 and <= 764:
             {
-                var fields = V755_764 ?? throw new InvalidOperationException("ResourcePackSend V755_764 fields missing.");
                 writer.WriteString(Url);
                 writer.WriteString(Hash);
-                writer.WriteBoolean(fields.Forced);
-                if (fields.PromptMessage is null)
-                {
-                    writer.WriteBoolean(false);
-                }
-                else
-                {
-                    writer.WriteBoolean(true);
-                    writer.WriteString(fields.PromptMessage);
-                }
+                writer.WriteBoolean(Forced.Value);
+                writer.WriteString(PromptMessage!);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ResourcePackSend), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ResourcePackSendPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -64,30 +57,15 @@ public sealed partial class ResourcePackSendPacket : IServerPacket
             }
             case >= 755 and <= 764:
             {
-                var fields = new V755_764Fields();
                 Url = reader.ReadString();
                 Hash = reader.ReadString();
-                fields.Forced = reader.ReadBoolean();
-                fields.PromptMessage = reader.ReadOptional(ReadDelegates.String);
-                V755_764 = fields;
+                Forced = reader.ReadBoolean();
+                PromptMessage = reader.ReadString();
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ResourcePackSend), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(ResourcePackSendPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct V755_764Fields
-    {
-        public bool Forced { get; set; }
-        public string? PromptMessage { get; set; }
-    }
-
 }

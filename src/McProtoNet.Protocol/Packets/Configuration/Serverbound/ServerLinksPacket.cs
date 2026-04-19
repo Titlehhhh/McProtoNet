@@ -59,12 +59,6 @@ public sealed partial class ServerLinksPacket : IClientPacket
         Links = array;
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct LinkEntry
     {
         public bool HasKnownType { get; set; }

@@ -1,52 +1,27 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("PlayerRotation", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, 769, 0x43)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x42)]
 public sealed partial class PlayerRotationPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol),
-    };
-
     public float Yaw { get; set; }
     public float Pitch { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteFloat(Yaw);
-                writer.WriteFloat(Pitch);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PlayerRotation), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteFloat(Yaw);
+        writer.WriteFloat(Pitch);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                Yaw = reader.ReadFloat();
-                Pitch = reader.ReadFloat();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.PlayerRotation), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Yaw = reader.ReadFloat();
+        Pitch = reader.ReadFloat();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -1,32 +1,31 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
-
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
-
 [PacketInfo("EndCombatEvent", PacketState.Play, PacketDirection.Clientbound)]
-public sealed partial class EndCombatEventPacket : IServerPacket
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x33)]
+[PacketId(759, 759, 0x31)]
+[PacketId(760, 760, 0x34)]
+[PacketId(761, 761, 0x32)]
+[PacketId(762, 763, 0x36)]
+[PacketId(764, 765, 0x38)]
+[PacketId(766, 767, 0x3A)]
+[PacketId(768, 769, 0x3C)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x3B)]
+public sealed partial class EndCombatEventPacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, 762),
-        new(763, MinecraftVersion.LatestProtocol),
-    };
-
     public int Duration { get; set; }
-    public int EntityId { get; set; }
-
-
+    public int? EntityId { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
         {
-            case >= 755 and <= 762:
+            case >= MinecraftVersion.StartProtocol and <= 762:
             {
                 writer.WriteVarInt(Duration);
-                writer.WriteSignedInt(EntityId);
+                writer.WriteSignedInt(EntityId ?? throw new InvalidOperationException("EndCombatEventPacket 755-762 fields missing."));
                 return;
             }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
@@ -35,7 +34,7 @@ public sealed partial class EndCombatEventPacket : IServerPacket
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EndCombatEvent), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EndCombatEventPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -44,7 +43,7 @@ public sealed partial class EndCombatEventPacket : IServerPacket
     {
         switch (protocolVersion)
         {
-            case >= 755 and <= 762:
+            case >= MinecraftVersion.StartProtocol and <= 762:
             {
                 Duration = reader.ReadVarInt();
                 EntityId = reader.ReadSignedInt();
@@ -56,16 +55,8 @@ public sealed partial class EndCombatEventPacket : IServerPacket
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.EndCombatEvent), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(EndCombatEventPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-
 }

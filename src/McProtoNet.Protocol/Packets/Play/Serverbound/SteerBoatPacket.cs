@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("SteerBoat", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x17)]
@@ -22,36 +24,7 @@ public sealed partial class SteerBoatPacket : IClientPacket
     public bool RightPaddle { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteBoolean(LeftPaddle);
-                writer.WriteBoolean(RightPaddle);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SteerBoatPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
+        => writer.WriteBoolean(LeftPaddle);
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                LeftPaddle = reader.ReadBoolean();
-                RightPaddle = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SteerBoatPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => LeftPaddle = reader.ReadBoolean();
 }

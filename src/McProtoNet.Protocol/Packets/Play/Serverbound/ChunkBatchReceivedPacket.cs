@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("ChunkBatchReceived", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [PacketId(764, 765, 0x07)]
@@ -10,49 +12,11 @@ using McProtoNet.Serialization;
 [PacketId(771, MinecraftVersion.LatestProtocol, 0x0A)]
 public sealed partial class ChunkBatchReceivedPacket : IClientPacket
 {
+    public float ChunksPerTick { get; set; }
+
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 763:
-                return;
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-            {
-                var fields = V764_Last ?? throw new InvalidOperationException("ChunkBatchReceivedPacket 764-last fields missing.");
-                writer.WriteFloat(fields.ChunksPerTick);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ChunkBatchReceivedPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteFloat(ChunksPerTick);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 763:
-                return;
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                V764_Last = new V764_LastFields { ChunksPerTick = reader.ReadFloat() };
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ChunkBatchReceivedPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public V764_LastFields? V764_Last { get; set; }
-
-    public struct V764_LastFields
-    {
-        public float ChunksPerTick { get; set; }
-    }
+        => ChunksPerTick = reader.ReadFloat();
 }

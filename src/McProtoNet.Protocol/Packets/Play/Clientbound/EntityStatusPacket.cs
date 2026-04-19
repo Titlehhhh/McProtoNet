@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("EntityStatus", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x1B)]
@@ -21,35 +23,13 @@ public sealed partial class EntityStatusPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedInt(EntityId);
-                writer.WriteSignedByte(EntityStatus);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityStatusPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteSignedInt(EntityId);
+        writer.WriteSignedByte(EntityStatus);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadSignedInt();
-                EntityStatus = reader.ReadSignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityStatusPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        EntityId = reader.ReadSignedInt();
+        EntityStatus = reader.ReadSignedByte();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

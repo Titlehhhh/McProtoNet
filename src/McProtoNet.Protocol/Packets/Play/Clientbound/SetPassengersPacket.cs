@@ -1,6 +1,9 @@
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
+
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("SetPassengers", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
@@ -22,35 +25,13 @@ public sealed partial class SetPassengersPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteArray(Passengers, LengthFormat.VarInt);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SetPassengersPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteVarIntArray(Passengers);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                Passengers = reader.ReadArray<int>(LengthFormat.VarInt);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SetPassengersPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        Passengers = reader.ReadVarIntArray(LengthFormat.VarInt);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

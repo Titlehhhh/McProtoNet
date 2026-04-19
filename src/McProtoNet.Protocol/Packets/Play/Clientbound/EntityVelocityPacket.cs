@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("EntityVelocity", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x46)]
@@ -24,41 +26,17 @@ public sealed partial class EntityVelocityPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteVarInt(EntityId);
-                writer.WriteSignedShort(VelocityX);
-                writer.WriteSignedShort(VelocityY);
-                writer.WriteSignedShort(VelocityZ);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityVelocityPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteSignedShort(VelocityX);
+        writer.WriteSignedShort(VelocityY);
+        writer.WriteSignedShort(VelocityZ);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                VelocityX = reader.ReadSignedShort();
-                VelocityY = reader.ReadSignedShort();
-                VelocityZ = reader.ReadSignedShort();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EntityVelocityPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        VelocityX = reader.ReadSignedShort();
+        VelocityY = reader.ReadSignedShort();
+        VelocityZ = reader.ReadSignedShort();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

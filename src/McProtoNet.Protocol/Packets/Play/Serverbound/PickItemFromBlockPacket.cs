@@ -1,52 +1,27 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("PickItemFromBlock", PacketState.Play, PacketDirection.Serverbound)]
-public sealed partial class PickItemFromBlockPacket : IClientPacket
+[ProtocolSupport(769, MinecraftVersion.LatestProtocol)]
+[PacketId(769, 770, 0x22)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x23)]
+public sealed partial class PickItemFromBlockPacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(769, MinecraftVersion.LatestProtocol)
-    };
-
-    public Position Position { get; set; }
+    public Position Name { get; set; } = default!;
     public bool IncludeData { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
         {
-            case >= 769 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePosition(position, protocolVersion);
-                writer.WriteBoolean(IncludeData);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PickItemFromBlock), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteType<Position>(Name, protocolVersion);
+            writer.WriteBoolean(IncludeData);
         }
-    }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
         {
-            case >= 769 and <= MinecraftVersion.LatestProtocol:
-                position, protocolVersion = reader.ReadPosition(protocolVersion);
-                IncludeData = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.PickItemFromBlock), protocolVersion, SupportedVersionsStatic);
-                return;
+            Name = reader.ReadType<Position>(protocolVersion);
+            IncludeData = reader.ReadBoolean();
         }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("KeepAlive", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x10)]
@@ -21,34 +23,8 @@ public sealed partial class KeepAlivePacket : IClientPacket
     public long KeepAliveId { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedLong(KeepAliveId);
-                break;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(KeepAlivePacket), protocolVersion, SupportedVersions);
-                break;
-        }
-    }
+        => writer.WriteSignedLong(KeepAliveId);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                KeepAliveId = reader.ReadSignedLong();
-                break;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(KeepAlivePacket), protocolVersion, SupportedVersions);
-                break;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => KeepAliveId = reader.ReadSignedLong();
 }

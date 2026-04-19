@@ -17,10 +17,4 @@ public sealed partial class KeepAlivePacket : IServerPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => KeepAliveId = reader.ReadSignedLong();
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

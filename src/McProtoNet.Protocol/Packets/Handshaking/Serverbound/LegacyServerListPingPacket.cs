@@ -16,10 +16,4 @@ public sealed partial class LegacyServerListPingPacket : IClientPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Payload = reader.ReadUnsignedByte();
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

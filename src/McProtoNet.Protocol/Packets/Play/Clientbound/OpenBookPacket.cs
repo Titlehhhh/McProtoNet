@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("OpenBook", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2D)]
@@ -17,40 +19,11 @@ using McProtoNet.Serialization;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x33)]
 public sealed partial class OpenBookPacket : IServerPacket
 {
-    public Slot Container { get; set; }
     public int Hand { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteType(Container, protocolVersion);
-                writer.WriteVarInt(Hand);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenBookPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteVarInt(Hand);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Container = reader.ReadType<Slot>(protocolVersion);
-                Hand = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenBookPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Hand = reader.ReadVarInt();
 }

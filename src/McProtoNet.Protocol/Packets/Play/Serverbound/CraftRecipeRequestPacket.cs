@@ -74,12 +74,6 @@ public sealed partial class CraftRecipeRequestPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct VFirst_767Fields
     {
         public sbyte WindowId { get; set; }

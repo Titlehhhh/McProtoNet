@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("SelectTrade", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x22)]
@@ -16,60 +18,11 @@ using McProtoNet.Serialization;
 [PacketId(771, MinecraftVersion.LatestProtocol, 0x32)]
 public sealed partial class SelectTradePacket : IClientPacket
 {
-    public List<TradeEntry> Trades { get; set; } = new();
+    public Slot Name { get; set; } = default!;
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteVarInt(Trades.Count);
-                foreach (var entry in Trades)
-                {
-                    writer.WriteType(entry.Slot, protocolVersion);
-                    writer.WriteVarInt(entry.SomeInt);
-                }
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SelectTradePacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteType<Slot>(Name, protocolVersion);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                var count = reader.ReadVarInt();
-                var list = new List<TradeEntry>(count);
-                for (int i = 0; i < count; i++)
-                {
-                    var slot = reader.ReadType<Slot>(protocolVersion);
-                    var someInt = reader.ReadVarInt();
-                    list.Add(new TradeEntry { Slot = slot, SomeInt = someInt });
-                }
-                Trades = list;
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SelectTradePacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct TradeEntry
-    {
-        public Slot Slot { get; set; }
-        public int SomeInt { get; set; }
-    }
+        => Name = reader.ReadType<Slot>(protocolVersion);
 }

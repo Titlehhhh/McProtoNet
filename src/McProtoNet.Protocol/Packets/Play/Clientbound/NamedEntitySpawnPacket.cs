@@ -1,17 +1,17 @@
-using System;
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("NamedEntitySpawn", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 763)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x04)]
+[PacketId(751, 758, 0x04)]
+[PacketId(759, 761, 0x02)]
+[PacketId(762, 763, 0x03)]
 public sealed partial class NamedEntitySpawnPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 763)
-    };
-
     public int EntityId { get; set; }
     public Guid PlayerUUID { get; set; }
     public double X { get; set; }
@@ -22,45 +22,23 @@ public sealed partial class NamedEntitySpawnPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 763:
-                writer.WriteVarInt(EntityId);
-                writer.WriteUUID(PlayerUUID);
-                writer.WriteDouble(X);
-                writer.WriteDouble(Y);
-                writer.WriteDouble(Z);
-                writer.WriteSignedByte(Yaw);
-                writer.WriteSignedByte(Pitch);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NamedEntitySpawn), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteUUID(PlayerUUID);
+        writer.WriteDouble(X);
+        writer.WriteDouble(Y);
+        writer.WriteDouble(Z);
+        writer.WriteSignedByte(Yaw);
+        writer.WriteSignedByte(Pitch);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= 763:
-                EntityId = reader.ReadVarInt();
-                PlayerUUID = reader.ReadUUID();
-                X = reader.ReadDouble();
-                Y = reader.ReadDouble();
-                Z = reader.ReadDouble();
-                Yaw = reader.ReadSignedByte();
-                Pitch = reader.ReadSignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NamedEntitySpawn), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        PlayerUUID = reader.ReadUUID();
+        X = reader.ReadDouble();
+        Y = reader.ReadDouble();
+        Z = reader.ReadDouble();
+        Yaw = reader.ReadSignedByte();
+        Pitch = reader.ReadSignedByte();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

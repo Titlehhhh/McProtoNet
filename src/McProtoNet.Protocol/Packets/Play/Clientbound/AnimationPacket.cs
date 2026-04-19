@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("Animation", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x05)]
@@ -18,35 +20,13 @@ public sealed partial class AnimationPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteUnsignedByte(Animation);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(AnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteUnsignedByte(Animation);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                Animation = reader.ReadUnsignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(AnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        Animation = reader.ReadUnsignedByte();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

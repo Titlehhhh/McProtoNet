@@ -1,6 +1,7 @@
 using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
@@ -12,48 +13,56 @@ public sealed partial class EncryptionBeginPacket : IServerPacket
     public string ServerId { get; set; }
     public byte[] PublicKey { get; set; }
     public byte[] VerifyToken { get; set; }
-    public bool? ShouldAuthenticate { get; set; }
+    public V766_LastFields? V766_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        writer.WriteString(ServerId);
-        writer.WriteBuffer<VarInt>(PublicKey);
-        writer.WriteBuffer<VarInt>(VerifyToken);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 765:
+            {
+                writer.WriteString(ServerId);
+                writer.WriteBuffer(PublicKey, LengthFormat.VarInt);
+                writer.WriteBuffer(VerifyToken, LengthFormat.VarInt);
                 return;
+            }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteBoolean(ShouldAuthenticate ?? false);
+            {
+                var fields = V766_Last ?? throw new InvalidOperationException("EncryptionBeginPacket 766-last fields missing.");
+                writer.WriteString(ServerId);
+                writer.WriteBuffer(PublicKey, LengthFormat.VarInt);
+                writer.WriteBuffer(VerifyToken, LengthFormat.VarInt);
+                writer.WriteBoolean(fields.ShouldAuthenticate);
                 return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EncryptionBeginPacket), protocolVersion, SupportedVersions);
-                return;
+            }
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        ServerId = reader.ReadString();
-        PublicKey = reader.ReadArray<byte>(LengthFormat.VarInt);
-        VerifyToken = reader.ReadArray<byte>(LengthFormat.VarInt);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 765:
-                ShouldAuthenticate = null;
+            {
+                ServerId = reader.ReadString();
+                PublicKey = reader.ReadBuffer(LengthFormat.VarInt);
+                VerifyToken = reader.ReadBuffer(LengthFormat.VarInt);
+                V766_Last = null;
                 return;
+            }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-                ShouldAuthenticate = reader.ReadBoolean();
+            {
+                ServerId = reader.ReadString();
+                PublicKey = reader.ReadBuffer(LengthFormat.VarInt);
+                VerifyToken = reader.ReadBuffer(LengthFormat.VarInt);
+                V766_Last = new V766_LastFields { ShouldAuthenticate = reader.ReadBoolean() };
                 return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(EncryptionBeginPacket), protocolVersion, SupportedVersions);
-                return;
+            }
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+    public struct V766_LastFields
+    {
+        public bool ShouldAuthenticate { get; set; }
+    }
 }

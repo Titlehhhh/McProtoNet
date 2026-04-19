@@ -1,49 +1,30 @@
-using System;
 using McProtoNet.Protocol;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("StoreCookie", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[PacketId(766, 767, 0x6B)]
+[PacketId(768, 769, 0x72)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x71)]
 public sealed partial class StoreCookiePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(766, MinecraftVersion.LatestProtocol)
-    };
-
-    public PacketCommonStoreCookie Data { get; set; } = null!;
+    public string Key { get; set; }
+    public byte[] Value { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                writer.WritePacketCommonStoreCookie(Data, protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.StoreCookie), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteString(Key);
+        writer.WriteVarInt(Value.Length);
+        writer.WriteBuffer(Value);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                Data = reader.ReadPacketCommonStoreCookie(protocolVersion);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.StoreCookie), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Key = reader.ReadString();
+        int len = reader.ReadVarInt();
+        Value = reader.ReadBuffer(len);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

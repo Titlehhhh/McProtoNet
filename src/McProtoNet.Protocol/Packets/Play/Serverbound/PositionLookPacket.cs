@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("PositionLook", PacketState.Play, PacketDirection.Serverbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 767)]
-[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x13)]
 [PacketId(751, 754, 0x13)]
 [PacketId(755, 758, 0x12)]
@@ -30,28 +31,23 @@ public sealed partial class PositionLookPacket : IClientPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteDouble(X);
+        writer.WriteDouble(Y);
+        writer.WriteDouble(Z);
+        writer.WriteFloat(Yaw);
+        writer.WriteFloat(Pitch);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
             {
-                writer.WriteDouble(this.X);
-                writer.WriteDouble(this.Y);
-                writer.WriteDouble(this.Z);
-                writer.WriteFloat(this.Yaw);
-                writer.WriteFloat(this.Pitch);
-                var fields = VFirst_767 ?? throw new InvalidOperationException("PositionLookPacket first-767 fields missing.");
+                var fields = VFirst_767 ?? throw new InvalidOperationException("PositionLookPacket 0-767 fields missing.");
                 writer.WriteBoolean(fields.OnGround);
                 return;
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteDouble(this.X);
-                writer.WriteDouble(this.Y);
-                writer.WriteDouble(this.Z);
-                writer.WriteFloat(this.Yaw);
-                writer.WriteFloat(this.Pitch);
                 var fields = V768_Last ?? throw new InvalidOperationException("PositionLookPacket 768-last fields missing.");
-                writer.WriteType(fields.Flags, protocolVersion);
+                writer.WriteType<MovementFlags>(fields.Flags, protocolVersion);
                 return;
             }
             default:
@@ -62,37 +58,30 @@ public sealed partial class PositionLookPacket : IClientPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        X = reader.ReadDouble();
+        Y = reader.ReadDouble();
+        Z = reader.ReadDouble();
+        Yaw = reader.ReadFloat();
+        Pitch = reader.ReadFloat();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
-                this.X = reader.ReadDouble();
-                this.Y = reader.ReadDouble();
-                this.Z = reader.ReadDouble();
-                this.Yaw = reader.ReadFloat();
-                this.Pitch = reader.ReadFloat();
-                this.VFirst_767 = new VFirst_767Fields { OnGround = reader.ReadBoolean() };
-                this.V768_Last = null;
+            {
+                VFirst_767 = new VFirst_767Fields { OnGround = reader.ReadBoolean() };
+                V768_Last = null;
                 return;
+            }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
-                this.X = reader.ReadDouble();
-                this.Y = reader.ReadDouble();
-                this.Z = reader.ReadDouble();
-                this.Yaw = reader.ReadFloat();
-                this.Pitch = reader.ReadFloat();
-                this.V768_Last = new V768_LastFields { Flags = reader.ReadType<MovementFlags>(protocolVersion) };
-                this.VFirst_767 = null;
+            {
+                V768_Last = new V768_LastFields { Flags = reader.ReadType<MovementFlags>(protocolVersion) };
+                VFirst_767 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(PositionLookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct VFirst_767Fields { public bool OnGround { get; set; } }
     public struct V768_LastFields { public MovementFlags Flags { get; set; } }

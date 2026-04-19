@@ -1,55 +1,31 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("GenerateStructure", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x0F)]
+[PacketId(751, 754, 0x0F)]
+[PacketId(755, 758, 0x0E)]
+[PacketId(759, 759, 0x10)]
+[PacketId(760, 760, 0x11)]
+[PacketId(761, 761, 0x10)]
+[PacketId(762, 763, 0x11)]
+[PacketId(764, 764, 0x13)]
+[PacketId(765, 765, 0x14)]
+[PacketId(766, 767, 0x17)]
+[PacketId(768, 770, 0x19)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x1A)]
 public sealed partial class GenerateStructurePacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
-    public Position Location { get; set; }
+    public Position Name { get; set; } = default!;
     public int Levels { get; set; }
     public bool KeepJigsaws { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WritePosition(location, protocolVersion);
-                writer.WriteVarInt(Levels);
-                writer.WriteBoolean(KeepJigsaws);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.GenerateStructure), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
+        => writer.WriteType(Name, protocolVersion);
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                location, protocolVersion = reader.ReadPosition(protocolVersion);
-                Levels = reader.ReadVarInt();
-                KeepJigsaws = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.GenerateStructure), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Name = reader.ReadType<Position>(protocolVersion);
 }

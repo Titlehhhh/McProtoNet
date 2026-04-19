@@ -1,18 +1,15 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("SyncEntityPosition", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, 769, 0x20)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x1F)]
 public sealed partial class SyncEntityPositionPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol),
-    };
-
     public int EntityId { get; set; }
     public double X { get; set; }
     public double Y { get; set; }
@@ -25,52 +22,7 @@ public sealed partial class SyncEntityPositionPacket : IServerPacket
     public bool OnGround { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteDouble(X);
-                writer.WriteDouble(Y);
-                writer.WriteDouble(Z);
-                writer.WriteDouble(Dx);
-                writer.WriteDouble(Dy);
-                writer.WriteDouble(Dz);
-                writer.WriteFloat(Yaw);
-                writer.WriteFloat(Pitch);
-                writer.WriteBoolean(OnGround);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SyncEntityPosition), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
+        => writer.WriteVarInt(EntityId);
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                X = reader.ReadDouble();
-                Y = reader.ReadDouble();
-                Z = reader.ReadDouble();
-                Dx = reader.ReadDouble();
-                Dy = reader.ReadDouble();
-                Dz = reader.ReadDouble();
-                Yaw = reader.ReadFloat();
-                Pitch = reader.ReadFloat();
-                OnGround = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SyncEntityPosition), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => EntityId = reader.ReadVarInt();
 }

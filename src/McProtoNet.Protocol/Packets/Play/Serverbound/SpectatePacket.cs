@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("Spectate", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2C)]
@@ -16,37 +18,15 @@ using McProtoNet.Serialization;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x3D)]
 public sealed partial class SpectatePacket : IClientPacket
 {
-    public Guid Target { get; set; }
+    public UUID Target { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteUUID(Target);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SpectatePacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteUUID(Target);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Target = reader.ReadUUID();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(SpectatePacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        Target = reader.ReadUUID();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -207,12 +207,6 @@ public sealed partial class ChatCommandPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct V759Fields
     {
         public long Timestamp { get; set; }

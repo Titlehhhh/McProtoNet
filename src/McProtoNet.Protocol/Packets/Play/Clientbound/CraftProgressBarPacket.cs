@@ -1,87 +1,56 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("CraftProgressBar", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x15)]
+[PacketId(751, 754, 0x14)]
+[PacketId(755, 758, 0x15)]
+[PacketId(759, 760, 0x12)]
+[PacketId(761, 761, 0x11)]
+[PacketId(762, 763, 0x13)]
+[PacketId(764, 769, 0x14)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x13)]
 public sealed partial class CraftProgressBarPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 765),
-        new(766, MinecraftVersion.LatestProtocol),
-    };
-
+    public byte WindowId { get; set; }
     public short Property { get; set; }
     public short Value { get; set; }
-    public int WindowId { get; set; }
-
-
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteUnsignedByte(WindowId);
+        writer.WriteSignedShort(Property);
+        writer.WriteSignedShort(Value);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 765:
-            {
-                writer.WriteUnsignedByte(WindowId);
-                writer.WriteSignedShort(Property);
-                writer.WriteSignedShort(Value);
                 return;
-            }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-            {
-                if (protocolVersion <= 767)
-                {
-                    writer.WriteUnsignedByte((byte)WindowId);
-                }
-                else
-                {
-                    writer.WriteVarInt(WindowId);
-                }
-                writer.WriteSignedShort(Property);
-                writer.WriteSignedShort(Value);
                 return;
-            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CraftProgressBar), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(CraftProgressBarPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        WindowId = reader.ReadUnsignedByte();
+        Property = reader.ReadSignedShort();
+        Value = reader.ReadSignedShort();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 765:
-            {
-                WindowId = reader.ReadUnsignedByte();
-                Property = reader.ReadSignedShort();
-                Value = reader.ReadSignedShort();
                 return;
-            }
             case >= 766 and <= MinecraftVersion.LatestProtocol:
-            {
-                WindowId = protocolVersion <= 767
-                    ? reader.ReadUnsignedByte()
-                    : reader.ReadVarInt();
-                Property = reader.ReadSignedShort();
-                Value = reader.ReadSignedShort();
                 return;
-            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.CraftProgressBar), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(CraftProgressBarPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-
 }

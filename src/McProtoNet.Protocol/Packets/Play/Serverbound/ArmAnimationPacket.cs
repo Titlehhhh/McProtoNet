@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("ArmAnimation", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2B)]
@@ -17,37 +19,11 @@ using McProtoNet.Serialization;
 [PacketId(771, MinecraftVersion.LatestProtocol, 0x3C)]
 public sealed partial class ArmAnimationPacket : IClientPacket
 {
-    public int Hand { get; set; }
+    public int Name { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Hand);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ArmAnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
+        => writer.WriteVarInt(Name);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Hand = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ArmAnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Name = reader.ReadVarInt();
 }

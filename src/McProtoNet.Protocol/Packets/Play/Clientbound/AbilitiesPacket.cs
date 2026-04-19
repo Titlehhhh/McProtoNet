@@ -19,47 +19,21 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x39)]
 public sealed partial class AbilitiesPacket : IServerPacket
 {
+    public sbyte Flags { get; set; }
+    public float FlyingSpeed { get; set; }
+    public float WalkingSpeed { get; set; }
+
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                writer.WriteSignedByte(Flags);
-                writer.WriteFloat(FlyingSpeed);
-                writer.WriteFloat(WalkingSpeed);
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(AbilitiesPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteSignedByte(Flags);
+        writer.WriteFloat(FlyingSpeed);
+        writer.WriteFloat(WalkingSpeed);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-            {
-                Flags = reader.ReadSignedByte();
-                FlyingSpeed = reader.ReadFloat();
-                WalkingSpeed = reader.ReadFloat();
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(AbilitiesPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        Flags = reader.ReadSignedByte();
+        FlyingSpeed = reader.ReadFloat();
+        WalkingSpeed = reader.ReadFloat();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public sbyte Flags { get; set; }
-    public float FlyingSpeed { get; set; }
-    public float WalkingSpeed { get; set; }
 }

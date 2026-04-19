@@ -1,49 +1,28 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("WorldBorderWarningDelay", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x45)]
+[PacketId(759, 759, 0x44)]
+[PacketId(760, 760, 0x47)]
+[PacketId(761, 761, 0x46)]
+[PacketId(762, 763, 0x4A)]
+[PacketId(764, 764, 0x4C)]
+[PacketId(765, 765, 0x4E)]
+[PacketId(766, 767, 0x50)]
+[PacketId(768, 769, 0x55)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x54)]
 public sealed partial class WorldBorderWarningDelayPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, MinecraftVersion.LatestProtocol),
-    };
-
     public int WarningTime { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(WarningTime);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningDelay), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteVarInt(WarningTime);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                WarningTime = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningDelay), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => WarningTime = reader.ReadVarInt();
 }

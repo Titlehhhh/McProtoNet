@@ -1,55 +1,41 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("Collect", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x55)]
+[PacketId(751, 754, 0x55)]
+[PacketId(755, 756, 0x60)]
+[PacketId(757, 758, 0x61)]
+[PacketId(759, 759, 0x62)]
+[PacketId(760, 760, 0x65)]
+[PacketId(761, 761, 0x63)]
+[PacketId(762, 763, 0x67)]
+[PacketId(764, 764, 0x6A)]
+[PacketId(765, 765, 0x6C)]
+[PacketId(766, 767, 0x6F)]
+[PacketId(768, 769, 0x76)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x75)]
 public sealed partial class CollectPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public int CollectedEntityId { get; set; }
     public int CollectorEntityId { get; set; }
     public int PickupItemCount { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(CollectedEntityId);
-                writer.WriteVarInt(CollectorEntityId);
-                writer.WriteVarInt(PickupItemCount);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Collect), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(CollectedEntityId);
+        writer.WriteVarInt(CollectorEntityId);
+        writer.WriteVarInt(PickupItemCount);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                CollectedEntityId = reader.ReadVarInt();
-                CollectorEntityId = reader.ReadVarInt();
-                PickupItemCount = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Collect), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        CollectedEntityId = reader.ReadVarInt();
+        CollectorEntityId = reader.ReadVarInt();
+        PickupItemCount = reader.ReadVarInt();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

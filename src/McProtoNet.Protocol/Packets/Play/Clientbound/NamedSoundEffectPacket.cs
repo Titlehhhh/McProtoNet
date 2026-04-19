@@ -1,19 +1,18 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("NamedSoundEffect", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 760)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x19)]
+[PacketId(751, 754, 0x18)]
+[PacketId(755, 758, 0x19)]
+[PacketId(759, 759, 0x16)]
+[PacketId(760, 760, 0x17)]
 public sealed partial class NamedSoundEffectPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-        new(759, 760),
-    };
-
     public string SoundName { get; set; }
     public int SoundCategory { get; set; }
     public int X { get; set; }
@@ -29,7 +28,6 @@ public sealed partial class NamedSoundEffectPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
-            {
                 writer.WriteString(SoundName);
                 writer.WriteVarInt(SoundCategory);
                 writer.WriteSignedInt(X);
@@ -38,10 +36,9 @@ public sealed partial class NamedSoundEffectPacket : IServerPacket
                 writer.WriteFloat(Volume);
                 writer.WriteFloat(Pitch);
                 return;
-            }
+
             case >= 759 and <= 760:
             {
-                var fields = V759_760 ?? throw new InvalidOperationException("NamedSoundEffect V759_760 fields missing.");
                 writer.WriteString(SoundName);
                 writer.WriteVarInt(SoundCategory);
                 writer.WriteSignedInt(X);
@@ -49,11 +46,12 @@ public sealed partial class NamedSoundEffectPacket : IServerPacket
                 writer.WriteSignedInt(Z);
                 writer.WriteFloat(Volume);
                 writer.WriteFloat(Pitch);
+                var fields = V759_760 ?? throw new InvalidOperationException("NamedSoundEffectPacket 759-760 fields missing.");
                 writer.WriteSignedLong(fields.Seed);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NamedSoundEffect), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(NamedSoundEffectPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -71,11 +69,11 @@ public sealed partial class NamedSoundEffectPacket : IServerPacket
                 Z = reader.ReadSignedInt();
                 Volume = reader.ReadFloat();
                 Pitch = reader.ReadFloat();
+                V759_760 = null;
                 return;
             }
             case >= 759 and <= 760:
             {
-                var fields = new V759_760Fields();
                 SoundName = reader.ReadString();
                 SoundCategory = reader.ReadVarInt();
                 X = reader.ReadSignedInt();
@@ -83,25 +81,17 @@ public sealed partial class NamedSoundEffectPacket : IServerPacket
                 Z = reader.ReadSignedInt();
                 Volume = reader.ReadFloat();
                 Pitch = reader.ReadFloat();
-                fields.Seed = reader.ReadSignedLong();
-                V759_760 = fields;
+                V759_760 = new V759_760Fields { Seed = reader.ReadSignedLong() };
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.NamedSoundEffect), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(NamedSoundEffectPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct V759_760Fields
     {
         public long Seed { get; set; }
     }
-
 }

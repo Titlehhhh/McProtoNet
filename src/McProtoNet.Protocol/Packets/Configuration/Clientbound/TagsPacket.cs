@@ -18,10 +18,4 @@ public sealed partial class TagsPacket : IServerPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Tags = reader.ReadArray<Tags>(LengthFormat.VarInt, protocolVersion);
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

@@ -5,8 +5,7 @@ using McProtoNet.Serialization;
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("HeldItemSlot", PacketState.Play, PacketDirection.Clientbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 768)]
-[ProtocolSupport(769, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x3F)]
 [PacketId(751, 754, 0x3F)]
 [PacketId(755, 758, 0x48)]
@@ -21,9 +20,6 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x62)]
 public sealed partial class HeldItemSlotPacket : IServerPacket
 {
-    public VFirst_768Fields? VFirst_768 { get; set; }
-    public V769_LastFields? V769_Last { get; set; }
-
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         switch (protocolVersion)
@@ -51,23 +47,33 @@ public sealed partial class HeldItemSlotPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 768:
+            {
                 VFirst_768 = new VFirst_768Fields { Slot = reader.ReadSignedByte() };
+                V769_Last = null;
                 return;
+            }
             case >= 769 and <= MinecraftVersion.LatestProtocol:
+            {
                 V769_Last = new V769_LastFields { Slot = reader.ReadVarInt() };
+                VFirst_768 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(HeldItemSlotPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
+    public VFirst_768Fields? VFirst_768 { get; set; }
+    public V769_LastFields? V769_Last { get; set; }
 
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+    public struct VFirst_768Fields
+    {
+        public sbyte Slot { get; set; }
+    }
 
-    public struct VFirst_768Fields { public sbyte Slot { get; set; } }
-    public struct V769_LastFields { public int Slot { get; set; } }
+    public struct V769_LastFields
+    {
+        public int Slot { get; set; }
+    }
 }

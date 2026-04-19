@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("NameItem", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x1F)]
@@ -16,37 +18,15 @@ using McProtoNet.Serialization;
 [PacketId(771, MinecraftVersion.LatestProtocol, 0x2F)]
 public sealed partial class NameItemPacket : IClientPacket
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Name);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(NameItemPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteString(Name);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Name = reader.ReadString();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(NameItemPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        Name = reader.ReadString();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

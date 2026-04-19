@@ -1,60 +1,32 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("ResetScore", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(765, MinecraftVersion.LatestProtocol)]
+[PacketId(765, 765, 0x42)]
+[PacketId(766, 767, 0x44)]
+[PacketId(768, 769, 0x49)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x48)]
 public sealed partial class ResetScorePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(765, MinecraftVersion.LatestProtocol),
-    };
-
     public string EntityName { get; set; }
     public string? ObjectiveName { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 765 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(EntityName);
-                if (ObjectiveName is null)
-                {
-                    writer.WriteBoolean(false);
-                }
-                else
-                {
-                    writer.WriteBoolean(true);
-                    writer.WriteString(ObjectiveName);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ResetScore), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteString(EntityName);
+        writer.WriteBoolean(ObjectiveName != null);
+        if (ObjectiveName != null)
+            writer.WriteString(ObjectiveName);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 765 and <= MinecraftVersion.LatestProtocol:
-                EntityName = reader.ReadString();
-                ObjectiveName = reader.ReadOptional(ReadDelegates.String);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ResetScore), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        EntityName = reader.ReadString();
+        bool hasObjective = reader.ReadBoolean();
+        ObjectiveName = hasObjective ? reader.ReadString() : null;
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

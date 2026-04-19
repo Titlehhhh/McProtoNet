@@ -1,8 +1,10 @@
 using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 
 namespace McProtoNet.Protocol;
 
-public readonly struct ChunkBlockEntity
+[ProtocolSupport(757,  MinecraftVersion.LatestProtocol)]
+public readonly partial struct ChunkBlockEntity
 {
     public readonly byte X;
     public readonly byte Z;

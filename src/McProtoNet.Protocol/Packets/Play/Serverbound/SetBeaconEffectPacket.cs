@@ -78,12 +78,6 @@ public sealed partial class SetBeaconEffectPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct VFirst_758Fields
     {
         public int PrimaryEffect { get; set; }

@@ -1,49 +1,32 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("WorldBorderWarningReach", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x46)]
+[PacketId(759, 759, 0x45)]
+[PacketId(760, 760, 0x48)]
+[PacketId(761, 761, 0x47)]
+[PacketId(762, 763, 0x4B)]
+[PacketId(764, 764, 0x4D)]
+[PacketId(765, 765, 0x4F)]
+[PacketId(766, 767, 0x51)]
+[PacketId(768, 769, 0x56)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x55)]
 public sealed partial class WorldBorderWarningReachPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, MinecraftVersion.LatestProtocol),
-    };
-
     public int WarningBlocks { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(WarningBlocks);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningReach), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(WarningBlocks);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                WarningBlocks = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderWarningReach), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        WarningBlocks = reader.ReadVarInt();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

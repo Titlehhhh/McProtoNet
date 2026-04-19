@@ -1,52 +1,20 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("ChatPreview", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(759, 760)]
+[PacketId(759, 759, 0x05)]
+[PacketId(760, 760, 0x06)]
 public sealed partial class ChatPreviewPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(759, 760)
-    };
-
-    public int Query { get; set; }
+    public int Name { get; set; }
     public string Message { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 759 and <= 760:
-                writer.WriteSignedInt(Query);
-                writer.WriteString(Message);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatPreview), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
+        => writer.WriteSignedInt(Name);
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 759 and <= 760:
-                Query = reader.ReadSignedInt();
-                Message = reader.ReadString();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.ChatPreview), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Name = reader.ReadSignedInt();
 }

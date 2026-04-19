@@ -1,49 +1,24 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("ClearTitles", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x10)]
+[PacketId(759, 760, 0x0D)]
+[PacketId(761, 761, 0x0C)]
+[PacketId(762, 763, 0x0E)]
+[PacketId(764, 769, 0x0F)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x0E)]
 public sealed partial class ClearTitlesPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, MinecraftVersion.LatestProtocol),
-    };
-
     public bool Reset { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteBoolean(Reset);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ClearTitles), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteBoolean(Reset);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 755 and <= MinecraftVersion.LatestProtocol:
-                Reset = reader.ReadBoolean();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ClearTitles), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Reset = reader.ReadBoolean();
 }

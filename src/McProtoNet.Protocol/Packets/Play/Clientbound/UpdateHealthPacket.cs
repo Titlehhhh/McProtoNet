@@ -1,55 +1,39 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("UpdateHealth", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x49)]
+[PacketId(751, 754, 0x49)]
+[PacketId(755, 759, 0x52)]
+[PacketId(760, 760, 0x55)]
+[PacketId(761, 761, 0x53)]
+[PacketId(762, 763, 0x57)]
+[PacketId(764, 764, 0x59)]
+[PacketId(765, 765, 0x5B)]
+[PacketId(766, 767, 0x5D)]
+[PacketId(768, 769, 0x62)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x61)]
 public sealed partial class UpdateHealthPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public float Health { get; set; }
     public int Food { get; set; }
     public float FoodSaturation { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteFloat(Health);
-                writer.WriteVarInt(Food);
-                writer.WriteFloat(FoodSaturation);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.UpdateHealth), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteFloat(Health);
+        writer.WriteVarInt(Food);
+        writer.WriteFloat(FoodSaturation);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Health = reader.ReadFloat();
-                Food = reader.ReadVarInt();
-                FoodSaturation = reader.ReadFloat();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.UpdateHealth), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Health = reader.ReadFloat();
+        Food = reader.ReadVarInt();
+        FoodSaturation = reader.ReadFloat();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

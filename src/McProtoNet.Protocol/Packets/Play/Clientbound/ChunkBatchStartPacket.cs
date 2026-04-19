@@ -1,49 +1,16 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("ChunkBatchStart", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 769, 0x0D)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x0C)]
 public sealed partial class ChunkBatchStartPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol),
-    };
+    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion) { }
 
-    
-
-    internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ChunkBatchStart), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ChunkBatchStart), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+    internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion) { }
 }

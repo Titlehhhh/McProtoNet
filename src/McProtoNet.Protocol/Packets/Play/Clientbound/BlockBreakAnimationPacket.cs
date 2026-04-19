@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("BlockBreakAnimation", PacketState.Play, PacketDirection.Clientbound)]
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x08)]
@@ -19,37 +21,15 @@ public sealed partial class BlockBreakAnimationPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(EntityId);
-                writer.WriteType(Location, protocolVersion);
-                writer.WriteSignedByte(DestroyStage);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockBreakAnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        writer.WriteVarInt(EntityId);
+        writer.WriteType<Position>(Location, protocolVersion);
+        writer.WriteSignedByte(DestroyStage);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                EntityId = reader.ReadVarInt();
-                Location = reader.ReadType<Position>(protocolVersion);
-                DestroyStage = reader.ReadSignedByte();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockBreakAnimationPacket), protocolVersion, SupportedVersions);
-                return;
-        }
+        EntityId = reader.ReadVarInt();
+        Location = reader.ReadType<Position>(protocolVersion);
+        DestroyStage = reader.ReadSignedByte();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

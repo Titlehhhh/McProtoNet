@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("OpenSignEntity", PacketState.Play, PacketDirection.Clientbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 762)]
-[ProtocolSupport(763, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2F)]
 [PacketId(751, 754, 0x2E)]
 [PacketId(755, 758, 0x2F)]
@@ -26,12 +27,14 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 762:
-                writer.WriteType(Location, protocolVersion);
+            {
+                writer.WriteType<Position>(Location, protocolVersion);
                 return;
+            }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
             {
+                writer.WriteType<Position>(Location, protocolVersion);
                 var fields = V763_Last ?? throw new InvalidOperationException("OpenSignEntityPacket 763-last fields missing.");
-                writer.WriteType(Location, protocolVersion);
                 writer.WriteBoolean(fields.IsFrontText);
                 return;
             }
@@ -46,24 +49,22 @@ public sealed partial class OpenSignEntityPacket : IServerPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 762:
+            {
                 Location = reader.ReadType<Position>(protocolVersion);
                 V763_Last = null;
                 return;
+            }
             case >= 763 and <= MinecraftVersion.LatestProtocol:
+            {
                 Location = reader.ReadType<Position>(protocolVersion);
                 V763_Last = new V763_LastFields { IsFrontText = reader.ReadBoolean() };
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(OpenSignEntityPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct V763_LastFields
     {

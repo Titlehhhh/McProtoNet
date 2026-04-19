@@ -1,80 +1,73 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("SetProjectilePower", PacketState.Play, PacketDirection.Clientbound)]
-public sealed partial class SetProjectilePowerPacket : IServerPacket
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[PacketId(766, 767, 0x79)]
+[PacketId(768, MinecraftVersion.LatestProtocol, 0x80)]
+public sealed partial class SetProjectilePowerPacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(766, 766),
-        new(767, MinecraftVersion.LatestProtocol),
-    };
-
     public int Id { get; set; }
-    public Vec3f64 Power { get; set; }
 
+    public V766_766Fields? V766_766 { get; set; }
     public V767_LastFields? V767_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteVarInt(Id);
         switch (protocolVersion)
         {
-            case >= 766 and <= 766:
+            case 766:
             {
-                writer.WriteVarInt(Id);
-                writer.WriteVec3f64(Power, protocolVersion);
+                var fields = V766_766 ?? throw new InvalidOperationException("SetProjectilePowerPacket 766-766 fields missing.");
+                writer.WriteType<Vec3f64>(fields.Power, protocolVersion);
                 return;
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V767_Last ?? throw new InvalidOperationException("SetProjectilePower V767_Last fields missing.");
-                writer.WriteVarInt(Id);
+                var fields = V767_Last ?? throw new InvalidOperationException("SetProjectilePowerPacket 767-last fields missing.");
                 writer.WriteDouble(fields.AccelerationPower);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetProjectilePower), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetProjectilePowerPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        Id = reader.ReadVarInt();
         switch (protocolVersion)
         {
-            case >= 766 and <= 766:
+            case 766:
             {
-                Id = reader.ReadVarInt();
-                Power = reader.ReadVec3f64(protocolVersion);
+                V766_766 = new V766_766Fields { Power = reader.ReadType<Vec3f64>(protocolVersion) };
+                V767_Last = null;
                 return;
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V767_LastFields();
-                Id = reader.ReadVarInt();
-                fields.AccelerationPower = reader.ReadDouble();
-                V767_Last = fields;
+                V767_Last = new V767_LastFields { AccelerationPower = reader.ReadDouble() };
+                V766_766 = null;
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.SetProjectilePower), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(SetProjectilePowerPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+    public struct V766_766Fields
+    {
+        public Vec3f64 Power { get; set; }
+    }
 
     public struct V767_LastFields
     {
         public double AccelerationPower { get; set; }
     }
-
 }

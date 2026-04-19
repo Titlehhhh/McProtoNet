@@ -18,10 +18,4 @@ public sealed partial class FeatureFlagsPacket : IServerPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
         => Features = reader.ReadArray<string>(LengthFormat.VarInt);
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

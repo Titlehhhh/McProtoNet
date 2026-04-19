@@ -1,49 +1,21 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("DebugSampleSubscription", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[PacketId(766, 767, 0x13)]
+[PacketId(768, 770, 0x15)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x16)]
 public sealed partial class DebugSampleSubscriptionPacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(766, MinecraftVersion.LatestProtocol)
-    };
-
-    public int Type { get; set; }
+    public int Name { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Type);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DebugSampleSubscription), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteVarInt(Name);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 766 and <= MinecraftVersion.LatestProtocol:
-                Type = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.DebugSampleSubscription), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Name = reader.ReadVarInt();
 }

@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("ScoreboardDisplayObjective", PacketState.Play, PacketDirection.Clientbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 763)]
-[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x43)]
 [PacketId(751, 754, 0x43)]
 [PacketId(755, 759, 0x4C)]
@@ -25,18 +26,17 @@ public sealed partial class ScoreboardDisplayObjectivePacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteString(Name);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 763:
             {
-                writer.WriteString(Name);
-                var fields = VFirst_763 ?? throw new InvalidOperationException("ScoreboardDisplayObjectivePacket first-763 fields missing.");
+                var fields = VFirst_763 ?? throw new InvalidOperationException("ScoreboardDisplayObjectivePacket 1-763 fields missing.");
                 writer.WriteSignedByte(fields.Position);
                 return;
             }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteString(Name);
                 var fields = V764_Last ?? throw new InvalidOperationException("ScoreboardDisplayObjectivePacket 764-last fields missing.");
                 writer.WriteVarInt(fields.Position);
                 return;
@@ -49,29 +49,24 @@ public sealed partial class ScoreboardDisplayObjectivePacket : IServerPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        Name = reader.ReadString();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 763:
-                Name = reader.ReadString();
+            {
                 VFirst_763 = new VFirst_763Fields { Position = reader.ReadSignedByte() };
-                V764_Last = null;
                 return;
+            }
             case >= 764 and <= MinecraftVersion.LatestProtocol:
-                Name = reader.ReadString();
+            {
                 V764_Last = new V764_LastFields { Position = reader.ReadVarInt() };
-                VFirst_763 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(ScoreboardDisplayObjectivePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct VFirst_763Fields { public sbyte Position { get; set; } }
     public struct V764_LastFields { public int Position { get; set; } }

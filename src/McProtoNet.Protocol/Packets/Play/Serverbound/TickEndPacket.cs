@@ -2,6 +2,8 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("TickEnd", PacketState.Play, PacketDirection.Serverbound)]
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 [PacketId(768, 770, 0x0B)]
@@ -14,8 +16,11 @@ public sealed partial class TickEndPacket : IClientPacket
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
                 return;
+
             case >= 768 and <= MinecraftVersion.LatestProtocol:
+            { 
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(TickEndPacket), protocolVersion, SupportedVersions);
                 return;
@@ -35,10 +40,4 @@ public sealed partial class TickEndPacket : IClientPacket
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

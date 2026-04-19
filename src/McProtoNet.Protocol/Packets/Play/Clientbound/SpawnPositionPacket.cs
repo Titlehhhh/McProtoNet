@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [PacketInfo("SpawnPosition", PacketState.Play, PacketDirection.Clientbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
-[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x42)]
 [PacketId(751, 754, 0x42)]
 [PacketId(755, 758, 0x4B)]
@@ -19,20 +20,16 @@ using McProtoNet.Serialization;
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x5A)]
 public sealed partial class SpawnPositionPacket : IServerPacket
 {
-    public Position Location { get; set; }
-    public V755_LastFields? V755_Last { get; set; }
-
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteType<Position>(Location, protocolVersion);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 754:
-                writer.WriteType(Location, protocolVersion);
                 return;
             case >= 755 and <= MinecraftVersion.LatestProtocol:
             {
                 var fields = V755_Last ?? throw new InvalidOperationException("SpawnPositionPacket 755-last fields missing.");
-                writer.WriteType(Location, protocolVersion);
                 writer.WriteFloat(fields.Angle);
                 return;
             }
@@ -44,27 +41,24 @@ public sealed partial class SpawnPositionPacket : IServerPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        Location = reader.ReadType<Position>(protocolVersion);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 754:
-                Location = reader.ReadType<Position>(protocolVersion);
-                V755_Last = null;
                 return;
             case >= 755 and <= MinecraftVersion.LatestProtocol:
-                Location = reader.ReadType<Position>(protocolVersion);
+            {
                 V755_Last = new V755_LastFields { Angle = reader.ReadFloat() };
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(SpawnPositionPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+    public Position Location { get; set; }
+    public V755_LastFields? V755_Last { get; set; }
 
     public struct V755_LastFields { public float Angle { get; set; } }
 }

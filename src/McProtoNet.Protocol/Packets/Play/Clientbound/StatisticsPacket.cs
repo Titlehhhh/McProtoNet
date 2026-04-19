@@ -1,75 +1,48 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("Statistics", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x06)]
+[PacketId(751, 754, 0x06)]
+[PacketId(755, 758, 0x07)]
+[PacketId(759, 761, 0x04)]
+[PacketId(762, 763, 0x05)]
+[PacketId(764, 769, 0x04)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x03)]
 public sealed partial class StatisticsPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
-    public StatisticEntry[] Entries { get; set; } = Array.Empty<StatisticEntry>();
+    public StatisticEntry[] Entries { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(Entries.Length);
+        foreach (var entry in Entries)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(Entries.Length);
-                for (int i = 0; i < Entries.Length; i++)
-                {
-                    writer.WriteVarInt(Entries[i].CategoryId);
-                    writer.WriteVarInt(Entries[i].StatisticId);
-                    writer.WriteVarInt(Entries[i].Value);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Statistics), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteVarInt(entry.CategoryId);
+            writer.WriteVarInt(entry.StatisticId);
+            writer.WriteVarInt(entry.Value);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        int count = reader.ReadVarInt();
+        var entries = new StatisticEntry[count];
+        for (int i = 0; i < count; i++)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
+            entries[i] = new StatisticEntry
             {
-                int length = reader.ReadVarInt();
-                if (length == 0)
-                {
-                    Entries = Array.Empty<StatisticEntry>();
-                    return;
-                }
-
-                var entries = new StatisticEntry[length];
-                for (int i = 0; i < entries.Length; i++)
-                {
-                    entries[i] = new StatisticEntry
-                    {
-                        CategoryId = reader.ReadVarInt(),
-                        StatisticId = reader.ReadVarInt(),
-                        Value = reader.ReadVarInt()
-                    };
-                }
-                Entries = entries;
-                return;
-            }
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.Statistics), protocolVersion, SupportedVersionsStatic);
-                return;
+                CategoryId = reader.ReadVarInt(),
+                StatisticId = reader.ReadVarInt(),
+                Value = reader.ReadVarInt()
+            };
         }
+        Entries = entries;
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct StatisticEntry
     {

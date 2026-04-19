@@ -1,53 +1,20 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("FeatureFlags", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(761, 763)]
+[PacketId(761, 761, 0x67)]
+[PacketId(762, 763, 0x6B)]
 public sealed partial class FeatureFlagsPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(761, 763),
-    };
-
     public string[] Features { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 761 and <= 763:
-                writer.WriteVarInt(Features.Length);
-                for (int i = 0; i < Features.Length; i++)
-                {
-                    writer.WriteString(Features[i]);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.FeatureFlags), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteArray(Features);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 761 and <= 763:
-                Features = reader.ReadArray<string, StringArrayReader>(LengthFormat.VarInt);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.FeatureFlags), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => Features = reader.ReadArray<string>(LengthFormat.VarInt);
 }

@@ -1,17 +1,15 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("WorldBorder", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x3D)]
+[PacketId(751, 754, 0x3D)]
 public sealed partial class WorldBorderPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 754),
-    };
-
     public int Action { get; set; }
     public double? Radius { get; set; }
     public double? X { get; set; }
@@ -25,95 +23,73 @@ public sealed partial class WorldBorderPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteVarInt(Action);
+        switch (Action)
         {
-            case >= MinecraftVersion.StartProtocol and <= 754:
-                writer.WriteVarInt(Action);
-                switch (Action)
-                {
-                    case 0:
-                        writer.WriteDouble(Radius ?? throw new InvalidOperationException("WorldBorder radius missing."));
-                        break;
-                    case 1:
-                        writer.WriteDouble(OldRadius ?? throw new InvalidOperationException("WorldBorder old_radius missing."));
-                        writer.WriteDouble(NewRadius ?? throw new InvalidOperationException("WorldBorder new_radius missing."));
-                        writer.WriteVarLong(Speed ?? throw new InvalidOperationException("WorldBorder speed missing."));
-                        break;
-                    case 2:
-                        writer.WriteDouble(X ?? throw new InvalidOperationException("WorldBorder x missing."));
-                        writer.WriteDouble(Z ?? throw new InvalidOperationException("WorldBorder z missing."));
-                        break;
-                    case 3:
-                        writer.WriteDouble(X ?? throw new InvalidOperationException("WorldBorder x missing."));
-                        writer.WriteDouble(Z ?? throw new InvalidOperationException("WorldBorder z missing."));
-                        writer.WriteDouble(OldRadius ?? throw new InvalidOperationException("WorldBorder old_radius missing."));
-                        writer.WriteDouble(NewRadius ?? throw new InvalidOperationException("WorldBorder new_radius missing."));
-                        writer.WriteVarLong(Speed ?? throw new InvalidOperationException("WorldBorder speed missing."));
-                        writer.WriteVarInt(PortalBoundary ?? throw new InvalidOperationException("WorldBorder portalBoundary missing."));
-                        writer.WriteVarInt(WarningTime ?? throw new InvalidOperationException("WorldBorder warning_time missing."));
-                        writer.WriteVarInt(WarningBlocks ?? throw new InvalidOperationException("WorldBorder warning_blocks missing."));
-                        break;
-                    case 4:
-                        writer.WriteVarInt(WarningTime ?? throw new InvalidOperationException("WorldBorder warning_time missing."));
-                        break;
-                    case 5:
-                        writer.WriteVarInt(WarningBlocks ?? throw new InvalidOperationException("WorldBorder warning_blocks missing."));
-                        break;
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorder), protocolVersion, SupportedVersionsStatic);
-                return;
+            case 0:
+                writer.WriteDouble(Radius ?? throw new InvalidOperationException("Radius is required for action 0."));
+                break;
+            case 1:
+                writer.WriteDouble(OldRadius ?? throw new InvalidOperationException("OldRadius is required for action 1."));
+                writer.WriteDouble(NewRadius ?? throw new InvalidOperationException("NewRadius is required for action 1."));
+                writer.WriteVarLong(Speed ?? throw new InvalidOperationException("Speed is required for action 1."));
+                break;
+            case 2:
+                writer.WriteDouble(X ?? throw new InvalidOperationException("X is required for action 2."));
+                writer.WriteDouble(Z ?? throw new InvalidOperationException("Z is required for action 2."));
+                break;
+            case 3:
+                writer.WriteDouble(X ?? throw new InvalidOperationException("X is required for action 3."));
+                writer.WriteDouble(Z ?? throw new InvalidOperationException("Z is required for action 3."));
+                writer.WriteDouble(OldRadius ?? throw new InvalidOperationException("OldRadius is required for action 3."));
+                writer.WriteDouble(NewRadius ?? throw new InvalidOperationException("NewRadius is required for action 3."));
+                writer.WriteVarLong(Speed ?? throw new InvalidOperationException("Speed is required for action 3."));
+                writer.WriteVarInt(PortalBoundary ?? throw new InvalidOperationException("PortalBoundary is required for action 3."));
+                writer.WriteVarInt(WarningTime ?? throw new InvalidOperationException("WarningTime is required for action 3."));
+                writer.WriteVarInt(WarningBlocks ?? throw new InvalidOperationException("WarningBlocks is required for action 3."));
+                break;
+            case 4:
+                writer.WriteVarInt(WarningTime ?? throw new InvalidOperationException("WarningTime is required for action 4."));
+                break;
+            case 5:
+                writer.WriteVarInt(WarningBlocks ?? throw new InvalidOperationException("WarningBlocks is required for action 5."));
+                break;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        Action = reader.ReadVarInt();
+        switch (Action)
         {
-            case >= MinecraftVersion.StartProtocol and <= 754:
-                Action = reader.ReadVarInt();
-                switch (Action)
-                {
-                    case 0:
-                        Radius = reader.ReadDouble();
-                        break;
-                    case 1:
-                        OldRadius = reader.ReadDouble();
-                        NewRadius = reader.ReadDouble();
-                        Speed = reader.ReadVarLong();
-                        break;
-                    case 2:
-                        X = reader.ReadDouble();
-                        Z = reader.ReadDouble();
-                        break;
-                    case 3:
-                        X = reader.ReadDouble();
-                        Z = reader.ReadDouble();
-                        OldRadius = reader.ReadDouble();
-                        NewRadius = reader.ReadDouble();
-                        Speed = reader.ReadVarLong();
-                        PortalBoundary = reader.ReadVarInt();
-                        WarningTime = reader.ReadVarInt();
-                        WarningBlocks = reader.ReadVarInt();
-                        break;
-                    case 4:
-                        WarningTime = reader.ReadVarInt();
-                        break;
-                    case 5:
-                        WarningBlocks = reader.ReadVarInt();
-                        break;
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorder), protocolVersion, SupportedVersionsStatic);
-                return;
+            case 0:
+                Radius = reader.ReadDouble();
+                break;
+            case 1:
+                OldRadius = reader.ReadDouble();
+                NewRadius = reader.ReadDouble();
+                Speed = reader.ReadVarLong();
+                break;
+            case 2:
+                X = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                break;
+            case 3:
+                X = reader.ReadDouble();
+                Z = reader.ReadDouble();
+                OldRadius = reader.ReadDouble();
+                NewRadius = reader.ReadDouble();
+                Speed = reader.ReadVarLong();
+                PortalBoundary = reader.ReadVarInt();
+                WarningTime = reader.ReadVarInt();
+                WarningBlocks = reader.ReadVarInt();
+                break;
+            case 4:
+                WarningTime = reader.ReadVarInt();
+                break;
+            case 5:
+                WarningBlocks = reader.ReadVarInt();
+                break;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

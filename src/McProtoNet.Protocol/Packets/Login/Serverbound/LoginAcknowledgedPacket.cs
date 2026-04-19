@@ -18,10 +18,4 @@ public sealed partial class LoginAcknowledgedPacket : IClientPacket
     {
         // Empty deserialization as no fields were defined in the schema.
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

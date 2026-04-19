@@ -2,9 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("Look", PacketState.Play, PacketDirection.Serverbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 767)]
-[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x14)]
 [PacketId(751, 754, 0x14)]
 [PacketId(755, 758, 0x13)]
@@ -27,24 +28,22 @@ public sealed partial class LookPacket : IClientPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteFloat(Yaw);
+        writer.WriteFloat(Pitch);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
-                writer.WriteFloat(Yaw);
-                writer.WriteFloat(Pitch);
-                {
-                    var fields = VFirst_767 ?? throw new InvalidOperationException("LookPacket first-767 fields missing.");
-                    writer.WriteBoolean(fields.OnGround);
-                }
+            {
+                var fields = VFirst_767 ?? throw new InvalidOperationException("LookPacket 0-767 fields missing.");
+                writer.WriteBoolean(fields.OnGround);
                 return;
+            }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteFloat(Yaw);
-                writer.WriteFloat(Pitch);
-                {
-                    var fields = V768_Last ?? throw new InvalidOperationException("LookPacket 768-last fields missing.");
-                    writer.WriteType<MovementFlags>(fields.Flags, protocolVersion);
-                }
+            {
+                var fields = V768_Last ?? throw new InvalidOperationException("LookPacket 768-last fields missing.");
+                writer.WriteType<MovementFlags>(fields.Flags, protocolVersion);
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(LookPacket), protocolVersion, SupportedVersions);
                 return;
@@ -53,39 +52,26 @@ public sealed partial class LookPacket : IClientPacket
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        Yaw = reader.ReadFloat();
+        Pitch = reader.ReadFloat();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 767:
-                Yaw = reader.ReadFloat();
-                Pitch = reader.ReadFloat();
+            {
                 VFirst_767 = new VFirst_767Fields { OnGround = reader.ReadBoolean() };
-                V768_Last = null;
                 return;
+            }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
-                Yaw = reader.ReadFloat();
-                Pitch = reader.ReadFloat();
+            {
                 V768_Last = new V768_LastFields { Flags = reader.ReadType<MovementFlags>(protocolVersion) };
-                VFirst_767 = null;
                 return;
+            }
             default:
                 ThrowHelper.ThrowProtocolNotSupported(nameof(LookPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct VFirst_767Fields
-    {
-        public bool OnGround { get; set; }
-    }
-
-    public struct V768_LastFields
-    {
-        public MovementFlags Flags { get; set; }
-    }
+    public struct VFirst_767Fields { public bool OnGround { get; set; } }
+    public struct V768_LastFields { public MovementFlags Flags { get; set; } }
 }

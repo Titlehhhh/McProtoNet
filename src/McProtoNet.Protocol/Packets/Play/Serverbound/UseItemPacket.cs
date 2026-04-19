@@ -2,10 +2,10 @@ using McProtoNet.Protocol;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [PacketInfo("UseItem", PacketState.Play, PacketDirection.Serverbound)]
-[ProtocolSupport(MinecraftVersion.StartProtocol, 758)]
-[ProtocolSupport(759, 766)]
-[ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [PacketId(MinecraftVersion.StartProtocol, 736, 0x2E)]
 [PacketId(751, 758, 0x2F)]
 [PacketId(759, 759, 0x31)]
@@ -20,7 +20,7 @@ using McProtoNet.Serialization;
 public sealed partial class UseItemPacket : IClientPacket
 {
     public int Hand { get; set; }
-    public V759_766Fields? V759_766 { get; set; }
+    public int? Sequence { get; set; }
     public V767_LastFields? V767_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -35,16 +35,15 @@ public sealed partial class UseItemPacket : IClientPacket
             case >= 759 and <= 766:
             {
                 writer.WriteVarInt(Hand);
-                var fields = V759_766 ?? throw new InvalidOperationException("UseItemPacket 759-766 fields missing.");
-                writer.WriteVarInt(fields.Sequence);
+                writer.WriteVarInt(Sequence.Value);
                 return;
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
-                writer.WriteVarInt(Hand);
                 var fields = V767_Last ?? throw new InvalidOperationException("UseItemPacket 767-last fields missing.");
-                writer.WriteVarInt(fields.Sequence);
-                writer.WriteType(fields.Rotation, protocolVersion);
+                writer.WriteVarInt(Hand);
+                writer.WriteVarInt(Sequence.Value);
+                writer.WriteType<Vec2f>(fields.Rotation, protocolVersion);
                 return;
             }
             default:
@@ -60,22 +59,22 @@ public sealed partial class UseItemPacket : IClientPacket
             case >= MinecraftVersion.StartProtocol and <= 758:
             {
                 Hand = reader.ReadVarInt();
-                V759_766 = null;
+                Sequence = null;
                 V767_Last = null;
                 return;
             }
             case >= 759 and <= 766:
             {
                 Hand = reader.ReadVarInt();
-                V759_766 = new V759_766Fields { Sequence = reader.ReadVarInt() };
+                Sequence = reader.ReadVarInt();
                 V767_Last = null;
                 return;
             }
             case >= 767 and <= MinecraftVersion.LatestProtocol:
             {
                 Hand = reader.ReadVarInt();
-                V767_Last = new V767_LastFields { Sequence = reader.ReadVarInt(), Rotation = reader.ReadType<Vec2f>(protocolVersion) };
-                V759_766 = null;
+                Sequence = reader.ReadVarInt();
+                V767_Last = new V767_LastFields { Rotation = reader.ReadType<Vec2f>(protocolVersion) };
                 return;
             }
             default:
@@ -84,12 +83,8 @@ public sealed partial class UseItemPacket : IClientPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct V759_766Fields { public int Sequence { get; set; } }
-    public struct V767_LastFields { public int Sequence { get; set; } public Vec2f Rotation { get; set; } }
+    public struct V767_LastFields
+    {
+        public Vec2f Rotation { get; set; }
+    }
 }

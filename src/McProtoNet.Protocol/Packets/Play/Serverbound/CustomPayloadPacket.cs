@@ -1,52 +1,43 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 using System;
+using McProtoNet.Minecraft;
+using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("CustomPayload", PacketState.Play, PacketDirection.Serverbound)]
-public sealed partial class CustomPayloadPacket : IClientPacket
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x0B)]
+[PacketId(751, 754, 0x0B)]
+[PacketId(755, 758, 0x0A)]
+[PacketId(759, 759, 0x0C)]
+[PacketId(760, 760, 0x0D)]
+[PacketId(761, 761, 0x0C)]
+[PacketId(762, 763, 0x0D)]
+[PacketId(764, 764, 0x0F)]
+[PacketId(765, 765, 0x10)]
+[PacketId(766, 767, 0x12)]
+[PacketId(768, 770, 0x14)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x15)]
+public sealed partial class CustomPayloadPacket : IPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)
-    };
-
-    public string Channel { get; set; }
-    public byte[] Data { get; set; }
+    public string Channel { get; set; } = string.Empty;
+    public byte[]? Data { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteString(Channel);
+        if (Data != null)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteString(Channel);
-                writer.WriteBuffer(Data);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteBuffer(Data);
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Channel = reader.ReadString();
-                Data = reader.ReadRestBuffer();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.CustomPayload), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        Channel = reader.ReadString();
+        Data = reader.ReadRestBuffer();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

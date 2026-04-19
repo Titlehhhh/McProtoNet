@@ -58,12 +58,6 @@ public sealed partial class DisconnectPacket : IServerPacket
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct VFirst_764Fields
     {
         public string Reason { get; set; }

@@ -34,10 +34,4 @@ public sealed partial class AddResourcePackPacket : IServerPacket
         Forced = reader.ReadBoolean();
         PromptMessage = reader.ReadAnonOptionalNbtTag(protocolVersion);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

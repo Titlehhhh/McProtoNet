@@ -13,10 +13,4 @@ public sealed partial class FinishConfigurationPacket : IServerPacket
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion) { }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion) { }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

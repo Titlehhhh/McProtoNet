@@ -1,19 +1,26 @@
-using McProtoNet.Protocol;
 using McProtoNet.NBT;
+
+using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("OpenWindow", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x2E)]
+[PacketId(751, 754, 0x2D)]
+[PacketId(755, 758, 0x2E)]
+[PacketId(759, 759, 0x2B)]
+[PacketId(760, 760, 0x2D)]
+[PacketId(761, 761, 0x2C)]
+[PacketId(762, 763, 0x30)]
+[PacketId(764, 765, 0x31)]
+[PacketId(766, 767, 0x33)]
+[PacketId(768, 769, 0x35)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x34)]
 public sealed partial class OpenWindowPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 764),
-        new(765, MinecraftVersion.LatestProtocol),
-    };
-
     public int WindowId { get; set; }
     public int InventoryType { get; set; }
 
@@ -22,62 +29,49 @@ public sealed partial class OpenWindowPacket : IServerPacket
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteVarInt(WindowId);
+        writer.WriteVarInt(InventoryType);
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 764:
             {
-                var fields = VFirst_764 ?? throw new InvalidOperationException("OpenWindow VFirst_764 fields missing.");
-                writer.WriteVarInt(WindowId);
-                writer.WriteVarInt(InventoryType);
+                var fields = VFirst_764 ?? throw new InvalidOperationException("OpenWindowPacket 1-764 fields missing.");
                 writer.WriteString(fields.WindowTitle);
                 return;
             }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V765_Last ?? throw new InvalidOperationException("OpenWindow V765_Last fields missing.");
-                writer.WriteVarInt(WindowId);
-                writer.WriteVarInt(InventoryType);
+                var fields = V765_Last ?? throw new InvalidOperationException("OpenWindowPacket 765-last fields missing.");
                 writer.WriteAnonymousNbtTag(fields.WindowTitle, protocolVersion);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenWindow), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenWindowPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        WindowId = reader.ReadVarInt();
+        InventoryType = reader.ReadVarInt();
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 764:
-                WindowId = reader.ReadVarInt();
-                InventoryType = reader.ReadVarInt();
-                VFirst_764 = new VFirst_764Fields
-                {
-                    WindowTitle = reader.ReadString()
-                };
+            {
+                VFirst_764 = new VFirst_764Fields { WindowTitle = reader.ReadString() };
                 return;
+            }
             case >= 765 and <= MinecraftVersion.LatestProtocol:
-                WindowId = reader.ReadVarInt();
-                InventoryType = reader.ReadVarInt();
-                V765_Last = new V765_LastFields
-                {
-                    WindowTitle = reader.ReadAnonymousNbtTag(protocolVersion)
-                        ?? throw new InvalidOperationException("OpenWindow title missing.")
-                };
+            {
+                V765_Last = new V765_LastFields { WindowTitle = reader.ReadAnonymousNbtTag(protocolVersion) };
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.OpenWindow), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(OpenWindowPacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 
     public struct VFirst_764Fields
     {

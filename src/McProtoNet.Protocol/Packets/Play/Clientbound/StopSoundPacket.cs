@@ -1,76 +1,60 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("StopSound", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x52)]
+[PacketId(751, 754, 0x52)]
+[PacketId(755, 756, 0x5D)]
+[PacketId(757, 759, 0x5E)]
+[PacketId(760, 760, 0x61)]
+[PacketId(761, 761, 0x5F)]
+[PacketId(762, 763, 0x63)]
+[PacketId(764, 764, 0x66)]
+[PacketId(765, 765, 0x68)]
+[PacketId(766, 767, 0x6A)]
+[PacketId(768, 769, 0x71)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x70)]
 public sealed partial class StopSoundPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol),
-    };
-
     public sbyte Flags { get; set; }
     public int? Source { get; set; }
     public string? Sound { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
+        writer.WriteSignedByte(Flags);
+        if (protocolVersion == 1 || protocolVersion == 3)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                writer.WriteSignedByte(Flags);
-                switch (Flags)
-                {
-                    case 1:
-                        writer.WriteVarInt(Source ?? throw new InvalidOperationException("StopSound source missing."));
-                        break;
-                    case 2:
-                        writer.WriteString(Sound ?? throw new InvalidOperationException("StopSound sound missing."));
-                        break;
-                    case 3:
-                        writer.WriteVarInt(Source ?? throw new InvalidOperationException("StopSound source missing."));
-                        writer.WriteString(Sound ?? throw new InvalidOperationException("StopSound sound missing."));
-                        break;
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.StopSound), protocolVersion, SupportedVersionsStatic);
-                return;
+            writer.WriteVarInt(Source ?? throw new InvalidOperationException("StopSoundPacket Source field missing."));
+        }
+        if (protocolVersion == 2 || protocolVersion == 3)
+        {
+            writer.WriteString(Sound ?? throw new InvalidOperationException("StopSoundPacket Sound field missing."));
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
+        Flags = reader.ReadSignedByte();
+        if (protocolVersion == 1 || protocolVersion == 3)
         {
-            case >= MinecraftVersion.StartProtocol and <= MinecraftVersion.LatestProtocol:
-                Flags = reader.ReadSignedByte();
-                switch (Flags)
-                {
-                    case 1:
-                        Source = reader.ReadVarInt();
-                        break;
-                    case 2:
-                        Sound = reader.ReadString();
-                        break;
-                    case 3:
-                        Source = reader.ReadVarInt();
-                        Sound = reader.ReadString();
-                        break;
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.StopSound), protocolVersion, SupportedVersionsStatic);
-                return;
+            Source = reader.ReadVarInt();
+        }
+        else
+        {
+            Source = null;
+        }
+        if (protocolVersion == 2 || protocolVersion == 3)
+        {
+            Sound = reader.ReadString();
+        }
+        else
+        {
+            Sound = null;
         }
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

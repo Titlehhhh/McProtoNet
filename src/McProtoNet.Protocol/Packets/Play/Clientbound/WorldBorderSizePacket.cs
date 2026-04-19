@@ -16,20 +16,13 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketId(766, 767, 0x4F)]
 [PacketId(768, 769, 0x54)]
 [PacketId(770, MinecraftVersion.LatestProtocol, 0x53)]
-public sealed partial class WorldBorderSizePacket : IPacket
+public sealed partial class WorldBorderSizePacket : IServerPacket
 {
     public double Diameter { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => writer.WriteFloat(Diameter);
+        => writer.WriteDouble(Diameter);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Diameter = reader.ReadFloat();
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
+        => Diameter = reader.ReadDouble();
 }

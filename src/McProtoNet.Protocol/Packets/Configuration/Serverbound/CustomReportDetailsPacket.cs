@@ -36,12 +36,6 @@ public sealed partial class CustomReportDetailsPacket : IClientPacket
         Details = details;
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct DetailsEntry
     {
         public string Key { get; set; }

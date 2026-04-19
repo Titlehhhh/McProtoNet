@@ -26,10 +26,4 @@ public sealed partial class LoginPluginResponsePacket : IPacket
         MessageId = reader.ReadVarInt();
         Data = reader.ReadRestBuffer();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

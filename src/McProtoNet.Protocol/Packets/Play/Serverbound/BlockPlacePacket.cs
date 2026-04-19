@@ -1,29 +1,32 @@
-using System;
 using McProtoNet.Protocol;
-using McProtoNet.Protocol.Extensions;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
 [PacketInfo("BlockPlace", PacketState.Play, PacketDirection.Serverbound)]
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[PacketId(MinecraftVersion.StartProtocol, 736, 0x2D)]
+[PacketId(751, 758, 0x2E)]
+[PacketId(759, 759, 0x30)]
+[PacketId(760, 763, 0x31)]
+[PacketId(764, 764, 0x34)]
+[PacketId(765, 765, 0x35)]
+[PacketId(766, 767, 0x38)]
+[PacketId(768, 768, 0x3A)]
+[PacketId(769, 769, 0x3C)]
+[PacketId(770, 770, 0x3E)]
+[PacketId(771, MinecraftVersion.LatestProtocol, 0x3F)]
 public sealed partial class BlockPlacePacket : IClientPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(MinecraftVersion.StartProtocol, 758),
-        new(759, 767),
-        new(768, MinecraftVersion.LatestProtocol)
-    };
-
+    public int Hand { get; set; }
     public Position Location { get; set; }
     public int Direction { get; set; }
-    public int Hand { get; set; }
     public float CursorX { get; set; }
     public float CursorY { get; set; }
     public float CursorZ { get; set; }
-
-    public VFirst_758Fields? VFirst_758 { get; set; }
-    public V759_767Fields? V759_767 { get; set; }
+    public bool InsideBlock { get; set; }
+    public int? Sequence { get; set; }
     public V768_LastFields? V768_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
@@ -32,45 +35,42 @@ public sealed partial class BlockPlacePacket : IClientPacket
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
             {
-                var fields = VFirst_758 ?? throw new InvalidOperationException("BlockPlace VFirst_758 fields missing.");
                 writer.WriteVarInt(Hand);
-                writer.WritePosition(Location, protocolVersion);
+                writer.WriteType<Position>(Location, protocolVersion);
                 writer.WriteVarInt(Direction);
                 writer.WriteFloat(CursorX);
                 writer.WriteFloat(CursorY);
                 writer.WriteFloat(CursorZ);
-                writer.WriteBoolean(fields.InsideBlock);
+                writer.WriteBoolean(InsideBlock);
                 return;
             }
             case >= 759 and <= 767:
             {
-                var fields = V759_767 ?? throw new InvalidOperationException("BlockPlace V759_767 fields missing.");
                 writer.WriteVarInt(Hand);
-                writer.WritePosition(Location, protocolVersion);
+                writer.WriteType<Position>(Location, protocolVersion);
                 writer.WriteVarInt(Direction);
                 writer.WriteFloat(CursorX);
                 writer.WriteFloat(CursorY);
                 writer.WriteFloat(CursorZ);
-                writer.WriteBoolean(fields.InsideBlock);
-                writer.WriteVarInt(fields.Sequence);
+                writer.WriteBoolean(InsideBlock);
+                writer.WriteVarInt(Sequence ?? throw new InvalidOperationException("BlockPlacePacket 759-767 Sequence missing."));
                 return;
             }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V768_Last ?? throw new InvalidOperationException("BlockPlace V768_Last fields missing.");
                 writer.WriteVarInt(Hand);
-                writer.WritePosition(Location, protocolVersion);
+                writer.WriteType<Position>(Location, protocolVersion);
                 writer.WriteVarInt(Direction);
                 writer.WriteFloat(CursorX);
                 writer.WriteFloat(CursorY);
                 writer.WriteFloat(CursorZ);
-                writer.WriteBoolean(fields.InsideBlock);
-                writer.WriteBoolean(fields.WorldBorderHit);
-                writer.WriteVarInt(fields.Sequence);
+                writer.WriteBoolean(InsideBlock);
+                writer.WriteBoolean(V768_Last?.WorldBorderHit ?? throw new InvalidOperationException("BlockPlacePacket 768-last WorldBorderHit missing."));
+                writer.WriteVarInt(Sequence ?? throw new InvalidOperationException("BlockPlacePacket 768-last Sequence missing."));
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockPlace), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockPlacePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
@@ -80,77 +80,49 @@ public sealed partial class BlockPlacePacket : IClientPacket
         switch (protocolVersion)
         {
             case >= MinecraftVersion.StartProtocol and <= 758:
+            {
                 Hand = reader.ReadVarInt();
-                Location = reader.ReadPosition(protocolVersion);
+                Location = reader.ReadType<Position>(protocolVersion);
                 Direction = reader.ReadVarInt();
                 CursorX = reader.ReadFloat();
                 CursorY = reader.ReadFloat();
                 CursorZ = reader.ReadFloat();
-                VFirst_758 = new VFirst_758Fields
-                {
-                    InsideBlock = reader.ReadBoolean()
-                };
-                V759_767 = null;
+                InsideBlock = reader.ReadBoolean();
                 V768_Last = null;
+                Sequence = null;
                 return;
+            }
             case >= 759 and <= 767:
+            {
                 Hand = reader.ReadVarInt();
-                Location = reader.ReadPosition(protocolVersion);
+                Location = reader.ReadType<Position>(protocolVersion);
                 Direction = reader.ReadVarInt();
                 CursorX = reader.ReadFloat();
                 CursorY = reader.ReadFloat();
                 CursorZ = reader.ReadFloat();
-                V759_767 = new V759_767Fields
-                {
-                    InsideBlock = reader.ReadBoolean(),
-                    Sequence = reader.ReadVarInt()
-                };
-                VFirst_758 = null;
+                InsideBlock = reader.ReadBoolean();
+                Sequence = reader.ReadVarInt();
                 V768_Last = null;
                 return;
+            }
             case >= 768 and <= MinecraftVersion.LatestProtocol:
+            {
                 Hand = reader.ReadVarInt();
-                Location = reader.ReadPosition(protocolVersion);
+                Location = reader.ReadType<Position>(protocolVersion);
                 Direction = reader.ReadVarInt();
                 CursorX = reader.ReadFloat();
                 CursorY = reader.ReadFloat();
                 CursorZ = reader.ReadFloat();
-                V768_Last = new V768_LastFields
-                {
-                    InsideBlock = reader.ReadBoolean(),
-                    WorldBorderHit = reader.ReadBoolean(),
-                    Sequence = reader.ReadVarInt()
-                };
-                VFirst_758 = null;
-                V759_767 = null;
+                InsideBlock = reader.ReadBoolean();
+                V768_Last = new V768_LastFields { WorldBorderHit = reader.ReadBoolean() };
+                Sequence = reader.ReadVarInt();
                 return;
+            }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ClientPlayPacket.BlockPlace), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(BlockPlacePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct VFirst_758Fields
-    {
-        public bool InsideBlock { get; set; }
-    }
-
-    public struct V759_767Fields
-    {
-        public bool InsideBlock { get; set; }
-        public int Sequence { get; set; }
-    }
-
-    public struct V768_LastFields
-    {
-        public bool InsideBlock { get; set; }
-        public bool WorldBorderHit { get; set; }
-        public int Sequence { get; set; }
-    }
+    public struct V768_LastFields { public bool WorldBorderHit { get; set; } }
 }

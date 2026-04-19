@@ -38,12 +38,6 @@ public sealed partial class SelectKnownPacksPacket : IServerPacket
         Packs = packs;
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
     public struct PackInfo
     {
         public string Name { get; set; }

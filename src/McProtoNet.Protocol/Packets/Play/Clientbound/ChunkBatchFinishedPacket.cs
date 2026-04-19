@@ -1,49 +1,24 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("ChunkBatchFinished", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
+[PacketId(764, 769, 0x0C)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x0B)]
 public sealed partial class ChunkBatchFinishedPacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(764, MinecraftVersion.LatestProtocol),
-    };
-
     public int BatchSize { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(BatchSize);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ChunkBatchFinished), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        writer.WriteVarInt(BatchSize);
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        switch (protocolVersion)
-        {
-            case >= 764 and <= MinecraftVersion.LatestProtocol:
-                BatchSize = reader.ReadVarInt();
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.ChunkBatchFinished), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
+        BatchSize = reader.ReadVarInt();
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }

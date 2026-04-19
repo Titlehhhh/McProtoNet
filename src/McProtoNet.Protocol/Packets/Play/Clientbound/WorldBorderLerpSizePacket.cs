@@ -1,91 +1,77 @@
 using McProtoNet.Protocol;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("WorldBorderLerpSize", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
+[PacketId(755, 758, 0x43)]
+[PacketId(759, 759, 0x42)]
+[PacketId(760, 760, 0x45)]
+[PacketId(761, 761, 0x44)]
+[PacketId(762, 763, 0x48)]
+[PacketId(764, 764, 0x4A)]
+[PacketId(765, 765, 0x4C)]
+[PacketId(766, 767, 0x4E)]
+[PacketId(768, 769, 0x53)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x52)]
 public sealed partial class WorldBorderLerpSizePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(755, 758),
-        new(759, MinecraftVersion.LatestProtocol),
-    };
-
     public double OldDiameter { get; set; }
     public double NewDiameter { get; set; }
 
-    public VFirst_758Fields? VFirst_758 { get; set; }
+    public V755_758Fields? V755_758 { get; set; }
     public V759_LastFields? V759_Last { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
+        writer.WriteDouble(OldDiameter);
+        writer.WriteDouble(NewDiameter);
         switch (protocolVersion)
         {
-            case >= 755 and <= 758:
+            case >= MinecraftVersion.StartProtocol and <= 758:
             {
-                var fields = VFirst_758 ?? throw new InvalidOperationException("WorldBorderLerpSize VFirst_758 missing.");
-                writer.WriteDouble(OldDiameter);
-                writer.WriteDouble(NewDiameter);
-                writer.WriteVarLong(fields.Speed);
+                var fields = V755_758 ?? throw new InvalidOperationException("WorldBorderLerpSizePacket 755-758 fields missing.");
+                writer.WriteSignedLong(fields.Speed);
                 return;
             }
             case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = V759_Last ?? throw new InvalidOperationException("WorldBorderLerpSize V759_Last missing.");
-                writer.WriteDouble(OldDiameter);
-                writer.WriteDouble(NewDiameter);
+                var fields = V759_Last ?? throw new InvalidOperationException("WorldBorderLerpSizePacket 759-last fields missing.");
                 writer.WriteVarInt(fields.Speed);
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderLerpSize), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(WorldBorderLerpSizePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
+        OldDiameter = reader.ReadDouble();
+        NewDiameter = reader.ReadDouble();
         switch (protocolVersion)
         {
-            case >= 755 and <= 758:
+            case >= MinecraftVersion.StartProtocol and <= 758:
             {
-                var fields = new VFirst_758Fields();
-                OldDiameter = reader.ReadDouble();
-                NewDiameter = reader.ReadDouble();
-                fields.Speed = reader.ReadVarLong();
-                VFirst_758 = fields;
+                V755_758 = new V755_758Fields { Speed = reader.ReadSignedLong() };
+                V759_Last = null;
                 return;
             }
             case >= 759 and <= MinecraftVersion.LatestProtocol:
             {
-                var fields = new V759_LastFields();
-                OldDiameter = reader.ReadDouble();
-                NewDiameter = reader.ReadDouble();
-                fields.Speed = reader.ReadVarInt();
-                V759_Last = fields;
+                V759_Last = new V759_LastFields { Speed = reader.ReadVarInt() };
+                V755_758 = null;
                 return;
             }
             default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.WorldBorderLerpSize), protocolVersion, SupportedVersionsStatic);
+                ThrowHelper.ThrowProtocolNotSupported(nameof(WorldBorderLerpSizePacket), protocolVersion, SupportedVersions);
                 return;
         }
     }
 
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
-
-    public struct VFirst_758Fields
-    {
-        public long Speed { get; set; }
-    }
-
-    public struct V759_LastFields
-    {
-        public int Speed { get; set; }
-    }
+    public struct V755_758Fields { public long Speed { get; set; } }
+    public struct V759_LastFields { public int Speed { get; set; } }
 }

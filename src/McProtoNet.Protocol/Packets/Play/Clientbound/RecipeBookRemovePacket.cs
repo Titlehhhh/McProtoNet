@@ -1,53 +1,20 @@
 using McProtoNet.Protocol;
-using McProtoNet.NBT;
+using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
-using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
 [PacketInfo("RecipeBookRemove", PacketState.Play, PacketDirection.Clientbound)]
+[ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
+[PacketId(768, 769, 0x45)]
+[PacketId(770, MinecraftVersion.LatestProtocol, 0x44)]
 public sealed partial class RecipeBookRemovePacket : IServerPacket
 {
-    public static readonly ProtocolRange[] SupportedVersionsStatic =
-    {
-        new(768, MinecraftVersion.LatestProtocol),
-    };
-
     public int[] RecipeIds { get; set; }
 
     internal void Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                writer.WriteVarInt(RecipeIds.Length);
-                for (int i = 0; i < RecipeIds.Length; i++)
-                {
-                    writer.WriteVarInt(RecipeIds[i]);
-                }
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RecipeBookRemove), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
+        => writer.WriteVarIntArray(RecipeIds);
 
     internal void Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-    {
-        switch (protocolVersion)
-        {
-            case >= 768 and <= MinecraftVersion.LatestProtocol:
-                RecipeIds = reader.ReadArray<int, VarIntArrayReader>(LengthFormat.VarInt);
-                return;
-            default:
-                ThrowHelper.ThrowProtocolNotSupported(nameof(ServerPlayPacket.RecipeBookRemove), protocolVersion, SupportedVersionsStatic);
-                return;
-        }
-    }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
+        => RecipeIds = reader.ReadVarIntArray();
 }

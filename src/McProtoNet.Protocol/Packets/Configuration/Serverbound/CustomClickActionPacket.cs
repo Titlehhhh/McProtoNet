@@ -24,10 +24,4 @@ public sealed partial class CustomClickActionPacket : IClientPacket
         Id = reader.ReadString();
         Nbt = reader.ReadAnonOptionalNbtTag(protocolVersion);
     }
-
-    void IPacket.Serialize(MinecraftPrimitiveWriter writer, int protocolVersion)
-        => Serialize(writer, protocolVersion);
-
-    void IPacket.Deserialize(ref MinecraftPrimitiveReader reader, int protocolVersion)
-        => Deserialize(ref reader, protocolVersion);
 }
