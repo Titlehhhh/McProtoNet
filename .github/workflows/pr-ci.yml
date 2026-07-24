@@ -1,11 +1,12 @@
-name: ci
+name: pr-ci
 on:
+  pull_request:
+    branches:
+      - dev
+      - master
   push:
     branches:
-      - master
-      - release/*
-    tags:
-      - "v*"
+      - dev
     paths-ignore:
       - 'docs/**'
       - 'README.md'
@@ -26,8 +27,9 @@ jobs:
         run: dotnet build src/McProtoNet.Utils/McProtoNet.Utils.csproj -c Release
       - name: Build McProtoNet.FSharp
         run: dotnet build src/McProtoNet.FSharp/McProtoNet.FSharp.fsproj -c Release
-      # 33 tests fail at f9fd575 - known debt, see workspace backlog.
-      # Make blocking (remove continue-on-error) once fixed.
+      # 33 tests fail at f9fd575 (NBT roundtrip, pipeline compression/encryption)
+      # - known debt, see workspace backlog. Make this step blocking (remove
+      # continue-on-error) once they are fixed.
       - name: Test (non-blocking)
         continue-on-error: true
         run: dotnet run --project tests/McProtoNet.Tests/McProtoNet.Tests.csproj -c Release

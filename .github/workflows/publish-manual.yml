@@ -1,0 +1,32 @@
+# NuGet publishing is manual-only. The Nuke Pack target is currently disabled
+# (build/Build.cs: Pack returns before PackCore calls), so running this today
+# publishes nothing. Re-enable Pack before using.
+name: publish-manual
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Feed to push to"
+        required: true
+        type: choice
+        options:
+          - feedz
+          - nuget
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Push to feedz
+        if: ${{ inputs.target == 'feedz' }}
+        run: ./build.cmd Push --Configuration Release --skip Tests --NugetApiUrl https://f.feedz.io/mcprotonet/night/nuget/index.json --NugetApiKey ${{secrets.FEEDZ_TOKEN}}
+      - name: Push to nuget.org
+        if: ${{ inputs.target == 'nuget' }}
+        run: ./build.cmd Push --Configuration Release --skip Tests --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
