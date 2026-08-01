@@ -30,10 +30,8 @@ public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionR
 
         if (protocolVersion >= 759 && protocolVersion <= 760)
         {
-            var sharedSecret = reader.ReadByteArray();
-            var _hasVerifyToken = reader.ReadBoolean();
             // TODO(codegen): InlineUnion   ("_hasVerifyToken",    [{ Keys = [1]       Name = "VerifyToken"       Entries = [Read ("verifyToken", ByteArray, "VerifyToken")] };     { Keys = [0]       Name = "SaltSignature"       Entries =        [Read ("salt", I64, "Salt");         Read ("messageSignature", ByteArray, "MessageSignature")] }])
-            return new EncryptionResponsePacket(sharedSecret, default!, default!, default!);
+            throw new System.NotImplementedException("TODO(codegen): EncryptionResponsePacket wire layout is not fully generated for this protocol version.");
         }
 
         if (protocolVersion >= 761)
@@ -58,10 +56,9 @@ public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionR
 
         if (protocolVersion >= 759 && protocolVersion <= 760)
         {
-            writer.WriteByteArray(SharedSecret);
             // TODO(codegen): write wire-only '_hasVerifyToken' (derive from model)
             // TODO(codegen): InlineUnion   ("_hasVerifyToken",    [{ Keys = [1]       Name = "VerifyToken"       Entries = [Read ("verifyToken", ByteArray, "VerifyToken")] };     { Keys = [0]       Name = "SaltSignature"       Entries =        [Read ("salt", I64, "Salt");         Read ("messageSignature", ByteArray, "MessageSignature")] }])
-            return;
+            throw new System.NotImplementedException("TODO(codegen): EncryptionResponsePacket wire layout is not fully generated for this protocol version.");
         }
 
         if (protocolVersion >= 761)
