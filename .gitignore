@@ -372,8 +372,10 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-# Claude Code
+# Claude Code / OMC runtime state
 .claude/
+.omc/
+.superpowers/
 
 # Session files
 session-*.md
