@@ -3,15 +3,10 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
-public sealed partial class LoginCookieRequestPacket : IProtocolType<LoginCookieRequestPacket>
+[Packet("login.toClient.cookie_request", PacketPhase.Login, PacketDirection.Clientbound)]
+[PacketField("Cookie", "string")]
+public sealed partial record LoginCookieRequestPacket(string Cookie) : IPacket<LoginCookieRequestPacket>
 {
-    public string Cookie { get; }
-
-    public LoginCookieRequestPacket(string cookie)
-    {
-        Cookie = cookie;
-    }
-
     public static LoginCookieRequestPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginCookieRequestPacket>(protocolVersion);
@@ -25,10 +20,24 @@ public sealed partial class LoginCookieRequestPacket : IProtocolType<LoginCookie
         writer.WriteString(Cookie);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("login.toClient.cookie_request", "LoginCookieRequest", PacketPhase.Login, PacketDirection.Clientbound, 1);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x05;
+        {
+            id = 0x05;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

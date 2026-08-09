@@ -3,15 +3,10 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
-public sealed partial class SelectKnownPacksPacket : IProtocolType<SelectKnownPacksPacket>
+[Packet("configuration.toServer.select_known_packs", PacketPhase.Configuration, PacketDirection.Serverbound)]
+[PacketField("Packs", "KnownPack[]")]
+public sealed partial record SelectKnownPacksPacket(KnownPack[] Packs) : IPacket<SelectKnownPacksPacket>
 {
-    public KnownPack[] Packs { get; }
-
-    public SelectKnownPacksPacket(KnownPack[] packs)
-    {
-        Packs = packs;
-    }
-
     public static SelectKnownPacksPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SelectKnownPacksPacket>(protocolVersion);
@@ -30,14 +25,24 @@ public sealed partial class SelectKnownPacksPacket : IProtocolType<SelectKnownPa
             writer.WriteType<KnownPack>(packsItem, protocolVersion);
     }
 
+    public static PacketIdentity Identity => new("configuration.toServer.select_known_packs", "SelectKnownPacks", PacketPhase.Configuration, PacketDirection.Serverbound, 3);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 766 && protocolVersion <= 772)
+        {
+            id = 0x07;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x07;
-        if (protocolVersion >= 767 && protocolVersion <= 770)
-            return 0x07;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x07;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

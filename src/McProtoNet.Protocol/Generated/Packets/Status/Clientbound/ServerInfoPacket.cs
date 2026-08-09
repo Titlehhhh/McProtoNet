@@ -3,15 +3,10 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class ServerInfoPacket : IProtocolType<ServerInfoPacket>
+[Packet("status.toClient.server_info", PacketPhase.Status, PacketDirection.Clientbound)]
+[PacketField("Response", "string")]
+public sealed partial record ServerInfoPacket(string Response) : IPacket<ServerInfoPacket>
 {
-    public string Response { get; }
-
-    public ServerInfoPacket(string response)
-    {
-        Response = response;
-    }
-
     public static ServerInfoPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ServerInfoPacket>(protocolVersion);
@@ -25,10 +20,24 @@ public sealed partial class ServerInfoPacket : IProtocolType<ServerInfoPacket>
         writer.WriteString(Response);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("status.toClient.server_info", "ServerInfo", PacketPhase.Status, PacketDirection.Clientbound, 1);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 772)
-            return 0x00;
+        {
+            id = 0x00;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

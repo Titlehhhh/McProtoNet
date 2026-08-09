@@ -3,7 +3,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct UpdateHealthPacket(float Health, int Food, float FoodSaturation) : IProtocolType<UpdateHealthPacket>
+[Packet("play.toClient.update_health", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("Health", "float")]
+[PacketField("Food", "int")]
+[PacketField("FoodSaturation", "float")]
+public sealed partial record UpdateHealthPacket(float Health, int Food, float FoodSaturation) : IPacket<UpdateHealthPacket>
 {
     public static UpdateHealthPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -14,7 +18,7 @@ public readonly partial record struct UpdateHealthPacket(float Health, int Food,
         return new UpdateHealthPacket(health, food, foodSaturation);
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UpdateHealthPacket>(protocolVersion);
         writer.WriteFloat(Health);
@@ -22,40 +26,84 @@ public readonly partial record struct UpdateHealthPacket(float Health, int Food,
         writer.WriteFloat(FoodSaturation);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 16);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x49;
+        {
+            id = 0x49;
+            return true;
+        }
+
         if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x49;
-        if (protocolVersion >= 755 && protocolVersion <= 755)
-            return 0x52;
-        if (protocolVersion >= 756 && protocolVersion <= 756)
-            return 0x52;
-        if (protocolVersion >= 757 && protocolVersion <= 758)
-            return 0x52;
-        if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x52;
+        {
+            id = 0x49;
+            return true;
+        }
+
+        if (protocolVersion >= 755 && protocolVersion <= 759)
+        {
+            id = 0x52;
+            return true;
+        }
+
         if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x55;
+        {
+            id = 0x55;
+            return true;
+        }
+
         if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x53;
+        {
+            id = 0x53;
+            return true;
+        }
+
         if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x57;
+        {
+            id = 0x57;
+            return true;
+        }
+
         if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x59;
+        {
+            id = 0x59;
+            return true;
+        }
+
         if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x5B;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x5D;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x5D;
+        {
+            id = 0x5B;
+            return true;
+        }
+
+        if (protocolVersion >= 766 && protocolVersion <= 767)
+        {
+            id = 0x5D;
+            return true;
+        }
+
         if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x62;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x61;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x61;
+        {
+            id = 0x62;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x61;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

@@ -3,7 +3,8 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct LoginAcknowledgedPacket() : IProtocolType<LoginAcknowledgedPacket>
+[Packet("login.toServer.login_acknowledged", PacketPhase.Login, PacketDirection.Serverbound)]
+public sealed partial record LoginAcknowledgedPacket() : IPacket<LoginAcknowledgedPacket>
 {
     public static LoginAcknowledgedPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -11,17 +12,29 @@ public readonly partial record struct LoginAcknowledgedPacket() : IProtocolType<
         return new LoginAcknowledgedPacket();
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginAcknowledgedPacket>(protocolVersion);
     }
 
+    public static PacketIdentity Identity => new("login.toServer.login_acknowledged", "LoginAcknowledged", PacketPhase.Login, PacketDirection.Serverbound, 2);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 764 && protocolVersion <= 772)
+        {
+            id = 0x03;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-            return 0x03;
-        if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x03;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

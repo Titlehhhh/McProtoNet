@@ -3,7 +3,9 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct KeepAlivePacket(long KeepAliveId) : IProtocolType<KeepAlivePacket>
+[Packet("configuration.toClient.keep_alive", PacketPhase.Configuration, PacketDirection.Clientbound)]
+[PacketField("KeepAliveId", "long")]
+public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAlivePacket>
 {
     public static KeepAlivePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -12,24 +14,36 @@ public readonly partial record struct KeepAlivePacket(long KeepAliveId) : IProto
         return new KeepAlivePacket(keepAliveId);
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<KeepAlivePacket>(protocolVersion);
         writer.WriteSignedLong(KeepAliveId);
     }
 
+    public static PacketIdentity Identity => new("configuration.toClient.keep_alive", "KeepAlive", PacketPhase.Configuration, PacketDirection.Clientbound, 2);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 764 && protocolVersion <= 765)
+        {
+            id = 0x03;
+            return true;
+        }
+
+        if (protocolVersion >= 766 && protocolVersion <= 772)
+        {
+            id = 0x04;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x03;
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x03;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x04;
-        if (protocolVersion >= 767 && protocolVersion <= 770)
-            return 0x04;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x04;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

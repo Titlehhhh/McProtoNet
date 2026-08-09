@@ -3,17 +3,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class LoginPluginResponsePacket : IProtocolType<LoginPluginResponsePacket>
+[Packet("login.toServer.login_plugin_response", PacketPhase.Login, PacketDirection.Serverbound)]
+[PacketField("MessageId", "int")]
+[PacketField("Data", "byte[]?")]
+public sealed partial record LoginPluginResponsePacket(int MessageId, byte[]? Data) : IPacket<LoginPluginResponsePacket>
 {
-    public int MessageId { get; }
-    public byte[]? Data { get; }
-
-    public LoginPluginResponsePacket(int messageId, byte[]? data)
-    {
-        MessageId = messageId;
-        Data = data;
-    }
-
     public static LoginPluginResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginPluginResponsePacket>(protocolVersion);
@@ -33,14 +27,24 @@ public sealed partial class LoginPluginResponsePacket : IProtocolType<LoginPlugi
             writer.WriteRestBytes(dataValue);
     }
 
+    public static PacketIdentity Identity => new("login.toServer.login_plugin_response", "LoginPluginResponse", PacketPhase.Login, PacketDirection.Serverbound, 3);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 735 && protocolVersion <= 772)
+        {
+            id = 0x02;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 763)
-            return 0x02;
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-            return 0x02;
-        if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x02;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

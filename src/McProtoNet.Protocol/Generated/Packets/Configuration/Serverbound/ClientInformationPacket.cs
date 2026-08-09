@@ -3,31 +3,19 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
-public sealed partial class ClientInformationPacket : IProtocolType<ClientInformationPacket>
+[Packet("configuration.toServer.settings", PacketPhase.Configuration, PacketDirection.Serverbound)]
+[PacketField("Locale", "string")]
+[PacketField("ViewDistance", "int")]
+[PacketField("ChatFlags", "int")]
+[PacketField("ChatColors", "bool")]
+[PacketField("SkinParts", "int")]
+[PacketField("MainHand", "int")]
+[PacketField("EnableTextFiltering", "bool")]
+[PacketField("EnableServerListing", "bool")]
+[PacketField("ParticleStatus", "int", Group = "V768_Last", From = 768)]
+public sealed partial record ClientInformationPacket(string Locale, int ViewDistance, int ChatFlags, bool ChatColors, int SkinParts, int MainHand, bool EnableTextFiltering, bool EnableServerListing, ClientInformationPacket.V768_LastLayer? V768_Last = null) : IPacket<ClientInformationPacket>
 {
-    public string Locale { get; }
-    public int ViewDistance { get; }
-    public int ChatFlags { get; }
-    public bool ChatColors { get; }
-    public int SkinParts { get; }
-    public int MainHand { get; }
-    public bool EnableTextFiltering { get; }
-    public bool EnableServerListing { get; }
-    public int ParticleStatus { get; }
-
-    public ClientInformationPacket(string locale, int viewDistance, int chatFlags, bool chatColors, int skinParts, int mainHand, bool enableTextFiltering, bool enableServerListing, int particleStatus)
-    {
-        Locale = locale;
-        ViewDistance = viewDistance;
-        ChatFlags = chatFlags;
-        ChatColors = chatColors;
-        SkinParts = skinParts;
-        MainHand = mainHand;
-        EnableTextFiltering = enableTextFiltering;
-        EnableServerListing = enableServerListing;
-        ParticleStatus = particleStatus;
-    }
-
+    public readonly record struct V768_LastLayer(int ParticleStatus);
     public static ClientInformationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ClientInformationPacket>(protocolVersion);
@@ -41,7 +29,7 @@ public sealed partial class ClientInformationPacket : IProtocolType<ClientInform
             var mainHand = reader.ReadVarInt();
             var enableTextFiltering = reader.ReadBoolean();
             var enableServerListing = reader.ReadBoolean();
-            return new ClientInformationPacket(locale, viewDistance, chatFlags, chatColors, skinParts, mainHand, enableTextFiltering, enableServerListing, default!);
+            return new ClientInformationPacket(locale, viewDistance, chatFlags, chatColors, skinParts, mainHand, enableTextFiltering, enableServerListing);
         }
 
         if (protocolVersion >= 768)
@@ -55,7 +43,7 @@ public sealed partial class ClientInformationPacket : IProtocolType<ClientInform
             var enableTextFiltering = reader.ReadBoolean();
             var enableServerListing = reader.ReadBoolean();
             var particleStatus = reader.ReadVarInt();
-            return new ClientInformationPacket(locale, viewDistance, chatFlags, chatColors, skinParts, mainHand, enableTextFiltering, enableServerListing, particleStatus);
+            return new ClientInformationPacket(locale, viewDistance, chatFlags, chatColors, skinParts, mainHand, enableTextFiltering, enableServerListing, V768_Last: new V768_LastLayer(particleStatus));
         }
 
         throw new System.NotSupportedException($"ClientInformationPacket has no wire layout for protocol version {protocolVersion}.");
@@ -79,6 +67,8 @@ public sealed partial class ClientInformationPacket : IProtocolType<ClientInform
 
         if (protocolVersion >= 768)
         {
+            var layer = V768_Last ?? throw new WrongLayerException("ClientInformationPacket", protocolVersion, "V768_Last");
+            int ParticleStatus = layer.ParticleStatus;
             writer.WriteString(Locale);
             writer.WriteSignedByte((sbyte)ViewDistance);
             writer.WriteVarInt(ChatFlags);
@@ -94,16 +84,24 @@ public sealed partial class ClientInformationPacket : IProtocolType<ClientInform
         throw new System.NotSupportedException($"ClientInformationPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
+    public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 4);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 764 && protocolVersion <= 772)
+        {
+            id = 0x00;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-            return 0x00;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x00;
-        if (protocolVersion >= 767 && protocolVersion <= 770)
-            return 0x00;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x00;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

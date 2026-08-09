@@ -3,35 +3,22 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionPacket>
+[Packet("play.toClient.position", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("X", "double")]
+[PacketField("Y", "double")]
+[PacketField("Z", "double")]
+[PacketField("Yaw", "float")]
+[PacketField("Pitch", "float")]
+[PacketField("Flags", "PositionUpdateRelatives")]
+[PacketField("TeleportId", "int")]
+[PacketField("DismountVehicle", "bool", Group = "V755_761", From = 755, To = 761)]
+[PacketField("Dx", "double", Group = "V768_Last", From = 768)]
+[PacketField("Dy", "double", Group = "V768_Last", From = 768)]
+[PacketField("Dz", "double", Group = "V768_Last", From = 768)]
+public sealed partial record PlayerPositionPacket(double X, double Y, double Z, float Yaw, float Pitch, PositionUpdateRelatives Flags, int TeleportId, PlayerPositionPacket.V755_761Layer? V755_761 = null, PlayerPositionPacket.V768_LastLayer? V768_Last = null) : IPacket<PlayerPositionPacket>
 {
-    public double X { get; }
-    public double Y { get; }
-    public double Z { get; }
-    public float Yaw { get; }
-    public float Pitch { get; }
-    public PositionUpdateRelatives Flags { get; }
-    public int TeleportId { get; }
-    public bool DismountVehicle { get; }
-    public double Dx { get; }
-    public double Dy { get; }
-    public double Dz { get; }
-
-    public PlayerPositionPacket(double x, double y, double z, float yaw, float pitch, PositionUpdateRelatives flags, int teleportId, bool dismountVehicle, double dx, double dy, double dz)
-    {
-        X = x;
-        Y = y;
-        Z = z;
-        Yaw = yaw;
-        Pitch = pitch;
-        Flags = flags;
-        TeleportId = teleportId;
-        DismountVehicle = dismountVehicle;
-        Dx = dx;
-        Dy = dy;
-        Dz = dz;
-    }
-
+    public readonly record struct V755_761Layer(bool DismountVehicle);
+    public readonly record struct V768_LastLayer(double Dx, double Dy, double Dz);
     public static PlayerPositionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PlayerPositionPacket>(protocolVersion);
@@ -44,7 +31,7 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
             var pitch = reader.ReadFloat();
             var flags = reader.ReadType<PositionUpdateRelatives>(protocolVersion);
             var teleportId = reader.ReadVarInt();
-            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, default!, default!, default!, default!);
+            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId);
         }
 
         if (protocolVersion >= 755 && protocolVersion <= 761)
@@ -57,7 +44,7 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
             var flags = reader.ReadType<PositionUpdateRelatives>(protocolVersion);
             var teleportId = reader.ReadVarInt();
             var dismountVehicle = reader.ReadBoolean();
-            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, dismountVehicle, default!, default!, default!);
+            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, V755_761: new V755_761Layer(dismountVehicle));
         }
 
         if (protocolVersion >= 762 && protocolVersion <= 765)
@@ -69,7 +56,7 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
             var pitch = reader.ReadFloat();
             var flags = reader.ReadType<PositionUpdateRelatives>(protocolVersion);
             var teleportId = reader.ReadVarInt();
-            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, default!, default!, default!, default!);
+            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId);
         }
 
         if (protocolVersion >= 766 && protocolVersion <= 767)
@@ -81,7 +68,7 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
             var pitch = reader.ReadFloat();
             var flags = reader.ReadType<PositionUpdateRelatives>(protocolVersion);
             var teleportId = reader.ReadVarInt();
-            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, default!, default!, default!, default!);
+            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId);
         }
 
         if (protocolVersion >= 768)
@@ -96,7 +83,7 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
             var yaw = reader.ReadFloat();
             var pitch = reader.ReadFloat();
             var flags = reader.ReadType<PositionUpdateRelatives>(protocolVersion);
-            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, default!, dx, dy, dz);
+            return new PlayerPositionPacket(x, y, z, yaw, pitch, flags, teleportId, V768_Last: new V768_LastLayer(dx, dy, dz));
         }
 
         throw new System.NotSupportedException($"PlayerPositionPacket has no wire layout for protocol version {protocolVersion}.");
@@ -119,6 +106,8 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
 
         if (protocolVersion >= 755 && protocolVersion <= 761)
         {
+            var layer = V755_761 ?? throw new WrongLayerException("PlayerPositionPacket", protocolVersion, "V755_761");
+            bool DismountVehicle = layer.DismountVehicle;
             writer.WriteDouble(X);
             writer.WriteDouble(Y);
             writer.WriteDouble(Z);
@@ -156,6 +145,10 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
 
         if (protocolVersion >= 768)
         {
+            var layer = V768_Last ?? throw new WrongLayerException("PlayerPositionPacket", protocolVersion, "V768_Last");
+            double Dx = layer.Dx;
+            double Dy = layer.Dy;
+            double Dz = layer.Dz;
             writer.WriteVarInt(TeleportId);
             writer.WriteDouble(X);
             writer.WriteDouble(Y);
@@ -172,40 +165,84 @@ public sealed partial class PlayerPositionPacket : IProtocolType<PlayerPositionP
         throw new System.NotSupportedException($"PlayerPositionPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.position", "PlayerPosition", PacketPhase.Play, PacketDirection.Clientbound, 8);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x35;
+        {
+            id = 0x35;
+            return true;
+        }
+
         if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x34;
-        if (protocolVersion >= 755 && protocolVersion <= 755)
-            return 0x38;
-        if (protocolVersion >= 756 && protocolVersion <= 756)
-            return 0x38;
-        if (protocolVersion >= 757 && protocolVersion <= 758)
-            return 0x38;
+        {
+            id = 0x34;
+            return true;
+        }
+
+        if (protocolVersion >= 755 && protocolVersion <= 758)
+        {
+            id = 0x38;
+            return true;
+        }
+
         if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x36;
+        {
+            id = 0x36;
+            return true;
+        }
+
         if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x39;
+        {
+            id = 0x39;
+            return true;
+        }
+
         if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x38;
+        {
+            id = 0x38;
+            return true;
+        }
+
         if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x3C;
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x3E;
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x3E;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x40;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x40;
+        {
+            id = 0x3C;
+            return true;
+        }
+
+        if (protocolVersion >= 764 && protocolVersion <= 765)
+        {
+            id = 0x3E;
+            return true;
+        }
+
+        if (protocolVersion >= 766 && protocolVersion <= 767)
+        {
+            id = 0x40;
+            return true;
+        }
+
         if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x42;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x41;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x41;
+        {
+            id = 0x42;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x41;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

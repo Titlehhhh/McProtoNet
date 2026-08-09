@@ -4,41 +4,72 @@ using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
+[Packet("play.toClient.respawn", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("Dimension", "string", Group = "VUntil736", To = 736)]
+[PacketField("WorldName", "string", Group = "VUntil736", To = 736)]
+[PacketField("HashedSeed", "long", Group = "VUntil736", To = 736)]
+[PacketField("Gamemode", "int", Group = "VUntil736", To = 736)]
+[PacketField("PreviousGamemode", "int", Group = "VUntil736", To = 736)]
+[PacketField("IsDebug", "bool", Group = "VUntil736", To = 736)]
+[PacketField("IsFlat", "bool", Group = "VUntil736", To = 736)]
+[PacketField("CopyMetadata", "bool", Group = "VUntil736", To = 736)]
+[PacketField("DimensionNbt", "NbtTag", Group = "V751_758", From = 751, To = 758)]
+[PacketField("WorldName", "string", Group = "V751_758", From = 751, To = 758)]
+[PacketField("HashedSeed", "long", Group = "V751_758", From = 751, To = 758)]
+[PacketField("Gamemode", "int", Group = "V751_758", From = 751, To = 758)]
+[PacketField("PreviousGamemode", "int", Group = "V751_758", From = 751, To = 758)]
+[PacketField("IsDebug", "bool", Group = "V751_758", From = 751, To = 758)]
+[PacketField("IsFlat", "bool", Group = "V751_758", From = 751, To = 758)]
+[PacketField("CopyMetadata", "bool", Group = "V751_758", From = 751, To = 758)]
+[PacketField("DimensionName", "string", Group = "V759", From = 759, To = 759)]
+[PacketField("WorldName", "string", Group = "V759", From = 759, To = 759)]
+[PacketField("HashedSeed", "long", Group = "V759", From = 759, To = 759)]
+[PacketField("Gamemode", "int", Group = "V759", From = 759, To = 759)]
+[PacketField("PreviousGamemode", "int", Group = "V759", From = 759, To = 759)]
+[PacketField("IsDebug", "bool", Group = "V759", From = 759, To = 759)]
+[PacketField("IsFlat", "bool", Group = "V759", From = 759, To = 759)]
+[PacketField("Death", "DeathLocation?", Group = "V759", From = 759, To = 759)]
+[PacketField("CopyMetadata", "bool", Group = "V759", From = 759, To = 759)]
+[PacketField("DimensionName", "string", Group = "V760_762", From = 760, To = 762)]
+[PacketField("WorldName", "string", Group = "V760_762", From = 760, To = 762)]
+[PacketField("HashedSeed", "long", Group = "V760_762", From = 760, To = 762)]
+[PacketField("Gamemode", "int", Group = "V760_762", From = 760, To = 762)]
+[PacketField("PreviousGamemode", "int", Group = "V760_762", From = 760, To = 762)]
+[PacketField("IsDebug", "bool", Group = "V760_762", From = 760, To = 762)]
+[PacketField("IsFlat", "bool", Group = "V760_762", From = 760, To = 762)]
+[PacketField("Death", "DeathLocation?", Group = "V760_762", From = 760, To = 762)]
+[PacketField("CopyMetadata", "bool", Group = "V760_762", From = 760, To = 762)]
+[PacketField("DimensionName", "string", Group = "V763", From = 763, To = 763)]
+[PacketField("WorldName", "string", Group = "V763", From = 763, To = 763)]
+[PacketField("HashedSeed", "long", Group = "V763", From = 763, To = 763)]
+[PacketField("Gamemode", "int", Group = "V763", From = 763, To = 763)]
+[PacketField("PreviousGamemode", "int", Group = "V763", From = 763, To = 763)]
+[PacketField("IsDebug", "bool", Group = "V763", From = 763, To = 763)]
+[PacketField("IsFlat", "bool", Group = "V763", From = 763, To = 763)]
+[PacketField("Death", "DeathLocation?", Group = "V763", From = 763, To = 763)]
+[PacketField("PortalCooldown", "int", Group = "V763", From = 763, To = 763)]
+[PacketField("CopyMetadata", "bool", Group = "V763", From = 763, To = 763)]
+[PacketField("DimensionName", "string", Group = "V764_765", From = 764, To = 765)]
+[PacketField("WorldName", "string", Group = "V764_765", From = 764, To = 765)]
+[PacketField("HashedSeed", "long", Group = "V764_765", From = 764, To = 765)]
+[PacketField("Gamemode", "int", Group = "V764_765", From = 764, To = 765)]
+[PacketField("PreviousGamemode", "int", Group = "V764_765", From = 764, To = 765)]
+[PacketField("IsDebug", "bool", Group = "V764_765", From = 764, To = 765)]
+[PacketField("IsFlat", "bool", Group = "V764_765", From = 764, To = 765)]
+[PacketField("Death", "DeathLocation?", Group = "V764_765", From = 764, To = 765)]
+[PacketField("PortalCooldown", "int", Group = "V764_765", From = 764, To = 765)]
+[PacketField("CopyMetadata", "bool", Group = "V764_765", From = 764, To = 765)]
+[PacketField("CopyMetadataByte", "int", Group = "V766_Last", From = 766)]
+[PacketField("WorldState", "SpawnInfo", Group = "V766_Last", From = 766)]
+public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil736 = null, RespawnPacket.V751_758Layer? V751_758 = null, RespawnPacket.V759Layer? V759 = null, RespawnPacket.V760_762Layer? V760_762 = null, RespawnPacket.V763Layer? V763 = null, RespawnPacket.V764_765Layer? V764_765 = null, RespawnPacket.V766_LastLayer? V766_Last = null) : IPacket<RespawnPacket>
 {
-    public string Dimension { get; }
-    public NbtTag DimensionNbt { get; }
-    public string DimensionName { get; }
-    public string WorldName { get; }
-    public long HashedSeed { get; }
-    public int Gamemode { get; }
-    public int PreviousGamemode { get; }
-    public bool IsDebug { get; }
-    public bool IsFlat { get; }
-    public DeathLocation? Death { get; }
-    public int PortalCooldown { get; }
-    public bool CopyMetadata { get; }
-    public int CopyMetadataByte { get; }
-    public SpawnInfo WorldState { get; }
-
-    public RespawnPacket(string dimension, NbtTag dimensionNbt, string dimensionName, string worldName, long hashedSeed, int gamemode, int previousGamemode, bool isDebug, bool isFlat, DeathLocation? death, int portalCooldown, bool copyMetadata, int copyMetadataByte, SpawnInfo worldState)
-    {
-        Dimension = dimension;
-        DimensionNbt = dimensionNbt;
-        DimensionName = dimensionName;
-        WorldName = worldName;
-        HashedSeed = hashedSeed;
-        Gamemode = gamemode;
-        PreviousGamemode = previousGamemode;
-        IsDebug = isDebug;
-        IsFlat = isFlat;
-        Death = death;
-        PortalCooldown = portalCooldown;
-        CopyMetadata = copyMetadata;
-        CopyMetadataByte = copyMetadataByte;
-        WorldState = worldState;
-    }
-
+    public readonly record struct VUntil736Layer(string Dimension, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, bool CopyMetadata);
+    public readonly record struct V751_758Layer(NbtTag DimensionNbt, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, bool CopyMetadata);
+    public readonly record struct V759Layer(string DimensionName, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, DeathLocation? Death, bool CopyMetadata);
+    public readonly record struct V760_762Layer(string DimensionName, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, DeathLocation? Death, bool CopyMetadata);
+    public readonly record struct V763Layer(string DimensionName, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, DeathLocation? Death, int PortalCooldown, bool CopyMetadata);
+    public readonly record struct V764_765Layer(string DimensionName, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, DeathLocation? Death, int PortalCooldown, bool CopyMetadata);
+    public readonly record struct V766_LastLayer(int CopyMetadataByte, SpawnInfo WorldState);
     public static RespawnPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<RespawnPacket>(protocolVersion);
@@ -52,7 +83,7 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
             var isDebug = reader.ReadBoolean();
             var isFlat = reader.ReadBoolean();
             var copyMetadata = reader.ReadBoolean();
-            return new RespawnPacket(dimension, default!, default!, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, default!, default!, copyMetadata, default!, default!);
+            return new RespawnPacket(VUntil736: new VUntil736Layer(dimension, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, copyMetadata));
         }
 
         if (protocolVersion >= 751 && protocolVersion <= 758)
@@ -65,7 +96,7 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
             var isDebug = reader.ReadBoolean();
             var isFlat = reader.ReadBoolean();
             var copyMetadata = reader.ReadBoolean();
-            return new RespawnPacket(default!, dimensionNbt, default!, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, default!, default!, copyMetadata, default!, default!);
+            return new RespawnPacket(V751_758: new V751_758Layer(dimensionNbt, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, copyMetadata));
         }
 
         if (protocolVersion >= 759 && protocolVersion <= 759)
@@ -81,7 +112,7 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
             DeathLocation? death = null;
             if (reader.ReadBoolean())
                 death = reader.ReadType<DeathLocation>(protocolVersion);
-            return new RespawnPacket(default!, default!, dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, default!, copyMetadata, default!, default!);
+            return new RespawnPacket(V759: new V759Layer(dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, copyMetadata));
         }
 
         if (protocolVersion >= 760 && protocolVersion <= 762)
@@ -97,7 +128,7 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
             DeathLocation? death = null;
             if (reader.ReadBoolean())
                 death = reader.ReadType<DeathLocation>(protocolVersion);
-            return new RespawnPacket(default!, default!, dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, default!, copyMetadata, default!, default!);
+            return new RespawnPacket(V760_762: new V760_762Layer(dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, copyMetadata));
         }
 
         if (protocolVersion >= 763 && protocolVersion <= 763)
@@ -114,7 +145,7 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
             if (reader.ReadBoolean())
                 death = reader.ReadType<DeathLocation>(protocolVersion);
             var portalCooldown = reader.ReadVarInt();
-            return new RespawnPacket(default!, default!, dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, portalCooldown, copyMetadata, default!, default!);
+            return new RespawnPacket(V763: new V763Layer(dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, portalCooldown, copyMetadata));
         }
 
         if (protocolVersion >= 764 && protocolVersion <= 765)
@@ -131,14 +162,14 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
                 death = reader.ReadType<DeathLocation>(protocolVersion);
             var portalCooldown = reader.ReadVarInt();
             var copyMetadata = reader.ReadBoolean();
-            return new RespawnPacket(default!, default!, dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, portalCooldown, copyMetadata, default!, default!);
+            return new RespawnPacket(V764_765: new V764_765Layer(dimensionName, worldName, hashedSeed, gamemode, previousGamemode, isDebug, isFlat, death, portalCooldown, copyMetadata));
         }
 
         if (protocolVersion >= 766)
         {
             var worldState = reader.ReadType<SpawnInfo>(protocolVersion);
             var copyMetadataByte = reader.ReadUnsignedByte();
-            return new RespawnPacket(default!, default!, default!, default!, default!, default!, default!, default!, default!, default!, default!, default!, copyMetadataByte, worldState);
+            return new RespawnPacket(V766_Last: new V766_LastLayer(copyMetadataByte, worldState));
         }
 
         throw new System.NotSupportedException($"RespawnPacket has no wire layout for protocol version {protocolVersion}.");
@@ -149,6 +180,15 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
         ThrowHelper.ThrowIfProtocolNotSupported<RespawnPacket>(protocolVersion);
         if (protocolVersion <= 736)
         {
+            var layer = VUntil736 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "VUntil736");
+            string Dimension = layer.Dimension;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteString(Dimension);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -162,6 +202,15 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 751 && protocolVersion <= 758)
         {
+            var layer = V751_758 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V751_758");
+            NbtTag DimensionNbt = layer.DimensionNbt;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteNbt(DimensionNbt);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -175,6 +224,16 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 759 && protocolVersion <= 759)
         {
+            var layer = V759 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V759");
+            string DimensionName = layer.DimensionName;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            DeathLocation? Death = layer.Death;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteString(DimensionName);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -191,6 +250,16 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 760 && protocolVersion <= 762)
         {
+            var layer = V760_762 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V760_762");
+            string DimensionName = layer.DimensionName;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            DeathLocation? Death = layer.Death;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteString(DimensionName);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -207,6 +276,17 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 763 && protocolVersion <= 763)
         {
+            var layer = V763 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V763");
+            string DimensionName = layer.DimensionName;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            DeathLocation? Death = layer.Death;
+            int PortalCooldown = layer.PortalCooldown;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteString(DimensionName);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -224,6 +304,17 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 764 && protocolVersion <= 765)
         {
+            var layer = V764_765 ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V764_765");
+            string DimensionName = layer.DimensionName;
+            string WorldName = layer.WorldName;
+            long HashedSeed = layer.HashedSeed;
+            int Gamemode = layer.Gamemode;
+            int PreviousGamemode = layer.PreviousGamemode;
+            bool IsDebug = layer.IsDebug;
+            bool IsFlat = layer.IsFlat;
+            DeathLocation? Death = layer.Death;
+            int PortalCooldown = layer.PortalCooldown;
+            bool CopyMetadata = layer.CopyMetadata;
             writer.WriteString(DimensionName);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
@@ -241,6 +332,9 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
 
         if (protocolVersion >= 766)
         {
+            var layer = V766_Last ?? throw new WrongLayerException("RespawnPacket", protocolVersion, "V766_Last");
+            int CopyMetadataByte = layer.CopyMetadataByte;
+            SpawnInfo WorldState = layer.WorldState;
             writer.WriteType<SpawnInfo>(WorldState, protocolVersion);
             writer.WriteUnsignedByte((byte)CopyMetadataByte);
             return;
@@ -249,40 +343,90 @@ public sealed partial class RespawnPacket : IProtocolType<RespawnPacket>
         throw new System.NotSupportedException($"RespawnPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 9);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x3A;
+        {
+            id = 0x3A;
+            return true;
+        }
+
         if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x39;
-        if (protocolVersion >= 755 && protocolVersion <= 755)
-            return 0x3D;
-        if (protocolVersion >= 756 && protocolVersion <= 756)
-            return 0x3D;
-        if (protocolVersion >= 757 && protocolVersion <= 758)
-            return 0x3D;
+        {
+            id = 0x39;
+            return true;
+        }
+
+        if (protocolVersion >= 755 && protocolVersion <= 758)
+        {
+            id = 0x3D;
+            return true;
+        }
+
         if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x3B;
+        {
+            id = 0x3B;
+            return true;
+        }
+
         if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x3E;
+        {
+            id = 0x3E;
+            return true;
+        }
+
         if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x3D;
+        {
+            id = 0x3D;
+            return true;
+        }
+
         if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x41;
+        {
+            id = 0x41;
+            return true;
+        }
+
         if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x43;
+        {
+            id = 0x43;
+            return true;
+        }
+
         if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x45;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x47;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x47;
+        {
+            id = 0x45;
+            return true;
+        }
+
+        if (protocolVersion >= 766 && protocolVersion <= 767)
+        {
+            id = 0x47;
+            return true;
+        }
+
         if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x4C;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x4B;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x4B;
+        {
+            id = 0x4C;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x4B;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

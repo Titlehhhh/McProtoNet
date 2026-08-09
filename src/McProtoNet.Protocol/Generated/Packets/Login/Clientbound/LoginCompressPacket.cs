@@ -3,7 +3,9 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct LoginCompressPacket(int Threshold) : IProtocolType<LoginCompressPacket>
+[Packet("login.toClient.compress", PacketPhase.Login, PacketDirection.Clientbound)]
+[PacketField("Threshold", "int")]
+public sealed partial record LoginCompressPacket(int Threshold) : IPacket<LoginCompressPacket>
 {
     public static LoginCompressPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -12,18 +14,30 @@ public readonly partial record struct LoginCompressPacket(int Threshold) : IProt
         return new LoginCompressPacket(threshold);
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginCompressPacket>(protocolVersion);
         writer.WriteVarInt(Threshold);
     }
 
+    public static PacketIdentity Identity => new("login.toClient.compress", "LoginCompress", PacketPhase.Login, PacketDirection.Clientbound, 0);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 735 && protocolVersion <= 772)
+        {
+            id = 0x03;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 765)
-            return 0x03;
-        if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x03;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

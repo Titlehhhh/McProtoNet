@@ -3,7 +3,9 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct LockDifficultyPacket(bool Locked) : IProtocolType<LockDifficultyPacket>
+[Packet("play.toServer.lock_difficulty", PacketPhase.Play, PacketDirection.Serverbound)]
+[PacketField("Locked", "bool")]
+public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDifficultyPacket>
 {
     public static LockDifficultyPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -12,42 +14,96 @@ public readonly partial record struct LockDifficultyPacket(bool Locked) : IProto
         return new LockDifficultyPacket(locked);
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LockDifficultyPacket>(protocolVersion);
         writer.WriteBoolean(Locked);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 1);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x11;
+        {
+            id = 0x11;
+            return true;
+        }
+
         if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x11;
+        {
+            id = 0x11;
+            return true;
+        }
+
         if (protocolVersion >= 755 && protocolVersion <= 758)
-            return 0x10;
+        {
+            id = 0x10;
+            return true;
+        }
+
         if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x12;
+        {
+            id = 0x12;
+            return true;
+        }
+
         if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x13;
+        {
+            id = 0x13;
+            return true;
+        }
+
         if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x12;
+        {
+            id = 0x12;
+            return true;
+        }
+
         if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x13;
+        {
+            id = 0x13;
+            return true;
+        }
+
         if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x15;
+        {
+            id = 0x15;
+            return true;
+        }
+
         if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x16;
+        {
+            id = 0x16;
+            return true;
+        }
+
         if (protocolVersion >= 766 && protocolVersion <= 767)
-            return 0x19;
-        if (protocolVersion >= 768 && protocolVersion <= 768)
-            return 0x1B;
-        if (protocolVersion >= 769 && protocolVersion <= 769)
-            return 0x1B;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x1B;
+        {
+            id = 0x19;
+            return true;
+        }
+
+        if (protocolVersion >= 768 && protocolVersion <= 770)
+        {
+            id = 0x1B;
+            return true;
+        }
+
         if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x1C;
+        {
+            id = 0x1C;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

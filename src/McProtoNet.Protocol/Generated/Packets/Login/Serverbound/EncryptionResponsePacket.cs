@@ -3,21 +3,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionResponsePacket>
+[Packet("login.toServer.encryption_begin", PacketPhase.Login, PacketDirection.Serverbound)]
+[PacketField("SharedSecret", "byte[]")]
+[PacketField("VerifyToken", "byte[]?")]
+public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[]? VerifyToken) : IPacket<EncryptionResponsePacket>
 {
-    public byte[] SharedSecret { get; }
-    public byte[]? VerifyToken { get; }
-    public long? Salt { get; }
-    public byte[]? MessageSignature { get; }
-
-    public EncryptionResponsePacket(byte[] sharedSecret, byte[]? verifyToken, long? salt, byte[]? messageSignature)
-    {
-        SharedSecret = sharedSecret;
-        VerifyToken = verifyToken;
-        Salt = salt;
-        MessageSignature = messageSignature;
-    }
-
     public static EncryptionResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EncryptionResponsePacket>(protocolVersion);
@@ -25,7 +15,7 @@ public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionR
         {
             var sharedSecret = reader.ReadByteArray();
             var verifyToken = reader.ReadByteArray();
-            return new EncryptionResponsePacket(sharedSecret, verifyToken, default!, default!);
+            return new EncryptionResponsePacket(sharedSecret, verifyToken);
         }
 
         if (protocolVersion >= 759 && protocolVersion <= 760)
@@ -38,7 +28,7 @@ public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionR
         {
             var sharedSecret = reader.ReadByteArray();
             var verifyToken = reader.ReadByteArray();
-            return new EncryptionResponsePacket(sharedSecret, verifyToken, default!, default!);
+            return new EncryptionResponsePacket(sharedSecret, verifyToken);
         }
 
         throw new System.NotSupportedException($"EncryptionResponsePacket has no wire layout for protocol version {protocolVersion}.");
@@ -71,14 +61,24 @@ public sealed partial class EncryptionResponsePacket : IProtocolType<EncryptionR
         throw new System.NotSupportedException($"EncryptionResponsePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
+    public static PacketIdentity Identity => new("login.toServer.encryption_begin", "EncryptionResponse", PacketPhase.Login, PacketDirection.Serverbound, 1);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 735 && protocolVersion <= 772)
+        {
+            id = 0x01;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 763)
-            return 0x01;
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-            return 0x01;
-        if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x01;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

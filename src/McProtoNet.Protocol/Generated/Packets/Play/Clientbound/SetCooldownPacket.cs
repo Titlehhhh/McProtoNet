@@ -3,19 +3,14 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class SetCooldownPacket : IProtocolType<SetCooldownPacket>
+[Packet("play.toClient.set_cooldown", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("CooldownTicks", "int")]
+[PacketField("ItemId", "int", Group = "VUntil767", To = 767)]
+[PacketField("CooldownGroup", "string", Group = "V768_Last", From = 768)]
+public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPacket.VUntil767Layer? VUntil767 = null, SetCooldownPacket.V768_LastLayer? V768_Last = null) : IPacket<SetCooldownPacket>
 {
-    public int ItemId { get; }
-    public string CooldownGroup { get; }
-    public int CooldownTicks { get; }
-
-    public SetCooldownPacket(int itemId, string cooldownGroup, int cooldownTicks)
-    {
-        ItemId = itemId;
-        CooldownGroup = cooldownGroup;
-        CooldownTicks = cooldownTicks;
-    }
-
+    public readonly record struct VUntil767Layer(int ItemId);
+    public readonly record struct V768_LastLayer(string CooldownGroup);
     public static SetCooldownPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SetCooldownPacket>(protocolVersion);
@@ -23,14 +18,14 @@ public sealed partial class SetCooldownPacket : IProtocolType<SetCooldownPacket>
         {
             var itemId = reader.ReadVarInt();
             var cooldownTicks = reader.ReadVarInt();
-            return new SetCooldownPacket(itemId, default!, cooldownTicks);
+            return new SetCooldownPacket(cooldownTicks, VUntil767: new VUntil767Layer(itemId));
         }
 
         if (protocolVersion >= 768)
         {
             var cooldownGroup = reader.ReadString();
             var cooldownTicks = reader.ReadVarInt();
-            return new SetCooldownPacket(default!, cooldownGroup, cooldownTicks);
+            return new SetCooldownPacket(cooldownTicks, V768_Last: new V768_LastLayer(cooldownGroup));
         }
 
         throw new System.NotSupportedException($"SetCooldownPacket has no wire layout for protocol version {protocolVersion}.");
@@ -41,6 +36,8 @@ public sealed partial class SetCooldownPacket : IProtocolType<SetCooldownPacket>
         ThrowHelper.ThrowIfProtocolNotSupported<SetCooldownPacket>(protocolVersion);
         if (protocolVersion <= 767)
         {
+            var layer = VUntil767 ?? throw new WrongLayerException("SetCooldownPacket", protocolVersion, "VUntil767");
+            int ItemId = layer.ItemId;
             writer.WriteVarInt(ItemId);
             writer.WriteVarInt(CooldownTicks);
             return;
@@ -48,6 +45,8 @@ public sealed partial class SetCooldownPacket : IProtocolType<SetCooldownPacket>
 
         if (protocolVersion >= 768)
         {
+            var layer = V768_Last ?? throw new WrongLayerException("SetCooldownPacket", protocolVersion, "V768_Last");
+            string CooldownGroup = layer.CooldownGroup;
             writer.WriteString(CooldownGroup);
             writer.WriteVarInt(CooldownTicks);
             return;
@@ -56,40 +55,72 @@ public sealed partial class SetCooldownPacket : IProtocolType<SetCooldownPacket>
         throw new System.NotSupportedException($"SetCooldownPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 10);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x17;
+        {
+            id = 0x17;
+            return true;
+        }
+
         if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x16;
-        if (protocolVersion >= 755 && protocolVersion <= 755)
-            return 0x17;
-        if (protocolVersion >= 756 && protocolVersion <= 756)
-            return 0x17;
-        if (protocolVersion >= 757 && protocolVersion <= 758)
-            return 0x17;
-        if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x14;
-        if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x14;
+        {
+            id = 0x16;
+            return true;
+        }
+
+        if (protocolVersion >= 755 && protocolVersion <= 758)
+        {
+            id = 0x17;
+            return true;
+        }
+
+        if (protocolVersion >= 759 && protocolVersion <= 760)
+        {
+            id = 0x14;
+            return true;
+        }
+
         if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x13;
+        {
+            id = 0x13;
+            return true;
+        }
+
         if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x15;
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x16;
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x16;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x17;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x17;
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x17;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x16;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x16;
+        {
+            id = 0x15;
+            return true;
+        }
+
+        if (protocolVersion >= 764 && protocolVersion <= 765)
+        {
+            id = 0x16;
+            return true;
+        }
+
+        if (protocolVersion >= 766 && protocolVersion <= 769)
+        {
+            id = 0x17;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x16;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

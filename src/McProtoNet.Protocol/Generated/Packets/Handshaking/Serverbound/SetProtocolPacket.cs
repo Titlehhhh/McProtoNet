@@ -3,21 +3,13 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class SetProtocolPacket : IProtocolType<SetProtocolPacket>
+[Packet("handshaking.toServer.set_protocol", PacketPhase.Handshaking, PacketDirection.Serverbound)]
+[PacketField("ProtocolVersion", "int")]
+[PacketField("ServerHost", "string")]
+[PacketField("ServerPort", "int")]
+[PacketField("NextState", "int")]
+public sealed partial record SetProtocolPacket(int ProtocolVersion, string ServerHost, int ServerPort, int NextState) : IPacket<SetProtocolPacket>
 {
-    public int ProtocolVersion { get; }
-    public string ServerHost { get; }
-    public int ServerPort { get; }
-    public int NextState { get; }
-
-    public SetProtocolPacket(int protocolVersion, string serverHost, int serverPort, int nextState)
-    {
-        ProtocolVersion = protocolVersion;
-        ServerHost = serverHost;
-        ServerPort = serverPort;
-        NextState = nextState;
-    }
-
     public static SetProtocolPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SetProtocolPacket>(protocolVersion);
@@ -37,10 +29,24 @@ public sealed partial class SetProtocolPacket : IProtocolType<SetProtocolPacket>
         writer.WriteVarInt(NextState);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("handshaking.toServer.set_protocol", "SetProtocol", PacketPhase.Handshaking, PacketDirection.Serverbound, 1);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 772)
-            return 0x00;
+        {
+            id = 0x00;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

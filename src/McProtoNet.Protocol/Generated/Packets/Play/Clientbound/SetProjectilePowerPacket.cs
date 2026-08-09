@@ -3,19 +3,14 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
-public sealed partial class SetProjectilePowerPacket : IProtocolType<SetProjectilePowerPacket>
+[Packet("play.toClient.set_projectile_power", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("Id", "int")]
+[PacketField("Power", "Vec3f64", Group = "V766", From = 766, To = 766)]
+[PacketField("AccelerationPower", "double", Group = "V767_Last", From = 767)]
+public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePowerPacket.V766Layer? V766 = null, SetProjectilePowerPacket.V767_LastLayer? V767_Last = null) : IPacket<SetProjectilePowerPacket>
 {
-    public int Id { get; }
-    public Vec3f64 Power { get; }
-    public double AccelerationPower { get; }
-
-    public SetProjectilePowerPacket(int id, Vec3f64 power, double accelerationPower)
-    {
-        Id = id;
-        Power = power;
-        AccelerationPower = accelerationPower;
-    }
-
+    public readonly record struct V766Layer(Vec3f64 Power);
+    public readonly record struct V767_LastLayer(double AccelerationPower);
     public static SetProjectilePowerPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SetProjectilePowerPacket>(protocolVersion);
@@ -23,14 +18,14 @@ public sealed partial class SetProjectilePowerPacket : IProtocolType<SetProjecti
         {
             var id = reader.ReadVarInt();
             var power = reader.ReadType<Vec3f64>(protocolVersion);
-            return new SetProjectilePowerPacket(id, power, default!);
+            return new SetProjectilePowerPacket(id, V766: new V766Layer(power));
         }
 
         if (protocolVersion >= 767)
         {
             var id = reader.ReadVarInt();
             var accelerationPower = reader.ReadDouble();
-            return new SetProjectilePowerPacket(id, default!, accelerationPower);
+            return new SetProjectilePowerPacket(id, V767_Last: new V767_LastLayer(accelerationPower));
         }
 
         throw new System.NotSupportedException($"SetProjectilePowerPacket has no wire layout for protocol version {protocolVersion}.");
@@ -41,6 +36,8 @@ public sealed partial class SetProjectilePowerPacket : IProtocolType<SetProjecti
         ThrowHelper.ThrowIfProtocolNotSupported<SetProjectilePowerPacket>(protocolVersion);
         if (protocolVersion >= 766 && protocolVersion <= 766)
         {
+            var layer = V766 ?? throw new WrongLayerException("SetProjectilePowerPacket", protocolVersion, "V766");
+            Vec3f64 Power = layer.Power;
             writer.WriteVarInt(Id);
             writer.WriteType<Vec3f64>(Power, protocolVersion);
             return;
@@ -48,6 +45,8 @@ public sealed partial class SetProjectilePowerPacket : IProtocolType<SetProjecti
 
         if (protocolVersion >= 767)
         {
+            var layer = V767_Last ?? throw new WrongLayerException("SetProjectilePowerPacket", protocolVersion, "V767_Last");
+            double AccelerationPower = layer.AccelerationPower;
             writer.WriteVarInt(Id);
             writer.WriteDouble(AccelerationPower);
             return;
@@ -56,18 +55,30 @@ public sealed partial class SetProjectilePowerPacket : IProtocolType<SetProjecti
         throw new System.NotSupportedException($"SetProjectilePowerPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
+    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 11);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 766 && protocolVersion <= 767)
+        {
+            id = 0x79;
+            return true;
+        }
+
+        if (protocolVersion >= 768 && protocolVersion <= 772)
+        {
+            id = 0x80;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x79;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x79;
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x80;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x80;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x80;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

@@ -3,17 +3,11 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
-public sealed partial class MoveMinecartPacket : IProtocolType<MoveMinecartPacket>
+[Packet("play.toClient.move_minecart", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("EntityId", "int")]
+[PacketField("Steps", "MinecartStep[]")]
+public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Steps) : IPacket<MoveMinecartPacket>
 {
-    public int EntityId { get; }
-    public MinecartStep[] Steps { get; }
-
-    public MoveMinecartPacket(int entityId, MinecartStep[] steps)
-    {
-        EntityId = entityId;
-        Steps = steps;
-    }
-
     public static MoveMinecartPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<MoveMinecartPacket>(protocolVersion);
@@ -34,14 +28,30 @@ public sealed partial class MoveMinecartPacket : IProtocolType<MoveMinecartPacke
             writer.WriteType<MinecartStep>(stepsItem, protocolVersion);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 7);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x31;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x30;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x30;
+        {
+            id = 0x31;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x30;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

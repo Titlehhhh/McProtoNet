@@ -4,8 +4,23 @@ using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct SpawnEntityPacket(int EntityId, Guid ObjectUuid, int Type, double X, double Y, double Z, int Pitch, int Yaw, int HeadPitch, int ObjectData, int VelocityX, int VelocityY, int VelocityZ) : IProtocolType<SpawnEntityPacket>
+[Packet("play.toClient.spawn_entity", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("EntityId", "int")]
+[PacketField("ObjectUuid", "Guid")]
+[PacketField("Type", "int")]
+[PacketField("X", "double")]
+[PacketField("Y", "double")]
+[PacketField("Z", "double")]
+[PacketField("Pitch", "int")]
+[PacketField("Yaw", "int")]
+[PacketField("ObjectData", "int")]
+[PacketField("VelocityX", "int")]
+[PacketField("VelocityY", "int")]
+[PacketField("VelocityZ", "int")]
+[PacketField("HeadPitch", "int", Group = "V759_Last", From = 759)]
+public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, int Type, double X, double Y, double Z, int Pitch, int Yaw, int ObjectData, int VelocityX, int VelocityY, int VelocityZ, SpawnEntityPacket.V759_LastLayer? V759_Last = null) : IPacket<SpawnEntityPacket>
 {
+    public readonly record struct V759_LastLayer(int HeadPitch);
     public static SpawnEntityPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SpawnEntityPacket>(protocolVersion);
@@ -23,7 +38,7 @@ public readonly partial record struct SpawnEntityPacket(int EntityId, Guid Objec
             var velocityX = reader.ReadSignedShort();
             var velocityY = reader.ReadSignedShort();
             var velocityZ = reader.ReadSignedShort();
-            return new SpawnEntityPacket(entityId, objectUuid, type, x, y, z, pitch, yaw, default!, objectData, velocityX, velocityY, velocityZ);
+            return new SpawnEntityPacket(entityId, objectUuid, type, x, y, z, pitch, yaw, objectData, velocityX, velocityY, velocityZ);
         }
 
         if (protocolVersion >= 759)
@@ -41,13 +56,13 @@ public readonly partial record struct SpawnEntityPacket(int EntityId, Guid Objec
             var velocityX = reader.ReadSignedShort();
             var velocityY = reader.ReadSignedShort();
             var velocityZ = reader.ReadSignedShort();
-            return new SpawnEntityPacket(entityId, objectUuid, type, x, y, z, pitch, yaw, headPitch, objectData, velocityX, velocityY, velocityZ);
+            return new SpawnEntityPacket(entityId, objectUuid, type, x, y, z, pitch, yaw, objectData, velocityX, velocityY, velocityZ, V759_Last: new V759_LastLayer(headPitch));
         }
 
         throw new System.NotSupportedException($"SpawnEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SpawnEntityPacket>(protocolVersion);
         if (protocolVersion <= 758)
@@ -69,6 +84,8 @@ public readonly partial record struct SpawnEntityPacket(int EntityId, Guid Objec
 
         if (protocolVersion >= 759)
         {
+            var layer = V759_Last ?? throw new WrongLayerException("SpawnEntityPacket", protocolVersion, "V759_Last");
+            int HeadPitch = layer.HeadPitch;
             writer.WriteVarInt(EntityId);
             writer.WriteUUID(ObjectUuid);
             writer.WriteVarInt(Type);
@@ -88,40 +105,36 @@ public readonly partial record struct SpawnEntityPacket(int EntityId, Guid Objec
         throw new System.NotSupportedException($"SpawnEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 12);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 736)
-            return 0x00;
-        if (protocolVersion >= 751 && protocolVersion <= 754)
-            return 0x00;
-        if (protocolVersion >= 755 && protocolVersion <= 755)
-            return 0x00;
-        if (protocolVersion >= 756 && protocolVersion <= 756)
-            return 0x00;
-        if (protocolVersion >= 757 && protocolVersion <= 758)
-            return 0x00;
-        if (protocolVersion >= 759 && protocolVersion <= 759)
-            return 0x00;
-        if (protocolVersion >= 760 && protocolVersion <= 760)
-            return 0x00;
-        if (protocolVersion >= 761 && protocolVersion <= 761)
-            return 0x00;
-        if (protocolVersion >= 762 && protocolVersion <= 763)
-            return 0x01;
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-            return 0x01;
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-            return 0x01;
-        if (protocolVersion >= 766 && protocolVersion <= 766)
-            return 0x01;
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-            return 0x01;
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-            return 0x01;
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-            return 0x01;
-        if (protocolVersion >= 771 && protocolVersion <= 772)
-            return 0x01;
+        {
+            id = 0x00;
+            return true;
+        }
+
+        if (protocolVersion >= 751 && protocolVersion <= 761)
+        {
+            id = 0x00;
+            return true;
+        }
+
+        if (protocolVersion >= 762 && protocolVersion <= 772)
+        {
+            id = 0x01;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

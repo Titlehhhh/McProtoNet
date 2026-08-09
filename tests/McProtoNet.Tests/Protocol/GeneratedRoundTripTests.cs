@@ -4,6 +4,7 @@ using McProtoNet.Protocol;
 using McProtoNet.Serialization;
 using ConfigCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfigSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
+using LoginSb = McProtoNet.Protocol.Packets.Login.Serverbound;
 using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
 
 namespace McProtoNet.Tests.Protocol;
@@ -136,7 +137,7 @@ public class GeneratedRoundTripTests
     [Fact]
     public void ClientInformation_766_8Fields_RoundTrips()
     {
-        var p = new ConfigSb.ClientInformationPacket("en_us", 10, 0, true, 0x7F, 1, true, true, default);
+        var p = new ConfigSb.ClientInformationPacket("en_us", 10, 0, true, 0x7F, 1, true, true);
         var back = RoundTrip(p, 766);
 
         Assert.Equal(p.Locale, back.Locale);
@@ -152,7 +153,7 @@ public class GeneratedRoundTripTests
     [Fact]
     public void ClientInformation_772_9Fields_RoundTrips()
     {
-        var p = new ConfigSb.ClientInformationPacket("ru_ru", 32, 1, false, 0x3F, 0, false, true, 2);
+        var p = new ConfigSb.ClientInformationPacket("ru_ru", 32, 1, false, 0x3F, 0, false, true, V768_Last: new(2));
         var back = RoundTrip(p, 772);
 
         Assert.Equal(p.Locale, back.Locale);
@@ -163,7 +164,18 @@ public class GeneratedRoundTripTests
         Assert.Equal(p.MainHand, back.MainHand);
         Assert.Equal(p.EnableTextFiltering, back.EnableTextFiltering);
         Assert.Equal(p.EnableServerListing, back.EnableServerListing);
-        Assert.Equal(p.ParticleStatus, back.ParticleStatus);
+        Assert.Equal(2, back.V768_Last?.ParticleStatus);
+    }
+
+    // Form-A contract: writing at a version whose layer group is not filled must throw, never
+    // send a half-formed packet.
+    [Fact]
+    public void ClientInformation_772_WithoutLayer_ThrowsWrongLayer()
+    {
+        var p = new ConfigSb.ClientInformationPacket("en_us", 10, 0, true, 0x7F, 1, true, true);
+        var writer = new MinecraftPrimitiveWriter();
+
+        Assert.Throws<WrongLayerException>(() => p.Write(writer, 772));
     }
 
     // ── Configuration FinishConfiguration (empty packet) ──────────────────────
@@ -201,9 +213,9 @@ public class GeneratedRoundTripTests
     [Fact]
     public void Disconnect_764_StringReason_RoundTrips()
     {
-        var p = new ConfigCb.DisconnectPacket("{\"text\":\"kicked\"}", null!);
+        var p = new ConfigCb.DisconnectPacket(V764: new("{\"text\":\"kicked\"}"));
         var back = RoundTrip(p, 764);
-        Assert.Equal(p.ReasonJson, back.ReasonJson);
+        Assert.Equal(p.V764?.ReasonJson, back.V764?.ReasonJson);
     }
 
     // MinecraftPrimitiveWriter.WriteNbt(NbtTag) opens a new NbtWriter(stream, "") - which
@@ -218,11 +230,42 @@ public class GeneratedRoundTripTests
     public void Disconnect_772_NbtReason_RoundTrips()
     {
         var reason = new NbtCompound("") { new NbtString("text", "Bye") };
-        var p = new ConfigCb.DisconnectPacket("unused", reason);
+        var p = new ConfigCb.DisconnectPacket(V765_Last: new(reason));
         var back = RoundTrip(p, 772);
 
-        var backCompound = Assert.IsType<NbtCompound>(back.Reason);
+        var backCompound = Assert.IsType<NbtCompound>(back.V765_Last?.Reason);
         Assert.Equal("Bye", backCompound.Get<NbtString>("text")!.Value);
+    }
+
+    // ── Login LoginStart: the artifact's showcase packet, four layers ─────────
+
+    [Fact]
+    public void LoginStart_758_CommonOnly_RoundTrips()
+    {
+        var p = new LoginSb.LoginStartPacket("TitleBot");
+        var back = RoundTrip(p, 758);
+        Assert.Equal("TitleBot", back.Username);
+        Assert.Null(back.V764_Last);
+    }
+
+    [Fact]
+    public void LoginStart_772_V764Layer_RoundTrips()
+    {
+        var uuid = Guid.NewGuid();
+        var p = new LoginSb.LoginStartPacket("TitleBot", V764_Last: new(uuid));
+        var back = RoundTrip(p, 772);
+
+        Assert.Equal("TitleBot", back.Username);
+        Assert.Equal(uuid, back.V764_Last?.PlayerUuid);
+    }
+
+    [Fact]
+    public void LoginStart_772_WithoutLayer_ThrowsWrongLayer()
+    {
+        var p = new LoginSb.LoginStartPacket("TitleBot");
+        var writer = new MinecraftPrimitiveWriter();
+
+        Assert.Throws<WrongLayerException>(() => p.Write(writer, 772));
     }
 
     // ── GetPacketId vs the fs packet-id manifest (Spec/protocol-ids.json) ─────

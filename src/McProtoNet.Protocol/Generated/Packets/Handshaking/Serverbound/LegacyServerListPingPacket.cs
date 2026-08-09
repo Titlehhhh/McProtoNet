@@ -3,7 +3,9 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public readonly partial record struct LegacyServerListPingPacket(int Payload) : IProtocolType<LegacyServerListPingPacket>
+[Packet("handshaking.toServer.legacy_server_list_ping", PacketPhase.Handshaking, PacketDirection.Serverbound)]
+[PacketField("Payload", "int")]
+public sealed partial record LegacyServerListPingPacket(int Payload) : IPacket<LegacyServerListPingPacket>
 {
     public static LegacyServerListPingPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -12,16 +14,30 @@ public readonly partial record struct LegacyServerListPingPacket(int Payload) : 
         return new LegacyServerListPingPacket(payload);
     }
 
-    public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LegacyServerListPingPacket>(protocolVersion);
         writer.WriteUnsignedByte((byte)Payload);
     }
 
-    public static int GetPacketId(int protocolVersion)
+    public static PacketIdentity Identity => new("handshaking.toServer.legacy_server_list_ping", "LegacyServerListPing", PacketPhase.Handshaking, PacketDirection.Serverbound, 0);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
     {
         if (protocolVersion >= 735 && protocolVersion <= 772)
-            return 0xFE;
+        {
+            id = 0xFE;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }

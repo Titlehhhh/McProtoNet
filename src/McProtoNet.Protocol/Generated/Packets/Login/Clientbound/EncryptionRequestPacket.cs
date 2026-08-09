@@ -3,21 +3,14 @@ using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
-public sealed partial class EncryptionRequestPacket : IProtocolType<EncryptionRequestPacket>
+[Packet("login.toClient.encryption_begin", PacketPhase.Login, PacketDirection.Clientbound)]
+[PacketField("ServerId", "string")]
+[PacketField("PublicKey", "byte[]")]
+[PacketField("VerifyToken", "byte[]")]
+[PacketField("ShouldAuthenticate", "bool", Group = "V766_Last", From = 766)]
+public sealed partial record EncryptionRequestPacket(string ServerId, byte[] PublicKey, byte[] VerifyToken, EncryptionRequestPacket.V766_LastLayer? V766_Last = null) : IPacket<EncryptionRequestPacket>
 {
-    public string ServerId { get; }
-    public byte[] PublicKey { get; }
-    public byte[] VerifyToken { get; }
-    public bool ShouldAuthenticate { get; }
-
-    public EncryptionRequestPacket(string serverId, byte[] publicKey, byte[] verifyToken, bool shouldAuthenticate)
-    {
-        ServerId = serverId;
-        PublicKey = publicKey;
-        VerifyToken = verifyToken;
-        ShouldAuthenticate = shouldAuthenticate;
-    }
-
+    public readonly record struct V766_LastLayer(bool ShouldAuthenticate);
     public static EncryptionRequestPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EncryptionRequestPacket>(protocolVersion);
@@ -26,7 +19,7 @@ public sealed partial class EncryptionRequestPacket : IProtocolType<EncryptionRe
             var serverId = reader.ReadString();
             var publicKey = reader.ReadByteArray();
             var verifyToken = reader.ReadByteArray();
-            return new EncryptionRequestPacket(serverId, publicKey, verifyToken, default!);
+            return new EncryptionRequestPacket(serverId, publicKey, verifyToken);
         }
 
         if (protocolVersion >= 766)
@@ -35,7 +28,7 @@ public sealed partial class EncryptionRequestPacket : IProtocolType<EncryptionRe
             var publicKey = reader.ReadByteArray();
             var verifyToken = reader.ReadByteArray();
             var shouldAuthenticate = reader.ReadBoolean();
-            return new EncryptionRequestPacket(serverId, publicKey, verifyToken, shouldAuthenticate);
+            return new EncryptionRequestPacket(serverId, publicKey, verifyToken, V766_Last: new V766_LastLayer(shouldAuthenticate));
         }
 
         throw new System.NotSupportedException($"EncryptionRequestPacket has no wire layout for protocol version {protocolVersion}.");
@@ -54,6 +47,8 @@ public sealed partial class EncryptionRequestPacket : IProtocolType<EncryptionRe
 
         if (protocolVersion >= 766)
         {
+            var layer = V766_Last ?? throw new WrongLayerException("EncryptionRequestPacket", protocolVersion, "V766_Last");
+            bool ShouldAuthenticate = layer.ShouldAuthenticate;
             writer.WriteString(ServerId);
             writer.WriteByteArray(PublicKey);
             writer.WriteByteArray(VerifyToken);
@@ -64,12 +59,24 @@ public sealed partial class EncryptionRequestPacket : IProtocolType<EncryptionRe
         throw new System.NotSupportedException($"EncryptionRequestPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
+    public static PacketIdentity Identity => new("login.toClient.encryption_begin", "EncryptionRequest", PacketPhase.Login, PacketDirection.Clientbound, 3);
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 735 && protocolVersion <= 772)
+        {
+            id = 0x01;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
     public static int GetPacketId(int protocolVersion)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 765)
-            return 0x01;
-        if (protocolVersion >= 766 && protocolVersion <= 772)
-            return 0x01;
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
         throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
     }
 }
