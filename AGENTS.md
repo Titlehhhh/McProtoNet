@@ -100,9 +100,9 @@ pre-attribute convention and are absent from the registry.
 ## Where the details are
 
 - Full anatomy with file/line evidence:
-  `../mcprotonet-workspace/docs/design/mcprotonet-anatomy.md` (local
-  workspace only; snapshot of f9fd575, 2026-07-24 — verify line refs against
-  HEAD before relying on them).
+  `../docs/design/mcprotonet-anatomy.md` (in the workspace repo this clone
+  lives inside; local only; snapshot of f9fd575, 2026-07-24 — verify line
+  refs against HEAD before relying on them).
 - AI-layer research and rationale for this file:
   `docs/research/mcprotonet-ai-research-compendium.md`.
 - Writerside docs in `docs/topics/` — useful for intent, stale in places
