@@ -49,3 +49,7 @@ This project is indexed by GitNexus as **McProtoNet** (2839 symbols, 6595 relati
 | Index, status, clean, wiki CLI commands | `.claude/skills/gitnexus/gitnexus-cli/SKILL.md` |
 
 <!-- gitnexus:end -->
+
+The index numbers above are a snapshot at commit 94880b0. Before trusting
+impact analysis, compare `.gitnexus/meta.json` (`lastCommit`) with HEAD; if
+the index lags, re-run the analysis first.
