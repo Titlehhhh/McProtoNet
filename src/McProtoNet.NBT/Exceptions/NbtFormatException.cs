@@ -7,7 +7,7 @@ namespace McProtoNet.NBT;
 [Serializable]
 public sealed class NbtFormatException : Exception
 {
-    internal NbtFormatException(string message)
+    public NbtFormatException(string message)
         : base(message)
     {
     }

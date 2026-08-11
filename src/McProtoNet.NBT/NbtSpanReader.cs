@@ -433,7 +433,8 @@ public ref struct NbtSpanReader
 
     internal string ReadString()
     {
-        int len = _reader.ReadBigEndian16();
+        // NBT string length is an unsigned big-endian short.
+        int len = (ushort)_reader.ReadBigEndian16();
         if (len == 0)
             return "";
         return Encoding.UTF8.GetString(_reader.Read(len));

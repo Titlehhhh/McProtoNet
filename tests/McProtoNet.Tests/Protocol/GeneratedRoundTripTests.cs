@@ -218,15 +218,15 @@ public class GeneratedRoundTripTests
         Assert.Equal(p.V764?.ReasonJson, back.V764?.ReasonJson);
     }
 
-    // MinecraftPrimitiveWriter.WriteNbt(NbtTag) opens a new NbtWriter(stream, "") - which
-    // immediately writes its own root Compound header - and then writes `value` as a *child* tag
-    // via the low-level WriteTag(NbtTag) API, without ever closing the auto-opened root. The bytes
-    // it produces are missing a trailing TAG_End for that root wrapper, so ReadNbtTag always throws
-    // EndOfStreamException reading them back. This is a pre-existing McProtoNet.NBT bug, unrelated
-    // to the generated code under test here: NbtRoundtripTests already documents it (13 of its 14
-    // tests are part of this project's known 33-failure baseline). Skipped rather than left out
-    // silently, so the coverage is visible and can be re-enabled once WriteNbt is fixed.
-    [Fact(Skip = "Blocked on pre-existing MinecraftPrimitiveWriter.WriteNbt bug (see NbtRoundtripTests baseline failures) - WriteNbt never closes the root tag it opens, so ReadNbtTag throws on any non-empty payload.")]
+    // WriteNbt itself is fixed (2026-08-10): it writes the nameless network root by default and
+    // has an explicit writeRootTag switch (see NbtWireFormatTests). What still blocks this test is
+    // the *generated* code: DisconnectPacket.Read calls reader.ReadNbtTag(true) (named root) while
+    // DisconnectPacket.Write calls writer.WriteNbt(Reason) (nameless root), so write->read cannot
+    // round-trip. McProtoFacts says the 765+ `reason` field is anonymousNbt, so the read flag is
+    // the wrong side; the fix is in the minecraft-protocol-fs codegen (emit matching root-format
+    // flags on both sides), not in this repo. Skipped rather than left out silently, so the
+    // coverage is visible and can be re-enabled after the next delivery.
+    [Fact(Skip = "Blocked on generated-code asymmetry: DisconnectPacket reads ReadNbtTag(true) but writes WriteNbt(nameless root). Fix belongs to minecraft-protocol-fs codegen; re-enable after redelivery.")]
     public void Disconnect_772_NbtReason_RoundTrips()
     {
         var reason = new NbtCompound("") { new NbtString("text", "Bye") };

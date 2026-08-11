@@ -394,18 +394,23 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an NBT tag from the reader
+    /// Reads an NBT tag from the reader without copying the buffer
     /// </summary>
-    /// <param name="readRootTag">Whether to read the root tag</param>
-    /// <returns>The NBT tag read</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    /// <param name="readRootTag">Whether the root tag carries a name (pre-network NBT format)</param>
+    /// <returns>The NBT tag read, or null when the first byte is TAG_End</returns>
     public NbtTag? ReadNbtTag(bool readRootTag)
     {
-        //throw new NotImplementedException();
-         NbtSpanReader nbtSpanReader = new NbtSpanReader(_reader.UnreadSequence.ToArray());
-         NbtTag? result = nbtSpanReader.ReadAsTag<NbtTag>(readRootTag);
-        
-         _reader.Advance(nbtSpanReader.ConsumedCount);
-         return result;
+        var unread = _reader.UnreadSequence;
+        if (unread.IsSingleSegment)
+        {
+            // Fast path: parse straight from the contiguous buffer.
+            var spanReader = new NbtSpanReader(unread.FirstSpan);
+            NbtTag? result = spanReader.ReadAsTag<NbtTag>(readRootTag);
+            _reader.Advance(spanReader.ConsumedCount);
+            return result;
+        }
+
+        // Multi-segment path: parse straight from the sequence.
+        return NbtSequenceReader.ReadTag(ref _reader, readRootTag);
     }
 }

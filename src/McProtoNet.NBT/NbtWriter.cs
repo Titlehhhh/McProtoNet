@@ -16,7 +16,7 @@ public sealed class NbtWriter
     private int _listIndex;
     private int _listSize;
     private NbtTagType _listType;
-    private Stack<NbtWriterNode> _nodes;
+    private Stack<NbtWriterNode>? _nodes;
     private NbtTagType _parentType;
 
 
@@ -81,14 +81,20 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Ensures that file has been written in its entirety, with no tags left open.
-    ///     This method is for verification only, and does not actually write any data.
-    ///     Calling this method is optional (but probably a good idea, to catch any usage errors).
+    ///     Closes the root compound (writing its TAG_End byte) if it is still open,
+    ///     and marks the writer as done. Safe to call after an explicit root
+    ///     <see cref="EndCompound" />, in which case it does nothing.
     /// </summary>
-    /// <exception cref="NbtFormatException"> Not all tags have been closed yet. </exception>
+    /// <exception cref="NbtFormatException"> A nested tag is still open. </exception>
     public void Finish()
     {
-        if (!IsDone) throw new NbtFormatException("Cannot finish: not all tags have been closed yet.");
+        if (IsDone) return;
+        if (_nodes is { Count: > 0 })
+            throw new NbtFormatException("Cannot finish: not all tags have been closed yet.");
+
+        // Only the root compound (opened by the constructor) remains — close it.
+        _writer.Write(NbtTagType.End);
+        IsDone = true;
     }
 
     private void GoDown(NbtTagType thisType)
