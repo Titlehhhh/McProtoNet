@@ -3,6 +3,7 @@
     <Project Path="benchmarks\McProtoNet.Benchmark\McProtoNet.Benchmark.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/samples/">
+    <Project Path="examples\MinimalBot\MinimalBot.csproj" Type="Classic C#" />
     <Project Path="examples\SimpleBotFSharp\SimpleBotFSharp.fsproj" Type="Classic F#" />
   </Folder>
   <Folder Name="/src/">

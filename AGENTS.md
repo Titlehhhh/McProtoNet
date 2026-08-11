@@ -22,7 +22,7 @@ unmarked statements are design invariants.
 | src/McProtoNet.Utils | SRV lookup, LAN detect | periphery |
 | src/McProtoNet.FSharp | F# facade | stub |
 | src/McProtoNet.Abstractions | — | defunct: no csproj; types moved into McProtoNet |
-| examples/MinimalBot | executable documentation of the packet layer | alive; not in the slnx |
+| examples/MinimalBot | executable documentation of the packet layer | alive; in the slnx under /samples/ |
 | tests/McProtoNet.Tests | xUnit v3: transport, serialization, NBT, packet-flow round-trips | alive; 33 tests red (see Commands) |
 | benchmarks/ | BenchmarkDotNet, perf contract lives here | alive |
 | TestServer/ | manual test server | broken: uses removed Abstractions; fails the solution build |
