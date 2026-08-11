@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <RootNamespace>McProtoNet.Next</RootNamespace>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+        <!-- Experiment project: lives next to the old API, not part of the .slnx. -->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj" />
+        <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj" />
+    </ItemGroup>
+
+</Project>
