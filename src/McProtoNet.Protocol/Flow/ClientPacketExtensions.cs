@@ -6,6 +6,15 @@ namespace McProtoNet.Protocol;
 /// <summary>
 ///     Typed send: id comes from the type, varint(id) + body assembly leaves consumer code.
 ///     The transport appends length and compression itself.
+///     <para>
+///     Both methods build the body in a writer rented from <see cref="MinecraftPrimitiveWriterCache" />
+///     and returned in a <c>finally</c> — one writer per thread instead of one per packet. They hand
+///     the transport <see cref="MinecraftPrimitiveWriter.WrittenMemory" /> directly, with no pooled
+///     copy in between: <c>SendPacketAsync</c> passes the body to <c>WritePacket</c>, which takes a
+///     <see cref="ReadOnlySpan{T}" /> and therefore cannot retain it, and it does so before its first
+///     await. The body is inside the pipe before the send task can complete, so the writer is free to
+///     be reused the moment the await returns.
+///     </para>
 /// </summary>
 public static class ClientPacketExtensions
 {
@@ -16,21 +25,33 @@ public static class ClientPacketExtensions
         if (!T.TryGetPacketId(protocolVersion, out var id))
             throw new UnsupportedVersionException(T.Identity.Key, protocolVersion);
 
-        var writer = new MinecraftPrimitiveWriter();
-        writer.WriteVarInt(id);
-        packet.Write(writer, protocolVersion);
-        using var owner = writer.GetWrittenMemory();
-        await client.SendPacketAsync(owner.Memory, cancellationToken).ConfigureAwait(false);
+        var writer = MinecraftPrimitiveWriterCache.Rent();
+        try
+        {
+            writer.WriteVarInt(id);
+            packet.Write(writer, protocolVersion);
+            await client.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            MinecraftPrimitiveWriterCache.Return(writer);
+        }
     }
 
     /// <summary>Low-level path stays open: panel injection, replays, fuzzing.</summary>
     public static async ValueTask SendRawAsync(this PipelinesMinecraftClient client, int id, ReadOnlyMemory<byte> body,
         CancellationToken cancellationToken = default)
     {
-        var writer = new MinecraftPrimitiveWriter();
-        writer.WriteVarInt(id);
-        writer.WriteBuffer(body.Span);
-        using var owner = writer.GetWrittenMemory();
-        await client.SendPacketAsync(owner.Memory, cancellationToken).ConfigureAwait(false);
+        var writer = MinecraftPrimitiveWriterCache.Rent();
+        try
+        {
+            writer.WriteVarInt(id);
+            writer.WriteBuffer(body.Span);
+            await client.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            MinecraftPrimitiveWriterCache.Return(writer);
+        }
     }
 }
