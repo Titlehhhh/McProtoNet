@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("Age", "long")]
 [PacketField("Time", "long")]
 [PacketField("TickDayTime", "bool", Group = "V768_Last", From = 768)]
-public sealed partial record UpdateTimePacket(long Age, long Time, UpdateTimePacket.V768_LastLayer? V768_Last = null) : IPacket<UpdateTimePacket>
+public sealed partial record UpdateTimePacket(long Age, long Time, UpdateTimePacket.V768_LastLayer? V768_Last = null) : IPacket<UpdateTimePacket>, IPacket
 {
     public readonly record struct V768_LastLayer(bool TickDayTime);
     public static UpdateTimePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -54,7 +54,9 @@ public sealed partial record UpdateTimePacket(long Age, long Time, UpdateTimePac
         throw new System.NotSupportedException($"UpdateTimePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 106);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

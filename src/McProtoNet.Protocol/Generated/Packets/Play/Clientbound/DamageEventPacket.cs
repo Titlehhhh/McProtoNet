@@ -9,7 +9,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("SourceCauseId", "int")]
 [PacketField("SourceDirectId", "int")]
 [PacketField("SourcePosition", "Vec3f64?")]
-public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, int SourceCauseId, int SourceDirectId, Vec3f64? SourcePosition) : IPacket<DamageEventPacket>
+public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, int SourceCauseId, int SourceDirectId, Vec3f64? SourcePosition) : IPacket<DamageEventPacket>, IPacket
 {
     public static DamageEventPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -36,7 +36,9 @@ public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, i
             writer.WriteType<Vec3f64>(sourcePositionValue, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 0);
+    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 24);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

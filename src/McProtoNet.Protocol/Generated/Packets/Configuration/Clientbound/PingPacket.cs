@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.ping", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("Id", "int")]
-public sealed partial record PingPacket(int Id) : IPacket<PingPacket>
+public sealed partial record PingPacket(int Id) : IPacket<PingPacket>, IPacket
 {
     public static PingPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record PingPacket(int Id) : IPacket<PingPacket>
         writer.WriteSignedInt(Id);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.ping", "Ping", PacketPhase.Configuration, PacketDirection.Clientbound, 3);
+    public static PacketIdentity Identity => new("configuration.toClient.ping", "Ping", PacketPhase.Configuration, PacketDirection.Clientbound, 9);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

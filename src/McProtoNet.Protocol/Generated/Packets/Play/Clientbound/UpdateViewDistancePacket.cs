@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.update_view_distance", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("ViewDistance", "int")]
-public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacket<UpdateViewDistancePacket>
+public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacket<UpdateViewDistancePacket>, IPacket
 {
     public static UpdateViewDistancePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacke
         writer.WriteVarInt(ViewDistance);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 18);
+    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 107);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 [PacketField("ServerHost", "string")]
 [PacketField("ServerPort", "int")]
 [PacketField("NextState", "int")]
-public sealed partial record SetProtocolPacket(int ProtocolVersion, string ServerHost, int ServerPort, int NextState) : IPacket<SetProtocolPacket>
+public sealed partial record SetProtocolPacket(int ProtocolVersion, string ServerHost, int ServerPort, int NextState) : IPacket<SetProtocolPacket>, IPacket
 {
     public static SetProtocolPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -30,6 +30,8 @@ public sealed partial record SetProtocolPacket(int ProtocolVersion, string Serve
     }
 
     public static PacketIdentity Identity => new("handshaking.toServer.set_protocol", "SetProtocol", PacketPhase.Handshaking, PacketDirection.Serverbound, 1);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

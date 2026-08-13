@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.lock_difficulty", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Locked", "bool")]
-public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDifficultyPacket>
+public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDifficultyPacket>, IPacket
 {
     public static LockDifficultyPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDif
         writer.WriteBoolean(Locked);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 1);
+    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 25);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

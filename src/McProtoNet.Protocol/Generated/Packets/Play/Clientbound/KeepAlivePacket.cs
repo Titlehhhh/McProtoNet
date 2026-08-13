@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.keep_alive", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("KeepAliveId", "long")]
-public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAlivePacket>
+public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAlivePacket>, IPacket
 {
     public static KeepAlivePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAli
         writer.WriteSignedLong(KeepAliveId);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.keep_alive", "KeepAlive", PacketPhase.Play, PacketDirection.Clientbound, 5);
+    public static PacketIdentity Identity => new("play.toClient.keep_alive", "KeepAlive", PacketPhase.Play, PacketDirection.Clientbound, 48);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

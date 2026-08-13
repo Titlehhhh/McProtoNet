@@ -8,7 +8,7 @@ namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [PacketField("PublicKey", "byte[]")]
 [PacketField("VerifyToken", "byte[]")]
 [PacketField("ShouldAuthenticate", "bool", Group = "V766_Last", From = 766)]
-public sealed partial record EncryptionRequestPacket(string ServerId, byte[] PublicKey, byte[] VerifyToken, EncryptionRequestPacket.V766_LastLayer? V766_Last = null) : IPacket<EncryptionRequestPacket>
+public sealed partial record EncryptionRequestPacket(string ServerId, byte[] PublicKey, byte[] VerifyToken, EncryptionRequestPacket.V766_LastLayer? V766_Last = null) : IPacket<EncryptionRequestPacket>, IPacket
 {
     public readonly record struct V766_LastLayer(bool ShouldAuthenticate);
     public static EncryptionRequestPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -60,6 +60,8 @@ public sealed partial record EncryptionRequestPacket(string ServerId, byte[] Pub
     }
 
     public static PacketIdentity Identity => new("login.toClient.encryption_begin", "EncryptionRequest", PacketPhase.Login, PacketDirection.Clientbound, 3);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

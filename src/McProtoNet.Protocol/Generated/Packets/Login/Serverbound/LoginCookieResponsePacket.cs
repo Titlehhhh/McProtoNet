@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [Packet("login.toServer.cookie_response", PacketPhase.Login, PacketDirection.Serverbound)]
 [PacketField("Key", "string")]
 [PacketField("Value", "byte[]?")]
-public sealed partial record LoginCookieResponsePacket(string Key, byte[]? Value) : IPacket<LoginCookieResponsePacket>
+public sealed partial record LoginCookieResponsePacket(string Key, byte[]? Value) : IPacket<LoginCookieResponsePacket>, IPacket
 {
     public static LoginCookieResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -28,6 +28,8 @@ public sealed partial record LoginCookieResponsePacket(string Key, byte[]? Value
     }
 
     public static PacketIdentity Identity => new("login.toServer.cookie_response", "LoginCookieResponse", PacketPhase.Login, PacketDirection.Serverbound, 0);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

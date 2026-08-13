@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [PacketField("PlayerUuid", "Guid?", Group = "V760", From = 760, To = 760)]
 [PacketField("PlayerUuid", "Guid?", Group = "V761_763", From = 761, To = 763)]
 [PacketField("PlayerUuid", "Guid", Group = "V764_Last", From = 764)]
-public sealed partial record LoginStartPacket(string Username, LoginStartPacket.V759Layer? V759 = null, LoginStartPacket.V760Layer? V760 = null, LoginStartPacket.V761_763Layer? V761_763 = null, LoginStartPacket.V764_LastLayer? V764_Last = null) : IPacket<LoginStartPacket>
+public sealed partial record LoginStartPacket(string Username, LoginStartPacket.V759Layer? V759 = null, LoginStartPacket.V760Layer? V760 = null, LoginStartPacket.V761_763Layer? V761_763 = null, LoginStartPacket.V764_LastLayer? V764_Last = null) : IPacket<LoginStartPacket>, IPacket
 {
     public readonly record struct V759Layer(LoginSignature? Signature);
     public readonly record struct V760Layer(LoginSignature? Signature, Guid? PlayerUuid);
@@ -125,6 +125,8 @@ public sealed partial record LoginStartPacket(string Username, LoginStartPacket.
     }
 
     public static PacketIdentity Identity => new("login.toServer.login_start", "LoginStart", PacketPhase.Login, PacketDirection.Serverbound, 4);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

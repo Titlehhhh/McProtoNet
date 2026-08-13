@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [Packet("play.toClient.spawn_position", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Location", "Position")]
 [PacketField("Angle", "float", Group = "V755_Last", From = 755)]
-public sealed partial record SpawnPositionPacket(Position Location, SpawnPositionPacket.V755_LastLayer? V755_Last = null) : IPacket<SpawnPositionPacket>
+public sealed partial record SpawnPositionPacket(Position Location, SpawnPositionPacket.V755_LastLayer? V755_Last = null) : IPacket<SpawnPositionPacket>, IPacket
 {
     public readonly record struct V755_LastLayer(float Angle);
     public static SpawnPositionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -49,7 +49,9 @@ public sealed partial record SpawnPositionPacket(Position Location, SpawnPositio
         throw new System.NotSupportedException($"SpawnPositionPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 13);
+    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 89);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

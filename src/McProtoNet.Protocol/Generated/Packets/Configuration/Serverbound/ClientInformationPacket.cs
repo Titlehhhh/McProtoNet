@@ -13,7 +13,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [PacketField("EnableTextFiltering", "bool")]
 [PacketField("EnableServerListing", "bool")]
 [PacketField("ParticleStatus", "int", Group = "V768_Last", From = 768)]
-public sealed partial record ClientInformationPacket(string Locale, int ViewDistance, int ChatFlags, bool ChatColors, int SkinParts, int MainHand, bool EnableTextFiltering, bool EnableServerListing, ClientInformationPacket.V768_LastLayer? V768_Last = null) : IPacket<ClientInformationPacket>
+public sealed partial record ClientInformationPacket(string Locale, int ViewDistance, int ChatFlags, bool ChatColors, int SkinParts, int MainHand, bool EnableTextFiltering, bool EnableServerListing, ClientInformationPacket.V768_LastLayer? V768_Last = null) : IPacket<ClientInformationPacket>, IPacket
 {
     public readonly record struct V768_LastLayer(int ParticleStatus);
     public static ClientInformationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -84,7 +84,9 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
         throw new System.NotSupportedException($"ClientInformationPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 4);
+    public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 9);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

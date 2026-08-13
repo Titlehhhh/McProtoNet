@@ -61,7 +61,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("CopyMetadata", "bool", Group = "V764_765", From = 764, To = 765)]
 [PacketField("CopyMetadataByte", "int", Group = "V766_Last", From = 766)]
 [PacketField("WorldState", "SpawnInfo", Group = "V766_Last", From = 766)]
-public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil736 = null, RespawnPacket.V751_758Layer? V751_758 = null, RespawnPacket.V759Layer? V759 = null, RespawnPacket.V760_762Layer? V760_762 = null, RespawnPacket.V763Layer? V763 = null, RespawnPacket.V764_765Layer? V764_765 = null, RespawnPacket.V766_LastLayer? V766_Last = null) : IPacket<RespawnPacket>
+public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil736 = null, RespawnPacket.V751_758Layer? V751_758 = null, RespawnPacket.V759Layer? V759 = null, RespawnPacket.V760_762Layer? V760_762 = null, RespawnPacket.V763Layer? V763 = null, RespawnPacket.V764_765Layer? V764_765 = null, RespawnPacket.V766_LastLayer? V766_Last = null) : IPacket<RespawnPacket>, IPacket
 {
     public readonly record struct VUntil736Layer(string Dimension, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, bool CopyMetadata);
     public readonly record struct V751_758Layer(NbtTag DimensionNbt, string WorldName, long HashedSeed, int Gamemode, int PreviousGamemode, bool IsDebug, bool IsFlat, bool CopyMetadata);
@@ -88,7 +88,7 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
 
         if (protocolVersion >= 751 && protocolVersion <= 758)
         {
-            var dimensionNbt = reader.ReadNbtTag(false)!;
+            var dimensionNbt = reader.ReadNbtTag(true)!;
             var worldName = reader.ReadString();
             var hashedSeed = reader.ReadSignedLong();
             var gamemode = reader.ReadUnsignedByte();
@@ -211,7 +211,7 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
             bool IsDebug = layer.IsDebug;
             bool IsFlat = layer.IsFlat;
             bool CopyMetadata = layer.CopyMetadata;
-            writer.WriteNbt(DimensionNbt);
+            writer.WriteNbt(DimensionNbt, true);
             writer.WriteString(WorldName);
             writer.WriteSignedLong(HashedSeed);
             writer.WriteUnsignedByte((byte)Gamemode);
@@ -343,7 +343,9 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
         throw new System.NotSupportedException($"RespawnPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 9);
+    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 72);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

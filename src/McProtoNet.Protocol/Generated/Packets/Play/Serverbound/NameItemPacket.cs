@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.name_item", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Name", "string")]
-public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacket>
+public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacket>, IPacket
 {
     public static NameItemPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacke
         writer.WriteString(Name);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 2);
+    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 27);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

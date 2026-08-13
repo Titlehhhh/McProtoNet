@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.spectate", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Target", "Guid")]
-public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacket>
+public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacket>, IPacket
 {
     public static SpectatePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -21,7 +21,9 @@ public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacke
         writer.WriteUUID(Target);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 3);
+    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 47);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

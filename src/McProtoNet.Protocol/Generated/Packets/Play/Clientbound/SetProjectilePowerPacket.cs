@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("Id", "int")]
 [PacketField("Power", "Vec3f64", Group = "V766", From = 766, To = 766)]
 [PacketField("AccelerationPower", "double", Group = "V767_Last", From = 767)]
-public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePowerPacket.V766Layer? V766 = null, SetProjectilePowerPacket.V767_LastLayer? V767_Last = null) : IPacket<SetProjectilePowerPacket>
+public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePowerPacket.V766Layer? V766 = null, SetProjectilePowerPacket.V767_LastLayer? V767_Last = null) : IPacket<SetProjectilePowerPacket>, IPacket
 {
     public readonly record struct V766Layer(Vec3f64 Power);
     public readonly record struct V767_LastLayer(double AccelerationPower);
@@ -55,7 +55,9 @@ public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePower
         throw new System.NotSupportedException($"SetProjectilePowerPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 11);
+    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 78);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

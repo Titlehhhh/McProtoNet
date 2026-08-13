@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [Packet("play.toClient.hurt_animation", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]
 [PacketField("Yaw", "float")]
-public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPacket<HurtAnimationPacket>
+public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPacket<HurtAnimationPacket>, IPacket
 {
     public static HurtAnimationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -23,7 +23,9 @@ public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPac
         writer.WriteFloat(Yaw);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 4);
+    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 46);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

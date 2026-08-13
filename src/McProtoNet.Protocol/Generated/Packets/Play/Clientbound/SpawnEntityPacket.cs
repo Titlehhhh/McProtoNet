@@ -18,7 +18,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("VelocityY", "int")]
 [PacketField("VelocityZ", "int")]
 [PacketField("HeadPitch", "int", Group = "V759_Last", From = 759)]
-public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, int Type, double X, double Y, double Z, int Pitch, int Yaw, int ObjectData, int VelocityX, int VelocityY, int VelocityZ, SpawnEntityPacket.V759_LastLayer? V759_Last = null) : IPacket<SpawnEntityPacket>
+public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, int Type, double X, double Y, double Z, int Pitch, int Yaw, int ObjectData, int VelocityX, int VelocityY, int VelocityZ, SpawnEntityPacket.V759_LastLayer? V759_Last = null) : IPacket<SpawnEntityPacket>, IPacket
 {
     public readonly record struct V759_LastLayer(int HeadPitch);
     public static SpawnEntityPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
@@ -105,7 +105,9 @@ public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, in
         throw new System.NotSupportedException($"SpawnEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 12);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 85);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

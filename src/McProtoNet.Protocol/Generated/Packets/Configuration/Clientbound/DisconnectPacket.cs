@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [Packet("configuration.toClient.disconnect", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("ReasonJson", "string", Group = "V764", From = 764, To = 764)]
 [PacketField("Reason", "NbtTag", Group = "V765_Last", From = 765)]
-public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 = null, DisconnectPacket.V765_LastLayer? V765_Last = null) : IPacket<DisconnectPacket>
+public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 = null, DisconnectPacket.V765_LastLayer? V765_Last = null) : IPacket<DisconnectPacket>, IPacket
 {
     public readonly record struct V764Layer(string ReasonJson);
     public readonly record struct V765_LastLayer(NbtTag Reason);
@@ -22,7 +22,7 @@ public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 =
 
         if (protocolVersion >= 765)
         {
-            var reason = reader.ReadNbtTag(true)!;
+            var reason = reader.ReadNbtTag(false)!;
             return new DisconnectPacket(V765_Last: new V765_LastLayer(reason));
         }
 
@@ -51,7 +51,9 @@ public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 =
         throw new System.NotSupportedException($"DisconnectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.disconnect", "Disconnect", PacketPhase.Configuration, PacketDirection.Clientbound, 0);
+    public static PacketIdentity Identity => new("configuration.toClient.disconnect", "Disconnect", PacketPhase.Configuration, PacketDirection.Clientbound, 5);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

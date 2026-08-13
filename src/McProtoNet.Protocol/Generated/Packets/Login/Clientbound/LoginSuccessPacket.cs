@@ -11,7 +11,7 @@ namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 [PacketField("Properties", "ProfileProperty[]", Group = "V766_767", From = 766, To = 767)]
 [PacketField("StrictErrorHandling", "bool", Group = "V766_767", From = 766, To = 767)]
 [PacketField("Properties", "ProfileProperty[]", Group = "V768_Last", From = 768)]
-public sealed partial record LoginSuccessPacket(Guid Uuid, string Username, LoginSuccessPacket.V759_765Layer? V759_765 = null, LoginSuccessPacket.V766_767Layer? V766_767 = null, LoginSuccessPacket.V768_LastLayer? V768_Last = null) : IPacket<LoginSuccessPacket>
+public sealed partial record LoginSuccessPacket(Guid Uuid, string Username, LoginSuccessPacket.V759_765Layer? V759_765 = null, LoginSuccessPacket.V766_767Layer? V766_767 = null, LoginSuccessPacket.V768_LastLayer? V768_Last = null) : IPacket<LoginSuccessPacket>, IPacket
 {
     public readonly record struct V759_765Layer(ProfileProperty[] Properties);
     public readonly record struct V766_767Layer(ProfileProperty[] Properties, bool StrictErrorHandling);
@@ -115,6 +115,8 @@ public sealed partial record LoginSuccessPacket(Guid Uuid, string Username, Logi
     }
 
     public static PacketIdentity Identity => new("login.toClient.success", "LoginSuccess", PacketPhase.Login, PacketDirection.Clientbound, 5);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

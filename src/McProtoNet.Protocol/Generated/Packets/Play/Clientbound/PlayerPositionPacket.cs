@@ -15,7 +15,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("Dx", "double", Group = "V768_Last", From = 768)]
 [PacketField("Dy", "double", Group = "V768_Last", From = 768)]
 [PacketField("Dz", "double", Group = "V768_Last", From = 768)]
-public sealed partial record PlayerPositionPacket(double X, double Y, double Z, float Yaw, float Pitch, PositionUpdateRelatives Flags, int TeleportId, PlayerPositionPacket.V755_761Layer? V755_761 = null, PlayerPositionPacket.V768_LastLayer? V768_Last = null) : IPacket<PlayerPositionPacket>
+public sealed partial record PlayerPositionPacket(double X, double Y, double Z, float Yaw, float Pitch, PositionUpdateRelatives Flags, int TeleportId, PlayerPositionPacket.V755_761Layer? V755_761 = null, PlayerPositionPacket.V768_LastLayer? V768_Last = null) : IPacket<PlayerPositionPacket>, IPacket
 {
     public readonly record struct V755_761Layer(bool DismountVehicle);
     public readonly record struct V768_LastLayer(double Dx, double Dy, double Dz);
@@ -165,7 +165,9 @@ public sealed partial record PlayerPositionPacket(double X, double Y, double Z, 
         throw new System.NotSupportedException($"PlayerPositionPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.position", "PlayerPosition", PacketPhase.Play, PacketDirection.Clientbound, 8);
+    public static PacketIdentity Identity => new("play.toClient.position", "PlayerPosition", PacketPhase.Play, PacketDirection.Clientbound, 65);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

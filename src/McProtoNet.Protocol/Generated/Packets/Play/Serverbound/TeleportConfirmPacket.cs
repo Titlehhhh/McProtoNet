@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.teleport_confirm", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("TeleportId", "int")]
-public sealed partial record TeleportConfirmPacket(int TeleportId) : IPacket<TeleportConfirmPacket>
+public sealed partial record TeleportConfirmPacket(int TeleportId) : IPacket<TeleportConfirmPacket>, IPacket
 {
     public static TeleportConfirmPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record TeleportConfirmPacket(int TeleportId) : IPacket<Tel
         writer.WriteVarInt(TeleportId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.teleport_confirm", "TeleportConfirm", PacketPhase.Play, PacketDirection.Serverbound, 4);
+    public static PacketIdentity Identity => new("play.toServer.teleport_confirm", "TeleportConfirm", PacketPhase.Play, PacketDirection.Serverbound, 51);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

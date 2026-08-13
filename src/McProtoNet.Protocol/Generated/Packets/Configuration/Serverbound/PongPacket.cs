@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.pong", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("Id", "int")]
-public sealed partial record PongPacket(int Id) : IPacket<PongPacket>
+public sealed partial record PongPacket(int Id) : IPacket<PongPacket>, IPacket
 {
     public static PongPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -20,7 +20,9 @@ public sealed partial record PongPacket(int Id) : IPacket<PongPacket>
         writer.WriteSignedInt(Id);
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.pong", "Pong", PacketPhase.Configuration, PacketDirection.Serverbound, 2);
+    public static PacketIdentity Identity => new("configuration.toServer.pong", "Pong", PacketPhase.Configuration, PacketDirection.Serverbound, 6);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

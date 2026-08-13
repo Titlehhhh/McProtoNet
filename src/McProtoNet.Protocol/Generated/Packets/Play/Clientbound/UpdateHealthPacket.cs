@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("Health", "float")]
 [PacketField("Food", "int")]
 [PacketField("FoodSaturation", "float")]
-public sealed partial record UpdateHealthPacket(float Health, int Food, float FoodSaturation) : IPacket<UpdateHealthPacket>
+public sealed partial record UpdateHealthPacket(float Health, int Food, float FoodSaturation) : IPacket<UpdateHealthPacket>, IPacket
 {
     public static UpdateHealthPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -26,7 +26,9 @@ public sealed partial record UpdateHealthPacket(float Health, int Food, float Fo
         writer.WriteFloat(FoodSaturation);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 16);
+    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 104);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

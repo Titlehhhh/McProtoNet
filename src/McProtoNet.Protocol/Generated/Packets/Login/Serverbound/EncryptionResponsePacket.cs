@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [Packet("login.toServer.encryption_begin", PacketPhase.Login, PacketDirection.Serverbound)]
 [PacketField("SharedSecret", "byte[]")]
 [PacketField("VerifyToken", "byte[]?")]
-public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[]? VerifyToken) : IPacket<EncryptionResponsePacket>
+public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[]? VerifyToken) : IPacket<EncryptionResponsePacket>, IPacket
 {
     public static EncryptionResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -62,6 +62,8 @@ public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[
     }
 
     public static PacketIdentity Identity => new("login.toServer.encryption_begin", "EncryptionResponse", PacketPhase.Login, PacketDirection.Serverbound, 1);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

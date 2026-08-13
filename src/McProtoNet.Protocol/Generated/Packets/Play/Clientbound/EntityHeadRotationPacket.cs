@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [Packet("play.toClient.entity_head_rotation", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]
 [PacketField("HeadYaw", "int")]
-public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw) : IPacket<EntityHeadRotationPacket>
+public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw) : IPacket<EntityHeadRotationPacket>, IPacket
 {
     public static EntityHeadRotationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -23,7 +23,9 @@ public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw)
         writer.WriteSignedByte((sbyte)HeadYaw);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_head_rotation", "EntityHeadRotation", PacketPhase.Play, PacketDirection.Clientbound, 1);
+    public static PacketIdentity Identity => new("play.toClient.entity_head_rotation", "EntityHeadRotation", PacketPhase.Play, PacketDirection.Clientbound, 33);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

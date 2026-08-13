@@ -1,0 +1,110 @@
+using McProtoNet.Protocol.Attributes;
+using McProtoNet.Serialization;
+
+namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+[ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
+[Packet("play.toClient.close_window", PacketPhase.Play, PacketDirection.Clientbound)]
+[PacketField("WindowId", "int")]
+public sealed partial record CloseWindowPacket(int WindowId) : IPacket<CloseWindowPacket>, IPacket
+{
+    public static CloseWindowPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        ThrowHelper.ThrowIfProtocolNotSupported<CloseWindowPacket>(protocolVersion);
+        if (protocolVersion <= 767)
+        {
+            var windowId = reader.ReadUnsignedByte();
+            return new CloseWindowPacket(windowId);
+        }
+
+        if (protocolVersion >= 768)
+        {
+            var windowId = reader.ReadVarInt();
+            return new CloseWindowPacket(windowId);
+        }
+
+        throw new System.NotSupportedException($"CloseWindowPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        ThrowHelper.ThrowIfProtocolNotSupported<CloseWindowPacket>(protocolVersion);
+        if (protocolVersion <= 767)
+        {
+            writer.WriteUnsignedByte((byte)WindowId);
+            return;
+        }
+
+        if (protocolVersion >= 768)
+        {
+            writer.WriteVarInt(WindowId);
+            return;
+        }
+
+        throw new System.NotSupportedException($"CloseWindowPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public static PacketIdentity Identity => new("play.toClient.close_window", "CloseWindow", PacketPhase.Play, PacketDirection.Clientbound, 18);
+
+    PacketIdentity IPacket.Identity => Identity;
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        if (protocolVersion >= 735 && protocolVersion <= 736)
+        {
+            id = 0x13;
+            return true;
+        }
+
+        if (protocolVersion >= 751 && protocolVersion <= 754)
+        {
+            id = 0x12;
+            return true;
+        }
+
+        if (protocolVersion >= 755 && protocolVersion <= 758)
+        {
+            id = 0x13;
+            return true;
+        }
+
+        if (protocolVersion >= 759 && protocolVersion <= 760)
+        {
+            id = 0x10;
+            return true;
+        }
+
+        if (protocolVersion >= 761 && protocolVersion <= 761)
+        {
+            id = 0x0F;
+            return true;
+        }
+
+        if (protocolVersion >= 762 && protocolVersion <= 763)
+        {
+            id = 0x11;
+            return true;
+        }
+
+        if (protocolVersion >= 764 && protocolVersion <= 769)
+        {
+            id = 0x12;
+            return true;
+        }
+
+        if (protocolVersion >= 770 && protocolVersion <= 772)
+        {
+            id = 0x11;
+            return true;
+        }
+
+        id = 0;
+        return false;
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        if (TryGetPacketId(protocolVersion, out var id))
+            return id;
+        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+    }
+}

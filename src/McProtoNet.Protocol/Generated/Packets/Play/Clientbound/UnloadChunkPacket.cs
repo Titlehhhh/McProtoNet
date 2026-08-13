@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [Packet("play.toClient.unload_chunk", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("ChunkX", "int")]
 [PacketField("ChunkZ", "int")]
-public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket<UnloadChunkPacket>
+public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket<UnloadChunkPacket>, IPacket
 {
     public static UnloadChunkPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -48,7 +48,9 @@ public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket
         throw new System.NotSupportedException($"UnloadChunkPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 15);
+    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 103);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

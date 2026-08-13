@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("status.toClient.ping", PacketPhase.Status, PacketDirection.Clientbound)]
 [PacketField("Time", "long")]
-public sealed partial record PongResponsePacket(long Time) : IPacket<PongResponsePacket>
+public sealed partial record PongResponsePacket(long Time) : IPacket<PongResponsePacket>, IPacket
 {
     public static PongResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -21,6 +21,8 @@ public sealed partial record PongResponsePacket(long Time) : IPacket<PongRespons
     }
 
     public static PacketIdentity Identity => new("status.toClient.ping", "PongResponse", PacketPhase.Status, PacketDirection.Clientbound, 0);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

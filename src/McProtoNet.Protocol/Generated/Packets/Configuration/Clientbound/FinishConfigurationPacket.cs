@@ -4,7 +4,7 @@ using McProtoNet.Serialization;
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.finish_configuration", PacketPhase.Configuration, PacketDirection.Clientbound)]
-public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigurationPacket>
+public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigurationPacket>, IPacket
 {
     public static FinishConfigurationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -17,7 +17,9 @@ public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigu
         ThrowHelper.ThrowIfProtocolNotSupported<FinishConfigurationPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.finish_configuration", "FinishConfiguration", PacketPhase.Configuration, PacketDirection.Clientbound, 1);
+    public static PacketIdentity Identity => new("configuration.toClient.finish_configuration", "FinishConfiguration", PacketPhase.Configuration, PacketDirection.Clientbound, 7);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

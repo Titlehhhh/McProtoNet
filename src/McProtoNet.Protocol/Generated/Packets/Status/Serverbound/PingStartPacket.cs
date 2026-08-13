@@ -4,7 +4,7 @@ using McProtoNet.Serialization;
 namespace McProtoNet.Protocol.Packets.Status.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("status.toServer.ping_start", PacketPhase.Status, PacketDirection.Serverbound)]
-public sealed partial record PingStartPacket() : IPacket<PingStartPacket>
+public sealed partial record PingStartPacket() : IPacket<PingStartPacket>, IPacket
 {
     public static PingStartPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -18,6 +18,8 @@ public sealed partial record PingStartPacket() : IPacket<PingStartPacket>
     }
 
     public static PacketIdentity Identity => new("status.toServer.ping_start", "PingStart", PacketPhase.Status, PacketDirection.Serverbound, 1);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

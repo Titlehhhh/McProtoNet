@@ -6,7 +6,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [Packet("play.toClient.move_minecart", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]
 [PacketField("Steps", "MinecartStep[]")]
-public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Steps) : IPacket<MoveMinecartPacket>
+public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Steps) : IPacket<MoveMinecartPacket>, IPacket
 {
     public static MoveMinecartPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -28,7 +28,9 @@ public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Ste
             writer.WriteType<MinecartStep>(stepsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 7);
+    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 52);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

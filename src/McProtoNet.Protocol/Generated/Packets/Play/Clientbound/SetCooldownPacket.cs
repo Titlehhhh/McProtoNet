@@ -7,7 +7,7 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("CooldownTicks", "int")]
 [PacketField("ItemId", "int", Group = "VUntil767", To = 767)]
 [PacketField("CooldownGroup", "string", Group = "V768_Last", From = 768)]
-public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPacket.VUntil767Layer? VUntil767 = null, SetCooldownPacket.V768_LastLayer? V768_Last = null) : IPacket<SetCooldownPacket>
+public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPacket.VUntil767Layer? VUntil767 = null, SetCooldownPacket.V768_LastLayer? V768_Last = null) : IPacket<SetCooldownPacket>, IPacket
 {
     public readonly record struct VUntil767Layer(int ItemId);
     public readonly record struct V768_LastLayer(string CooldownGroup);
@@ -55,7 +55,9 @@ public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPac
         throw new System.NotSupportedException($"SetCooldownPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 10);
+    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 76);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {

@@ -5,7 +5,7 @@ namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("handshaking.toServer.legacy_server_list_ping", PacketPhase.Handshaking, PacketDirection.Serverbound)]
 [PacketField("Payload", "int")]
-public sealed partial record LegacyServerListPingPacket(int Payload) : IPacket<LegacyServerListPingPacket>
+public sealed partial record LegacyServerListPingPacket(int Payload) : IPacket<LegacyServerListPingPacket>, IPacket
 {
     public static LegacyServerListPingPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
@@ -21,6 +21,8 @@ public sealed partial record LegacyServerListPingPacket(int Payload) : IPacket<L
     }
 
     public static PacketIdentity Identity => new("handshaking.toServer.legacy_server_list_ping", "LegacyServerListPing", PacketPhase.Handshaking, PacketDirection.Serverbound, 0);
+
+    PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
