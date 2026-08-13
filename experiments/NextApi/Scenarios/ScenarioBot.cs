@@ -24,9 +24,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using McProtoNet.Net;          // InputPacket
-using McProtoNet.Next;         // MinecraftClient, ReadTypedAsync, SendAsync, Is/Decode, UnknownPacket
+using McProtoNet.Next;         // MinecraftClient, ReadTypedAsync, SendAsync, Is/Decode
 using McProtoNet.Next.Demo;    // DuplexPipeStream (same-assembly test harness)
-using McProtoNet.Protocol;     // PacketPhase, PacketDirection, PacketRegistry
+using McProtoNet.Protocol;     // IPacket, UnknownPacket, PacketPhase, PacketDirection, PacketRegistry
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using PlayCb = McProtoNet.Protocol.Packets.Play.Clientbound;
 using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
@@ -83,7 +83,7 @@ internal static class ScenarioBot
         // Bot side: the whole receive step is `switch on the class`. The typed floor decodes
         // inside its own loop; the InputPacket window never reaches here (that is the claim).
         bool answered = false;
-        await foreach (object packet in bot.ReadTypedAsync(PacketPhase.Play, protocolVersion, ct))
+        await foreach (IPacket packet in bot.ReadTypedAsync(PacketPhase.Play, protocolVersion, ct))
         {
             switch (packet)
             {
@@ -151,19 +151,20 @@ internal static class ScenarioBot
     }
 
     /// <summary>
-    ///     Names an unknown packet for a log line. The typed floor hands out UnknownPacket
-    ///     with only Id + Phase, so naming it means dropping back to the registry by hand.
+    ///     Names an unknown packet for a log line. UnknownPacket carries Id, Phase and
+    ///     Direction, so naming it means dropping back to the registry by hand.
     /// </summary>
     internal static string NameUnknown(UnknownPacket unknown, int protocolVersion)
     {
-        // CRACK (nit): UnknownPacket carries no resolved name, so a friendly log line forces a
-        //              second, manual PacketRegistry.TryResolve round-trip (see BotExample:133).
-        //              Deliberate per UnknownPacket's own docs (it holds no raw window), but it
-        //              is still boilerplate every consumer that logs unknowns repeats.
+        // CRACK (nit): UnknownPacket carries no resolved name — its Identity reports the
+        //              "unknown" placeholder — so a friendly log line forces a second, manual
+        //              PacketRegistry.TryResolve round-trip (see BotExample:133). Deliberate per
+        //              UnknownPacket's own docs (it holds no raw window), but it is still
+        //              boilerplate every consumer that logs unknowns repeats.
         // IDEAL: UnknownPacket exposes a lazy `Name` (or the typed floor resolves it once), so
         //        the consumer logs `unknown.Name` without touching the registry.
         return PacketRegistry.TryResolve(
-            unknown.Id, protocolVersion, unknown.Phase, PacketDirection.Clientbound, out var descriptor)
+            unknown.Id, protocolVersion, unknown.Phase, unknown.Direction, out var descriptor)
             ? descriptor.Identity.Name
             : $"0x{unknown.Id:X2}";
     }

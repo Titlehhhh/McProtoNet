@@ -218,15 +218,11 @@ public class GeneratedRoundTripTests
         Assert.Equal(p.V764?.ReasonJson, back.V764?.ReasonJson);
     }
 
-    // WriteNbt itself is fixed (2026-08-10): it writes the nameless network root by default and
-    // has an explicit writeRootTag switch (see NbtWireFormatTests). What still blocks this test is
-    // the *generated* code: DisconnectPacket.Read calls reader.ReadNbtTag(true) (named root) while
-    // DisconnectPacket.Write calls writer.WriteNbt(Reason) (nameless root), so write->read cannot
-    // round-trip. McProtoFacts says the 765+ `reason` field is anonymousNbt, so the read flag is
-    // the wrong side; the fix is in the minecraft-protocol-fs codegen (emit matching root-format
-    // flags on both sides), not in this repo. Skipped rather than left out silently, so the
-    // coverage is visible and can be re-enabled after the next delivery.
-    [Fact(Skip = "Blocked on generated-code asymmetry: DisconnectPacket reads ReadNbtTag(true) but writes WriteNbt(nameless root). Fix belongs to minecraft-protocol-fs codegen; re-enable after redelivery.")]
+    // Was skipped until 2026-08-13: the codegen's primitive table had the root-name flag inverted,
+    // so an anonymousNbt field was read with a name and written without one. Fixed in
+    // minecraft-protocol-fs (CSharpSurface.Primitives) and re-delivered; both sides now agree on
+    // the nameless network root.
+    [Fact]
     public void Disconnect_772_NbtReason_RoundTrips()
     {
         var reason = new NbtCompound("") { new NbtString("text", "Bye") };

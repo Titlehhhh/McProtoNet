@@ -696,7 +696,7 @@ public sealed class MinecraftClient : IAsyncDisposable, IDisposable
     /// thing goes out as a single frame under the current compression settings.
     /// </summary>
     /// <param name="id">The packet id, written as a VarInt.</param>
-    /// <param name="body">The packet body. It is copied before the method returns control, so a rented buffer may be reused afterwards.</param>
+    /// <param name="body">The packet body. It is not retained after the returned task completes, so a rented buffer may be reused from then on — not earlier: with another send in flight this method waits on the send gate before it copies, so the copy can happen after the call returns.</param>
     /// <param name="cancellationToken">A token to cancel the send.</param>
     /// <returns>A task that completes when the frame has been handed to the transport.</returns>
     /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>

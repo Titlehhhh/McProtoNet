@@ -3,12 +3,17 @@
 // "Потроха Output" — does the write door keep its own pooled buffer, or hand out the
 // pipe's memory directly.
 //
-// Three arms, all ending in the same pipe, all writing the same frame
+// Four arms, all ending in the same pipe, all writing the same frame
 // (VarInt id + body):
 //
-//   current  — today's path: MinecraftPrimitiveWriter → GetWrittenMemory (copy 1) →
-//              rented buffer to prepend the VarInt id (copy 2) → frame into the pipe
-//              (copy 3). This is what SendAsync<T> does now.
+//   current  — the shape the send door had until 2026-08-13: a fresh
+//              MinecraftPrimitiveWriter → GetWrittenMemory (copy 1) → rented buffer to
+//              prepend the VarInt id (copy 2) → frame into the pipe (copy 3). Kept as the
+//              baseline the next arm is measured against; nothing takes this path now.
+//   cached   — what SendAsync<T> does today: the writer is rented from the thread-local
+//              cache and its WrittenMemory goes out directly, so copy 1 and the writer's
+//              own allocation are gone. Copies 2 and 3 stay: prepending the id and the
+//              frame into the pipe are the frame layer's business, not the writer's.
 //   staging  — the proposed default: one pooled IBufferWriter is the body, and the
 //              frame layer copies it into the pipe once (copy 1).
 //   direct   — the lower bound: the body is written straight into the pipe, with the
@@ -47,7 +52,8 @@ internal static class SendCost
         for (int i = 0; i < body.Length; i++)
             body[i] = (byte)(i * 31 + 7);
 
-        RunArm("текущий (3 копии)", threshold, body, iterations, Current);
+        RunArm("прежний писатель (3 копии)", threshold, body, iterations, Current);
+        RunArm("писатель из кэша (2 копии)", threshold, body, iterations, Cached);
         RunArm("промежуточный буфер (1 копия)", threshold, body, iterations, Staging);
         RunArm("WireWriter поверх буфера (1 копия)", threshold, body, iterations, WireOverStaging);
         if (threshold < 0)
@@ -110,6 +116,36 @@ internal static class SendCost
         }
 
         arm.Flush();
+    }
+
+    private static void Cached(Arm arm)
+    {
+        // Тот же кадр, что и в прежнем плече, но писатель берётся из потокового кэша и
+        // тело уходит как WrittenMemory: ни писателя, ни его буфера, ни копии 1.
+        MinecraftPrimitiveWriter writer = MinecraftPrimitiveWriterCache.Rent();
+        try
+        {
+            writer.WriteBuffer(arm.Body);
+            ReadOnlyMemory<byte> bodyMemory = writer.WrittenMemory;    // копии нет
+
+            byte[] rented = ArrayPool<byte>.Shared.Rent(5 + bodyMemory.Length);
+            try
+            {
+                int headerLength = PacketId.GetVarIntLength(rented.AsSpan());
+                bodyMemory.Span.CopyTo(rented.AsSpan(headerLength));   // копия 1
+                arm.Frames.WriteFrame(rented.AsSpan(0, headerLength + bodyMemory.Length), default); // копия 2
+            }
+            finally
+            {
+                ArrayPool<byte>.Shared.Return(rented);
+            }
+
+            arm.Flush();
+        }
+        finally
+        {
+            MinecraftPrimitiveWriterCache.Return(writer);
+        }
     }
 
     private static void Staging(Arm arm)

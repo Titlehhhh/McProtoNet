@@ -50,10 +50,23 @@ public static class TypedSendExtensions
         int protocolVersion, CancellationToken cancellationToken)
         where T : class, IPacket<T>
     {
-        // The body only — the packet door writes the VarInt id itself.
-        var writer = new MinecraftPrimitiveWriter();
-        packet.Write(writer, protocolVersion);
-        using var body = writer.GetWrittenMemory();
-        await client.SendPacketAsync(id, body.Memory, cancellationToken).ConfigureAwait(false);
+        // One writer per thread instead of one per packet, in the shape Utf8JsonWriter uses:
+        // rent outside the try, return in the finally, exactly once, on every path including a
+        // throw from Write. The rent clears the thread slot, so a concurrent or reentrant send
+        // gets its own writer.
+        var writer = MinecraftPrimitiveWriterCache.Rent();
+        try
+        {
+            // The body only — the packet door writes the VarInt id itself. WrittenMemory goes
+            // straight to the door, with no pooled copy in between: SendPacketAsync copies the
+            // body into its own frame buffer and says so in its contract, and the writer stays
+            // rented until that ValueTask completes.
+            packet.Write(writer, protocolVersion);
+            await client.SendPacketAsync(id, writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            MinecraftPrimitiveWriterCache.Return(writer);
+        }
     }
 }

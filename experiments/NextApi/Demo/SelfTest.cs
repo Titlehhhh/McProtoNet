@@ -54,6 +54,27 @@ internal static class SelfTest
             return 0;
         }
 
+        // The bot walk against a real server — the one claim the network-free checks below
+        // cannot make: dotnet run --project McProtoNet/experiments/NextApi -- live [host] [port] [name] [pv]
+        if (args.Length > 0 && args[0] == "live")
+        {
+            return await LiveBotRun
+                .RunAsync(Text(args, 1, "127.0.0.1"), Number(args, 2, 25566), Text(args, 3, "NextBot"), Number(args, 4, 772))
+                .ConfigureAwait(false);
+        }
+
+        // Cipher against a real server, no Mojang account (see Examples/LiveCryptoProbe.cs):
+        // dotnet run --project McProtoNet/experiments/NextApi -- login-crypto [host] [port] [name] [pv]
+        // Exit codes: 0 = cipher proven, 1 = cipher failure, 2 = server is in offline mode,
+        // 3 = inconclusive (the run never reached the cipher question — no server on the port,
+        // a socket that died during plaintext login, a refusal before the encryption request).
+        if (args.Length > 0 && args[0] == "login-crypto")
+        {
+            return await LiveCryptoProbe
+                .RunAsync(Text(args, 1, "127.0.0.1"), Number(args, 2, 25565), Text(args, 3, "NextBot"), Number(args, 4, 772))
+                .ConfigureAwait(false);
+        }
+
         int failures = 0;
         failures += await RunAsync("(a) packet round-trip", TestPacketRoundTripAsync) ? 0 : 1;
         failures += await RunAsync("(b) force-compression + size lie via ReadFramesAsync", TestFrameLiesAsync) ? 0 : 1;
@@ -66,10 +87,22 @@ internal static class SelfTest
             ExamplesSelfCheck.CheckOversizedLengthWaitsAsync) ? 0 : 1;
         failures += await RunAsync("(h) AES/CFB8 streamed in any chunking matches the one-shot oracle (both directions)",
             CipherStreamingCheck.RunAsync) ? 0 : 1;
+        // (i) is the only check that touches the typed floor: TryDecode -> IPacket stream ->
+        // switch over packet classes -> SendAsync through the cached writer, over the same
+        // in-memory duplex pair. Checks (a)-(h) all stop at the transport, so without this one
+        // nothing here would notice the typed floor breaking. It prints its own line.
+        failures += await Scenarios.ScenarioBot.RunAsync().ConfigureAwait(false) ? 0 : 1;
 
         Console.WriteLine(failures == 0 ? "ALL OK" : $"{failures} check(s) FAILED");
         return failures == 0 ? 0 : 1;
     }
+
+    // Positional arguments of the live probes: absent or empty means "keep the default".
+    private static string Text(string[] args, int index, string fallback) =>
+        args.Length > index && args[index].Length > 0 ? args[index] : fallback;
+
+    private static int Number(string[] args, int index, int fallback) =>
+        args.Length > index && int.TryParse(args[index], out int value) ? value : fallback;
 
     private static async Task<bool> RunAsync(string name, Func<CancellationToken, Task> test)
     {

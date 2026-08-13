@@ -86,7 +86,10 @@ sealed class Bot(PipelinesMinecraftClient client, int pv) : ClientboundHandler
     protected override ValueTask OnConfigurationKeepAlive(ConfCb.KeepAlivePacket p)
         => client.SendAsync(new ConfSb.KeepAlivePacket(p.KeepAliveId), pv);
 
-    protected override ValueTask OnPing(ConfCb.PingPacket p)
+    // Play gained its own Ping in the 2026-08-11 spec cycle, so the bare OnPing went to it
+    // and the configuration one took the phase prefix — the same shape OnConfigurationKeepAlive
+    // above already had.
+    protected override ValueTask OnConfigurationPing(ConfCb.PingPacket p)
         => client.SendAsync(new ConfSb.PongPacket(p.Id), pv);
 
     protected override async ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket p)

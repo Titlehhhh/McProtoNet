@@ -91,7 +91,7 @@ public static class ScenarioStatus
         // but the only read door is an IAsyncEnumerable that owns the single read cursor for its
         // whole lifetime. To read ONE packet, then send, then read ONE more, there is no
         // ReadOneAsync / ReadAsync<T>(). I have to drive the enumerator by hand — MoveNextAsync
-        // then a cast off object — because a plain `await foreach ... break` would dispose the
+        // then a pattern match — because a plain `await foreach ... break` would dispose the
         // enumerator (releasing the read door) between the two reads, forcing a re-entry.
         // IDEAL: ValueTask<T> ReadAsync<T>(phase, pv, ct) for a known one-shot reply, or a
         //        non-generic ReadOnePacketAsync that yields exactly one decoded packet.
@@ -137,11 +137,12 @@ public static class ScenarioStatus
     // Drives the typed enumerator to the next packet of type <typeparamref name="T" />, tolerating
     // (and skipping) the UnknownPacket markers a status stream should not produce but might.
     //
-    // CRACK 3 (forced-ugliness, part of CRACK 2): ReadTypedAsync yields `object`, so even in a
-    // conversation whose exact packet sequence is known at compile time, each reply needs a
-    // MoveNextAsync + pattern-match dance. For a two-packet reply that is a whole private helper.
-    private static async ValueTask<T> ReadNextAsync<T>(IAsyncEnumerator<object> packets)
-        where T : class
+    // CRACK 3 (forced-ugliness, part of CRACK 2): the stream now yields IPacket, so the helper
+    // is type-safe and its constraint is honest — but a conversation whose exact packet sequence
+    // is known at compile time still needs a MoveNextAsync + pattern-match dance per reply.
+    // What is missing is a one-shot read door, not a better element type.
+    private static async ValueTask<T> ReadNextAsync<T>(IAsyncEnumerator<IPacket> packets)
+        where T : class, IPacket
     {
         while (await packets.MoveNextAsync().ConfigureAwait(false))
         {

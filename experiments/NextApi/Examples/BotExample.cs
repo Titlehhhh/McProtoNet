@@ -57,7 +57,7 @@ public static class BotExample
             new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), protocolVersion, cancellationToken);
         Console.WriteLine($"[login] handshake + login start sent as {name}");
 
-        await foreach (object packet in client.ReadTypedAsync(() => phase, protocolVersion, cancellationToken))
+        await foreach (IPacket packet in client.ReadTypedAsync(() => phase, protocolVersion, cancellationToken))
         {
             switch (packet)
             {
