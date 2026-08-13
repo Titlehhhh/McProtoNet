@@ -144,11 +144,15 @@ internal static class LiveCryptoProbe
                     break;
 
                 case LoginCb.LoginCompressPacket compress when !state.Encrypted:
-                    // What was OBSERVED: no encryption request before Set Compression. Vanilla
-                    // and Paper only compress after authentication, so this means offline mode
-                    // — but the order is a server behaviour, not a protocol guarantee.
-                    return Skipped("no encryption request arrived before Set Compression "
-                        + $"(threshold {compress.Threshold}) — the server is not asking this client to authenticate");
+                    // Set Compression before the encryption request is NOT evidence of offline
+                    // mode: the order is a server behaviour, not a protocol rule. Vanilla and
+                    // Paper compress only after authentication, but Pumpkin (Rust) compresses
+                    // first and asks for encryption after — an earlier version of this probe
+                    // gave a false SKIPPED against it. Take the threshold and keep reading; the
+                    // honest offline signal is Login Success below.
+                    client.CompressionThreshold = compress.Threshold;
+                    Step($"compression on, threshold {compress.Threshold} — still waiting for an encryption request");
+                    break;
 
                 case LoginCb.LoginSuccessPacket successPlain when !state.Encrypted:
                     return Skipped("no encryption request arrived before Login Success "
@@ -216,13 +220,17 @@ internal static class LiveCryptoProbe
         Step($"shared secret {SharedSecretLength} B -> {encryptedSecret.Length} B, "
             + $"verify token -> {encryptedToken.Length} B (RSA/PKCS#1 v1.5, separately)");
 
+        // Arm the receive side BEFORE the response leaves. A server with authentication off
+        // answers in microseconds, and anything that lands before the decryptor is live is read
+        // as plaintext — a nonsense frame length and a connection that never speaks again.
+        EncryptionActivation activation = client.BeginEncryption(sharedSecret);
+
         await client.SendAsync(
             new LoginSb.EncryptionResponsePacket(encryptedSecret, encryptedToken), protocolVersion, cancellationToken);
         Step("encryption response sent — the last plaintext frame");
 
-        // The barrier: everything queued before this call leaves as plaintext, everything
-        // after it is ciphertext. Awaiting it is what makes the next read a real test.
-        await client.EnableEncryptionAsync(sharedSecret, cancellationToken);
+        // The send-side barrier: everything queued before this leaves as plaintext.
+        await activation.CompleteAsync(cancellationToken);
         state.Encrypted = true;
         Step("cipher active in both directions; every byte from here is AES/CFB8");
     }

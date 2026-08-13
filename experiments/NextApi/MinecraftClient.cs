@@ -401,6 +401,72 @@ public sealed class MinecraftClient : IAsyncDisposable, IDisposable
     }
 
     /// <summary>
+    /// Arms the inbound cipher immediately and returns a handle that turns the outbound cipher
+    /// on once the plaintext already queued — the Encryption Response — has left the machine.
+    /// </summary>
+    /// <param name="sharedSecret">The 16-byte shared secret negotiated during login.</param>
+    /// <returns>A handle whose <see cref="EncryptionActivation.CompleteAsync"/> finishes the switch.</returns>
+    /// <exception cref="ArgumentException"><paramref name="sharedSecret"/> is not exactly 16 bytes.</exception>
+    /// <exception cref="InvalidOperationException">Encryption is already enabled.</exception>
+    /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>
+    /// <remarks>
+    /// <para>
+    /// The two-step door exists because of a real failure seen against a server that answers
+    /// instantly (Pumpkin with authentication off): the one-call
+    /// <see cref="EnableEncryptionAsync(ReadOnlyMemory{byte}, CancellationToken)"/> can only arm
+    /// the receive side AFTER the caller has already sent the Encryption Response, and a fast
+    /// server's first ciphertext can land in that window — where it is read as plaintext, yields
+    /// a nonsense frame length, and the connection stalls forever. A server that authenticates
+    /// over HTTP first (vanilla, Paper) hides the window behind its own round trip.
+    /// </para>
+    /// <para>
+    /// Arming the receive side early is safe by protocol: the server sends nothing between the
+    /// Encryption Request and our Response, so no plaintext can be in flight. Usage:
+    /// <code>
+    /// var activation = client.BeginEncryption(sharedSecret);
+    /// await client.SendAsync(new EncryptionResponsePacket(...), pv, ct);
+    /// await activation.CompleteAsync(ct);
+    /// </code>
+    /// </para>
+    /// </remarks>
+    public EncryptionActivation BeginEncryption(ReadOnlySpan<byte> sharedSecret)
+    {
+        ThrowIfDisposed();
+        ValidateSharedSecret(sharedSecret.Length);
+        if (_isEncrypted || _decryptor is not null)
+            throw new InvalidOperationException("Encryption is already enabled.");
+
+        var (decryptor, encryptor, owner) = CreateAesCfb8Pair(sharedSecret);
+        _cipherOwner = owner;
+        _decryptor = decryptor;   // inbound armed BEFORE the response leaves — that is the point
+        return new EncryptionActivation(this, encryptor);
+    }
+
+    // Promotes the outbound cipher at the honest barrier: called by EncryptionActivation once
+    // the caller has queued the plaintext Encryption Response.
+    internal Task CompleteEncryptionAsyncInternal(PacketCipher encryptor, CancellationToken cancellationToken) =>
+        CompleteEncryptionAsync(encryptor, cancellationToken);
+
+    private async Task CompleteEncryptionAsync(PacketCipher encryptor, CancellationToken cancellationToken)
+    {
+        await _sendGate.WaitAsync(cancellationToken).ConfigureAwait(false);
+        try
+        {
+            ThrowIfDisposed();
+            var installed = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+            _encryptorInstalled = installed;
+            Volatile.Write(ref _pendingEncryptor, encryptor);
+            _sendPipe.Reader.CancelPendingRead();
+            await Task.WhenAny(installed.Task, _pumps).WaitAsync(cancellationToken).ConfigureAwait(false);
+            FinishInstall(installed, encryptor);
+        }
+        finally
+        {
+            _sendGate.Release();
+        }
+    }
+
+    /// <summary>
     /// Enables encryption with caller-supplied ciphers. Expert overload.
     /// </summary>
     /// <param name="decryptor">A cipher for inbound bytes.</param>
@@ -1129,4 +1195,35 @@ public sealed class MinecraftClient : IAsyncDisposable, IDisposable
 
     // The AES-128/CFB8 cipher pair lives in AesCfb8Cipher.cs (internal): PacketCipher over the
     // platform's Aes.EncryptCfb/DecryptCfb, keeping the CFB8 shift register itself (Д5).
+}
+
+/// <summary>
+/// The second half of a two-step encryption switch: the receive side is already live, this
+/// turns the send side on once the plaintext Encryption Response has left the machine.
+/// </summary>
+/// <remarks>Obtained from <see cref="MinecraftClient.BeginEncryption(ReadOnlySpan{byte})"/>.</remarks>
+public sealed class EncryptionActivation
+{
+    private readonly MinecraftClient _client;
+    private PacketCipher? _encryptor;
+
+    internal EncryptionActivation(MinecraftClient client, PacketCipher encryptor)
+    {
+        _client = client;
+        _encryptor = encryptor;
+    }
+
+    /// <summary>Waits for the queued plaintext to leave, then encrypts everything after it.</summary>
+    /// <param name="cancellationToken">A token to cancel the wait for the barrier.</param>
+    /// <returns>A task that completes when encryption is active in both directions.</returns>
+    /// <exception cref="InvalidOperationException">The activation has already been completed.</exception>
+    /// <exception cref="ObjectDisposedException">The client has been disposed.</exception>
+    /// <exception cref="OperationCanceledException">The operation was canceled through <paramref name="cancellationToken"/>.</exception>
+    public Task CompleteAsync(CancellationToken cancellationToken = default)
+    {
+        PacketCipher? encryptor = Interlocked.Exchange(ref _encryptor, null);
+        if (encryptor is null)
+            throw new InvalidOperationException("This encryption activation has already been completed.");
+        return _client.CompleteEncryptionAsyncInternal(encryptor, cancellationToken);
+    }
 }

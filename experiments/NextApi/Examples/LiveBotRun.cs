@@ -13,6 +13,7 @@
 //   * a body that fails to decode is counted, not fatal — a spec defect in one packet must
 //     not hide the verdict on the transport, which is what this probe is about.
 
+using System.Security.Cryptography;
 using McProtoNet.Net;
 using McProtoNet.Protocol;
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
@@ -137,6 +138,31 @@ internal static class LiveBotRun
                     Console.WriteLine($"[login] success: {success.Username} {success.Uuid} -> configuration");
                     break;
 
+                // An online-mode server asks for encryption before it authenticates. Answering is
+                // the same three steps the standalone probe takes; the walk continues under the
+                // cipher, and every packet after this point proves it byte for byte.
+                case LoginCb.EncryptionRequestPacket request:
+                {
+                    byte[] sharedSecret = RandomNumberGenerator.GetBytes(16);
+                    // Receive side first: a server that does not authenticate answers instantly,
+                    // and its first ciphertext must not arrive before the decryptor is live.
+                    EncryptionActivation activation = client.BeginEncryption(sharedSecret);
+                    using (var rsa = RSA.Create())
+                    {
+                        rsa.ImportSubjectPublicKeyInfo(request.PublicKey, out _);
+                        await client.SendAsync(
+                            new LoginSb.EncryptionResponsePacket(
+                                rsa.Encrypt(sharedSecret, RSAEncryptionPadding.Pkcs1),
+                                rsa.Encrypt(request.VerifyToken, RSAEncryptionPadding.Pkcs1)),
+                            protocolVersion, cancellationToken);
+                    }
+
+                    await activation.CompleteAsync(cancellationToken);
+                    stats.Encrypted = true;
+                    Console.WriteLine("[login] encryption on — every byte from here is AES/CFB8");
+                    break;
+                }
+
                 case LoginCb.LoginDisconnectPacket kick:
                     stats.Disconnect = $"login: {kick.Reason}";
                     return;
@@ -218,6 +244,7 @@ internal static class LiveBotRun
         Console.WriteLine($"packets read           : {stats.Packets}");
         Console.WriteLine($"biggest packet body    : {stats.BiggestBody} bytes (decompressed, id excluded)");
         Console.WriteLine($"compression threshold  : {(stats.Threshold is { } t ? t.ToString() : "not received")}");
+        Console.WriteLine($"encryption             : {(stats.Encrypted ? "on (AES/CFB8, mid-stream)" : "not requested by the server")}");
         Console.WriteLine($"login success          : {YesNo(stats.LoginSuccess)}");
         Console.WriteLine($"configuration finished : {YesNo(stats.ConfigurationFinished)}");
         Console.WriteLine($"keep-alives answered   : {stats.KeepAlives}");
@@ -270,6 +297,7 @@ internal static class LiveBotRun
         public int TrailingBytes;
         public string? FirstDecodeError;
         public string? Disconnect;
+        public bool Encrypted;
         public bool ServerClosed;
         public bool HitTimeCap;
     }
