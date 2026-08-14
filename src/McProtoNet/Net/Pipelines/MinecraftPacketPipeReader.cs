@@ -16,6 +16,8 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
     // For single packet
     private PositionState? _positionState;
 
+    private PacketCipher? _pendingDecryptor;
+
 
     private const int None = 0;
     private const int Disposed = 1;
@@ -32,20 +34,34 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 
     public int CompressionThreshold { get; set; } = -1;
 
-    public bool EncryptionEnabled => _pipeReader.EncryptionEnabled;
+    public bool EncryptionEnabled => _pipeReader.EncryptionEnabled || _pendingDecryptor is not null;
 
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
-        ThrowIfDisposed();
-        ApplyPendingAdvance();
-        _pipeReader.EnableEncryption(sharedSecret);
+        PacketCipher decryptor = PacketCipher.CreateDecryptor(sharedSecret);
+        try
+        {
+            EnableEncryption(decryptor);
+        }
+        catch
+        {
+            decryptor.Dispose();
+            throw;
+        }
     }
 
     public void EnableEncryption(PacketCipher decryptor)
     {
+        ArgumentNullException.ThrowIfNull(decryptor);
         ThrowIfDisposed();
+
+        if (EncryptionEnabled)
+        {
+            throw new InvalidOperationException("Encryption is already enabled.");
+        }
+
         ApplyPendingAdvance();
-        _pipeReader.EnableEncryption(decryptor);
+        _pendingDecryptor = decryptor;
     }
 
     private void ApplyPendingAdvance()
@@ -59,23 +75,28 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         }
     }
 
+    private void ApplyPendingCipher()
+    {
+        PacketCipher? pending = _pendingDecryptor;
+        if (pending is not null)
+        {
+            _pendingDecryptor = null;
+            _pipeReader.EnableEncryption(pending);
+        }
+    }
+
     public override bool TryRead(out ReadResult result)
     {
         ThrowIfDisposed();
+        ApplyPendingCipher();
         return _pipeReader.TryRead(out result);
     }
 
-    public override async ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
+    public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
-        var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-        if (result.IsCompleted)
-        {
-            CompleteCore();
-        }
-
-        return result;
+        ApplyPendingCipher();
+        return _pipeReader.ReadAsync(cancellationToken);
     }
 
     public override void AdvanceTo(SequencePosition consumed)
@@ -103,6 +124,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
             old.Dispose();
         }
 
+        Interlocked.Exchange(ref _pendingDecryptor, null)?.Dispose();
         _pipeReader.Dispose();
     }
 
@@ -145,6 +167,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         {
             token.ThrowIfCancellationRequested();
             ApplyPendingAdvance();
+            ApplyPendingCipher();
 
             var result = await _pipeReader.ReadAsync(token).ConfigureAwait(false);
 
@@ -201,14 +224,15 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
         MemoryOwner<byte> decompressedBuffer = default;
+        bool streamEnded = false;
         try
         {
             cancellationToken.ThrowIfCancellationRequested();
             while (true)
             {
-                var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
+                ApplyPendingCipher();
 
-                
+                var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
 
                 var buffer = result.Buffer;
                 bool drained = false;
@@ -225,7 +249,7 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 
                     if (result.IsCompleted)
                     {
-                        CompleteCore();
+                        streamEnded = true;
                         break;
                     }
 
@@ -239,6 +263,11 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
                 {
                     _pipeReader.AdvanceTo(buffer.Start, drained ? buffer.End : buffer.Start);
                 }
+            }
+
+            if (streamEnded)
+            {
+                CompleteCore();
             }
         }
         finally

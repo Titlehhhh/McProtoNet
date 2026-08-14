@@ -118,6 +118,36 @@ public class MinecraftPacketPipeReaderTests
     }
 
     [Fact]
+    public async Task EnableEncryption_ShouldWork_MidEnumeration()
+    {
+        var (writer, reader) = CreatePair();
+        writer.WritePacket(1, "login start"u8);
+        await writer.FlushAsync();
+
+        using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        int received = 0;
+
+        await foreach (var packet in reader.ReadPacketsAsync(timeout.Token))
+        {
+            received++;
+            if (packet.Id == 1)
+            {
+                reader.EnableEncryption(TestKey);
+                writer.EnableEncryption(TestKey);
+                writer.WritePacket(2, "encrypted follow-up"u8);
+                await writer.FlushAsync();
+                continue;
+            }
+
+            Assert.Equal(2, packet.Id);
+            Assert.Equal("encrypted follow-up"u8.ToArray(), packet.Data.ToArray());
+            break;
+        }
+
+        Assert.Equal(2, received);
+    }
+
+    [Fact]
     public async Task EnableEncryption_ShouldWork_BetweenPacketReads()
     {
         var (writer, reader) = CreatePair();

@@ -241,6 +241,49 @@ namespace McProtoNet.Tests.Pipelines
         }
 
         [Fact]
+        public async Task EnableEncryption_ShouldThrow_WhenPlainReadPending()
+        {
+            var (_, _, key, _) = CreateAesCfb8Ciphers();
+            var pipe = new Pipe();
+            var reader = new CryptoPipeReader(pipe.Reader);
+
+            await pipe.Writer.WriteAsync("plain bytes"u8.ToArray());
+            ReadResult result = await reader.ReadAsync();
+
+            Assert.Throws<InvalidOperationException>(
+                () => reader.EnableEncryption(PacketCipher.CreateDecryptor(key)));
+
+            reader.AdvanceTo(result.Buffer.End);
+            reader.EnableEncryption(PacketCipher.CreateDecryptor(key));
+            Assert.True(reader.EncryptionEnabled);
+        }
+
+        [Fact]
+        public async Task AdvanceTo_ShouldThrow_OnStalePosition()
+        {
+            var (encryptor, _, key, _) = CreateAesCfb8Ciphers();
+            var pipe = new Pipe();
+            var reader = new CryptoPipeReader(pipe.Reader);
+            reader.EnableEncryption(PacketCipher.CreateDecryptor(key));
+
+            byte[] first = new byte[6000];
+            byte[] encrypted = new byte[encryptor.GetOutputSize(first.Length)];
+            int length = encryptor.ProcessBytes(first, 0, first.Length, encrypted, 0);
+            await pipe.Writer.WriteAsync(encrypted.AsMemory(0, length));
+
+            ReadResult stale = await reader.ReadAsync();
+            SequencePosition stalePosition = stale.Buffer.Start;
+            reader.AdvanceTo(stale.Buffer.End);
+
+            await pipe.Writer.WriteAsync(encrypted.AsMemory(0, 100));
+            ReadResult fresh = await reader.ReadAsync();
+
+            Assert.Throws<InvalidOperationException>(() => reader.AdvanceTo(stalePosition));
+
+            reader.AdvanceTo(fresh.Buffer.End);
+        }
+
+        [Fact]
         public void Dispose_ShouldBeIdempotent()
         {
             var (_, _, key, _) = CreateAesCfb8Ciphers();
