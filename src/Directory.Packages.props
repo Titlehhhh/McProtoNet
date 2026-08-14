@@ -50,7 +50,7 @@
   </ItemGroup>
   <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <DotNextVersion>6.0.0</DotNextVersion>
+    <DotNextVersion>6.6.1</DotNextVersion>
   </PropertyGroup>
   <PropertyGroup>
     <NoWarn>$(NoWarn);CS1591;CS0535</NoWarn>
@@ -59,17 +59,17 @@
     <PackageVersion Include="DotNext.IO" Version="$(DotNextVersion)" />
     <PackageVersion Include="DotNext.Threading" Version="$(DotNextVersion)" />
     <PackageVersion Include="DotNext" Version="$(DotNextVersion)" />
-    <PackageVersion Include="Dunet" Version="1.16.1" />
+    <PackageVersion Include="Dunet" Version="1.16.2" />
     <PackageVersion Include="MinVer" Version="7.0.0" />
     <PackageVersion Include="QuickProxyNet" Version="3.0.0" />
-    <PackageVersion Include="ConfigureAwait.Fody" Version="3.3.2" />
-    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.6.2" />
+    <PackageVersion Include="ConfigureAwait.Fody" Version="3.4.1" />
+    <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
     <PackageVersion Include="DnsClient" Version="1.8.0" />
-    <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1" />
-    <PackageVersion Include="System.IO.Pipelines" Version="10.0.0" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.201" />
-    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.2" />
+    <PackageVersion Include="System.IO.Pipelines" Version="10.0.11" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.400" />
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
   </ItemGroup>
-</Project>
+</Project>
