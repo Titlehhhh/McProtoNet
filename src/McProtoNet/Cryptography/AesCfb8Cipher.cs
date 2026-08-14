@@ -5,12 +5,12 @@ namespace McProtoNet.Cryptography;
 internal sealed class AesCfb8Cipher : PacketCipher
 {
     private const int RegisterLength = 16;
+    private const int ChunkSize = 4096;
 
     private readonly Aes _aes;
     private readonly bool _encrypting;
     private readonly byte[] _register = new byte[RegisterLength];
-
-    private byte[] _scratch = [];
+    private readonly byte[] _scratch = new byte[ChunkSize];
 
     internal AesCfb8Cipher(ReadOnlySpan<byte> key, ReadOnlySpan<byte> iv, bool encrypting)
     {
@@ -22,31 +22,25 @@ internal sealed class AesCfb8Cipher : PacketCipher
 
     public override void Transform(Span<byte> buffer)
     {
-        int length = buffer.Length;
-        if (length == 0)
+        while (buffer.Length > 0)
         {
-            return;
-        }
+            Span<byte> chunk = buffer[..Math.Min(ChunkSize, buffer.Length)];
+            Span<byte> destination = _scratch.AsSpan(0, chunk.Length);
 
-        if (_scratch.Length < length)
-        {
-            _scratch = new byte[length];
-        }
+            if (_encrypting)
+            {
+                _aes.EncryptCfb(chunk, _register, destination, PaddingMode.None, feedbackSizeInBits: 8);
+                AdvanceRegister(destination);
+            }
+            else
+            {
+                _aes.DecryptCfb(chunk, _register, destination, PaddingMode.None, feedbackSizeInBits: 8);
+                AdvanceRegister(chunk);
+            }
 
-        Span<byte> destination = _scratch.AsSpan(0, length);
-
-        if (_encrypting)
-        {
-            _aes.EncryptCfb(buffer, _register, destination, PaddingMode.None, feedbackSizeInBits: 8);
-            AdvanceRegister(destination);
+            destination.CopyTo(chunk);
+            buffer = buffer[chunk.Length..];
         }
-        else
-        {
-            _aes.DecryptCfb(buffer, _register, destination, PaddingMode.None, feedbackSizeInBits: 8);
-            AdvanceRegister(buffer);
-        }
-
-        destination.CopyTo(buffer);
     }
 
     protected override void Dispose(bool disposing)
@@ -54,6 +48,8 @@ internal sealed class AesCfb8Cipher : PacketCipher
         if (disposing)
         {
             _aes.Dispose();
+            Array.Clear(_register);
+            Array.Clear(_scratch);
         }
 
         base.Dispose(disposing);

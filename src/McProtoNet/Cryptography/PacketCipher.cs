@@ -8,14 +8,29 @@ public abstract class PacketCipher : IDisposable
 
     public static PacketCipher CreateEncryptor(ReadOnlySpan<byte> sharedSecret)
     {
-        ValidateSharedSecret(sharedSecret);
-        return new AesCfb8Cipher(sharedSecret, sharedSecret, encrypting: true);
+        return Create(sharedSecret, encrypting: true);
     }
 
     public static PacketCipher CreateDecryptor(ReadOnlySpan<byte> sharedSecret)
     {
+        return Create(sharedSecret, encrypting: false);
+    }
+
+    private static PacketCipher Create(ReadOnlySpan<byte> sharedSecret, bool encrypting)
+    {
         ValidateSharedSecret(sharedSecret);
-        return new AesCfb8Cipher(sharedSecret, sharedSecret, encrypting: false);
+
+        if (AesCfb8HardwareCipher.IsSupported)
+        {
+            return new AesCfb8HardwareCipher(sharedSecret, sharedSecret, encrypting);
+        }
+
+        if (AesCfb8ArmCipher.IsSupported)
+        {
+            return new AesCfb8ArmCipher(sharedSecret, sharedSecret, encrypting);
+        }
+
+        return new AesCfb8Cipher(sharedSecret, sharedSecret, encrypting);
     }
 
     public void Dispose()
