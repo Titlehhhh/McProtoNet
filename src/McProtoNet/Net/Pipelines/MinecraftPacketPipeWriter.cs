@@ -6,17 +6,18 @@ namespace McProtoNet.Net;
 
 public sealed class MinecraftPacketPipeWriter : IDisposable
 {
-    private const int NonWrite = 0;
-    private const int Writing = 1;
+    private const int Idle = 0;
+    private const int Busy = 1;
+    private const int Disposed = 2;
 
-    private readonly EncryptedPipeWriter _writer;
+    private readonly CryptoPipeWriter _writer;
 
-    private int _writeState = NonWrite;
+    private int _state = Idle;
     private int _compressionThreshold = -1;
 
     public MinecraftPacketPipeWriter(PipeWriter pipeWriter)
     {
-        _writer = new EncryptedPipeWriter(pipeWriter);
+        _writer = new CryptoPipeWriter(pipeWriter);
     }
 
     public int CompressionThreshold
@@ -24,12 +25,19 @@ public sealed class MinecraftPacketPipeWriter : IDisposable
         get => Volatile.Read(ref _compressionThreshold);
         set
         {
-            ThrowIfWriting("Cannot change compression threshold while writing a packet.");
-            Volatile.Write(ref _compressionThreshold, value);
+            Enter();
+            try
+            {
+                Volatile.Write(ref _compressionThreshold, value);
+            }
+            finally
+            {
+                Exit();
+            }
         }
     }
 
-    public bool EncryptionEnabled => _writer.IsEncrypted;
+    public bool EncryptionEnabled => _writer.EncryptionEnabled;
 
     public bool CanGetUnflushedBytes => _writer.CanGetUnflushedBytes;
 
@@ -39,14 +47,28 @@ public sealed class MinecraftPacketPipeWriter : IDisposable
 
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
-        ThrowIfWriting("Cannot enable encryption while writing a packet.");
-        _writer.SwitchEncryption(sharedSecret);
+        Enter();
+        try
+        {
+            _writer.EnableEncryption(sharedSecret);
+        }
+        finally
+        {
+            Exit();
+        }
     }
 
     public void EnableEncryption(PacketCipher encryptor)
     {
-        ThrowIfWriting("Cannot enable encryption while writing a packet.");
-        _writer.SwitchEncryption(encryptor);
+        Enter();
+        try
+        {
+            _writer.EnableEncryption(encryptor);
+        }
+        finally
+        {
+            Exit();
+        }
     }
 
     #endregion
@@ -55,66 +77,66 @@ public sealed class MinecraftPacketPipeWriter : IDisposable
 
     public void WritePacket(ReadOnlySpan<byte> rawPacket)
     {
-        BeginWrite();
+        Enter();
         try
         {
             _writer.WritePacket(rawPacket, _compressionThreshold);
         }
         finally
         {
-            EndWrite();
+            Exit();
         }
     }
 
     public void WritePacket(int id, ReadOnlySpan<byte> body)
     {
-        BeginWrite();
+        Enter();
         try
         {
             _writer.WritePacket(id, body, _compressionThreshold);
         }
         finally
         {
-            EndWrite();
+            Exit();
         }
     }
 
     public void WritePacket(in ReadOnlySequence<byte> rawPacket)
     {
-        BeginWrite();
+        Enter();
         try
         {
             _writer.WritePacket(in rawPacket, _compressionThreshold);
         }
         finally
         {
-            EndWrite();
+            Exit();
         }
     }
 
     public void WritePacket(int id, in ReadOnlySequence<byte> body)
     {
-        BeginWrite();
+        Enter();
         try
         {
             _writer.WritePacket(id, in body, _compressionThreshold);
         }
         finally
         {
-            EndWrite();
+            Exit();
         }
     }
 
     public void WriteRawBytes(ReadOnlySpan<byte> bytes)
     {
-        BeginWrite();
+        Enter();
         try
         {
             _writer.Write(bytes);
         }
         finally
         {
-            EndWrite();
+            Exit();
         }
     }
 
@@ -124,7 +146,26 @@ public sealed class MinecraftPacketPipeWriter : IDisposable
 
     public ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
-        return _writer.FlushAsync(cancellationToken);
+        Enter();
+
+        ValueTask<FlushResult> flush;
+        try
+        {
+            flush = _writer.FlushAsync(cancellationToken);
+        }
+        catch
+        {
+            Exit();
+            throw;
+        }
+
+        if (flush.IsCompleted)
+        {
+            Exit();
+            return flush;
+        }
+
+        return ExitAfter(flush);
     }
 
     public void CancelPendingFlush()
@@ -134,39 +175,99 @@ public sealed class MinecraftPacketPipeWriter : IDisposable
 
     public void Complete(Exception? exception = null)
     {
-        _writer.Complete(exception);
+        Enter();
+        try
+        {
+            _writer.Complete(exception);
+        }
+        finally
+        {
+            Exit();
+        }
     }
 
     public ValueTask CompleteAsync(Exception? exception = null)
     {
-        return _writer.CompleteAsync(exception);
+        Enter();
+
+        ValueTask complete;
+        try
+        {
+            complete = _writer.CompleteAsync(exception);
+        }
+        catch
+        {
+            Exit();
+            throw;
+        }
+
+        if (complete.IsCompleted)
+        {
+            Exit();
+            return complete;
+        }
+
+        return ExitAfter(complete);
     }
 
     #endregion
 
     public void Dispose()
     {
+        int previous = Interlocked.CompareExchange(ref _state, Disposed, Idle);
+        if (previous == Busy)
+        {
+            throw new InvalidOperationException("Cannot dispose the writer while another operation is in progress.");
+        }
+
+        if (previous == Disposed)
+        {
+            return;
+        }
+
         _writer.Dispose();
     }
 
-    private void BeginWrite()
+    private async ValueTask<FlushResult> ExitAfter(ValueTask<FlushResult> flush)
     {
-        if (Interlocked.CompareExchange(ref _writeState, Writing, NonWrite) == Writing)
+        try
+        {
+            return await flush.ConfigureAwait(false);
+        }
+        finally
+        {
+            Exit();
+        }
+    }
+
+    private async ValueTask ExitAfter(ValueTask complete)
+    {
+        try
+        {
+            await complete.ConfigureAwait(false);
+        }
+        finally
+        {
+            Exit();
+        }
+    }
+
+    private void Enter()
+    {
+        int previous = Interlocked.CompareExchange(ref _state, Busy, Idle);
+        if (previous == Busy)
         {
             throw new InvalidOperationException("Concurrent packet writing is not allowed.");
         }
-    }
 
-    private void EndWrite()
-    {
-        Interlocked.Exchange(ref _writeState, NonWrite);
-    }
-
-    private void ThrowIfWriting(string message)
-    {
-        if (Volatile.Read(ref _writeState) == Writing)
+        if (previous == Disposed)
         {
-            throw new InvalidOperationException(message);
+            throw new ObjectDisposedException(nameof(MinecraftPacketPipeWriter));
         }
+    }
+
+    private void Exit()
+    {
+        Interlocked.CompareExchange(ref _state, Idle, Busy);
     }
 }

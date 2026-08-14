@@ -24,11 +24,11 @@ public class ReadAsyncCompletionTests
                 resumeWriterThreshold: 6,
                 pauseWriterThreshold: 65));
 
-        var reader = new DecryptedPipeReader(pipe.Reader);
+        var reader = new CryptoPipeReader(pipe.Reader);
 
         if (isEncrypt)
         {
-            reader.SwitchEncryption(Crypto.CreateDecryptor());
+            reader.EnableEncryption(Crypto.CreateDecryptor());
         }
         
         ValueTask<ReadResult> awaitable1 = reader.ReadAsync();
@@ -60,18 +60,18 @@ public class ReadAsyncCompletionTests
                 resumeWriterThreshold: 6,
                 pauseWriterThreshold: 65));
 
-        var reader = new DecryptedPipeReader(pipe.Reader);
+        var reader = new CryptoPipeReader(pipe.Reader);
 
         if (isEncrypt)
         {
-            reader.SwitchEncryption(Crypto.CreateDecryptor());
+            reader.EnableEncryption(Crypto.CreateDecryptor());
         }
 
-        var writer = new EncryptedPipeWriter(pipe.Writer);
+        var writer = new CryptoPipeWriter(pipe.Writer);
 
         if (isEncrypt)
         {
-           writer.SwitchEncryption(Crypto.CreateEncryptor());
+           writer.EnableEncryption(Crypto.CreateEncryptor());
         }
         
         reader.Complete();
@@ -81,4 +81,4 @@ public class ReadAsyncCompletionTests
         Assert.True(result.IsCompleted);
     }
 
-}
+}

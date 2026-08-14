@@ -57,9 +57,9 @@ public class DecryptTest
                 new KeyParameter(PrivateKey), 
                 PrivateKey, 0, 16));
 
-        var decryptReader = new DecryptedPipeReader(pipeReader);
+        var decryptReader = new CryptoPipeReader(pipeReader);
         
-        decryptReader.SwitchEncryption(PacketCipher.CreateDecryptor(PrivateKey));
+        decryptReader.EnableEncryption(PacketCipher.CreateDecryptor(PrivateKey));
 
         var tryRead = decryptReader.TryRead(out _);
         
@@ -78,4 +78,4 @@ public class DecryptTest
         
         Assert.Equal(buff, resArr);
     }
-}
+}
