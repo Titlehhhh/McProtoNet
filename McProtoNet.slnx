@@ -6,6 +6,9 @@
     <Project Path="examples\MinimalBot\MinimalBot.csproj" Type="Classic C#" />
     <Project Path="examples\SimpleBotFSharp\SimpleBotFSharp.fsproj" Type="Classic F#" />
   </Folder>
+  <Folder Name="/experiments/">
+    <Project Path="experiments\NextApi\NextApi.csproj" Type="Classic C#" />
+  </Folder>
   <Folder Name="/src/">
     <Project Path="src\McProtoNet.FSharp\McProtoNet.FSharp.fsproj" Type="Classic F#" />
     <Project Path="src\McProtoNet.NBT\McProtoNet.NBT.csproj" Type="Classic C#" />

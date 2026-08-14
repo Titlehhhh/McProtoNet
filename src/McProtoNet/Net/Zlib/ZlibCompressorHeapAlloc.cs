@@ -8,7 +8,10 @@ public class ZlibCompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr compressor;
 
-    private bool disposedValue;
+    // One flag, read by the guard and written by Dispose. There used to be a second one here
+    // (disposedValue) that the guard read and nobody ever set, so every call after Dispose
+    // sailed past the check straight into freed native memory.
+    private bool disposed;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ZlibCompressorHeapAlloc(int compressionLevel)
@@ -63,15 +66,13 @@ public class ZlibCompressorHeapAlloc : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DisposedGuard()
     {
-        if (disposedValue)
+        if (disposed)
         {
             ThrowHelperObjectDisposed();
         }
 
-        static void ThrowHelperObjectDisposed() => throw new ObjectDisposedException(nameof(ZlibCompressor));
+        static void ThrowHelperObjectDisposed() => throw new ObjectDisposedException(nameof(ZlibCompressorHeapAlloc));
     }
-
-    private bool disposed;
 
     ~ZlibCompressorHeapAlloc()
     {
@@ -84,5 +85,6 @@ public class ZlibCompressorHeapAlloc : IDisposable
             return;
         disposed = true;
         Compression.libdeflate_free_compressor(compressor);
+        GC.SuppressFinalize(this);
     }
 }

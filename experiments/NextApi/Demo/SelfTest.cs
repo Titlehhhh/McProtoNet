@@ -87,6 +87,8 @@ internal static class SelfTest
             ExamplesSelfCheck.CheckOversizedLengthWaitsAsync) ? 0 : 1;
         failures += await RunAsync("(h) AES/CFB8 streamed in any chunking matches the one-shot oracle (both directions)",
             CipherStreamingCheck.RunAsync) ? 0 : 1;
+        failures += await RunAsync("(j) a mid-batch break leaves buffered frames readable",
+            TestInterruptedReadLoopAsync) ? 0 : 1;
         // (i) is the only check that touches the typed floor: TryDecode -> IPacket stream ->
         // switch over packet classes -> SendAsync through the cached writer, over the same
         // in-memory duplex pair. Checks (a)-(h) all stop at the transport, so without this one
@@ -318,6 +320,74 @@ internal static class SelfTest
         }
 
         throw new InvalidOperationException("The stream ended before a packet arrived.");
+    }
+
+    // ------------------------------------------------------------------ (j)
+
+    // The skeptic's objection to moving the transport into src/ (queue task 46): a consumer
+    // that walks away in the middle of a batch. The reader marks the whole read buffer
+    // examined but only the handed-out frames consumed, so a frame already sitting in the
+    // pipe can stay invisible until the wire delivers another byte. Both frames go in with a
+    // single flush on purpose — that is the only arrangement where the two positions differ.
+    private static async Task TestInterruptedReadLoopAsync(CancellationToken ct)
+    {
+        var pipe = new Pipe();
+        var reader = new FrameReader(pipe.Reader);
+
+        byte[] first = MakeBody(8);
+        byte[] second = MakeBody(12);
+        WriteUncompressedFrame(pipe.Writer, first);
+        WriteUncompressedFrame(pipe.Writer, second);
+        await pipe.Writer.FlushAsync(ct).ConfigureAwait(false);
+
+        int seen = 0;
+        await foreach (RawFrame frame in reader.ReadFramesAsync(ct).ConfigureAwait(false))
+        {
+            Check(frame.Payload.ToArray().AsSpan().SequenceEqual(first), "first pass: wrong payload");
+            seen++;
+            break; // leave mid-batch, with the second frame still buffered
+        }
+
+        Check(seen == 1, "first pass yielded no frame at all");
+
+        // Not one new byte is written from here on: the second frame must come out of what the
+        // pipe already holds. A wait here is the bug, so cap it well below the check timeout.
+        using var idle = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        idle.CancelAfter(TimeSpan.FromSeconds(3));
+        try
+        {
+            await foreach (RawFrame frame in reader.ReadFramesAsync(idle.Token).ConfigureAwait(false))
+            {
+                Check(frame.Payload.ToArray().AsSpan().SequenceEqual(second), "second pass: wrong payload");
+                seen++;
+                break;
+            }
+        }
+        catch (OperationCanceledException) when (!ct.IsCancellationRequested)
+        {
+            throw new InvalidOperationException(
+                "the second frame was already buffered, but the reader waited for new bytes from the wire");
+        }
+
+        Check(seen == 2, "the buffered second frame never arrived");
+    }
+
+    private static void WriteUncompressedFrame(PipeWriter writer, ReadOnlySpan<byte> body)
+    {
+        Span<byte> span = writer.GetSpan(5 + body.Length);
+        int header = 0;
+        int remaining = body.Length;
+        do
+        {
+            byte piece = (byte)(remaining & 0x7F);
+            remaining >>= 7;
+            if (remaining != 0)
+                piece |= 0x80;
+            span[header++] = piece;
+        } while (remaining != 0);
+
+        body.CopyTo(span[header..]);
+        writer.Advance(header + body.Length);
     }
 
     private static byte[] MakeBody(int length)

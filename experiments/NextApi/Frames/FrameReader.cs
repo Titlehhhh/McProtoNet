@@ -73,10 +73,21 @@ internal sealed class FrameReader
             var result = await _reader.ReadAsync(cancellationToken).ConfigureAwait(false);
             var buffer = result.Buffer;
 
+            // Stays false while frames are being handed out. A consumer that leaves the loop
+            // mid-batch — a break, a return, an exception — disposes the enumerator right at
+            // the yield, so the finally below runs with this still false and must report the
+            // untouched tail as unexamined; otherwise whole frames already in the pipe stay
+            // invisible until the wire happens to deliver another byte.
+            bool drained = false;
+
             try
             {
                 while (TryReadFrame(ref buffer, out var frame))
                     yield return frame;
+
+                // No whole frame is left in the buffer: everything in it has been looked at,
+                // so the pipe is right to hold the next read until more bytes arrive.
+                drained = true;
 
                 if (result.IsCompleted)
                 {
@@ -99,7 +110,7 @@ internal sealed class FrameReader
             }
             finally
             {
-                _reader.AdvanceTo(buffer.Start, buffer.End);
+                _reader.AdvanceTo(buffer.Start, drained ? buffer.End : buffer.Start);
             }
         }
     }
