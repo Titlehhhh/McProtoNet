@@ -98,7 +98,7 @@ public class PacketPipelineTests
         reader.CompressionThreshold = compressionThreshold;
 
         if (decrypt)
-            reader.EnableEncryption(CreateDecryptor());
+            reader.EnableEncryption(PacketCipher.CreateDecryptor(AesKey));
 
         return reader;
     }

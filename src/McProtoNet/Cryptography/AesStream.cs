@@ -1,249 +1,314 @@
-using Org.BouncyCastle.Crypto;
-using Org.BouncyCastle.Crypto.Engines;
-using Org.BouncyCastle.Crypto.IO;
-using Org.BouncyCastle.Crypto.Modes;
-using Org.BouncyCastle.Crypto.Parameters;
-using Org.BouncyCastle.Security;
+using System.Buffers;
+using System.Diagnostics;
 
 namespace McProtoNet.Cryptography;
 
-/// <summary>
-/// A Stream implementation that provides AES encryption/decryption capabilities
-/// </summary>
 public sealed class AesStream : Stream
 {
-    private bool _disposed;
+    private const int EncryptChunkSize = 8 * 1024;
 
-    /// <summary>
-    /// The underlying stream being wrapped
-    /// </summary>
-    internal Stream BaseStream;
+    private readonly Stream _baseStream;
+    private readonly bool _leaveOpen;
 
-    /// <summary>
-    /// Creates a new AesStream wrapping the provided stream
-    /// </summary>
-    /// <param name="stream">The stream to wrap</param>
-    /// <exception cref="ArgumentNullException">Thrown when stream is null</exception>
-    public AesStream(Stream stream)
+    private volatile PacketCipher? _encryptor;
+    private volatile PacketCipher? _decryptor;
+    private volatile bool _encryptionEnabled;
+    private volatile bool _disposed;
+
+    public AesStream(Stream baseStream, bool leaveOpen = false)
     {
-#if NETSTANDARD2_0
-            if(stream is null)
-                throw new ArgumentNullException(nameof(stream));
-#else
-        ArgumentNullException.ThrowIfNull(stream, nameof(stream));
-#endif
-
-        BaseStream = stream;
+        ArgumentNullException.ThrowIfNull(baseStream);
+        _baseStream = baseStream;
+        _leaveOpen = leaveOpen;
     }
 
-    /// <summary>
-    /// Gets whether encryption is currently enabled
-    /// </summary>
-    public bool EncryptionEnabled { get; } = false;
+    public Stream BaseStream
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _baseStream;
+        }
+    }
 
-    /// <inheritdoc/>
-    public override bool CanRead => BaseStream.CanRead;
+    public bool EncryptionEnabled => _encryptionEnabled;
 
-    /// <inheritdoc/>
-    public override bool CanSeek => BaseStream.CanSeek;
+    public override bool CanRead => _baseStream.CanRead;
 
-    /// <inheritdoc/>
-    public override bool CanWrite => BaseStream.CanWrite;
+    public override bool CanWrite => _baseStream.CanWrite;
 
-    /// <inheritdoc/>
-    public override long Length => BaseStream.Length;
+    public override bool CanSeek => false;
 
-    /// <inheritdoc/>
+    public override long Length => throw new NotSupportedException();
+
     public override long Position
     {
-        get => BaseStream.Position;
-        set => BaseStream.Position = value;
+        get => throw new NotSupportedException();
+        set => throw new NotSupportedException();
     }
 
-    /// <summary>
-    /// The cipher used for encryption
-    /// </summary>
-    private IBufferedCipher EncryptCipher { get; set; }
-
-    /// <summary>
-    /// The cipher used for decryption
-    /// </summary>
-    private IBufferedCipher DecryptCipher { get; set; }
-
-
-    /// <summary>
-    /// Enables AES encryption on the stream using the provided key
-    /// </summary>
-    /// <param name="privatekey">The private key to use for encryption</param>
-    /// <exception cref="InvalidOperationException">Thrown if encryption is already enabled</exception>
-    public void SwitchEncryption(byte[] privatekey)
+    public void SwitchEncryption(byte[] privateKey)
     {
-        if (EncryptionEnabled) throw new InvalidOperationException("Шифрование уже включено");
-
-        
-
-        EncryptCipher =
-            new BufferedBlockCipher(
-                new CfbBlockCipher(AesEngine_X86.IsSupported ? new AesEngine_X86() : new AesEngine(), 8));
-
-        EncryptCipher.Init(true, new ParametersWithIV(new KeyParameter(privatekey), privatekey, 0, 16));
-
-        DecryptCipher =
-            new BufferedBlockCipher(
-                new CfbBlockCipher(AesEngine_X86.IsSupported ? new AesEngine_X86() : new AesEngine(), 8));
-
-
-        DecryptCipher.Init(false, new ParametersWithIV(new KeyParameter(privatekey), privatekey, 0, 16));
-
-        BaseStream = new AsyncCipherStream(BaseStream, DecryptCipher, EncryptCipher);
+        ArgumentNullException.ThrowIfNull(privateKey);
+        EnableEncryption(privateKey);
     }
 
-    /// <inheritdoc/>
+    public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
+    {
+        ThrowIfDisposed();
+        ThrowIfEncryptionEnabled();
+
+        PacketCipher encryptor = PacketCipher.CreateEncryptor(sharedSecret);
+        PacketCipher decryptor;
+        try
+        {
+            decryptor = PacketCipher.CreateDecryptor(sharedSecret);
+        }
+        catch
+        {
+            encryptor.Dispose();
+            throw;
+        }
+
+        Install(encryptor, decryptor);
+    }
+
+    public void EnableEncryption(PacketCipher encryptor, PacketCipher decryptor)
+    {
+        ArgumentNullException.ThrowIfNull(encryptor);
+        ArgumentNullException.ThrowIfNull(decryptor);
+        ThrowIfDisposed();
+        ThrowIfEncryptionEnabled();
+
+        Install(encryptor, decryptor);
+    }
+
     public override int Read(Span<byte> buffer)
     {
-        return BaseStream.Read(buffer);
+        ThrowIfDisposed();
+
+        int read = _baseStream.Read(buffer);
+        PacketCipher? decryptor = _decryptor;
+        if (decryptor is not null && read > 0)
+        {
+            decryptor.Transform(buffer[..read]);
+        }
+
+        return read;
     }
 
-    /// <inheritdoc/>
-    public override void Write(ReadOnlySpan<byte> buffer)
-    {
-        BaseStream.Write(buffer);
-    }
-
-    /// <inheritdoc/>
-    public override void CopyTo(Stream destination, int bufferSize)
-    {
-        BaseStream.CopyTo(destination, bufferSize);
-    }
-
-    /// <inheritdoc/>
-    public override Task CopyToAsync(Stream destination, int bufferSize, CancellationToken cancellationToken)
-    {
-        return BaseStream.CopyToAsync(destination, bufferSize, cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public override int ReadByte()
-    {
-        return BaseStream.ReadByte();
-    }
-
-    /// <inheritdoc/>
-    public override int EndRead(IAsyncResult asyncResult)
-    {
-        return BaseStream.EndRead(asyncResult);
-    }
-
-    /// <inheritdoc/>
-    public override IAsyncResult BeginRead(byte[] buffer, int offset, int count, AsyncCallback? callback,
-        object? state)
-    {
-        return BaseStream.BeginRead(buffer, offset, count, callback, state);
-    }
-
-    /// <inheritdoc/>
-    public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback? callback,
-        object? state)
-    {
-        return BaseStream.BeginWrite(buffer, offset, count, callback, state);
-    }
-
-    /// <inheritdoc/>
-    public override void EndWrite(IAsyncResult asyncResult)
-    {
-        BaseStream.EndWrite(asyncResult);
-    }
-
-    /// <inheritdoc/>
-    public override bool Equals(object? obj)
-    {
-        return BaseStream.Equals(obj);
-    }
-
-    /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-        return BaseStream.GetHashCode();
-    }
-
-    /// <inheritdoc/>
-    public override void Flush()
-    {
-        BaseStream.Flush();
-    }
-
-    /// <inheritdoc/>
-    public override Task FlushAsync(CancellationToken cancellationToken)
-    {
-        return BaseStream.FlushAsync(cancellationToken);
-    }
-
-    /// <inheritdoc/>
-    public override int Read(byte[] buffer, int offset, int count)
-    {
-        return BaseStream.Read(buffer, offset, count);
-    }
-
-    /// <inheritdoc/>
     public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        return BaseStream.ReadAsync(buffer, cancellationToken);
+        ThrowIfDisposed();
+
+        PacketCipher? decryptor = _decryptor;
+        if (decryptor is null)
+        {
+            return _baseStream.ReadAsync(buffer, cancellationToken);
+        }
+
+        return ReadAndDecryptAsync(decryptor, buffer, cancellationToken);
     }
 
-    /// <inheritdoc/>
-    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    public override void Write(ReadOnlySpan<byte> buffer)
     {
-        return BaseStream.ReadAsync(buffer, offset, count, cancellationToken);
+        ThrowIfDisposed();
+
+        PacketCipher? encryptor = _encryptor;
+        if (encryptor is null)
+        {
+            _baseStream.Write(buffer);
+            return;
+        }
+
+        if (buffer.IsEmpty)
+        {
+            return;
+        }
+
+        byte[] rented = ArrayPool<byte>.Shared.Rent(Math.Min(buffer.Length, EncryptChunkSize));
+        try
+        {
+            while (!buffer.IsEmpty)
+            {
+                int count = Math.Min(buffer.Length, rented.Length);
+                Span<byte> chunk = rented.AsSpan(0, count);
+                buffer[..count].CopyTo(chunk);
+                encryptor.Transform(chunk);
+                _baseStream.Write(chunk);
+                buffer = buffer[count..];
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
     }
 
-    /// <inheritdoc/>
-    public override long Seek(long offset, SeekOrigin origin)
-    {
-        return BaseStream.Seek(offset, origin);
-    }
-
-    /// <inheritdoc/>
-    public override void SetLength(long value)
-    {
-        BaseStream.SetLength(value);
-    }
-
-    /// <inheritdoc/>
-    public override void WriteByte(byte value)
-    {
-        BaseStream.WriteByte(value);
-    }
-
-    /// <inheritdoc/>
-    public override void Write(byte[] buffer, int offset, int count)
-    {
-        BaseStream.Write(buffer, offset, count);
-    }
-
-    /// <inheritdoc/>
-    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-    {
-        return BaseStream.WriteAsync(buffer, offset, count, cancellationToken);
-    }
-
-    /// <inheritdoc/>
     public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
     {
-        return BaseStream.WriteAsync(buffer, cancellationToken);
+        ThrowIfDisposed();
+
+        PacketCipher? encryptor = _encryptor;
+        if (encryptor is null)
+        {
+            return _baseStream.WriteAsync(buffer, cancellationToken);
+        }
+
+        return EncryptAndWriteAsync(encryptor, buffer, cancellationToken);
     }
 
-    /// <inheritdoc/>
+    public override int Read(byte[] buffer, int offset, int count)
+    {
+        ValidateBufferArguments(buffer, offset, count);
+        return Read(buffer.AsSpan(offset, count));
+    }
+
+    public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        ValidateBufferArguments(buffer, offset, count);
+        return ReadAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+    }
+
+    public override void Write(byte[] buffer, int offset, int count)
+    {
+        ValidateBufferArguments(buffer, offset, count);
+        Write(buffer.AsSpan(offset, count));
+    }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        ValidateBufferArguments(buffer, offset, count);
+        return WriteAsync(buffer.AsMemory(offset, count), cancellationToken).AsTask();
+    }
+
+    public override void Flush()
+    {
+        ThrowIfDisposed();
+        _baseStream.Flush();
+    }
+
+    public override Task FlushAsync(CancellationToken cancellationToken)
+    {
+        ThrowIfDisposed();
+        return _baseStream.FlushAsync(cancellationToken);
+    }
+
+    public override long Seek(long offset, SeekOrigin origin)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override void SetLength(long value)
+    {
+        throw new NotSupportedException();
+    }
+
+    public override async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        _disposed = true;
+        DisposeCiphers();
+
+        if (!_leaveOpen)
+        {
+            await _baseStream.DisposeAsync().ConfigureAwait(false);
+        }
+
+        await base.DisposeAsync().ConfigureAwait(false);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (_disposed)
+        {
             return;
-        BaseStream.Dispose();
+        }
 
         _disposed = true;
+
+        if (disposing)
+        {
+            DisposeCiphers();
+            if (!_leaveOpen)
+            {
+                _baseStream.Dispose();
+            }
+        }
+
+        base.Dispose(disposing);
     }
 
-    public override ValueTask DisposeAsync()
+    private async ValueTask<int> ReadAndDecryptAsync(PacketCipher decryptor, Memory<byte> buffer,
+        CancellationToken cancellationToken)
     {
-        return BaseStream.DisposeAsync();
+        int read = await _baseStream.ReadAsync(buffer, cancellationToken).ConfigureAwait(false);
+        if (read > 0)
+        {
+            decryptor.Transform(buffer.Span[..read]);
+        }
+
+        return read;
+    }
+
+    private async ValueTask EncryptAndWriteAsync(PacketCipher encryptor, ReadOnlyMemory<byte> buffer,
+        CancellationToken cancellationToken)
+    {
+        if (buffer.IsEmpty)
+        {
+            return;
+        }
+
+        byte[] rented = ArrayPool<byte>.Shared.Rent(Math.Min(buffer.Length, EncryptChunkSize));
+        try
+        {
+            while (!buffer.IsEmpty)
+            {
+                int count = Math.Min(buffer.Length, rented.Length);
+                Memory<byte> chunk = rented.AsMemory(0, count);
+                buffer[..count].CopyTo(chunk);
+                encryptor.Transform(chunk.Span);
+                await _baseStream.WriteAsync(chunk, cancellationToken).ConfigureAwait(false);
+                buffer = buffer[count..];
+            }
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
+    }
+
+    private void Install(PacketCipher encryptor, PacketCipher decryptor)
+    {
+        _decryptor = decryptor;
+        _encryptor = encryptor;
+        _encryptionEnabled = true;
+    }
+
+    private void DisposeCiphers()
+    {
+        _encryptor?.Dispose();
+        _decryptor?.Dispose();
+        _encryptor = null;
+        _decryptor = null;
+    }
+
+    [StackTraceHidden]
+    private void ThrowIfDisposed()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+    }
+
+    [StackTraceHidden]
+    private void ThrowIfEncryptionEnabled()
+    {
+        if (_encryptionEnabled)
+        {
+            throw new InvalidOperationException("Encryption is already enabled on this stream.");
+        }
     }
 }

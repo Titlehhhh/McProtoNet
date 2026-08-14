@@ -1,9 +1,9 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
+using McProtoNet.Cryptography;
 using McProtoNet.Net.Zlib;
 using McProtoNet.Serialization;
-using Org.BouncyCastle.Crypto;
 
 namespace McProtoNet.Net;
 
@@ -34,7 +34,13 @@ public sealed class MinecraftPacketPipeReader : PipeReader, IDisposable
 
     public bool EncryptionEnabled => _pipeReader.IsEncrypted;
 
-    public void EnableEncryption(IBufferedCipher decryptor)
+    public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
+    {
+        ThrowIfDisposed();
+        _pipeReader.SwitchEncryption(PacketCipher.CreateDecryptor(sharedSecret));
+    }
+
+    public void EnableEncryption(PacketCipher decryptor)
     {
         ThrowIfDisposed();
         _pipeReader.SwitchEncryption(decryptor);

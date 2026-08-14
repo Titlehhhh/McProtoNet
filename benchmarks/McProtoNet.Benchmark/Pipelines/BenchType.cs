@@ -7,5 +7,6 @@ public enum BenchType
     Pipelines,
     Pipelines2,
     QueueStream,
-    QueuePipe
+    QueuePipe,
+    NextApi
 }

@@ -24,7 +24,6 @@
 
 
     <ItemGroup>
-        <PackageReference Include="BouncyCastle.Cryptography"/>
         <PackageReference Include="System.IO.Pipelines"/>
         <PackageReference Include="QuickProxyNet"/>
         <PackageReference Include="Tomat.LibDeflate.Native"/>

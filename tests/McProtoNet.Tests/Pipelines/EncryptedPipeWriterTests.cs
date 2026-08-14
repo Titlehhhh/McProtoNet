@@ -1,6 +1,8 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
+using McProtoNet.Cryptography;
+using McProtoNet.Net;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -24,8 +26,7 @@ public class EncryptedPipeWriterTests
         // Arrange
         var basePipe = new Pipe();
         var writer = new EncryptedPipeWriter(basePipe.Writer);
-        var encryptor = CreateCipher(true);
-        writer.SwitchEncryption(encryptor);
+        writer.SwitchEncryption(PacketCipher.CreateEncryptor(TestKey));
 
         var plainText = "Hello Minecraft World!";
         byte[] inputData = Encoding.UTF8.GetBytes(plainText);
@@ -60,7 +61,7 @@ public class EncryptedPipeWriterTests
         // Arrange
         var basePipe = new Pipe();
         var writer = new EncryptedPipeWriter(basePipe.Writer);
-        writer.SwitchEncryption(CreateCipher(true));
+        writer.SwitchEncryption(PacketCipher.CreateEncryptor(TestKey));
 
         var input = Encoding.UTF8.GetBytes("flush test");
         input.CopyTo(writer.GetMemory(input.Length));
@@ -102,7 +103,7 @@ public class EncryptedPipeWriterTests
         // Arrange
         var basePipe = new Pipe();
         var writer = new EncryptedPipeWriter(basePipe.Writer);
-        writer.SwitchEncryption(CreateCipher(true));
+        writer.SwitchEncryption(PacketCipher.CreateEncryptor(TestKey));
 
         // Создаем несколько сегментов
         byte[][] segments =

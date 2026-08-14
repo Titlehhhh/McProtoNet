@@ -29,9 +29,9 @@ public class PipelinesReadBenchmarks
     }
     
     [Params(1_000_000)] public int PacketsCount;
-    [Params(-1)] public int CompressionThreshold;
+    [Params(-1, 0)] public int CompressionThreshold;
 
-    [Params(BenchType.BufferedStream, BenchType.Pipelines, BenchType.Pipelines2)]
+    [Params(BenchType.BufferedStream, BenchType.Pipelines, BenchType.Pipelines2, BenchType.NextApi)]
     public BenchType Bench { get; set; }
 
     private TestServer _server = new();
@@ -40,6 +40,7 @@ public class PipelinesReadBenchmarks
     private readonly BufferedStreamReadBench _bufferedStreamBench = new BufferedStreamReadBench();
     private readonly PipelinesReadBench _pipeBench = new PipelinesReadBench();
     private readonly Pipelines2ReadBench _pipe2Bench = new Pipelines2ReadBench();
+    private readonly NextApiReadBench _nextApiBench = new NextApiReadBench();
 
     private IReceiveBench _activeBench;
     private Stream _stream;
@@ -68,6 +69,9 @@ public class PipelinesReadBenchmarks
                 break;
             case BenchType.Pipelines2:
                 _activeBench = _pipe2Bench;
+                break;
+            case BenchType.NextApi:
+                _activeBench = _nextApiBench;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

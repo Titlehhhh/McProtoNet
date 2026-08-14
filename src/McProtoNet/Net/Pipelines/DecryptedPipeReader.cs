@@ -5,15 +5,16 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Sources;
-using Org.BouncyCastle.Crypto;
+using McProtoNet.Cryptography;
 
+namespace McProtoNet.Net;
 
-public sealed class DecryptedPipeReader : PipeReader
+public sealed class DecryptedPipeReader : PipeReader, IDisposable
 {
     private readonly PipeReader _pipeReader;
     private readonly Pipe _encPipe;
 
-    private IBufferedCipher? _decryptor;
+    private PacketCipher? _decryptor;
     private bool _isEncrypted;
 
     public bool IsEncrypted => _isEncrypted;
@@ -28,10 +29,20 @@ public sealed class DecryptedPipeReader : PipeReader
             writerScheduler: PipeScheduler.Inline));
     }
 
-    public void SwitchEncryption(IBufferedCipher cipher)
+    public void SwitchEncryption(ReadOnlySpan<byte> sharedSecret)
     {
-        _decryptor = cipher ?? throw new ArgumentNullException(nameof(cipher));
+        SwitchEncryption(PacketCipher.CreateDecryptor(sharedSecret));
+    }
+
+    public void SwitchEncryption(PacketCipher decryptor)
+    {
+        _decryptor = decryptor ?? throw new ArgumentNullException(nameof(decryptor));
         _isEncrypted = true;
+    }
+
+    public void Dispose()
+    {
+        Interlocked.Exchange(ref _decryptor, null)?.Dispose();
     }
 
     public override bool TryRead(out ReadResult result)
@@ -121,14 +132,13 @@ public sealed class DecryptedPipeReader : PipeReader
         foreach (ReadOnlyMemory<byte> segment in data)
         {
             ReadOnlySpan<byte> src = segment.Span;
-            int outSize = src.Length;
-            Span<byte> dest = output.GetSpan(outSize);
+            if (src.IsEmpty)
+                continue;
 
-            int written = _decryptor.ProcessBytes(src, dest);
-            Debug.Assert(written <= dest.Length, "ProcessBytes wrote more than allocated buffer");
-
-            if (written > 0)
-                output.Advance(written);
+            Span<byte> dest = output.GetSpan(src.Length)[..src.Length];
+            src.CopyTo(dest);
+            _decryptor.Transform(dest);
+            output.Advance(src.Length);
         }
     }
 

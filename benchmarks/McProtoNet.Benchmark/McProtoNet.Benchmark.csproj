@@ -23,6 +23,7 @@
         <ProjectReference Include="..\..\src\McProtoNet.Utils\McProtoNet.Utils.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
+        <ProjectReference Include="..\..\experiments\NextApi\NextApi.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
+using McProtoNet.Cryptography;
 using McProtoNet.Net;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -58,7 +59,7 @@ public class DecryptTest
 
         var decryptReader = new DecryptedPipeReader(pipeReader);
         
-        decryptReader.SwitchEncryption(decryptor);
+        decryptReader.SwitchEncryption(PacketCipher.CreateDecryptor(PrivateKey));
 
         var tryRead = decryptReader.TryRead(out _);
         

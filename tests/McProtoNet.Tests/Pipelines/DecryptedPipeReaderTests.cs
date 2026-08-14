@@ -1,6 +1,8 @@
 using System.Buffers;
 using System.IO.Pipelines;
 using System.Text;
+using McProtoNet.Cryptography;
+using McProtoNet.Net;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -53,11 +55,11 @@ namespace McProtoNet.Tests.Pipelines
         public async Task ReadAsync_ShouldDecryptData_WhenEncrypted()
         {
             // Arrange
-            var (encryptor, decryptor, key, iv) = CreateAesCfb8Ciphers();
+            var (encryptor, _, key, iv) = CreateAesCfb8Ciphers();
 
             var basePipe = new Pipe();
             var reader = new DecryptedPipeReader(basePipe.Reader);
-            reader.SwitchEncryption(decryptor);
+            reader.SwitchEncryption(PacketCipher.CreateDecryptor(key));
 
             string plainText = "Hello AES CFB8!";
             byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
@@ -86,8 +88,8 @@ namespace McProtoNet.Tests.Pipelines
             var pipe = new Pipe();
             var reader = new DecryptedPipeReader(pipe.Reader);
 
-            var (_, decryptor, _, _) = CreateAesCfb8Ciphers();
-            reader.SwitchEncryption(decryptor);
+            var (_, _, key, _) = CreateAesCfb8Ciphers();
+            reader.SwitchEncryption(PacketCipher.CreateDecryptor(key));
 
             bool success = reader.TryRead(out var result);
 

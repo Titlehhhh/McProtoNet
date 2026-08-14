@@ -1,120 +1,172 @@
 using System.Buffers;
 using System.IO.Pipelines;
-using McProtoNet.Net.Zlib;
-using McProtoNet.Serialization;
-using Org.BouncyCastle.Crypto;
+using McProtoNet.Cryptography;
 
 namespace McProtoNet.Net;
 
-public sealed class MinecraftPacketPipeWriter : PipeWriter
+public sealed class MinecraftPacketPipeWriter : IDisposable
 {
-    private readonly EncryptedPipeWriter _pipeWriter;
+    private const int NonWrite = 0;
+    private const int Writing = 1;
+
+    private readonly EncryptedPipeWriter _writer;
+
+    private int _writeState = NonWrite;
+    private int _compressionThreshold = -1;
 
     public MinecraftPacketPipeWriter(PipeWriter pipeWriter)
     {
-        _pipeWriter = new EncryptedPipeWriter(pipeWriter);
+        _writer = new EncryptedPipeWriter(pipeWriter);
     }
 
-    public bool EncryptionEnabled => _pipeWriter.IsEncrypted;
-
-    public int CompressionThreshold { get; set; } = -1;
-
-    public void EnableEncryption(IBufferedCipher decryptor)
+    public int CompressionThreshold
     {
-        _pipeWriter.SwitchEncryption(decryptor);
+        get => Volatile.Read(ref _compressionThreshold);
+        set
+        {
+            ThrowIfWriting("Cannot change compression threshold while writing a packet.");
+            Volatile.Write(ref _compressionThreshold, value);
+        }
     }
 
-    public override void CancelPendingFlush()
+    public bool EncryptionEnabled => _writer.IsEncrypted;
+
+    public bool CanGetUnflushedBytes => _writer.CanGetUnflushedBytes;
+
+    public long UnflushedBytes => _writer.UnflushedBytes;
+
+    #region Encryption
+
+    public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
-        _pipeWriter.CancelPendingFlush();
+        ThrowIfWriting("Cannot enable encryption while writing a packet.");
+        _writer.SwitchEncryption(sharedSecret);
     }
 
-    public override ValueTask CompleteAsync(Exception? exception = null)
+    public void EnableEncryption(PacketCipher encryptor)
     {
-        return _pipeWriter.CompleteAsync(exception);
+        ThrowIfWriting("Cannot enable encryption while writing a packet.");
+        _writer.SwitchEncryption(encryptor);
     }
 
-    public override void Complete(Exception? exception = null)
-    {
-        _pipeWriter.Complete(exception);
-    }
+    #endregion
 
-    public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
-    {
-        return _pipeWriter.FlushAsync(cancellationToken);
-    }
-
-
-    public override void Advance(int bytes)
-    {
-        _pipeWriter.Advance(bytes);
-    }
-
-    public override Memory<byte> GetMemory(int sizeHint = 0)
-    {
-        return _pipeWriter.GetMemory(sizeHint);
-    }
-
-    public override Span<byte> GetSpan(int sizeHint = 0)
-    {
-        return _pipeWriter.GetSpan(sizeHint);
-    }
-
-    public MinecraftPrimitiveWriter GetWriter(int size = 0)
-    {
-        throw null;
-        // if (CompressionThreshold < 0)
-        // {
-        //     return new MinecraftPrimitiveWriter(GetSpan(size));
-        // }
-        // else
-        // {
-        //    //var writer =  
-        // }
-    }
+    #region Packets
 
     public void WritePacket(ReadOnlySpan<byte> rawPacket)
     {
-        if (CompressionThreshold < 0)
+        BeginWrite();
+        try
         {
-            _pipeWriter.WriteVarInt(rawPacket.Length);
-            _pipeWriter.Write(rawPacket);
+            _writer.WritePacket(rawPacket, _compressionThreshold);
         }
-        else
+        finally
         {
-            if (rawPacket.Length < CompressionThreshold)
-            {
-                _pipeWriter.WriteVarInt(rawPacket.Length + 1);
-                _pipeWriter.WriteVarInt(0);
-                _pipeWriter.Write(rawPacket);
-            }
-            else
-            {
-                var uncompressedSize = rawPacket.Length;
-                var compressor = LibDeflateCache.RentCompressor();
-                var length = compressor.GetBound(uncompressedSize);
+            EndWrite();
+        }
+    }
 
-                // TODO: Use _pipeWriter.GetSpan()
-                var compressedBuffer = ArrayPool<byte>.Shared.Rent(length);
+    public void WritePacket(int id, ReadOnlySpan<byte> body)
+    {
+        BeginWrite();
+        try
+        {
+            _writer.WritePacket(id, body, _compressionThreshold);
+        }
+        finally
+        {
+            EndWrite();
+        }
+    }
 
-                try
-                {
-                    var bytesCompress =
-                        compressor.Compress(rawPacket, compressedBuffer.AsSpan(0, length));
+    public void WritePacket(in ReadOnlySequence<byte> rawPacket)
+    {
+        BeginWrite();
+        try
+        {
+            _writer.WritePacket(in rawPacket, _compressionThreshold);
+        }
+        finally
+        {
+            EndWrite();
+        }
+    }
 
-                    var compressedLength = bytesCompress;
+    public void WritePacket(int id, in ReadOnlySequence<byte> body)
+    {
+        BeginWrite();
+        try
+        {
+            _writer.WritePacket(id, in body, _compressionThreshold);
+        }
+        finally
+        {
+            EndWrite();
+        }
+    }
 
-                    var fullsize = compressedLength + uncompressedSize.GetVarIntLength();
+    public void WriteRawBytes(ReadOnlySpan<byte> bytes)
+    {
+        BeginWrite();
+        try
+        {
+            _writer.Write(bytes);
+        }
+        finally
+        {
+            EndWrite();
+        }
+    }
 
-                    _pipeWriter.WriteVarInt(fullsize);
-                    _pipeWriter.WriteVarInt(uncompressedSize);
-                    _pipeWriter.Write(compressedBuffer.AsSpan(0, bytesCompress));
-                }
-                finally
-                {
-                    ArrayPool<byte>.Shared.Return(compressedBuffer);
-                }
-            }
+    #endregion
+
+    #region Pipe
+
+    public ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+    {
+        return _writer.FlushAsync(cancellationToken);
+    }
+
+    public void CancelPendingFlush()
+    {
+        _writer.CancelPendingFlush();
+    }
+
+    public void Complete(Exception? exception = null)
+    {
+        _writer.Complete(exception);
+    }
+
+    public ValueTask CompleteAsync(Exception? exception = null)
+    {
+        return _writer.CompleteAsync(exception);
+    }
+
+    #endregion
+
+    public void Dispose()
+    {
+        _writer.Dispose();
+    }
+
+    private void BeginWrite()
+    {
+        if (Interlocked.CompareExchange(ref _writeState, Writing, NonWrite) == Writing)
+        {
+            throw new InvalidOperationException("Concurrent packet writing is not allowed.");
+        }
+    }
+
+    private void EndWrite()
+    {
+        Interlocked.Exchange(ref _writeState, NonWrite);
+    }
+
+    private void ThrowIfWriting(string message)
+    {
+        if (Volatile.Read(ref _writeState) == Writing)
+        {
+            throw new InvalidOperationException(message);
         }
     }
 }

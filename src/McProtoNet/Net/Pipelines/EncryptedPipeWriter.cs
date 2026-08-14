@@ -1,127 +1,233 @@
 using System.Buffers;
-using System.Diagnostics;
 using System.IO.Pipelines;
-using Org.BouncyCastle.Crypto;
+using McProtoNet.Cryptography;
 
-public sealed class EncryptedPipeWriter : PipeWriter
+namespace McProtoNet.Net;
+
+public sealed class EncryptedPipeWriter : PipeWriter, IDisposable
 {
-    private readonly PipeWriter _pipeWriter;
-    private readonly Pipe _encPipe;
+    private const int SegmentSize = 4096;
 
-    private bool _isEncrypted;
-    private IBufferedCipher? _encryptor;
+    private readonly PipeWriter _writer;
+    private readonly List<byte[]> _segments = [];
+    private readonly List<int> _sealedLengths = [];
+
+    private PacketCipher? _encryptor;
+    private int _position;
+    private bool _borrowedFromInner = true;
 
     public EncryptedPipeWriter(PipeWriter pipeWriter)
     {
-        _pipeWriter = pipeWriter;
-        _encPipe = new Pipe(new PipeOptions(
-            readerScheduler: PipeScheduler.Inline,
-            writerScheduler: PipeScheduler.Inline));
-    }
-    public bool IsEncrypted => _isEncrypted;
-    public void SwitchEncryption(IBufferedCipher cipher)
-    {
-        _isEncrypted = true;
-        _encryptor = cipher ?? throw new ArgumentNullException(nameof(cipher));
+        ArgumentNullException.ThrowIfNull(pipeWriter);
+        _writer = pipeWriter;
     }
 
-    public override void Advance(int bytes)
+    public bool IsEncrypted => _encryptor is not null;
+
+    public long PendingBytes
     {
-        if (_isEncrypted)
-            _encPipe.Writer.Advance(bytes);
-        else
-            _pipeWriter.Advance(bytes);
+        get
+        {
+            long total = _position;
+            for (int i = 0; i < _sealedLengths.Count; i++)
+            {
+                total += _sealedLengths[i];
+            }
+
+            return total;
+        }
     }
+
+    #region Encryption
+
+    public void SwitchEncryption(ReadOnlySpan<byte> sharedSecret)
+    {
+        SwitchEncryption(PacketCipher.CreateEncryptor(sharedSecret));
+    }
+
+    public void SwitchEncryption(PacketCipher encryptor)
+    {
+        ArgumentNullException.ThrowIfNull(encryptor);
+
+        if (_encryptor is not null)
+        {
+            throw new InvalidOperationException("Encryption is already enabled.");
+        }
+
+        if (_writer.CanGetUnflushedBytes && _writer.UnflushedBytes > 0)
+        {
+            throw new InvalidOperationException(
+                "Encryption must be enabled at a packet boundary: flush the plaintext already written first.");
+        }
+
+        _encryptor = encryptor;
+    }
+
+    #endregion
+
+    #region PipeWriter
 
     public override Memory<byte> GetMemory(int sizeHint = 0)
     {
-        if (_isEncrypted)
-            return _encPipe.Writer.GetMemory(sizeHint);
-        return _pipeWriter.GetMemory(sizeHint);
+        if (_encryptor is null)
+        {
+            _borrowedFromInner = true;
+            return _writer.GetMemory(sizeHint);
+        }
+
+        _borrowedFromInner = false;
+        EnsureRoom(sizeHint);
+        return _segments[^1].AsMemory(_position);
     }
 
     public override Span<byte> GetSpan(int sizeHint = 0)
     {
-        if (_isEncrypted)
-            return _encPipe.Writer.GetSpan(sizeHint);
-        return _pipeWriter.GetSpan(sizeHint);
-    }
-
-    public override bool CanGetUnflushedBytes => 
-        (_isEncrypted ? _encPipe.Writer : _pipeWriter).CanGetUnflushedBytes;
-
-    public override long UnflushedBytes => 
-        (_isEncrypted ? _encPipe.Writer : _pipeWriter).UnflushedBytes;
-
-    public override async ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
-    {
-        if (_isEncrypted)
+        if (_encryptor is null)
         {
-            var flushAsync = await _encPipe.Writer.FlushAsync(cancellationToken)
-                .ConfigureAwait(false);
-
-            if (flushAsync.IsCanceled || flushAsync.IsCompleted)
-                return new FlushResult(flushAsync.IsCanceled, flushAsync.IsCompleted);
-
-            if (_encPipe.Reader.TryRead(out ReadResult result))
-            {
-                if (result.IsCanceled || result.IsCompleted)
-                {
-                    return new FlushResult(result.IsCanceled, result.IsCompleted);
-                }
-
-                if (!result.Buffer.IsEmpty)
-                {
-                    Encrypt(result.Buffer, _pipeWriter);
-                    _encPipe.Reader.AdvanceTo(result.Buffer.End);
-                }
-            }
+            _borrowedFromInner = true;
+            return _writer.GetSpan(sizeHint);
         }
 
-        return await _pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
+        _borrowedFromInner = false;
+        EnsureRoom(sizeHint);
+        return _segments[^1].AsSpan(_position);
     }
 
-    private void Encrypt(in ReadOnlySequence<byte> data, PipeWriter output)
+    public override void Advance(int bytes)
     {
-        if (!_isEncrypted || _encryptor is null)
-            throw new InvalidOperationException("Encryption is not initialized.");
+        ArgumentOutOfRangeException.ThrowIfNegative(bytes);
 
-        foreach (ReadOnlyMemory<byte> segment in data)
+        if (_borrowedFromInner)
         {
-            ReadOnlySpan<byte> src = segment.Span;
-            int outSize = _encryptor.GetUpdateOutputSize(src.Length);
-            Span<byte> dest = output.GetSpan(outSize);
-
-            int written = _encryptor.ProcessBytes(src, dest);
-            Debug.Assert(written <= dest.Length);
-            if (written > 0)
-            {
-                output.Advance(written);
-            }
+            _writer.Advance(bytes);
+            return;
         }
+
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(bytes, _segments[^1].Length - _position);
+        _position += bytes;
+    }
+
+    public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
+    {
+        Drain();
+        return _writer.FlushAsync(cancellationToken);
     }
 
     public override void CancelPendingFlush()
     {
-        if (_isEncrypted)
-        {
-            _encPipe.Writer.CancelPendingFlush();
-            _encPipe.Reader.CancelPendingRead();
-        }
-        else
-        {
-            _pipeWriter.CancelPendingFlush();
-        }
+        _writer.CancelPendingFlush();
     }
 
     public override void Complete(Exception? exception = null)
     {
-        if (_isEncrypted)
+        if (exception is null)
         {
-            _encPipe.Writer.Complete(exception);
-            _encPipe.Reader.Complete(exception);
+            Drain();
+        }
+        else
+        {
+            Reset();
         }
 
-        _pipeWriter.Complete(exception);
+        _writer.Complete(exception);
+    }
+
+    public override ValueTask CompleteAsync(Exception? exception = null)
+    {
+        if (exception is null)
+        {
+            Drain();
+        }
+        else
+        {
+            Reset();
+        }
+
+        return _writer.CompleteAsync(exception);
+    }
+
+    public override bool CanGetUnflushedBytes => _writer.CanGetUnflushedBytes;
+
+    public override long UnflushedBytes => _writer.UnflushedBytes + PendingBytes;
+
+    #endregion
+
+    public void Dispose()
+    {
+        for (int i = 0; i < _segments.Count; i++)
+        {
+            ArrayPool<byte>.Shared.Return(_segments[i]);
+        }
+
+        _segments.Clear();
+        _sealedLengths.Clear();
+        _position = 0;
+
+        PacketCipher? encryptor = _encryptor;
+        _encryptor = null;
+        encryptor?.Dispose();
+    }
+
+    private void Drain()
+    {
+        PacketCipher? encryptor = _encryptor;
+        if (encryptor is null || _segments.Count == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _segments.Count; i++)
+        {
+            int length = i < _sealedLengths.Count ? _sealedLengths[i] : _position;
+            if (length == 0)
+            {
+                continue;
+            }
+
+            Span<byte> segment = _segments[i].AsSpan(0, length);
+            encryptor.Transform(segment);
+            _writer.Write(segment);
+        }
+
+        Reset();
+    }
+
+    private void Reset()
+    {
+        for (int i = _segments.Count - 1; i >= 1; i--)
+        {
+            ArrayPool<byte>.Shared.Return(_segments[i]);
+            _segments.RemoveAt(i);
+        }
+
+        if (_segments.Count == 1 && _segments[0].Length > SegmentSize)
+        {
+            ArrayPool<byte>.Shared.Return(_segments[0]);
+            _segments.Clear();
+        }
+
+        _sealedLengths.Clear();
+        _position = 0;
+    }
+
+    private void EnsureRoom(int sizeHint)
+    {
+        if (sizeHint <= 0)
+        {
+            sizeHint = 1;
+        }
+
+        if (_segments.Count > 0 && _segments[^1].Length - _position >= sizeHint)
+        {
+            return;
+        }
+
+        if (_segments.Count > 0)
+        {
+            _sealedLengths.Add(_position);
+        }
+
+        _segments.Add(ArrayPool<byte>.Shared.Rent(Math.Max(SegmentSize, sizeHint)));
+        _position = 0;
     }
 }

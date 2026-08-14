@@ -1,4 +1,5 @@
 using System.IO.Pipelines;
+using McProtoNet.Net;
 using McProtoNet.Tests.Infrastructure;
 
 namespace McProtoNet.Tests.Pipelines;
@@ -27,7 +28,7 @@ public class ReadAsyncCompletionTests
 
         if (isEncrypt)
         {
-            reader.SwitchEncryption(Crypto.CreateCFB(false));
+            reader.SwitchEncryption(Crypto.CreateDecryptor());
         }
         
         ValueTask<ReadResult> awaitable1 = reader.ReadAsync();
@@ -63,14 +64,14 @@ public class ReadAsyncCompletionTests
 
         if (isEncrypt)
         {
-            reader.SwitchEncryption(Crypto.CreateCFB(false));
+            reader.SwitchEncryption(Crypto.CreateDecryptor());
         }
 
         var writer = new EncryptedPipeWriter(pipe.Writer);
 
         if (isEncrypt)
         {
-           writer.SwitchEncryption(Crypto.CreateCFB(true)); 
+           writer.SwitchEncryption(Crypto.CreateEncryptor());
         }
         
         reader.Complete();
