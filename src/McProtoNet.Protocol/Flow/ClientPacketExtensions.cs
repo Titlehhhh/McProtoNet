@@ -1,4 +1,3 @@
-using McProtoNet.Client;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol;
@@ -18,7 +17,7 @@ namespace McProtoNet.Protocol;
 /// </summary>
 public static class ClientPacketExtensions
 {
-    public static async ValueTask SendAsync<T>(this PipelinesMinecraftClient client, T packet, int protocolVersion,
+    public static async ValueTask SendAsync<T>(this MinecraftConnection connection, T packet, int protocolVersion,
         CancellationToken cancellationToken = default)
         where T : class, IPacket<T>
     {
@@ -30,7 +29,7 @@ public static class ClientPacketExtensions
         {
             writer.WriteVarInt(id);
             packet.Write(writer, protocolVersion);
-            await client.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
+            await connection.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
         }
         finally
         {
@@ -38,8 +37,17 @@ public static class ClientPacketExtensions
         }
     }
 
+    public static ValueTask SendAsync<T>(this MinecraftClient client, T packet, int protocolVersion,
+        CancellationToken cancellationToken = default)
+        where T : class, IPacket<T>
+        => client.Connection.SendAsync(packet, protocolVersion, cancellationToken);
+
+    public static ValueTask SendRawAsync(this MinecraftClient client, int id, ReadOnlyMemory<byte> body,
+        CancellationToken cancellationToken = default)
+        => client.Connection.SendRawAsync(id, body, cancellationToken);
+
     /// <summary>Low-level path stays open: panel injection, replays, fuzzing.</summary>
-    public static async ValueTask SendRawAsync(this PipelinesMinecraftClient client, int id, ReadOnlyMemory<byte> body,
+    public static async ValueTask SendRawAsync(this MinecraftConnection connection, int id, ReadOnlyMemory<byte> body,
         CancellationToken cancellationToken = default)
     {
         var writer = MinecraftPrimitiveWriterCache.Rent();
@@ -47,7 +55,7 @@ public static class ClientPacketExtensions
         {
             writer.WriteVarInt(id);
             writer.WriteBuffer(body.Span);
-            await client.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
+            await connection.SendPacketAsync(writer.WrittenMemory, cancellationToken).ConfigureAwait(false);
         }
         finally
         {

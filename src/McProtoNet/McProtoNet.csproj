@@ -14,7 +14,6 @@
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
-        <InternalsVisibleTo Include="SampleBotCSharp"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -25,7 +24,6 @@
 
     <ItemGroup>
         <PackageReference Include="System.IO.Pipelines"/>
-        <PackageReference Include="QuickProxyNet"/>
         <PackageReference Include="Tomat.LibDeflate.Native"/>
     </ItemGroup>
 

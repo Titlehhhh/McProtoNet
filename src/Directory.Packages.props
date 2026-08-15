@@ -61,7 +61,6 @@
     <PackageVersion Include="DotNext" Version="$(DotNextVersion)" />
     <PackageVersion Include="Dunet" Version="1.16.2" />
     <PackageVersion Include="MinVer" Version="7.0.0" />
-    <PackageVersion Include="QuickProxyNet" Version="3.0.0" />
     <PackageVersion Include="ConfigureAwait.Fody" Version="3.4.1" />
     <PackageVersion Include="BouncyCastle.Cryptography" Version="2.7.0" />
     <PackageVersion Include="System.Reactive" Version="6.1.0" />

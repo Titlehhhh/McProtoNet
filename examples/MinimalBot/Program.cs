@@ -6,7 +6,7 @@
 // По умолчанию: 127.0.0.1 25566 McProtoBot (paper-1.21.8, pv 772)
 
 using System.Net.Sockets;
-using McProtoNet.Client;
+using McProtoNet;
 using McProtoNet.Net;
 using McProtoNet.Protocol;
 using McProtoNet.Serialization;
@@ -29,7 +29,7 @@ Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv}, дизайн-�
 
 using var tcp = new TcpClient();
 await tcp.ConnectAsync(host, port);
-await using var client = PipelinesMinecraftClient.Create(tcp.GetStream(), Pv);
+await using var client = MinecraftConnection.Create(tcp.GetStream());
 
 // handshake: intent=2 (login), дальше сразу login start; id склеивает SendAsync
 await client.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
@@ -46,7 +46,7 @@ await foreach (var packet in client.ReadPacketsAsync())
 Console.WriteLine("Соединение закрыто.");
 
 // Вся логика — переопределения handler-базы; фазу ведёт бот через слот Phase.
-sealed class Bot(PipelinesMinecraftClient client, int pv) : ClientboundHandler
+sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
 {
     private readonly DateTime _startedAt = DateTime.UtcNow;
     private readonly HashSet<(PacketPhase, int)> _unknownSeen = [];
