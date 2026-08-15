@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dunet"/>
+        <PackageReference Include="Dunet" PrivateAssets="all"/>
     </ItemGroup>
 
 

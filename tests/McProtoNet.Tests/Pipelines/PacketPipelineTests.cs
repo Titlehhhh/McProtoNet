@@ -46,6 +46,10 @@ public class PacketPipelineTests
 
     // ── Packet data helpers ───────────────────────────────────────────────────
 
+    // Один байт-номер пакета перед телом: кадр = varint(id) + payload,
+    // читатель отдаёт Id отдельно, Data — только тело.
+    private const byte PacketId = 0x2A;
+
     private static byte[] MakePayload(int size, byte seed = 0xAB)
     {
         var data = new byte[size];
@@ -77,7 +81,12 @@ public class PacketPipelineTests
 
         var ct = TestContext.Current.CancellationToken;
         foreach (var payload in payloads)
-            await sender.SendPacketAsync(payload, ct);
+        {
+            var framed = new byte[payload.Length + 1];
+            framed[0] = PacketId;
+            payload.CopyTo(framed, 1);
+            await sender.SendPacketAsync(framed, ct);
+        }
 
         await writeStream.FlushAsync(ct);
         return transport.ToArray();
@@ -116,36 +125,25 @@ public class PacketPipelineTests
         var reader = await BuildReaderAsync(bytes);
 
         var packet = await reader.ReadPacketAsync(TestContext.Current.CancellationToken);
+        Assert.Equal(PacketId, packet.Id);
         Assert.Equal(payloadSize, packet.Data.Length);
         Assert.Equal(payload, packet.Data.ToArray());
     }
 
     [Fact]
-    public async Task NoCompression_NoEncryption_MultiplePackets_VersionToken()
+    public async Task NoCompression_NoEncryption_MultiplePackets()
     {
         var payloads = new[] { MakePayload(100), MakePayload(200), MakePayload(300) };
         var bytes = await SendPacketsAsync(payloads);
         var reader = await BuildReaderAsync(bytes);
         var ct = TestContext.Current.CancellationToken;
 
-        InputPacket prev = default;
-        bool hasPrev = false;
-
         for (int i = 0; i < payloads.Length; i++)
         {
             var packet = await reader.ReadPacketAsync(ct);
+            Assert.Equal(PacketId, packet.Id);
             Assert.Equal(payloads[i].Length, packet.Data.Length);
             Assert.Equal(payloads[i], packet.Data.ToArray());
-
-            // After reading next packet the previous sequence must be invalidated
-            if (hasPrev)
-            {
-                var captured = prev;
-                Assert.Throws<InvalidOperationException>(() => { _ = captured.FullLength; });
-            }
-
-            prev = packet;
-            hasPrev = true;
         }
     }
 

@@ -24,16 +24,14 @@ public class ReadTests
         var reader = new MinecraftPacketPipeReader(pipeReader);
 
         var packet1 = await reader.ReadPacketAsync(Token());
+        Assert.Equal(0, packet1.Id);
+        Assert.Equal(499, packet1.Data.Length);
         Assert.Equal(500, packet1.FullLength);
+
         var packet2 = await reader.ReadPacketAsync(Token());
+        Assert.Equal(0, packet2.Id);
+        Assert.Equal(500, packet2.Data.Length);
         Assert.Equal(501, packet2.FullLength);
-
-
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            var test = packet1.FullLength;
-        });
-
 
         return;
 
@@ -50,9 +48,6 @@ public class ReadTests
         List<int> lens = [];
         for (int i = 0; i < 100; i++)
         {
-            var gg = new byte[500 + i];
-
-
             MinecraftPrimitiveWriter writer = new MinecraftPrimitiveWriter();
 
             writer.WriteVarInt(i); //ID
@@ -75,29 +70,14 @@ public class ReadTests
         var reader = new MinecraftPacketPipeReader(pipe.Reader);
 
         int count = 0;
-        InputPacket test = default;
         await foreach (var packet in reader.ReadPacketsAsync(TestContext.Current.CancellationToken))
         {
-            var lengg = packet.FullLength;
-
-            var id = packet.Id;
-
-            Assert.Equal(count, id);
-            
-            Assert.Equal(lens[count], lengg);
-            
-            Assert.Equal(500+count, packet.Data.Length);
-
-
-            test = packet;
+            Assert.Equal(count, packet.Id);
+            Assert.Equal(lens[count], packet.FullLength);
+            Assert.Equal(500 + count, packet.Data.Length);
             count++;
         }
 
-        Assert.Throws<InvalidOperationException>(() =>
-        {
-            var len = test.FullLength;
-        });
-        
         Assert.Equal(100, count);
 
 

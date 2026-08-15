@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using McProtoNet.Serialization;
@@ -45,12 +44,7 @@ internal static class Extensions
     {
         if (compressedSequence.IsSingleSegment)
         {
-            var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out var written);
-
-            if (status == OperationStatus.InvalidData)
-            {
-                Debugger.Break();
-            }
+            var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out _);
 
             if (status != OperationStatus.Done)
             {
