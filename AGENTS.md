@@ -4,7 +4,7 @@
 serialization, packets, multi-version support. Active branch:
 `feature/spec-codegen`. Honest protocol range in code: **735–772**
 (1.16 → 1.21.8; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
-README's "1.12.2–1.21.4" claim is stale; trust code and this file over README.
+README agrees since 2026-08-15.
 
 Maintenance rule: if a PR changes an architectural fact stated here, update
 this file in the same PR. Snapshot facts below are marked with their commit;
@@ -12,22 +12,26 @@ unmarked statements are design invariants.
 
 ## Repository map
 
-| Path | Role | State (5608469, 2026-08-10) |
+| Path | Role | State (2026-08-15) |
 | --- | --- | --- |
-| src/McProtoNet | client, transport, crypto, zlib | alive |
+| src/McProtoNet | transport (`Connection/`), thin client (`Client/`), crypto, zlib | alive |
 | src/McProtoNet.Protocol | packet layer: hand-written `Flow/` + delivered `Generated/` | alive, builds |
 | src/McProtoNet.Serialization | primitive reader/writer, buffers | alive, tested |
-| src/McProtoNet.NBT | own NBT parser | alive; round-trip tests currently red |
+| src/McProtoNet.NBT | own NBT parser | alive, tested |
 | src/McProtoNet.SourceGenerator | ONE Roslyn generator: `VersionRangeGenerator` | alive |
 | src/McProtoNet.Utils | SRV lookup, LAN detect | periphery |
-| src/McProtoNet.FSharp | F# facade | stub |
 | src/McProtoNet.Abstractions | — | defunct: no csproj; types moved into McProtoNet |
 | examples/MinimalBot | executable documentation of the packet layer | alive; in the slnx under /samples/ |
-| tests/McProtoNet.Tests | xUnit v3: transport, serialization, NBT, packet-flow round-trips | alive; 33 tests red (see Commands) |
+| examples/FormationBots | swarm demo: 117 bots form text on chat command; carries the full phase logic incl. the offline encryption handshake | alive; in the slnx under /samples/ |
+| tests/McProtoNet.Tests | xUnit v3: transport, serialization, NBT, packet-flow round-trips | alive; all green (see Commands) |
 | benchmarks/ | BenchmarkDotNet, perf contract lives here | alive |
 | TestServer/ | manual test server | broken: uses removed Abstractions; fails the solution build |
 | docs/ | Writerside site | mixed, stale in places |
 | build/ | Nuke build; Tests/Pack targets are hollowed out | stale |
+
+Removed 2026-08-15: the dead `MinecraftClient`/`IMinecraftClient`/start
+options, the F# facade stub (`src/McProtoNet.FSharp`) and the
+`examples/SimpleBotFSharp` stub.
 
 ## Architecture in one screen
 
@@ -35,14 +39,21 @@ Two floors, joined since 2026-08-09 (the "packet symbiosis").
 `McProtoNet.Protocol` references `McProtoNet` — the typed packet layer sits on
 top of the transport; a client app references `McProtoNet.Protocol`.
 
-- **Transport (bottom):** `PipelinesMinecraftClient` (`Client/`) +
-  `MinecraftPacketPipeReader/Writer` (`Net/Pipelines/`) on
+- **Transport (bottom):** `MinecraftConnection` (`Connection/`) pumps a duplex
+  `Stream` through `MinecraftPacketPipeReader/Writer` (`Net/Pipelines/`) on
   System.IO.Pipelines. Yields raw `InputPacket { int Id;
   ReadOnlySequence<byte> Data }` via `ReadPacketsAsync()`. `Data` is a window
   into the pipe buffer — valid only until the next read; decode immediately,
-  never across an `await`. Compression is libdeflate
-  (`Tomat.LibDeflate.Native`), encryption is BouncyCastle AES/CFB8. The
-  handshake/login state machine lives in consumer code, not in the library.
+  never across an `await`. Sends are serialized by an internal gate; pump
+  failures on either side complete the app-side pipe with the error; clean EOF
+  ends enumeration without an exception; `DisposeAsync` fences senders and
+  releases buffers after both pumps stop. Compression is libdeflate
+  (`Tomat.LibDeflate.Native`), encryption is the library's own AES/CFB8
+  `PacketCipher` with hardware cores (x86 AES-NI, ARM64 NEON; scalar
+  fallback). `MinecraftClient` (`Client/`) is a thin standard client by owner
+  decision 2026-08-15: options, TCP connect, packet read/send, cipher and
+  compression switches — nothing else. The handshake/login state machine
+  lives in consumer code, not in the library (see examples/).
 - **Packet layer, hand-written contract (`src/McProtoNet.Protocol/Flow/`):**
   `IPacket<TSelf>` with static abstract `Identity` and
   `TryGetPacketId(pv, out id)`; `PacketIdentity` (manifest key, name, phase,
@@ -100,9 +111,8 @@ depends on it — do not edit it casually.
   package. Build projects, not the solution, until that is fixed.
 - Tests: `dotnet run --project tests/McProtoNet.Tests` — the project is an
   xUnit v3 executable; plain `dotnet test` on it discovers no tests (no
-  VSTest adapter). At 5608469: 10168 tests, 33 failing (NBT round-trips,
-  Pipelines, one StreamBased); the packet-flow tests (`PacketIoTests`,
-  `PacketSubscriptionsTests`, `GeneratedRoundTripTests`) pass.
+  VSTest adapter). Since 2026-08-15 the suite is fully green: 10253 tests,
+  0 failing, 6 skipped (ARM cipher core on x86 machines).
 - Nuke wrappers (`build.ps1` / `build.cmd`) exist, but their Tests/Pack
   targets are empty; NuGet publishing is effectively off.
 
