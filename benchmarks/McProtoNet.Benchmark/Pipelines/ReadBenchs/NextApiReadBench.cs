@@ -1,30 +1,28 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using McProtoNet.Next;
+using McProtoNet.Net;
 
 namespace McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 public class NextApiReadBench : IReceiveBench
 {
-    private MinecraftClient _client;
+    private MinecraftConnection _connection;
 
     private Stream _stream;
 
     public Task Setup(Stream stream, int compressionThreshold)
     {
         _stream = stream;
-        _client = MinecraftClient.Create(stream, new MinecraftClientOptions
-        {
-            CompressionThreshold = compressionThreshold
-        });
+        _connection = MinecraftConnection.Create(stream);
+        _connection.CompressionThreshold = compressionThreshold;
         return Task.CompletedTask;
     }
 
     public async Task Run(int packetsCount)
     {
         var count = 0;
-        await foreach (var packet in _client.ReadPacketsAsync())
+        await foreach (var packet in _connection.ReadPacketsAsync())
         {
             count++;
             if (count == packetsCount)
@@ -39,10 +37,10 @@ public class NextApiReadBench : IReceiveBench
 
     public async Task Cleanup()
     {
-        if (_client is not null)
+        if (_connection is not null)
         {
-            await _client.DisposeAsync();
-            _client = null;
+            await _connection.DisposeAsync();
+            _connection = null;
         }
 
         _stream = null;
