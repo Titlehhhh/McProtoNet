@@ -227,18 +227,13 @@ public static class Extensions
     /// <description>Values from 268,435,456 to 4,294,967,295 (0x10000000 to 0xFFFFFFFF)</description>
     /// </item>
     /// </list>
-    /// <para>This implementation uses range checks for better readability.</para>
     /// </remarks>
     public static int GetVarIntLength(this int value)
     {
         var val = (uint)value;
 
-        if (val == 0) return 1; // 0-127
+        if (val == 0) return 1;
         return GetVarIntLengthFast((int)val);
-        if (val < 16384) return 2; // 128-16383
-        if (val < 2097152) return 3; // 16384-2097151
-        if (val < 268435456) return 4; // 2097152-268435455
-        return 5; // 268435456-4294967295
     }
     
     public static byte[] VarIntToArray(this int value)
