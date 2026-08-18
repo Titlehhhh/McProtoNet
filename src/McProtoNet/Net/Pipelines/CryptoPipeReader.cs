@@ -1,5 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
+using System.Runtime.CompilerServices;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks.Sources;
 using McProtoNet.Cryptography;
@@ -8,32 +9,38 @@ namespace McProtoNet.Net;
 
 public sealed class CryptoPipeReader : PipeReader, IDisposable
 {
-    private const int SegmentSize = 4096;
+    private const int MinimumBlockSize = 4096;
+    private const int RetainedBlockLimit = 64 * 1024;
 
     private readonly PipeReader _inner;
+    private readonly ReadCompletion _completion = new();
+    private readonly Action _onInnerRead;
 
     private PacketCipher? _decryptor;
-    private bool _isEncrypted;
-    private bool _innerCompleted;
-    private bool _cancelPending;
     private bool _disposed;
     private bool _plainReadOutstanding;
-    private int _readState;
 
-    private BufferSegment? _head;
-    private BufferSegment? _tail;
-    private int _headConsumed;
-    private BufferSegment? _examinedSegment;
-    private int _examinedIndex;
-    private byte[]? _spare;
+    private int _reading;
+    private int _cancelRequested;
+    private bool _resultOutstanding;
+    private bool _innerCompleted;
+    private CancellationToken _pendingToken;
+    private ConfiguredValueTaskAwaitable<ReadResult>.ConfiguredValueTaskAwaiter _innerAwaiter;
+
+    private byte[]? _array;
+    private Block? _block;
+    private int _consumed;
+    private int _examined;
+    private int _written;
 
     public CryptoPipeReader(PipeReader baseReader)
     {
         ArgumentNullException.ThrowIfNull(baseReader);
         _inner = baseReader;
+        _onInnerRead = ContinueRead;
     }
 
-    public bool EncryptionEnabled => _isEncrypted;
+    public bool EncryptionEnabled => _decryptor is not null;
 
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
@@ -54,7 +61,7 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
         ArgumentNullException.ThrowIfNull(decryptor);
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        if (_isEncrypted)
+        if (_decryptor is not null)
         {
             throw new InvalidOperationException("Encryption is already enabled.");
         }
@@ -66,114 +73,77 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
         }
 
         _decryptor = decryptor;
-        _isEncrypted = true;
     }
 
     public override ValueTask<ReadResult> ReadAsync(CancellationToken cancellationToken = default)
     {
-        if (!_isEncrypted)
+        if (_decryptor is null)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
             _plainReadOutstanding = true;
             return _inner.ReadAsync(cancellationToken);
         }
 
-        if (Interlocked.CompareExchange(ref _readState, 1, 0) != 0)
-        {
-            return ValueTask.FromException<ReadResult>(
-                new InvalidOperationException("Concurrent reads or writes are not supported."));
-        }
-
-        bool release = true;
+        BeginRead();
         try
         {
-            if (_cancelPending)
+            if (TryReadBuffered(out ReadResult result))
             {
-                _cancelPending = false;
-                return new ValueTask<ReadResult>(
-                    new ReadResult(CurrentSequence(), isCanceled: true, isCompleted: _innerCompleted));
+                EndRead();
+                return new ValueTask<ReadResult>(result);
             }
 
-            if (HasUnexaminedBytes())
+            while (true)
             {
-                return new ValueTask<ReadResult>(
-                    new ReadResult(CurrentSequence(), isCanceled: false, isCompleted: _innerCompleted));
-            }
+                var awaiter = _inner.ReadAsync(cancellationToken).ConfigureAwait(false).GetAwaiter();
+                if (!awaiter.IsCompleted)
+                {
+                    return WaitForInner(awaiter, cancellationToken);
+                }
 
-            if (_innerCompleted)
-            {
-                return new ValueTask<ReadResult>(
-                    new ReadResult(CurrentSequence(), isCanceled: false, isCompleted: true));
+                if (Absorb(awaiter.GetResult(), out result))
+                {
+                    EndRead();
+                    return new ValueTask<ReadResult>(result);
+                }
             }
-
-            release = false;
-            var source = new PendingReadSource();
-            _ = PumpAsync(source, cancellationToken);
-            return new ValueTask<ReadResult>(source, 0);
         }
-        finally
+        catch
         {
-            if (release)
-            {
-                Volatile.Write(ref _readState, 0);
-            }
+            AbortRead();
+            throw;
         }
     }
 
     public override bool TryRead(out ReadResult result)
     {
-        if (!_isEncrypted)
+        if (_decryptor is null)
         {
+            ObjectDisposedException.ThrowIf(_disposed, this);
             bool hasResult = _inner.TryRead(out result);
-            if (hasResult)
-            {
-                _plainReadOutstanding = true;
-            }
-
+            _plainReadOutstanding |= hasResult;
             return hasResult;
         }
 
-        if (_cancelPending)
+        BeginRead();
+        try
         {
-            _cancelPending = false;
-            result = new ReadResult(CurrentSequence(), isCanceled: true, isCompleted: _innerCompleted);
-            return true;
-        }
-
-        if (HasUnexaminedBytes())
-        {
-            result = new ReadResult(CurrentSequence(), isCanceled: false, isCompleted: _innerCompleted);
-            return true;
-        }
-
-        if (!_innerCompleted && _inner.TryRead(out ReadResult innerResult))
-        {
-            if (innerResult.Buffer.Length > 0)
+            if (TryReadBuffered(out result)
+                || (_inner.TryRead(out ReadResult innerResult) && Absorb(in innerResult, out result)))
             {
-                Append(in innerResult);
-            }
-
-            _inner.AdvanceTo(innerResult.Buffer.End);
-
-            if (innerResult.IsCompleted)
-            {
-                _innerCompleted = true;
-            }
-
-            if (innerResult.Buffer.Length > 0 || _innerCompleted)
-            {
-                result = new ReadResult(CurrentSequence(), innerResult.IsCanceled, _innerCompleted);
+                EndRead();
                 return true;
             }
-        }
 
-        if (_innerCompleted)
+            AbortRead();
+            result = default;
+            return false;
+        }
+        catch
         {
-            result = new ReadResult(CurrentSequence(), isCanceled: false, isCompleted: true);
-            return true;
+            AbortRead();
+            throw;
         }
-
-        result = default;
-        return false;
     }
 
     public override void AdvanceTo(SequencePosition consumed)
@@ -183,32 +153,46 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
 
     public override void AdvanceTo(SequencePosition consumed, SequencePosition examined)
     {
-        if (!_isEncrypted)
+        if (_decryptor is null)
         {
             _plainReadOutstanding = false;
             _inner.AdvanceTo(consumed, examined);
             return;
         }
 
-        if (examined.GetObject() is BufferSegment examinedSegment)
+        if (Volatile.Read(ref _reading) != 0)
         {
-            _examinedSegment = examinedSegment;
-            _examinedIndex = examined.GetInteger();
+            throw new InvalidOperationException("Cannot advance while a read is pending.");
         }
 
-        ReleaseConsumed(consumed);
+        if (!_resultOutstanding)
+        {
+            throw new InvalidOperationException("No reading operation to complete.");
+        }
+
+        int consumedIndex = IndexOf(consumed, _consumed);
+        int examinedIndex = IndexOf(examined, consumedIndex);
+
+        _resultOutstanding = false;
+        _consumed = consumedIndex;
+        _examined = examinedIndex;
+
+        if (_consumed == _written && _array is { Length: > RetainedBlockLimit })
+        {
+            ReleaseBuffer();
+        }
     }
 
     public override void CancelPendingRead()
     {
-        if (!_isEncrypted)
+        if (_decryptor is null)
         {
             _inner.CancelPendingRead();
             return;
         }
 
-        _cancelPending = true;
-        if (Volatile.Read(ref _readState) != 0)
+        Interlocked.Exchange(ref _cancelRequested, 1);
+        if (Volatile.Read(ref _reading) != 0)
         {
             _inner.CancelPendingRead();
         }
@@ -216,15 +200,13 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
 
     public override void Complete(Exception? exception = null)
     {
-        ThrowIfReading();
-        ReleaseAll();
+        Close();
         _inner.Complete(exception);
     }
 
     public override ValueTask CompleteAsync(Exception? exception = null)
     {
-        ThrowIfReading();
-        ReleaseAll();
+        Close();
         return _inner.CompleteAsync(exception);
     }
 
@@ -235,274 +217,277 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
             return;
         }
 
-        ThrowIfReading();
+        Close();
         _disposed = true;
-        ReleaseAll();
-
-        if (_spare is not null)
-        {
-            ArrayPool<byte>.Shared.Return(_spare);
-            _spare = null;
-        }
-
-        Interlocked.Exchange(ref _decryptor, null)?.Dispose();
+        _decryptor?.Dispose();
     }
 
-    private async Task PumpAsync(PendingReadSource source, CancellationToken cancellationToken)
+    private void Close()
     {
-        ReadResult completion;
+        ThrowIfReading();
+        _resultOutstanding = false;
+        _plainReadOutstanding = false;
+        ReleaseBuffer();
+    }
+
+    private void BeginRead()
+    {
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        if (_resultOutstanding)
+        {
+            throw new InvalidOperationException("Reading is already in progress.");
+        }
+
+        if (Interlocked.CompareExchange(ref _reading, 1, 0) != 0)
+        {
+            throw new InvalidOperationException("Concurrent reads or writes are not supported.");
+        }
+    }
+
+    private void EndRead()
+    {
+        _resultOutstanding = true;
+        Volatile.Write(ref _reading, 0);
+    }
+
+    private void AbortRead()
+    {
+        Volatile.Write(ref _reading, 0);
+    }
+
+    private ValueTask<ReadResult> WaitForInner(
+        ConfiguredValueTaskAwaitable<ReadResult>.ConfiguredValueTaskAwaiter awaiter,
+        CancellationToken cancellationToken)
+    {
+        _pendingToken = cancellationToken;
+        _innerAwaiter = awaiter;
+        _completion.Reset();
+        short version = _completion.Version;
+        awaiter.UnsafeOnCompleted(_onInnerRead);
+        return new ValueTask<ReadResult>(_completion, version);
+    }
+
+    private void ContinueRead()
+    {
+        ReadResult result;
         try
         {
-            while (true)
+            ReadResult innerResult = _innerAwaiter.GetResult();
+            while (!Absorb(in innerResult, out result))
             {
-                ReadResult result = await _inner.ReadAsync(cancellationToken).ConfigureAwait(false);
-
-                if (result.Buffer.Length > 0)
+                var awaiter = _inner.ReadAsync(_pendingToken).ConfigureAwait(false).GetAwaiter();
+                if (!awaiter.IsCompleted)
                 {
-                    Append(in result);
+                    _innerAwaiter = awaiter;
+                    awaiter.UnsafeOnCompleted(_onInnerRead);
+                    return;
                 }
 
-                _inner.AdvanceTo(result.Buffer.End);
-
-                if (result.IsCompleted)
-                {
-                    _innerCompleted = true;
-                }
-
-                if (result.IsCanceled || _cancelPending)
-                {
-                    _cancelPending = false;
-                    completion = new ReadResult(CurrentSequence(), isCanceled: true, isCompleted: _innerCompleted);
-                    break;
-                }
-
-                if (result.Buffer.Length > 0 || _innerCompleted)
-                {
-                    completion = new ReadResult(CurrentSequence(), isCanceled: false, isCompleted: _innerCompleted);
-                    break;
-                }
+                innerResult = awaiter.GetResult();
             }
         }
         catch (Exception exception)
         {
-            Volatile.Write(ref _readState, 0);
-            source.Fault(exception);
+            AbortRead();
+            _completion.SetException(exception);
             return;
         }
 
-        Volatile.Write(ref _readState, 0);
-        source.Complete(completion);
+        EndRead();
+        _completion.SetResult(result);
     }
 
-    private void Append(in ReadResult innerResult)
+    private bool TryReadBuffered(out ReadResult result)
     {
-        PacketCipher decryptor = _decryptor
-            ?? throw new InvalidOperationException("Decryption is not initialized.");
-
-        foreach (ReadOnlyMemory<byte> segment in innerResult.Buffer)
+        if (TakeCancelRequest())
         {
-            ReadOnlySpan<byte> source = segment.Span;
-            while (!source.IsEmpty)
-            {
-                BufferSegment tail = AcquireTail();
-                int count = Math.Min(source.Length, tail.Buffer.Length - tail.Written);
-                Span<byte> destination = tail.Buffer.AsSpan(tail.Written, count);
-                source[..count].CopyTo(destination);
-                decryptor.Transform(destination);
-                tail.Written += count;
-                tail.UpdateMemory();
-                source = source[count..];
-            }
+            result = Snapshot(isCanceled: true);
+            return true;
         }
+
+        if (_examined < _written || _innerCompleted)
+        {
+            result = Snapshot(isCanceled: false);
+            return true;
+        }
+
+        result = default;
+        return false;
     }
 
-    private BufferSegment AcquireTail()
+    private bool Absorb(in ReadResult innerResult, out ReadResult result)
     {
-        if (_tail is not null && _tail.Written < _tail.Buffer.Length)
+        long length = innerResult.Buffer.Length;
+        if (length > 0)
         {
-            return _tail;
+            Append(innerResult.Buffer);
         }
 
-        byte[] buffer;
-        if (_spare is not null)
+        _inner.AdvanceTo(innerResult.Buffer.End);
+        _innerCompleted |= innerResult.IsCompleted;
+
+        bool canceled = TakeCancelRequest() | innerResult.IsCanceled;
+        if (length > 0 || canceled || _innerCompleted)
         {
-            buffer = _spare;
-            _spare = null;
+            result = Snapshot(canceled);
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
+
+    private bool TakeCancelRequest()
+    {
+        return Volatile.Read(ref _cancelRequested) != 0 && Interlocked.Exchange(ref _cancelRequested, 0) != 0;
+    }
+
+    private ReadResult Snapshot(bool isCanceled)
+    {
+        ReadOnlySequence<byte> buffer = _block is null
+            ? ReadOnlySequence<byte>.Empty
+            : new ReadOnlySequence<byte>(_block, _consumed, _block, _written);
+        return new ReadResult(buffer, isCanceled, _innerCompleted);
+    }
+
+    private void Append(in ReadOnlySequence<byte> ciphertext)
+    {
+        int length = checked((int)ciphertext.Length);
+        byte[] array = MakeRoom(length);
+
+        Span<byte> destination = array.AsSpan(_written, length);
+        ciphertext.CopyTo(destination);
+        _decryptor!.Transform(destination);
+
+        _written += length;
+        _block ??= new Block();
+        _block.SetLength(array, _written);
+    }
+
+    private byte[] MakeRoom(int length)
+    {
+        if (_array is null)
+        {
+            return _array = Rent(length);
+        }
+
+        if (_array.Length - _written >= length)
+        {
+            return _array;
+        }
+
+        int live = _written - _consumed;
+        if (live <= _array.Length / 2 && live + length <= _array.Length)
+        {
+            Array.Copy(_array, _consumed, _array, 0, live);
         }
         else
         {
-            buffer = ArrayPool<byte>.Shared.Rent(SegmentSize);
+            byte[] grown = Rent(Math.Max(live + length, 2 * _array.Length));
+            _array.AsSpan(_consumed, live).CopyTo(grown);
+            ArrayPool<byte>.Shared.Return(_array);
+            _array = grown;
         }
 
-        var segment = new BufferSegment(buffer);
-        if (_tail is null)
-        {
-            _head = segment;
-            _tail = segment;
-            _headConsumed = 0;
-        }
-        else
-        {
-            _tail.Append(segment);
-            _tail = segment;
-        }
-
-        return segment;
+        _written = live;
+        _examined -= _consumed;
+        _consumed = 0;
+        _block = null;
+        return _array;
     }
 
-    private ReadOnlySequence<byte> CurrentSequence()
+    private static byte[] Rent(int length)
     {
-        if (_head is null || _tail is null)
-        {
-            return ReadOnlySequence<byte>.Empty;
-        }
-
-        return new ReadOnlySequence<byte>(_head, _headConsumed, _tail, _tail.Written);
+        return ArrayPool<byte>.Shared.Rent(Math.Max(length, MinimumBlockSize));
     }
 
-    private bool HasUnexaminedBytes()
+    private int IndexOf(SequencePosition position, int lowerBound)
     {
-        if (_tail is null || _head is null)
+        if (_block is null)
         {
-            return false;
+            return lowerBound;
         }
 
-        if (_examinedSegment is null)
+        int index = position.GetInteger();
+        if (!ReferenceEquals(position.GetObject(), _block) || index < lowerBound || index > _written)
         {
-            return !(ReferenceEquals(_head, _tail) && _headConsumed == _tail.Written);
+            throw new InvalidOperationException("The position does not belong to the current read.");
         }
 
-        return !(ReferenceEquals(_examinedSegment, _tail) && _examinedIndex == _tail.Written);
+        return index;
     }
 
-    private void ReleaseConsumed(SequencePosition consumed)
+    private void ReleaseBuffer()
     {
-        if (consumed.GetObject() is not BufferSegment target)
+        _block = null;
+        _consumed = 0;
+        _examined = 0;
+        _written = 0;
+
+        if (_array is not null)
         {
-            return;
+            ArrayPool<byte>.Shared.Return(_array);
+            _array = null;
         }
-
-        bool found = false;
-        for (BufferSegment? segment = _head; segment is not null; segment = (BufferSegment?)segment.Next)
-        {
-            if (ReferenceEquals(segment, target))
-            {
-                found = true;
-                break;
-            }
-        }
-
-        if (!found)
-        {
-            throw new InvalidOperationException("The consumed position does not belong to this reader.");
-        }
-
-        while (_head is not null && !ReferenceEquals(_head, target))
-        {
-            ReleaseHead();
-            _headConsumed = 0;
-        }
-
-        if (_head is null)
-        {
-            return;
-        }
-
-        _headConsumed = consumed.GetInteger();
-
-        while (_head is not null && _headConsumed == _head.Written)
-        {
-            if (ReferenceEquals(_head, _tail))
-            {
-                ReleaseHead();
-                _tail = null;
-                _headConsumed = 0;
-                _examinedSegment = null;
-                _examinedIndex = 0;
-                return;
-            }
-
-            ReleaseHead();
-            _headConsumed = 0;
-        }
-    }
-
-    private void ReleaseHead()
-    {
-        BufferSegment head = _head!;
-        _head = (BufferSegment?)head.Next;
-        Recycle(head.Buffer);
-    }
-
-    private void ReleaseAll()
-    {
-        while (_head is not null)
-        {
-            ReleaseHead();
-        }
-
-        _tail = null;
-        _headConsumed = 0;
-        _examinedSegment = null;
-        _examinedIndex = 0;
     }
 
     private void ThrowIfReading()
     {
-        if (Volatile.Read(ref _readState) != 0)
+        if (Volatile.Read(ref _reading) != 0)
         {
             throw new InvalidOperationException("Cannot complete or dispose the reader while a read is in progress.");
         }
     }
 
-    private void Recycle(byte[] buffer)
+    private sealed class Block : ReadOnlySequenceSegment<byte>
     {
-        if (_spare is null && buffer.Length == SegmentSize)
+        public void SetLength(byte[] array, int length)
         {
-            _spare = buffer;
-            return;
+            Memory = new ReadOnlyMemory<byte>(array, 0, length);
         }
-
-        ArrayPool<byte>.Shared.Return(buffer);
     }
 
-    private sealed class PendingReadSource : IValueTaskSource<ReadResult>
+    private sealed class ReadCompletion : IValueTaskSource<ReadResult>
     {
-        private static readonly object CompletedSentinel = new();
-
-        private object? _registration;
-        private int _completed;
-        private volatile bool _resultAvailable;
+        private readonly object _sync = new();
+        private Action<object?>? _continuation;
+        private object? _continuationState;
+        private ExecutionContext? _executionContext;
+        private SynchronizationContext? _synchronizationContext;
+        private volatile bool _completed;
         private ReadResult _result;
         private Exception? _exception;
+        private short _version;
 
-        public void Complete(ReadResult result)
+        public short Version => _version;
+
+        public void Reset()
         {
-            if (Interlocked.CompareExchange(ref _completed, 1, 0) != 0)
+            lock (_sync)
             {
-                return;
+                ClearContinuation();
+                _completed = false;
+                _result = default;
+                _exception = null;
+                _version++;
             }
-
-            _result = result;
-            _resultAvailable = true;
-            Publish();
         }
 
-        public void Fault(Exception exception)
+        public void SetResult(ReadResult result)
         {
-            if (Interlocked.CompareExchange(ref _completed, 1, 0) != 0)
-            {
-                return;
-            }
+            Finish(result, null);
+        }
 
-            _exception = exception;
-            _resultAvailable = true;
-            Publish();
+        public void SetException(Exception exception)
+        {
+            Finish(default, exception);
         }
 
         public ValueTaskSourceStatus GetStatus(short token)
         {
-            if (!_resultAvailable)
+            ValidateToken(token);
+            if (!_completed)
             {
                 return ValueTaskSourceStatus.Pending;
             }
@@ -517,14 +502,15 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
 
         public ReadResult GetResult(short token)
         {
-            if (!_resultAvailable)
+            ValidateToken(token);
+            if (!_completed)
             {
                 throw new InvalidOperationException("The read has not completed yet.");
             }
 
             if (_exception is not null)
             {
-                ExceptionDispatchInfo.Capture(_exception).Throw();
+                ExceptionDispatchInfo.Throw(_exception);
             }
 
             return _result;
@@ -533,86 +519,137 @@ public sealed class CryptoPipeReader : PipeReader, IDisposable
         public void OnCompleted(Action<object?> continuation, object? state, short token,
             ValueTaskSourceOnCompletedFlags flags)
         {
-            var holder = new ContinuationHolder(continuation, state);
+            ValidateToken(token);
 
-            while (true)
+            ExecutionContext? executionContext = (flags & ValueTaskSourceOnCompletedFlags.FlowExecutionContext) != 0
+                ? ExecutionContext.Capture()
+                : null;
+            SynchronizationContext? synchronizationContext =
+                (flags & ValueTaskSourceOnCompletedFlags.UseSchedulingContext) != 0
+                    ? SynchronizationContext.Current
+                    : null;
+
+            Action<object?>? displaced;
+            object? displacedState;
+            ExecutionContext? displacedExecutionContext;
+            SynchronizationContext? displacedSynchronizationContext;
+            lock (_sync)
             {
-                object? current = Volatile.Read(ref _registration);
-
-                if (ReferenceEquals(current, CompletedSentinel))
+                if (!_completed && _continuation is null)
                 {
-                    Schedule(holder);
+                    _continuation = continuation;
+                    _continuationState = state;
+                    _executionContext = executionContext;
+                    _synchronizationContext = synchronizationContext;
                     return;
                 }
 
-                if (current is null)
-                {
-                    if (Interlocked.CompareExchange(ref _registration, holder, null) is null)
-                    {
-                        return;
-                    }
+                displaced = _continuation;
+                displacedState = _continuationState;
+                displacedExecutionContext = _executionContext;
+                displacedSynchronizationContext = _synchronizationContext;
+                ClearContinuation();
 
-                    continue;
-                }
-
-                if (Interlocked.CompareExchange(ref _completed, 1, 0) == 0)
+                if (!_completed)
                 {
+                    _completed = true;
                     _exception = new InvalidOperationException("Concurrent reads or writes are not supported.");
-                    _resultAvailable = true;
                 }
+            }
 
-                object? first = Interlocked.Exchange(ref _registration, CompletedSentinel);
-                if (first is ContinuationHolder firstHolder)
+            if (displaced is not null)
+            {
+                Queue(displaced, displacedState, displacedExecutionContext, displacedSynchronizationContext);
+            }
+
+            Queue(continuation, state, executionContext, synchronizationContext);
+        }
+
+        private void Finish(ReadResult result, Exception? exception)
+        {
+            Action<object?>? continuation;
+            object? state;
+            ExecutionContext? executionContext;
+            SynchronizationContext? synchronizationContext;
+            lock (_sync)
+            {
+                if (_completed)
                 {
-                    Schedule(firstHolder);
+                    return;
                 }
 
-                Schedule(holder);
+                _result = result;
+                _exception = exception;
+                _completed = true;
+                continuation = _continuation;
+                state = _continuationState;
+                executionContext = _executionContext;
+                synchronizationContext = _synchronizationContext;
+                ClearContinuation();
+            }
+
+            if (continuation is null)
+            {
                 return;
             }
-        }
 
-        private void Publish()
-        {
-            object? registration = Interlocked.Exchange(ref _registration, CompletedSentinel);
-            if (registration is ContinuationHolder holder)
+            if (synchronizationContext is not null)
             {
-                Schedule(holder);
+                Queue(continuation, state, executionContext, synchronizationContext);
+            }
+            else
+            {
+                Invoke(continuation, state, executionContext);
             }
         }
 
-        private static void Schedule(ContinuationHolder holder)
+        private void ClearContinuation()
         {
-            ThreadPool.UnsafeQueueUserWorkItem(
-                static h => h.Continuation(h.State),
-                holder,
-                preferLocal: true);
+            _continuation = null;
+            _continuationState = null;
+            _executionContext = null;
+            _synchronizationContext = null;
         }
 
-        private sealed record ContinuationHolder(Action<object?> Continuation, object? State);
-    }
-
-    private sealed class BufferSegment : ReadOnlySequenceSegment<byte>
-    {
-        public BufferSegment(byte[] buffer)
+        private static void Queue(Action<object?> continuation, object? state,
+            ExecutionContext? executionContext, SynchronizationContext? synchronizationContext)
         {
-            Buffer = buffer;
-            Memory = ReadOnlyMemory<byte>.Empty;
+            var work = (continuation, state, executionContext);
+            if (synchronizationContext is not null)
+            {
+                synchronizationContext.Post(static o => RunQueued(o!), work);
+            }
+            else
+            {
+                ThreadPool.UnsafeQueueUserWorkItem(static o => RunQueued(o), work, preferLocal: true);
+            }
         }
 
-        public byte[] Buffer { get; }
-
-        public int Written { get; set; }
-
-        public void UpdateMemory()
+        private static void RunQueued(object work)
         {
-            Memory = new ReadOnlyMemory<byte>(Buffer, 0, Written);
+            var (continuation, state, executionContext) =
+                ((Action<object?>, object?, ExecutionContext?))work;
+            Invoke(continuation, state, executionContext);
         }
 
-        public void Append(BufferSegment next)
+        private static void Invoke(Action<object?> continuation, object? state, ExecutionContext? executionContext)
         {
-            next.RunningIndex = RunningIndex + Written;
-            Next = next;
+            if (executionContext is null)
+            {
+                continuation(state);
+            }
+            else
+            {
+                ExecutionContext.Run(executionContext, static o => RunQueued(o!), (continuation, state, (ExecutionContext?)null));
+            }
+        }
+
+        private void ValidateToken(short token)
+        {
+            if (token != _version)
+            {
+                throw new InvalidOperationException("The read result was already observed.");
+            }
         }
     }
 }

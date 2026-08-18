@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Buffers;
 using System.Diagnostics;
 using System.IO;
@@ -55,7 +57,14 @@ public class SendStrategyBenchmarks
     [Params(1_000_000)] public int PacketsCount;
     [Params(50)] public int PacketSize;
     [Params(100)] public int FlushEvery;
-    [Params(-1, 32)] public int CompressionThreshold;
+    [ParamsSource(nameof(CompressionThresholds))] public int CompressionThreshold;
+
+    public static IEnumerable<int> CompressionThresholds =>
+        Environment.GetEnvironmentVariable("MCPROTO_BENCH_COMPRESSION") switch
+        {
+            null => [-1, 32],
+            var s => s.Split(',').Select(int.Parse)
+        };
     [Params(1, 4)] public int Producers;
 
     [Params(SendTransport.File, SendTransport.Tcp)]

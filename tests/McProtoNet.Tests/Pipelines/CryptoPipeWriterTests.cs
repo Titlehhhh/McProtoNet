@@ -3,6 +3,7 @@ using System.IO.Pipelines;
 using System.Text;
 using McProtoNet.Cryptography;
 using McProtoNet.Net;
+using McProtoNet.Serialization;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -156,6 +157,106 @@ public class CryptoPipeWriterTests
         Assert.Equal(0, pipe.Writer.UnflushedBytes);
         Assert.Equal(plain.Length, writer.UnflushedBytes);
         Assert.False(pipe.Reader.TryRead(out _));
+    }
+
+    [Fact]
+    public async Task Write_ShouldKeepCipherContinuous_AcrossRandomChunksAndFlushes()
+    {
+        var (pipe, writer) = CreateEncrypted();
+        byte[] plain = RandomBytes(50_000);
+        var random = new Random(7);
+
+        int offset = 0;
+        while (offset < plain.Length)
+        {
+            int length = Math.Min(random.Next(1, 3000), plain.Length - offset);
+            WriteBytes(writer, plain.AsSpan(offset, length));
+            offset += length;
+            if (random.Next(4) == 0)
+            {
+                await writer.FlushAsync();
+            }
+        }
+
+        writer.Complete();
+
+        byte[] transferred = await ReadAllAsync(pipe.Reader);
+        Assert.Equal(plain, ReferenceDecrypt(transferred));
+    }
+
+    [Fact]
+    public async Task Write_ShouldEncryptEveryChunk_WhenBufferWriterExtensionSplitsTheWrite()
+    {
+        var (pipe, writer) = CreateEncrypted();
+        byte[] plain = RandomBytes(50_000);
+
+        writer.WriteVarInt(plain.Length);
+        writer.Write(plain);
+        await writer.FlushAsync();
+        writer.Complete();
+
+        byte[] frame = ReferenceDecrypt(await ReadAllAsync(pipe.Reader));
+        Assert.Equal(plain.Length, frame.AsSpan().ReadVarInt(out int headerLength));
+        Assert.Equal(plain, frame.AsSpan(headerLength).ToArray());
+    }
+
+    [Fact]
+    public async Task Advance_ShouldCommitOnlyAdvancedBytes_WhenSplitAcrossCalls()
+    {
+        var (pipe, writer) = CreateEncrypted();
+        byte[] plain = RandomBytes(100);
+
+        plain.CopyTo(writer.GetSpan(plain.Length));
+        writer.Advance(40);
+        writer.Advance(60);
+        await writer.FlushAsync();
+        writer.Complete();
+
+        byte[] transferred = await ReadAllAsync(pipe.Reader);
+        Assert.Equal(plain, ReferenceDecrypt(transferred));
+    }
+
+    [Fact]
+    public async Task GetSpan_ShouldDropUnadvancedBytes_WhenRequestedAgain()
+    {
+        var (pipe, writer) = CreateEncrypted();
+        byte[] dropped = RandomBytes(10);
+        byte[] kept = RandomBytes(5000);
+
+        dropped.CopyTo(writer.GetSpan(dropped.Length));
+        kept.CopyTo(writer.GetSpan(kept.Length));
+        writer.Advance(kept.Length);
+        await writer.FlushAsync();
+        writer.Complete();
+
+        byte[] transferred = await ReadAllAsync(pipe.Reader);
+        Assert.Equal(kept, ReferenceDecrypt(transferred));
+    }
+
+    [Fact]
+    public void EnableEncryption_ShouldInvalidatePlaintextBuffer_IssuedBeforeEnabling()
+    {
+        var (pipe, writer) = CreatePlain();
+        byte[] plain = Encoding.UTF8.GetBytes("issued before, advanced after");
+
+        plain.CopyTo(writer.GetSpan(plain.Length));
+        writer.EnableEncryption(TestKey);
+
+        Assert.Throws<InvalidOperationException>(() => writer.Advance(plain.Length));
+        Assert.Equal(0, pipe.Writer.UnflushedBytes);
+    }
+
+    [Fact]
+    public void UnflushedBytes_ShouldCountEveryAdvance_WhenEncrypted()
+    {
+        var (_, writer) = CreateEncrypted();
+
+        WriteBytes(writer, RandomBytes(3));
+        WriteBytes(writer, RandomBytes(5000));
+        WriteBytes(writer, RandomBytes(7));
+
+        Assert.True(writer.CanGetUnflushedBytes);
+        Assert.Equal(5010, writer.UnflushedBytes);
     }
 
     [Fact]

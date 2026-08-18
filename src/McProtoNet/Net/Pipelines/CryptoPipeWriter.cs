@@ -1,4 +1,3 @@
-using System.Buffers;
 using System.IO.Pipelines;
 using McProtoNet.Cryptography;
 
@@ -6,22 +5,12 @@ namespace McProtoNet.Net;
 
 public sealed class CryptoPipeWriter : PipeWriter, IDisposable
 {
-    private const int SegmentSize = 4096;
-
     private readonly PipeWriter _writer;
-    private readonly List<Segment> _segments = [];
 
     private PacketCipher? _encryptor;
-    private byte[]? _spare;
-    private bool _borrowedFromInner = true;
-    private bool _bufferIssued;
+    private Memory<byte> _issued;
+    private int _pending;
     private bool _disposed;
-
-    private struct Segment
-    {
-        public byte[] Buffer;
-        public int Written;
-    }
 
     public CryptoPipeWriter(PipeWriter pipeWriter)
     {
@@ -30,20 +19,6 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
     }
 
     public bool EncryptionEnabled => _encryptor is not null;
-
-    private long PendingBytes
-    {
-        get
-        {
-            long total = 0;
-            for (int i = 0; i < _segments.Count; i++)
-            {
-                total += _segments[i].Written;
-            }
-
-            return total;
-        }
-    }
 
     #region Encryption
 
@@ -87,62 +62,37 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
     public override Memory<byte> GetMemory(int sizeHint = 0)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-
-        if (_encryptor is null)
-        {
-            _borrowedFromInner = true;
-            return _writer.GetMemory(sizeHint);
-        }
-
-        _borrowedFromInner = false;
-        _bufferIssued = true;
-        Segment last = EnsureRoom(sizeHint);
-        return last.Buffer.AsMemory(last.Written);
+        return _encryptor is null ? _writer.GetMemory(sizeHint) : IssueBuffer(sizeHint);
     }
 
     public override Span<byte> GetSpan(int sizeHint = 0)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-
-        if (_encryptor is null)
-        {
-            _borrowedFromInner = true;
-            return _writer.GetSpan(sizeHint);
-        }
-
-        _borrowedFromInner = false;
-        _bufferIssued = true;
-        Segment last = EnsureRoom(sizeHint);
-        return last.Buffer.AsSpan(last.Written);
+        return _encryptor is null ? _writer.GetSpan(sizeHint) : IssueBuffer(sizeHint).Span;
     }
 
     public override void Advance(int bytes)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        ArgumentOutOfRangeException.ThrowIfNegative(bytes);
 
-        if (_borrowedFromInner)
+        if (_encryptor is null)
         {
             _writer.Advance(bytes);
             return;
         }
 
-        if (!_bufferIssued)
+        if ((uint)bytes > (uint)(_issued.Length - _pending))
         {
-            throw new InvalidOperationException(
-                "No writing operation is in progress: request memory with GetMemory or GetSpan first.");
+            ThrowAdvanceOutOfIssuedBuffer(bytes);
         }
 
-        Segment last = _segments[^1];
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(bytes, last.Buffer.Length - last.Written);
-        last.Written += bytes;
-        _segments[^1] = last;
+        _pending += bytes;
     }
 
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        Drain();
+        CommitPending();
         return _writer.FlushAsync(cancellationToken);
     }
 
@@ -163,26 +113,9 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
         return _writer.CompleteAsync(exception);
     }
 
-    public override bool CanGetUnflushedBytes => _encryptor is not null || _writer.CanGetUnflushedBytes;
+    public override bool CanGetUnflushedBytes => _writer.CanGetUnflushedBytes;
 
-    public override long UnflushedBytes
-    {
-        get
-        {
-            if (_encryptor is null)
-            {
-                return _writer.UnflushedBytes;
-            }
-
-            long total = PendingBytes;
-            if (_writer.CanGetUnflushedBytes)
-            {
-                total += _writer.UnflushedBytes;
-            }
-
-            return total;
-        }
-    }
+    public override long UnflushedBytes => _writer.UnflushedBytes + _pending;
 
     #endregion
 
@@ -194,35 +127,52 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
         }
 
         _disposed = true;
-
-        for (int i = 0; i < _segments.Count; i++)
-        {
-            ArrayPool<byte>.Shared.Return(_segments[i].Buffer);
-        }
-
-        _segments.Clear();
-
-        if (_spare is not null)
-        {
-            ArrayPool<byte>.Shared.Return(_spare);
-            _spare = null;
-        }
+        DiscardPending();
 
         PacketCipher? encryptor = _encryptor;
         _encryptor = null;
         encryptor?.Dispose();
     }
 
-    private void PrepareComplete(Exception? exception)
+    private Memory<byte> IssueBuffer(int sizeHint)
     {
-        if (_disposed)
+        ArgumentOutOfRangeException.ThrowIfNegative(sizeHint);
+
+        int free = _issued.Length - _pending;
+        if (free > 0 && free >= sizeHint)
         {
-            return;
+            return _issued[_pending..];
         }
 
+        CommitPending();
+        _issued = _writer.GetMemory(sizeHint);
+        return _issued;
+    }
+
+    private void CommitPending()
+    {
+        int count = _pending;
+        Memory<byte> issued = _issued;
+        DiscardPending();
+
+        if (count > 0)
+        {
+            _encryptor!.Transform(issued.Span[..count]);
+            _writer.Advance(count);
+        }
+    }
+
+    private void DiscardPending()
+    {
+        _issued = default;
+        _pending = 0;
+    }
+
+    private void PrepareComplete(Exception? exception)
+    {
         if (exception is null)
         {
-            Drain();
+            CommitPending();
         }
         else
         {
@@ -230,92 +180,17 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
         }
     }
 
-    private void Drain()
+    private void ThrowAdvanceOutOfIssuedBuffer(int bytes)
     {
-        PacketCipher? encryptor = _encryptor;
-        _bufferIssued = false;
+        ArgumentOutOfRangeException.ThrowIfNegative(bytes);
 
-        if (encryptor is null || _segments.Count == 0)
+        if (_issued.IsEmpty)
         {
-            return;
+            throw new InvalidOperationException(
+                "No writing operation is in progress: request memory with GetMemory or GetSpan first.");
         }
 
-        while (_segments.Count > 0)
-        {
-            Segment segment = _segments[0];
-            _segments.RemoveAt(0);
-
-            if (segment.Written == 0)
-            {
-                Recycle(segment.Buffer);
-                continue;
-            }
-
-            Span<byte> data = segment.Buffer.AsSpan(0, segment.Written);
-            try
-            {
-                encryptor.Transform(data);
-                _writer.Write(data);
-            }
-            finally
-            {
-                Recycle(segment.Buffer);
-            }
-        }
-    }
-
-    private void DiscardPending()
-    {
-        _bufferIssued = false;
-
-        for (int i = 0; i < _segments.Count; i++)
-        {
-            Recycle(_segments[i].Buffer);
-        }
-
-        _segments.Clear();
-    }
-
-    private void Recycle(byte[] buffer)
-    {
-        if (_spare is null && buffer.Length == SegmentSize)
-        {
-            _spare = buffer;
-            return;
-        }
-
-        ArrayPool<byte>.Shared.Return(buffer);
-    }
-
-    private Segment EnsureRoom(int sizeHint)
-    {
-        if (sizeHint <= 0)
-        {
-            sizeHint = 1;
-        }
-
-        if (_segments.Count > 0)
-        {
-            Segment last = _segments[^1];
-            if (last.Buffer.Length - last.Written >= sizeHint)
-            {
-                return last;
-            }
-        }
-
-        byte[] buffer;
-        if (_spare is not null && _spare.Length >= sizeHint)
-        {
-            buffer = _spare;
-            _spare = null;
-        }
-        else
-        {
-            buffer = ArrayPool<byte>.Shared.Rent(Math.Max(SegmentSize, sizeHint));
-        }
-
-        Segment next = new() { Buffer = buffer, Written = 0 };
-        _segments.Add(next);
-        return next;
+        throw new ArgumentOutOfRangeException(nameof(bytes), bytes,
+            $"Cannot advance past the end of the issued buffer ({_issued.Length - _pending} bytes left).");
     }
 }
