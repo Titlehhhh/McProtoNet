@@ -1,5 +1,6 @@
 ﻿name: cicd.yaml
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
@@ -21,9 +22,22 @@ jobs:
           dotnet-version: 9.x
       - name: Run tests
         run: ./build.cmd Tests --Configuration Release
-        
+
+  tests-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+      - name: Run crypto tests on ARM64
+        run: dotnet run --project tests/McProtoNet.Tests -c Release -- -namespace McProtoNet.Tests.Cryptography
+
   publish-nuget:
-    needs: [tests]
+    if: ${{ github.event_name == 'push' }}
+    needs: [tests, tests-arm64]
     runs-on: ubuntu-latest
     
     steps:
