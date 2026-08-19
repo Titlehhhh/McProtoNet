@@ -4,7 +4,7 @@ using Org.BouncyCastle.Security;
 
 namespace McProtoNet.Tests.Cryptography;
 
-public class PacketCipherTests
+public class PacketCipherTests(ITestOutputHelper output)
 {
     private static readonly byte[] TestKey = "0123456789ABCDEF"u8.ToArray();
 
@@ -231,5 +231,119 @@ public class PacketCipherTests
     {
         Assert.Throws<ArgumentException>(() => PacketCipher.CreateEncryptor(new byte[8]));
         Assert.Throws<ArgumentException>(() => PacketCipher.CreateDecryptor(new byte[17]));
+    }
+
+    [Theory]
+    [MemberData(nameof(Cores))]
+    public void Decrypt_ShouldMatchReferenceAndSerial_OnRandomSplits(string core)
+    {
+        int seed = Random.Shared.Next();
+        output.WriteLine($"seed={seed}");
+        var random = new Random(seed);
+
+        for (int round = 0; round < 200; round++)
+        {
+            int length = random.Next(0, 600);
+            byte[] plain = new byte[length];
+            random.NextBytes(plain);
+            byte[] encrypted = ReferenceTransform(true, plain);
+
+            byte[] pipelined = encrypted.ToArray();
+            using (var cipher = CreateCore(core, encrypting: false))
+            {
+                int position = 0;
+                while (position < pipelined.Length)
+                {
+                    int chunk = random.Next(4) switch
+                    {
+                        0 => random.Next(1, 4),
+                        1 => 16 * random.Next(1, 4),
+                        2 => random.Next(15, 19),
+                        _ => random.Next(1, 200),
+                    };
+                    chunk = Math.Min(chunk, pipelined.Length - position);
+                    cipher.Transform(pipelined.AsSpan(position, chunk));
+                    position += chunk;
+                }
+            }
+
+            byte[] serial = encrypted.ToArray();
+            using (var cipher = CreateCore(core, encrypting: false))
+            {
+                for (int i = 0; i < serial.Length; i++)
+                {
+                    cipher.Transform(serial.AsSpan(i, 1));
+                }
+            }
+
+            Assert.Equal(plain, pipelined);
+            Assert.Equal(plain, serial);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Cores))]
+    public void Decrypt_ShouldCarryState_AcrossPipelinedAndSerialChunks(string core)
+    {
+        int[][] patterns =
+        [
+            [16, 16, 16],
+            [15, 1, 16, 17, 15],
+            [1, 15, 16, 33, 2, 14, 48],
+            [20, 4, 12, 16, 7, 9, 32],
+            [31, 1, 31, 1, 64],
+        ];
+
+        foreach (int[] pattern in patterns)
+        {
+            int total = pattern.Sum();
+            byte[] plain = new byte[total];
+            new Random(total).NextBytes(plain);
+            byte[] data = ReferenceTransform(true, plain);
+
+            using var cipher = CreateCore(core, encrypting: false);
+            int position = 0;
+            foreach (int chunk in pattern)
+            {
+                cipher.Transform(data.AsSpan(position, chunk));
+                position += chunk;
+            }
+
+            Assert.Equal(plain, data);
+
+            byte[] tail = ReferenceTransform(true, plain.Concat(new byte[40]).ToArray())[total..];
+            cipher.Transform(tail);
+            Assert.Equal(new byte[40], tail);
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(Cores))]
+    public void Decrypt_ShouldMatchFallback_OnRandomSplits(string core)
+    {
+        int seed = Random.Shared.Next();
+        output.WriteLine($"seed={seed}");
+        var random = new Random(seed);
+
+        byte[] plain = new byte[100_000];
+        random.NextBytes(plain);
+        byte[] encrypted = ReferenceTransform(true, plain);
+
+        byte[] actual = encrypted.ToArray();
+        byte[] expected = encrypted.ToArray();
+        using var cipher = CreateCore(core, encrypting: false);
+        using var fallback = CreateCore("fallback", encrypting: false);
+
+        int position = 0;
+        while (position < actual.Length)
+        {
+            int chunk = Math.Min(random.Next(1, 3000), actual.Length - position);
+            cipher.Transform(actual.AsSpan(position, chunk));
+            fallback.Transform(expected.AsSpan(position, chunk));
+            position += chunk;
+        }
+
+        Assert.Equal(expected, actual);
+        Assert.Equal(plain, actual);
     }
 }
