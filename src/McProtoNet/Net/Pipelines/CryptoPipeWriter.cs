@@ -10,6 +10,7 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
     private PacketCipher? _encryptor;
     private Memory<byte> _issued;
     private int _pending;
+    private Exception? _fault;
     private bool _disposed;
 
     public CryptoPipeWriter(PipeWriter pipeWriter)
@@ -83,7 +84,7 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
 
         if ((uint)bytes > (uint)(_issued.Length - _pending))
         {
-            ThrowAdvanceOutOfIssuedBuffer(bytes);
+            ThrowAdvanceRejected(bytes);
         }
 
         _pending += bytes;
@@ -92,7 +93,11 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
     public override ValueTask<FlushResult> FlushAsync(CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        CommitPending();
+        if (_encryptor is not null)
+        {
+            CommitPending();
+        }
+
         return _writer.FlushAsync(cancellationToken);
     }
 
@@ -103,14 +108,12 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
 
     public override void Complete(Exception? exception = null)
     {
-        PrepareComplete(exception);
-        _writer.Complete(exception);
+        _writer.Complete(Drain(exception));
     }
 
     public override ValueTask CompleteAsync(Exception? exception = null)
     {
-        PrepareComplete(exception);
-        return _writer.CompleteAsync(exception);
+        return _writer.CompleteAsync(Drain(exception));
     }
 
     public override bool CanGetUnflushedBytes => _writer.CanGetUnflushedBytes;
@@ -151,14 +154,26 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
 
     private void CommitPending()
     {
+        ThrowIfFaulted();
+
         int count = _pending;
         Memory<byte> issued = _issued;
         DiscardPending();
 
-        if (count > 0)
+        if (count == 0)
+        {
+            return;
+        }
+
+        try
         {
             _encryptor!.Transform(issued.Span[..count]);
             _writer.Advance(count);
+        }
+        catch (Exception exception)
+        {
+            _fault = exception;
+            throw;
         }
     }
 
@@ -168,20 +183,47 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
         _pending = 0;
     }
 
-    private void PrepareComplete(Exception? exception)
+    private Exception? Drain(Exception? exception)
     {
-        if (exception is null)
-        {
-            CommitPending();
-        }
-        else
+        if (exception is not null)
         {
             DiscardPending();
+            return exception;
+        }
+
+        if (_encryptor is not null && _fault is null)
+        {
+            try
+            {
+                CommitPending();
+            }
+            catch (Exception commitError)
+            {
+                return commitError;
+            }
+        }
+
+        return _fault;
+    }
+
+    private void ThrowIfFaulted()
+    {
+        if (_fault is not null)
+        {
+            ThrowFaulted();
         }
     }
 
-    private void ThrowAdvanceOutOfIssuedBuffer(int bytes)
+    private void ThrowFaulted()
     {
+        throw new InvalidOperationException(
+            "The encrypting writer is unusable: a previous encryption step failed and the cipher stream is out of sync.",
+            _fault);
+    }
+
+    private void ThrowAdvanceRejected(int bytes)
+    {
+        ThrowIfFaulted();
         ArgumentOutOfRangeException.ThrowIfNegative(bytes);
 
         if (_issued.IsEmpty)
