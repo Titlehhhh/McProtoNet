@@ -82,7 +82,7 @@ public sealed class CryptoPipeWriter : PipeWriter, IDisposable
             return;
         }
 
-        if ((uint)bytes > (uint)(_issued.Length - _pending))
+        if ((uint)bytes > (uint)(_issued.Length - _pending) || _fault is not null)
         {
             ThrowAdvanceRejected(bytes);
         }
