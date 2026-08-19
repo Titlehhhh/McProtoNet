@@ -21,7 +21,7 @@ jobs:
         with:
           dotnet-version: 9.x
       - name: Run tests
-        run: ./build.cmd Tests --Configuration Release
+        run: dotnet run --project tests/McProtoNet.Tests -c Release
 
   tests-arm64:
     runs-on: ubuntu-24.04-arm
