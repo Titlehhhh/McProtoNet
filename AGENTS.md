@@ -48,7 +48,7 @@ top of the transport; a client app references `McProtoNet.Protocol`.
   failures on either side complete the app-side pipe with the error; clean EOF
   ends enumeration without an exception; `DisposeAsync` fences senders and
   releases buffers after both pumps stop. Compression is libdeflate
-  (`Tomat.LibDeflate.Native`), encryption is the library's own AES/CFB8
+  (`McProtoNet.Native`), encryption is the library's own AES/CFB8
   `PacketCipher` with hardware cores (x86 AES-NI, ARM64 NEON; scalar
   fallback). `MinecraftClient` (`Client/`) is a thin standard client by owner
   decision 2026-08-15: options, TCP connect, packet read/send, cipher and

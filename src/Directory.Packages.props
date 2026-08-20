@@ -66,7 +66,7 @@
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
     <PackageVersion Include="DnsClient" Version="1.8.0" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.4" />
-    <PackageVersion Include="Tomat.LibDeflate.Native" Version="1.21.1" />
+    <PackageVersion Include="McProtoNet.Native" Version="1.0.0" />
     <PackageVersion Include="System.IO.Pipelines" Version="10.0.11" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.400" />
     <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />

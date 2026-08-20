@@ -23,7 +23,7 @@
 
     <ItemGroup>
         <PackageReference Include="System.IO.Pipelines"/>
-        <PackageReference Include="Tomat.LibDeflate.Native"/>
+        <PackageReference Include="McProtoNet.Native"/>
     </ItemGroup>
 
 
