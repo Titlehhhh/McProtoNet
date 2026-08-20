@@ -82,7 +82,7 @@ public sealed partial record TileEntityDataPacket(Position Location, int Action,
         throw new System.NotSupportedException($"TileEntityDataPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tile_entity_data", "TileEntityData", PacketPhase.Play, PacketDirection.Clientbound, 100);
+    public static PacketIdentity Identity => new("play.toClient.tile_entity_data", "TileEntityData", PacketPhase.Play, PacketDirection.Clientbound, 104);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -124,7 +124,7 @@ public sealed partial record TileEntityDataPacket(Position Location, int Action,
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x06;
             return true;

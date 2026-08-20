@@ -98,6 +98,18 @@ public sealed partial record AbilitiesPacket(int Flags, float FlyingSpeed, float
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x3E;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x40;
+            return true;
+        }
+
         id = 0;
         return false;
     }

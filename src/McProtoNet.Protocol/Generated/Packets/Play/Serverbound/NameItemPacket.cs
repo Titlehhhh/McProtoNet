@@ -20,7 +20,7 @@ public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacke
         writer.WriteString(Name);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 27);
+    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 28);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -80,9 +80,15 @@ public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacke
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x2F;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x30;
             return true;
         }
 

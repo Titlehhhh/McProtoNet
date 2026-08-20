@@ -20,7 +20,7 @@ public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDif
         writer.WriteBoolean(Locked);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 25);
+    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 26);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -92,9 +92,15 @@ public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDif
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x1C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x1D;
             return true;
         }
 

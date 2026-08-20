@@ -51,7 +51,7 @@ public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 =
         throw new System.NotSupportedException($"DisconnectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.disconnect", "Disconnect", PacketPhase.Configuration, PacketDirection.Clientbound, 5);
+    public static PacketIdentity Identity => new("configuration.toClient.disconnect", "Disconnect", PacketPhase.Configuration, PacketDirection.Clientbound, 6);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -63,7 +63,7 @@ public sealed partial record DisconnectPacket(DisconnectPacket.V764Layer? V764 =
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x02;
             return true;

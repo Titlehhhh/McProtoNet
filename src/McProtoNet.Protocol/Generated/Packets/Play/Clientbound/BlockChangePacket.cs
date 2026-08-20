@@ -65,7 +65,7 @@ public sealed partial record BlockChangePacket(Position Location, int Type) : IP
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x08;
             return true;

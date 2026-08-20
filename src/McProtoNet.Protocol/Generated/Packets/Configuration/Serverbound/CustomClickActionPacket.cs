@@ -28,13 +28,13 @@ public sealed partial record CustomClickActionPacket(string Id, NbtTag? Nbt) : I
             writer.WriteNbt(nbtValue);
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.custom_click_action", "CustomClickAction", PacketPhase.Configuration, PacketDirection.Serverbound, 1);
+    public static PacketIdentity Identity => new("configuration.toServer.custom_click_action", "CustomClickAction", PacketPhase.Configuration, PacketDirection.Serverbound, 2);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 776)
         {
             id = 0x08;
             return true;

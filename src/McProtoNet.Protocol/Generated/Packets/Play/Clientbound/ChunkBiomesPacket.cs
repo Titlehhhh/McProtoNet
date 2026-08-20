@@ -43,7 +43,7 @@ public sealed partial record ChunkBiomesPacket(ChunkBiomeData[] Biomes) : IPacke
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x0D;
             return true;

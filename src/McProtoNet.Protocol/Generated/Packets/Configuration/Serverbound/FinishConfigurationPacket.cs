@@ -17,7 +17,7 @@ public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigu
         ThrowHelper.ThrowIfProtocolNotSupported<FinishConfigurationPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.finish_configuration", "FinishConfiguration", PacketPhase.Configuration, PacketDirection.Serverbound, 4);
+    public static PacketIdentity Identity => new("configuration.toServer.finish_configuration", "FinishConfiguration", PacketPhase.Configuration, PacketDirection.Serverbound, 5);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -29,7 +29,7 @@ public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigu
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x03;
             return true;

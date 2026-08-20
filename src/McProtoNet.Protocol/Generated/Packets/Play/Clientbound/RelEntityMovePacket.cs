@@ -32,7 +32,7 @@ public sealed partial record RelEntityMovePacket(int EntityId, int Dx, int Dy, i
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.rel_entity_move", "RelEntityMove", PacketPhase.Play, PacketDirection.Clientbound, 67);
+    public static PacketIdentity Identity => new("play.toClient.rel_entity_move", "RelEntityMove", PacketPhase.Play, PacketDirection.Clientbound, 71);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -101,6 +101,18 @@ public sealed partial record RelEntityMovePacket(int EntityId, int Dx, int Dy, i
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x2E;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x33;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x35;
             return true;
         }
 

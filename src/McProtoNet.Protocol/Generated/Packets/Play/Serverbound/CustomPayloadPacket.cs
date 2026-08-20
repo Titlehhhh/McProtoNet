@@ -23,7 +23,7 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
         writer.WriteRestBytes(Data);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Serverbound, 16);
+    public static PacketIdentity Identity => new("play.toServer.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Serverbound, 17);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -95,9 +95,15 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x15;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x16;
             return true;
         }
 

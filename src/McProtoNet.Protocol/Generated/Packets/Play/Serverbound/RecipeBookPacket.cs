@@ -26,7 +26,7 @@ public sealed partial record RecipeBookPacket(int BookId, bool BookOpen, bool Fi
         writer.WriteBoolean(FilterActive);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.recipe_book", "RecipeBook", PacketPhase.Play, PacketDirection.Serverbound, 39);
+    public static PacketIdentity Identity => new("play.toServer.recipe_book", "RecipeBook", PacketPhase.Play, PacketDirection.Serverbound, 40);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -80,9 +80,15 @@ public sealed partial record RecipeBookPacket(int BookId, bool BookOpen, bool Fi
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x2D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2E;
             return true;
         }
 

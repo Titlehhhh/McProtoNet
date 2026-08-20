@@ -136,6 +136,18 @@ public sealed partial record EntityUpdateAttributesPacket(int EntityId, EntityAt
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x81;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x83;
+            return true;
+        }
+
         id = 0;
         return false;
     }

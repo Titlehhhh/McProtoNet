@@ -110,6 +110,18 @@ public sealed partial record CollectPacket(int CollectedEntityId, int CollectorE
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7C;
+            return true;
+        }
+
         id = 0;
         return false;
     }

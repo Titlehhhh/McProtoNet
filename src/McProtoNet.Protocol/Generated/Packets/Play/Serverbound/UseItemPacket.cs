@@ -71,7 +71,7 @@ public sealed partial record UseItemPacket(int Hand, UseItemPacket.V759_766Layer
         throw new System.NotSupportedException($"UseItemPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.use_item", "UseItem", PacketPhase.Play, PacketDirection.Serverbound, 59);
+    public static PacketIdentity Identity => new("play.toServer.use_item", "UseItem", PacketPhase.Play, PacketDirection.Serverbound, 63);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -137,9 +137,15 @@ public sealed partial record UseItemPacket(int Hand, UseItemPacket.V759_766Layer
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x40;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x43;
             return true;
         }
 

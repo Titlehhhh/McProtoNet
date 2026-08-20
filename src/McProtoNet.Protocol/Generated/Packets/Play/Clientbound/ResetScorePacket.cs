@@ -27,7 +27,7 @@ public sealed partial record ResetScorePacket(string EntityName, string? Objecti
             writer.WriteString(objectiveNameValue);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.reset_score", "ResetScore", PacketPhase.Play, PacketDirection.Clientbound, 70);
+    public static PacketIdentity Identity => new("play.toClient.reset_score", "ResetScore", PacketPhase.Play, PacketDirection.Clientbound, 74);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -54,6 +54,18 @@ public sealed partial record ResetScorePacket(string EntityName, string? Objecti
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x48;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x4D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x4F;
             return true;
         }
 

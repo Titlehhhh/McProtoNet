@@ -26,7 +26,7 @@ public sealed partial record SetTestBlockPacket(Position Position, int Mode, str
         writer.WriteString(Message);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 46);
+    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 48);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -38,9 +38,15 @@ public sealed partial record SetTestBlockPacket(Position Position, int Mode, str
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x3A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3C;
             return true;
         }
 

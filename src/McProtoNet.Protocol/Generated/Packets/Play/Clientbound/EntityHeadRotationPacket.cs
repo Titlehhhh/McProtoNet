@@ -101,6 +101,18 @@ public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw)
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x51;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x53;
+            return true;
+        }
+
         id = 0;
         return false;
     }

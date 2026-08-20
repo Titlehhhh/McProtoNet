@@ -122,6 +122,18 @@ public sealed partial record EntityTeleportPacket(int EntityId, double X, double
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7B;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7D;
+            return true;
+        }
+
         id = 0;
         return false;
     }

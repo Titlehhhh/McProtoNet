@@ -25,7 +25,7 @@ public sealed partial record FeatureFlagsPacket(string[] Features) : IPacket<Fea
             writer.WriteString(featuresItem);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.feature_flags", "FeatureFlags", PacketPhase.Configuration, PacketDirection.Clientbound, 6);
+    public static PacketIdentity Identity => new("configuration.toClient.feature_flags", "FeatureFlags", PacketPhase.Configuration, PacketDirection.Clientbound, 7);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -43,7 +43,7 @@ public sealed partial record FeatureFlagsPacket(string[] Features) : IPacket<Fea
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x0C;
             return true;

@@ -29,7 +29,7 @@ public sealed partial record UpdateCommandBlockPacket(Position Location, string 
         writer.WriteUnsignedByte((byte)Flags);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_command_block", "UpdateCommandBlock", PacketPhase.Play, PacketDirection.Serverbound, 54);
+    public static PacketIdentity Identity => new("play.toServer.update_command_block", "UpdateCommandBlock", PacketPhase.Play, PacketDirection.Serverbound, 57);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -89,9 +89,15 @@ public sealed partial record UpdateCommandBlockPacket(Position Location, string 
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x35;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x36;
             return true;
         }
 

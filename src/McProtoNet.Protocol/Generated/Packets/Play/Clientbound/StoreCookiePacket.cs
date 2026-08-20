@@ -23,7 +23,7 @@ public sealed partial record StoreCookiePacket(string Key, byte[] Value) : IPack
         writer.WriteByteArray(Value);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.store_cookie", "StoreCookie", PacketPhase.Play, PacketDirection.Clientbound, 93);
+    public static PacketIdentity Identity => new("play.toClient.store_cookie", "StoreCookie", PacketPhase.Play, PacketDirection.Clientbound, 97);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -44,6 +44,18 @@ public sealed partial record StoreCookiePacket(string Key, byte[] Value) : IPack
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x71;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x76;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x78;
             return true;
         }
 

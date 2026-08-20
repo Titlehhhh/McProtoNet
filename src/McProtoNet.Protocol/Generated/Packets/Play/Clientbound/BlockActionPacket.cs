@@ -71,7 +71,7 @@ public sealed partial record BlockActionPacket(Position Location, int Byte1, int
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x07;
             return true;

@@ -75,7 +75,7 @@ public sealed partial record PositionLookPacket(double X, double Y, double Z, fl
         throw new System.NotSupportedException($"PositionLookPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.position_look", "PositionLook", PacketPhase.Play, PacketDirection.Serverbound, 36);
+    public static PacketIdentity Identity => new("play.toServer.position_look", "PositionLook", PacketPhase.Play, PacketDirection.Serverbound, 37);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -147,9 +147,15 @@ public sealed partial record PositionLookPacket(double X, double Y, double Z, fl
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x1E;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x1F;
             return true;
         }
 

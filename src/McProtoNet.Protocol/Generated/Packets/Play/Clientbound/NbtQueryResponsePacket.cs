@@ -57,7 +57,7 @@ public sealed partial record NbtQueryResponsePacket(int TransactionId, NbtTag? N
         throw new System.NotSupportedException($"NbtQueryResponsePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 55);
+    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 59);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -138,6 +138,18 @@ public sealed partial record NbtQueryResponsePacket(int TransactionId, NbtTag? N
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x74;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x79;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7B;
             return true;
         }
 

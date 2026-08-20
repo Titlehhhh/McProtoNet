@@ -20,13 +20,13 @@ public sealed partial record CookieRequestPacket(string Cookie) : IPacket<Cookie
         writer.WriteString(Cookie);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.cookie_request", "CookieRequest", PacketPhase.Configuration, PacketDirection.Clientbound, 2);
+    public static PacketIdentity Identity => new("configuration.toClient.cookie_request", "CookieRequest", PacketPhase.Configuration, PacketDirection.Clientbound, 3);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x00;
             return true;

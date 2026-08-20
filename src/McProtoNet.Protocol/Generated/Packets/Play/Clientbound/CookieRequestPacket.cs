@@ -32,7 +32,7 @@ public sealed partial record CookieRequestPacket(string Cookie) : IPacket<Cookie
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x15;
             return true;

@@ -34,7 +34,7 @@ public sealed partial record TabCompletePacket(int TransactionId, int Start, int
             writer.WriteType<TabCompleteMatch>(matchesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 96);
+    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 100);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -82,7 +82,7 @@ public sealed partial record TabCompletePacket(int TransactionId, int Start, int
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x0F;
             return true;

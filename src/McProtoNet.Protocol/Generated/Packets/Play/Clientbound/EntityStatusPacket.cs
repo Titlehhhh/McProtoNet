@@ -89,6 +89,12 @@ public sealed partial record EntityStatusPacket(int EntityId, int EntityStatus) 
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x22;
+            return true;
+        }
+
         id = 0;
         return false;
     }

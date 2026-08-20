@@ -23,7 +23,7 @@ public sealed partial record PickItemFromBlockPacket(Position Position, bool Inc
         writer.WriteBoolean(IncludeData);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.pick_item_from_block", "PickItemFromBlock", PacketPhase.Play, PacketDirection.Serverbound, 29);
+    public static PacketIdentity Identity => new("play.toServer.pick_item_from_block", "PickItemFromBlock", PacketPhase.Play, PacketDirection.Serverbound, 30);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -35,9 +35,15 @@ public sealed partial record PickItemFromBlockPacket(Position Position, bool Inc
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x23;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x24;
             return true;
         }
 

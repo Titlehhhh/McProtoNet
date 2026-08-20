@@ -125,6 +125,18 @@ public sealed partial record EntityDestroyPacket(int[] EntityIds) : IPacket<Enti
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x4B;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x4D;
+            return true;
+        }
+
         id = 0;
         return false;
     }

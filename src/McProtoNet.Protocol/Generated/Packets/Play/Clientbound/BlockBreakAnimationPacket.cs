@@ -68,7 +68,7 @@ public sealed partial record BlockBreakAnimationPacket(int EntityId, Position Lo
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x05;
             return true;

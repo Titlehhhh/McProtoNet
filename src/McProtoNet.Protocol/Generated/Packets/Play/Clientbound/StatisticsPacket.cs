@@ -25,7 +25,7 @@ public sealed partial record StatisticsPacket(StatisticEntry[] Entries) : IPacke
             writer.WriteType<StatisticEntry>(entriesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 91);
+    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 95);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -67,7 +67,7 @@ public sealed partial record StatisticsPacket(StatisticEntry[] Entries) : IPacke
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x03;
             return true;

@@ -51,7 +51,7 @@ public sealed partial record SetTitleSubtitlePacket(SetTitleSubtitlePacket.V755_
         throw new System.NotSupportedException($"SetTitleSubtitlePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_title_subtitle", "SetTitleSubtitle", PacketPhase.Play, PacketDirection.Clientbound, 80);
+    public static PacketIdentity Identity => new("play.toClient.set_title_subtitle", "SetTitleSubtitle", PacketPhase.Play, PacketDirection.Clientbound, 84);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -114,6 +114,18 @@ public sealed partial record SetTitleSubtitlePacket(SetTitleSubtitlePacket.V755_
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x69;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x6E;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x70;
             return true;
         }
 

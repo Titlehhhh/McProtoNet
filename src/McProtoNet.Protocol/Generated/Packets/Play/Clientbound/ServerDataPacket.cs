@@ -199,7 +199,7 @@ public sealed partial record ServerDataPacket(ServerDataPacket.V759Layer? V759 =
         throw new System.NotSupportedException($"ServerDataPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 75);
+    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 79);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -256,6 +256,18 @@ public sealed partial record ServerDataPacket(ServerDataPacket.V759Layer? V759 =
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x4F;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x54;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x56;
             return true;
         }
 

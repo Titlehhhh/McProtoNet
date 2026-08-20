@@ -33,7 +33,7 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, boo
             writer.WriteString(promptMessageValue);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
+    public static PacketIdentity Identity => new("configuration.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Configuration, PacketDirection.Clientbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 

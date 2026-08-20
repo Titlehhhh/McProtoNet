@@ -2,7 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Serialization;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
-[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(766, 772)]
 [Packet("play.toServer.debug_sample_subscription", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Type", "int")]
 public sealed partial record DebugSampleSubscriptionPacket(int Type) : IPacket<DebugSampleSubscriptionPacket>, IPacket
@@ -20,7 +20,7 @@ public sealed partial record DebugSampleSubscriptionPacket(int Type) : IPacket<D
         writer.WriteVarInt(Type);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 17);
+    public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 

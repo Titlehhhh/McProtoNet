@@ -20,7 +20,7 @@ public sealed partial record OpenBookPacket(int Hand) : IPacket<OpenBookPacket>,
         writer.WriteVarInt(Hand);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.open_book", "OpenBook", PacketPhase.Play, PacketDirection.Clientbound, 56);
+    public static PacketIdentity Identity => new("play.toClient.open_book", "OpenBook", PacketPhase.Play, PacketDirection.Clientbound, 60);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -89,6 +89,18 @@ public sealed partial record OpenBookPacket(int Hand) : IPacket<OpenBookPacket>,
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x33;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x38;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3A;
             return true;
         }
 

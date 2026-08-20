@@ -50,7 +50,7 @@ public sealed partial record AddResourcePackPacket(Guid Uuid, string Url, string
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x09;
             return true;

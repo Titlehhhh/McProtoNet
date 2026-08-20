@@ -25,13 +25,13 @@ public sealed partial record CustomReportDetailsPacket(ReportDetail[] Details) :
             writer.WriteType<ReportDetail>(detailsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.custom_report_details", "CustomReportDetails", PacketPhase.Configuration, PacketDirection.Clientbound, 4);
+    public static PacketIdentity Identity => new("configuration.toClient.custom_report_details", "CustomReportDetails", PacketPhase.Configuration, PacketDirection.Clientbound, 5);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 767 && protocolVersion <= 772)
+        if (protocolVersion >= 767 && protocolVersion <= 776)
         {
             id = 0x0F;
             return true;

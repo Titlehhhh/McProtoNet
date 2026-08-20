@@ -23,7 +23,7 @@ public sealed partial record ClearDialogPacket() : IPacket<ClearDialogPacket>, I
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 776)
         {
             id = 0x11;
             return true;

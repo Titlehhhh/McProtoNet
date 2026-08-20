@@ -133,17 +133,28 @@ public readonly struct MinecraftVersion :
 
     public static readonly MinecraftVersion V1_21_7_To_1_21_8 = new(V1_21_7_To_1_21_8_Protocol, "1.21.7–1.21.8");
 
-    //public static readonly MinecraftVersion V1_21_9_To_1_21_10 =
-    //     new(V1_21_9_To_1_21_10_Protocol, "1.21.9-1.21.10");
+    public static readonly MinecraftVersion V1_21_9_To_1_21_10 =
+        new(V1_21_9_To_1_21_10_Protocol, "1.21.9–1.21.10");
+
+    public static readonly MinecraftVersion V1_21_11 = new(V1_21_11_Protocol, "1.21.11");
+
+    public static readonly MinecraftVersion V26_1_To_26_1_2 =
+        new(V26_1_To_26_1_2_Protocol, "26.1–26.1.2");
+
+    public static readonly MinecraftVersion V26_2 = new(V26_2_Protocol, "26.2");
 
     public const int V1_16_Protocol = 735;
     public const int V1_21_7_To_1_21_8_Protocol = 772;
+    public const int V1_21_9_To_1_21_10_Protocol = 773;
+    public const int V1_21_11_Protocol = 774;
+    public const int V26_1_To_26_1_2_Protocol = 775;
+    public const int V26_2_Protocol = 776;
 
     public const int StartProtocol = V1_16_Protocol;
-    public const int LatestProtocol = V1_21_7_To_1_21_8_Protocol;
+    public const int LatestProtocol = V26_2_Protocol;
 
     public static MinecraftVersion StartVersion => V1_16_4_To_1_16_5;
-    public static MinecraftVersion Latest => V1_21_7_To_1_21_8;
+    public static MinecraftVersion Latest => V26_2;
 
     public static IReadOnlyList<MinecraftVersion> AllVersions { get; } = BuildKnownVersions();
 
@@ -212,7 +223,10 @@ public readonly struct MinecraftVersion :
             770 => V1_21_5,
             771 => V1_21_6,
             772 => V1_21_7_To_1_21_8,
-            // 773 => V1_21_9_To_1_21_10,
+            773 => V1_21_9_To_1_21_10,
+            774 => V1_21_11,
+            775 => V26_1_To_26_1_2,
+            776 => V26_2,
 
             _ => throw new NotSupportedException($"Protocol {protocol} not supported")
         };

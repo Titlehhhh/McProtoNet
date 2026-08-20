@@ -138,6 +138,18 @@ public sealed partial record DeathCombatEventPacket(int PlayerId, DeathCombatEve
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x42;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x44;
+            return true;
+        }
+
         id = 0;
         return false;
     }

@@ -60,7 +60,7 @@ public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, i
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x19;
             return true;

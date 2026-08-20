@@ -25,7 +25,7 @@ public sealed partial record TagsPacket(TagCategory[] Tags) : IPacket<TagsPacket
             writer.WriteType<TagCategory>(tagsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.tags", "Tags", PacketPhase.Configuration, PacketDirection.Clientbound, 16);
+    public static PacketIdentity Identity => new("configuration.toClient.tags", "Tags", PacketPhase.Configuration, PacketDirection.Clientbound, 17);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -43,7 +43,7 @@ public sealed partial record TagsPacket(TagCategory[] Tags) : IPacket<TagsPacket
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x0D;
             return true;

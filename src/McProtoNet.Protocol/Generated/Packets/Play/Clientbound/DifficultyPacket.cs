@@ -90,7 +90,7 @@ public sealed partial record DifficultyPacket(int Difficulty, bool DifficultyLoc
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x0A;
             return true;

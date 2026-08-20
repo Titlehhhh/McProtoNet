@@ -69,7 +69,7 @@ public sealed partial record UpdateSignPacket(Position Location, string Text1, s
         throw new System.NotSupportedException($"UpdateSignPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_sign", "UpdateSign", PacketPhase.Play, PacketDirection.Serverbound, 57);
+    public static PacketIdentity Identity => new("play.toServer.update_sign", "UpdateSign", PacketPhase.Play, PacketDirection.Serverbound, 60);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -135,9 +135,15 @@ public sealed partial record UpdateSignPacket(Position Location, string Text1, s
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x3B;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3D;
             return true;
         }
 

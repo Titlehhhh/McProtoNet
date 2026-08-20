@@ -26,7 +26,7 @@ public sealed partial record EntityActionPacket(int EntityId, int ActionId, int 
         writer.WriteVarInt(JumpBoost);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 20);
+    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 21);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -104,9 +104,15 @@ public sealed partial record EntityActionPacket(int EntityId, int ActionId, int 
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x29;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2A;
             return true;
         }
 

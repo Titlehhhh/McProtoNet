@@ -20,7 +20,7 @@ public sealed partial record StepTickPacket(int TickSteps) : IPacket<StepTickPac
         writer.WriteVarInt(TickSteps);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 92);
+    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 96);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -41,6 +41,18 @@ public sealed partial record StepTickPacket(int TickSteps) : IPacket<StepTickPac
         if (protocolVersion >= 768 && protocolVersion <= 772)
         {
             id = 0x79;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7E;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x80;
             return true;
         }
 

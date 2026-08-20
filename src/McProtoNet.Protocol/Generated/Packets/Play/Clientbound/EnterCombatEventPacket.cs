@@ -77,6 +77,18 @@ public sealed partial record EnterCombatEventPacket() : IPacket<EnterCombatEvent
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x41;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x43;
+            return true;
+        }
+
         id = 0;
         return false;
     }

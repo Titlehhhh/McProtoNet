@@ -43,7 +43,7 @@ public sealed partial record SetDifficultyPacket(int NewDifficulty) : IPacket<Se
         throw new System.NotSupportedException($"SetDifficultyPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_difficulty", "SetDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 44);
+    public static PacketIdentity Identity => new("play.toServer.set_difficulty", "SetDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 45);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -61,9 +61,15 @@ public sealed partial record SetDifficultyPacket(int NewDifficulty) : IPacket<Se
             return true;
         }
 
-        if (protocolVersion >= 768 && protocolVersion <= 772)
+        if (protocolVersion >= 768 && protocolVersion <= 774)
         {
             id = 0x03;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x04;
             return true;
         }
 

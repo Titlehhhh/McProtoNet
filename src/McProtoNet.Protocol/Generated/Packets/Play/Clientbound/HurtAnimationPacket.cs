@@ -23,7 +23,7 @@ public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPac
         writer.WriteFloat(Yaw);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 46);
+    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 48);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -56,6 +56,18 @@ public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPac
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x24;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x29;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2A;
             return true;
         }
 

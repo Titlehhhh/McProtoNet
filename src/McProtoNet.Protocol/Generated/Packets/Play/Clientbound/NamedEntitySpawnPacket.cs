@@ -39,7 +39,7 @@ public sealed partial record NamedEntitySpawnPacket(int EntityId, Guid PlayerUui
         writer.WriteSignedByte((sbyte)Pitch);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.named_entity_spawn", "NamedEntitySpawn", PacketPhase.Play, PacketDirection.Clientbound, 53);
+    public static PacketIdentity Identity => new("play.toClient.named_entity_spawn", "NamedEntitySpawn", PacketPhase.Play, PacketDirection.Clientbound, 57);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -21,7 +21,7 @@ public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacke
         writer.WriteUUID(Target);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 47);
+    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 49);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -81,9 +81,15 @@ public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacke
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 774)
         {
             id = 0x3D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x40;
             return true;
         }
 

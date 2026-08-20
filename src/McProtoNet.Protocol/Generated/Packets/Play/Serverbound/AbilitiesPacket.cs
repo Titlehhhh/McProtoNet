@@ -98,9 +98,15 @@ public sealed partial record AbilitiesPacket(int Flags) : IPacket<AbilitiesPacke
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x27;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x28;
             return true;
         }
 

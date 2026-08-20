@@ -20,7 +20,7 @@ public sealed partial record SelectTradePacket(int Slot) : IPacket<SelectTradePa
         writer.WriteVarInt(Slot);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 42);
+    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 43);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -80,9 +80,15 @@ public sealed partial record SelectTradePacket(int Slot) : IPacket<SelectTradePa
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x32;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x33;
             return true;
         }
 

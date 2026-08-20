@@ -26,7 +26,7 @@ public sealed partial record PlayerRemovePacket(Guid[] Players) : IPacket<Player
             writer.WriteUUID(playersItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.player_remove", "PlayerRemove", PacketPhase.Play, PacketDirection.Clientbound, 62);
+    public static PacketIdentity Identity => new("play.toClient.player_remove", "PlayerRemove", PacketPhase.Play, PacketDirection.Clientbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -65,6 +65,18 @@ public sealed partial record PlayerRemovePacket(Guid[] Players) : IPacket<Player
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x3E;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x43;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x45;
             return true;
         }
 

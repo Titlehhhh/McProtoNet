@@ -50,7 +50,7 @@ public sealed partial record ResourcePackReceivePacket(int Result, ResourcePackR
         throw new System.NotSupportedException($"ResourcePackReceivePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.resource_pack_receive", "ResourcePackReceive", PacketPhase.Configuration, PacketDirection.Serverbound, 7);
+    public static PacketIdentity Identity => new("configuration.toServer.resource_pack_receive", "ResourcePackReceive", PacketPhase.Configuration, PacketDirection.Serverbound, 8);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -62,7 +62,7 @@ public sealed partial record ResourcePackReceivePacket(int Result, ResourcePackR
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x06;
             return true;

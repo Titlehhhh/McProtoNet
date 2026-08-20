@@ -20,7 +20,7 @@ public sealed partial record PlayerInputPacket(PlayerInputFlags Inputs) : IPacke
         writer.WriteType<PlayerInputFlags>(Inputs, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 32);
+    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 33);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -38,9 +38,15 @@ public sealed partial record PlayerInputPacket(PlayerInputFlags Inputs) : IPacke
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x2A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2B;
             return true;
         }
 

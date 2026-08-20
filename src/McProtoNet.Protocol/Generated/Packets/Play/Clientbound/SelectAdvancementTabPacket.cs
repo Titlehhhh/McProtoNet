@@ -24,7 +24,7 @@ public sealed partial record SelectAdvancementTabPacket(string? Id) : IPacket<Se
             writer.WriteString(idValue);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.select_advancement_tab", "SelectAdvancementTab", PacketPhase.Play, PacketDirection.Clientbound, 74);
+    public static PacketIdentity Identity => new("play.toClient.select_advancement_tab", "SelectAdvancementTab", PacketPhase.Play, PacketDirection.Clientbound, 78);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -99,6 +99,18 @@ public sealed partial record SelectAdvancementTabPacket(string? Id) : IPacket<Se
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x4E;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x53;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x55;
             return true;
         }
 

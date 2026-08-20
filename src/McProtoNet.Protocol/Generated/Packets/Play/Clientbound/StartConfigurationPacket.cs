@@ -17,7 +17,7 @@ public sealed partial record StartConfigurationPacket() : IPacket<StartConfigura
         ThrowHelper.ThrowIfProtocolNotSupported<StartConfigurationPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 90);
+    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 94);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -50,6 +50,18 @@ public sealed partial record StartConfigurationPacket() : IPacket<StartConfigura
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x6F;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x74;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x76;
             return true;
         }
 

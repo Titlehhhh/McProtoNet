@@ -23,7 +23,7 @@ public sealed partial record SetTickingStatePacket(float TickRate, bool IsFrozen
         writer.WriteBoolean(IsFrozen);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_ticking_state", "SetTickingState", PacketPhase.Play, PacketDirection.Clientbound, 79);
+    public static PacketIdentity Identity => new("play.toClient.set_ticking_state", "SetTickingState", PacketPhase.Play, PacketDirection.Clientbound, 83);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -44,6 +44,18 @@ public sealed partial record SetTickingStatePacket(float TickRate, bool IsFrozen
         if (protocolVersion >= 768 && protocolVersion <= 772)
         {
             id = 0x78;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7F;
             return true;
         }
 

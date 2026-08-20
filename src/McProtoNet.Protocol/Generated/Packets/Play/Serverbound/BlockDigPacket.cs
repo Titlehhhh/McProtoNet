@@ -59,7 +59,7 @@ public sealed partial record BlockDigPacket(int Status, Position Location, int F
         throw new System.NotSupportedException($"BlockDigPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.block_dig", "BlockDig", PacketPhase.Play, PacketDirection.Serverbound, 2);
+    public static PacketIdentity Identity => new("play.toServer.block_dig", "BlockDig", PacketPhase.Play, PacketDirection.Serverbound, 3);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -137,9 +137,15 @@ public sealed partial record BlockDigPacket(int Status, Position Location, int F
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x28;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x29;
             return true;
         }
 

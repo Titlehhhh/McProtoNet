@@ -20,7 +20,7 @@ public sealed partial record PongPacket(int Id) : IPacket<PongPacket>, IPacket
         writer.WriteSignedInt(Id);
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.pong", "Pong", PacketPhase.Configuration, PacketDirection.Serverbound, 6);
+    public static PacketIdentity Identity => new("configuration.toServer.pong", "Pong", PacketPhase.Configuration, PacketDirection.Serverbound, 7);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -32,7 +32,7 @@ public sealed partial record PongPacket(int Id) : IPacket<PongPacket>, IPacket
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x05;
             return true;

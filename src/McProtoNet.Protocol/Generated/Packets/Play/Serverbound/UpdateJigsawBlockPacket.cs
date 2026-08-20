@@ -78,7 +78,7 @@ public sealed partial record UpdateJigsawBlockPacket(Position Location, string N
         throw new System.NotSupportedException($"UpdateJigsawBlockPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_jigsaw_block", "UpdateJigsawBlock", PacketPhase.Play, PacketDirection.Serverbound, 56);
+    public static PacketIdentity Identity => new("play.toServer.update_jigsaw_block", "UpdateJigsawBlock", PacketPhase.Play, PacketDirection.Serverbound, 59);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -138,9 +138,15 @@ public sealed partial record UpdateJigsawBlockPacket(Position Location, string N
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x38;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3A;
             return true;
         }
 

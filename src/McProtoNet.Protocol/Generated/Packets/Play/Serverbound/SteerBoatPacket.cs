@@ -23,7 +23,7 @@ public sealed partial record SteerBoatPacket(bool LeftPaddle, bool RightPaddle) 
         writer.WriteBoolean(RightPaddle);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 48);
+    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 51);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -95,9 +95,15 @@ public sealed partial record SteerBoatPacket(bool LeftPaddle, bool RightPaddle) 
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x22;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x23;
             return true;
         }
 

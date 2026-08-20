@@ -23,7 +23,7 @@ public sealed partial record WorldBorderCenterPacket(double X, double Z) : IPack
         writer.WriteDouble(Z);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_center", "WorldBorderCenter", PacketPhase.Play, PacketDirection.Clientbound, 110);
+    public static PacketIdentity Identity => new("play.toClient.world_border_center", "WorldBorderCenter", PacketPhase.Play, PacketDirection.Clientbound, 114);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -86,6 +86,18 @@ public sealed partial record WorldBorderCenterPacket(double X, double Z) : IPack
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x51;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x56;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x58;
             return true;
         }
 

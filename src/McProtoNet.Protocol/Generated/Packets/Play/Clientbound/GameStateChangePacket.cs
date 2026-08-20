@@ -23,7 +23,7 @@ public sealed partial record GameStateChangePacket(int Reason, float GameMode) :
         writer.WriteFloat(GameMode);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.game_state_change", "GameStateChange", PacketPhase.Play, PacketDirection.Clientbound, 44);
+    public static PacketIdentity Identity => new("play.toClient.game_state_change", "GameStateChange", PacketPhase.Play, PacketDirection.Clientbound, 45);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -92,6 +92,12 @@ public sealed partial record GameStateChangePacket(int Reason, float GameMode) :
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x22;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x26;
             return true;
         }
 

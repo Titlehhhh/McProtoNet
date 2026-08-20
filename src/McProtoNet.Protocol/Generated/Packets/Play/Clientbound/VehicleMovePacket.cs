@@ -32,7 +32,7 @@ public sealed partial record VehicleMovePacket(double X, double Y, double Z, flo
         writer.WriteFloat(Pitch);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Clientbound, 109);
+    public static PacketIdentity Identity => new("play.toClient.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Clientbound, 113);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -101,6 +101,18 @@ public sealed partial record VehicleMovePacket(double X, double Y, double Z, flo
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x32;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x37;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x39;
             return true;
         }
 

@@ -20,7 +20,7 @@ public sealed partial record PingResponsePacket(long Id) : IPacket<PingResponseP
         writer.WriteSignedLong(Id);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.ping_response", "PingResponse", PacketPhase.Play, PacketDirection.Clientbound, 61);
+    public static PacketIdentity Identity => new("play.toClient.ping_response", "PingResponse", PacketPhase.Play, PacketDirection.Clientbound, 65);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -47,6 +47,18 @@ public sealed partial record PingResponsePacket(long Id) : IPacket<PingResponseP
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x37;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x3C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3E;
             return true;
         }
 

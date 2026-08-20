@@ -32,7 +32,7 @@ public sealed partial record ChunkBatchFinishedPacket(int BatchSize) : IPacket<C
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x0B;
             return true;

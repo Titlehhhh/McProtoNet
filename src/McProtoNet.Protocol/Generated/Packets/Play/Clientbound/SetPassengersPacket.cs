@@ -28,7 +28,7 @@ public sealed partial record SetPassengersPacket(int EntityId, int[] Passengers)
             writer.WriteVarInt(passengersItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_passengers", "SetPassengers", PacketPhase.Play, PacketDirection.Clientbound, 77);
+    public static PacketIdentity Identity => new("play.toClient.set_passengers", "SetPassengers", PacketPhase.Play, PacketDirection.Clientbound, 81);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -97,6 +97,18 @@ public sealed partial record SetPassengersPacket(int EntityId, int[] Passengers)
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x64;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x69;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x6B;
             return true;
         }
 

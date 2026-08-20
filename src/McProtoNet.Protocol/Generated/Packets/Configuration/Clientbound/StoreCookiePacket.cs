@@ -23,13 +23,13 @@ public sealed partial record StoreCookiePacket(string Key, byte[] Value) : IPack
         writer.WriteByteArray(Value);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.store_cookie", "StoreCookie", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
+    public static PacketIdentity Identity => new("configuration.toClient.store_cookie", "StoreCookie", PacketPhase.Configuration, PacketDirection.Clientbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x0A;
             return true;

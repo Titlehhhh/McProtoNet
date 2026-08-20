@@ -20,7 +20,7 @@ public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAli
         writer.WriteSignedLong(KeepAliveId);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.keep_alive", "KeepAlive", PacketPhase.Configuration, PacketDirection.Clientbound, 8);
+    public static PacketIdentity Identity => new("configuration.toClient.keep_alive", "KeepAlive", PacketPhase.Configuration, PacketDirection.Clientbound, 9);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -32,7 +32,7 @@ public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAli
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x04;
             return true;

@@ -23,7 +23,7 @@ public sealed partial record QueryBlockNbtPacket(int TransactionId, Position Loc
         writer.WriteType<Position>(Location, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 37);
+    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 38);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -35,9 +35,15 @@ public sealed partial record QueryBlockNbtPacket(int TransactionId, Position Loc
             return true;
         }
 
-        if (protocolVersion >= 751 && protocolVersion <= 772)
+        if (protocolVersion >= 751 && protocolVersion <= 774)
         {
             id = 0x01;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x02;
             return true;
         }
 

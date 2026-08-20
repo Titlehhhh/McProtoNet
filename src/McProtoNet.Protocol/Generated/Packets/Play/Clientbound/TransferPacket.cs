@@ -23,7 +23,7 @@ public sealed partial record TransferPacket(string Host, int Port) : IPacket<Tra
         writer.WriteVarInt(Port);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.transfer", "Transfer", PacketPhase.Play, PacketDirection.Clientbound, 102);
+    public static PacketIdentity Identity => new("play.toClient.transfer", "Transfer", PacketPhase.Play, PacketDirection.Clientbound, 106);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -38,6 +38,18 @@ public sealed partial record TransferPacket(string Host, int Port) : IPacket<Tra
         if (protocolVersion >= 768 && protocolVersion <= 772)
         {
             id = 0x7A;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7F;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x81;
             return true;
         }
 

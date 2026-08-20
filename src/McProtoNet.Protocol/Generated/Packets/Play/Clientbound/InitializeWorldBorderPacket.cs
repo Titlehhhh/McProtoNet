@@ -78,7 +78,7 @@ public sealed partial record InitializeWorldBorderPacket(double X, double Z, dou
         throw new System.NotSupportedException($"InitializeWorldBorderPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.initialize_world_border", "InitializeWorldBorder", PacketPhase.Play, PacketDirection.Clientbound, 47);
+    public static PacketIdentity Identity => new("play.toClient.initialize_world_border", "InitializeWorldBorder", PacketPhase.Play, PacketDirection.Clientbound, 49);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -135,6 +135,18 @@ public sealed partial record InitializeWorldBorderPacket(double X, double Z, dou
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x25;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x2A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2B;
             return true;
         }
 

@@ -101,7 +101,7 @@ public sealed partial record CraftProgressBarPacket(int WindowId, int Property, 
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x13;
             return true;

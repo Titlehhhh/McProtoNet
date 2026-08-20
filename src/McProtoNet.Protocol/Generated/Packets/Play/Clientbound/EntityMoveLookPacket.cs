@@ -110,6 +110,18 @@ public sealed partial record EntityMoveLookPacket(int EntityId, int Dx, int Dy, 
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x34;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x36;
+            return true;
+        }
+
         id = 0;
         return false;
     }

@@ -28,7 +28,7 @@ public sealed partial record TestInstanceBlockStatusPacket(NbtTag Status, Vec3i?
             writer.WriteType<Vec3i>(sizeValue, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.test_instance_block_status", "TestInstanceBlockStatus", PacketPhase.Play, PacketDirection.Clientbound, 99);
+    public static PacketIdentity Identity => new("play.toClient.test_instance_block_status", "TestInstanceBlockStatus", PacketPhase.Play, PacketDirection.Clientbound, 103);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -37,6 +37,18 @@ public sealed partial record TestInstanceBlockStatusPacket(NbtTag Status, Vec3i?
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x77;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x7C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7E;
             return true;
         }
 

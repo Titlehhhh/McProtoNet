@@ -26,7 +26,7 @@ public sealed partial record UpdateCommandBlockMinecartPacket(int EntityId, stri
         writer.WriteBoolean(TrackOutput);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_command_block_minecart", "UpdateCommandBlockMinecart", PacketPhase.Play, PacketDirection.Serverbound, 55);
+    public static PacketIdentity Identity => new("play.toServer.update_command_block_minecart", "UpdateCommandBlockMinecart", PacketPhase.Play, PacketDirection.Serverbound, 58);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -86,9 +86,15 @@ public sealed partial record UpdateCommandBlockMinecartPacket(int EntityId, stri
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x36;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x37;
             return true;
         }
 

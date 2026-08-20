@@ -83,7 +83,7 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x18;
             return true;

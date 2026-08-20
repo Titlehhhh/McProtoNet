@@ -26,7 +26,7 @@ public sealed partial record LoginCookieRequestPacket(string Cookie) : IPacket<L
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x05;
             return true;

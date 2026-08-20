@@ -20,7 +20,7 @@ public sealed partial record ChatPacket(string Message) : IPacket<ChatPacket>, I
         writer.WriteString(Message);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat", "Chat", PacketPhase.Play, PacketDirection.Serverbound, 5);
+    public static PacketIdentity Identity => new("play.toServer.chat", "Chat", PacketPhase.Play, PacketDirection.Serverbound, 6);
 
     PacketIdentity IPacket.Identity => Identity;
 

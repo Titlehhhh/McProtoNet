@@ -23,15 +23,21 @@ public sealed partial record SelectBundleItemPacket(int SlotId, int SelectedItem
         writer.WriteVarInt(SelectedItemIndex);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 41);
+    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 42);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 768 && protocolVersion <= 772)
+        if (protocolVersion >= 768 && protocolVersion <= 774)
         {
             id = 0x02;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x03;
             return true;
         }
 

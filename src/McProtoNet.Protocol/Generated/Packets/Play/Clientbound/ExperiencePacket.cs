@@ -98,6 +98,18 @@ public sealed partial record ExperiencePacket(float ExperienceBar, int Level, in
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x65;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x67;
+            return true;
+        }
+
         id = 0;
         return false;
     }

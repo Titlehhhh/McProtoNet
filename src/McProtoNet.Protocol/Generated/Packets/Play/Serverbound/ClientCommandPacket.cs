@@ -20,7 +20,7 @@ public sealed partial record ClientCommandPacket(int ActionId) : IPacket<ClientC
         writer.WriteVarInt(ActionId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.client_command", "ClientCommand", PacketPhase.Play, PacketDirection.Serverbound, 10);
+    public static PacketIdentity Identity => new("play.toServer.client_command", "ClientCommand", PacketPhase.Play, PacketDirection.Serverbound, 11);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -80,9 +80,15 @@ public sealed partial record ClientCommandPacket(int ActionId) : IPacket<ClientC
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x0B;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x0C;
             return true;
         }
 

@@ -48,7 +48,7 @@ public sealed partial record RemoveEntityEffectPacket(int EntityId, int EffectId
         throw new System.NotSupportedException($"RemoveEntityEffectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 68);
+    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 72);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -117,6 +117,18 @@ public sealed partial record RemoveEntityEffectPacket(int EntityId, int EffectId
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x47;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x4C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x4E;
             return true;
         }
 

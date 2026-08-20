@@ -103,7 +103,7 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 105);
+    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 109);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -172,6 +172,18 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x2A;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x2F;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x30;
             return true;
         }
 

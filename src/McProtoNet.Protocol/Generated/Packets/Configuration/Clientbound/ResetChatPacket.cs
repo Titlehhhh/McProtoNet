@@ -17,13 +17,13 @@ public sealed partial record ResetChatPacket() : IPacket<ResetChatPacket>, IPack
         ThrowHelper.ThrowIfProtocolNotSupported<ResetChatPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 11);
+    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x06;
             return true;

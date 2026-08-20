@@ -21,13 +21,13 @@ public sealed partial record ShowDialogPacket(NbtTag Dialog) : IPacket<ShowDialo
         writer.WriteNbt(Dialog);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 14);
+    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 776)
         {
             id = 0x12;
             return true;

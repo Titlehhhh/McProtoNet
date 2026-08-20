@@ -20,7 +20,7 @@ public sealed partial record HeldItemSlotPacket(int SlotId) : IPacket<HeldItemSl
         writer.WriteSignedShort((short)SlotId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Serverbound, 23);
+    public static PacketIdentity Identity => new("play.toServer.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Serverbound, 24);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -80,9 +80,15 @@ public sealed partial record HeldItemSlotPacket(int SlotId) : IPacket<HeldItemSl
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x34;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x35;
             return true;
         }
 

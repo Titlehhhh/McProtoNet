@@ -21,14 +21,14 @@ public sealed partial record EnchantItemPacket(int WindowId, int Enchantment) : 
         if (protocolVersion >= 767 && protocolVersion <= 767)
         {
             var windowId = reader.ReadUnsignedByte();
-            var enchantment = reader.ReadSignedByte();
+            var enchantment = reader.ReadVarInt();
             return new EnchantItemPacket(windowId, enchantment);
         }
 
         if (protocolVersion >= 768)
         {
             var windowId = reader.ReadVarInt();
-            var enchantment = reader.ReadSignedByte();
+            var enchantment = reader.ReadVarInt();
             return new EnchantItemPacket(windowId, enchantment);
         }
 
@@ -48,21 +48,21 @@ public sealed partial record EnchantItemPacket(int WindowId, int Enchantment) : 
         if (protocolVersion >= 767 && protocolVersion <= 767)
         {
             writer.WriteUnsignedByte((byte)WindowId);
-            writer.WriteSignedByte((sbyte)Enchantment);
+            writer.WriteVarInt(Enchantment);
             return;
         }
 
         if (protocolVersion >= 768)
         {
             writer.WriteVarInt(WindowId);
-            writer.WriteSignedByte((sbyte)Enchantment);
+            writer.WriteVarInt(Enchantment);
             return;
         }
 
         throw new System.NotSupportedException($"EnchantItemPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 19);
+    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 20);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -128,9 +128,15 @@ public sealed partial record EnchantItemPacket(int WindowId, int Enchantment) : 
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x10;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x11;
             return true;
         }
 

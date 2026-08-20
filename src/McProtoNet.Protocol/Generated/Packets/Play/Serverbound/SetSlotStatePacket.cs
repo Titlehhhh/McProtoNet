@@ -26,7 +26,7 @@ public sealed partial record SetSlotStatePacket(int SlotId, int WindowId, bool S
         writer.WriteBoolean(State);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 45);
+    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 47);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -50,9 +50,15 @@ public sealed partial record SetSlotStatePacket(int SlotId, int WindowId, bool S
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x13;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x14;
             return true;
         }
 

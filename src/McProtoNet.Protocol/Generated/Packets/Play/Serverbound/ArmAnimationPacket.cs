@@ -86,9 +86,15 @@ public sealed partial record ArmAnimationPacket(int Hand) : IPacket<ArmAnimation
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x3C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x3F;
             return true;
         }
 

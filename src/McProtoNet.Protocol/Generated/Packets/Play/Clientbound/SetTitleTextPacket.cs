@@ -51,7 +51,7 @@ public sealed partial record SetTitleTextPacket(SetTitleTextPacket.V755_764Layer
         throw new System.NotSupportedException($"SetTitleTextPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_title_text", "SetTitleText", PacketPhase.Play, PacketDirection.Clientbound, 81);
+    public static PacketIdentity Identity => new("play.toClient.set_title_text", "SetTitleText", PacketPhase.Play, PacketDirection.Clientbound, 85);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -114,6 +114,18 @@ public sealed partial record SetTitleTextPacket(SetTitleTextPacket.V755_764Layer
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x6B;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x70;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x72;
             return true;
         }
 

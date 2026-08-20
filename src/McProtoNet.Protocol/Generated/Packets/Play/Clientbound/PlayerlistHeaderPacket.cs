@@ -59,7 +59,7 @@ public sealed partial record PlayerlistHeaderPacket(PlayerlistHeaderPacket.VUnti
         throw new System.NotSupportedException($"PlayerlistHeaderPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.playerlist_header", "PlayerlistHeader", PacketPhase.Play, PacketDirection.Clientbound, 64);
+    public static PacketIdentity Identity => new("play.toClient.playerlist_header", "PlayerlistHeader", PacketPhase.Play, PacketDirection.Clientbound, 68);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -140,6 +140,18 @@ public sealed partial record PlayerlistHeaderPacket(PlayerlistHeaderPacket.VUnti
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x73;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x78;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x7A;
             return true;
         }
 

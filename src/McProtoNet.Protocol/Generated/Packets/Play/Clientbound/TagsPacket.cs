@@ -87,7 +87,7 @@ public sealed partial record TagsPacket(TagsPacket.VUntil754Layer? VUntil754 = n
         throw new System.NotSupportedException($"TagsPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tags", "Tags", PacketPhase.Play, PacketDirection.Clientbound, 97);
+    public static PacketIdentity Identity => new("play.toClient.tags", "Tags", PacketPhase.Play, PacketDirection.Clientbound, 101);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -162,6 +162,18 @@ public sealed partial record TagsPacket(TagsPacket.VUntil754Layer? VUntil754 = n
         if (protocolVersion >= 768 && protocolVersion <= 772)
         {
             id = 0x7F;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x84;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x86;
             return true;
         }
 

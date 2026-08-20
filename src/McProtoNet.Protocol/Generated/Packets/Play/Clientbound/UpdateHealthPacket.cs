@@ -26,7 +26,7 @@ public sealed partial record UpdateHealthPacket(float Health, int Food, float Fo
         writer.WriteFloat(FoodSaturation);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 104);
+    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 108);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -95,6 +95,18 @@ public sealed partial record UpdateHealthPacket(float Health, int Food, float Fo
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x61;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x66;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x68;
             return true;
         }
 

@@ -23,7 +23,7 @@ public sealed partial record UpdateViewPositionPacket(int ChunkX, int ChunkZ) : 
         writer.WriteVarInt(ChunkZ);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 108);
+    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 112);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -98,6 +98,18 @@ public sealed partial record UpdateViewPositionPacket(int ChunkX, int ChunkZ) : 
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x57;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x5C;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x5E;
             return true;
         }
 

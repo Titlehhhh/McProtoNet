@@ -104,7 +104,7 @@ public sealed partial record AcknowledgePlayerDiggingPacket(AcknowledgePlayerDig
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x04;
             return true;

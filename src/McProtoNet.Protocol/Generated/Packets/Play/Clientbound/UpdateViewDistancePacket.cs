@@ -20,7 +20,7 @@ public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacke
         writer.WriteVarInt(ViewDistance);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 107);
+    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 111);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -95,6 +95,18 @@ public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacke
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x58;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x5D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x5F;
             return true;
         }
 

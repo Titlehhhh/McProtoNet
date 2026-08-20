@@ -20,7 +20,7 @@ public sealed partial record SimulationDistancePacket(int Distance) : IPacket<Si
         writer.WriteVarInt(Distance);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.simulation_distance", "SimulationDistance", PacketPhase.Play, PacketDirection.Clientbound, 84);
+    public static PacketIdentity Identity => new("play.toClient.simulation_distance", "SimulationDistance", PacketPhase.Play, PacketDirection.Clientbound, 88);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -77,6 +77,18 @@ public sealed partial record SimulationDistancePacket(int Distance) : IPacket<Si
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x68;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x6D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x6F;
             return true;
         }
 

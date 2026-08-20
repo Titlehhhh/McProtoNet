@@ -17,7 +17,7 @@ public sealed partial record ConfigurationAcknowledgedPacket() : IPacket<Configu
         ThrowHelper.ThrowIfProtocolNotSupported<ConfigurationAcknowledgedPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.configuration_acknowledged", "ConfigurationAcknowledged", PacketPhase.Play, PacketDirection.Serverbound, 12);
+    public static PacketIdentity Identity => new("play.toServer.configuration_acknowledged", "ConfigurationAcknowledged", PacketPhase.Play, PacketDirection.Serverbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -41,9 +41,15 @@ public sealed partial record ConfigurationAcknowledgedPacket() : IPacket<Configu
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x0F;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x10;
             return true;
         }
 

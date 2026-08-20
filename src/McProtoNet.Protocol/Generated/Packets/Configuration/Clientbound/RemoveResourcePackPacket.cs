@@ -25,7 +25,7 @@ public sealed partial record RemoveResourcePackPacket(Guid? Uuid) : IPacket<Remo
             writer.WriteUUID(uuidValue);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 10);
+    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 11);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -37,7 +37,7 @@ public sealed partial record RemoveResourcePackPacket(Guid? Uuid) : IPacket<Remo
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x08;
             return true;

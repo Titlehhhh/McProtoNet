@@ -47,7 +47,7 @@ public sealed partial record SyncEntityPositionPacket(int EntityId, double X, do
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.sync_entity_position", "SyncEntityPosition", PacketPhase.Play, PacketDirection.Clientbound, 94);
+    public static PacketIdentity Identity => new("play.toClient.sync_entity_position", "SyncEntityPosition", PacketPhase.Play, PacketDirection.Clientbound, 98);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -62,6 +62,12 @@ public sealed partial record SyncEntityPositionPacket(int EntityId, double X, do
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x1F;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x23;
             return true;
         }
 

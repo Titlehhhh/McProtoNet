@@ -46,6 +46,12 @@ public sealed partial record DebugSamplePacket(long[] Sample, int Type) : IPacke
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x1E;
+            return true;
+        }
+
         id = 0;
         return false;
     }

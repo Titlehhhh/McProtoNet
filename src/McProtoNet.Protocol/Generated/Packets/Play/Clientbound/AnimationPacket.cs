@@ -65,7 +65,7 @@ public sealed partial record AnimationPacket(int EntityId, int Animation) : IPac
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x02;
             return true;

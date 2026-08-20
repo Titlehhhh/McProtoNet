@@ -101,6 +101,18 @@ public sealed partial record EntityLookPacket(int EntityId, int Yaw, int Pitch, 
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x36;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x38;
+            return true;
+        }
+
         id = 0;
         return false;
     }

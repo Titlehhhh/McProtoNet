@@ -56,7 +56,7 @@ public sealed partial record SetBeaconEffectPacket(int? PrimaryEffect, int? Seco
         throw new System.NotSupportedException($"SetBeaconEffectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_beacon_effect", "SetBeaconEffect", PacketPhase.Play, PacketDirection.Serverbound, 43);
+    public static PacketIdentity Identity => new("play.toServer.set_beacon_effect", "SetBeaconEffect", PacketPhase.Play, PacketDirection.Serverbound, 44);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -116,9 +116,15 @@ public sealed partial record SetBeaconEffectPacket(int? PrimaryEffect, int? Seco
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x33;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x34;
             return true;
         }
 

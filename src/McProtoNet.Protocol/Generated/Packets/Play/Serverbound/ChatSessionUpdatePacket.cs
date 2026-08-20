@@ -30,7 +30,7 @@ public sealed partial record ChatSessionUpdatePacket(Guid SessionUuid, long Expi
         writer.WriteByteArray(Signature);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat_session_update", "ChatSessionUpdate", PacketPhase.Play, PacketDirection.Serverbound, 8);
+    public static PacketIdentity Identity => new("play.toServer.chat_session_update", "ChatSessionUpdate", PacketPhase.Play, PacketDirection.Serverbound, 9);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -60,9 +60,15 @@ public sealed partial record ChatSessionUpdatePacket(Guid SessionUuid, long Expi
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x09;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x0A;
             return true;
         }
 

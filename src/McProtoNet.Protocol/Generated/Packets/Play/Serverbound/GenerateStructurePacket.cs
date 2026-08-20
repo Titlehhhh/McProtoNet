@@ -26,7 +26,7 @@ public sealed partial record GenerateStructurePacket(Position Location, int Leve
         writer.WriteBoolean(KeepJigsaws);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 22);
+    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 23);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -98,9 +98,15 @@ public sealed partial record GenerateStructurePacket(Position Location, int Leve
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x1A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x1B;
             return true;
         }
 

@@ -17,7 +17,7 @@ public sealed partial record PlayerLoadedPacket() : IPacket<PlayerLoadedPacket>,
         ThrowHelper.ThrowIfProtocolNotSupported<PlayerLoadedPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.player_loaded", "PlayerLoaded", PacketPhase.Play, PacketDirection.Serverbound, 33);
+    public static PacketIdentity Identity => new("play.toServer.player_loaded", "PlayerLoaded", PacketPhase.Play, PacketDirection.Serverbound, 34);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -29,9 +29,15 @@ public sealed partial record PlayerLoadedPacket() : IPacket<PlayerLoadedPacket>,
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x2B;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2C;
             return true;
         }
 

@@ -117,6 +117,18 @@ public sealed partial record ActionBarPacket(ActionBarPacket.V755_764Layer? V755
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x55;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x57;
+            return true;
+        }
+
         id = 0;
         return false;
     }

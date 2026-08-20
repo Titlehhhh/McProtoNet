@@ -23,7 +23,7 @@ public sealed partial record LoginAcknowledgedPacket() : IPacket<LoginAcknowledg
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 772)
+        if (protocolVersion >= 764 && protocolVersion <= 776)
         {
             id = 0x03;
             return true;

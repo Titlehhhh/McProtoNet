@@ -53,7 +53,7 @@ public sealed partial record WorldBorderLerpSizePacket(double OldDiameter, doubl
         throw new System.NotSupportedException($"WorldBorderLerpSizePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_lerp_size", "WorldBorderLerpSize", PacketPhase.Play, PacketDirection.Clientbound, 111);
+    public static PacketIdentity Identity => new("play.toClient.world_border_lerp_size", "WorldBorderLerpSize", PacketPhase.Play, PacketDirection.Clientbound, 115);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -116,6 +116,18 @@ public sealed partial record WorldBorderLerpSizePacket(double OldDiameter, doubl
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x52;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x57;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x59;
             return true;
         }
 

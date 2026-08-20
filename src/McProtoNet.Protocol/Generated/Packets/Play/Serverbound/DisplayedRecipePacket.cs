@@ -50,7 +50,7 @@ public sealed partial record DisplayedRecipePacket(DisplayedRecipePacket.V751_76
         throw new System.NotSupportedException($"DisplayedRecipePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.displayed_recipe", "DisplayedRecipe", PacketPhase.Play, PacketDirection.Serverbound, 18);
+    public static PacketIdentity Identity => new("play.toServer.displayed_recipe", "DisplayedRecipe", PacketPhase.Play, PacketDirection.Serverbound, 19);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -104,9 +104,15 @@ public sealed partial record DisplayedRecipePacket(DisplayedRecipePacket.V751_76
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x2E;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2F;
             return true;
         }
 

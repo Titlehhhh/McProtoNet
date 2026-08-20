@@ -25,7 +25,7 @@ public sealed partial record RecipeBookRemovePacket(int[] RecipeIds) : IPacket<R
             writer.WriteVarInt(recipeIdsItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 66);
+    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 70);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -40,6 +40,18 @@ public sealed partial record RecipeBookRemovePacket(int[] RecipeIds) : IPacket<R
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x44;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x49;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x4B;
             return true;
         }
 

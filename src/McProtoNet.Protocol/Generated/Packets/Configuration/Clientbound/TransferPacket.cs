@@ -23,13 +23,13 @@ public sealed partial record TransferPacket(string Host, int Port) : IPacket<Tra
         writer.WriteVarInt(Port);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 766 && protocolVersion <= 772)
+        if (protocolVersion >= 766 && protocolVersion <= 776)
         {
             id = 0x0B;
             return true;

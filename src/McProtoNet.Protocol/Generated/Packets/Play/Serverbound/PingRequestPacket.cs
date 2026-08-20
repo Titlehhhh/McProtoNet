@@ -20,7 +20,7 @@ public sealed partial record PingRequestPacket(long Id) : IPacket<PingRequestPac
         writer.WriteSignedLong(Id);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.ping_request", "PingRequest", PacketPhase.Play, PacketDirection.Serverbound, 31);
+    public static PacketIdentity Identity => new("play.toServer.ping_request", "PingRequest", PacketPhase.Play, PacketDirection.Serverbound, 32);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -56,9 +56,15 @@ public sealed partial record PingRequestPacket(long Id) : IPacket<PingRequestPac
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x25;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x26;
             return true;
         }
 

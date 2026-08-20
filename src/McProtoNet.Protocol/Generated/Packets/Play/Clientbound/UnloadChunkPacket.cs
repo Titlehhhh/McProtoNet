@@ -48,7 +48,7 @@ public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket
         throw new System.NotSupportedException($"UnloadChunkPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 103);
+    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 107);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -117,6 +117,12 @@ public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x21;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x25;
             return true;
         }
 

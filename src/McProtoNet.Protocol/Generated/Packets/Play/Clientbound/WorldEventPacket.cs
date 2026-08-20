@@ -29,7 +29,7 @@ public sealed partial record WorldEventPacket(int EffectId, Position Location, i
         writer.WriteBoolean(Global);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 115);
+    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 119);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -98,6 +98,18 @@ public sealed partial record WorldEventPacket(int EffectId, Position Location, i
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x28;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x2D;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x2E;
             return true;
         }
 

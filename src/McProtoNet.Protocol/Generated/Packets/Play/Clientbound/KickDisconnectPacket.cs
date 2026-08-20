@@ -51,7 +51,7 @@ public sealed partial record KickDisconnectPacket(KickDisconnectPacket.VUntil764
         throw new System.NotSupportedException($"KickDisconnectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.kick_disconnect", "KickDisconnect", PacketPhase.Play, PacketDirection.Clientbound, 49);
+    public static PacketIdentity Identity => new("play.toClient.kick_disconnect", "KickDisconnect", PacketPhase.Play, PacketDirection.Clientbound, 51);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -114,6 +114,12 @@ public sealed partial record KickDisconnectPacket(KickDisconnectPacket.VUntil764
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x1C;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 776)
+        {
+            id = 0x20;
             return true;
         }
 

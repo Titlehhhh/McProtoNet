@@ -28,7 +28,7 @@ public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Ste
             writer.WriteType<MinecartStep>(stepsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 52);
+    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 56);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -43,6 +43,18 @@ public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Ste
         if (protocolVersion >= 770 && protocolVersion <= 772)
         {
             id = 0x30;
+            return true;
+        }
+
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x35;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x37;
             return true;
         }
 

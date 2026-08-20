@@ -20,7 +20,7 @@ public sealed partial record PickItemPacket(int Slot) : IPacket<PickItemPacket>,
         writer.WriteVarInt(Slot);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.pick_item", "PickItem", PacketPhase.Play, PacketDirection.Serverbound, 28);
+    public static PacketIdentity Identity => new("play.toServer.pick_item", "PickItem", PacketPhase.Play, PacketDirection.Serverbound, 29);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -20,7 +20,7 @@ public sealed partial record ChunkBatchReceivedPacket(float ChunksPerTick) : IPa
         writer.WriteFloat(ChunksPerTick);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chunk_batch_received", "ChunkBatchReceived", PacketPhase.Play, PacketDirection.Serverbound, 9);
+    public static PacketIdentity Identity => new("play.toServer.chunk_batch_received", "ChunkBatchReceived", PacketPhase.Play, PacketDirection.Serverbound, 10);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -44,9 +44,15 @@ public sealed partial record ChunkBatchReceivedPacket(float ChunksPerTick) : IPa
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x0A;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x0B;
             return true;
         }
 

@@ -55,7 +55,7 @@ public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPac
         throw new System.NotSupportedException($"SetCooldownPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 76);
+    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 80);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -109,7 +109,7 @@ public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPac
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x16;
             return true;

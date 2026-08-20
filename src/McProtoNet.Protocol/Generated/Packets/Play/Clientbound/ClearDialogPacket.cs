@@ -29,6 +29,18 @@ public sealed partial record ClearDialogPacket() : IPacket<ClearDialogPacket>, I
             return true;
         }
 
+        if (protocolVersion >= 773 && protocolVersion <= 774)
+        {
+            id = 0x89;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x8B;
+            return true;
+        }
+
         id = 0;
         return false;
     }

@@ -64,7 +64,7 @@ public sealed partial record ChatSuggestionsPacket(int Action, string[] Entries)
             return true;
         }
 
-        if (protocolVersion >= 770 && protocolVersion <= 772)
+        if (protocolVersion >= 770 && protocolVersion <= 776)
         {
             id = 0x17;
             return true;

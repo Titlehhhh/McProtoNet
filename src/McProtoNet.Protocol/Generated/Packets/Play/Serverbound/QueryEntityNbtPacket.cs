@@ -23,7 +23,7 @@ public sealed partial record QueryEntityNbtPacket(int TransactionId, int EntityI
         writer.WriteVarInt(EntityId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.query_entity_nbt", "QueryEntityNbt", PacketPhase.Play, PacketDirection.Serverbound, 38);
+    public static PacketIdentity Identity => new("play.toServer.query_entity_nbt", "QueryEntityNbt", PacketPhase.Play, PacketDirection.Serverbound, 39);
 
     PacketIdentity IPacket.Identity => Identity;
 
@@ -95,9 +95,15 @@ public sealed partial record QueryEntityNbtPacket(int TransactionId, int EntityI
             return true;
         }
 
-        if (protocolVersion >= 771 && protocolVersion <= 772)
+        if (protocolVersion >= 771 && protocolVersion <= 774)
         {
             id = 0x18;
+            return true;
+        }
+
+        if (protocolVersion >= 775 && protocolVersion <= 776)
+        {
+            id = 0x19;
             return true;
         }
 

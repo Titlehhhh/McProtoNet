@@ -65,7 +65,7 @@ public sealed partial record EncryptionRequestPacket(string ServerId, byte[] Pub
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 772)
+        if (protocolVersion >= 735 && protocolVersion <= 776)
         {
             id = 0x01;
             return true;

@@ -25,7 +25,7 @@ public sealed partial record CustomReportDetailsPacket(ReportDetail[] Details) :
             writer.WriteType<ReportDetail>(detailsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.custom_report_details", "CustomReportDetails", PacketPhase.Configuration, PacketDirection.Serverbound, 3);
+    public static PacketIdentity Identity => new("configuration.toServer.custom_report_details", "CustomReportDetails", PacketPhase.Configuration, PacketDirection.Serverbound, 4);
 
     PacketIdentity IPacket.Identity => Identity;
 
