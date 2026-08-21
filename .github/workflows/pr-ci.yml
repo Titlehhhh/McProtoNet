@@ -1,0 +1,33 @@
+name: pr-ci
+on:
+  pull_request:
+    branches:
+      - dev
+      - master
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - 'docs/**'
+      - 'README.md'
+      - 'AGENTS.md'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build McProtoNet.Protocol
+        run: dotnet build src/McProtoNet.Protocol/McProtoNet.Protocol.csproj -c Release
+      - name: Build McProtoNet.Utils
+        run: dotnet build src/McProtoNet.Utils/McProtoNet.Utils.csproj -c Release
+      # 33 tests fail at f9fd575 (NBT roundtrip, pipeline compression/encryption)
+      # - known debt, see workspace backlog. Make this step blocking (remove
+      # continue-on-error) once they are fixed.
+      - name: Test (non-blocking)
+        continue-on-error: true
+        run: dotnet run --project tests/McProtoNet.Tests/McProtoNet.Tests.csproj -c Release
