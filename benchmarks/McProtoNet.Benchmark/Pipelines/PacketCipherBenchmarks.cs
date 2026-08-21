@@ -1,6 +1,6 @@
 using System;
 using BenchmarkDotNet.Attributes;
-using McProtoNet.Cryptography;
+using McProtoNet.Transport.Cryptography;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Engines;
 using Org.BouncyCastle.Crypto.Modes;

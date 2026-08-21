@@ -5,9 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
+using McProtoNet.Transport.Framing;
 namespace McProtoNet.Benchmark.Pipelines;
 
 public enum ServerMode
@@ -52,13 +51,13 @@ public class TestServer
         var stopwatch = new Stopwatch();
         stopwatch.Start();
         var stream = new MemoryStream();
-        await using var writer = new MinecraftPacketSender(stream);
+        await using var writer = new PacketStreamWriter(stream);
         writer.CompressionThreshold = compressionThreshold;
 
         for (int i = 0; i < packetsCount; i++)
         {
             var buffer = GeneratePacket();
-            var packet = new OutputPacket(buffer);
+            var packet = new OutgoingPacket(buffer);
             await writer.SendAndDisposeAsync(packet, CancellationToken.None);
         }
 
@@ -94,7 +93,7 @@ public class TestServer
                                 await ns.ReadExactlyAsync(ConsumerBuffer, CancellationToken.None);
                             }
                             // await using var buffer = new PoolingBufferedStream(ns);
-                            // var packetReader = new MinecraftPacketReader
+                            // var packetReader = new PacketStreamReader
                             // {
                             //     BaseStream = buffer
                             // };

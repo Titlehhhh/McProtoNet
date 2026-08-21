@@ -1,12 +1,11 @@
 using System.IO;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Framing;
 namespace McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 public class BufferedStreamReadBench : IReceiveBench
 {
-    private MinecraftPacketReader _reader;
+    private PacketStreamReader _reader;
 
     private Stream _stream;
 
@@ -19,7 +18,7 @@ public class BufferedStreamReadBench : IReceiveBench
     public Task Setup(Stream stream, int compressionThreshold)
     {
         stream = new BufferedStream(stream);
-        _reader = new MinecraftPacketReader(stream);
+        _reader = new PacketStreamReader(stream);
         _reader.CompressionThreshold = compressionThreshold;
         return Task.CompletedTask;
     }

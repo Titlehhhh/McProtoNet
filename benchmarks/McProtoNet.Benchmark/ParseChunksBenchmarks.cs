@@ -11,8 +11,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 using BenchmarkDotNet.Attributes;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Benchmark;
 
 // [MemoryDiagnoser]

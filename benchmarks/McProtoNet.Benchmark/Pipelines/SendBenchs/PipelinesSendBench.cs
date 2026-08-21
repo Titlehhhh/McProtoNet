@@ -2,8 +2,7 @@ using System;
 using System.IO;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class PipelinesSendBench : ISendBench

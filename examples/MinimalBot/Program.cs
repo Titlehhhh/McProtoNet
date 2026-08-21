@@ -7,9 +7,9 @@
 
 using System.Net.Sockets;
 using McProtoNet;
-using McProtoNet.Net;
+using McProtoNet.Primitives;
+using McProtoNet.Transport;
 using McProtoNet.Protocol;
-using McProtoNet.Serialization;
 using MinimalBot.Packets; // локальные пакеты, которых ещё нет в спеках: чат и жест
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
@@ -149,7 +149,7 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
 
     // --- незнакомое: имя из реестра, а не «0x2E» из головы ---
 
-    protected override ValueTask OnUnknown(in InputPacket raw)
+    protected override ValueTask OnUnknown(in IncomingPacket raw)
     {
         if (_unknownSeen.Add((Phase, raw.Id)))
         {

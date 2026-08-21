@@ -1,8 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport;
 namespace McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 public class NextApiReadBench : IReceiveBench

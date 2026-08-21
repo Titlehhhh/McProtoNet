@@ -1,8 +1,6 @@
 using System.Buffers;
-using McProtoNet.Net;
+using McProtoNet.Primitives;
 using McProtoNet.Protocol;
-using McProtoNet.Serialization;
-
 namespace McProtoNet.Tests.Protocol;
 
 public class PacketIoTests
@@ -27,10 +25,10 @@ public class PacketIoTests
             => writer.WriteSignedLong(Value);
     }
 
-    private static InputPacket Raw(params byte[][] parts)
+    private static IncomingPacket Raw(params byte[][] parts)
     {
         var all = parts.SelectMany(p => p).ToArray();
-        return new InputPacket(0x42, new ReadOnlySequence<byte>(all));
+        return new IncomingPacket(0x42, new ReadOnlySequence<byte>(all));
     }
 
     private static byte[] Body(long value)

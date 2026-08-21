@@ -5,8 +5,7 @@ using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class QueuePipeSendBench : ISendBench

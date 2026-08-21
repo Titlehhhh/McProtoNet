@@ -1,6 +1,5 @@
 using McProtoNet.NBT;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 public interface IProtocolType<TSelf> where TSelf : IProtocolType<TSelf>

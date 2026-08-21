@@ -1,5 +1,5 @@
 using McProtoNet.Protocol.Attributes;
-using McProtoNet.Serialization;
+using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;

@@ -3,8 +3,7 @@
 // (IProtocolType<TSelf> + MinecraftPrimitiveWriter/Reader), без правок McProtoNet.
 
 using McProtoNet.Protocol;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace MinimalBot.Packets;
 
 /// <summary>

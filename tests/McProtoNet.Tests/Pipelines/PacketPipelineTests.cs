@@ -1,8 +1,8 @@
 using System.Buffers;
 using System.IO.Pipelines;
-using McProtoNet.Cryptography;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
+using McProtoNet.Transport.Cryptography;
+using McProtoNet.Transport.Framing;
+using McProtoNet.Transport.Pipelines;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
@@ -10,7 +10,7 @@ using Org.BouncyCastle.Security;
 namespace McProtoNet.Tests.Pipelines;
 
 /// <summary>
-/// End-to-end send/receive tests for MinecraftPacketSender + MinecraftPacketPipeReader
+/// End-to-end send/receive tests for PacketStreamWriter + MinecraftPacketPipeReader
 /// covering all combinations of compression and encryption.
 /// </summary>
 public class PacketPipelineTests
@@ -76,7 +76,7 @@ public class PacketPipelineTests
             writeStream = aesStream;
         }
 
-        await using var sender = new MinecraftPacketSender(writeStream, leaveOpen: true);
+        await using var sender = new PacketStreamWriter(writeStream, leaveOpen: true);
         sender.CompressionThreshold = compressionThreshold;
 
         var ct = TestContext.Current.CancellationToken;

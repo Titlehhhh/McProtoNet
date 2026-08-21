@@ -32,8 +32,8 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
-        <ProjectReference Include="..\..\src\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
-        <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Primitives\McProtoNet.Primitives.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet.Transport\McProtoNet.Transport.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
     </ItemGroup>
 

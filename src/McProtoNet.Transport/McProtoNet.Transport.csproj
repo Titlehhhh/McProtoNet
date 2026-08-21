@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <LangVersion>preview</LangVersion>        
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Description>Bytes between the socket and the packet: framing, compression, encryption</Description>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
+        <InternalsVisibleTo Include="McProtoNet.Tests"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\McProtoNet.Primitives\McProtoNet.Primitives.csproj"/>
+    </ItemGroup>
+
+
+    <ItemGroup>
+        <PackageReference Include="System.IO.Pipelines"/>
+        <PackageReference Include="McProtoNet.Native"/>
+    </ItemGroup>
+
+
+
+
+</Project>

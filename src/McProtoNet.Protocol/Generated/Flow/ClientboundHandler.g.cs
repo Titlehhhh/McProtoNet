@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using McProtoNet.Net;
+using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
 /// <summary>Generated handler base over every clientbound phase. The truth about
@@ -13,7 +13,7 @@ public abstract partial class ClientboundHandler : IPacketVisitor
     public PacketPhase Phase { get; protected set; } = PacketPhase.Login;
     protected static PacketDirection Direction => PacketDirection.Clientbound;
 
-    public ValueTask HandleAsync(in InputPacket raw, int protocolVersion)
+    public ValueTask HandleAsync(in IncomingPacket raw, int protocolVersion)
     {
         _pending = default;
         var self = this;
@@ -476,8 +476,8 @@ public abstract partial class ClientboundHandler : IPacketVisitor
         }
     }
 
-    void IPacketVisitor.Unknown(in InputPacket raw) => _pending = OnUnknown(in raw);
-    protected virtual ValueTask OnUnknown(in InputPacket raw) => default;
+    void IPacketVisitor.Unknown(in IncomingPacket raw) => _pending = OnUnknown(in raw);
+    protected virtual ValueTask OnUnknown(in IncomingPacket raw) => default;
     // --- Status ---
     protected virtual ValueTask OnPongResponse(Packets.Status.Clientbound.PongResponsePacket packet) => default;
     protected virtual ValueTask OnServerInfo(Packets.Status.Clientbound.ServerInfoPacket packet) => default;

@@ -1,8 +1,9 @@
 # McProtoNet agent guide
 
 .NET library for the Minecraft Java Edition protocol (client side): transport,
-serialization, packets, multi-version support. Active branch:
-`feature/spec-codegen`. Honest protocol range in code: **735–772**
+primitives, packets, multi-version support. Active branch:
+`refactoring/layout-2.0` (layout 2.0, phase 1 — canon:
+`../diagrams/layout.md`). Honest protocol range in code: **735–772**
 (1.16 → 1.21.8; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
 README agrees since 2026-08-15.
 
@@ -12,61 +13,79 @@ unmarked statements are design invariants.
 
 ## Repository map
 
-| Path | Role | State (2026-08-15) |
+| Path | Role | State (2026-08-21, on 1abac13) |
 | --- | --- | --- |
-| src/McProtoNet | transport (`Connection/`), thin client (`Client/`), crypto, zlib | alive |
-| src/McProtoNet.Protocol | packet layer: hand-written `Flow/` + delivered `Generated/` | alive, builds |
-| src/McProtoNet.Serialization | primitive reader/writer, buffers | alive, tested |
+| src/McProtoNet.Primitives | primitive reader/writer, buffers, `IncomingPacket`/`OutgoingPacket` | alive, tested |
 | src/McProtoNet.NBT | own NBT parser | alive, tested |
+| src/McProtoNet.Transport | bytes to packets: `Connection/`, `Framing/`, `Compression/`, `Cryptography/`, `Pipelines/` | alive, tested |
+| src/McProtoNet.Protocol | packet layer: hand-written `Flow/` + delivered `Generated/` | alive, builds |
+| src/McProtoNet | glue: `MinecraftClient`, `ClientPacketExtensions`, SRV lookup, LAN detect | alive |
 | src/McProtoNet.SourceGenerator | ONE Roslyn generator: `VersionRangeGenerator` | alive |
-| src/McProtoNet.Utils | SRV lookup, LAN detect | periphery |
-| src/McProtoNet.Abstractions | — | defunct: no csproj; types moved into McProtoNet |
 | examples/MinimalBot | executable documentation of the packet layer | alive; in the slnx under /samples/ |
 | examples/FormationBots | swarm demo: 117 bots form text on chat command; carries the full phase logic incl. the offline encryption handshake | alive; in the slnx under /samples/ |
-| tests/McProtoNet.Tests | xUnit v3: transport, serialization, NBT, packet-flow round-trips | alive; all green (see Commands) |
+| tests/McProtoNet.Tests | xUnit v3: transport, primitives, NBT, packet-flow round-trips | alive; all green (see Commands) |
 | benchmarks/ | BenchmarkDotNet, perf contract lives here | alive |
-| TestServer/ | manual test server | broken: uses removed Abstractions; fails the solution build |
 | docs/ | Writerside site | mixed, stale in places |
 | build/ | Nuke build; Tests/Pack targets are hollowed out | stale |
 
-Removed 2026-08-15: the dead `MinecraftClient`/`IMinecraftClient`/start
-options, the F# facade stub (`src/McProtoNet.FSharp`) and the
-`examples/SimpleBotFSharp` stub.
+Removed 2026-08-15: the dead `IMinecraftClient`/start options, the F# facade
+stub and the `examples/SimpleBotFSharp` stub. Removed 2026-08-21 by the
+layout 2.0 refactor: `src/McProtoNet.Utils` (folded into the glue),
+`src/McProtoNet.Abstractions`, `src/McProtoNet.FSharp` leftovers, `TestServer/`.
+
+Renames of the same refactor: `McProtoNet.Serialization` →
+`McProtoNet.Primitives`, the old core project `McProtoNet` →
+`McProtoNet.Transport` (`McProtoNet.Net` → `McProtoNet.Transport.Framing`,
+`McProtoNet.Net.Pipelines` → `McProtoNet.Transport.Pipelines`,
+`McProtoNet.Net.Zlib` → `McProtoNet.Transport.Compression`,
+`McProtoNet.Cryptography` → `McProtoNet.Transport.Cryptography`),
+`InputPacket` → `IncomingPacket`, `OutputPacket` → `OutgoingPacket`,
+`MinecraftPacketReader`/`MinecraftPacketSender` →
+`PacketStreamReader`/`PacketStreamWriter`, `CryptoHandler` →
+`EncryptionHelpers`.
 
 ## Architecture in one screen
 
-Two floors, joined since 2026-08-09 (the "packet symbiosis").
-`McProtoNet.Protocol` references `McProtoNet` — the typed packet layer sits on
-top of the transport; a client app references `McProtoNet.Protocol`.
+Since 2026-08-21 (layout 2.0, phase 1) the two floors stand side by side and a
+third one joins them. `McProtoNet.Transport` and `McProtoNet.Protocol` know
+nothing of each other; both reference `McProtoNet.Primitives`. The glue
+project `McProtoNet` references both, and a client app references the glue.
 
-- **Transport (bottom):** `MinecraftConnection` (`Connection/`) pumps a duplex
-  `Stream` through `MinecraftPacketPipeReader/Writer` (`Net/Pipelines/`) on
-  System.IO.Pipelines. Yields raw `InputPacket { int Id;
-  ReadOnlySequence<byte> Data }` via `ReadPacketsAsync()`. `Data` is a window
-  into the pipe buffer — valid only until the next read; decode immediately,
-  never across an `await`. Sends are serialized by an internal gate; pump
-  failures on either side complete the app-side pipe with the error; clean EOF
-  ends enumeration without an exception; `DisposeAsync` fences senders and
-  releases buffers after both pumps stop. Compression is libdeflate
-  (`McProtoNet.Native`), encryption is the library's own AES/CFB8
-  `PacketCipher` with hardware cores (x86 AES-NI, ARM64 NEON; scalar
-  fallback). `MinecraftClient` (`Client/`) is a thin standard client by owner
-  decision 2026-08-15: options, TCP connect, packet read/send, cipher and
-  compression switches — nothing else. The handshake/login state machine
-  lives in consumer code, not in the library (see examples/).
+- **Primitives (bottom):** `MinecraftPrimitiveReader`/`Writer`, `MemoryOwner`,
+  and the two packet terms every floor shares —
+  `IncomingPacket { int Id; ReadOnlySequence<byte> Data }` and
+  `OutgoingPacket`. Depends on `McProtoNet.NBT`, nothing else.
+- **Transport:** `MinecraftConnection` (`Connection/`) pumps a duplex
+  `Stream` through `MinecraftPacketPipeReader/Writer` (`Pipelines/`) on
+  System.IO.Pipelines. Yields raw `IncomingPacket` via `ReadPacketsAsync()`.
+  `Data` is a window into the pipe buffer — valid only until the next read;
+  decode immediately, never across an `await`. Sends are serialized by an
+  internal gate; pump failures on either side complete the app-side pipe with
+  the error; clean EOF ends enumeration without an exception; `DisposeAsync`
+  fences senders and releases buffers after both pumps stop. `Framing/` holds
+  the one-at-a-time `PacketStreamReader`/`PacketStreamWriter` over a `Stream`
+  and the `PacketWriteExtensions` frame bricks. Compression is libdeflate
+  (`McProtoNet.Native`) in `Compression/`, encryption is the library's own
+  AES/CFB8 `PacketCipher` with hardware cores (x86 AES-NI, ARM64 NEON; scalar
+  fallback) in `Cryptography/`.
+- **Glue (`src/McProtoNet`):** `MinecraftClient` is a thin standard client by
+  owner decision 2026-08-15: options, TCP connect, packet read/send, cipher
+  and compression switches — nothing else. `ClientPacketExtensions` carries
+  typed `SendAsync<T>` and `SendRawAsync`. SRV lookup and LAN detection live
+  here too. The handshake/login state machine lives in consumer code, not in
+  the library (see examples/).
 - **Packet layer, hand-written contract (`src/McProtoNet.Protocol/Flow/`):**
   `IPacket<TSelf>` with static abstract `Identity` and
   `TryGetPacketId(pv, out id)`; `PacketIdentity` (manifest key, name, phase,
   direction, dense per-catalog `Ordinal` — the currency of the hot path);
   `IPacketVisitor` (`Visit<T>` typed, `Unknown` for unmapped ids — a normal
   stream condition, not an error); `PacketIo` (`TryDecode`/`Decode`:
-  InputPacket → concrete packet, trailing bytes = `DecodeError.TrailingBytes`);
-  `PacketSubscriptions` (ordinal-indexed handler slots);
-  `ClientPacketExtensions` (`SendAsync<T>` — id comes from the type;
-  `SendRawAsync` keeps the low-level path open); `DecodeError`,
-  `PacketExceptions`.
+  IncomingPacket → concrete packet, trailing bytes =
+  `DecodeError.TrailingBytes`); `PacketSubscriptions` (ordinal-indexed handler
+  slots); `DecodeError`, `PacketExceptions`. Typed send lives in the glue, not
+  here — Protocol must not see the transport.
 - **Packet layer, generated implementation
-  (`src/McProtoNet.Protocol/Generated/`, 67 files at 5608469):**
+  (`src/McProtoNet.Protocol/Generated/`, 267 files at 1abac13):**
   `Packets/<Phase>/<Direction>/*.cs` — sealed partial records carrying
   `[Packet]`, `[PacketField]`, `[ProtocolSupport]`
   (`src/McProtoNet.Protocol/Attributes/`) with per-version `Read`/`Write`;
@@ -76,7 +95,7 @@ top of the transport; a client app references `McProtoNet.Protocol`.
   (`Dispatch`: id → ordinal → typed decode → `visitor.Visit<T>`; unknown ids
   fall through to `Unknown`; trailing bytes raise the `OnTrailingBytes` hook),
   and `ClientboundHandler.g.cs` (abstract handler base:
-  `HandleAsync(in InputPacket, pv)`, consumer-owned `Phase`, one virtual
+  `HandleAsync(in IncomingPacket, pv)`, consumer-owned `Phase`, one virtual
   `On<Name>` per packet).
 - **The receive loop is consumer code:** `await foreach` over
   `client.ReadPacketsAsync()` → `handler.HandleAsync(raw, pv)`.
@@ -104,21 +123,21 @@ depends on it — do not edit it casually.
 ## Commands
 
 - Build the working set: `dotnet build src/McProtoNet.Protocol` (pulls
-  McProtoNet + Serialization + the generator);
+  Primitives + NBT + the generator);
   `dotnet build examples/MinimalBot`. TFMs: net8.0/net9.0/net10.0.
-- `dotnet build McProtoNet.slnx` FAILS at 5608469: `TestServer/` still
-  references the removed `McProtoNet.Abstractions` and a missing DotNext
-  package. Build projects, not the solution, until that is fixed.
+- `dotnet build McProtoNet.slnx -c Release` is green since 2026-08-21: the
+  layout 2.0 refactor dropped `TestServer/` and pointed
+  `.nuke/parameters.json` at the `.slnx`.
 - Tests: `dotnet run --project tests/McProtoNet.Tests` — the project is an
   xUnit v3 executable; plain `dotnet test` on it discovers no tests (no
-  VSTest adapter). Since 2026-08-15 the suite is fully green: 10253 tests,
-  0 failing, 6 skipped (ARM cipher core on x86 machines).
+  VSTest adapter). Since 2026-08-15 the suite is fully green: 10671 tests,
+  0 failing, 9 skipped (ARM cipher core on x86 machines).
 - Nuke wrappers (`build.ps1` / `build.cmd`) exist, but their Tests/Pack
   targets are empty; NuGet publishing is effectively off.
 
 ## Contract vs clay
 
-- **Treat as fixed:** transport and Serialization (tested, benchmarked); the
+- **Treat as fixed:** Transport and Primitives (tested, benchmarked); the
   `Flow/` contract shapes (owner decisions 2026-08-08/09: packets are
   classes — one allocation per packet, no boxing anywhere); and the
   performance philosophy the benchmarks encode — no runtime reflection (the
@@ -138,9 +157,12 @@ depends on it — do not edit it casually.
   minecraft-data, never memory.
 - Never hand-edit `src/McProtoNet.Protocol/Generated/**`.
 - Do not break the hot-path contract: no reflection, no boxing;
-  `InputPacket.Data` is valid only until the next transport read — decode
+  `IncomingPacket.Data` is valid only until the next transport read — decode
   before any `await`; `MemoryOwner<byte>` must be disposed by its final
   owner.
+- Keep the layers apart: `McProtoNet.Protocol` must not reference
+  `McProtoNet.Transport`, and the transport must not learn about phases or
+  protocol versions. Anything that needs both belongs in the glue.
 - Do not commit or push without an explicit request. The single standing
   exception is the end-of-packet-cycle commit pair (workspace
   `docs/rules.md`); this repo's commit of delivered `Generated/` files is
@@ -152,14 +174,17 @@ depends on it — do not edit it casually.
 - Packet-layer design and owner decisions:
   `../docs/design/packet-api-2026-08-08/` (workspace repo this clone lives
   inside; local only).
+- Target layout and what each package owes: `../diagrams/layout.md`; the
+  phase 1 plan behind the current branch:
+  `../docs/plans/2026-08-21-layout-2.0.md`.
 - Full anatomy with file/line evidence:
   `../docs/design/mcprotonet-anatomy.md` — snapshot of f9fd575, 2026-07-24.
-  It predates the packet symbiosis: trust it for transport and
-  serialization, not for the packet layer.
+  It predates both the packet symbiosis and layout 2.0: trust it for the
+  transport and primitive mechanics, not for names or the packet layer.
 - AI-layer research and rationale for this file:
   `docs/research/mcprotonet-ai-research-compendium.md`.
 - Writerside docs in `docs/topics/` — useful for intent, stale in places
-  (anything mentioning McProtoNet.Abstractions).
+  (anything mentioning McProtoNet.Abstractions or the old project names).
 
 <!-- gitnexus:start -->
 # GitNexus — Code Intelligence

@@ -5,9 +5,8 @@
 using System.Security.Cryptography;
 using McProtoNet;
 using McProtoNet.NBT;
-using McProtoNet.Net;
+using McProtoNet.Primitives;
 using McProtoNet.Protocol;
-using McProtoNet.Serialization;
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using HandshakeSb = McProtoNet.Protocol.Packets.Handshaking.Serverbound;
@@ -177,7 +176,7 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
     // Разбираем начало кадра руками до plainMessage; раскладка и номер — из mcproto-facts.
     private const int PlayerChatId770To772 = 0x3A;
 
-    protected override ValueTask OnUnknown(in InputPacket raw)
+    protected override ValueTask OnUnknown(in IncomingPacket raw)
     {
         if (Phase == PacketPhase.Play && pv is >= 770 and <= 772 && raw.Id == PlayerChatId770To772)
         {

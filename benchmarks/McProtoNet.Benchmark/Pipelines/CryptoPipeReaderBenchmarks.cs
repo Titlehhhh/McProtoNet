@@ -8,9 +8,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
-using McProtoNet.Cryptography;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Cryptography;
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines;
 
 public enum CryptoReaderKind

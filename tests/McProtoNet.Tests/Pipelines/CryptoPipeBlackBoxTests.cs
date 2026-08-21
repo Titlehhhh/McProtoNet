@@ -1,7 +1,7 @@
 using System.Buffers;
 using System.IO.Pipelines;
-using McProtoNet.Cryptography;
-using McProtoNet.Net;
+using McProtoNet.Transport.Cryptography;
+using McProtoNet.Transport.Pipelines;
 using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;

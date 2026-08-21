@@ -1,5 +1,5 @@
 using McProtoNet.Protocol.Attributes;
-using McProtoNet.Serialization;
+using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]

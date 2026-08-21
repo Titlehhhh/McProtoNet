@@ -1,6 +1,6 @@
 using System.Net.Sockets;
-using McProtoNet.Net;
-
+using McProtoNet.Primitives;
+using McProtoNet.Transport;
 namespace McProtoNet;
 
 /// <summary>
@@ -69,10 +69,10 @@ public sealed class MinecraftClient : IDisposable, IAsyncDisposable
         connection.PacketWriter.EnableEncryption(sharedSecret);
     }
 
-    public IAsyncEnumerable<InputPacket> ReadPacketsAsync(CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(CancellationToken cancellationToken = default)
         => Connection.ReadPacketsAsync(cancellationToken);
 
-    public ValueTask<InputPacket> ReadPacketAsync(CancellationToken cancellationToken = default)
+    public ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken cancellationToken = default)
         => Connection.ReadPacketAsync(cancellationToken);
 
     /// <summary>Sends one packet: varint id plus body already assembled by the caller.</summary>

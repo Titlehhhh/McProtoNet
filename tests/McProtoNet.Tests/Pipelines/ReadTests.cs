@@ -2,9 +2,9 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.IO.Pipelines;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
-
+using McProtoNet.Transport.Framing;
+using McProtoNet.Transport.Pipelines;
+using McProtoNet.Primitives;
 namespace McProtoNet.Tests.Pipelines;
 
 public class ReadTests
@@ -13,7 +13,7 @@ public class ReadTests
     public async ValueTask Test1()
     {
         var ms = new MemoryStream();
-        var sender = new MinecraftPacketSender(ms, leaveOpen: true);
+        var sender = new PacketStreamWriter(ms, leaveOpen: true);
 
         await sender.SendPacketAsync(new byte[500], Token());
         await sender.SendPacketAsync(new byte[501], Token());
@@ -43,7 +43,7 @@ public class ReadTests
     public async ValueTask Test2()
     {
         var ms = new MemoryStream();
-        var sender = new MinecraftPacketSender(ms, leaveOpen: true);
+        var sender = new PacketStreamWriter(ms, leaveOpen: true);
 
         List<int> lens = [];
         for (int i = 0; i < 100; i++)

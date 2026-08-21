@@ -19,8 +19,8 @@
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
-        <ProjectReference Include="..\McProtoNet\McProtoNet.csproj"/>
+        <ProjectReference Include="..\McProtoNet.Primitives\McProtoNet.Primitives.csproj"/>
+        <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

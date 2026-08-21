@@ -5,8 +5,7 @@ using System.IO.Pipelines;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class Pipelines2SendBench : ISendBench

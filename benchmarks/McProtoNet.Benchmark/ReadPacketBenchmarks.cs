@@ -8,9 +8,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
+using McProtoNet.Transport.Framing;
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark;
 
 [Config(typeof(AntiVirusFriendlyConfig))]
@@ -36,7 +36,7 @@ public class ReadPacketBenchmarks
         MemoryStream ms = new MemoryStream();
         _mainStream = ms;
         Random r = new Random(73);
-        await using var writer = new MinecraftPacketSender(ms, leaveOpen: true);
+        await using var writer = new PacketStreamWriter(ms, leaveOpen: true);
 
         writer.CompressionThreshold = CompressionThreshold;
 
@@ -45,7 +45,7 @@ public class ReadPacketBenchmarks
             var buffer = MemoryOwner<byte>.Allocate(r.Next(20, 200));
             RandomData(buffer.Span.Slice(5));
 
-            OutputPacket packet = new OutputPacket(buffer);
+            OutgoingPacket packet = new OutgoingPacket(buffer);
 
             await writer.SendAndDisposeAsync(packet, new CancellationToken());
         }
@@ -60,7 +60,7 @@ public class ReadPacketBenchmarks
     [Benchmark]
     public async Task ReadPacketsStreaming()
     {
-        await using var reader = new MinecraftPacketReader(_mainStream);
+        await using var reader = new PacketStreamReader(_mainStream);
         reader.CompressionThreshold = CompressionThreshold;
 
         for (int i = 0; i < PacketsCount; i++)

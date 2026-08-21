@@ -1,5 +1,4 @@
-using McProtoNet.Net;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -12,5 +11,5 @@ public interface IPacketVisitor
 {
     void Visit<T>(T packet) where T : class, IPacket<T>;
 
-    void Unknown(in InputPacket raw);
+    void Unknown(in IncomingPacket raw);
 }

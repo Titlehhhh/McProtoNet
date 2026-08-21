@@ -1,17 +1,15 @@
 using System.Diagnostics.CodeAnalysis;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 /// <summary>
-///     InputPacket -> concrete packet. <see cref="InputPacket.Data" /> is a window into the pipe
+///     IncomingPacket -> concrete packet. <see cref="IncomingPacket.Data" /> is a window into the pipe
 ///     buffer, valid only until the next transport read — both entry points decode immediately;
 ///     what leaves is a materialized packet that owns its data.
 /// </summary>
 public static class PacketIo
 {
-    public static bool TryDecode<T>(in InputPacket raw, int protocolVersion,
+    public static bool TryDecode<T>(in IncomingPacket raw, int protocolVersion,
         [NotNullWhen(true)] out T? packet, out DecodeError error)
         where T : class, IPacket<T>
     {
@@ -43,7 +41,7 @@ public static class PacketIo
         return true;
     }
 
-    public static T Decode<T>(in InputPacket raw, int protocolVersion) where T : class, IPacket<T>
+    public static T Decode<T>(in IncomingPacket raw, int protocolVersion) where T : class, IPacket<T>
     {
         var reader = new MinecraftPrimitiveReader(raw.Data);
         T packet;

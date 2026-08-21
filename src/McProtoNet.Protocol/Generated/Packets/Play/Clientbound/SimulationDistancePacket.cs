@@ -1,5 +1,5 @@
 using McProtoNet.Protocol.Attributes;
-using McProtoNet.Serialization;
+using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(757, MinecraftVersion.LatestProtocol)]

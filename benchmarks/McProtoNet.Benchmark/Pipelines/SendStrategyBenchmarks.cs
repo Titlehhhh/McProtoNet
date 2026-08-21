@@ -14,9 +14,8 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
-
+using McProtoNet.Transport.Framing;
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines;
 
 public enum SendStrategy

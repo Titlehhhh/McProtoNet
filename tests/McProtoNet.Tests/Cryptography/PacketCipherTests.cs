@@ -1,4 +1,4 @@
-using McProtoNet.Cryptography;
+using McProtoNet.Transport.Cryptography;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Security;
 

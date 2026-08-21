@@ -4,8 +4,7 @@ using System.IO;
 using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 public class Pipelines2ReadBench : IReceiveBench

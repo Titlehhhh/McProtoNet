@@ -1,7 +1,6 @@
 using System.Buffers;
 using System.IO.Pipelines;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Tests.Pipelines;
 
 public class MinecraftPacketPipeReaderTests

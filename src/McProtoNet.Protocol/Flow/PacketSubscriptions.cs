@@ -1,5 +1,4 @@
-using McProtoNet.Net;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 public delegate void PacketHandler<T>(T packet) where T : class, IPacket<T>;
@@ -34,7 +33,7 @@ public sealed class PacketSubscriptions : IPacketVisitor
             handler(packet);
     }
 
-    public void Unknown(in InputPacket raw)
+    public void Unknown(in IncomingPacket raw)
     {
     }
 }

@@ -1,7 +1,6 @@
 #nullable enable
 using System;
-using McProtoNet.Net;
-using McProtoNet.Serialization;
+using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
 public delegate void TrailingBytesHook(int packetId, int protocolVersion, long remainingBytes);
@@ -15,7 +14,7 @@ public delegate void TrailingBytesHook(int packetId, int protocolVersion, long r
 public static partial class PacketFlow
 {
     public static event TrailingBytesHook? OnTrailingBytes;
-    public static void Dispatch<TVisitor>(in InputPacket raw, int protocolVersion, PacketPhase phase, PacketDirection dir, ref TVisitor visitor)
+    public static void Dispatch<TVisitor>(in IncomingPacket raw, int protocolVersion, PacketPhase phase, PacketDirection dir, ref TVisitor visitor)
         where TVisitor : IPacketVisitor
     {
         if (!PacketRegistry.TryGetOrdinal(raw.Id, protocolVersion, phase, dir, out var ordinal))
@@ -85,7 +84,7 @@ public static partial class PacketFlow
     /// decoder and out-of-memory still propagate. An exception thrown by the visitor
     /// itself is never converted — the table lowers <c>reading</c> before it calls the
     /// visitor, so the consumer's own bugs come out as themselves.</summary>
-    public static bool TryDispatch<TVisitor>(in InputPacket raw, int protocolVersion, PacketPhase phase, PacketDirection direction, ref TVisitor visitor, out DecodeError error)
+    public static bool TryDispatch<TVisitor>(in IncomingPacket raw, int protocolVersion, PacketPhase phase, PacketDirection direction, ref TVisitor visitor, out DecodeError error)
         where TVisitor : IPacketVisitor
     {
         error = DecodeError.None;
@@ -161,7 +160,7 @@ public static partial class PacketFlow
     /// <paramref name = "packet"/> null. The allocation-free hot path is
     /// <see cref = "Dispatch"/> / <see cref = "TryDispatch"/>; this door costs nothing
     /// extra either — packets are classes, so the capture is a reference, not a box.</summary>
-    public static bool TryDecode(in InputPacket raw, int protocolVersion, PacketPhase phase, PacketDirection direction, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out IPacket? packet, out DecodeError error)
+    public static bool TryDecode(in IncomingPacket raw, int protocolVersion, PacketPhase phase, PacketDirection direction, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out IPacket? packet, out DecodeError error)
     {
         var capture = new Capture(phase, direction);
         if (!TryDispatch(in raw, protocolVersion, phase, direction, ref capture, out error))
@@ -191,7 +190,7 @@ public static partial class PacketFlow
 
         public void Visit<T>(T packet)
             where T : class, IPacket<T> => Result = (IPacket)packet;
-        public void Unknown(in InputPacket raw) => Result = new UnknownPacket(raw.Id, _phase, _direction);
+        public void Unknown(in IncomingPacket raw) => Result = new UnknownPacket(raw.Id, _phase, _direction);
     }
 
     /// <summary>Maps an exception raised while reading a packet body onto a

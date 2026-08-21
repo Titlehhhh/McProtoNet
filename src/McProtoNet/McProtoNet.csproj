@@ -4,29 +4,24 @@
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>preview</LangVersion>        
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <LangVersion>14</LangVersion>
     </PropertyGroup>
     <PropertyGroup>
-        <Description>High-performance library for working with the minecraft protocol</Description>        
+        <Description>Client glue over the transport and the packet layer: connect, typed send, server lookup</Description>
     </PropertyGroup>
-    
+
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
+        <ProjectReference Include="..\McProtoNet.Transport\McProtoNet.Transport.csproj"/>
+        <ProjectReference Include="..\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
     </ItemGroup>
-
 
     <ItemGroup>
-        <PackageReference Include="System.IO.Pipelines"/>
-        <PackageReference Include="McProtoNet.Native"/>
+        <PackageReference Include="DnsClient"/>
     </ItemGroup>
-
-
-
 
 </Project>

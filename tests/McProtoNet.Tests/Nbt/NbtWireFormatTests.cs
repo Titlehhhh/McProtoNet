@@ -1,7 +1,6 @@
 using System.Buffers;
 using McProtoNet.NBT;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Tests.Nbt;
 
 /// <summary>

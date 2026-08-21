@@ -1,19 +1,18 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Framing;
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class BufferedStreamSendBench : ISendBench
 {
-    private MinecraftPacketSender _sender;
+    private PacketStreamWriter _sender;
    
 
     public Task Setup(Stream stream, int compressionThreshold)
     {
         stream = new BufferedStream(stream);
-        _sender = new MinecraftPacketSender(stream)
+        _sender = new PacketStreamWriter(stream)
         {
             CompressionThreshold = compressionThreshold
         };
