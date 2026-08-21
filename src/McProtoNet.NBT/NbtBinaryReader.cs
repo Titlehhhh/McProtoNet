@@ -1,5 +1,8 @@
+using System.Buffers;
 using System.Buffers.Binary;
-using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 
 namespace McProtoNet.NBT;
@@ -7,169 +10,197 @@ namespace McProtoNet.NBT;
 internal sealed class NbtBinaryReader : BinaryReader
 {
     private const int SeekBufferSize = 8 * 1024;
+    private const int MaxInitialArrayElements = 64 * 1024;
+
     private readonly byte[] _buffer = new byte[sizeof(double)];
+    private readonly byte[] _stringConversionBuffer = new byte[128];
 
-    private readonly byte[]? _seekBuffer;
-    private readonly byte[] _stringConversionBuffer = new byte[64];
-    private readonly bool _swapNeeded;
+    private int _depth;
+    private byte[]? _seekBuffer;
 
-
-    public NbtBinaryReader(Stream input, bool bigEndian)
-        : base(input)
+    public NbtBinaryReader(Stream input)
+        : base(input, Encoding.UTF8, true)
     {
-        _swapNeeded = BitConverter.IsLittleEndian == bigEndian;
     }
-
-    public TagSelector? Selector { get; set; }
-
 
     public NbtTagType ReadTagType()
     {
         int type = ReadByte();
-        return type switch
-        {
-            < 0 => throw new EndOfStreamException(),
-            > (int)NbtTagType.LongArray => throw new NbtFormatException("NBT tag type out of range: " + type),
-            _ => (NbtTagType)type
-        };
+        if (type > (int)NbtTagType.LongArray)
+            throw new NbtFormatException("NBT tag type out of range: " + type);
+        return (NbtTagType)type;
     }
-
 
     public override short ReadInt16()
     {
-        return _swapNeeded ? Swap(base.ReadInt16()) : base.ReadInt16();
+        FillBuffer(sizeof(short));
+        return BinaryPrimitives.ReadInt16BigEndian(_buffer);
     }
 
+    public override ushort ReadUInt16()
+    {
+        FillBuffer(sizeof(ushort));
+        return BinaryPrimitives.ReadUInt16BigEndian(_buffer);
+    }
 
     public override int ReadInt32()
     {
-        return _swapNeeded ? Swap(base.ReadInt32()) : base.ReadInt32();
+        FillBuffer(sizeof(int));
+        return BinaryPrimitives.ReadInt32BigEndian(_buffer);
     }
-
 
     public override long ReadInt64()
     {
-        return _swapNeeded ? Swap(base.ReadInt64()) : base.ReadInt64();
+        FillBuffer(sizeof(long));
+        return BinaryPrimitives.ReadInt64BigEndian(_buffer);
     }
-
 
     public override float ReadSingle()
     {
-        if (!_swapNeeded) return base.ReadSingle();
-        FillBuffer(sizeof(float));
-        Array.Reverse(_buffer, 0, sizeof(float));
-        return BitConverter.ToSingle(_buffer, 0);
+        return BitConverter.Int32BitsToSingle(ReadInt32());
     }
-
 
     public override double ReadDouble()
     {
-        if (!_swapNeeded) return base.ReadDouble();
-        FillBuffer(sizeof(double));
-        Array.Reverse(_buffer);
-        return BitConverter.ToDouble(_buffer, 0);
+        return BitConverter.Int64BitsToDouble(ReadInt64());
     }
-
 
     public override string ReadString()
     {
-        var length = ReadInt16();
-        if (length < 0) throw new NbtFormatException("Negative string length given!");
+        int length = ReadUInt16();
+        if (length == 0) return string.Empty;
 
-        if (length < _stringConversionBuffer.Length)
+        if (length <= _stringConversionBuffer.Length)
         {
-            var stringBytesRead = 0;
-            while (stringBytesRead < length)
-            {
-                var bytesToRead = length - stringBytesRead;
-                var bytesReadThisTime = BaseStream.Read(_stringConversionBuffer, stringBytesRead, bytesToRead);
-                if (bytesReadThisTime == 0) throw new EndOfStreamException();
-                stringBytesRead += bytesReadThisTime;
-            }
-
-            return Encoding.UTF8.GetString(_stringConversionBuffer, 0, length);
+            FillExactly(_stringConversionBuffer.AsSpan(0, length));
+            return ModifiedUtf8.GetString(_stringConversionBuffer.AsSpan(0, length));
         }
 
-        var stringData = ReadBytes(length);
-        if (stringData.Length < length) throw new EndOfStreamException();
-        return Encoding.UTF8.GetString(stringData);
+        var rented = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+            FillExactly(rented.AsSpan(0, length));
+            return ModifiedUtf8.GetString(rented.AsSpan(0, length));
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
     }
 
-
-    public void Skip(int bytesToSkip)
+    public void SkipString()
     {
-        if (bytesToSkip < 0) throw new ArgumentOutOfRangeException(nameof(bytesToSkip));
+        Skip(ReadUInt16());
+    }
+
+    public void Skip(long bytesToSkip)
+    {
+        if (bytesToSkip < 0) throw new NbtFormatException("Negative NBT payload length: " + bytesToSkip);
+        if (bytesToSkip == 0) return;
+        EnsureAvailable(bytesToSkip);
 
         if (BaseStream.CanSeek)
         {
             BaseStream.Position += bytesToSkip;
+            return;
         }
-        else if (bytesToSkip != 0)
+
+        _seekBuffer ??= new byte[SeekBufferSize];
+        long skipped = 0;
+        while (skipped < bytesToSkip)
         {
-            var bytesSkipped = 0;
-            while (bytesSkipped < bytesToSkip)
-            {
-                var bytesToRead = Math.Min(SeekBufferSize, bytesToSkip - bytesSkipped);
-                var bytesReadThisTime = BaseStream.Read(_seekBuffer!, 0, bytesToRead);
-                if (bytesReadThisTime == 0) throw new EndOfStreamException();
-                bytesSkipped += bytesReadThisTime;
-            }
+            var read = BaseStream.Read(_seekBuffer, 0, (int)Math.Min(SeekBufferSize, bytesToSkip - skipped));
+            if (read == 0) throw new EndOfStreamException();
+            skipped += read;
         }
     }
 
+    /// <summary>
+    ///     Reads a length-prefixed payload of <paramref name="count" /> elements without trusting the
+    ///     declared length: the buffer starts small and grows only as bytes actually arrive, so a bogus
+    ///     length fails on end of stream instead of on a huge allocation.
+    /// </summary>
+    public T[] ReadArrayBigEndian<T>(int count) where T : unmanaged
+    {
+        if (count < 0) throw new NbtFormatException("Negative array length given: " + count);
+        if (count == 0) return [];
+
+        var elementSize = Unsafe.SizeOf<T>();
+        var totalBytes = (long)count * elementSize;
+        if (totalBytes > int.MaxValue)
+            throw new NbtFormatException($"NBT array of {count} elements is too large to allocate.");
+        EnsureAvailable(totalBytes);
+
+        var result = new T[Math.Min(count, MaxInitialArrayElements)];
+        var filled = 0;
+        while (filled < totalBytes)
+        {
+            if (filled == result.Length * elementSize)
+                Array.Resize(ref result, (int)Math.Min(count, 2L * result.Length));
+
+            var view = MemoryMarshal.AsBytes(result.AsSpan());
+            var read = BaseStream.Read(view.Slice(filled, (int)Math.Min(view.Length - filled, totalBytes - filled)));
+            if (read == 0) throw new EndOfStreamException();
+            filled += read;
+        }
+
+        if (result.Length != count) Array.Resize(ref result, count);
+        if (BitConverter.IsLittleEndian) ReverseEndianness(result);
+        return result;
+    }
+
+    public void EnterLevel()
+    {
+        if (++_depth > NbtLimits.MaxDepth) ThrowDepthExceeded();
+    }
+
+    public void ExitLevel()
+    {
+        _depth--;
+    }
+
+    private void EnsureAvailable(long byteCount)
+    {
+        if (!BaseStream.CanSeek) return;
+        var remaining = BaseStream.Length - BaseStream.Position;
+        if (byteCount > remaining)
+            throw new NbtFormatException(
+                $"NBT payload claims {byteCount} bytes but only {remaining} remain in the stream.");
+    }
+
+    private static void ReverseEndianness<T>(T[] values) where T : unmanaged
+    {
+        switch (values)
+        {
+            case short[] shorts:
+                BinaryPrimitives.ReverseEndianness(shorts, shorts);
+                break;
+            case int[] ints:
+                BinaryPrimitives.ReverseEndianness(ints, ints);
+                break;
+            case long[] longs:
+                BinaryPrimitives.ReverseEndianness(longs, longs);
+                break;
+        }
+    }
+
+    private void FillExactly(Span<byte> destination)
+    {
+        var offset = 0;
+        while (offset < destination.Length)
+        {
+            var read = BaseStream.Read(destination.Slice(offset));
+            if (read == 0) throw new EndOfStreamException();
+            offset += read;
+        }
+    }
 
     private new void FillBuffer(int numBytes)
     {
-        var offset = 0;
-        do
-        {
-            var num = BaseStream.Read(_buffer, offset, numBytes - offset);
-            if (num == 0) throw new EndOfStreamException();
-            offset += num;
-        } while (offset < numBytes);
+        FillExactly(_buffer.AsSpan(0, numBytes));
     }
 
-
-    public void SkipString()
-    {
-        var length = ReadInt16();
-        if (length < 0) throw new NbtFormatException("Negative string length given!");
-        Skip(length);
-    }
-
-
-    [DebuggerStepThrough]
-    private static short Swap(short v)
-    {
-        unchecked
-        {
-            return (short)(((v >> 8) & 0x00FF) |
-                           ((v << 8) & 0xFF00));
-        }
-    }
-
-
-    [DebuggerStepThrough]
-    private static int Swap(int v)
-    {
-        unchecked
-        {
-            var v2 = (uint)v;
-            return (int)(((v2 >> 24) & 0x000000FF) |
-                         ((v2 >> 8) & 0x0000FF00) |
-                         ((v2 << 8) & 0x00FF0000) |
-                         ((v2 << 24) & 0xFF000000));
-        }
-    }
-
-
-    [DebuggerStepThrough]
-    private static long Swap(long v)
-    {
-        unchecked
-        {
-            return ((Swap((int)v) & uint.MaxValue) << 32) |
-                   (Swap((int)(v >> 32)) & uint.MaxValue);
-        }
-    }
+    [DoesNotReturn]
+    private static void ThrowDepthExceeded() =>
+        throw new NbtFormatException($"NBT nesting exceeds the maximum depth of {NbtLimits.MaxDepth}.");
 }

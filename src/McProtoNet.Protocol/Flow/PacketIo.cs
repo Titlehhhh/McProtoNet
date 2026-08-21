@@ -1,4 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
+using McProtoNet.NBT;
 using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
@@ -7,6 +8,14 @@ namespace McProtoNet.Protocol;
 ///     transport buffer, valid only until the next read — both entry points decode immediately;
 ///     what leaves is a materialized packet that owns its data.
 /// </summary>
+/// <remarks>
+///     Only a broken or unsupported wire is caught: garbage bytes
+///     (<see cref="InvalidDataException" />, <see cref="EndOfStreamException" />) become
+///     <see cref="DecodeError.Malformed" />, a version mismatch
+///     (<see cref="ProtocolNotSupportException" />) becomes
+///     <see cref="DecodeError.UnsupportedVersion" />. A bug in the reader — a null reference, memory
+///     that ran out — is not a decode error and goes straight through.
+/// </remarks>
 public static class PacketIo
 {
     public static bool TryDecode<T>(in IncomingPacket raw, int protocolVersion,
@@ -24,7 +33,7 @@ public static class PacketIo
             error = DecodeError.UnsupportedVersion;
             return false;
         }
-        catch (Exception)
+        catch (Exception ex) when (IsMalformed(ex))
         {
             error = DecodeError.Malformed;
             return false;
@@ -53,7 +62,7 @@ public static class PacketIo
         {
             throw new PacketDecodeException(typeof(T), DecodeError.UnsupportedVersion, e);
         }
-        catch (Exception e)
+        catch (Exception e) when (IsMalformed(e))
         {
             throw new PacketDecodeException(typeof(T), DecodeError.Malformed, e);
         }
@@ -63,4 +72,8 @@ public static class PacketIo
 
         return packet;
     }
+
+    private static bool IsMalformed(Exception ex) =>
+        ex is InvalidDataException or EndOfStreamException or NbtFormatException
+            or WrongLayerException or PacketDecodeException;
 }

@@ -65,21 +65,9 @@ public class NbtByte : NbtTag
     /// </summary>
     public byte Value { get; set; }
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.ReadByte();
-            return false;
-        }
-
         Value = readStream.ReadByte();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.ReadByte();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

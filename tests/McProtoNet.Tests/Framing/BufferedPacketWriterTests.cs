@@ -95,11 +95,13 @@ public class BufferedPacketWriterTests
         using var writer = new BufferedPacketWriter(new FailingWriteStream());
         writer.WritePacket(1, new byte[10]);
 
-        await Assert.ThrowsAsync<IOException>(async () => await writer.FlushAsync(token));
+        var fault = await Assert.ThrowsAsync<IOException>(async () => await writer.FlushAsync(token));
 
-        Assert.Throws<IOException>(() => writer.WritePacket(2, new byte[10]));
-        Assert.Throws<IOException>(() => _ = writer.UnflushedBytes);
-        await Assert.ThrowsAsync<IOException>(async () => await writer.FlushAsync(token));
+        // every later call gets a fresh throw that carries the fault, never the fault itself
+        var dead = Assert.Throws<InvalidOperationException>(() => writer.WritePacket(2, new byte[10]));
+        Assert.Same(fault, dead.InnerException);
+        Assert.Throws<InvalidOperationException>(() => _ = writer.UnflushedBytes);
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await writer.FlushAsync(token));
     }
 
     [Fact]
@@ -114,8 +116,11 @@ public class BufferedPacketWriterTests
         await gate.WriteStarted;
         await cts.CancelAsync();
 
-        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => flush);
-        Assert.ThrowsAny<OperationCanceledException>(() => writer.WritePacket(2, new byte[10]));
+        var cancelled = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => flush);
+
+        // the caller who cancelled gets its cancellation; nobody after it gets a stale one
+        var dead = Assert.Throws<InvalidOperationException>(() => writer.WritePacket(2, new byte[10]));
+        Assert.Same(cancelled, dead.InnerException);
     }
 
     private static async Task<byte[]> WriteOne(int threshold, bool encrypted, Action<BufferedPacketWriter> write,

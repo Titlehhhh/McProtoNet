@@ -23,7 +23,7 @@ public static class ClientPacketExtensions
     {
         ArgumentNullException.ThrowIfNull(connection);
         if (!T.TryGetPacketId(protocolVersion, out var id))
-            throw new UnsupportedVersionException(T.Identity.Key, protocolVersion);
+            throw new ProtocolNotSupportException(T.Identity.Key, protocolVersion);
 
         var writer = MinecraftPrimitiveWriterCache.Rent();
         try
@@ -51,7 +51,7 @@ public static class ClientPacketExtensions
     {
         ArgumentNullException.ThrowIfNull(connection);
         if (!T.TryGetPacketId(protocolVersion, out var id))
-            throw new UnsupportedVersionException(T.Identity.Key, protocolVersion);
+            throw new ProtocolNotSupportException(T.Identity.Key, protocolVersion);
 
         var writer = MinecraftPrimitiveWriterCache.Rent();
         try

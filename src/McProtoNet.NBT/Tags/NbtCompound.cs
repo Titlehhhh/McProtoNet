@@ -281,124 +281,22 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
 
     #region Reading / Writing
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (Parent != null && readStream.Selector != null && !readStream.Selector(this))
-        {
-            SkipTag(readStream);
-            return false;
-        }
-
+        readStream.EnterLevel();
         while (true)
         {
-            var nextTag = readStream.ReadTagType();
-            NbtTag newTag;
-            switch (nextTag)
+            var childType = readStream.ReadTagType();
+            if (childType == NbtTagType.End)
             {
-                case NbtTagType.End:
-                    return true;
-                case NbtTagType.Byte:
-                    newTag = new NbtByte();
-                    break;
-                case NbtTagType.Short:
-                    newTag = new NbtShort();
-                    break;
-                case NbtTagType.Int:
-                    newTag = new NbtInt();
-                    break;
-                case NbtTagType.Long:
-                    newTag = new NbtLong();
-                    break;
-                case NbtTagType.Float:
-                    newTag = new NbtFloat();
-                    break;
-                case NbtTagType.Double:
-                    newTag = new NbtDouble();
-                    break;
-                case NbtTagType.ByteArray:
-                    newTag = new NbtByteArray();
-                    break;
-                case NbtTagType.String:
-                    newTag = new NbtString();
-                    break;
-                case NbtTagType.List:
-                    newTag = new NbtList();
-                    break;
-                case NbtTagType.Compound:
-                    newTag = new NbtCompound();
-                    break;
-                case NbtTagType.IntArray:
-                    newTag = new NbtIntArray();
-                    break;
-                case NbtTagType.LongArray:
-                    newTag = new NbtLongArray();
-                    break;
-                default:
-                    throw new NbtFormatException("Unsupported tag type found in NBT_Compound: " + nextTag);
+                readStream.ExitLevel();
+                return;
             }
 
-            newTag.Parent = this;
-            newTag.Name = readStream.ReadString();
-            if (newTag.ReadTag(readStream))
-                // ReSharper disable AssignNullToNotNullAttribute
-                // newTag.Name is never null
-                _tags.Add(newTag.Name, newTag);
-            // ReSharper restore AssignNullToNotNullAttribute
-        }
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        while (true)
-        {
-            var nextTag = readStream.ReadTagType();
-            NbtTag newTag;
-            switch (nextTag)
-            {
-                case NbtTagType.End:
-                    return;
-                case NbtTagType.Byte:
-                    newTag = new NbtByte();
-                    break;
-                case NbtTagType.Short:
-                    newTag = new NbtShort();
-                    break;
-                case NbtTagType.Int:
-                    newTag = new NbtInt();
-                    break;
-                case NbtTagType.Long:
-                    newTag = new NbtLong();
-                    break;
-                case NbtTagType.Float:
-                    newTag = new NbtFloat();
-                    break;
-                case NbtTagType.Double:
-                    newTag = new NbtDouble();
-                    break;
-                case NbtTagType.ByteArray:
-                    newTag = new NbtByteArray();
-                    break;
-                case NbtTagType.String:
-                    newTag = new NbtString();
-                    break;
-                case NbtTagType.List:
-                    newTag = new NbtList();
-                    break;
-                case NbtTagType.Compound:
-                    newTag = new NbtCompound();
-                    break;
-                case NbtTagType.IntArray:
-                    newTag = new NbtIntArray();
-                    break;
-                case NbtTagType.LongArray:
-                    newTag = new NbtLongArray();
-                    break;
-                default:
-                    throw new NbtFormatException("Unsupported tag type found in NBT_Compound: " + nextTag);
-            }
-
-            readStream.SkipString();
-            newTag.SkipTag(readStream);
+            var child = CreateTag(childType);
+            child.Name = readStream.ReadString();
+            child.ReadTag(readStream);
+            SetOrReplace(child);
         }
     }
 
@@ -412,8 +310,10 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
 
     internal override void WriteData(NbtBinaryWriter writeStream)
     {
+        writeStream.EnterLevel();
         foreach (var tag in _tags.Values) tag.WriteTag(writeStream);
         writeStream.Write(NbtTagType.End);
+        writeStream.ExitLevel();
     }
 
     #endregion
@@ -460,6 +360,17 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
 
         _tags.Add(newTag.Name, newTag);
         newTag.Parent = this;
+    }
+
+    /// <summary>
+    ///     Adds a named tag, replacing any tag that already carries the name. Vanilla lets the last
+    ///     duplicate in a compound win, so readers use this instead of <see cref="Add" />.
+    /// </summary>
+    internal void SetOrReplace(NbtTag tag)
+    {
+        if (_tags.Remove(tag.Name!, out var replaced)) replaced.Parent = null;
+        _tags.Add(tag.Name!, tag);
+        tag.Parent = this;
     }
 
     /// <summary>

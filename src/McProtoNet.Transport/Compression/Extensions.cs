@@ -2,6 +2,7 @@ using System.Buffers;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using McProtoNet.Primitives;
+using McProtoNet.Transport.Framing;
 namespace McProtoNet.Transport.Compression;
 
 internal static class Extensions
@@ -20,8 +21,7 @@ internal static class Extensions
                 using var ms = new MemoryStream(rented, 0, (int)compressedSequence.Length, writable: false);
                 using var zLibStream = new ZLibStream(ms, CompressionMode.Decompress);
                 var read = zLibStream.ReadAtLeast(decompress.Span, decompressSize);
-                if (read != decompressSize)
-                    throw new InvalidOperationException("Zlib decompress error: " + read);
+                if (read != decompressSize) ThrowHelper.ThrowDecompressSizeMismatch(read, decompressSize);
             }
             finally
             {
@@ -45,10 +45,7 @@ internal static class Extensions
         {
             var status = LibDeflateStatic.Decompress(compressedSequence.FirstSpan, owner.Span, out _);
 
-            if (status != OperationStatus.Done)
-            {
-                throw new InvalidOperationException("Zlib decompress error: " + status);
-            }
+            if (status != OperationStatus.Done) ThrowHelper.ThrowDecompressFailed(status);
         }
         else
         {
@@ -60,8 +57,7 @@ internal static class Extensions
                     rented.AsSpan(0, (int)compressedSequence.Length),
                     owner.Span, out _);
 
-                if (status != OperationStatus.Done)
-                    throw new InvalidOperationException("Zlib decompress error: " + status);
+                if (status != OperationStatus.Done) ThrowHelper.ThrowDecompressFailed(status);
             }
             finally
             {

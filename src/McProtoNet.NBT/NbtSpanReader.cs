@@ -2,441 +2,229 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
-using System.Text;
 
 namespace McProtoNet.NBT;
 
+/// <summary>
+///     Reads NBT out of a contiguous buffer. Java Edition only: numbers big-endian, strings in
+///     modified UTF-8. Nesting is capped at 512 levels and every declared length is checked
+///     against the bytes actually left before anything is allocated.
+/// </summary>
 public ref struct NbtSpanReader
 {
     private SpanBinaryReader _reader;
+
+    /// <summary>Number of bytes consumed so far.</summary>
     public int ConsumedCount => _reader.ConsumedCount;
 
+    /// <summary>Creates a reader over the given buffer.</summary>
+    /// <param name="data">Buffer positioned at the tag type byte.</param>
     public NbtSpanReader(ReadOnlySpan<byte> data)
     {
         _reader = new SpanBinaryReader(data);
     }
 
-
+    /// <summary>
+    ///     Reads one complete tag. Returns null when the first byte is TAG_End.
+    /// </summary>
+    /// <typeparam name="T">Expected tag type.</typeparam>
+    /// <param name="readRootName">
+    ///     True reads the root tag's name after the type byte (the file format). False expects the
+    ///     nameless root of the network format used since 1.20.2.
+    /// </param>
+    /// <exception cref="NbtFormatException">The data is malformed, truncated, or too deeply nested.</exception>
     public T? ReadAsTag<T>(bool readRootName) where T : NbtTag
     {
-        NbtTagType type = ReadTagType();
-        if (type == NbtTagType.End)
-        {
-            return null;
-        }
+        var type = ReadTagType();
+        if (type == NbtTagType.End) return null;
 
-        string? rootName = readRootName ? ReadString() : null;
-
-        if (TypeIsPrimitive(type))
-        {
-            return (T)ReadPrimitive(type, rootName);
-        }
-
-        if (_reader.RemainingCount <= 512) // Recursive
-        {
-            return ReadRecursive(type, rootName) as T ??
-                   throw new InvalidOperationException($"Error cast to {typeof(T)}");
-        }
-
-        Stack<NbtTag> stack = new Stack<NbtTag>();
-        NbtTag root;
-
-        if (type == NbtTagType.List)
-        {
-            var listType = ReadTagType();
-            var length = _reader.ReadBigEndian32();
-            if (length < 0) throw new NbtFormatException($"Negative tag length given: {length}");
-
-            if (TryReadNbtListPrimitive(listType, length, out var resultList))
-            {
-                resultList.Name = rootName;
-                return resultList as T ?? throw new InvalidOperationException($"Error cast to {typeof(T)}");
-            }
-
-            var list = new NbtList { Name = rootName };
-            stack.Push(list);
-            for (int i = 0; i < length; i++)
-            {
-                var tag = ReadRecursive(listType, null);
-                list.Add(tag);
-            }
-
-            root = list;
-        }
-        else // Compound
-        {
-            var compound = new NbtCompound { Name = rootName };
-            stack.Push(compound);
-
-            while (true)
-            {
-                var nextType = ReadTagType();
-                if (nextType == NbtTagType.End) break;
-
-                var name = ReadString();
-                if (TypeIsPrimitive(nextType))
-                {
-                    compound.Add(ReadPrimitive(nextType, name));
-                }
-                else if (nextType == NbtTagType.List || nextType == NbtTagType.Compound)
-                {
-                    var tag = ReadRecursive(nextType, name);
-                    compound.Add(tag);
-                }
-            }
-
-            root = compound;
-        }
-
-        return (T)root;
+        var rootName = readRootName ? ReadString() : null;
+        var tag = ReadPayload(type, rootName, NbtLimits.MaxDepth);
+        if (tag is T typed) return typed;
+        throw new NbtFormatException(
+            $"NBT root tag is {tag.TagType}, which cannot be read as {typeof(T).Name}.");
     }
 
-
-    private bool TypeIsPrimitive(NbtTagType type)
+    private NbtTag ReadPayload(NbtTagType type, string? name, int remainingDepth)
     {
         switch (type)
         {
+            case NbtTagType.Byte:
+                return new NbtByte(name, _reader.Read());
+            case NbtTagType.Short:
+                return new NbtShort(name, _reader.ReadBigEndian16());
+            case NbtTagType.Int:
+                return new NbtInt(name, _reader.ReadBigEndian32());
+            case NbtTagType.Long:
+                return new NbtLong(name, _reader.ReadBigEndian64());
+            case NbtTagType.Float:
+                return new NbtFloat(name, Unsafe.BitCast<int, float>(_reader.ReadBigEndian32()));
+            case NbtTagType.Double:
+                return new NbtDouble(name, Unsafe.BitCast<long, double>(_reader.ReadBigEndian64()));
+            case NbtTagType.String:
+                return new NbtString(name, ReadString());
+            case NbtTagType.ByteArray:
+                return NbtByteArray.CreateFromArray(_reader.Read(ReadLength(sizeof(byte))).ToArray(), name);
+            case NbtTagType.IntArray:
+                return NbtIntArray.CreateFromArray(ReadBigEndianArray<int>(ReadLength(sizeof(int))), name);
+            case NbtTagType.LongArray:
+                return NbtLongArray.CreateFromArray(ReadBigEndianArray<long>(ReadLength(sizeof(long))), name);
             case NbtTagType.List:
+                return ReadList(name, remainingDepth);
             case NbtTagType.Compound:
+                return ReadCompound(name, remainingDepth);
+            default:
+                throw new NbtFormatException($"Cannot read NBT tag of type {type} at byte {_reader.ConsumedCount}.");
+        }
+    }
+
+    private NbtList ReadList(string? name, int remainingDepth)
+    {
+        if (remainingDepth == 0) ThrowDepthExceeded();
+
+        var elementType = ReadTagType();
+        var length = ReadLength(1);
+        if (length > 0 && elementType == NbtTagType.End)
+            throw new NbtFormatException("Non-empty NBT list of TAG_End elements.");
+
+        if (TryReadPrimitiveList(elementType, length, out var primitives))
+        {
+            primitives.Name = name;
+            return primitives;
+        }
+
+        var list = new NbtList(name, elementType);
+        for (var i = 0; i < length; i++)
+            list.Add(ReadPayload(elementType, null, remainingDepth - 1));
+        return list;
+    }
+
+    private NbtCompound ReadCompound(string? name, int remainingDepth)
+    {
+        if (remainingDepth == 0) ThrowDepthExceeded();
+
+        var compound = new NbtCompound { Name = name };
+        while (true)
+        {
+            var childType = ReadTagType();
+            if (childType == NbtTagType.End) return compound;
+
+            var childName = ReadString();
+            compound.SetOrReplace(ReadPayload(childType, childName, remainingDepth - 1));
+        }
+    }
+
+    private bool TryReadPrimitiveList(NbtTagType elementType, int length, out NbtList list)
+    {
+        switch (elementType)
+        {
+            case NbtTagType.Byte:
+            {
+                list = new NbtList(NbtTagType.Byte);
+                foreach (var value in _reader.Read(length))
+                    list.Add(new NbtByte(value));
+                return true;
+            }
+            case NbtTagType.Short:
+            {
+                list = new NbtList(NbtTagType.Short);
+                foreach (var value in ReadBigEndianArray<short>(length))
+                    list.Add(new NbtShort(value));
+                return true;
+            }
+            case NbtTagType.Int:
+            {
+                list = new NbtList(NbtTagType.Int);
+                foreach (var value in ReadBigEndianArray<int>(length))
+                    list.Add(new NbtInt(value));
+                return true;
+            }
+            case NbtTagType.Long:
+            {
+                list = new NbtList(NbtTagType.Long);
+                foreach (var value in ReadBigEndianArray<long>(length))
+                    list.Add(new NbtLong(value));
+                return true;
+            }
+            case NbtTagType.Float:
+            {
+                list = new NbtList(NbtTagType.Float);
+                foreach (var value in ReadBigEndianArray<int>(length))
+                    list.Add(new NbtFloat(Unsafe.BitCast<int, float>(value)));
+                return true;
+            }
+            case NbtTagType.Double:
+            {
+                list = new NbtList(NbtTagType.Double);
+                foreach (var value in ReadBigEndianArray<long>(length))
+                    list.Add(new NbtDouble(Unsafe.BitCast<long, double>(value)));
+                return true;
+            }
+            default:
+                list = null!;
                 return false;
-            default: return true;
         }
     }
 
-    private NbtTag ReadRecursive(NbtTagType type)
+    private T[] ReadBigEndianArray<T>(int count) where T : unmanaged
     {
-        string name = ReadString();
-        return ReadRecursive(type, name);
+        if (count == 0) return [];
+        _reader.EnsureRemaining((long)count * Unsafe.SizeOf<T>());
+        var source = _reader.Read(count * Unsafe.SizeOf<T>());
+        var result = new T[count];
+        if (BitConverter.IsLittleEndian)
+            ReverseEndianness(source, result);
+        else
+            source.CopyTo(MemoryMarshal.AsBytes(result.AsSpan()));
+        return result;
     }
 
-    private NbtTag ReadRecursive(NbtTagType type, string? name)
+    private static void ReverseEndianness<T>(ReadOnlySpan<byte> source, T[] destination) where T : unmanaged
     {
-        if (type == NbtTagType.List)
+        switch (destination)
         {
-            NbtTagType listType = ReadTagType();
-            int length = _reader.ReadBigEndian32();
-            if (length < 0) throw new NbtFormatException($"Negative tag length given: {length}");
-
-            if (TryReadNbtListPrimitive(listType, length, out var resultList))
-            {
-                resultList.Name = name;
-                return resultList;
-            }
-
-            NbtList list = new NbtList();
-            for (int i = 0; i < length; i++)
-            {
-                var tag = ReadRecursive(listType, null);
-                list.Add(tag);
-            }
-
-            list.Name = name;
-            return list;
+            case short[] shorts:
+                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, short>(source), shorts);
+                break;
+            case int[] ints:
+                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, int>(source), ints);
+                break;
+            case long[] longs:
+                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, long>(source), longs);
+                break;
+            default:
+                source.CopyTo(MemoryMarshal.AsBytes(destination.AsSpan()));
+                break;
         }
-
-        if (type == NbtTagType.Compound)
-        {
-            NbtCompound nbtCompound = new NbtCompound();
-            nbtCompound.Name = name;
-            while (true)
-            {
-                NbtTagType nextType = ReadTagType();
-                if (nextType == NbtTagType.End)
-                {
-                    return nbtCompound;
-                }
-
-                NbtTag tag = ReadRecursive(nextType);
-                nbtCompound.Add(tag);
-            }
-        }
-
-        return ReadPrimitive(type, name);
     }
 
-    private bool TryReadNbtListPrimitive(NbtTagType listType, int length, out NbtList list)
+    private int ReadLength(int elementSize)
     {
-        if (listType == NbtTagType.Byte)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length);
-            foreach (byte b in bytes)
-            {
-                list.Add(new NbtByte(b));
-            }
-
-            return true;
-        }
-
-        if (listType == NbtTagType.Short)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(short));
-            ReadOnlySpan<short> cast = MemoryMarshal.Cast<byte, short>(bytes);
-            if (BitConverter.IsLittleEndian)
-            {
-                short[] rented = ArrayPool<short>.Shared.Rent(length);
-                try
-                {
-                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
-                    foreach (var i in rented.AsSpan(0, length))
-                        list.Add(new NbtShort(i));
-                }
-                finally
-                {
-                    ArrayPool<short>.Shared.Return(rented);
-                }
-            }
-            else
-            {
-                foreach (var i in cast)
-                    list.Add(new NbtShort(i));
-            }
-
-            return true;
-        }
-
-        if (listType == NbtTagType.Int)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(int));
-            ReadOnlySpan<int> cast = MemoryMarshal.Cast<byte, int>(bytes);
-            if (BitConverter.IsLittleEndian)
-            {
-                int[] rented = ArrayPool<int>.Shared.Rent(length);
-                try
-                {
-                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
-                    foreach (var i in rented.AsSpan(0, length))
-                        list.Add(new NbtInt(i));
-                }
-                finally
-                {
-                    ArrayPool<int>.Shared.Return(rented);
-                }
-            }
-            else
-            {
-                foreach (var i in cast)
-                    list.Add(new NbtInt(i));
-            }
-
-            return true;
-        }
-
-        if (listType == NbtTagType.Long)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(long));
-            ReadOnlySpan<long> cast = MemoryMarshal.Cast<byte, long>(bytes);
-            if (BitConverter.IsLittleEndian)
-            {
-                long[] rented = ArrayPool<long>.Shared.Rent(length);
-                try
-                {
-                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
-                    foreach (var i in rented.AsSpan(0, length))
-                        list.Add(new NbtLong(i));
-                }
-                finally
-                {
-                    ArrayPool<long>.Shared.Return(rented);
-                }
-            }
-            else
-            {
-                foreach (var i in cast)
-                    list.Add(new NbtLong(i));
-            }
-
-            return true;
-        }
-
-        if (listType == NbtTagType.Float)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(float));
-
-            if (BitConverter.IsLittleEndian)
-            {
-                ReadOnlySpan<int> cast = MemoryMarshal.Cast<byte, int>(bytes);
-                int[] rented = ArrayPool<int>.Shared.Rent(length);
-                try
-                {
-                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
-                    foreach (var i in MemoryMarshal.Cast<int, float>(rented.AsSpan(0, length)))
-                        list.Add(new NbtFloat(i));
-                }
-                finally
-                {
-                    ArrayPool<int>.Shared.Return(rented);
-                }
-            }
-            else
-            {
-                ReadOnlySpan<float> cast = MemoryMarshal.Cast<byte, float>(bytes);
-                foreach (var i in cast)
-                    list.Add(new NbtFloat(i));
-            }
-
-            return true;
-        }
-
-        if (listType == NbtTagType.Double)
-        {
-            list = new NbtList();
-            ReadOnlySpan<byte> bytes = _reader.Read(length * sizeof(double));
-
-            if (BitConverter.IsLittleEndian)
-            {
-                ReadOnlySpan<long> cast = MemoryMarshal.Cast<byte, long>(bytes);
-                long[] rented = ArrayPool<long>.Shared.Rent(length);
-                try
-                {
-                    BinaryPrimitives.ReverseEndianness(cast, rented.AsSpan(0, length));
-                    foreach (var i in MemoryMarshal.Cast<long, double>(rented.AsSpan(0, length)))
-                        list.Add(new NbtDouble(i));
-                }
-                finally
-                {
-                    ArrayPool<long>.Shared.Return(rented);
-                }
-            }
-            else
-            {
-                ReadOnlySpan<double> cast = MemoryMarshal.Cast<byte, double>(bytes);
-                foreach (var i in cast)
-                    list.Add(new NbtDouble(i));
-            }
-
-            return true;
-        }
-
-        list = null;
-        return false;
-    }
-
-    private NbtTag ReadPrimitive(NbtTagType type, string? name)
-    {
-        if (type == NbtTagType.Byte)
-        {
-            return new NbtByte(name, _reader.Read());
-        }
-
-        if (type == NbtTagType.Short)
-        {
-            return new NbtShort(name, _reader.ReadBigEndian16());
-        }
-
-        if (type == NbtTagType.Int)
-        {
-            return new NbtInt(name, _reader.ReadBigEndian32());
-        }
-
-        if (type == NbtTagType.Long)
-        {
-            return new NbtLong(name, _reader.ReadBigEndian64());
-        }
-
-        if (type == NbtTagType.Float)
-        {
-            return new NbtFloat(name, ReadFloat());
-        }
-
-        if (type == NbtTagType.Double)
-        {
-            return new NbtDouble(name, ReadDouble());
-        }
-
-        if (type == NbtTagType.ByteArray)
-        {
-            int length = _reader.ReadBigEndian32();
-            if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
-            byte[] arr = _reader.Read(length).ToArray();
-            return NbtByteArray.CreateFromArray(arr, name);
-        }
-
-        if (type == NbtTagType.String)
-        {
-            return new NbtString(name, ReadString());
-        }
-
-        if (type == NbtTagType.IntArray)
-        {
-            int length = _reader.ReadBigEndian32();
-            if (length < 0) throw new NbtFormatException($"Negative array length given: {length}");
-            int[] result = new int[length];
-
-            ReadOnlySpan<byte> bytes = _reader.Read(sizeof(int) * length);
-            ReadOnlySpan<int> ints = MemoryMarshal.Cast<byte, int>(bytes);
-
-            if (BitConverter.IsLittleEndian)
-            {
-                BinaryPrimitives.ReverseEndianness(ints, result);
-            }
-            else
-            {
-                ints.CopyTo(result);
-            }
-
-            return NbtIntArray.CreateFromArray(result, name);
-        }
-
-        if (type == NbtTagType.LongArray)
-        {
-            int length = _reader.ReadBigEndian32();
-            if (length < 0) throw new NbtFormatException("Negative array length given: " + length);
-
-            ReadOnlySpan<byte> bytes = _reader.Read(sizeof(long) * length);
-            ReadOnlySpan<long> longs = MemoryMarshal.Cast<byte, long>(bytes);
-            long[] result = new long[length];
-            if (BitConverter.IsLittleEndian)
-            {
-                BinaryPrimitives.ReverseEndianness(longs, result);
-            }
-            else
-            {
-                longs.CopyTo(result);
-            }
-
-            return NbtLongArray.CreateFromArray(result, name);
-        }
-
-        throw new InvalidOperationException($"Unknown type: {type}({(int)type})");
-    }
-
-    private double ReadDouble()
-    {
-        long l = _reader.ReadBigEndian64();
-        return Unsafe.BitCast<long, double>(l);
-    }
-
-    private float ReadFloat()
-    {
-        int l = _reader.ReadBigEndian32();
-        return Unsafe.BitCast<int, float>(l);
+        var length = _reader.ReadBigEndian32();
+        if (length < 0)
+            throw new NbtFormatException($"Negative NBT length {length} at byte {_reader.ConsumedCount}.");
+        _reader.EnsureRemaining((long)length * elementSize);
+        return length;
     }
 
     private NbtTagType ReadTagType()
     {
-        byte type = _reader.Read();
-        return type switch
-        {
-            > (int)NbtTagType.LongArray => throw new NbtFormatException("NBT tag type out of range: " + type),
-            _ => (NbtTagType)type
-        };
+        var type = _reader.Read();
+        if (type > (byte)NbtTagType.LongArray)
+            throw new NbtFormatException($"NBT tag type out of range: {type} at byte {_reader.ConsumedCount - 1}.");
+        return (NbtTagType)type;
     }
 
     internal string ReadString()
     {
-        // NBT string length is an unsigned big-endian short.
-        int len = (ushort)_reader.ReadBigEndian16();
-        if (len == 0)
-            return "";
-        return Encoding.UTF8.GetString(_reader.Read(len));
+        int length = (ushort)_reader.ReadBigEndian16();
+        return length == 0 ? string.Empty : ModifiedUtf8.GetString(_reader.Read(length));
     }
+
+    [DoesNotReturn]
+    [StackTraceHidden]
+    private static void ThrowDepthExceeded() =>
+        throw new NbtFormatException($"NBT nesting exceeds the maximum depth of {NbtLimits.MaxDepth}.");
 }

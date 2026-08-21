@@ -14,20 +14,6 @@ public sealed class PacketDecodeException : Exception
     public DecodeError Error { get; }
 }
 
-/// <summary>Typed use of a packet on a protocol version where it does not exist.</summary>
-public sealed class UnsupportedVersionException : Exception
-{
-    public UnsupportedVersionException(string packetKey, int protocolVersion)
-        : base($"Packet {packetKey} does not exist on protocol {protocolVersion}.")
-    {
-        PacketKey = packetKey;
-        ProtocolVersion = protocolVersion;
-    }
-
-    public string PacketKey { get; }
-    public int ProtocolVersion { get; }
-}
-
 /// <summary>
 ///     Write of a version-layered packet whose group for the target version is not filled:
 ///     the packet was assembled wrongly, there is nothing to send.

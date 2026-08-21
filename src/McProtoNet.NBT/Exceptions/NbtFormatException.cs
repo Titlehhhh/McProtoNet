@@ -4,7 +4,6 @@ namespace McProtoNet.NBT;
 ///     Exception thrown when a format violation is detected while
 ///     parsing or serializing an NBT file.
 /// </summary>
-[Serializable]
 public sealed class NbtFormatException : Exception
 {
     public NbtFormatException(string message)

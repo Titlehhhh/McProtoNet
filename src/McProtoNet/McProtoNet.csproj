@@ -20,8 +20,4 @@
         <ProjectReference Include="..\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="DnsClient"/>
-    </ItemGroup>
-
 </Project>

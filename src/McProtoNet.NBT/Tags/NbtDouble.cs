@@ -65,21 +65,9 @@ public sealed class NbtDouble : NbtTag
     /// </summary>
     public double Value { get; set; }
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.ReadDouble();
-            return false;
-        }
-
         Value = readStream.ReadDouble();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.ReadDouble();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

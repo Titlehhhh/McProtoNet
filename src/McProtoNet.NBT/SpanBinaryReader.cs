@@ -22,17 +22,21 @@ internal ref struct SpanBinaryReader
 
     internal byte Read()
     {
-        if ((uint)_position >= (uint)_span.Length) ThrowEOF();
+        if ((uint)_position >= (uint)_span.Length) ThrowEndOfData(_position, 1, 0);
         return _span[_position++];
     }
 
     internal ReadOnlySpan<byte> Read(int count)
     {
-        int end = _position + count;
-        if ((uint)end > (uint)_span.Length) ThrowEOF();
+        EnsureRemaining(count);
         var result = _span.Slice(_position, count);
-        _position = end;
+        _position += count;
         return result;
+    }
+
+    internal void EnsureRemaining(long count)
+    {
+        if (count > RemainingCount) ThrowEndOfData(_position, count, RemainingCount);
     }
 
     internal short ReadBigEndian16() => BinaryPrimitives.ReadInt16BigEndian(Read(sizeof(short)));
@@ -41,5 +45,7 @@ internal ref struct SpanBinaryReader
 
     [DoesNotReturn]
     [StackTraceHidden]
-    private static void ThrowEOF() => throw new EndOfStreamException("Unexpected end of NBT data.");
+    private static void ThrowEndOfData(int position, long needed, int available) =>
+        throw new NbtFormatException(
+            $"Unexpected end of NBT data at byte {position}: need {needed} bytes, {available} left.");
 }

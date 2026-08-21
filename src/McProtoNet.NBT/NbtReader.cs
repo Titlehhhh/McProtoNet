@@ -9,12 +9,12 @@ namespace McProtoNet.NBT;
 public class NbtReader
 {
     private const string NoValueToReadError = "Value already read, or no value to read.",
-        NonValueTagError = "Trying to read value of a non-value tag.",
         InvalidParentTagError = "Parent tag is neither a Compound nor a List.",
         ErroneousStateError = "NbtReader is in an erroneous state!";
 
     private readonly bool _canSeekStream;
     private readonly NbtBinaryReader _reader;
+    private readonly bool _readRootName;
     private readonly long _streamStartOffset;
     private bool _atValue;
 
@@ -23,39 +23,55 @@ public class NbtReader
     private NbtParseState _state = NbtParseState.AtStreamBeginning;
     private object? _valueCache;
 
-
     /// <summary>
-    ///     Initializes a new instance of the NbtReader class.
+    ///     Opens a reader over a stream of Java Edition NBT — big-endian numbers, modified UTF-8
+    ///     strings. There is no little-endian (Bedrock) mode.
     /// </summary>
     /// <param name="stream"> Stream to read from. </param>
-    /// <remarks> Assumes that data in the stream is Big-Endian encoded. </remarks>
+    /// <param name="readRootName">
+    ///     True (the default) expects a named root, as NBT files carry it. False expects the nameless
+    ///     root of the network format used since 1.20.2.
+    /// </param>
     /// <exception cref="ArgumentNullException"> <paramref name="stream" /> is <c>null</c>. </exception>
     /// <exception cref="ArgumentException"> <paramref name="stream" /> is not readable. </exception>
-    public NbtReader(Stream stream)
-        : this(stream, true)
+    public NbtReader(Stream stream, bool readRootName = true)
     {
-    }
-
-
-    /// <summary>
-    ///     Initializes a new instance of the NbtReader class.
-    /// </summary>
-    /// <param name="stream"> Stream to read from. </param>
-    /// <param name="bigEndian"> Whether NBT data is in Big-Endian encoding. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not readable. </exception>
-    public NbtReader(Stream stream, bool bigEndian)
-    {
-        if (stream == null) throw new ArgumentNullException(nameof(stream));
+        ArgumentNullException.ThrowIfNull(stream);
         SkipEndTags = true;
         CacheTagValues = false;
-        ParentTagType = NbtTagType.Unknown;
-        TagType = NbtTagType.Unknown;
+        ParentTagType = NbtTagType.End;
+        TagType = NbtTagType.End;
+        _readRootName = readRootName;
 
         _canSeekStream = stream.CanSeek;
         if (_canSeekStream) _streamStartOffset = stream.Position;
 
-        _reader = new NbtBinaryReader(stream, bigEndian);
+        _reader = new NbtBinaryReader(stream);
+    }
+
+    /// <summary>
+    ///     Reads one complete tag from a stream and builds the tag tree. The root may be of any
+    ///     type — since 1.20.3 a network root can be a TAG_String. Returns null when the first
+    ///     byte is TAG_End.
+    /// </summary>
+    /// <param name="stream"> Stream positioned at the tag type byte. </param>
+    /// <param name="readRootName">
+    ///     True (the default) reads the root tag's name after the type byte. False expects the
+    ///     nameless root of the network format.
+    /// </param>
+    /// <exception cref="NbtFormatException"> The data is malformed, truncated, or too deeply nested. </exception>
+    public static NbtTag? ReadTag(Stream stream, bool readRootName = true)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        using var reader = new NbtBinaryReader(stream);
+
+        var type = reader.ReadTagType();
+        if (type == NbtTagType.End) return null;
+
+        var tag = NbtTag.CreateTag(type);
+        if (readRootName) tag.Name = reader.ReadString();
+        tag.ReadTag(reader);
+        return tag;
     }
 
 
@@ -75,7 +91,7 @@ public class NbtReader
     public string? TagName { get; private set; }
 
     /// <summary>
-    ///     Gets the type of the parent tag. Returns TagType.Unknown if there is no parent tag.
+    ///     Gets the type of the parent tag. Returns TAG_End when there is no parent tag.
     /// </summary>
     public NbtTagType ParentTagType { get; private set; }
 
@@ -93,7 +109,7 @@ public class NbtReader
     ///     Whether current tag has a value to read.
     /// </summary>
     public bool HasValue =>
-        TagType is not (NbtTagType.Compound or NbtTagType.End or NbtTagType.List or NbtTagType.Unknown);
+        TagType is not (NbtTagType.Compound or NbtTagType.End or NbtTagType.List);
 
     /// <summary>
     ///     Whether current tag has a name.
@@ -204,18 +220,24 @@ public class NbtReader
         switch (_state)
         {
             case NbtParseState.AtStreamBeginning:
-                // set state to error in case reader.ReadTagType throws.
                 _state = NbtParseState.Error;
-                // read first tag, make sure it's a compound
-                var deb = _reader.ReadTagType();
-                if (deb != NbtTagType.Compound)
-                    throw new NbtFormatException("Given NBT stream does not start with a TAG_Compound");
+                var rootType = _reader.ReadTagType();
+                if (rootType == NbtTagType.End)
+                {
+                    _state = NbtParseState.AtStreamEnd;
+                    return false;
+                }
+
                 Depth = 1;
-                TagType = NbtTagType.Compound;
-                // Read root name. Advance to the first inside tag.
-                ReadTagHeader(true);
+                TagType = rootType;
+                _state = NbtParseState.AtRootValue;
+                ReadTagHeader(_readRootName);
                 RootName = TagName;
                 return true;
+            case NbtParseState.AtRootValue:
+                if (_atValue) SkipValue();
+                _state = NbtParseState.AtStreamEnd;
+                return false;
             case NbtParseState.AtCompoundBeginning:
                 GoDown();
                 _state = NbtParseState.InCompound;
@@ -273,6 +295,12 @@ public class NbtReader
                         goto case NbtParseState.InCompound;
                     }
 
+                    if (ParentTagType == NbtTagType.End)
+                    {
+                        _state = NbtParseState.AtStreamEnd;
+                        return false;
+                    }
+
                     // This should not happen unless NbtReader is bugged
                     throw new NbtFormatException(InvalidParentTagError);
                 }
@@ -296,7 +324,7 @@ public class NbtReader
                     goto case NbtParseState.InCompound;
                 }
 
-                if (ParentTagType == NbtTagType.Unknown)
+                if (ParentTagType == NbtTagType.End)
                 {
                     _state = NbtParseState.AtStreamEnd;
                     return false;
@@ -325,7 +353,7 @@ public class NbtReader
         _valueCache = null!;
         TagLength = 0;
         _atValue = false;
-        ListType = NbtTagType.Unknown;
+        ListType = NbtTagType.End;
 
         switch (TagType)
         {
@@ -351,6 +379,8 @@ public class NbtReader
                 ListType = _reader.ReadTagType();
                 TagLength = _reader.ReadInt32();
                 if (TagLength < 0) throw new NbtFormatException("Negative tag length given: " + TagLength);
+                if (TagLength > 0 && ListType == NbtTagType.End)
+                    throw new NbtFormatException("Non-empty NBT list of TAG_End elements.");
                 _state = NbtParseState.AtListBeginning;
                 break;
             case NbtTagType.Compound:
@@ -364,6 +394,8 @@ public class NbtReader
     /// </summary>
     private void GoDown()
     {
+        if (Depth > NbtLimits.MaxDepth)
+            throw new NbtFormatException($"NBT nesting exceeds the maximum depth of {NbtLimits.MaxDepth}.");
         if (_nodes == null) _nodes = new Stack<NbtReaderNode>();
         var newNode = new NbtReaderNode
         {
@@ -424,10 +456,10 @@ public class NbtReader
                 _reader.Skip(TagLength);
                 break;
             case NbtTagType.IntArray:
-                _reader.Skip(sizeof(int) * TagLength);
+                _reader.Skip((long)TagLength * sizeof(int));
                 break;
             case NbtTagType.LongArray:
-                _reader.Skip(sizeof(long) * TagLength);
+                _reader.Skip((long)TagLength * sizeof(long));
                 break;
             case NbtTagType.String:
                 _reader.SkipString();
@@ -669,18 +701,11 @@ public class NbtReader
             case NbtTagType.String:
                 return new NbtString(TagName, _reader.ReadString());
             case NbtTagType.ByteArray:
-                var value = _reader.ReadBytes(TagLength);
-                if (value.Length < TagLength) throw new EndOfStreamException();
-                return new NbtByteArray(TagName, value);
+                return new NbtByteArray(TagName, _reader.ReadArrayBigEndian<byte>(TagLength));
             case NbtTagType.IntArray:
-                var ints = new int[TagLength];
-                for (var i = 0; i < TagLength; i++) ints[i] = _reader.ReadInt32();
-                return new NbtIntArray(TagName, ints);
+                return new NbtIntArray(TagName, _reader.ReadArrayBigEndian<int>(TagLength));
             case NbtTagType.LongArray:
-                var longs = new long[TagLength];
-                for (var i = 0; i < TagLength; i++) longs[i] = _reader.ReadInt64();
-
-                return new NbtLongArray(TagName, longs);
+                return new NbtLongArray(TagName, _reader.ReadArrayBigEndian<long>(TagLength));
             default:
                 return null!;
         }
@@ -753,20 +778,13 @@ public class NbtReader
                 value = _reader.ReadInt64();
                 break;
             case NbtTagType.ByteArray:
-                var valueArr = _reader.ReadBytes(TagLength);
-                if (valueArr.Length < TagLength) throw new EndOfStreamException();
-                value = valueArr;
+                value = _reader.ReadArrayBigEndian<byte>(TagLength);
                 break;
             case NbtTagType.IntArray:
-                var intValue = new int[TagLength];
-                for (var i = 0; i < TagLength; i++) intValue[i] = _reader.ReadInt32();
-                value = intValue;
+                value = _reader.ReadArrayBigEndian<int>(TagLength);
                 break;
             case NbtTagType.LongArray:
-                var longValue = new long[TagLength];
-                for (var i = 0; i < TagLength; i++) longValue[i] = _reader.ReadInt64();
-
-                value = longValue;
+                value = _reader.ReadArrayBigEndian<long>(TagLength);
                 break;
             case NbtTagType.String:
                 value = _reader.ReadString();
@@ -815,22 +833,23 @@ public class NbtReader
                 throw new InvalidOperationException("ReadListAsArray may only be used on List tags.");
         }
 
+        // ReadTagHeader resets ListType for every element, so the element type lives in TagType.
+        var elementType = TagType;
         var elementsToRead = ParentTagLength - ListIndex;
+        _atValue = false;
+        _valueCache = null;
 
         // special handling for reading byte arrays (as byte arrays)
-        if (ListType == NbtTagType.Byte && typeof(T) == typeof(byte))
+        if (elementType == NbtTagType.Byte && typeof(T) == typeof(byte))
         {
             TagsRead += elementsToRead;
             ListIndex = ParentTagLength - 1;
-            var val = (T[])(object)_reader.ReadBytes(elementsToRead);
-            if (val.Length < elementsToRead) throw new EndOfStreamException();
-
-            return val;
+            return (T[])(object)_reader.ReadArrayBigEndian<byte>(elementsToRead);
         }
 
         // for everything else, gotta read elements one-by-one
         var result = new T[elementsToRead];
-        switch (ListType)
+        switch (elementType)
         {
             case NbtTagType.Byte:
                 for (var i = 0; i < elementsToRead; i++)

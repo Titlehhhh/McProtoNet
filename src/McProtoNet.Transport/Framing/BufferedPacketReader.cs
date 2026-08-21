@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using McProtoNet.Primitives;
 using McProtoNet.Transport.Cryptography;
@@ -67,8 +66,7 @@ internal sealed class BufferedPacketReader : IDisposable
     public ValueTask<PacketBatch> ReadBatchAsync(CancellationToken token = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (Interlocked.Exchange(ref _reading, 1) == 1)
-            throw new InvalidOperationException("Concurrent packet reading is not allowed.");
+        if (Interlocked.Exchange(ref _reading, 1) == 1) ThrowHelper.ThrowConcurrentRead();
 
         try
         {
@@ -86,7 +84,7 @@ internal sealed class BufferedPacketReader : IDisposable
 
             if (_eof)
             {
-                if (_end > _start) ThrowTruncated();
+                if (_end > _start) ThrowHelper.ThrowTruncatedFrame();
 
                 Volatile.Write(ref _reading, 0);
                 return new ValueTask<PacketBatch>(new PacketBatch(this, 0, true));
@@ -130,7 +128,7 @@ internal sealed class BufferedPacketReader : IDisposable
                 if (read == 0)
                 {
                     _eof = true;
-                    if (_end > _start) ThrowTruncated();
+                    if (_end > _start) ThrowHelper.ThrowTruncatedFrame();
 
                     return new PacketBatch(this, 0, true);
                 }
@@ -147,10 +145,6 @@ internal sealed class BufferedPacketReader : IDisposable
             Volatile.Write(ref _reading, 0);
         }
     }
-
-    [DoesNotReturn]
-    private static void ThrowTruncated() =>
-        throw new EndOfStreamException("The stream ended in the middle of a frame.");
 
     private void MakeRoom()
     {
@@ -195,8 +189,7 @@ internal sealed class BufferedPacketReader : IDisposable
                 return;
             }
 
-            if (length <= 0 || length > MaxFrameLength)
-                throw new InvalidDataException($"Invalid frame length {length}");
+            if (length <= 0 || length > MaxFrameLength) ThrowHelper.ThrowInvalidFrameLength(length);
 
             if (available - lengthBytes < length)
             {
@@ -222,7 +215,7 @@ internal sealed class BufferedPacketReader : IDisposable
         if (sizeUncompressed <= 0)
         {
             var plainLength = length - sizeLength;
-            if (plainLength <= 0) throw new InvalidDataException("Compression envelope carries no packet");
+            if (plainLength <= 0) ThrowHelper.ThrowEmptyEnvelope();
 
             var id = _buffer.AsSpan(offset + sizeLength, plainLength).ReadVarInt(out var idLength);
             Append(id, offset + sizeLength + idLength, plainLength - idLength, fromArena: false);
@@ -230,7 +223,7 @@ internal sealed class BufferedPacketReader : IDisposable
         }
 
         if (sizeUncompressed > MaxFrameLength || length - sizeLength <= 0)
-            throw new InvalidDataException($"Invalid uncompressed size {sizeUncompressed}");
+            ThrowHelper.ThrowInvalidUncompressedSize(sizeUncompressed);
 
         var target = ArenaAllocate(sizeUncompressed);
         PacketStreamReader.DecompressCore(
@@ -259,7 +252,7 @@ internal sealed class BufferedPacketReader : IDisposable
 
     private void Append(int id, int offset, int length, bool fromArena)
     {
-        if (length < 0) throw new InvalidDataException("Packet id runs past the end of the frame");
+        if (length < 0) ThrowHelper.ThrowIdPastFrameEnd();
         if (_count == _frames.Length) Array.Resize(ref _frames, _frames.Length * 2);
         _frames[_count++] = new Frame(id, offset, length, fromArena);
     }

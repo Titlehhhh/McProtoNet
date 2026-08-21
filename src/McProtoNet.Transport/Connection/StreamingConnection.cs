@@ -16,6 +16,15 @@ namespace McProtoNet.Transport;
 ///     One reader, one writer, no queue inside: send policy belongs to the caller. Another thread
 ///     may only call <see cref="Abort" />. A batch and its bodies live until the next
 ///     <see cref="ReadBatchAsync" />.
+///     <para>
+///     What comes out when a call cannot go through: <see cref="ObjectDisposedException" /> after
+///     <see cref="DisposeAsync" />; <see cref="InvalidOperationException" /> for a misuse that never
+///     touched the stream — two reads at once — which leaves the connection alone; an
+///     <see cref="OperationCanceledException" /> only for the caller's own cancelled token;
+///     <see cref="ConnectionAbortedException" /> for everything else, with the reason as its inner
+///     exception. The first failure of the stream itself comes out as it is and is latched — every
+///     call after it reports the closed connection and that reason.
+///     </para>
 /// </remarks>
 public sealed class StreamingConnection : IAsyncDisposable
 {
@@ -30,7 +39,7 @@ public sealed class StreamingConnection : IAsyncDisposable
 
     private int _closed;
     private Exception? _closeReason;
-    private bool _disposed;
+    private int _disposed;
 
     internal StreamingConnection(Stream stream, bool leaveOpen, int compressionThreshold,
         PacketCipher? encryptor, PacketCipher? decryptor)
@@ -61,13 +70,16 @@ public sealed class StreamingConnection : IAsyncDisposable
     /// <summary>Why the connection ended. Null for a clean end of stream or <see cref="CompleteAsync" />.</summary>
     public Exception? CloseReason => Volatile.Read(ref _closeReason);
 
-    /// <summary>Bytes framed but not yet handed to the stream.</summary>
+    /// <summary>
+    ///     Bytes framed but not yet handed to the stream. A closed connection reports 0 — nothing it
+    ///     still holds will ever go out — so it stays readable after <see cref="CompleteAsync" />.
+    /// </summary>
     public long UnflushedBytes
     {
         get
         {
-            ThrowIfClosed();
-            return _writer.UnflushedBytes;
+            ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
+            return Volatile.Read(ref _closed) == 1 || _writer.IsBroken ? 0 : _writer.UnflushedBytes;
         }
     }
 
@@ -83,15 +95,13 @@ public sealed class StreamingConnection : IAsyncDisposable
         {
             batch = await _reader.ReadBatchAsync(token).ConfigureAwait(false);
         }
-        catch (Exception ex) when (IsAborted(ex))
+        catch (Exception ex)
         {
-            throw new ConnectionAbortedException(CloseReason);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            // cancellation leaves the reader usable; anything else is the connection dying
-            Close(ex, closeStream: true);
-            throw;
+            // cancellation by the caller's own token leaves the reader usable; anything else is
+            // the connection dying
+            var closed = OnFailure(ex, token);
+            if (closed is null) throw;
+            throw closed;
         }
 
         if (batch is { Count: 0, IsCompleted: true }) Close(null, closeStream: false);
@@ -138,7 +148,10 @@ public sealed class StreamingConnection : IAsyncDisposable
 
     /// <summary>
     ///     One write plus one stream flush. When it returns, everything written so far is at the
-    ///     socket. A cancelled or failed flush kills the connection — part of a frame may be on the wire.
+    ///     socket. A cancelled or failed flush kills the connection — part of a frame may be on the
+    ///     wire — so the caller who cancelled still gets its own
+    ///     <see cref="OperationCanceledException" />, and every call after that gets
+    ///     <see cref="ConnectionAbortedException" />.
     /// </summary>
     public async ValueTask FlushAsync(CancellationToken token = default)
     {
@@ -147,21 +160,19 @@ public sealed class StreamingConnection : IAsyncDisposable
         {
             await _writer.FlushAsync(token).ConfigureAwait(false);
         }
-        catch (Exception ex) when (IsAborted(ex))
-        {
-            throw new ConnectionAbortedException(CloseReason);
-        }
         catch (Exception ex)
         {
-            Close(ex, closeStream: true);
-            throw;
+            var closed = OnFlushFailure(ex, token);
+            if (closed is null) throw;
+            throw closed;
         }
     }
 
     /// <summary>Flushes what is left and closes cleanly.</summary>
     public async ValueTask CompleteAsync()
     {
-        if (Volatile.Read(ref _closed) == 1) return;
+        // it promises the bytes are on the wire: on a closed connection that would be a lie
+        ThrowIfClosed();
 
         try
         {
@@ -169,8 +180,9 @@ public sealed class StreamingConnection : IAsyncDisposable
         }
         catch (Exception ex)
         {
-            Close(ex, closeStream: true);
-            throw;
+            var closed = OnFlushFailure(ex, CancellationToken.None);
+            if (closed is null) throw;
+            throw closed;
         }
 
         Close(null, closeStream: false);
@@ -184,8 +196,7 @@ public sealed class StreamingConnection : IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (Interlocked.Exchange(ref _disposed, 1) == 1) return;
 
         Close(null, closeStream: false);
         await Completion.ConfigureAwait(false);
@@ -198,32 +209,90 @@ public sealed class StreamingConnection : IAsyncDisposable
 
     private void Close(Exception? reason, bool closeStream)
     {
-        if (Volatile.Read(ref _closed) == 1) return;
+        // whoever asks for the stream to go down gets it, win or lose the race to close: a late
+        // Abort must still break the call parked inside the stream. Dispose is idempotent.
+        var kill = closeStream || !_leaveOpen;
+
+        if (Volatile.Read(ref _closed) == 1)
+        {
+            if (kill) KillStream();
+            return;
+        }
 
         // reason first: a thread that sees _closed == 1 must also see why
         Interlocked.CompareExchange(ref _closeReason, reason, null);
-        if (Interlocked.Exchange(ref _closed, 1) == 1) return;
-
-        if (closeStream || !_leaveOpen)
+        if (Interlocked.Exchange(ref _closed, 1) == 1)
         {
-            try
-            {
-                _stream.Dispose();
-            }
-            catch
-            {
-            }
+            if (kill) KillStream();
+            return;
         }
 
+        if (kill) KillStream();
         _completion.TrySetResult();
     }
 
-    private bool IsAborted(Exception ex) =>
-        ex is not OperationCanceledException && Volatile.Read(ref _closed) == 1;
+    private void KillStream()
+    {
+        try
+        {
+            _stream.Dispose();
+        }
+        catch
+        {
+        }
+    }
+
+    /// <summary>
+    ///     Latches a dead stream so the next call reports the close instead of reading a corpse, and
+    ///     says what the caller must see. Null means the original exception, rethrown with its stack.
+    /// </summary>
+    private Exception? OnFailure(Exception ex, CancellationToken token)
+    {
+        if (ex is OperationCanceledException && token.IsCancellationRequested) return null;
+
+        if (Volatile.Read(ref _closed) == 1) return new ConnectionAbortedException(CloseReason);
+
+        // a misuse never reached the stream: the caller's bug, not the connection's death.
+        // ObjectDisposedException derives from InvalidOperationException but means the stream is
+        // gone, so it is a death, not a misuse — and a closed connection is checked before both.
+        if (ex is InvalidOperationException and not ObjectDisposedException) return null;
+
+        Close(ex, closeStream: true);
+
+        // a cancellation that is not the caller's is a failure of the stream, not a cancellation
+        return ex is OperationCanceledException ? new ConnectionAbortedException(ex) : null;
+    }
+
+    /// <summary>
+    ///     Same, for the send side, where even the caller's own cancellation is fatal: the buffered
+    ///     writer is dead after any failed flush and part of a frame may already be on the wire. The
+    ///     caller who cancelled still gets its own cancellation; the connection goes down behind it.
+    /// </summary>
+    private Exception? OnFlushFailure(Exception ex, CancellationToken token)
+    {
+        if (Volatile.Read(ref _closed) == 1)
+            return ex is OperationCanceledException && token.IsCancellationRequested
+                ? null
+                : new ConnectionAbortedException(CloseReason);
+
+        // a misuse never reached the stream: the caller's bug, not the connection's death.
+        // ObjectDisposedException derives from InvalidOperationException but means the stream is
+        // gone, so it is a death, not a misuse — and a closed connection is checked before both.
+        if (ex is InvalidOperationException and not ObjectDisposedException) return null;
+
+        // a flush that never handed a byte to the stream leaves the writer whole, and with it the
+        // connection: an empty buffer plus an already-cancelled token must not kill anything
+        if (!_writer.IsBroken && ex is OperationCanceledException && token.IsCancellationRequested)
+            return null;
+
+        Close(ex, closeStream: true);
+        if (ex is not OperationCanceledException) return null;
+        return token.IsCancellationRequested ? null : new ConnectionAbortedException(ex);
+    }
 
     private void ThrowIfClosed()
     {
-        ObjectDisposedException.ThrowIf(_disposed, this);
-        if (Volatile.Read(ref _closed) == 1) throw new ConnectionAbortedException(CloseReason);
+        ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
+        if (Volatile.Read(ref _closed) == 1) ThrowHelper.ThrowAborted(CloseReason);
     }
 }

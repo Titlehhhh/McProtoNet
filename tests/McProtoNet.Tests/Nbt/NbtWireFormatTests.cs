@@ -257,7 +257,7 @@ public class NbtWireFormatTests
         writer.WriteNbt(BuildKitchenSink(null));
         var truncated = writer.WrittenSpan.Slice(0, writer.WrittenSpan.Length / 2).ToArray();
 
-        Assert.Throws<EndOfStreamException>(() =>
+        Assert.Throws<NbtFormatException>(() =>
         {
             var reader = new MinecraftPrimitiveReader(ToSegmented(truncated, 3));
             reader.ReadNbtTag(readRootTag: false);

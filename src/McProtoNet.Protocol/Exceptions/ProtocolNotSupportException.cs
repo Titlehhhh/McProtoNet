@@ -1,7 +1,8 @@
 namespace McProtoNet.Protocol;
 
 /// <summary>
-/// Exception thrown when a protocol is not supported
+/// Thrown when a type or a packet does not exist on the protocol version in play — on read, on
+/// write, and on a typed send whose packet has no id for that version.
 /// </summary>
 public sealed class ProtocolNotSupportException : Exception
 {
@@ -30,7 +31,9 @@ public sealed class ProtocolNotSupportException : Exception
         int actualVersion,
         IReadOnlyList<ProtocolRange> ranges)
     {
+        if (ranges.Count == 0) return $"{typeName} is not supported for protocol {actualVersion}";
+
         var supported = string.Join(", ", ranges);
-        return $"Type {typeName} is not supported for protocol {actualVersion}. Supported: {supported}";
+        return $"{typeName} is not supported for protocol {actualVersion}. Supported: {supported}";
     }
 }

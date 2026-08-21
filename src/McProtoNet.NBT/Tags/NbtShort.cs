@@ -82,21 +82,9 @@ public sealed class NbtShort : NbtTag
 
     #region Reading / Writing
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.ReadInt16();
-            return false;
-        }
-
         Value = readStream.ReadInt16();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.ReadInt16();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

@@ -3,7 +3,7 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing a single string. String is stored in UTF-8 encoding.
+///     A tag containing a single string. On the wire the string is modified UTF-8 (see <see cref="ModifiedUtf8" />).
 /// </summary>
 public sealed class NbtString : NbtTag
 {
@@ -82,21 +82,9 @@ public sealed class NbtString : NbtTag
 
     #region Reading / Writing
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.SkipString();
-            return false;
-        }
-
         Value = readStream.ReadString();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.SkipString();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

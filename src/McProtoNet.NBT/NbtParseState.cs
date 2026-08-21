@@ -8,6 +8,7 @@ internal enum NbtParseState
     AtCompoundEnd,
     AtListBeginning,
     InList,
+    AtRootValue,
     AtStreamEnd,
     Error
 }

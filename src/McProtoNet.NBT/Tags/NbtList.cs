@@ -13,10 +13,10 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     private NbtTagType _listType;
 
     /// <summary>
-    ///     Creates an unnamed NbtList with empty contents and undefined ListType.
+    ///     Creates an unnamed NbtList with empty contents and an element type of TAG_End.
     /// </summary>
     public NbtList()
-        : this(null!, null!, NbtTagType.Unknown)
+        : this(null!, null!, NbtTagType.End)
     {
     }
 
@@ -25,13 +25,13 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// </summary>
     /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
     public NbtList(string? tagName)
-        : this(tagName, null, NbtTagType.Unknown)
+        : this(tagName, null, NbtTagType.End)
     {
     }
 
     /// <summary>
     ///     Creates an unnamed NbtList with the given contents, and inferred ListType.
-    ///     If given tag array is empty, NbtTagType remains Unknown.
+    ///     If the given tag collection is empty, the element type stays TAG_End.
     /// </summary>
     /// <param name="tags">
     ///     Collection of tags to insert into the list. All tags are expected to be of the same type.
@@ -40,7 +40,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
     /// <exception cref="ArgumentException"> If given tags are of mixed types. </exception>
     public NbtList(IEnumerable<NbtTag> tags)
-        : this(null, tags, NbtTagType.Unknown)
+        : this(null, tags, NbtTagType.End)
     {
         // the base constructor will allow null "tags," but we don't want that in this constructor
         if (tags == null) throw new ArgumentNullException(nameof(tags));
@@ -48,10 +48,10 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 
     /// <summary>
     ///     Creates an unnamed NbtList with empty contents and an explicitly specified ListType.
-    ///     If ListType is Unknown, it will be inferred from the type of the first added tag.
+    ///     If the element type is TAG_End, it is inferred from the first tag added.
     ///     Otherwise, all tags added to this list are expected to be of the given type.
     /// </summary>
-    /// <param name="givenListType"> Name to assign to this tag. May be Unknown. </param>
+    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
     /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a recognized tag type. </exception>
     public NbtList(NbtTagType givenListType)
         : this(null, null, givenListType)
@@ -60,7 +60,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 
     /// <summary>
     ///     Creates an NbtList with the given name and contents, and inferred ListType.
-    ///     If given tag array is empty, NbtTagType remains Unknown.
+    ///     If the given tag collection is empty, the element type stays TAG_End.
     /// </summary>
     /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
     /// <param name="tags">
@@ -70,7 +70,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
     /// <exception cref="ArgumentException"> If given tags are of mixed types. </exception>
     public NbtList(string? tagName, IEnumerable<NbtTag> tags)
-        : this(tagName, tags, NbtTagType.Unknown)
+        : this(tagName, tags, NbtTagType.End)
     {
         // the base constructor will allow null "tags," but we don't want that in this constructor
         if (tags == null) throw new ArgumentNullException(nameof(tags));
@@ -84,7 +84,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     ///     All tags are expected to be of the same type (matching givenListType).
     ///     List may be empty, but may not be <c>null</c>.
     /// </param>
-    /// <param name="givenListType"> Name to assign to this tag. May be Unknown (to infer type from the first element of tags). </param>
+    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
     /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
     /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
     /// <exception cref="ArgumentException">
@@ -104,7 +104,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
     /// <param name="givenListType">
     ///     Name to assign to this tag.
-    ///     If givenListType is Unknown, ListType will be inferred from the first tag added to this NbtList.
+    ///     If givenListType is TAG_End, the element type is inferred from the first tag added.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
     public NbtList(string? tagName, NbtTagType givenListType)
@@ -120,7 +120,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     ///     Collection of tags to insert into the list.
     ///     All tags are expected to be of the same type (matching givenListType). May be empty or <c>null</c>.
     /// </param>
-    /// <param name="givenListType"> Name to assign to this tag. May be Unknown (to infer type from the first element of tags). </param>
+    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
     /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
     /// <exception cref="ArgumentException">
     ///     If given tags do not match <paramref name="givenListType" />, or are of mixed
@@ -168,10 +168,10 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
         {
             if (value == NbtTagType.End)
             {
-                // Empty lists may have type "End", see: https://github.com/fragmer/fNbt/issues/12
-                if (_tags.Count > 0) throw new ArgumentException("Only empty list tags may have TagType of End.");
+                if (_tags.Count > 0)
+                    throw new ArgumentException("Only an empty list may have an element type of TAG_End.");
             }
-            else if (value < NbtTagType.Byte || (value > NbtTagType.LongArray && value != NbtTagType.Unknown))
+            else if (value > NbtTagType.LongArray)
             {
                 throw new ArgumentOutOfRangeException(nameof(value));
             }
@@ -215,7 +215,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
             if (value.Name != null)
                 throw new ArgumentException("Named tag given. A list may only contain unnamed tags.");
 
-            if (_listType != NbtTagType.Unknown && value.TagType != _listType)
+            if (_listType != NbtTagType.End && value.TagType != _listType)
                 throw new ArgumentException("Items must be of type " + _listType);
             _tags[tagIndex] = value;
             value.Parent = this;
@@ -302,123 +302,25 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 
     #region Reading / Writing
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            SkipTag(readStream);
-            return false;
-        }
-
+        readStream.EnterLevel();
         ListType = readStream.ReadTagType();
 
         var length = readStream.ReadInt32();
         if (length < 0) throw new NbtFormatException("Negative list size given.");
+        if (length > 0 && ListType == NbtTagType.End)
+            throw new NbtFormatException("Non-empty NBT list of TAG_End elements.");
 
         for (var i = 0; i < length; i++)
         {
-            NbtTag newTag;
-            switch (ListType)
-            {
-                case NbtTagType.Byte:
-                    newTag = new NbtByte();
-                    break;
-                case NbtTagType.Short:
-                    newTag = new NbtShort();
-                    break;
-                case NbtTagType.Int:
-                    newTag = new NbtInt();
-                    break;
-                case NbtTagType.Long:
-                    newTag = new NbtLong();
-                    break;
-                case NbtTagType.Float:
-                    newTag = new NbtFloat();
-                    break;
-                case NbtTagType.Double:
-                    newTag = new NbtDouble();
-                    break;
-                case NbtTagType.ByteArray:
-                    newTag = new NbtByteArray();
-                    break;
-                case NbtTagType.String:
-                    newTag = new NbtString();
-                    break;
-                case NbtTagType.List:
-                    newTag = new NbtList();
-                    break;
-                case NbtTagType.Compound:
-                    newTag = new NbtCompound();
-                    break;
-                case NbtTagType.IntArray:
-                    newTag = new NbtIntArray();
-                    break;
-                case NbtTagType.LongArray:
-                    newTag = new NbtLongArray();
-                    break;
-                default:
-                    // should never happen, since ListType is checked beforehand
-                    throw new NbtFormatException("Unsupported tag type found in a list: " + ListType);
-            }
-
-            newTag.Parent = this;
-            if (newTag.ReadTag(readStream)) _tags.Add(newTag);
+            var element = CreateTag(ListType);
+            element.Parent = this;
+            element.ReadTag(readStream);
+            _tags.Add(element);
         }
 
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        // read list type, and make sure it's defined
-        ListType = readStream.ReadTagType();
-
-        var length = readStream.ReadInt32();
-        if (length < 0) throw new NbtFormatException("Negative list size given.");
-
-        switch (ListType)
-        {
-            case NbtTagType.Byte:
-                readStream.Skip(length);
-                break;
-            case NbtTagType.Short:
-                readStream.Skip(length * sizeof(short));
-                break;
-            case NbtTagType.Int:
-                readStream.Skip(length * sizeof(int));
-                break;
-            case NbtTagType.Long:
-                readStream.Skip(length * sizeof(long));
-                break;
-            case NbtTagType.Float:
-                readStream.Skip(length * sizeof(float));
-                break;
-            case NbtTagType.Double:
-                readStream.Skip(length * sizeof(double));
-                break;
-            default:
-                for (var i = 0; i < length; i++)
-                    switch (_listType)
-                    {
-                        case NbtTagType.ByteArray:
-                            new NbtByteArray().SkipTag(readStream);
-                            break;
-                        case NbtTagType.String:
-                            readStream.SkipString();
-                            break;
-                        case NbtTagType.List:
-                            new NbtList().SkipTag(readStream);
-                            break;
-                        case NbtTagType.Compound:
-                            new NbtCompound().SkipTag(readStream);
-                            break;
-                        case NbtTagType.IntArray:
-                            new NbtIntArray().SkipTag(readStream);
-                            break;
-                    }
-
-                break;
-        }
+        readStream.ExitLevel();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)
@@ -431,11 +333,11 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 
     internal override void WriteData(NbtBinaryWriter writeStream)
     {
-        if (ListType == NbtTagType.Unknown)
-            throw new NbtFormatException("NbtList had no elements and an Unknown ListType");
+        writeStream.EnterLevel();
         writeStream.Write(ListType);
         writeStream.Write(_tags.Count);
         foreach (var tag in _tags) tag.WriteData(writeStream);
+        writeStream.ExitLevel();
     }
 
     #endregion
@@ -482,14 +384,14 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     {
         if (newTag == null) throw new ArgumentNullException(nameof(newTag));
 
-        if (_listType != NbtTagType.Unknown && newTag.TagType != _listType)
+        if (_listType != NbtTagType.End && newTag.TagType != _listType)
             throw new ArgumentException("Items must be of type " + _listType);
 
         if (newTag.Parent != null)
             throw new ArgumentException("A tag may only be added to one compound/list at a time.");
 
         _tags.Insert(tagIndex, newTag);
-        if (_listType == NbtTagType.Unknown) _listType = newTag.TagType;
+        if (_listType == NbtTagType.End) _listType = newTag.TagType;
         newTag.Parent = this;
     }
 
@@ -523,13 +425,13 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 
         if (newTag.Name != null) throw new ArgumentException("Named tag given. A list may only contain unnamed tags.");
 
-        if (_listType != NbtTagType.Unknown && newTag.TagType != _listType)
+        if (_listType != NbtTagType.End && newTag.TagType != _listType)
             throw new ArgumentException("Items in this list must be of type " + _listType + ". Given type: " +
                                         newTag.TagType);
 
         _tags.Add(newTag);
         newTag.Parent = this;
-        if (_listType == NbtTagType.Unknown) _listType = newTag.TagType;
+        if (_listType == NbtTagType.End) _listType = newTag.TagType;
     }
 
     /// <summary>

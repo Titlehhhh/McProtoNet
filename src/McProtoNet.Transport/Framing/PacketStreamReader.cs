@@ -103,15 +103,14 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         ThrowIfDisposed();
 
         if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
-            throw new InvalidOperationException("Concurrent packet reading is not allowed.");
+            ThrowHelper.ThrowConcurrentRead();
 
         ReturnBufferToPool();
 
         try
         {
             var len = await ReadLengthAsync(token).ConfigureAwait(false);
-            if (len <= 0 || len > BufferedPacketReader.MaxFrameLength)
-                throw new InvalidDataException($"Invalid frame length {len}");
+            if (len <= 0 || len > BufferedPacketReader.MaxFrameLength) ThrowHelper.ThrowInvalidFrameLength(len);
 
             var buffer = _pool.Rent(len);
             Memory<byte> memory = buffer.AsMemory(0, len);
@@ -129,7 +128,7 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
                     return CreatePacket(buffer, memory[offsetSizeUncompressed..]);
 
                 if (sizeUncompressed > BufferedPacketReader.MaxFrameLength)
-                    throw new InvalidDataException($"Invalid uncompressed size {sizeUncompressed}");
+                    ThrowHelper.ThrowInvalidUncompressedSize(sizeUncompressed);
 
                 var decompressed = _pool.Rent(sizeUncompressed);
                 try
@@ -173,7 +172,7 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
             result |= (read & 0b01111111) << (7 * numRead);
 
             numRead++;
-            if (numRead > 5) throw new InvalidDataException("VarInt is too long");
+            if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
         } while ((read & 0b10000000) != 0);
 
         return result;
@@ -185,22 +184,8 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         var status = decompressor.Decompress(bufferCompress, uncompress, out var written);
 
         // status first: a broken frame reports its own reason, not a buffer-length mismatch
-        switch (status)
-        {
-            case OperationStatus.InvalidData:
-                throw new InvalidDataException("Decompress Error: Invalid Data");
-            case OperationStatus.NeedMoreData:
-                throw new InvalidDataException("Decompress Error: Need more data");
-            case OperationStatus.DestinationTooSmall:
-                throw new InvalidDataException("Decompress Error: Destination buffer too small");
-            case OperationStatus.Done:
-                break;
-            default:
-                throw new InvalidDataException($"Decompress Error: {status}");
-        }
-
-        if (written != uncompress.Length)
-            throw new InvalidDataException("Decompress Error: uncompressed size does not match the frame header");
+        if (status != OperationStatus.Done) ThrowHelper.ThrowDecompressFailed(status);
+        if (written != uncompress.Length) ThrowHelper.ThrowDecompressSizeMismatch(written, uncompress.Length);
     }
 
     private void ReturnBufferToPool()

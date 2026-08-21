@@ -6,12 +6,8 @@ namespace McProtoNet.NBT;
 public enum NbtTagType : byte
 {
     /// <summary>
-    ///     Placeholder TagType used to indicate unknown/undefined tag type in NbtList.
-    /// </summary>
-    Unknown = 0xff,
-
-    /// <summary>
     ///     TAG_End: This unnamed tag serves no purpose but to signify the end of an open TAG_Compound.
+    ///     It is also the element type an empty TAG_List carries.
     /// </summary>
     End = 0x00,
 
@@ -19,7 +15,6 @@ public enum NbtTagType : byte
     ///     TAG_Byte: A single byte.
     /// </summary>
     Byte = 0x01,
-    Boolean = 0x01,
 
     /// <summary>
     ///     TAG_Short: A single signed 16-bit integer.
@@ -52,7 +47,7 @@ public enum NbtTagType : byte
     ByteArray = 0x07,
 
     /// <summary>
-    ///     TAG_String: A length-prefixed UTF-8 string.
+    ///     TAG_String: A length-prefixed string in modified UTF-8 (see <see cref="ModifiedUtf8" />).
     /// </summary>
     String = 0x08,
 

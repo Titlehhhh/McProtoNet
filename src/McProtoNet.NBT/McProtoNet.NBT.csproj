@@ -5,12 +5,16 @@
         <Nullable>enable</Nullable>
         <LangVersion>latest</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-
-       
-
     </PropertyGroup>
+
     <PropertyGroup>
-        <Description>Library for working with NBT</Description>
-        <PackageTags>minecraft;nbt</PackageTags>
+        <IsPackable>true</IsPackable>
+        <Description>NBT for Minecraft Java Edition: big-endian binary tags, modified UTF-8 strings, the file format with a named root and the network format without one. Readers over Span, ReadOnlySequence and Stream; writers over IBufferWriter and Stream. No dependencies.</Description>
+        <PackageTags>minecraft;nbt;java-edition;mutf-8;modified-utf8;big-endian;serialization;binary</PackageTags>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="THIRD-PARTY-NOTICES.txt" Pack="true" PackagePath=""/>
+    </ItemGroup>
 </Project>

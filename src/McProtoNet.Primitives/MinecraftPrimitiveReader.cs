@@ -26,15 +26,6 @@ public ref struct MinecraftPrimitiveReader
     /// </summary>
     public readonly long RemainingCount => _reader.Remaining;
 
-    
-
-    
-
-    [DoesNotReturn]
-    [StackTraceHidden]
-    private static void ThrowBufferOverflow() =>
-        throw new BufferOverflowException();
-
     /// <summary>
     /// Initializes a new instance of the MinecraftPrimitiveReader with a memory of bytes
     /// </summary>
@@ -77,7 +68,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadExact(count, out var result))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return result;
@@ -93,7 +84,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryCopyTo(output))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return output.Length;
@@ -104,13 +95,13 @@ public ref struct MinecraftPrimitiveReader
     /// Reads a VarInt from the reader
     /// </summary>
     /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="ArithmeticException">Thrown when the VarInt is too long</exception>
+    /// <exception cref="InvalidDataException">Thrown when the VarInt is too long or the data runs out</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadVarInt()
     {
         if (!_reader.TryReadVarInt(out int res, out _))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return res;
@@ -120,7 +111,7 @@ public ref struct MinecraftPrimitiveReader
     /// Reads a VarLong from the reader
     /// </summary>
     /// <returns>The decoded VarLong value</returns>
-    /// <exception cref="ArithmeticException">Thrown when the VarLong is too long</exception>
+    /// <exception cref="InvalidDataException">Thrown when the VarLong is too long or the data runs out</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public long ReadVarLong()
     {
@@ -137,13 +128,13 @@ public ref struct MinecraftPrimitiveReader
                 if (numRead > 10)
                 {
                     _reader.Rewind(numRead);
-                    throw new ArithmeticException("VarLong too long");
+                    ThrowHelper.ThrowInvalidData("VarLong is longer than 10 bytes");
                 }
             }
             else
             {
                 _reader.Rewind(numRead);
-                ThrowBufferOverflow();
+                ThrowHelper.ThrowNotEnoughData();
             }
         } while ((read & 0b10000000) != 0);
 
@@ -159,7 +150,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryRead(out var b))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return b == 1;
@@ -174,7 +165,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryRead(out var b))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return b;
@@ -199,7 +190,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadBigEndian(out short v))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return (ushort)v;
@@ -214,7 +205,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadBigEndian(out short v))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return v;
@@ -229,7 +220,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadBigEndian(out int v))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return v;
@@ -254,7 +245,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadBigEndian(out long v))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         return v;
@@ -320,7 +311,7 @@ public ref struct MinecraftPrimitiveReader
 
         if (!_reader.TryReadExact(len, out var buff))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         string result = encoding.GetString(buff);
@@ -341,7 +332,7 @@ public ref struct MinecraftPrimitiveReader
     {
         if (!_reader.TryReadExact(16, out var seq))
         {
-            ThrowBufferOverflow();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         if (seq.IsSingleSegment)

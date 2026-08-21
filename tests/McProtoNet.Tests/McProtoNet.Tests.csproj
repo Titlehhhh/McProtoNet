@@ -35,6 +35,7 @@
         <ProjectReference Include="..\..\src\McProtoNet.Primitives\McProtoNet.Primitives.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Transport\McProtoNet.Transport.csproj"/>
         <ProjectReference Include="..\..\src\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
+        <ProjectReference Include="..\..\src\McProtoNet\McProtoNet.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

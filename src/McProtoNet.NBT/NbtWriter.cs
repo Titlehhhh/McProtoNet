@@ -21,34 +21,54 @@ public sealed class NbtWriter
 
 
     /// <summary>
-    ///     Initializes a new instance of the NbtWriter class.
+    ///     Opens a writer that starts a named root compound — the NBT file format. Java Edition
+    ///     only: numbers big-endian, strings modified UTF-8. There is no little-endian mode.
     /// </summary>
     /// <param name="stream"> Stream to write to. </param>
     /// <param name="rootTagName"> Name to give to the root tag (written immediately). </param>
-    /// <remarks> Assumes that data in the stream should be Big-Endian encoded. </remarks>
     /// <exception cref="ArgumentNullException"> <paramref name="stream" /> or <paramref name="rootTagName" /> is <c>null</c>. </exception>
     /// <exception cref="ArgumentException"> <paramref name="stream" /> is not writable. </exception>
     public NbtWriter(Stream stream, string rootTagName)
-        : this(stream, rootTagName, true)
     {
-    }
-
-
-    /// <summary>
-    ///     Initializes a new instance of the NbtWriter class.
-    /// </summary>
-    /// <param name="stream"> Stream to write to. </param>
-    /// <param name="rootTagName"> Name to give to the root tag (written immediately). </param>
-    /// <param name="bigEndian"> Whether NBT data should be in Big-Endian encoding. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> or <paramref name="rootTagName" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not writable. </exception>
-    public NbtWriter(Stream stream, string rootTagName, bool bigEndian)
-    {
-        if (rootTagName == null) throw new ArgumentNullException(nameof(rootTagName));
-        _writer = new NbtBinaryWriter(stream, bigEndian);
+        ArgumentNullException.ThrowIfNull(rootTagName);
+        _writer = new NbtBinaryWriter(stream);
         _writer.Write((byte)NbtTagType.Compound);
         _writer.Write(rootTagName);
         _parentType = NbtTagType.Compound;
+    }
+
+    /// <summary>
+    ///     Opens a writer that starts a nameless root compound — the network format used since 1.20.2.
+    /// </summary>
+    /// <param name="stream"> Stream to write to. </param>
+    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> is <c>null</c>. </exception>
+    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not writable. </exception>
+    public NbtWriter(Stream stream)
+    {
+        _writer = new NbtBinaryWriter(stream);
+        _writer.Write((byte)NbtTagType.Compound);
+        _parentType = NbtTagType.Compound;
+    }
+
+    /// <summary>
+    ///     Writes one complete tag to a stream: the type byte, the root name when asked for, then
+    ///     the payload. The root may be of any type — since 1.20.3 a network root can be a TAG_String.
+    /// </summary>
+    /// <param name="stream"> Stream to write to. </param>
+    /// <param name="tag"> Tag to write. </param>
+    /// <param name="writeRootName">
+    ///     True writes the root tag's name after the type byte (the file format). False writes the
+    ///     nameless root of the network format.
+    /// </param>
+    public static void WriteTag(Stream stream, NbtTag tag, bool writeRootName = true)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(tag);
+
+        var writer = new NbtBinaryWriter(stream);
+        writer.Write((byte)tag.TagType);
+        if (writeRootName) writer.Write(tag.Name ?? string.Empty);
+        tag.WriteData(writer);
     }
 
     /// <summary>
@@ -65,7 +85,7 @@ public sealed class NbtWriter
     /// <summary>
     ///     Writes a NbtTag object, and all of its child tags, to stream.
     ///     Use this method sparingly with NbtWriter -- constructing NbtTag objects defeats the purpose of this class.
-    ///     If you already have lots of NbtTag objects, you might as well use NbtFile to write them all at once.
+    ///     When you already hold a whole tag tree, <see cref="WriteTag(Stream,NbtTag,bool)" /> writes it in one call.
     /// </summary>
     /// <param name="tag"> Tag to write. Must not be null. </param>
     /// <exception cref="NbtFormatException"> No more tags can be written -OR- given tag is unacceptable at this time. </exception>
@@ -110,7 +130,7 @@ public sealed class NbtWriter
         _nodes.Push(newNode);
 
         _parentType = thisType;
-        _listType = NbtTagType.Unknown;
+        _listType = NbtTagType.End;
         _listSize = 0;
         _listIndex = 0;
     }
@@ -151,6 +171,17 @@ public sealed class NbtWriter
         }
     }
 
+    /// <summary>
+    ///     An element type of TAG_End is legal only for an empty list, which is how vanilla
+    ///     writes one.
+    /// </summary>
+    private static void CheckListType(NbtTagType elementType, int size)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(size);
+        if (elementType > NbtTagType.LongArray || (elementType == NbtTagType.End && size > 0))
+            throw new ArgumentOutOfRangeException(nameof(elementType));
+    }
+
     private static void CheckArray(Array data, int offset, int count)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
@@ -174,6 +205,7 @@ public sealed class NbtWriter
         {
             var bytesToRead = Math.Min(count - bytesWritten, maxBytesToWrite);
             var bytesRead = dataSource.Read(buffer, 0, bytesToRead);
+            if (bytesRead == 0) throw new EndOfStreamException();
             _writer.Write(buffer, 0, bytesRead);
             bytesWritten += bytesRead;
         }
@@ -239,9 +271,7 @@ public sealed class NbtWriter
     /// </exception>
     public void BeginList(NbtTagType elementType, int size)
     {
-        if (size < 0) throw new ArgumentOutOfRangeException(nameof(size), "List size may not be negative.");
-        if (elementType is < NbtTagType.Byte or > NbtTagType.LongArray)
-            throw new ArgumentOutOfRangeException(nameof(elementType));
+        CheckListType(elementType, size);
         EnforceConstraints(null!, NbtTagType.List);
         GoDown(NbtTagType.List);
         _listType = elementType;
@@ -267,9 +297,7 @@ public sealed class NbtWriter
     /// </exception>
     public void BeginList(string tagName, NbtTagType elementType, int size)
     {
-        if (size < 0) throw new ArgumentOutOfRangeException(nameof(size), "List size may not be negative.");
-        if (elementType < NbtTagType.Byte || elementType > NbtTagType.LongArray)
-            throw new ArgumentOutOfRangeException(nameof(elementType));
+        CheckListType(elementType, size);
         EnforceConstraints(tagName, NbtTagType.List);
         GoDown(NbtTagType.List);
         _listType = elementType;
@@ -793,7 +821,7 @@ public sealed class NbtWriter
         CheckArray(data, offset, count);
         EnforceConstraints(null!, NbtTagType.IntArray);
         _writer.Write(count);
-        for (var i = offset; i < count; i++) _writer.Write(data[i]);
+        _writer.WriteBigEndian(data.AsSpan(offset, count));
     }
 
     /// <summary>
@@ -845,7 +873,7 @@ public sealed class NbtWriter
         _writer.Write((byte)NbtTagType.IntArray);
         _writer.Write(tagName);
         _writer.Write(count);
-        for (var i = offset; i < count; i++) _writer.Write(data[i]);
+        _writer.WriteBigEndian(data.AsSpan(offset, count));
     }
 
     /// <summary>
@@ -889,7 +917,7 @@ public sealed class NbtWriter
         CheckArray(data, offset, count);
         EnforceConstraints(null!, NbtTagType.LongArray);
         _writer.Write(count);
-        for (var i = offset; i < count; i++) _writer.Write(data[i]);
+        _writer.WriteBigEndian(data.AsSpan(offset, count));
     }
 
     /// <summary>
@@ -941,7 +969,7 @@ public sealed class NbtWriter
         _writer.Write((byte)NbtTagType.LongArray);
         _writer.Write(tagName);
         _writer.Write(count);
-        for (var i = offset; i < count; i++) _writer.Write(data[i]);
+        _writer.WriteBigEndian(data.AsSpan(offset, count));
     }
 
     #endregion

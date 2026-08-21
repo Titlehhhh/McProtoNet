@@ -41,7 +41,6 @@ public abstract class NbtTag : ICloneable
                 NbtTagType.Compound => false,
                 NbtTagType.End => false,
                 NbtTagType.List => false,
-                NbtTagType.Unknown => false,
                 _ => true
             };
         }
@@ -94,7 +93,7 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     String to use for indentation in NbtTag's and NbtFile's ToString() methods by default.
+    ///     String to use for indentation in NbtTag.ToString() by default.
     /// </summary>
     /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
     public static string DefaultIndentString
@@ -109,11 +108,30 @@ public abstract class NbtTag : ICloneable
     /// <returns> A new NbtTag object that is a deep copy of this instance. </returns>
     public abstract object Clone();
 
-    internal abstract bool ReadTag(NbtBinaryReader readStream);
+    internal abstract void ReadTag(NbtBinaryReader readStream);
 
-    internal abstract void SkipTag(NbtBinaryReader readStream);
 
     internal abstract void WriteTag(NbtBinaryWriter writeReader);
+
+    internal static NbtTag CreateTag(NbtTagType type)
+    {
+        return type switch
+        {
+            NbtTagType.Byte => new NbtByte(),
+            NbtTagType.Short => new NbtShort(),
+            NbtTagType.Int => new NbtInt(),
+            NbtTagType.Long => new NbtLong(),
+            NbtTagType.Float => new NbtFloat(),
+            NbtTagType.Double => new NbtDouble(),
+            NbtTagType.ByteArray => new NbtByteArray(),
+            NbtTagType.String => new NbtString(),
+            NbtTagType.List => new NbtList(),
+            NbtTagType.Compound => new NbtCompound(),
+            NbtTagType.IntArray => new NbtIntArray(),
+            NbtTagType.LongArray => new NbtLongArray(),
+            _ => throw new NbtFormatException("Cannot create an NBT tag of type " + type)
+        };
+    }
 
     /// <summary>
     ///     WriteData does not write the tag's ID byte or the name
@@ -126,8 +144,7 @@ public abstract class NbtTag : ICloneable
     /// </summary>
     /// <param name="type"> NbtTagType to name. </param>
     /// <returns>
-    ///     String representing the canonical name of a tag,
-    ///     or null of given TagType does not have a canonical name (e.g. Unknown)
+    ///     String representing the canonical name of a tag, or null when the value is not a tag type.
     /// </returns>
     public static string? GetCanonicalTagName(NbtTagType type)
     {

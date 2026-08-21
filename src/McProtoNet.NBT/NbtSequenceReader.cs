@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace McProtoNet.NBT;
 
@@ -16,22 +15,22 @@ namespace McProtoNet.NBT;
 /// </summary>
 public static class NbtSequenceReader
 {
-    /// <summary>Nesting limit guarding against malicious deeply-nested payloads; matches vanilla's depth cap.</summary>
-    private const int MaxDepth = 512;
+    private const int StackAllocByteThreshold = 256;
 
     /// <summary>
     ///     Reads one NBT tag from the sequence. Returns null when the first byte is TAG_End.
     /// </summary>
     /// <param name="reader">The sequence reader positioned at the tag type byte.</param>
     /// <param name="readRootName">Whether the root tag carries a name (pre-network NBT format).</param>
+    /// <exception cref="NbtFormatException">The data is malformed, truncated, or too deeply nested.</exception>
     public static NbtTag? ReadTag(ref SequenceReader<byte> reader, bool readRootName)
     {
         var type = ReadTagType(ref reader);
         if (type == NbtTagType.End)
             return null;
 
-        string? rootName = readRootName ? ReadString(ref reader) : null;
-        return ReadPayload(ref reader, type, rootName, MaxDepth);
+        var rootName = readRootName ? ReadString(ref reader) : null;
+        return ReadPayload(ref reader, type, rootName, NbtLimits.MaxDepth);
     }
 
     private static NbtTag ReadPayload(ref SequenceReader<byte> reader, NbtTagType type, string? name,
@@ -55,13 +54,13 @@ public static class NbtSequenceReader
                 return new NbtString(name, ReadString(ref reader));
             case NbtTagType.ByteArray:
             {
-                var result = new byte[ReadLength(ref reader)];
+                var result = new byte[ReadLength(ref reader, sizeof(byte))];
                 Fill(ref reader, result);
                 return NbtByteArray.CreateFromArray(result, name);
             }
             case NbtTagType.IntArray:
             {
-                var result = new int[ReadLength(ref reader)];
+                var result = new int[ReadLength(ref reader, sizeof(int))];
                 Fill(ref reader, MemoryMarshal.AsBytes(result.AsSpan()));
                 if (BitConverter.IsLittleEndian)
                     BinaryPrimitives.ReverseEndianness(result, result);
@@ -69,7 +68,7 @@ public static class NbtSequenceReader
             }
             case NbtTagType.LongArray:
             {
-                var result = new long[ReadLength(ref reader)];
+                var result = new long[ReadLength(ref reader, sizeof(long))];
                 Fill(ref reader, MemoryMarshal.AsBytes(result.AsSpan()));
                 if (BitConverter.IsLittleEndian)
                     BinaryPrimitives.ReverseEndianness(result, result);
@@ -90,7 +89,7 @@ public static class NbtSequenceReader
             ThrowDepthExceeded();
 
         var elementType = ReadTagType(ref reader);
-        var length = ReadLength(ref reader);
+        var length = ReadLength(ref reader, 1);
         if (length > 0 && elementType == NbtTagType.End)
             throw new NbtFormatException("Non-empty NBT list of TAG_End elements.");
 
@@ -113,7 +112,7 @@ public static class NbtSequenceReader
                 return compound;
 
             var childName = ReadString(ref reader);
-            compound.Add(ReadPayload(ref reader, childType, childName, remainingDepth - 1));
+            compound.SetOrReplace(ReadPayload(ref reader, childType, childName, remainingDepth - 1));
         }
     }
 
@@ -130,16 +129,42 @@ public static class NbtSequenceReader
         int length = (ushort)ReadInt16(ref reader);
         if (length == 0)
             return string.Empty;
-        if (!reader.TryReadExact(length, out var utf8))
+        if (length > reader.Remaining)
             ThrowEndOfData();
-        return Encoding.UTF8.GetString(in utf8);
+
+        if (reader.UnreadSpan.Length >= length)
+        {
+            var result = ModifiedUtf8.GetString(reader.UnreadSpan.Slice(0, length));
+            reader.Advance(length);
+            return result;
+        }
+
+        if (length <= StackAllocByteThreshold)
+        {
+            Span<byte> buffer = stackalloc byte[StackAllocByteThreshold];
+            Fill(ref reader, buffer.Slice(0, length));
+            return ModifiedUtf8.GetString(buffer.Slice(0, length));
+        }
+
+        var rented = ArrayPool<byte>.Shared.Rent(length);
+        try
+        {
+            Fill(ref reader, rented.AsSpan(0, length));
+            return ModifiedUtf8.GetString(rented.AsSpan(0, length));
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(rented);
+        }
     }
 
-    private static int ReadLength(ref SequenceReader<byte> reader)
+    private static int ReadLength(ref SequenceReader<byte> reader, int elementSize)
     {
         var length = ReadInt32(ref reader);
         if (length < 0)
             throw new NbtFormatException($"Negative tag length given: {length}");
+        if ((long)length * elementSize > reader.Remaining)
+            ThrowEndOfData();
         return length;
     }
 
@@ -181,10 +206,10 @@ public static class NbtSequenceReader
     [DoesNotReturn]
     [StackTraceHidden]
     private static void ThrowEndOfData() =>
-        throw new EndOfStreamException("Unexpected end of NBT data.");
+        throw new NbtFormatException("Unexpected end of NBT data.");
 
     [DoesNotReturn]
     [StackTraceHidden]
     private static void ThrowDepthExceeded() =>
-        throw new NbtFormatException($"NBT nesting exceeds the maximum depth of {MaxDepth}.");
+        throw new NbtFormatException($"NBT nesting exceeds the maximum depth of {NbtLimits.MaxDepth}.");
 }

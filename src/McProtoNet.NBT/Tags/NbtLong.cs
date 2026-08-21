@@ -27,7 +27,7 @@ public sealed class NbtLong : NbtTag
     ///     Creates an NbtLong tag with the given name and the default value of 0.
     /// </summary>
     /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    public NbtLong(string tagName)
+    public NbtLong(string? tagName)
         : this(tagName, 0)
     {
     }
@@ -82,21 +82,9 @@ public sealed class NbtLong : NbtTag
 
     #region Reading / Writing
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.ReadInt64();
-            return false;
-        }
-
         Value = readStream.ReadInt64();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.ReadInt64();
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

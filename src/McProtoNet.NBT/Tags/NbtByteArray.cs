@@ -106,27 +106,9 @@ public sealed class NbtByteArray : NbtTag
         set => Value[tagIndex] = value;
     }
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        var length = readStream.ReadInt32();
-        if (length < 0) throw new NbtFormatException("Negative length given in TAG_Byte_Array");
-
-        if (readStream.Selector != null && !readStream.Selector(this))
-        {
-            readStream.Skip(length);
-            return false;
-        }
-
-        Value = readStream.ReadBytes(length);
-        if (Value.Length < length) throw new EndOfStreamException();
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        var length = readStream.ReadInt32();
-        if (length < 0) throw new NbtFormatException("Negative length given in TAG_Byte_Array");
-        readStream.Skip(length);
+        Value = readStream.ReadArrayBigEndian<byte>(readStream.ReadInt32());
     }
 
     internal override void WriteTag(NbtBinaryWriter writeStream)

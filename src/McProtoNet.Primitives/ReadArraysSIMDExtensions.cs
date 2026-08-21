@@ -14,12 +14,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of 32-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static int[] ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(int) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new int[length];
@@ -32,7 +32,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayInt32BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<int> destination)
     {
         var bytes = reader.Read(sizeof(int) * destination.Length);
@@ -64,12 +64,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of 64-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static long[] ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(long) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new long[length];
@@ -82,7 +82,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayInt64BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<long> destination)
 
     {
@@ -114,12 +114,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of 16-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static short[] ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(short) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new short[length];
@@ -132,7 +132,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayInt16BigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<short> destination)
 
     {
@@ -164,12 +164,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of unsigned 16-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static ushort[] ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(ushort) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new ushort[length];
@@ -183,7 +183,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayUnsignedInt16BigEndian(this ref MinecraftPrimitiveReader reader,
         scoped Span<ushort> destination)
 
@@ -216,12 +216,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of unsigned 32-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static uint[] ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(uint) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new uint[length];
@@ -234,7 +234,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayUnsignedInt32BigEndian(this ref MinecraftPrimitiveReader reader,
         scoped Span<uint> destination)
     {
@@ -266,12 +266,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of integers to read</param>
     /// <returns>An array of unsigned 64-bit integers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static ulong[] ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(ulong) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new ulong[length];
@@ -284,7 +284,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayUnsignedInt64BigEndian(this ref MinecraftPrimitiveReader reader,
         scoped Span<ulong> destination)
 
@@ -317,12 +317,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of floats to read</param>
     /// <returns>An array of single-precision floating-point numbers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static float[] ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(int) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new float[length];
@@ -335,7 +335,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayFloatBigEndian(this ref MinecraftPrimitiveReader reader, scoped Span<float> destination)
 
     {
@@ -369,12 +369,12 @@ internal static class ReadArraysSIMDExtensions
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="length">The number of doubles to read</param>
     /// <returns>An array of double-precision floating-point numbers</returns>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static double[] ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader, int length)
     {
         if (reader.RemainingCount < sizeof(long) * length)
         {
-            throw new InsufficientMemoryException();
+            ThrowHelper.ThrowNotEnoughData();
         }
 
         var result = new double[length];
@@ -387,7 +387,7 @@ internal static class ReadArraysSIMDExtensions
     /// </summary>
     /// <param name="reader">The primitive reader to read from</param>
     /// <param name="destination">The destination span to read into</param>
-    /// <exception cref="InsufficientMemoryException">Thrown when there is not enough data to read</exception>
+    /// <exception cref="InvalidDataException">Thrown when there is not enough data to read</exception>
     public static void ReadArrayDoubleBigEndian(this ref MinecraftPrimitiveReader reader,
         scoped Span<double> destination)
 

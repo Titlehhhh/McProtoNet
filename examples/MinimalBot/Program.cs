@@ -1,18 +1,10 @@
-// MinimalBot — исполняемая документация пакетного слоя на транспорте 2.0:
-// login идёт по одному пакету на MinecraftConnection, после login_acknowledged соединение
-// переезжает в StreamingConnection и дальше читается пачками. Handler-база ClientboundHandler
-// из генерата, типизированная отправка SendAsync (id из типа), имена незнакомых пакетов
-// из PacketRegistry. Ручного свитча по id нет.
-//
-// Использование: dotnet run [host] [port] [name]
-// По умолчанию: 127.0.0.1 25566 McProtoBot (paper-1.21.8, pv 772)
+// dotnet run [host] [port] [name] — по умолчанию 127.0.0.1 25565 McProtoBot (pv 772)
 
-using System.Net.Sockets;
 using McProtoNet;
 using McProtoNet.Primitives;
-using McProtoNet.Transport;
 using McProtoNet.Protocol;
-using MinimalBot.Packets; // локальные пакеты, которых ещё нет в спеках: чат и жест
+using McProtoNet.Transport.Cryptography;
+using MinimalBot.Packets;
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using HandshakeSb = McProtoNet.Protocol.Packets.Handshaking.Serverbound;
@@ -21,43 +13,25 @@ using LoginSb = McProtoNet.Protocol.Packets.Login.Serverbound;
 using PlayCb = McProtoNet.Protocol.Packets.Play.Clientbound;
 using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
 
-const int Pv = 772; // 1.21.7/8
+const int Pv = 772;
 
 var host = args.Length > 0 ? args[0] : "127.0.0.1";
-var port = args.Length > 1 ? int.Parse(args[1]) : 25566;
+var port = args.Length > 1 && int.TryParse(args[1], out var typed) ? typed : 25565;
 var name = args.Length > 2 ? args[2] : "McProtoBot";
 
-Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv}, транспорт 2.0)");
+Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv})");
 
-using var tcp = new TcpClient();
-await tcp.ConnectAsync(host, port);
-var login = new MinecraftConnection(tcp.GetStream());
+await using var client = new MinecraftClient(new MinecraftClientOptions { Host = host, Port = port });
+await client.ConnectAsync();
+Console.WriteLine("[net] соединение открыто");
 
-// handshake: intent=2 (login), дальше сразу login start; id склеивает SendAsync
-await login.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
-await login.SendAsync(new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), Pv);
+await client.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
+await client.SendAsync(new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), Pv);
 Console.WriteLine("[login] handshake + login start отправлены");
 
-var bot = new Bot(login, Pv);
+var bot = new Bot(client, Pv);
 
-// режим «по одному»: ровно один кадр за чтение, здесь включаются сжатие и шифр
-while (!bot.Stopped && !bot.LoginDone)
-{
-    var raw = await login.ReadPacketAsync();
-    await bot.HandleAsync(in raw, Pv);
-}
-
-if (bot.Stopped)
-{
-    await login.DisposeAsync();
-    Console.WriteLine("Соединение закрыто.");
-    return;
-}
-
-// переход односторонний: login-соединение умирает, дальше живёт потоковое
-await using var game = await bot.EnterStreamingAsync();
-
-await foreach (var packet in game.ReadPacketsAsync())
+await foreach (var packet in client.ReadPacketsAsync())
 {
     await bot.HandleAsync(in packet, Pv);
     if (bot.Stopped) break;
@@ -65,121 +39,120 @@ await foreach (var packet in game.ReadPacketsAsync())
 
 Console.WriteLine("Соединение закрыто.");
 
-// Вся логика — переопределения handler-базы; фазу ведёт бот через слот Phase.
-sealed class Bot(MinecraftConnection login, int pv) : ClientboundHandler
+sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 {
-    private readonly DateTime _startedAt = DateTime.UtcNow;
     private readonly HashSet<(PacketPhase, int)> _unknownSeen = [];
-    private StreamingConnection? _game;
-    private int _playKeepAlives;
-    private bool _greeted;
+    private int _keepAlives;
+    private bool _spawned;
 
+    /// <summary>Сессия окончена: кик, ошибка входа или конец потока.</summary>
     public bool Stopped { get; private set; }
 
-    /// <summary>Login отработан: пора переезжать в потоковый режим.</summary>
-    public bool LoginDone { get; private set; }
-
-    public async ValueTask<StreamingConnection> EnterStreamingAsync()
+    protected override ValueTask OnLoginCompress(LoginCb.LoginCompressPacket packet)
     {
-        _game = login.ToStreaming();
-        await SendAsync(
-            new ConfSb.ClientInformationPacket("en_us", 8, 0, true, 0x7F, 1, false, true, V768_Last: new(0)));
-        Console.WriteLine("[config] client information отправлена");
-        return _game;
-    }
-
-    // --- login → configuration ---
-
-    protected override ValueTask OnLoginCompress(LoginCb.LoginCompressPacket p)
-    {
-        login.CompressionThreshold = p.Threshold;
-        Console.WriteLine($"[login] компрессия включена, порог {p.Threshold}");
+        client.CompressionThreshold = packet.Threshold;
+        Console.WriteLine($"[login] компрессия включена, порог {packet.Threshold}");
         return default;
     }
 
-    protected override async ValueTask OnLoginSuccess(LoginCb.LoginSuccessPacket p)
+    protected override async ValueTask OnEncryptionRequest(LoginCb.EncryptionRequestPacket packet)
     {
-        Console.WriteLine($"[login] успех: {p.Username} {p.Uuid}");
-        await login.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
+        if (packet.V766_Last is { ShouldAuthenticate: true })
+        {
+            Console.WriteLine("[login] сервер требует Mojang-авторизацию — пример работает только с offline");
+            Stopped = true;
+            return;
+        }
+
+        using var rsa = EncryptionHelpers.DecodeRSAPublicKey(packet.PublicKey)
+                        ?? throw new InvalidOperationException("не разобрали открытый ключ сервера");
+        var secret = EncryptionHelpers.GenerateAESPrivateKey();
+
+        await client.SendAsync(new LoginSb.EncryptionResponsePacket(
+            rsa.Encrypt(secret, false),
+            rsa.Encrypt(packet.VerifyToken, false)), pv);
+
+        client.EnableEncryption(secret);
+        Console.WriteLine("[login] шифр включён: AES/CFB8");
+    }
+
+    protected override ValueTask OnLoginPluginRequest(LoginCb.LoginPluginRequestPacket packet)
+        => client.SendAsync(new LoginSb.LoginPluginResponsePacket(packet.MessageId, null), pv);
+
+    protected override async ValueTask OnLoginSuccess(LoginCb.LoginSuccessPacket packet)
+    {
+        Console.WriteLine($"[login] успех: {packet.Username} {packet.Uuid}");
+        await client.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
         Phase = PacketPhase.Configuration;
-        LoginDone = true;
-        Console.WriteLine("[config] вошли в configuration");
+
+        await client.SendAsync(new ConfSb.ClientInformationPacket(
+            "en_us", 2, 0, true, 0x7F, 1, false, true, V768_Last: new(0)), pv);
+        Console.WriteLine("[config] вошли в configuration, client information отправлена");
     }
 
-    protected override ValueTask OnLoginDisconnect(LoginCb.LoginDisconnectPacket p)
+    protected override ValueTask OnLoginDisconnect(LoginCb.LoginDisconnectPacket packet)
+        => Kicked("login", packet.Reason);
+
+    protected override ValueTask OnConfigurationKeepAlive(ConfCb.KeepAlivePacket packet)
+        => client.SendAsync(new ConfSb.KeepAlivePacket(packet.KeepAliveId), pv);
+
+    protected override ValueTask OnConfigurationPing(ConfCb.PingPacket packet)
+        => client.SendAsync(new ConfSb.PongPacket(packet.Id), pv);
+
+    protected override async ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket packet)
     {
-        Console.WriteLine($"[login] кик: {p.Reason}");
-        Stopped = true;
-        return default;
+        await client.SendAsync(new ConfSb.SelectKnownPacksPacket(packet.Packs), pv);
+        Console.WriteLine($"[config] known packs: {packet.Packs.Length} шт, подтвердили");
     }
 
-    // --- configuration ---
-
-    protected override ValueTask OnConfigurationKeepAlive(ConfCb.KeepAlivePacket p)
-        => SendAsync(new ConfSb.KeepAlivePacket(p.KeepAliveId));
-
-    // Play gained its own Ping in the 2026-08-11 spec cycle, so the bare OnPing went to it
-    // and the configuration one took the phase prefix — the same shape OnConfigurationKeepAlive
-    // above already had.
-    protected override ValueTask OnConfigurationPing(ConfCb.PingPacket p)
-        => SendAsync(new ConfSb.PongPacket(p.Id));
-
-    protected override async ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket p)
+    protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurationPacket packet)
     {
-        await SendAsync(new ConfSb.SelectKnownPacksPacket(p.Packs));
-        Console.WriteLine($"[config] known packs: {p.Packs.Length} шт, подтвердили");
-    }
-
-    protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurationPacket p)
-    {
-        await SendAsync(new ConfSb.FinishConfigurationPacket());
+        await client.SendAsync(new ConfSb.FinishConfigurationPacket(), pv);
         Phase = PacketPhase.Play;
         Console.WriteLine("[play] configuration завершена, вошли в play");
     }
 
-    protected override ValueTask OnDisconnect(ConfCb.DisconnectPacket p)
-    {
-        Console.WriteLine($"[config] кик: {p.V764?.ReasonJson ?? p.V765_Last?.Reason.ToString()}");
-        Stopped = true;
-        return default;
-    }
+    protected override ValueTask OnDisconnect(ConfCb.DisconnectPacket packet)
+        => Kicked("config", packet.V764?.ReasonJson ?? packet.V765_Last?.Reason.ToString());
 
-    // --- play ---
-
-    protected override async ValueTask OnKeepAlive(PlayCb.KeepAlivePacket p)
+    protected override async ValueTask OnKeepAlive(PlayCb.KeepAlivePacket packet)
     {
-        await SendAsync(new PlaySb.KeepAlivePacket(p.KeepAliveId));
+        await client.SendAsync(new PlaySb.KeepAlivePacket(packet.KeepAliveId), pv);
         await SendLocalAsync(ArmAnimationPacket.GetPacketId(pv), new ArmAnimationPacket(Hand: 0));
-        Console.WriteLine($"[play] keep-alive {p.KeepAliveId} — ответили и махнули рукой");
+        Console.WriteLine($"[play] keep-alive #{++_keepAlives} — ответили и махнули рукой");
+    }
 
-        if (++_playKeepAlives % 4 == 0) // ~раз в минуту
+    protected override ValueTask OnPing(PlayCb.PingPacket packet)
+        => client.SendAsync(new PlaySb.PongPacket(packet.Id), pv);
+
+    protected override async ValueTask OnStartConfiguration(PlayCb.StartConfigurationPacket packet)
+    {
+        await client.SendAsync(new PlaySb.ConfigurationAcknowledgedPacket(), pv);
+        Phase = PacketPhase.Configuration;
+        Console.WriteLine("[config] сервер вернул нас в configuration");
+    }
+
+    protected override async ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket packet)
+    {
+        await client.SendAsync(new PlaySb.TeleportConfirmPacket(packet.TeleportId), pv);
+        Console.WriteLine(
+            $"[play] позиция: x={packet.X:F1} y={packet.Y:F1} z={packet.Z:F1} — телепорт {packet.TeleportId} подтверждён");
+
+        if (!_spawned)
         {
-            var aliveSec = (int)(DateTime.UtcNow - _startedAt).TotalSeconds;
-            await SendChatAsync($"живу {aliveSec} сек на транспорте 2.0");
+            _spawned = true;
+            Console.WriteLine("[play] спавн");
         }
     }
 
-    protected override async ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket p)
+    protected override ValueTask OnUpdateHealth(PlayCb.UpdateHealthPacket packet)
     {
-        await SendAsync(new PlaySb.TeleportConfirmPacket(p.TeleportId));
-        Console.WriteLine($"[play] позиция: x={p.X:F1} y={p.Y:F1} z={p.Z:F1} — телепорт {p.TeleportId} подтверждён");
-
-        if (!_greeted) // первый PlayerPosition = спавн
-        {
-            _greeted = true;
-            await SendChatAsync("Привет! Я MinimalBot на транспорте 2.0");
-            await SendChatAsync("login по одному, play потоком, id из типов");
-            Console.WriteLine("[play] спавн — поздоровались в чате");
-        }
-    }
-
-    protected override ValueTask OnUpdateHealth(PlayCb.UpdateHealthPacket p)
-    {
-        Console.WriteLine($"[play] здоровье: {p.Health}, еда {p.Food}");
+        Console.WriteLine($"[play] здоровье: {packet.Health}, еда {packet.Food}");
         return default;
     }
 
-    // --- незнакомое: имя из реестра, а не «0x2E» из головы ---
+    protected override ValueTask OnKickDisconnect(PlayCb.KickDisconnectPacket packet)
+        => Kicked("play", packet.VUntil764?.ReasonJson ?? packet.V765_Last?.Reason.ToString());
 
     protected override ValueTask OnUnknown(in IncomingPacket raw)
     {
@@ -194,18 +167,11 @@ sealed class Bot(MinecraftConnection login, int pv) : ClientboundHandler
         return default;
     }
 
-    // --- отправка: до перехода через login-соединение, после — через потоковое ---
-
-    private ValueTask SendAsync<T>(T packet) where T : class, IPacket<T>
-        => _game is { } game ? game.SendAsync(packet, pv) : login.SendAsync(packet, pv);
-
-    // --- локальные пакеты (чата и жеста нет в спеках): прежний ручной путь отправки ---
-
-    private async ValueTask SendChatAsync(string text)
+    private ValueTask Kicked(string phase, string? reason)
     {
-        if (text.Length > 256) text = text[..256];
-        await SendLocalAsync(ChatMessagePacket.GetPacketId(pv),
-            new ChatMessagePacket(text, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), Salt: 0));
+        Console.WriteLine($"[{phase}] кик: {reason ?? "без причины"}");
+        Stopped = true;
+        return default;
     }
 
     private async ValueTask SendLocalAsync<T>(int id, T packet) where T : IProtocolType<T>
@@ -214,15 +180,7 @@ sealed class Bot(MinecraftConnection login, int pv) : ClientboundHandler
         try
         {
             packet.Write(writer, pv);
-            if (_game is { } game)
-            {
-                game.WritePacket(id, writer.WrittenSpan);
-                await game.FlushAsync();
-            }
-            else
-            {
-                await login.WritePacketAsync(id, writer.WrittenMemory);
-            }
+            await client.SendRawAsync(id, writer.WrittenMemory);
         }
         finally
         {

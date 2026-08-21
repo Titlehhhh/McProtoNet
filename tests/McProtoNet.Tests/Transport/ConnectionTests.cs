@@ -205,6 +205,261 @@ public class ConnectionTests
         await game.DisposeAsync();
     }
 
+    /// <summary>Disposed and aborted are different answers, and they are the same two on both connections.</summary>
+    [Fact]
+    public async Task DisposedAndAborted_AreDistinguishableOnBothConnections()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var reason = new IOException("kicked");
+
+        var disposedLogin = new MinecraftConnection(new GateStream());
+        await disposedLogin.DisposeAsync();
+        Assert.Throws<ObjectDisposedException>(() => disposedLogin.CompressionThreshold = 0);
+        await Assert.ThrowsAsync<ObjectDisposedException>(
+            async () => await disposedLogin.ReadPacketAsync(token));
+
+        var abortedLogin = new MinecraftConnection(new GateStream());
+        abortedLogin.Abort(reason);
+        var loginError = Assert.Throws<ConnectionAbortedException>(() => abortedLogin.CompressionThreshold = 0);
+        Assert.Same(reason, loginError.InnerException);
+        Assert.Contains("aborted", loginError.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("kicked", loginError.Message, StringComparison.Ordinal);
+        Assert.Same(reason, abortedLogin.CloseReason);
+        Assert.True(abortedLogin.Completion.IsCompletedSuccessfully);
+
+        var disposedGame = new MinecraftConnection(new GateStream()).ToStreaming();
+        await disposedGame.DisposeAsync();
+        Assert.Throws<ObjectDisposedException>(() => disposedGame.WritePacket(1, "x"u8));
+        Assert.Throws<ObjectDisposedException>(() => _ = disposedGame.UnflushedBytes);
+
+        await using var abortedGame = new MinecraftConnection(new GateStream()).ToStreaming();
+        abortedGame.Abort(reason);
+        var gameError = Assert.Throws<ConnectionAbortedException>(() => abortedGame.WritePacket(1, "x"u8));
+        Assert.Same(reason, gameError.InnerException);
+        Assert.Contains("kicked", gameError.Message, StringComparison.Ordinal);
+    }
+
+    /// <summary>A dead stream is latched: the second call reports the close, it does not read the corpse again.</summary>
+    [Fact]
+    public async Task StreamFailure_LatchesTheLoginConnection()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var login = new MinecraftConnection(new FailingStream(new IOException("peer reset")));
+
+        var first = await Assert.ThrowsAsync<IOException>(async () => await login.ReadPacketAsync(token));
+        Assert.Equal("peer reset", first.Message);
+        Assert.Same(first, login.CloseReason);
+        Assert.True(login.Completion.IsCompletedSuccessfully);
+
+        var later = await Assert.ThrowsAsync<ConnectionAbortedException>(
+            async () => await login.ReadPacketAsync(token));
+        Assert.Same(first, later.InnerException);
+        Assert.Throws<ConnectionAbortedException>(() => login.CompressionThreshold = 0);
+    }
+
+    /// <summary>A cancellation that is not the caller's is a broken stream, not a cancellation.</summary>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task ForeignCancellation_ComesOutAsAborted(bool streaming)
+    {
+        var token = TestContext.Current.CancellationToken;
+        using var foreign = new CancellationTokenSource();
+        await foreign.CancelAsync();
+        var stream = new FailingStream(new OperationCanceledException("the stream gave up", foreign.Token));
+
+        var login = new MinecraftConnection(stream);
+        if (!streaming)
+        {
+            var error = await Assert.ThrowsAsync<ConnectionAbortedException>(
+                async () => await login.ReadPacketAsync(token));
+            Assert.IsAssignableFrom<OperationCanceledException>(error.InnerException);
+            Assert.Same(error.InnerException, login.CloseReason);
+            await login.DisposeAsync();
+            return;
+        }
+
+        await using var game = login.ToStreaming();
+        var gameError = await Assert.ThrowsAsync<ConnectionAbortedException>(
+            async () => await game.ReadBatchAsync(token));
+        Assert.IsAssignableFrom<OperationCanceledException>(gameError.InnerException);
+        Assert.Same(gameError.InnerException, game.CloseReason);
+    }
+
+    /// <summary>
+    ///     A cancelled flush kills the connection: the caller who cancelled still gets its own
+    ///     cancellation, everyone after it gets the close — never a stale cancellation.
+    /// </summary>
+    [Fact]
+    public async Task CancelledFlush_KillsTheConnectionWithoutAStaleCancellation()
+    {
+        var gate = new GateStream();
+        await using var game = new MinecraftConnection(gate).ToStreaming();
+        game.WritePacket(1, new byte[64]);
+
+        using var cts = new CancellationTokenSource();
+        var flush = game.FlushAsync(cts.Token).AsTask();
+        await gate.WriteStarted;
+        await cts.CancelAsync();
+
+        var cancelled = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => flush);
+        Assert.Same(cancelled, game.CloseReason);
+
+        var next = Assert.Throws<ConnectionAbortedException>(() => game.WritePacket(2, "x"u8));
+        Assert.IsAssignableFrom<OperationCanceledException>(next.InnerException);
+    }
+
+    /// <summary>A closed connection still answers how much it holds: nothing.</summary>
+    [Fact]
+    public async Task UnflushedBytes_StaysReadableAfterCompleteAsync()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var wire = await Loopback.CreateAsync(token);
+
+        var game = new MinecraftConnection(wire.Client).ToStreaming();
+        game.WritePacket(9, "last words"u8);
+        Assert.True(game.UnflushedBytes > 0);
+
+        await game.CompleteAsync();
+
+        Assert.Equal(0, game.UnflushedBytes);
+        Assert.Null(game.CloseReason);
+        Assert.Throws<ConnectionAbortedException>(() => game.WritePacket(1, "x"u8));
+
+        await game.DisposeAsync();
+        Assert.Throws<ObjectDisposedException>(() => _ = game.UnflushedBytes);
+    }
+
+    /// <summary>A closed connection reports 0 even when frames were still sitting in the buffer.</summary>
+    [Fact]
+    public async Task UnflushedBytes_IsZeroAfterAnAbortWithFramesPending()
+    {
+        await using var game = new MinecraftConnection(new GateStream()).ToStreaming();
+
+        game.WritePacket(1, new byte[64]);
+        Assert.True(game.UnflushedBytes > 0);
+
+        game.Abort(new IOException("kicked"));
+
+        Assert.Equal(0, game.UnflushedBytes);
+    }
+
+    /// <summary>CompleteAsync promises the bytes are on the wire, so on a closed connection it must not lie.</summary>
+    [Fact]
+    public async Task CompleteAsync_OnAClosedConnection_Throws()
+    {
+        var reason = new IOException("kicked");
+        var aborted = new MinecraftConnection(new GateStream()).ToStreaming();
+        aborted.WritePacket(1, new byte[64]);
+        aborted.Abort(reason);
+
+        var error = await Assert.ThrowsAsync<ConnectionAbortedException>(async () => await aborted.CompleteAsync());
+        Assert.Same(reason, error.InnerException);
+        await aborted.DisposeAsync();
+
+        var disposed = new MinecraftConnection(new GateStream()).ToStreaming();
+        await disposed.DisposeAsync();
+        await Assert.ThrowsAsync<ObjectDisposedException>(async () => await disposed.CompleteAsync());
+    }
+
+    /// <summary>A flush that hands the stream nothing must not take the connection down with it.</summary>
+    [Fact]
+    public async Task CancelledFlushOfAnEmptyBuffer_LeavesTheConnectionOpen()
+    {
+        var token = TestContext.Current.CancellationToken;
+        await using var wire = await Loopback.CreateAsync(token);
+        await using var game = new MinecraftConnection(wire.Client).ToStreaming();
+
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(async () => await game.FlushAsync(cts.Token));
+
+        Assert.Null(game.CloseReason);
+        Assert.False(game.Completion.IsCompleted);
+
+        // still usable: the frame goes out on a live token
+        game.WritePacket(3, "alive"u8);
+        await game.FlushAsync(token);
+    }
+
+    /// <summary>
+    ///     One frame at a time cannot resume: a cancelled read has already eaten part of a frame and
+    ///     moved the cipher, so the connection dies rather than desync in silence.
+    /// </summary>
+    [Fact]
+    public async Task CancelledReadInFlight_KillsTheLoginConnection()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var gate = new GateStream();
+        await using var login = new MinecraftConnection(gate);
+
+        using var cts = new CancellationTokenSource();
+        var read = login.ReadPacketAsync(cts.Token).AsTask();
+        await gate.ReadStarted;
+        await cts.CancelAsync();
+
+        var cancelled = await Assert.ThrowsAnyAsync<OperationCanceledException>(() => read);
+        Assert.Same(cancelled, login.CloseReason);
+        await login.Completion;
+
+        var later = await Assert.ThrowsAsync<ConnectionAbortedException>(
+            async () => await login.ReadPacketAsync(token));
+        Assert.Same(cancelled, later.InnerException);
+    }
+
+    /// <summary>A token cancelled before the call starts costs nothing, so nothing is torn down.</summary>
+    [Fact]
+    public async Task PreCancelledRead_LeavesTheLoginConnectionOpen()
+    {
+        await using var login = new MinecraftConnection(new GateStream());
+
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(
+            async () => await login.ReadPacketAsync(cts.Token));
+
+        Assert.Null(login.CloseReason);
+        Assert.False(login.Completion.IsCompleted);
+    }
+
+    /// <summary>Two reads at once is the caller's bug; it must not cost anyone the connection.</summary>
+    [Fact]
+    public async Task ConcurrentRead_IsAUsageErrorAndLeavesTheConnectionOpen()
+    {
+        var token = TestContext.Current.CancellationToken;
+        var gate = new GateStream();
+        var game = new MinecraftConnection(gate).ToStreaming();
+
+        var first = game.ReadBatchAsync(token).AsTask();
+        await gate.ReadStarted;
+
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await game.ReadBatchAsync(token));
+        Assert.Null(game.CloseReason);
+        Assert.False(game.Completion.IsCompleted);
+
+        game.Abort();
+        await Assert.ThrowsAnyAsync<Exception>(() => first);
+        await game.DisposeAsync();
+    }
+
+    /// <summary>A watchdog holding the pre-move reference must still bring down the right connection.</summary>
+    [Fact]
+    public async Task AbortAfterToStreaming_ReachesTheStreamingConnection()
+    {
+        var login = new MinecraftConnection(new GateStream());
+        await using var game = login.ToStreaming();
+
+        var reason = new IOException("watchdog");
+        login.Abort(reason);
+
+        Assert.Same(reason, game.CloseReason);
+        await game.Completion;
+        var error = Assert.Throws<ConnectionAbortedException>(() => game.WritePacket(1, "x"u8));
+        Assert.Same(reason, error.InnerException);
+    }
+
     [Fact]
     public async Task CancelledRead_LosesNothing()
     {

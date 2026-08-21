@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Runtime.ExceptionServices;
 using McProtoNet.Transport.Cryptography;
 
 namespace McProtoNet.Transport.Framing;
@@ -11,8 +10,9 @@ namespace McProtoNet.Transport.Framing;
 /// </summary>
 /// <remarks>
 ///     One owner: there is no lock inside. A flush that fails or is cancelled kills the writer for
-///     good — every member throws that failure afterwards, because part of a frame may already be
-///     on the wire.
+///     good, because part of a frame may already be on the wire: every member afterwards throws a
+///     fresh <see cref="InvalidOperationException" /> that carries the original failure as its inner
+///     exception.
 /// </remarks>
 internal sealed class BufferedPacketWriter : IDisposable
 {
@@ -39,6 +39,9 @@ internal sealed class BufferedPacketWriter : IDisposable
 
     /// <summary>Negative means no compression envelope. Fixed for the life of the writer.</summary>
     public int CompressionThreshold => _compressionThreshold;
+
+    /// <summary>True once a flush failed part-way; from then on the writer can only throw.</summary>
+    public bool IsBroken => _fault is not null;
 
     /// <summary>True when an encryptor is attached.</summary>
     public bool IsEncrypted => _cipher is not null;
@@ -134,7 +137,10 @@ internal sealed class BufferedPacketWriter : IDisposable
     private void ThrowIfBroken()
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (_fault is not null) ExceptionDispatchInfo.Capture(_fault).Throw();
+
+        // a fresh throw every time: the stored fault is the reason, not the exception to replay —
+        // replaying it would hand a stale OperationCanceledException to a caller who cancelled nothing
+        if (_fault is not null) ThrowHelper.ThrowWriterDead(_fault);
     }
 
     public void Dispose()
