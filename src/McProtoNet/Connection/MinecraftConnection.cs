@@ -20,6 +20,10 @@ public sealed class MinecraftConnection : IDisposable, IAsyncDisposable
     private readonly CancellationTokenSource _cts;
     private readonly SemaphoreSlim _sendGate = new(1, 1);
 
+    private const int SegmentSize = 64 * 1024;
+    private const int PauseWriterThreshold = 1024 * 1024;
+    private const int ResumeWriterThreshold = 512 * 1024;
+
     private const int None = 0;
     private const int Disposed = 1;
     private int _state;
@@ -33,8 +37,14 @@ public sealed class MinecraftConnection : IDisposable, IAsyncDisposable
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        var networkToApp = new Pipe();
-        var appToNetwork = new Pipe();
+        var options = new PipeOptions(
+            minimumSegmentSize: SegmentSize,
+            pauseWriterThreshold: PauseWriterThreshold,
+            resumeWriterThreshold: ResumeWriterThreshold,
+            useSynchronizationContext: false);
+
+        var networkToApp = new Pipe(options);
+        var appToNetwork = new Pipe(options);
 
         var transport = new DuplexPipe(input: appToNetwork.Reader, output: networkToApp.Writer);
         var app = new DuplexPipe(input: networkToApp.Reader, output: appToNetwork.Writer);
@@ -189,7 +199,7 @@ public sealed class MinecraftConnection : IDisposable, IAsyncDisposable
     {
         while (true)
         {
-            var memory = pipeWriter.GetMemory();
+            var memory = pipeWriter.GetMemory(SegmentSize);
             int bytes = await stream.ReadAsync(memory, token).ConfigureAwait(false);
             if (bytes == 0)
             {
