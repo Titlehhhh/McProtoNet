@@ -6,7 +6,7 @@ namespace McProtoNet.Primitives;
 /// <summary>
 /// Provides SIMD-optimized extensions for reading arrays of various data types
 /// </summary>
-public static class ReadArraysSIMDExtensions
+internal static class ReadArraysSIMDExtensions
 {
     /// <summary>
     /// Reads an array of 32-bit integers in big-endian format

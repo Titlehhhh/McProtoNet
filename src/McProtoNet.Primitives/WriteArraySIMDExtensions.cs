@@ -7,7 +7,7 @@ namespace McProtoNet.Primitives;
 
 using MM = MemoryMarshal;
 
-public static class WriteArraySIMDExtensions
+internal static class WriteArraySIMDExtensions
 {
     extension(MinecraftPrimitiveWriter writer)
     {

@@ -1,6 +1,8 @@
-// MinimalBot — исполняемая документация пакетного слоя, теперь на дизайне-симбиозе:
-// handler-база ClientboundHandler из генерата, типизированная отправка SendAsync (id из типа),
-// имена незнакомых пакетов из PacketRegistry. Ручного свитча по id больше нет.
+// MinimalBot — исполняемая документация пакетного слоя на транспорте 2.0:
+// login идёт по одному пакету на MinecraftConnection, после login_acknowledged соединение
+// переезжает в StreamingConnection и дальше читается пачками. Handler-база ClientboundHandler
+// из генерата, типизированная отправка SendAsync (id из типа), имена незнакомых пакетов
+// из PacketRegistry. Ручного свитча по id нет.
 //
 // Использование: dotnet run [host] [port] [name]
 // По умолчанию: 127.0.0.1 25566 McProtoBot (paper-1.21.8, pv 772)
@@ -25,19 +27,37 @@ var host = args.Length > 0 ? args[0] : "127.0.0.1";
 var port = args.Length > 1 ? int.Parse(args[1]) : 25566;
 var name = args.Length > 2 ? args[2] : "McProtoBot";
 
-Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv}, дизайн-симбиоз)");
+Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv}, транспорт 2.0)");
 
 using var tcp = new TcpClient();
 await tcp.ConnectAsync(host, port);
-await using var client = MinecraftConnection.Create(tcp.GetStream());
+var login = new MinecraftConnection(tcp.GetStream());
 
 // handshake: intent=2 (login), дальше сразу login start; id склеивает SendAsync
-await client.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
-await client.SendAsync(new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), Pv);
+await login.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
+await login.SendAsync(new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), Pv);
 Console.WriteLine("[login] handshake + login start отправлены");
 
-var bot = new Bot(client, Pv);
-await foreach (var packet in client.ReadPacketsAsync())
+var bot = new Bot(login, Pv);
+
+// режим «по одному»: ровно один кадр за чтение, здесь включаются сжатие и шифр
+while (!bot.Stopped && !bot.LoginDone)
+{
+    var raw = await login.ReadPacketAsync();
+    await bot.HandleAsync(in raw, Pv);
+}
+
+if (bot.Stopped)
+{
+    await login.DisposeAsync();
+    Console.WriteLine("Соединение закрыто.");
+    return;
+}
+
+// переход односторонний: login-соединение умирает, дальше живёт потоковое
+await using var game = await bot.EnterStreamingAsync();
+
+await foreach (var packet in game.ReadPacketsAsync())
 {
     await bot.HandleAsync(in packet, Pv);
     if (bot.Stopped) break;
@@ -46,20 +66,33 @@ await foreach (var packet in client.ReadPacketsAsync())
 Console.WriteLine("Соединение закрыто.");
 
 // Вся логика — переопределения handler-базы; фазу ведёт бот через слот Phase.
-sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
+sealed class Bot(MinecraftConnection login, int pv) : ClientboundHandler
 {
     private readonly DateTime _startedAt = DateTime.UtcNow;
     private readonly HashSet<(PacketPhase, int)> _unknownSeen = [];
+    private StreamingConnection? _game;
     private int _playKeepAlives;
     private bool _greeted;
 
     public bool Stopped { get; private set; }
 
+    /// <summary>Login отработан: пора переезжать в потоковый режим.</summary>
+    public bool LoginDone { get; private set; }
+
+    public async ValueTask<StreamingConnection> EnterStreamingAsync()
+    {
+        _game = login.ToStreaming();
+        await SendAsync(
+            new ConfSb.ClientInformationPacket("en_us", 8, 0, true, 0x7F, 1, false, true, V768_Last: new(0)));
+        Console.WriteLine("[config] client information отправлена");
+        return _game;
+    }
+
     // --- login → configuration ---
 
     protected override ValueTask OnLoginCompress(LoginCb.LoginCompressPacket p)
     {
-        client.CompressionThreshold = p.Threshold;
+        login.CompressionThreshold = p.Threshold;
         Console.WriteLine($"[login] компрессия включена, порог {p.Threshold}");
         return default;
     }
@@ -67,11 +100,10 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
     protected override async ValueTask OnLoginSuccess(LoginCb.LoginSuccessPacket p)
     {
         Console.WriteLine($"[login] успех: {p.Username} {p.Uuid}");
-        await client.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
+        await login.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
         Phase = PacketPhase.Configuration;
-        await client.SendAsync(
-            new ConfSb.ClientInformationPacket("en_us", 8, 0, true, 0x7F, 1, false, true, V768_Last: new(0)), pv);
-        Console.WriteLine("[config] вошли в configuration, client information отправлена");
+        LoginDone = true;
+        Console.WriteLine("[config] вошли в configuration");
     }
 
     protected override ValueTask OnLoginDisconnect(LoginCb.LoginDisconnectPacket p)
@@ -84,23 +116,23 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
     // --- configuration ---
 
     protected override ValueTask OnConfigurationKeepAlive(ConfCb.KeepAlivePacket p)
-        => client.SendAsync(new ConfSb.KeepAlivePacket(p.KeepAliveId), pv);
+        => SendAsync(new ConfSb.KeepAlivePacket(p.KeepAliveId));
 
     // Play gained its own Ping in the 2026-08-11 spec cycle, so the bare OnPing went to it
     // and the configuration one took the phase prefix — the same shape OnConfigurationKeepAlive
     // above already had.
     protected override ValueTask OnConfigurationPing(ConfCb.PingPacket p)
-        => client.SendAsync(new ConfSb.PongPacket(p.Id), pv);
+        => SendAsync(new ConfSb.PongPacket(p.Id));
 
     protected override async ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket p)
     {
-        await client.SendAsync(new ConfSb.SelectKnownPacksPacket(p.Packs), pv);
+        await SendAsync(new ConfSb.SelectKnownPacksPacket(p.Packs));
         Console.WriteLine($"[config] known packs: {p.Packs.Length} шт, подтвердили");
     }
 
     protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurationPacket p)
     {
-        await client.SendAsync(new ConfSb.FinishConfigurationPacket(), pv);
+        await SendAsync(new ConfSb.FinishConfigurationPacket());
         Phase = PacketPhase.Play;
         Console.WriteLine("[play] configuration завершена, вошли в play");
     }
@@ -116,27 +148,27 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
 
     protected override async ValueTask OnKeepAlive(PlayCb.KeepAlivePacket p)
     {
-        await client.SendAsync(new PlaySb.KeepAlivePacket(p.KeepAliveId), pv);
+        await SendAsync(new PlaySb.KeepAlivePacket(p.KeepAliveId));
         await SendLocalAsync(ArmAnimationPacket.GetPacketId(pv), new ArmAnimationPacket(Hand: 0));
         Console.WriteLine($"[play] keep-alive {p.KeepAliveId} — ответили и махнули рукой");
 
         if (++_playKeepAlives % 4 == 0) // ~раз в минуту
         {
             var aliveSec = (int)(DateTime.UtcNow - _startedAt).TotalSeconds;
-            await SendChatAsync($"живу {aliveSec} сек на handler-базе симбиоза");
+            await SendChatAsync($"живу {aliveSec} сек на транспорте 2.0");
         }
     }
 
     protected override async ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket p)
     {
-        await client.SendAsync(new PlaySb.TeleportConfirmPacket(p.TeleportId), pv);
+        await SendAsync(new PlaySb.TeleportConfirmPacket(p.TeleportId));
         Console.WriteLine($"[play] позиция: x={p.X:F1} y={p.Y:F1} z={p.Z:F1} — телепорт {p.TeleportId} подтверждён");
 
         if (!_greeted) // первый PlayerPosition = спавн
         {
             _greeted = true;
-            await SendChatAsync("Привет! Я MinimalBot на дизайне-симбиозе");
-            await SendChatAsync("handler-база из генерата, id из типов, незнакомые пакеты зову по имени");
+            await SendChatAsync("Привет! Я MinimalBot на транспорте 2.0");
+            await SendChatAsync("login по одному, play потоком, id из типов");
             Console.WriteLine("[play] спавн — поздоровались в чате");
         }
     }
@@ -156,11 +188,16 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
             var packetName = PacketRegistry.TryResolve(raw.Id, pv, Phase, Direction, out var desc)
                 ? desc.Identity.Name
                 : $"0x{raw.Id:X2}";
-            Console.WriteLine($"  .. [{Phase}] пропущен {packetName} ({raw.Data.Length} байт) — и все следующие такие");
+            Console.WriteLine($"  .. [{Phase}] пропущен {packetName} ({raw.Body.Length} байт) — и все следующие такие");
         }
 
         return default;
     }
+
+    // --- отправка: до перехода через login-соединение, после — через потоковое ---
+
+    private ValueTask SendAsync<T>(T packet) where T : class, IPacket<T>
+        => _game is { } game ? game.SendAsync(packet, pv) : login.SendAsync(packet, pv);
 
     // --- локальные пакеты (чата и жеста нет в спеках): прежний ручной путь отправки ---
 
@@ -173,10 +210,23 @@ sealed class Bot(MinecraftConnection client, int pv) : ClientboundHandler
 
     private async ValueTask SendLocalAsync<T>(int id, T packet) where T : IProtocolType<T>
     {
-        var writer = new MinecraftPrimitiveWriter();
-        writer.WriteVarInt(id);
-        packet.Write(writer, pv);
-        using var owner = writer.GetWrittenMemory();
-        await client.SendPacketAsync(owner.Memory);
+        var writer = MinecraftPrimitiveWriterCache.Rent();
+        try
+        {
+            packet.Write(writer, pv);
+            if (_game is { } game)
+            {
+                game.WritePacket(id, writer.WrittenSpan);
+                await game.FlushAsync();
+            }
+            else
+            {
+                await login.WritePacketAsync(id, writer.WrittenMemory);
+            }
+        }
+        finally
+        {
+            MinecraftPrimitiveWriterCache.Return(writer);
+        }
     }
 }

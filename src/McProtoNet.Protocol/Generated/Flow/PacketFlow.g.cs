@@ -23,7 +23,7 @@ public static partial class PacketFlow
             return;
         }
 
-        var reader = new MinecraftPrimitiveReader(raw.Data);
+        var reader = new MinecraftPrimitiveReader(raw.Body);
         bool handled;
         // The jump table is shared with the Try door, which must tell a failed body read
         // from an exception thrown by the visitor: the table lowers this flag once the
@@ -94,7 +94,7 @@ public static partial class PacketFlow
             return true;
         }
 
-        var reader = new MinecraftPrimitiveReader(raw.Data);
+        var reader = new MinecraftPrimitiveReader(raw.Body);
         bool handled;
         // True while the body is being read; the table lowers it right before it hands the
         // packet to the visitor. The filter below tests it, so an exception out of the

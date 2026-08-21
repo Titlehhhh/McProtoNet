@@ -58,7 +58,7 @@ public class TestServer
         {
             var buffer = GeneratePacket();
             var packet = new OutgoingPacket(buffer);
-            await writer.SendAndDisposeAsync(packet, CancellationToken.None);
+            await writer.WriteAndDisposeAsync(packet, CancellationToken.None);
         }
 
         bytes = stream.ToArray();

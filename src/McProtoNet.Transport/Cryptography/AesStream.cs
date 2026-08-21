@@ -47,12 +47,6 @@ public sealed class AesStream : Stream
         set => throw new NotSupportedException();
     }
 
-    public void SwitchEncryption(byte[] privateKey)
-    {
-        ArgumentNullException.ThrowIfNull(privateKey);
-        EnableEncryption(privateKey);
-    }
-
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
         ThrowIfDisposed();

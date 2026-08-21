@@ -1,27 +1,32 @@
 using System.Buffers;
 using System.Diagnostics;
+using McProtoNet.Transport.Cryptography;
 
 namespace McProtoNet.Transport.Framing;
 
 /// <summary>
-/// Handles sending Minecraft protocol packets with optional compression
+///     One frame per call over a <see cref="Stream" />: frame the packet (compression threshold
+///     applied), encrypt it in place when a cipher is set, write and flush. When the call returns,
+///     the bytes are at the socket.
 /// </summary>
 public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
 {
-    private readonly Stream _stream;
-    private readonly bool _leaveOpen;
-
     private const int NonWrite = 0;
     private const int Writing = 1;
 
     private const int None = 0;
     private const int Disposed = 1;
 
+    private readonly Stream _stream;
+    private readonly bool _leaveOpen;
+
     private volatile int _writeState = NonWrite;
     private volatile int _state = None;
 
     private int _compressionThreshold = -1;
     private bool _autoFlush = true;
+    private PacketCipher? _cipher;
+    private PooledBufferWriter? _scratch;
 
     public PacketStreamWriter(Stream stream, bool leaveOpen = false)
     {
@@ -30,6 +35,7 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         _stream = stream;
     }
 
+    /// <summary>Flush the stream after every frame. On by default.</summary>
     public bool AutoFlush
     {
         get
@@ -41,15 +47,13 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         {
             ThrowIfDisposed();
             if (_writeState == Writing)
-            {
-                throw new InvalidOperationException(
-                    "Cannot change auto-flush while writing a packet.");
-            }
+                throw new InvalidOperationException("Cannot change auto-flush while writing a packet.");
 
             _autoFlush = value;
         }
     }
 
+    /// <summary>Negative means no compression envelope. A change takes effect from the next frame.</summary>
     public int CompressionThreshold
     {
         get
@@ -61,14 +65,34 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         {
             ThrowIfDisposed();
             if (_writeState == Writing)
-            {
                 throw new InvalidOperationException("Cannot change compression threshold while writing a packet.");
-            }
 
             _compressionThreshold = value;
         }
     }
 
+    /// <summary>
+    ///     Encryptor applied in place to the whole frame before it reaches the stream. Set it between
+    ///     two frames — nothing of the next frame is buffered, so the switch lands on a frame boundary.
+    /// </summary>
+    public PacketCipher? Cipher
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _cipher;
+        }
+        internal set
+        {
+            ThrowIfDisposed();
+            if (_writeState == Writing)
+                throw new InvalidOperationException("Cannot change the cipher while writing a packet.");
+
+            _cipher = value;
+        }
+    }
+
+    /// <summary>The stream frames are written to.</summary>
     public Stream BaseStream
     {
         get
@@ -78,18 +102,24 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         }
     }
 
-    /// <summary>
-    /// Sends a packet asynchronously with optional compression
-    /// </summary>
-    /// <param name="data">The packet data to send</param>
-    /// <param name="cancellationToken">Token to cancel the operation</param>
-    /// <returns>A ValueTask representing the asynchronous operation</returns>
-    public async ValueTask SendPacketAsync(ReadOnlyMemory<byte> data, CancellationToken cancellationToken = default)
+    /// <summary>Writes one packet — varint id plus body, already assembled by the caller.</summary>
+    public async ValueTask WritePacketAsync(ReadOnlyMemory<byte> packet, CancellationToken cancellationToken = default)
     {
         BeginWrite(cancellationToken);
         try
         {
-            await _stream.WritePacketAsync(data, _compressionThreshold, cancellationToken).ConfigureAwait(false);
+            if (_cipher is null)
+            {
+                await _stream.WritePacketAsync(packet, _compressionThreshold, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                var scratch = RentScratch();
+                scratch.WritePacket(packet.Span, _compressionThreshold);
+                _cipher.Transform(scratch.WrittenSpan);
+                await _stream.WriteAsync(scratch.WrittenMemory, cancellationToken).ConfigureAwait(false);
+            }
+
             await FlushAsyncInternal(cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -98,40 +128,53 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         }
     }
 
-    /// <summary>
-    /// Sends a packet asynchronously from a buffer sequence, without joining it first
-    /// </summary>
-    /// <param name="data">The packet data to send</param>
-    /// <param name="cancellationToken">Token to cancel the operation</param>
-    /// <returns>A ValueTask representing the asynchronous operation</returns>
-    public async ValueTask SendPacketAsync(ReadOnlySequence<byte> data, CancellationToken cancellationToken = default)
-    {
-        BeginWrite(cancellationToken);
-        try
-        {
-            await _stream.WritePacketAsync(data, _compressionThreshold, cancellationToken).ConfigureAwait(false);
-            await FlushAsyncInternal(cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            EndWrite();
-        }
-    }
-
-    /// <summary>
-    /// Sends a packet asynchronously, writing the VarInt id in front of the body
-    /// </summary>
-    /// <param name="id">The packet id</param>
-    /// <param name="body">The packet body, without the id</param>
-    /// <param name="cancellationToken">Token to cancel the operation</param>
-    /// <returns>A ValueTask representing the asynchronous operation</returns>
-    public async ValueTask SendPacketAsync(int id, ReadOnlyMemory<byte> body,
+    /// <summary>Writes one packet from a segmented buffer, without joining it first.</summary>
+    public async ValueTask WritePacketAsync(ReadOnlySequence<byte> packet,
         CancellationToken cancellationToken = default)
     {
         BeginWrite(cancellationToken);
         try
         {
-            await _stream.WritePacketAsync(id, body, _compressionThreshold, cancellationToken).ConfigureAwait(false);
+            if (_cipher is null)
+            {
+                await _stream.WritePacketAsync(packet, _compressionThreshold, cancellationToken).ConfigureAwait(false);
+            }
+            else
+            {
+                var scratch = RentScratch();
+                scratch.WritePacket(in packet, _compressionThreshold);
+                _cipher.Transform(scratch.WrittenSpan);
+                await _stream.WriteAsync(scratch.WrittenMemory, cancellationToken).ConfigureAwait(false);
+            }
+
+            await FlushAsyncInternal(cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            EndWrite();
+        }
+    }
+
+    /// <summary>Writes one packet, putting the varint id in front of the body.</summary>
+    public async ValueTask WritePacketAsync(int id, ReadOnlyMemory<byte> body,
+        CancellationToken cancellationToken = default)
+    {
+        BeginWrite(cancellationToken);
+        try
+        {
+            if (_cipher is null)
+            {
+                await _stream.WritePacketAsync(id, body, _compressionThreshold, cancellationToken)
+                    .ConfigureAwait(false);
+            }
+            else
+            {
+                var scratch = RentScratch();
+                scratch.WritePacket(id, body.Span, _compressionThreshold);
+                _cipher.Transform(scratch.WrittenSpan);
+                await _stream.WriteAsync(scratch.WrittenMemory, cancellationToken).ConfigureAwait(false);
+            }
+
             await FlushAsyncInternal(cancellationToken).ConfigureAwait(false);
         }
         finally
@@ -144,11 +187,16 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
     {
         ThrowIfDisposed();
         if (_writeState == Writing)
-        {
             throw new InvalidOperationException("FlushAsync called while writing is in progress");
-        }
 
         await _stream.FlushAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+    private PooledBufferWriter RentScratch()
+    {
+        var scratch = _scratch ??= new PooledBufferWriter(4096);
+        scratch.Clear();
+        return scratch;
     }
 
     private void BeginWrite(CancellationToken cancellationToken)
@@ -156,53 +204,34 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         if (Interlocked.CompareExchange(ref _writeState, Writing, NonWrite) == Writing)
-        {
             throw new InvalidOperationException("Concurrent packet sending is not allowed.");
-        }
     }
 
-    private void EndWrite()
-    {
-        Interlocked.Exchange(ref _writeState, NonWrite);
-    }
+    private void EndWrite() => Interlocked.Exchange(ref _writeState, NonWrite);
 
     private async ValueTask FlushAsyncInternal(CancellationToken token)
     {
-        if (_autoFlush)
-        {
-            await _stream.FlushAsync(token).ConfigureAwait(false);
-        }
+        if (_autoFlush) await _stream.FlushAsync(token).ConfigureAwait(false);
     }
 
     [StackTraceHidden]
-    private void ThrowIfDisposed()
-    {
-        ObjectDisposedException.ThrowIf(_state == Disposed, this);
-    }
+    private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_state == Disposed, this);
 
     public void Dispose()
     {
-        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
-        {
-            return;
-        }
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed) return;
 
-        if (!_leaveOpen)
-        {
-            _stream.Dispose();
-        }
+        _scratch?.Dispose();
+        _scratch = null;
+        if (!_leaveOpen) _stream.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed)
-        {
-            return;
-        }
+        if (Interlocked.CompareExchange(ref _state, Disposed, None) == Disposed) return;
 
-        if (!_leaveOpen)
-        {
-            await _stream.DisposeAsync().ConfigureAwait(false);
-        }
+        _scratch?.Dispose();
+        _scratch = null;
+        if (!_leaveOpen) await _stream.DisposeAsync().ConfigureAwait(false);
     }
 }

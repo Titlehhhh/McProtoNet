@@ -15,13 +15,12 @@ using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Jobs;
 using BenchmarkDotNet.Toolchains.InProcess.NoEmit;
 using McProtoNet.Transport.Framing;
-using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark.Pipelines;
 
 public enum SendStrategy
 {
     DirectStream,
-    PacketPipeWriter,
+    BufferedWriter,
     ChannelBatch,
     ChannelAligned,
     ChannelDrain
@@ -69,7 +68,7 @@ public class SendStrategyBenchmarks
     [Params(SendTransport.File, SendTransport.Tcp)]
     public SendTransport Transport;
 
-    [Params(SendStrategy.PacketPipeWriter, SendStrategy.ChannelBatch, SendStrategy.ChannelAligned,
+    [Params(SendStrategy.BufferedWriter, SendStrategy.ChannelBatch, SendStrategy.ChannelAligned,
         SendStrategy.ChannelDrain)]
     public SendStrategy Strategy;
 
@@ -203,7 +202,7 @@ public class SendStrategyBenchmarks
         return Strategy switch
         {
             SendStrategy.DirectStream => RunDirectStream(),
-            SendStrategy.PacketPipeWriter => RunPacketPipeWriter(),
+            SendStrategy.BufferedWriter => RunBufferedWriter(),
             SendStrategy.ChannelBatch => RunChannel(minimumBufferSize: 4096, flushEveryPackets: FlushEvery,
                 flushBytes: 0),
             SendStrategy.ChannelAligned => RunChannel(minimumBufferSize: 8192, flushEveryPackets: FlushEvery,
@@ -234,52 +233,27 @@ public class SendStrategyBenchmarks
         });
     }
 
-    private async Task RunPacketPipeWriter()
+    private async Task RunBufferedWriter()
     {
-        var pipe = new Pipe();
-        var writer = new MinecraftPacketPipeWriter(pipe.Writer)
-        {
-            CompressionThreshold = CompressionThreshold
-        };
-        var pump = Task.Run(() => PumpToStream(pipe.Reader, _stream));
+        using var writer = new BufferedPacketWriter(_stream, CompressionThreshold);
         using var gate = new SemaphoreSlim(1, 1);
 
-        Exception producerError = null;
-        try
+        await RunProducers(async count =>
         {
-            await RunProducers(async count =>
+            for (int i = 0; i < count; i++)
             {
-                for (int i = 0; i < count; i++)
+                await gate.WaitAsync();
+                try
                 {
-                    await gate.WaitAsync();
-                    try
-                    {
-                        writer.WritePacket(_packet);
-                        await writer.FlushAsync();
-                    }
-                    finally
-                    {
-                        gate.Release();
-                    }
+                    writer.WritePacket(_packet);
+                    await writer.FlushAsync();
                 }
-            });
-        }
-        catch (Exception ex)
-        {
-            producerError = ex;
-        }
-
-        try
-        {
-            await writer.CompleteAsync(producerError);
-            await pump;
-        }
-        finally
-        {
-            writer.Dispose();
-        }
-
-        if (producerError is not null) throw producerError;
+                finally
+                {
+                    gate.Release();
+                }
+            }
+        });
     }
 
     private static async Task PumpToStream(PipeReader reader, Stream stream)

@@ -17,14 +17,13 @@ public class SendBenchmarksWithQueue
 
     [Params(-1, 1000)] public int QueueSize { get; set; }
 
-    [Params(BenchType.Pipelines2, BenchType.QueueStream, BenchType.QueuePipe)]
+    [Params(BenchType.Streaming, BenchType.QueueStream)]
     public BenchType Bench { get; set; }
 
     private TestServer _server = new();
 
-    private readonly Pipelines2SendBench _pipe2Bench = new();
+    private readonly StreamingSendBench _streamingBench = new();
     private QueueStreamSendBench _queueStreamBench;
-    private QueuePipeSendBench _queuePipeBench;
 
     private byte[] _packet;
     private readonly Random _random = new(40);
@@ -36,7 +35,6 @@ public class SendBenchmarksWithQueue
     public async Task GlobalSetup()
     {
         _queueStreamBench = new(QueueSize);
-        _queuePipeBench = new(QueueSize);
         _packet = new byte[PacketSize];
         _random.NextBytes(_packet);
         await _server.Run(PacketsCount, CompressionThreshold, ServerMode.Send);
@@ -49,14 +47,11 @@ public class SendBenchmarksWithQueue
 
         switch (Bench)
         {
-            case BenchType.Pipelines2:
-                _activeBench = _pipe2Bench;
+            case BenchType.Streaming:
+                _activeBench = _streamingBench;
                 break;
             case BenchType.QueueStream:
                 _activeBench = _queueStreamBench;
-                break;
-            case BenchType.QueuePipe:
-                _activeBench = _queuePipeBench;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

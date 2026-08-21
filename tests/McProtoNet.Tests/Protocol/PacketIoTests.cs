@@ -28,7 +28,7 @@ public class PacketIoTests
     private static IncomingPacket Raw(params byte[][] parts)
     {
         var all = parts.SelectMany(p => p).ToArray();
-        return new IncomingPacket(0x42, new ReadOnlySequence<byte>(all));
+        return new IncomingPacket(0x42, all);
     }
 
     private static byte[] Body(long value)

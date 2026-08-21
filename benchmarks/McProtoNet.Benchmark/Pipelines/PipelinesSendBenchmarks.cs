@@ -16,7 +16,7 @@ public class PipelinesSendBenchmarks
     [Params(-1)] public int CompressionThreshold;
     [Params(50)] public int PacketSize;
 
-    [Params( BenchType.Pipelines2)]
+    [Params(BenchType.BufferedStream, BenchType.Streaming)]
     public BenchType Bench { get; set; }
 
     private TestServer _server = new();
@@ -24,8 +24,7 @@ public class PipelinesSendBenchmarks
 
     private readonly StreamSendBench _streamBench = new();
     private readonly BufferedStreamSendBench _bufferedStreamBench = new();
-    private readonly PipelinesSendBench _pipeBench = new();
-    private readonly Pipelines2SendBench _pipe2Bench = new();
+    private readonly StreamingSendBench _streamingBench = new();
 
     private byte[] _packet;
     private readonly Random _random = new(40);
@@ -54,11 +53,8 @@ public class PipelinesSendBenchmarks
             case BenchType.BufferedStream:
                 _activeBench = _bufferedStreamBench;
                 break;
-            case BenchType.Pipelines:
-                _activeBench = _pipeBench;
-                break;
-            case BenchType.Pipelines2:
-                _activeBench = _pipe2Bench;
+            case BenchType.Streaming:
+                _activeBench = _streamingBench;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

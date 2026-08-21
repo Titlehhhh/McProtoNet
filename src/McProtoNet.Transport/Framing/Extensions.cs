@@ -1,14 +1,16 @@
 using McProtoNet.Primitives;
+
 namespace McProtoNet.Transport.Framing;
 
 public static class Extensions
 {
-    public static async ValueTask SendAndDisposeAsync(this PacketStreamWriter sender, OutgoingPacket packet,
-        CancellationToken token)
+    /// <summary>Writes a rented packet and returns its buffer to the pool afterwards.</summary>
+    public static async ValueTask WriteAndDisposeAsync(this PacketStreamWriter writer, OutgoingPacket packet,
+        CancellationToken token = default)
     {
         try
         {
-            await sender.SendPacketAsync(packet.Memory, token);
+            await writer.WritePacketAsync(packet.Memory, token).ConfigureAwait(false);
         }
         finally
         {

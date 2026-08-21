@@ -1,244 +1,192 @@
-using System.IO.Pipelines;
 using McProtoNet.Primitives;
-using McProtoNet.Transport.Pipelines;
+using McProtoNet.Transport.Cryptography;
+using McProtoNet.Transport.Framing;
+
 namespace McProtoNet.Transport;
 
 /// <summary>
-///     A Minecraft protocol connection over an arbitrary duplex <see cref="Stream" />:
-///     frames packets in both directions, with optional compression and encryption
-///     provided by the underlying packet pipes.
+///     A connection in one-at-a-time mode: one frame per read, one frame per write, nothing held
+///     back. This is where the switches live — the compression threshold and encryption — because
+///     nothing of the next frame is ever buffered, so a switch always lands between two frames.
+///     Handshaking, status and login live here; <see cref="ToStreaming" /> moves the rest of the
+///     connection to <see cref="StreamingConnection" />.
 /// </summary>
 /// <remarks>
-///     Disposal contract: finish (or cancel) packet enumeration first, then
-///     <see cref="DisposeAsync" />. The synchronous <see cref="Dispose" /> only requests
-///     shutdown; buffers are returned by <see cref="DisposeAsync" /> after the pumps stop.
+///     One reader, one writer, no queue inside: send policy belongs to the caller.
+///     <see cref="Abort" /> may be called from any thread.
 /// </remarks>
-public sealed class MinecraftConnection : IDisposable, IAsyncDisposable
+public sealed class MinecraftConnection : IAsyncDisposable
 {
-    private readonly MinecraftPacketPipeReader _packetReader;
-    private readonly MinecraftPacketPipeWriter _packetWriter;
-    private readonly CancellationTokenSource _cts;
-    private readonly SemaphoreSlim _sendGate = new(1, 1);
+    private readonly Stream _stream;
+    private readonly bool _leaveOpen;
+    private readonly PacketStreamReader _reader;
+    private readonly PacketStreamWriter _writer;
 
-    private const int SegmentSize = 64 * 1024;
-    private const int PauseWriterThreshold = 1024 * 1024;
-    private const int ResumeWriterThreshold = 512 * 1024;
+    private PacketCipher? _encryptor;
+    private PacketCipher? _decryptor;
+    private int _threshold = -1;
+    private int _moved;
+    private int _closed;
+    private Exception? _closeReason;
 
-    private const int None = 0;
-    private const int Disposed = 1;
-    private int _state;
-    private int _asyncDisposed;
-
-    /// <summary>
-    ///     Wraps an already-connected stream. The connection owns the stream and
-    ///     disposes it when the pumps stop.
-    /// </summary>
-    public static MinecraftConnection Create(Stream stream)
+    public MinecraftConnection(Stream stream, bool leaveOpen = false)
     {
         ArgumentNullException.ThrowIfNull(stream);
-
-        var options = new PipeOptions(
-            minimumSegmentSize: SegmentSize,
-            pauseWriterThreshold: PauseWriterThreshold,
-            resumeWriterThreshold: ResumeWriterThreshold,
-            useSynchronizationContext: false);
-
-        var networkToApp = new Pipe(options);
-        var appToNetwork = new Pipe(options);
-
-        var transport = new DuplexPipe(input: appToNetwork.Reader, output: networkToApp.Writer);
-        var app = new DuplexPipe(input: networkToApp.Reader, output: appToNetwork.Writer);
-
-        return new MinecraftConnection(stream, transport, app);
+        _stream = stream;
+        _leaveOpen = leaveOpen;
+        _reader = new PacketStreamReader(stream, leaveOpen: true);
+        _writer = new PacketStreamWriter(stream, leaveOpen: true);
     }
 
-    internal MinecraftConnection(Stream stream, IDuplexPipe transport, IDuplexPipe app)
-    {
-        _cts = new CancellationTokenSource();
-        _packetReader = new MinecraftPacketPipeReader(app.Input);
-        _packetWriter = new MinecraftPacketPipeWriter(app.Output);
+    /// <summary>The stream underneath — the raw escape hatch for proxies and replays.</summary>
+    public Stream BaseStream => _stream;
 
-        Completion = RunAsync(stream, transport, _cts.Token);
-    }
-
-    /// <summary>Low-level packet reader; exposes encryption and compression switches.</summary>
-    public MinecraftPacketPipeReader PacketReader => _packetReader;
-
-    /// <summary>Low-level packet writer; exposes encryption and compression switches.</summary>
-    public MinecraftPacketPipeWriter PacketWriter => _packetWriter;
-
-    /// <summary>Completes when both pumps have stopped and the stream is disposed. Never faults.</summary>
-    public Task Completion { get; }
-
+    /// <summary>Negative means no compression envelope. A change takes effect from the next frame.</summary>
     public int CompressionThreshold
     {
-        get => _packetReader.CompressionThreshold;
+        get
+        {
+            ThrowIfUnusable();
+            return _threshold;
+        }
         set
         {
-            _packetReader.CompressionThreshold = value;
-            _packetWriter.CompressionThreshold = value;
+            ThrowIfUnusable();
+            _threshold = value;
+            _reader.CompressionThreshold = value;
+            _writer.CompressionThreshold = value;
         }
     }
 
-    public IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(CancellationToken token = default)
+    /// <summary>True once <see cref="EnableEncryption" /> has run.</summary>
+    public bool IsEncrypted => _encryptor is not null;
+
+    /// <summary>
+    ///     Turns on AES/CFB8 in both directions from the next frame on. Call it right after the frame
+    ///     that agreed the secret has been written and before the next one is read.
+    /// </summary>
+    public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
-        ThrowIfDisposed();
-        return _packetReader.ReadPacketsAsync(token);
+        ThrowIfUnusable();
+        if (_encryptor is not null)
+            throw new InvalidOperationException("Encryption is already enabled.");
+
+        _encryptor = PacketCipher.CreateEncryptor(sharedSecret);
+        _decryptor = PacketCipher.CreateDecryptor(sharedSecret);
+        _reader.Cipher = _decryptor;
+        _writer.Cipher = _encryptor;
     }
 
-    public ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
+    /// <summary>Reads exactly one frame. The body window is valid until the next read.</summary>
+    public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
     {
-        ThrowIfDisposed();
-        return _packetReader.ReadPacketAsync(token);
-    }
-
-    /// <summary>Sends one packet. Serialized internally — safe from any thread.</summary>
-    public async ValueTask SendPacketAsync(ReadOnlyMemory<byte> packet, CancellationToken token = default)
-    {
-        ThrowIfDisposed();
-        await _sendGate.WaitAsync(token).ConfigureAwait(false);
+        ThrowIfUnusable();
         try
         {
-            ThrowIfDisposed();
-            _packetWriter.WritePacket(packet.Span);
-            var result = await _packetWriter.FlushAsync(token).ConfigureAwait(false);
-            if (result.IsCanceled) token.ThrowIfCancellationRequested();
-            if (result.IsCompleted)
-            {
-                throw new InvalidOperationException("Connection is closed");
-            }
+            return await _reader.ReadPacketAsync(token).ConfigureAwait(false);
         }
-        finally
+        catch (Exception ex) when (IsAborted(ex))
         {
-            _sendGate.Release();
+            throw new ConnectionAbortedException(Volatile.Read(ref _closeReason));
         }
     }
 
-    private void ThrowIfDisposed()
+    /// <summary>Writes one packet and flushes. When it returns, the bytes are at the socket.</summary>
+    public async ValueTask WritePacketAsync(ReadOnlyMemory<byte> packet, CancellationToken token = default)
     {
-        ObjectDisposedException.ThrowIf(Volatile.Read(ref _state) == Disposed, this);
-        if (_cts.IsCancellationRequested)
-        {
-            throw new InvalidOperationException("Connection is closed");
-        }
-    }
-
-    /// <summary>Requests shutdown. Buffers are released by <see cref="DisposeAsync" />.</summary>
-    public void Dispose()
-    {
-        if (Interlocked.Exchange(ref _state, Disposed) == Disposed)
-        {
-            return;
-        }
-
-        _cts.Cancel();
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        Dispose();
-        if (Interlocked.Exchange(ref _asyncDisposed, 1) == 1)
-        {
-            await Completion.ConfigureAwait(false);
-            return;
-        }
-
-        await Completion.ConfigureAwait(false);
-        // fence out in-flight senders: after this acquire no send holds the writer
-        await _sendGate.WaitAsync().ConfigureAwait(false);
-        _packetReader.Dispose();
-        _packetWriter.Dispose();
-        _cts.Dispose();
-        _sendGate.Dispose();
-    }
-
-    private static async Task RunAsync(Stream stream, IDuplexPipe transport, CancellationToken token)
-    {
-        // Linked source: either pump stopping tears down the other one.
-        using var pumps = CancellationTokenSource.CreateLinkedTokenSource(token);
-
-        var inbound = PumpInboundAsync(stream, transport.Output, pumps.Token);
-        var outbound = PumpOutboundAsync(stream, transport.Input, pumps.Token);
-
-        await Task.WhenAny(inbound, outbound).ConfigureAwait(false);
-        pumps.Cancel();
-
-        Exception? failure = null;
+        ThrowIfUnusable();
         try
         {
-            await inbound.ConfigureAwait(false);
+            await _writer.WritePacketAsync(packet, token).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (pumps.IsCancellationRequested)
+        catch (Exception ex) when (IsAborted(ex))
         {
+            throw new ConnectionAbortedException(Volatile.Read(ref _closeReason));
         }
-        catch (Exception ex)
-        {
-            failure = ex;
-        }
+    }
 
+    /// <summary>Writes one packet, putting the varint id in front of the body, and flushes.</summary>
+    public async ValueTask WritePacketAsync(int id, ReadOnlyMemory<byte> body, CancellationToken token = default)
+    {
+        ThrowIfUnusable();
         try
         {
-            await outbound.ConfigureAwait(false);
+            await _writer.WritePacketAsync(id, body, token).ConfigureAwait(false);
         }
-        catch (OperationCanceledException) when (pumps.IsCancellationRequested)
+        catch (Exception ex) when (IsAborted(ex))
         {
-        }
-        catch (Exception ex)
-        {
-            failure ??= ex;
-        }
-
-        // any transport death — inbound or outbound — reaches the packet enumeration;
-        // clean EOF and own cancellation end it without an error
-        await transport.Output.CompleteAsync(failure).ConfigureAwait(false);
-        await transport.Input.CompleteAsync().ConfigureAwait(false);
-        stream.Dispose();
-    }
-
-    private static async Task PumpInboundAsync(Stream stream, PipeWriter pipeWriter, CancellationToken token)
-    {
-        while (true)
-        {
-            var memory = pipeWriter.GetMemory(SegmentSize);
-            int bytes = await stream.ReadAsync(memory, token).ConfigureAwait(false);
-            if (bytes == 0)
-            {
-                return; // clean end of stream
-            }
-
-            pipeWriter.Advance(bytes);
-
-            var result = await pipeWriter.FlushAsync(token).ConfigureAwait(false);
-            if (result.IsCanceled) token.ThrowIfCancellationRequested();
-            if (result.IsCompleted)
-            {
-                return;
-            }
+            throw new ConnectionAbortedException(Volatile.Read(ref _closeReason));
         }
     }
 
-    private static async Task PumpOutboundAsync(Stream stream, PipeReader pipeReader, CancellationToken token)
+    /// <summary>
+    ///     Consumes this connection and hands the stream, the ciphers and the threshold to a
+    ///     streaming one. Afterwards every member here throws and <see cref="DisposeAsync" /> is empty.
+    /// </summary>
+    /// <remarks>
+    ///     Like a read, this invalidates the body of the last packet <see cref="ReadPacketAsync" />
+    ///     returned — decode it before moving.
+    /// </remarks>
+    public StreamingConnection ToStreaming()
     {
-        while (true)
+        ThrowIfUnusable();
+        if (Interlocked.Exchange(ref _moved, 1) == 1)
+            throw new InvalidOperationException("This connection was already moved to streaming mode.");
+
+        var streaming = new StreamingConnection(_stream, _leaveOpen, _threshold, _encryptor, _decryptor);
+        _reader.Dispose();
+        _writer.Dispose();
+
+        // Abort may have landed between the check and the move: the new object inherits the close
+        if (Volatile.Read(ref _closed) == 1) streaming.Abort(Volatile.Read(ref _closeReason));
+        return streaming;
+    }
+
+    /// <summary>Closes the stream from any thread; an in-flight read or write fails with the reason.</summary>
+    public void Abort(Exception? reason = null)
+    {
+        if (Volatile.Read(ref _closed) == 1) return;
+
+        // reason first: a thread that sees _closed == 1 must also see why
+        Interlocked.CompareExchange(ref _closeReason, reason, null);
+        if (Interlocked.Exchange(ref _closed, 1) == 1) return;
+
+        CloseStream();
+    }
+
+    private void CloseStream()
+    {
+        try
         {
-            var result = await pipeReader.ReadAsync(token).ConfigureAwait(false);
-
-            if (result.IsCanceled)
-            {
-                return;
-            }
-
-            foreach (var segment in result.Buffer)
-                await stream.WriteAsync(segment, token).ConfigureAwait(false);
-
-            await stream.FlushAsync(token).ConfigureAwait(false);
-
-            pipeReader.AdvanceTo(result.Buffer.End);
-
-            if (result.IsCompleted)
-            {
-                return;
-            }
+            _stream.Dispose();
         }
+        catch
+        {
+        }
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        if (Volatile.Read(ref _moved) == 1) return ValueTask.CompletedTask;
+
+        if (Interlocked.Exchange(ref _closed, 1) == 0 && !_leaveOpen) CloseStream();
+        _reader.Dispose();
+        _writer.Dispose();
+        _encryptor?.Dispose();
+        _decryptor?.Dispose();
+        return ValueTask.CompletedTask;
+    }
+
+    private bool IsAborted(Exception ex) =>
+        ex is not OperationCanceledException && Volatile.Read(ref _closed) == 1;
+
+    private void ThrowIfUnusable()
+    {
+        if (Volatile.Read(ref _moved) == 1)
+            throw new InvalidOperationException(
+                "This connection was moved to streaming mode; use the StreamingConnection instead.");
+
+        if (Volatile.Read(ref _closed) == 1)
+            throw new ConnectionAbortedException(Volatile.Read(ref _closeReason));
     }
 }

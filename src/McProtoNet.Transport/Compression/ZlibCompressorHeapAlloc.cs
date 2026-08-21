@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using McProtoNet.Transport.Compression.Native;
 namespace McProtoNet.Transport.Compression;
 
-public class ZlibCompressorHeapAlloc : IDisposable
+internal class ZlibCompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr compressor;
 

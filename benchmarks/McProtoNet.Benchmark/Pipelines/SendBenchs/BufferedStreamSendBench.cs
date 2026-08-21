@@ -23,7 +23,7 @@ public class BufferedStreamSendBench : ISendBench
     {
         for (int i = 0; i < packetsCount; i++)
         {
-            await _sender.SendPacketAsync(packet);
+            await _sender.WritePacketAsync(packet);
         }
     }
 

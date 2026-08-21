@@ -10,7 +10,6 @@ using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using McProtoNet.Primitives;
 using McProtoNet.Transport.Framing;
-using McProtoNet.Transport.Pipelines;
 namespace McProtoNet.Benchmark;
 
 [Config(typeof(AntiVirusFriendlyConfig))]
@@ -47,7 +46,7 @@ public class ReadPacketBenchmarks
 
             OutgoingPacket packet = new OutgoingPacket(buffer);
 
-            await writer.SendAndDisposeAsync(packet, new CancellationToken());
+            await writer.WriteAndDisposeAsync(packet, new CancellationToken());
         }
     }
 
@@ -58,9 +57,10 @@ public class ReadPacketBenchmarks
 
 
     [Benchmark]
-    public async Task ReadPacketsStreaming()
+    public async Task ReadPacketsOneByOne()
     {
-        await using var reader = new PacketStreamReader(_mainStream);
+        _mainStream.Position = 0;
+        await using var reader = new PacketStreamReader(_mainStream, leaveOpen: true);
         reader.CompressionThreshold = CompressionThreshold;
 
         for (int i = 0; i < PacketsCount; i++)
@@ -71,18 +71,17 @@ public class ReadPacketBenchmarks
 
 
     [Benchmark]
-    public async Task ReadPacketsWithPipeLines()
+    public async Task ReadPacketsBuffered()
     {
-        var reader = new MinecraftPacketPipeReader(PipeReader.Create(_mainStream))
-        {
-            CompressionThreshold = CompressionThreshold
-        };
+        _mainStream.Position = 0;
+        using var reader = new BufferedPacketReader(_mainStream, CompressionThreshold);
+
         int count = 0;
-        await foreach (var packet in reader.ReadPacketsAsync())
+        while (count < PacketsCount)
         {
-            count++;
-            if (count == PacketsCount)
-                break;
+            var batch = await reader.ReadBatchAsync();
+            if (batch is { Count: 0, IsCompleted: true }) break;
+            foreach (var _ in batch) count++;
         }
     }
 }

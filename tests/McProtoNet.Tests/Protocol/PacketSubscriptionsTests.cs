@@ -97,7 +97,7 @@ public class PacketSubscriptionsTests
     public void Unknown_DoesNotThrow()
     {
         var subscriptions = new PacketSubscriptions();
-        var raw = new IncomingPacket(0x99, new System.Buffers.ReadOnlySequence<byte>(Array.Empty<byte>()));
+        var raw = new IncomingPacket(0x99, Array.Empty<byte>());
 
         var exception = Record.Exception(() => subscriptions.Unknown(in raw));
 

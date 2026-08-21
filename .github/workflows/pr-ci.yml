@@ -20,7 +20,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
       - name: Build McProtoNet.Protocol
         run: dotnet build src/McProtoNet.Protocol/McProtoNet.Protocol.csproj -c Release
       - name: Build McProtoNet

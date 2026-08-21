@@ -169,11 +169,11 @@ public class AesStreamTests
     }
 
     [Fact]
-    public void SwitchEncryption_ShouldKeepCompatibilityDoor()
+    public void EnableEncryption_ShouldAcceptByteArrayKey()
     {
         using var backing = new MemoryStream();
         using var stream = new AesStream(backing, leaveOpen: true);
-        stream.SwitchEncryption(TestKey);
+        stream.EnableEncryption(TestKey);
 
         Assert.True(stream.EncryptionEnabled);
 

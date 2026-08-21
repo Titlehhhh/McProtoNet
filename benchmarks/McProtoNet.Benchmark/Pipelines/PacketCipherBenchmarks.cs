@@ -17,7 +17,7 @@ public enum CipherCore
     BouncyCastleX86
 }
 
-[Config(typeof(CryptoPipeWriterBenchConfig))]
+[Config(typeof(ShortRunConfig))]
 [MemoryDiagnoser]
 public class PacketCipherBenchmarks
 {

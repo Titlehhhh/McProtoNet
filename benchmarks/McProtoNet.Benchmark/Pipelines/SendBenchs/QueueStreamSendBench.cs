@@ -51,7 +51,7 @@ public class QueueStreamSendBench : ISendBench
                     while (reader.TryRead(out var memory))
                     {
                         count++;
-                        await _sender.SendPacketAsync(memory);
+                        await _sender.WritePacketAsync(memory);
                         if (count == 500_000)
                         {
                             count = 0;

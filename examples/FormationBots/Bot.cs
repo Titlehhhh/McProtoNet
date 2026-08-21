@@ -1,12 +1,16 @@
 // Бот примера: вся фазовая логика (рукопожатие → логин → шифр → configuration →
-// play) живёт ЗДЕСЬ, поверх тонкого MinecraftClient. Библиотека даёт соединение
-// и пакеты; keep-alive, подтверждение телепортов и ходьба — код примера.
+// play) живёт ЗДЕСЬ, поверх транспорта 2.0. Login идёт по одному пакету на
+// MinecraftConnection — там включаются сжатие и шифр; после login_acknowledged
+// соединение переезжает в StreamingConnection и читается пачками.
+// Очередь отправки — дело отправителя: тут это семафор на одного писателя,
+// потому что в play пишут два потока (цикл пакетов и ходьба).
 
 using System.Security.Cryptography;
 using McProtoNet;
 using McProtoNet.NBT;
 using McProtoNet.Primitives;
 using McProtoNet.Protocol;
+using McProtoNet.Transport;
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using HandshakeSb = McProtoNet.Protocol.Packets.Handshaking.Serverbound;
@@ -24,6 +28,9 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
 {
     private readonly MinecraftClient _client = new(new MinecraftClientOptions { Host = host, Port = port });
     private readonly TaskCompletionSource _spawned = new(TaskCreationOptions.RunContinuationsAsynchronously);
+    private readonly SemaphoreSlim _sendGate = new(1, 1);
+    private MinecraftConnection? _login;
+    private StreamingConnection? _game;
     private volatile bool _stopped;
     private CancellationToken _session;
 
@@ -42,14 +49,25 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
         _session = token;
         try
         {
-            await _client.ConnectAsync(token);
+            var login = _login = await _client.ConnectAsync(token);
             await SendAsync(new HandshakeSb.SetProtocolPacket(pv, host, port, 2), token);
             await SendAsync(new LoginSb.LoginStartPacket(Name, V764_Last: new(Guid.NewGuid())), token);
 
-            await foreach (var packet in _client.ReadPacketsAsync(token))
+            // режим «по одному»: ровно один кадр за чтение, шифр и порог включаются здесь
+            while (!_stopped && _game is null)
             {
-                await HandleAsync(in packet, pv);
-                if (_stopped) break;
+                var raw = await login.ReadPacketAsync(token);
+                await HandleAsync(in raw, pv);
+            }
+
+            // режим «потоком»: пачками до конца сессии, переключений больше нет
+            if (_game is { } game)
+            {
+                await foreach (var packet in game.ReadPacketsAsync(token))
+                {
+                    await HandleAsync(in packet, pv);
+                    if (_stopped) break;
+                }
             }
         }
         finally
@@ -57,20 +75,34 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
             _stopped = true;
             _spawned.TrySetException(
                 new InvalidOperationException($"{Name}: {DisconnectReason ?? "соединение закрыто до спавна"}"));
-            await _client.DisposeAsync();
+            if (_game is { } game) await game.DisposeAsync();
+            else if (_login is { } connection) await connection.DisposeAsync();
         }
     }
 
     public Task WaitForSpawnAsync(CancellationToken token) => _spawned.Task.WaitAsync(token);
 
-    public ValueTask SendAsync<T>(T packet, CancellationToken token = default) where T : class, IPacket<T>
-        => _client.SendAsync(packet, pv, token.CanBeCanceled ? token : _session); // отправку сериализует само соединение
+    /// <summary>Отправка под своим замком: у транспорта один писатель, очередь — наша.</summary>
+    public async ValueTask SendAsync<T>(T packet, CancellationToken token = default) where T : class, IPacket<T>
+    {
+        var ct = token.CanBeCanceled ? token : _session;
+        await _sendGate.WaitAsync(ct);
+        try
+        {
+            if (_game is { } game) await game.SendAsync(packet, pv, ct);
+            else await _login!.SendAsync(packet, pv, ct);
+        }
+        finally
+        {
+            _sendGate.Release();
+        }
+    }
 
     // --- логин ---
 
     protected override ValueTask OnLoginCompress(LoginCb.LoginCompressPacket packet)
     {
-        _client.CompressionThreshold = packet.Threshold;
+        _login!.CompressionThreshold = packet.Threshold;
         return default;
     }
 
@@ -78,6 +110,18 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
     {
         await SendAsync(new LoginSb.LoginAcknowledgedPacket());
         Phase = PacketPhase.Configuration;
+
+        // переход односторонний: login-соединение умирает, дальше живёт потоковое
+        await _sendGate.WaitAsync(_session);
+        try
+        {
+            _game = _login!.ToStreaming();
+        }
+        finally
+        {
+            _sendGate.Release();
+        }
+
         // обзор 2 чанка: боту мир не нужен, а сервер шлёт каждому в разы меньше чанков
         await SendAsync(new ConfSb.ClientInformationPacket(
             "en_us", 2, 0, true, 0x7F, 1, false, true,
@@ -104,7 +148,7 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
         await SendAsync(new LoginSb.EncryptionResponsePacket(
             rsa.Encrypt(secret, RSAEncryptionPadding.Pkcs1),
             rsa.Encrypt(packet.VerifyToken, RSAEncryptionPadding.Pkcs1)));
-        _client.EnableEncryption(secret);
+        _login!.EnableEncryption(secret);
     }
 
     protected override ValueTask OnLoginPluginRequest(LoginCb.LoginPluginRequestPacket packet)
@@ -180,7 +224,7 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
     {
         if (Phase == PacketPhase.Play && pv is >= 770 and <= 772 && raw.Id == PlayerChatId770To772)
         {
-            var reader = new MinecraftPrimitiveReader(raw.Data);
+            var reader = new MinecraftPrimitiveReader(raw.Body);
             reader.ReadVarInt();                            // globalIndex
             reader.ReadUUID();                              // senderUuid
             reader.ReadVarInt();                            // index

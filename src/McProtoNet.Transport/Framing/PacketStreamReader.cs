@@ -1,31 +1,37 @@
 using System.Buffers;
-using McProtoNet.Transport.Compression;
 using McProtoNet.Primitives;
+using McProtoNet.Transport.Compression;
+using McProtoNet.Transport.Cryptography;
+
 namespace McProtoNet.Transport.Framing;
 
 /// <summary>
-/// Reads Minecraft protocol packets from a stream, handling compression if enabled
+///     One frame per call over a <see cref="Stream" />: the length varint byte by byte, the body by
+///     an exact read — never a byte past the frame. That precision is what lets the cipher and the
+///     compression threshold be switched between two frames.
 /// </summary>
+/// <remarks>
+///     The returned body is a window into a pooled buffer and stays valid only until the next read.
+/// </remarks>
 public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
 {
-    private readonly Stream _stream;
-    private readonly ArrayPool<byte> _pool;
-    private readonly bool _leaveOpen;
-    private readonly byte[] _varIntBuff = new byte[1];
-
-    private volatile byte[]? _bytes;
-
-    private volatile int _compressionThreshold = -1;
-
-    private volatile int _readState = NotRead;
-    private volatile int _state;
-
     private const int NotRead = 0;
     private const int Reading = 1;
 
     private const int Normal = 0;
     private const int Disposed = 1;
 
+    private readonly Stream _stream;
+    private readonly ArrayPool<byte> _pool;
+    private readonly bool _leaveOpen;
+    private readonly byte[] _varIntBuff = new byte[1];
+
+    private volatile byte[]? _bytes;
+    private volatile int _compressionThreshold = -1;
+    private volatile int _readState = NotRead;
+    private volatile int _state;
+
+    private PacketCipher? _cipher;
 
     public PacketStreamReader(Stream stream, bool leaveOpen = false) :
         this(stream, ArrayPool<byte>.Shared, leaveOpen)
@@ -41,10 +47,7 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         _leaveOpen = leaveOpen;
     }
 
-
-    /// <summary>
-    /// Gets the underlying stream to read packets from
-    /// </summary>
+    /// <summary>The stream frames are read from.</summary>
     public Stream BaseStream
     {
         get
@@ -54,131 +57,28 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         }
     }
 
-
     /// <summary>
-    /// Reads the next packet from the stream asynchronously
+    ///     Decryptor applied in place to every byte as it is read. Set it between two frames —
+    ///     the reader never holds bytes of the next frame, so the switch lands on a frame boundary.
     /// </summary>
-    /// <param name="token">Cancellation token to cancel the operation</param>
-    /// <returns>The read packet data</returns>
-    /// <exception cref="Exception">Thrown when decompression fails or packet size is invalid</exception>
-    public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
+    public PacketCipher? Cipher
     {
-        token.ThrowIfCancellationRequested();
-        ThrowIfDisposed();
-
-        if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
+        get
         {
-            throw new InvalidOperationException("Concurrent packet reading is not allowed.");
+            ThrowIfDisposed();
+            return _cipher;
         }
-
-        ReturnBufferToPool();
-
-        var len = await BaseStream.ReadVarIntAsync(_varIntBuff, token)
-            .ConfigureAwait(false);
-
-        var buffer = _pool.Rent(len);
-
-        Memory<byte> memory = buffer.AsMemory(0, len);
-        try
+        internal set
         {
-            await BaseStream.ReadExactlyAsync(memory, token)
-                .ConfigureAwait(false);
+            ThrowIfDisposed();
+            if (_readState == Reading)
+                throw new InvalidOperationException("Cannot change the cipher while reading a packet");
 
-            if (_compressionThreshold < 0)
-            {
-                return CreatePacket(buffer, memory);
-            }
-
-            var sizeUncompressed = memory.Span.ReadVarInt(out var offsetSizeUncompressed);
-
-            if (sizeUncompressed <= 0)
-            {
-                return CreatePacket(buffer, memory[offsetSizeUncompressed..]);
-            }
-
-
-            var decompressed = _pool.Rent(sizeUncompressed);
-            try
-            {
-                var decMem = decompressed.AsMemory(0, sizeUncompressed);
-                DecompressCore(memory.Span[offsetSizeUncompressed..],
-                    decMem.Span);
-
-                _pool.Return(buffer);
-                return CreatePacket(decompressed, decMem);
-            }
-            catch
-            {
-                _pool.Return(decompressed);
-                throw;
-            }
-        }
-        catch
-        {
-            _pool.Return(buffer);
-            throw;
-        }
-        finally
-        {
-            Interlocked.Exchange(ref _readState, NotRead);
+            _cipher = value;
         }
     }
 
-    private static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
-    {
-        var decompressor = LibDeflateCache.RentDecompressor();
-        var status = decompressor.Decompress(
-            bufferCompress,
-            uncompress, out var written);
-
-        if (written != uncompress.Length)
-            throw new InvalidOperationException("Written not equal uncompress buffer length");
-
-        switch (status)
-        {
-            case OperationStatus.InvalidData:
-                throw new InvalidDataException("Decompress Error: Invalid Data");
-            case OperationStatus.NeedMoreData:
-                throw new InvalidOperationException("Decompress Error: Need more data");
-            case OperationStatus.DestinationTooSmall:
-                throw new InvalidOperationException("Decompress Error: Destination buffer too small");
-            case OperationStatus.Done:
-                break;
-            default:
-                throw new InvalidOperationException($"Decompress Error: {status}");
-        }
-    }
-
-    private void ReturnBufferToPool()
-    {
-        var old = Interlocked.Exchange(ref _bytes, null);
-        if (old is not null)
-        {
-            _pool.Return(old);
-        }
-    }
-
-    private IncomingPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
-    {
-        var old = Interlocked.Exchange(ref _bytes, pooledArr);
-        if (old is not null)
-        {
-            _pool.Return(old);
-        }
-
-        var id = readData.Span.ReadVarInt(out var len);
-        var data = new ReadOnlySequence<byte>(readData[len..]);
-
-        return new IncomingPacket(id, data);
-    }
-
-    /// <summary>
-    ///     Get the compression threshold for this packet reader.
-    ///     Any packet larger than this threshold will be compressed.
-    /// </summary>
-    /// <value>
-    ///     The compression threshold in bytes.
-    /// </value>
+    /// <summary>Negative means no compression envelope. A change takes effect from the next frame.</summary>
     public int CompressionThreshold
     {
         get
@@ -190,30 +90,143 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         {
             ThrowIfDisposed();
             if (_readState == Reading)
-            {
                 throw new InvalidOperationException("Cannot set CompressionThreshold while reading a packet");
-            }
 
             _compressionThreshold = value;
         }
     }
 
+    /// <summary>Reads exactly one frame. The body window is valid until the next call.</summary>
+    public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
+    {
+        token.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
+            throw new InvalidOperationException("Concurrent packet reading is not allowed.");
+
+        ReturnBufferToPool();
+
+        try
+        {
+            var len = await ReadLengthAsync(token).ConfigureAwait(false);
+            if (len <= 0 || len > BufferedPacketReader.MaxFrameLength)
+                throw new InvalidDataException($"Invalid frame length {len}");
+
+            var buffer = _pool.Rent(len);
+            Memory<byte> memory = buffer.AsMemory(0, len);
+            try
+            {
+                await _stream.ReadExactlyAsync(memory, token).ConfigureAwait(false);
+                _cipher?.Transform(memory.Span);
+
+                if (_compressionThreshold < 0)
+                    return CreatePacket(buffer, memory);
+
+                var sizeUncompressed = memory.Span.ReadVarInt(out var offsetSizeUncompressed);
+
+                if (sizeUncompressed <= 0)
+                    return CreatePacket(buffer, memory[offsetSizeUncompressed..]);
+
+                if (sizeUncompressed > BufferedPacketReader.MaxFrameLength)
+                    throw new InvalidDataException($"Invalid uncompressed size {sizeUncompressed}");
+
+                var decompressed = _pool.Rent(sizeUncompressed);
+                try
+                {
+                    var decMem = decompressed.AsMemory(0, sizeUncompressed);
+                    DecompressCore(memory.Span[offsetSizeUncompressed..], decMem.Span);
+
+                    _pool.Return(buffer);
+                    return CreatePacket(decompressed, decMem);
+                }
+                catch
+                {
+                    _pool.Return(decompressed);
+                    throw;
+                }
+            }
+            catch
+            {
+                _pool.Return(buffer);
+                throw;
+            }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _readState, NotRead);
+        }
+    }
+
+    private async ValueTask<int> ReadLengthAsync(CancellationToken token)
+    {
+        var memory = _varIntBuff.AsMemory(0, 1);
+        var numRead = 0;
+        var result = 0;
+        byte read;
+        do
+        {
+            await _stream.ReadExactlyAsync(memory, token).ConfigureAwait(false);
+            _cipher?.Transform(memory.Span);
+
+            read = memory.Span[0];
+            result |= (read & 0b01111111) << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) throw new InvalidDataException("VarInt is too long");
+        } while ((read & 0b10000000) != 0);
+
+        return result;
+    }
+
+    internal static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
+    {
+        var decompressor = LibDeflateCache.RentDecompressor();
+        var status = decompressor.Decompress(bufferCompress, uncompress, out var written);
+
+        // status first: a broken frame reports its own reason, not a buffer-length mismatch
+        switch (status)
+        {
+            case OperationStatus.InvalidData:
+                throw new InvalidDataException("Decompress Error: Invalid Data");
+            case OperationStatus.NeedMoreData:
+                throw new InvalidDataException("Decompress Error: Need more data");
+            case OperationStatus.DestinationTooSmall:
+                throw new InvalidDataException("Decompress Error: Destination buffer too small");
+            case OperationStatus.Done:
+                break;
+            default:
+                throw new InvalidDataException($"Decompress Error: {status}");
+        }
+
+        if (written != uncompress.Length)
+            throw new InvalidDataException("Decompress Error: uncompressed size does not match the frame header");
+    }
+
+    private void ReturnBufferToPool()
+    {
+        var old = Interlocked.Exchange(ref _bytes, null);
+        if (old is not null) _pool.Return(old);
+    }
+
+    private IncomingPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
+    {
+        var old = Interlocked.Exchange(ref _bytes, pooledArr);
+        if (old is not null) _pool.Return(old);
+
+        var id = readData.Span.ReadVarInt(out var len);
+        return new IncomingPacket(id, readData[len..]);
+    }
+
     private void ThrowIfDisposed() =>
         ObjectDisposedException.ThrowIf(_state == Disposed, typeof(PacketStreamReader));
 
-
     public void Dispose()
     {
-        if (Interlocked.CompareExchange(ref _state, Disposed, Normal) == Disposed)
-        {
-            return;
-        }
+        if (Interlocked.CompareExchange(ref _state, Disposed, Normal) == Disposed) return;
 
         ReturnBufferToPool();
-        if (!_leaveOpen)
-        {
-            _stream.Dispose();
-        }
+        if (!_leaveOpen) _stream.Dispose();
     }
 
     public ValueTask DisposeAsync()

@@ -3,8 +3,8 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 /// <summary>
-///     IncomingPacket -> concrete packet. <see cref="IncomingPacket.Data" /> is a window into the pipe
-///     buffer, valid only until the next transport read — both entry points decode immediately;
+///     IncomingPacket -> concrete packet. <see cref="IncomingPacket.Body" /> is a window into the
+///     transport buffer, valid only until the next read — both entry points decode immediately;
 ///     what leaves is a materialized packet that owns its data.
 /// </summary>
 public static class PacketIo
@@ -14,7 +14,7 @@ public static class PacketIo
         where T : class, IPacket<T>
     {
         packet = null;
-        var reader = new MinecraftPrimitiveReader(raw.Data);
+        var reader = new MinecraftPrimitiveReader(raw.Body);
         try
         {
             packet = T.Read(ref reader, protocolVersion);
@@ -43,7 +43,7 @@ public static class PacketIo
 
     public static T Decode<T>(in IncomingPacket raw, int protocolVersion) where T : class, IPacket<T>
     {
-        var reader = new MinecraftPrimitiveReader(raw.Data);
+        var reader = new MinecraftPrimitiveReader(raw.Body);
         T packet;
         try
         {

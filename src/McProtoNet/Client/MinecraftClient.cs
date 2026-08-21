@@ -1,18 +1,15 @@
 using System.Net.Sockets;
-using McProtoNet.Primitives;
 using McProtoNet.Transport;
+
 namespace McProtoNet;
 
 /// <summary>
-///     The standard client: a TCP connection with Minecraft packet framing.
-///     Connects, sends and receives packets; compression and encryption switches
-///     pass through. Everything above raw packets — handshake, login, phases —
-///     is consumer code (see examples/).
+///     The standard client: options plus a TCP connect that yields a
+///     <see cref="MinecraftConnection" /> in one-at-a-time mode. Everything above raw packets —
+///     handshake, login, phases, the move to streaming — is consumer code (see examples/).
 /// </summary>
-public sealed class MinecraftClient : IDisposable, IAsyncDisposable
+public sealed class MinecraftClient
 {
-    private MinecraftConnection? _connection;
-
     public MinecraftClient(MinecraftClientOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -21,29 +18,9 @@ public sealed class MinecraftClient : IDisposable, IAsyncDisposable
 
     public MinecraftClientOptions Options { get; }
 
-    /// <summary>The transport underneath — the low-level escape hatch.</summary>
-    public MinecraftConnection Connection =>
-        _connection ?? throw new InvalidOperationException("Not connected");
-
-    /// <summary>Completes when the connection has shut down. Never faults.</summary>
-    public Task Completion => Connection.Completion;
-
-    public bool IsConnected => _connection is not null;
-
-    public int CompressionThreshold
+    /// <summary>Opens the TCP connection and wraps it. No packets are sent.</summary>
+    public async ValueTask<MinecraftConnection> ConnectAsync(CancellationToken cancellationToken = default)
     {
-        get => Connection.CompressionThreshold;
-        set => Connection.CompressionThreshold = value;
-    }
-
-    public bool EncryptionEnabled => Connection.PacketReader.EncryptionEnabled;
-
-    /// <summary>Opens the TCP connection. No packets are sent.</summary>
-    public async ValueTask ConnectAsync(CancellationToken cancellationToken = default)
-    {
-        if (_connection is not null)
-            throw new InvalidOperationException("Already connected");
-
         using var timeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
         timeout.CancelAfter(Options.ConnectTimeout);
 
@@ -58,34 +35,6 @@ public sealed class MinecraftClient : IDisposable, IAsyncDisposable
             throw;
         }
 
-        _connection = MinecraftConnection.Create(tcp.GetStream());
-    }
-
-    /// <summary>Enables AES/CFB8 encryption on both directions from the next frame on.</summary>
-    public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
-    {
-        var connection = Connection;
-        connection.PacketReader.EnableEncryption(sharedSecret);
-        connection.PacketWriter.EnableEncryption(sharedSecret);
-    }
-
-    public IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(CancellationToken cancellationToken = default)
-        => Connection.ReadPacketsAsync(cancellationToken);
-
-    public ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken cancellationToken = default)
-        => Connection.ReadPacketAsync(cancellationToken);
-
-    /// <summary>Sends one packet: varint id plus body already assembled by the caller.</summary>
-    public ValueTask SendPacketAsync(ReadOnlyMemory<byte> packet, CancellationToken cancellationToken = default)
-        => Connection.SendPacketAsync(packet, cancellationToken);
-
-    public void Dispose() => _connection?.Dispose();
-
-    public async ValueTask DisposeAsync()
-    {
-        if (_connection is not null)
-        {
-            await _connection.DisposeAsync().ConfigureAwait(false);
-        }
+        return new MinecraftConnection(tcp.GetStream());
     }
 }

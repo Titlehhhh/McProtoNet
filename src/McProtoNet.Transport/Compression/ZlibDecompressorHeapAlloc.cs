@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 using McProtoNet.Transport.Compression.Native;
 namespace McProtoNet.Transport.Compression;
 
-public class ZlibDecompressorHeapAlloc : IDisposable
+internal class ZlibDecompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr decompressor;
 
