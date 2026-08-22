@@ -1,3 +1,5 @@
+#pragma warning disable CA2225
+
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
