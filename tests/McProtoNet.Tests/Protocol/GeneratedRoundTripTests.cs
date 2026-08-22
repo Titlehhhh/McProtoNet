@@ -5,6 +5,7 @@ using McProtoNet.Primitives;
 using ConfigCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfigSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using LoginSb = McProtoNet.Protocol.Packets.Login.Serverbound;
+using PlayCb = McProtoNet.Protocol.Packets.Play.Clientbound;
 using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
 
 namespace McProtoNet.Tests.Protocol;
@@ -317,6 +318,121 @@ public class GeneratedRoundTripTests
                        + 1 + 1 + "target".Length + 256
                        + 1 + 3;
         Assert.Equal(expected, mem.Memory.Length);
+    }
+
+    // ── PlayerChat / ChatMessage: the signed-chat chain ───────────────────────
+
+    private static byte[] Signature256()
+    {
+        var signature = new byte[256];
+        for (var i = 0; i < signature.Length; i++) signature[i] = (byte)(i * 7);
+        return signature;
+    }
+
+    private static PreviousMessage[] PreviousMessages(byte[] signature) =>
+    [
+        new(default, default!, 0, signature),
+        new(default, default!, 3, null),
+    ];
+
+    [Fact]
+    public void PlayerChat_772_RoundTrips()
+    {
+        var signature = Signature256();
+        var p = new PlayCb.PlayerChatPacket(
+            Guid.Parse("f84c6a79-0a4e-45e0-879b-cd49ebd4c4e2"), signature, 1_700_000_000_000L, -4242L,
+            V770_Last: new(
+                17, 4, "hello world", PreviousMessages(signature),
+                new NbtCompound("") { new NbtString("text", "hello world") },
+                2, [1L, 2L, 3L],
+                RegistryOrInline<ChatTypes>.FromRegistry(1),
+                new NbtCompound("") { new NbtString("text", "Steve") },
+                null));
+
+        var back = RoundTrip(p, 772);
+        var layer = back.V770_Last!.Value;
+
+        Assert.Equal(p.SenderUuid, back.SenderUuid);
+        Assert.Equal(signature, back.Signature);
+        Assert.Equal(17, layer.GlobalIndex);
+        Assert.Equal("hello world", layer.PlainMessage);
+        Assert.Equal(2, layer.PreviousMessages.Length);
+        Assert.Equal(signature, layer.PreviousMessages[0].Signature);
+        Assert.Null(layer.PreviousMessages[1].Signature);
+        Assert.Equal([1L, 2L, 3L], layer.FilterTypeMask);
+        Assert.True(layer.ChatType.IsRegistry);
+        Assert.Equal(1, layer.ChatType.Id);
+        Assert.Null(layer.NetworkTargetName);
+        Assert.Null(back.V767_769);
+    }
+
+    [Fact]
+    public void PlayerChat_767_InlineChatType_RoundTrips()
+    {
+        var chatTypes = new ChatTypes(
+            new ChatType("chat.type.text",
+                [ChatTypeParameterType.Sender, ChatTypeParameterType.Content],
+                new NbtCompound("") { new NbtString("color", "white") }),
+            new ChatType("chat.type.text.narrate", [ChatTypeParameterType.Content], new NbtCompound("")));
+
+        var p = new PlayCb.PlayerChatPacket(
+            Guid.NewGuid(), null, 1L, 2L,
+            V767_769: new(
+                0, "inline", [], null, 0, null,
+                RegistryOrInline<ChatTypes>.Inline(chatTypes),
+                new NbtCompound("") { new NbtString("text", "Alex") },
+                null));
+
+        var back = RoundTrip(p, 767);
+        var layer = back.V767_769!.Value;
+
+        Assert.Null(back.Signature);
+        Assert.True(layer.ChatType.IsInline);
+        Assert.Equal("chat.type.text", layer.ChatType.Value.Chat.TranslationKey);
+        Assert.Equal(2, layer.ChatType.Value.Chat.Parameters.Length);
+        Assert.Equal(ChatTypeParameterType.Sender, layer.ChatType.Value.Chat.Parameters[0]);
+        Assert.Single(layer.ChatType.Value.Narration.Parameters);
+        Assert.Null(layer.FilterTypeMask);
+    }
+
+    [Fact]
+    public void ChatMessage_772_RoundTrips()
+    {
+        var signature = Signature256();
+        var p = new PlaySb.ChatMessagePacket(
+            "/say hi", 1_700_000_000_000L, 99L, signature,
+            V770_Last: new(12, [0x01, 0x00, 0x80], 0xAB));
+
+        var back = RoundTrip(p, 772);
+
+        Assert.Equal("/say hi", back.Message);
+        Assert.Equal(99L, back.Salt);
+        Assert.Equal(signature, back.Signature);
+        Assert.Equal(12, back.V770_Last!.Value.Offset);
+        Assert.Equal(0xAB, back.V770_Last!.Value.Checksum);
+        Assert.Equal([0x01, 0x00, 0x80], back.V770_Last!.Value.Acknowledged);
+        Assert.Null(back.V761_769);
+    }
+
+    [Fact]
+    public void ChatMessage_769_HasNoChecksum()
+    {
+        var p = new PlaySb.ChatMessagePacket(
+            "unsigned", 1L, 2L, null,
+            V761_769: new(0, [0x01, 0x00, 0x80]));
+
+        var back = RoundTrip(p, 769);
+
+        Assert.Null(back.Signature);
+        Assert.NotNull(back.V761_769);
+        Assert.Null(back.V770_Last);
+
+        var writer = new MinecraftPrimitiveWriter();
+        p.Write(writer, 769);
+        using var mem = writer.GetWrittenMemory();
+
+        // message + timestamp + salt + absent signature + offset + 3 acknowledged bytes
+        Assert.Equal(1 + "unsigned".Length + 8 + 8 + 1 + 1 + 3, mem.Memory.Length);
     }
 
     // ── GetPacketId vs the fs packet-id manifest (Spec/protocol-ids.json) ─────

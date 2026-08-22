@@ -174,23 +174,15 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
         return default;
     }
 
-    // Игровой чат (player_chat) в генерате отсутствует — чат исключён из спеков.
-    // Разбираем начало кадра руками до plainMessage; раскладка и номер — из mcproto-facts.
-    private const int PlayerChatId770To772 = 0x3A;
-
-    protected override ValueTask OnUnknown(in IncomingPacket raw)
+    protected override ValueTask OnPlayerChat(PlayCb.PlayerChatPacket packet)
     {
-        if (Phase == PacketPhase.Play && pv is >= 770 and <= 772 && raw.Id == PlayerChatId770To772)
-        {
-            var reader = new MinecraftPrimitiveReader(raw.Body);
-            reader.ReadVarInt();                            // globalIndex
-            reader.ReadUUID();                              // senderUuid
-            reader.ReadVarInt();                            // index
-            if (reader.ReadBoolean()) reader.Advance(256);  // signature: option<256 байт>
-            var message = reader.ReadString();              // plainMessage
-            ChatHeard?.Invoke(this, message);
-        }
-
+        ChatHeard?.Invoke(this, packet.V770_Last?.PlainMessage
+                                ?? packet.V767_769?.PlainMessage
+                                ?? packet.V765_766?.PlainMessage
+                                ?? packet.V761_764?.PlainMessage
+                                ?? packet.V760?.PlainMessage
+                                ?? packet.V759?.SignedChatContent
+                                ?? "");
         return default;
     }
 

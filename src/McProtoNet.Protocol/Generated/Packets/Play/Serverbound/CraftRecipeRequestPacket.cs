@@ -80,7 +80,7 @@ public sealed partial record CraftRecipeRequestPacket(int WindowId, bool MakeAll
         throw new System.NotSupportedException($"CraftRecipeRequestPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.craft_recipe_request", "CraftRecipeRequest", PacketPhase.Play, PacketDirection.Serverbound, 15);
+    public static PacketIdentity Identity => new("play.toServer.craft_recipe_request", "CraftRecipeRequest", PacketPhase.Play, PacketDirection.Serverbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

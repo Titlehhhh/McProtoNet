@@ -79,7 +79,7 @@ public sealed partial record SystemChatPacket(SystemChatPacket.V759Layer? V759 =
         throw new System.NotSupportedException($"SystemChatPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.system_chat", "SystemChat", PacketPhase.Play, PacketDirection.Clientbound, 99);
+    public static PacketIdentity Identity => new("play.toClient.system_chat", "SystemChat", PacketPhase.Play, PacketDirection.Clientbound, 101);
 
     PacketIdentity IPacket.Identity => Identity;
 

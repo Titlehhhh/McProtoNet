@@ -20,7 +20,7 @@ public sealed partial record HeldItemSlotPacket(int SlotId) : IPacket<HeldItemSl
         writer.WriteSignedShort((short)SlotId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Serverbound, 24);
+    public static PacketIdentity Identity => new("play.toServer.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Serverbound, 25);
 
     PacketIdentity IPacket.Identity => Identity;
 

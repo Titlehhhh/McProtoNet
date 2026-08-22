@@ -20,7 +20,7 @@ public sealed partial record PingRequestPacket(long Id) : IPacket<PingRequestPac
         writer.WriteSignedLong(Id);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.ping_request", "PingRequest", PacketPhase.Play, PacketDirection.Serverbound, 32);
+    public static PacketIdentity Identity => new("play.toServer.ping_request", "PingRequest", PacketPhase.Play, PacketDirection.Serverbound, 33);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -343,7 +343,7 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
         throw new System.NotSupportedException($"RespawnPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 76);
+    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 78);
 
     PacketIdentity IPacket.Identity => Identity;
 

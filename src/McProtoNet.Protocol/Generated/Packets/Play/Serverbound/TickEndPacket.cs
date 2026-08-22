@@ -17,7 +17,7 @@ public sealed partial record TickEndPacket() : IPacket<TickEndPacket>, IPacket
         ThrowHelper.ThrowIfProtocolNotSupported<TickEndPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.tick_end", "TickEnd", PacketPhase.Play, PacketDirection.Serverbound, 55);
+    public static PacketIdentity Identity => new("play.toServer.tick_end", "TickEnd", PacketPhase.Play, PacketDirection.Serverbound, 56);
 
     PacketIdentity IPacket.Identity => Identity;
 

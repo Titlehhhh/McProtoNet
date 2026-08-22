@@ -82,7 +82,7 @@ public sealed partial record UpdateTimePacket(long Age, UpdateTimePacket.VUntil7
         throw new System.NotSupportedException($"UpdateTimePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 110);
+    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 112);
 
     PacketIdentity IPacket.Identity => Identity;
 

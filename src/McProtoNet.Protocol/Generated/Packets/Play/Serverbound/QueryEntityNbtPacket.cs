@@ -23,7 +23,7 @@ public sealed partial record QueryEntityNbtPacket(int TransactionId, int EntityI
         writer.WriteVarInt(EntityId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.query_entity_nbt", "QueryEntityNbt", PacketPhase.Play, PacketDirection.Serverbound, 39);
+    public static PacketIdentity Identity => new("play.toServer.query_entity_nbt", "QueryEntityNbt", PacketPhase.Play, PacketDirection.Serverbound, 40);
 
     PacketIdentity IPacket.Identity => Identity;
 

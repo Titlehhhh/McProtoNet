@@ -20,7 +20,7 @@ public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDif
         writer.WriteBoolean(Locked);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 26);
+    public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 27);
 
     PacketIdentity IPacket.Identity => Identity;
 

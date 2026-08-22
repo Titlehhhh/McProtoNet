@@ -65,7 +65,7 @@ public sealed partial record PositionPacket(double X, double Y, double Z, Positi
         throw new System.NotSupportedException($"PositionPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.position", "Position", PacketPhase.Play, PacketDirection.Serverbound, 36);
+    public static PacketIdentity Identity => new("play.toServer.position", "Position", PacketPhase.Play, PacketDirection.Serverbound, 37);
 
     PacketIdentity IPacket.Identity => Identity;
 

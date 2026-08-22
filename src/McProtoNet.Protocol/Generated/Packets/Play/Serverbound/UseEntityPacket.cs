@@ -66,7 +66,7 @@ public sealed partial record UseEntityPacket(int Target, bool Sneaking, UseEntit
         throw new System.NotSupportedException($"UseEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.use_entity", "UseEntity", PacketPhase.Play, PacketDirection.Serverbound, 62);
+    public static PacketIdentity Identity => new("play.toServer.use_entity", "UseEntity", PacketPhase.Play, PacketDirection.Serverbound, 63);
 
     PacketIdentity IPacket.Identity => Identity;
 

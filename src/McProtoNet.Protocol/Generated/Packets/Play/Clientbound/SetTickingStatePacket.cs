@@ -23,7 +23,7 @@ public sealed partial record SetTickingStatePacket(float TickRate, bool IsFrozen
         writer.WriteBoolean(IsFrozen);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_ticking_state", "SetTickingState", PacketPhase.Play, PacketDirection.Clientbound, 83);
+    public static PacketIdentity Identity => new("play.toClient.set_ticking_state", "SetTickingState", PacketPhase.Play, PacketDirection.Clientbound, 85);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -50,7 +50,7 @@ public sealed partial record FlyingPacket(FlyingPacket.VUntil767Layer? VUntil767
         throw new System.NotSupportedException($"FlyingPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.flying", "Flying", PacketPhase.Play, PacketDirection.Serverbound, 22);
+    public static PacketIdentity Identity => new("play.toServer.flying", "Flying", PacketPhase.Play, PacketDirection.Serverbound, 23);
 
     PacketIdentity IPacket.Identity => Identity;
 

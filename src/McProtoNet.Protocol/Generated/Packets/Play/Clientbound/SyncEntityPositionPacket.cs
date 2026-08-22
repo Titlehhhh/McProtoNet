@@ -47,7 +47,7 @@ public sealed partial record SyncEntityPositionPacket(int EntityId, double X, do
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.sync_entity_position", "SyncEntityPosition", PacketPhase.Play, PacketDirection.Clientbound, 98);
+    public static PacketIdentity Identity => new("play.toClient.sync_entity_position", "SyncEntityPosition", PacketPhase.Play, PacketDirection.Clientbound, 100);
 
     PacketIdentity IPacket.Identity => Identity;
 

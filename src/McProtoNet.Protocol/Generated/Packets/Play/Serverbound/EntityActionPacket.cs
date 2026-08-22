@@ -26,7 +26,7 @@ public sealed partial record EntityActionPacket(int EntityId, int ActionId, int 
         writer.WriteVarInt(JumpBoost);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 21);
+    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 22);
 
     PacketIdentity IPacket.Identity => Identity;
 

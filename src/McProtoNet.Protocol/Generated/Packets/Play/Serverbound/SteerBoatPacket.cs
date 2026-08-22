@@ -23,7 +23,7 @@ public sealed partial record SteerBoatPacket(bool LeftPaddle, bool RightPaddle) 
         writer.WriteBoolean(RightPaddle);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 51);
+    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 52);
 
     PacketIdentity IPacket.Identity => Identity;
 

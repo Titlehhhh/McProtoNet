@@ -20,7 +20,7 @@ public sealed partial record TeleportConfirmPacket(int TeleportId) : IPacket<Tel
         writer.WriteVarInt(TeleportId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.teleport_confirm", "TeleportConfirm", PacketPhase.Play, PacketDirection.Serverbound, 54);
+    public static PacketIdentity Identity => new("play.toServer.teleport_confirm", "TeleportConfirm", PacketPhase.Play, PacketDirection.Serverbound, 55);
 
     PacketIdentity IPacket.Identity => Identity;
 

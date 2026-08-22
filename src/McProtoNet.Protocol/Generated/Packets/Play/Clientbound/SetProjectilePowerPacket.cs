@@ -55,7 +55,7 @@ public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePower
         throw new System.NotSupportedException($"SetProjectilePowerPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 82);
+    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 84);
 
     PacketIdentity IPacket.Identity => Identity;
 

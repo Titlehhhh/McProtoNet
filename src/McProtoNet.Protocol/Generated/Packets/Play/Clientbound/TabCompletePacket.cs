@@ -34,7 +34,7 @@ public sealed partial record TabCompletePacket(int TransactionId, int Start, int
             writer.WriteType<TabCompleteMatch>(matchesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 100);
+    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 102);
 
     PacketIdentity IPacket.Identity => Identity;
 

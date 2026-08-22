@@ -26,7 +26,7 @@ public sealed partial record GenerateStructurePacket(Position Location, int Leve
         writer.WriteBoolean(KeepJigsaws);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 23);
+    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 24);
 
     PacketIdentity IPacket.Identity => Identity;
 

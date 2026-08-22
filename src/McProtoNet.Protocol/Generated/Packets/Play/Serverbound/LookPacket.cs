@@ -60,7 +60,7 @@ public sealed partial record LookPacket(float Yaw, float Pitch, LookPacket.VUnti
         throw new System.NotSupportedException($"LookPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.look", "Look", PacketPhase.Play, PacketDirection.Serverbound, 27);
+    public static PacketIdentity Identity => new("play.toServer.look", "Look", PacketPhase.Play, PacketDirection.Serverbound, 28);
 
     PacketIdentity IPacket.Identity => Identity;
 

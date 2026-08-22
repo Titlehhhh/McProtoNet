@@ -58,7 +58,7 @@ public sealed partial record PlayerRotationPacket(float Yaw, float Pitch, Player
         throw new System.NotSupportedException($"PlayerRotationPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.player_rotation", "PlayerRotation", PacketPhase.Play, PacketDirection.Clientbound, 67);
+    public static PacketIdentity Identity => new("play.toClient.player_rotation", "PlayerRotation", PacketPhase.Play, PacketDirection.Clientbound, 68);
 
     PacketIdentity IPacket.Identity => Identity;
 

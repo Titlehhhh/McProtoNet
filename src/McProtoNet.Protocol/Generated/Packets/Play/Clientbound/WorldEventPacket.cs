@@ -29,7 +29,7 @@ public sealed partial record WorldEventPacket(int EffectId, Position Location, i
         writer.WriteBoolean(Global);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 119);
+    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 121);
 
     PacketIdentity IPacket.Identity => Identity;
 

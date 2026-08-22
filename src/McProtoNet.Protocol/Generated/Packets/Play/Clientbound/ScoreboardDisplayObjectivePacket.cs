@@ -48,7 +48,7 @@ public sealed partial record ScoreboardDisplayObjectivePacket(int Position, stri
         throw new System.NotSupportedException($"ScoreboardDisplayObjectivePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 77);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 79);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -20,7 +20,7 @@ public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacke
         writer.WriteVarInt(ViewDistance);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 111);
+    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 113);
 
     PacketIdentity IPacket.Identity => Identity;
 

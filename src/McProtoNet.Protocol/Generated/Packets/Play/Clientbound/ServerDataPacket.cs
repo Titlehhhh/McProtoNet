@@ -199,7 +199,7 @@ public sealed partial record ServerDataPacket(ServerDataPacket.V759Layer? V759 =
         throw new System.NotSupportedException($"ServerDataPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 79);
+    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 81);
 
     PacketIdentity IPacket.Identity => Identity;
 

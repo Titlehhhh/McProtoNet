@@ -23,7 +23,7 @@ public sealed partial record SelectBundleItemPacket(int SlotId, int SelectedItem
         writer.WriteVarInt(SelectedItemIndex);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 42);
+    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 43);
 
     PacketIdentity IPacket.Identity => Identity;
 

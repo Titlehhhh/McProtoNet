@@ -154,7 +154,7 @@ public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, in
         throw new System.NotSupportedException($"SpawnEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 89);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 91);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -20,7 +20,7 @@ public sealed partial record ClientCommandPacket(int ActionId) : IPacket<ClientC
         writer.WriteVarInt(ActionId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.client_command", "ClientCommand", PacketPhase.Play, PacketDirection.Serverbound, 11);
+    public static PacketIdentity Identity => new("play.toServer.client_command", "ClientCommand", PacketPhase.Play, PacketDirection.Serverbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

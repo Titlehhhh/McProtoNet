@@ -25,7 +25,7 @@ public sealed partial record StatisticsPacket(StatisticEntry[] Entries) : IPacke
             writer.WriteType<StatisticEntry>(entriesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 95);
+    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 97);
 
     PacketIdentity IPacket.Identity => Identity;
 

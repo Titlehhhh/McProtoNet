@@ -20,7 +20,7 @@ public sealed partial record SimulationDistancePacket(int Distance) : IPacket<Si
         writer.WriteVarInt(Distance);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.simulation_distance", "SimulationDistance", PacketPhase.Play, PacketDirection.Clientbound, 88);
+    public static PacketIdentity Identity => new("play.toClient.simulation_distance", "SimulationDistance", PacketPhase.Play, PacketDirection.Clientbound, 90);
 
     PacketIdentity IPacket.Identity => Identity;
 

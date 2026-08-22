@@ -28,7 +28,7 @@ public sealed partial record CustomClickActionPacket(string Id, NbtTag? Nbt) : I
             writer.WriteNbt(nbtValue);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.custom_click_action", "CustomClickAction", PacketPhase.Play, PacketDirection.Serverbound, 16);
+    public static PacketIdentity Identity => new("play.toServer.custom_click_action", "CustomClickAction", PacketPhase.Play, PacketDirection.Serverbound, 17);
 
     PacketIdentity IPacket.Identity => Identity;
 

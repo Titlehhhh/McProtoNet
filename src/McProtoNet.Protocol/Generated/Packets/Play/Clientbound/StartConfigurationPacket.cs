@@ -17,7 +17,7 @@ public sealed partial record StartConfigurationPacket() : IPacket<StartConfigura
         ThrowHelper.ThrowIfProtocolNotSupported<StartConfigurationPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 94);
+    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 96);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -52,7 +52,7 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         throw new System.NotSupportedException($"TeamsPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 102);
+    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 104);
 
     PacketIdentity IPacket.Identity => Identity;
 

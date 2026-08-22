@@ -26,7 +26,7 @@ public sealed partial record SetSlotStatePacket(int SlotId, int WindowId, bool S
         writer.WriteBoolean(State);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 47);
+    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 48);
 
     PacketIdentity IPacket.Identity => Identity;
 

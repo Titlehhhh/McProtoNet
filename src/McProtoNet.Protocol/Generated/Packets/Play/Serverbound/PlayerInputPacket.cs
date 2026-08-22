@@ -20,7 +20,7 @@ public sealed partial record PlayerInputPacket(PlayerInputFlags Inputs) : IPacke
         writer.WriteType<PlayerInputFlags>(Inputs, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 33);
+    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 34);
 
     PacketIdentity IPacket.Identity => Identity;
 
