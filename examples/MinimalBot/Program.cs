@@ -4,7 +4,6 @@ using McProtoNet;
 using McProtoNet.Primitives;
 using McProtoNet.Protocol;
 using McProtoNet.Transport.Cryptography;
-using MinimalBot.Packets;
 using ConfCb = McProtoNet.Protocol.Packets.Configuration.Clientbound;
 using ConfSb = McProtoNet.Protocol.Packets.Configuration.Serverbound;
 using HandshakeSb = McProtoNet.Protocol.Packets.Handshaking.Serverbound;
@@ -118,7 +117,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     protected override async ValueTask OnKeepAlive(PlayCb.KeepAlivePacket packet)
     {
         await client.SendAsync(new PlaySb.KeepAlivePacket(packet.KeepAliveId), pv);
-        await SendLocalAsync(ArmAnimationPacket.GetPacketId(pv), new ArmAnimationPacket(Hand: 0));
+        await client.SendAsync(new PlaySb.ArmAnimationPacket(0), pv);
         Console.WriteLine($"[play] keep-alive #{++_keepAlives} — ответили и махнули рукой");
     }
 
@@ -172,19 +171,5 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
         Console.WriteLine($"[{phase}] кик: {reason ?? "без причины"}");
         Stopped = true;
         return default;
-    }
-
-    private async ValueTask SendLocalAsync<T>(int id, T packet) where T : IProtocolType<T>
-    {
-        var writer = MinecraftPrimitiveWriterCache.Rent();
-        try
-        {
-            packet.Write(writer, pv);
-            await client.SendRawAsync(id, writer.WrittenMemory);
-        }
-        finally
-        {
-            MinecraftPrimitiveWriterCache.Return(writer);
-        }
     }
 }
