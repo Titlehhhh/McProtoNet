@@ -69,7 +69,7 @@ public sealed partial record VehicleMovePacket(double X, double Y, double Z, flo
         throw new System.NotSupportedException($"VehicleMovePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Serverbound, 65);
+    public static PacketIdentity Identity => new("play.toServer.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Serverbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 

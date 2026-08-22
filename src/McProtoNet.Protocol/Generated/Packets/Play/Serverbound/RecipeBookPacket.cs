@@ -26,7 +26,7 @@ public sealed partial record RecipeBookPacket(int BookId, bool BookOpen, bool Fi
         writer.WriteBoolean(FilterActive);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.recipe_book", "RecipeBook", PacketPhase.Play, PacketDirection.Serverbound, 41);
+    public static PacketIdentity Identity => new("play.toServer.recipe_book", "RecipeBook", PacketPhase.Play, PacketDirection.Serverbound, 42);
 
     PacketIdentity IPacket.Identity => Identity;
 

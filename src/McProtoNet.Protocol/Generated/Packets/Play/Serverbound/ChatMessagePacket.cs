@@ -155,7 +155,7 @@ public sealed partial record ChatMessagePacket(string Message, long Timestamp, l
         throw new System.NotSupportedException($"ChatMessagePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat_message", "ChatMessage", PacketPhase.Play, PacketDirection.Serverbound, 8);
+    public static PacketIdentity Identity => new("play.toServer.chat_message", "ChatMessage", PacketPhase.Play, PacketDirection.Serverbound, 9);
 
     PacketIdentity IPacket.Identity => Identity;
 

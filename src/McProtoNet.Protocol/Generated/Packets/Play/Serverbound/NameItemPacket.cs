@@ -20,7 +20,7 @@ public sealed partial record NameItemPacket(string Name) : IPacket<NameItemPacke
         writer.WriteString(Name);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 29);
+    public static PacketIdentity Identity => new("play.toServer.name_item", "NameItem", PacketPhase.Play, PacketDirection.Serverbound, 30);
 
     PacketIdentity IPacket.Identity => Identity;
 

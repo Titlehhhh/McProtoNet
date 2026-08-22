@@ -62,7 +62,7 @@ public sealed partial record EnchantItemPacket(int WindowId, int Enchantment) : 
         throw new System.NotSupportedException($"EnchantItemPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 21);
+    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 22);
 
     PacketIdentity IPacket.Identity => Identity;
 

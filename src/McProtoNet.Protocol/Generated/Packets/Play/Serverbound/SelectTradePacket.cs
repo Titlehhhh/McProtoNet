@@ -20,7 +20,7 @@ public sealed partial record SelectTradePacket(int Slot) : IPacket<SelectTradePa
         writer.WriteVarInt(Slot);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 44);
+    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 45);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -20,7 +20,7 @@ public sealed partial record SpectateEntityPacket(int EntityId) : IPacket<Specta
         writer.WriteVarInt(EntityId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.spectate_entity", "SpectateEntity", PacketPhase.Play, PacketDirection.Serverbound, 51);
+    public static PacketIdentity Identity => new("play.toServer.spectate_entity", "SpectateEntity", PacketPhase.Play, PacketDirection.Serverbound, 52);
 
     PacketIdentity IPacket.Identity => Identity;
 

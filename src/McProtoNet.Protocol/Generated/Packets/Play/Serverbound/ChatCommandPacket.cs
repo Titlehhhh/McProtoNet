@@ -2,54 +2,57 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
-[ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
-[Packet("play.toServer.configuration_acknowledged", PacketPhase.Play, PacketDirection.Serverbound)]
-public sealed partial record ConfigurationAcknowledgedPacket() : IPacket<ConfigurationAcknowledgedPacket>, IPacket
+[ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
+[Packet("play.toServer.chat_command", PacketPhase.Play, PacketDirection.Serverbound)]
+[PacketField("Command", "string")]
+public sealed partial record ChatCommandPacket(string Command) : IPacket<ChatCommandPacket>, IPacket
 {
-    public static ConfigurationAcknowledgedPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    public static ChatCommandPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
-        ThrowHelper.ThrowIfProtocolNotSupported<ConfigurationAcknowledgedPacket>(protocolVersion);
-        return new ConfigurationAcknowledgedPacket();
+        ThrowHelper.ThrowIfProtocolNotSupported<ChatCommandPacket>(protocolVersion);
+        var command = reader.ReadString();
+        return new ChatCommandPacket(command);
     }
 
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
-        ThrowHelper.ThrowIfProtocolNotSupported<ConfigurationAcknowledgedPacket>(protocolVersion);
+        ThrowHelper.ThrowIfProtocolNotSupported<ChatCommandPacket>(protocolVersion);
+        writer.WriteString(Command);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.configuration_acknowledged", "ConfigurationAcknowledged", PacketPhase.Play, PacketDirection.Serverbound, 15);
+    public static PacketIdentity Identity => new("play.toServer.chat_command", "ChatCommand", PacketPhase.Play, PacketDirection.Serverbound, 7);
 
     PacketIdentity IPacket.Identity => Identity;
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 765)
+        if (protocolVersion >= 759 && protocolVersion <= 759)
         {
-            id = 0x0B;
+            id = 0x03;
             return true;
         }
 
-        if (protocolVersion >= 766 && protocolVersion <= 767)
+        if (protocolVersion >= 760 && protocolVersion <= 767)
         {
-            id = 0x0C;
+            id = 0x04;
             return true;
         }
 
         if (protocolVersion >= 768 && protocolVersion <= 770)
         {
-            id = 0x0E;
+            id = 0x05;
             return true;
         }
 
         if (protocolVersion >= 771 && protocolVersion <= 774)
         {
-            id = 0x0F;
+            id = 0x06;
             return true;
         }
 
         if (protocolVersion >= 775 && protocolVersion <= 776)
         {
-            id = 0x10;
+            id = 0x07;
             return true;
         }
 

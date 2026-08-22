@@ -29,7 +29,7 @@ public sealed partial record UpdateCommandBlockPacket(Position Location, string 
         writer.WriteUnsignedByte((byte)Flags);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_command_block", "UpdateCommandBlock", PacketPhase.Play, PacketDirection.Serverbound, 58);
+    public static PacketIdentity Identity => new("play.toServer.update_command_block", "UpdateCommandBlock", PacketPhase.Play, PacketDirection.Serverbound, 59);
 
     PacketIdentity IPacket.Identity => Identity;
 

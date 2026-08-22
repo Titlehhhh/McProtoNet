@@ -43,7 +43,7 @@ public sealed partial record SetDifficultyPacket(Difficulty NewDifficulty) : IPa
         throw new System.NotSupportedException($"SetDifficultyPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_difficulty", "SetDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 46);
+    public static PacketIdentity Identity => new("play.toServer.set_difficulty", "SetDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 47);
 
     PacketIdentity IPacket.Identity => Identity;
 

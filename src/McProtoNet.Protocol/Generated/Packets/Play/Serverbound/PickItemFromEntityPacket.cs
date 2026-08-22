@@ -23,7 +23,7 @@ public sealed partial record PickItemFromEntityPacket(int EntityId, bool Include
         writer.WriteBoolean(IncludeData);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.pick_item_from_entity", "PickItemFromEntity", PacketPhase.Play, PacketDirection.Serverbound, 32);
+    public static PacketIdentity Identity => new("play.toServer.pick_item_from_entity", "PickItemFromEntity", PacketPhase.Play, PacketDirection.Serverbound, 33);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -70,7 +70,7 @@ public sealed partial record CookieResponsePacket(string Key, byte[]? Value) : I
         throw new System.NotSupportedException($"CookieResponsePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.cookie_response", "CookieResponse", PacketPhase.Play, PacketDirection.Serverbound, 15);
+    public static PacketIdentity Identity => new("play.toServer.cookie_response", "CookieResponse", PacketPhase.Play, PacketDirection.Serverbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

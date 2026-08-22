@@ -21,7 +21,7 @@ public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacke
         writer.WriteUUID(Target);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 50);
+    public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 51);
 
     PacketIdentity IPacket.Identity => Identity;
 

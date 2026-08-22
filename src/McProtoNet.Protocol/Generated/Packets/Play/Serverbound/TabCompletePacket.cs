@@ -23,7 +23,7 @@ public sealed partial record TabCompletePacket(int TransactionId, string Text) :
         writer.WriteString(Text);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Serverbound, 54);
+    public static PacketIdentity Identity => new("play.toServer.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Serverbound, 55);
 
     PacketIdentity IPacket.Identity => Identity;
 

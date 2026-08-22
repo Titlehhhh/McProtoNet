@@ -50,7 +50,7 @@ public sealed partial record DisplayedRecipePacket(DisplayedRecipePacket.V751_76
         throw new System.NotSupportedException($"DisplayedRecipePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.displayed_recipe", "DisplayedRecipe", PacketPhase.Play, PacketDirection.Serverbound, 20);
+    public static PacketIdentity Identity => new("play.toServer.displayed_recipe", "DisplayedRecipe", PacketPhase.Play, PacketDirection.Serverbound, 21);
 
     PacketIdentity IPacket.Identity => Identity;
 

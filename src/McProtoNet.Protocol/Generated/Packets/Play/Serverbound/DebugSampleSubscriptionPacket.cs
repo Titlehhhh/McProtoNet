@@ -20,7 +20,7 @@ public sealed partial record DebugSampleSubscriptionPacket(int Type) : IPacket<D
         writer.WriteVarInt(Type);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 19);
+    public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 20);
 
     PacketIdentity IPacket.Identity => Identity;
 

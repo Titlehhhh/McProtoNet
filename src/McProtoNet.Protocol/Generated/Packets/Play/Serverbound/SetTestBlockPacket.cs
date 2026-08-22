@@ -26,7 +26,7 @@ public sealed partial record SetTestBlockPacket(Position Position, int Mode, str
         writer.WriteString(Message);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 49);
+    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 50);
 
     PacketIdentity IPacket.Identity => Identity;
 

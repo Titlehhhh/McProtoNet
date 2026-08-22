@@ -17,7 +17,7 @@ public sealed partial record PlayerLoadedPacket() : IPacket<PlayerLoadedPacket>,
         ThrowHelper.ThrowIfProtocolNotSupported<PlayerLoadedPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.player_loaded", "PlayerLoaded", PacketPhase.Play, PacketDirection.Serverbound, 35);
+    public static PacketIdentity Identity => new("play.toServer.player_loaded", "PlayerLoaded", PacketPhase.Play, PacketDirection.Serverbound, 36);
 
     PacketIdentity IPacket.Identity => Identity;
 

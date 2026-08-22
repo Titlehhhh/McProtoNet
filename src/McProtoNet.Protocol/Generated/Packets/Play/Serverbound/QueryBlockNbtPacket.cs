@@ -23,7 +23,7 @@ public sealed partial record QueryBlockNbtPacket(int TransactionId, Position Loc
         writer.WriteType<Position>(Location, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 39);
+    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 40);
 
     PacketIdentity IPacket.Identity => Identity;
 

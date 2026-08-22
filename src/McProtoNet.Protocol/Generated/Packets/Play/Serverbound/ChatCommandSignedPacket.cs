@@ -84,7 +84,7 @@ public sealed partial record ChatCommandSignedPacket(string Command, long Timest
         throw new System.NotSupportedException($"ChatCommandSignedPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat_command_signed", "ChatCommandSigned", PacketPhase.Play, PacketDirection.Serverbound, 7);
+    public static PacketIdentity Identity => new("play.toServer.chat_command_signed", "ChatCommandSigned", PacketPhase.Play, PacketDirection.Serverbound, 8);
 
     PacketIdentity IPacket.Identity => Identity;
 
