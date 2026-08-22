@@ -2,10 +2,12 @@
 
 .NET library for the Minecraft Java Edition protocol (client side): transport,
 primitives, packets, multi-version support. Active branch:
-`refactoring/layout-2.0` (layout 2.0, phase 1 — canon:
-`../diagrams/layout.md`). Honest protocol range in code: **735–772**
-(1.16 → 1.21.8; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
-README agrees since 2026-08-15.
+`dev` (`refactoring/layout-2.0` merged and deleted 2026-08-22; layout
+canon: `../diagrams/layout.md`). Honest protocol range in code: **735–776**
+(1.16 → 26.2; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
+README agrees since 2026-08-22. Every push to `dev` publishes
+`2.0.0-preview.4.<height>` to the Feedz feed `mcprotonet/night`
+(`.github/workflows/publish-dev.yml`); nuget.org only on `v*` tags.
 
 Maintenance rule: if a PR changes an architectural fact stated here, update
 this file in the same PR. Snapshot facts below are marked with their commit;
@@ -13,7 +15,7 @@ unmarked statements are design invariants.
 
 ## Repository map
 
-| Path | Role | State (2026-08-21, on 1abac13) |
+| Path | Role | State (2026-08-22, on 4ce60e8) |
 | --- | --- | --- |
 | src/McProtoNet.Primitives | primitive reader/writer, buffers, `IncomingPacket`/`OutgoingPacket` | alive, tested |
 | src/McProtoNet.NBT | own NBT parser | alive, tested |
@@ -26,7 +28,7 @@ unmarked statements are design invariants.
 | tests/McProtoNet.Tests | xUnit v3: transport, primitives, NBT, packet-flow round-trips | alive; all green (see Commands) |
 | benchmarks/ | BenchmarkDotNet, perf contract lives here | alive |
 | docs/ | Writerside site | mixed, stale in places |
-| build/ | Nuke build; Tests/Pack targets are hollowed out | stale |
+| build/ | Nuke build: `Pack` (five src projects), `Tests` (xunit v3 exe), `Validation` (nupkg checks), `Push` | alive since 7441ab9 |
 
 Removed 2026-08-15: the dead `IMinecraftClient`/start options, the F# facade
 stub and the `examples/SimpleBotFSharp` stub. Removed 2026-08-21 by the
@@ -69,7 +71,8 @@ project `McProtoNet` references both, and a client app references the glue.
   AES/CFB8 `PacketCipher` with hardware cores (x86 AES-NI, ARM64 NEON; scalar
   fallback) in `Cryptography/`.
 - **Glue (`src/McProtoNet`):** `MinecraftClient` is a thin standard client by
-  owner decision 2026-08-15: options, TCP connect, packet read/send, cipher
+  owner decision 2026-08-15: options, TCP connect (optionally through
+  `MinecraftClientOptions.Proxy`, QuickProxyNet), packet read/send, cipher
   and compression switches — nothing else. `ClientPacketExtensions` carries
   typed `SendAsync<T>` and `SendRawAsync`. SRV lookup and LAN detection live
   here too. The handshake/login state machine lives in consumer code, not in
@@ -87,7 +90,7 @@ project `McProtoNet` references both, and a client app references the glue.
   `DecodeError`, `PacketExceptions`. Typed send lives in the glue, not
   here — Protocol must not see the transport.
 - **Packet layer, generated implementation
-  (`src/McProtoNet.Protocol/Generated/`, 267 files at 1abac13):**
+  (`src/McProtoNet.Protocol/Generated/`):**
   `Packets/<Phase>/<Direction>/*.cs` — sealed partial records carrying
   `[Packet]`, `[PacketField]`, `[ProtocolSupport]`
   (`src/McProtoNet.Protocol/Attributes/`) with per-version `Read`/`Write`;
@@ -136,16 +139,18 @@ depends on it — do not edit it casually.
 
 - Build the working set: `dotnet build src/McProtoNet.Protocol` (pulls
   Primitives + NBT + the generator);
-  `dotnet build examples/MinimalBot`. TFMs: net8.0/net9.0/net10.0.
+  `dotnet build examples/MinimalBot`. TFMs: net8.0/net9.0/net10.0/net11.0 (libraries).
 - `dotnet build McProtoNet.slnx -c Release` is green since 2026-08-21: the
   layout 2.0 refactor dropped `TestServer/` and pointed
   `.nuke/parameters.json` at the `.slnx`.
 - Tests: `dotnet run --project tests/McProtoNet.Tests` — the project is an
   xUnit v3 executable; plain `dotnet test` on it discovers no tests (no
-  VSTest adapter). Since 2026-08-15 the suite is fully green: 10671 tests,
-  0 failing, 9 skipped (ARM cipher core on x86 machines).
-- Nuke wrappers (`build.ps1` / `build.cmd`) exist, but their Tests/Pack
-  targets are empty; NuGet publishing is effectively off.
+  VSTest adapter). Since 2026-08-15 the suite is fully green: 10630 tests on
+  net10.0 at 4ce60e8, 0 failing, 9 skipped (ARM cipher core on x86
+  machines).
+- Nuke wrappers (`build.ps1` / `build.cmd`): `build.cmd Tests`, `Pack`,
+  `Validation`, `Push` are real since 7441ab9; CI uses them
+  (`publish-dev.yml`, `cicd.yaml`, `publish-manual.yml`).
 
 ## Contract vs clay
 
