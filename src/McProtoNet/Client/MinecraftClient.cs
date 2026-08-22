@@ -104,7 +104,9 @@ public sealed class MinecraftClient : IAsyncDisposable
             }
             else
             {
-                tcp = new TcpClient { NoDelay = Options.NoDelay };
+                tcp = Options.LocalEndPoint is { } local
+                    ? new TcpClient(local) { NoDelay = Options.NoDelay }
+                    : new TcpClient { NoDelay = Options.NoDelay };
                 await tcp.ConnectAsync(host, port, timeout.Token).ConfigureAwait(false);
                 stream = tcp.GetStream();
             }

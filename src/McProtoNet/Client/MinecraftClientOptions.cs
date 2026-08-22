@@ -1,3 +1,4 @@
+using System.Net;
 using QuickProxyNet;
 
 namespace McProtoNet;
@@ -41,6 +42,18 @@ public sealed class MinecraftClientOptions
     ///     <c>NoDelay</c>, and this client does not touch settings on an object the caller owns.
     /// </remarks>
     public IProxyClient? Proxy { get; init; }
+
+    /// <summary>
+    ///     Bind the outgoing socket to this local address before connecting — the way to pick which
+    ///     network interface or source address the connection leaves from. Port 0 lets the OS choose
+    ///     an ephemeral port. The address family must match the server's: an IPv4 local endpoint
+    ///     cannot reach an IPv6-only host. Null keeps the default, unbound socket.
+    /// </summary>
+    /// <remarks>
+    ///     This applies to the direct TCP path only. When <see cref="Proxy" /> is set the proxy client
+    ///     owns its socket, and it carries a <c>LocalEndPoint</c> of its own to set instead.
+    /// </remarks>
+    public IPEndPoint? LocalEndPoint { get; init; }
 
     /// <summary>
     ///     Send small frames as they come instead of waiting for a full segment. On by default: a
