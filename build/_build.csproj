@@ -9,17 +9,13 @@
     <NukeScriptDirectory>..</NukeScriptDirectory>
     <NukeTelemetryVersion>1</NukeTelemetryVersion>
     <IsPackable>false</IsPackable>
-  </PropertyGroup>  
+  </PropertyGroup>
   <ItemGroup>
-    <PackageDownload Include="minver-cli" Version="[6.0.0]" />
     <PackageReference Include="Nuke.Common" Version="10.1.0" />
     <PackageDownload Include="Meziantou.Framework.NuGetPackageValidation.Tool" Version="[1.0.18]" />
-  </ItemGroup>  
+  </ItemGroup>
   <ItemGroup>
     <Folder Include="ci\" />
-  </ItemGroup>  
-  <ItemGroup>
-    <None Remove="..\.github\workflows\update-zlib-ng.yml" />
   </ItemGroup>
 
 </Project>

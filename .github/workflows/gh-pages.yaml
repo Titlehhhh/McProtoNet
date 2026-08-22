@@ -3,10 +3,15 @@ name: Build documentation
 on:
   push:
     branches:
-      - '**'  # Запускается на всех ветках
+      - dev
+      - master
     paths:
-      - 'docs/**'  # Только если изменены файлы в папке docs/
-  workflow_dispatch:  # Позволяет запускать вручную
+      - 'docs/**'
+  workflow_dispatch:
+
+concurrency:
+  group: gh-pages-${{ github.ref }}
+  cancel-in-progress: true
 
 
 permissions:

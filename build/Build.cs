@@ -1,19 +1,11 @@
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using Nuke.Common;
-using Nuke.Common.CI;
-using Nuke.Common.Execution;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.MinVer;
 using Nuke.Common.Utilities.Collections;
-using Serilog;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.PathConstruction;
-using static Nuke.Common.EnvironmentInfo;
-using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 class Build : NukeBuild
@@ -25,11 +17,22 @@ class Build : NukeBuild
     Tool ValidationTool;
 
     [Parameter] string NugetApiUrl = "https://api.nuget.org/v3/index.json";
-    [Parameter] string NugetApiKey;
+    [Parameter] [Secret] string NugetApiKey;
 
+    static readonly string[] PackableProjects =
+    [
+        "McProtoNet.NBT",
+        "McProtoNet.Primitives",
+        "McProtoNet.Transport",
+        "McProtoNet.Protocol",
+        "McProtoNet"
+    ];
 
+    AbsolutePath SourceDirectory => RootDirectory / "src";
+    AbsolutePath TestsProject => RootDirectory / "tests" / "McProtoNet.Tests" / "McProtoNet.Tests.csproj";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
     AbsolutePath NugetDirectory => ArtifactsDirectory / "nuget";
+
     public static int Main() => Execute<Build>(x => x.Compile);
 
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
@@ -44,55 +47,10 @@ class Build : NukeBuild
                 .SetConfiguration(Configuration));
         });
 
-    Target Tests => _ => _
-        .Executes(() =>
-        {
-          //  DotNetTest(x =>
-               // x.SetProjectFile(Solution.McProtoNet_Tests)
-                //    .SetConfiguration(Configuration));
-        });
-
-    Target Validation => _ => _
-        .DependsOn(Pack)
-        .Executes(() =>
-        {
-            NugetDirectory.GlobFiles("*.nupkg")
-                .ForEach(x =>
-                {
-                    ValidationTool.Invoke(x.ToString());
-                });
-        });
-
-
-    Target Pack => _ => _
-        .DependsOn(Compile)
-        .Requires(() => Configuration.Equals(Configuration.Release))
-        .Executes(() =>
-        {
-            // PackCore(Solution.src.McProtoNet_NBT);
-            // PackCore(Solution.src.McProtoNet_Utils);
-            // PackCore(Solution.src.McProtoNet_Serialization);
-            // PackCore(Solution.src.McProtoNet_Abstractions);
-            // PackCore(Solution.src.McProtoNet);
-            // PackCore(Solution.src.McProtoNet_Protocol);
-            return;
-
-            void PackCore(Project project)
-            {
-                DotNetPack(s => s
-                    .SetProject(project)
-                    .SetConfiguration(Configuration)
-                    .SetNoDependencies(true)
-                    .SetContinuousIntegrationBuild(true)
-                    .SetOutputDirectory(NugetDirectory));
-            }
-        });
-
     Target Restore => _ => _
-        .DependsOn(Clean)
         .Executes(() =>
         {
-            DotNetRestore(_ => _
+            DotNetRestore(s => s
                 .SetProjectFile(Solution));
         });
 
@@ -100,9 +58,53 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DotNetBuild(x => x
+            DotNetBuild(s => s
                 .SetProjectFile(Solution)
-                .SetConfiguration(Configuration));
+                .SetConfiguration(Configuration)
+                .SetContinuousIntegrationBuild(true)
+                .EnableNoRestore());
+        });
+
+    Target Tests => _ => _
+        .DependsOn(Compile)
+        .Executes(() =>
+        {
+            DotNetRun(s => s
+                .SetProjectFile(TestsProject)
+                .SetConfiguration(Configuration)
+                .EnableNoRestore()
+                .EnableNoBuild());
+        });
+
+    Target Pack => _ => _
+        .DependsOn(Compile)
+        .Requires(() => Configuration.Equals(Configuration.Release))
+        .Executes(() =>
+        {
+            NugetDirectory.CreateOrCleanDirectory();
+            PackableProjects.ForEach(name => DotNetPack(s => s
+                .SetProject(SourceDirectory / name / $"{name}.csproj")
+                .SetConfiguration(Configuration)
+                .SetNoDependencies(true)
+                .EnableNoRestore()
+                .EnableNoBuild()
+                .SetContinuousIntegrationBuild(true)
+                .SetOutputDirectory(NugetDirectory)));
+        });
+
+    Target Validation => _ => _
+        .DependsOn(Pack)
+        .Executes(() =>
+        {
+            var packages = NugetDirectory.GlobFiles("*.nupkg");
+            Assert.NotEmpty(packages, "No packages were produced in artifacts/nuget");
+
+            var environment = new Dictionary<string, string>(EnvironmentInfo.Variables, StringComparer.OrdinalIgnoreCase)
+            {
+                ["DOTNET_ROLL_FORWARD"] = "LatestMajor"
+            };
+
+            packages.ForEach(x => ValidationTool.Invoke(x.ToString(), environmentVariables: environment));
         });
 
     Target Push => _ => _
@@ -115,14 +117,10 @@ class Build : NukeBuild
         .Executes(() =>
         {
             NugetDirectory.GlobFiles("*.nupkg")
-                .ForEach(x =>
-                {
-                    DotNetNuGetPush(s => s
-                        .SetTargetPath(x)
-                        .EnableSkipDuplicate()
-                        .SetSource(NugetApiUrl)
-                        .SetApiKey(NugetApiKey)
-                    );
-                });
+                .ForEach(x => DotNetNuGetPush(s => s
+                    .SetTargetPath(x)
+                    .EnableSkipDuplicate()
+                    .SetSource(NugetApiUrl)
+                    .SetApiKey(NugetApiKey)));
         });
 }
