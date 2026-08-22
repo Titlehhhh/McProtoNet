@@ -243,6 +243,13 @@ public abstract partial class ServerboundHandler
                         break;
                     }
 
+                    case 7:
+                    {
+                        var packet = Packets.Play.Serverbound.ChatCommandSignedPacket.Read(ref reader, protocolVersion);
+                        pending = OnChatCommandSigned(packet);
+                        break;
+                    }
+
                     case 8:
                     {
                         var packet = Packets.Play.Serverbound.ChatPreviewPacket.Read(ref reader, protocolVersion);
@@ -681,6 +688,7 @@ public abstract partial class ServerboundHandler
     protected virtual ValueTask OnBlockPlace(Packets.Play.Serverbound.BlockPlacePacket packet) => default;
     protected virtual ValueTask OnChangeGamemode(Packets.Play.Serverbound.ChangeGamemodePacket packet) => default;
     protected virtual ValueTask OnChat(Packets.Play.Serverbound.ChatPacket packet) => default;
+    protected virtual ValueTask OnChatCommandSigned(Packets.Play.Serverbound.ChatCommandSignedPacket packet) => default;
     protected virtual ValueTask OnChatPreview(Packets.Play.Serverbound.ChatPreviewPacket packet) => default;
     protected virtual ValueTask OnChatSessionUpdate(Packets.Play.Serverbound.ChatSessionUpdatePacket packet) => default;
     protected virtual ValueTask OnChunkBatchReceived(Packets.Play.Serverbound.ChunkBatchReceivedPacket packet) => default;

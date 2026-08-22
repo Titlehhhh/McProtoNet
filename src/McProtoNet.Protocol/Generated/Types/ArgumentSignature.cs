@@ -17,14 +17,15 @@ public sealed partial class ArgumentSignature : IProtocolType<ArgumentSignature>
     public static ArgumentSignature Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ArgumentSignature>(protocolVersion);
-        // TODO(codegen): read 'Signature' (FixedBytes 256)
-        throw new System.NotImplementedException("TODO(codegen): ArgumentSignature wire layout is not fully generated for this protocol version.");
+        var argumentName = reader.ReadString();
+        var signature = reader.ReadFixedBytes(256);
+        return new ArgumentSignature(argumentName, signature);
     }
 
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ArgumentSignature>(protocolVersion);
-        // TODO(codegen): write 'Signature' (FixedBytes 256)
-        throw new System.NotImplementedException("TODO(codegen): ArgumentSignature wire layout is not fully generated for this protocol version.");
+        writer.WriteString(ArgumentName);
+        writer.WriteFixedBytes(Signature, 256);
     }
 }

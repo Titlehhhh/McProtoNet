@@ -264,6 +264,61 @@ public class GeneratedRoundTripTests
         Assert.Throws<WrongLayerException>(() => p.Write(writer, 772));
     }
 
+    // ── FixedBytes: exactly-n bytes, no length prefix ────────────────────────
+
+    private static PlaySb.ChatCommandSignedPacket ChatCommandSigned(byte[] acknowledged, int pv)
+        => new(
+            "gamemode creative",
+            1_700_000_000_000L,
+            -42L,
+            [new ArgumentSignature("target", [.. Enumerable.Range(0, 256).Select(i => (byte)i)])],
+            3,
+            acknowledged,
+            pv >= 770 ? new PlaySb.ChatCommandSignedPacket.V770_LastLayer(9) : null);
+
+    [Theory]
+    [InlineData(768)]
+    [InlineData(772)]
+    public void ChatCommandSigned_FixedBytes_RoundTrips(int pv)
+    {
+        var p = ChatCommandSigned([0xAA, 0xBB, 0xCC], pv);
+        var back = RoundTrip(p, pv);
+
+        Assert.Equal(p.Command, back.Command);
+        Assert.Equal(p.Timestamp, back.Timestamp);
+        Assert.Equal(p.Salt, back.Salt);
+        Assert.Equal(p.MessageCount, back.MessageCount);
+        Assert.Equal(p.Acknowledged, back.Acknowledged);
+        Assert.Equal(p.V770_Last, back.V770_Last);
+        Assert.Equal(256, back.ArgumentSignatures[0].Signature.Length);
+        Assert.Equal(p.ArgumentSignatures[0].Signature, back.ArgumentSignatures[0].Signature);
+    }
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(4)]
+    public void ChatCommandSigned_WrongFixedLength_Throws(int length)
+    {
+        var p = ChatCommandSigned(new byte[length], 772);
+
+        Assert.Throws<ArgumentException>(() => p.Write(new MinecraftPrimitiveWriter(), 772));
+    }
+
+    [Fact]
+    public void ChatCommandSigned_FixedBytes_ConsumesExactlyThreeBytes()
+    {
+        var p = ChatCommandSigned([1, 2, 3], 768);
+        var writer = new MinecraftPrimitiveWriter();
+        p.Write(writer, 768);
+        using var mem = writer.GetWrittenMemory();
+
+        // command + timestamp + salt + one signature + count + 3 acknowledged bytes, nothing else
+        var expected = 1 + "gamemode creative".Length + 8 + 8
+                       + 1 + 1 + "target".Length + 256
+                       + 1 + 3;
+        Assert.Equal(expected, mem.Memory.Length);
+    }
+
     // ── GetPacketId vs the fs packet-id manifest (Spec/protocol-ids.json) ─────
 
     [Fact]

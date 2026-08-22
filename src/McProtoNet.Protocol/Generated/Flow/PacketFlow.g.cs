@@ -1676,6 +1676,14 @@ public static partial class PacketFlow
                 return true;
             }
 
+            case 7:
+            {
+                var packet = Packets.Play.Serverbound.ChatCommandSignedPacket.Read(ref reader, protocolVersion);
+                reading = false;
+                visitor.Visit(packet);
+                return true;
+            }
+
             case 8:
             {
                 var packet = Packets.Play.Serverbound.ChatPreviewPacket.Read(ref reader, protocolVersion);

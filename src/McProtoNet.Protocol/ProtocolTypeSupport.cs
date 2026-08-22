@@ -1,3 +1,4 @@
+using System;
 using McProtoNet.NBT;
 using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
@@ -24,6 +25,20 @@ public static class ProtocolTypeExtensions
     public static void WriteByteArray(this MinecraftPrimitiveWriter writer, byte[] value)
     {
         writer.WriteVarInt(value.Length);
+        writer.WriteBuffer(value);
+    }
+
+    public static byte[] ReadFixedBytes(this ref MinecraftPrimitiveReader reader, int length)
+        => reader.ReadBuffer(length);
+
+    public static void WriteFixedBytes(this MinecraftPrimitiveWriter writer, byte[] value, int length)
+    {
+        if (value.Length != length)
+        {
+            throw new ArgumentException(
+                $"Expected exactly {length} bytes, got {value.Length}.", nameof(value));
+        }
+
         writer.WriteBuffer(value);
     }
 

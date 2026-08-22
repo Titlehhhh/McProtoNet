@@ -19,14 +19,31 @@ public sealed partial record ChatCommandSignedPacket(string Command, long Timest
         ThrowHelper.ThrowIfProtocolNotSupported<ChatCommandSignedPacket>(protocolVersion);
         if (protocolVersion >= 766 && protocolVersion <= 769)
         {
-            // TODO(codegen): read 'Acknowledged' (FixedBytes 3)
-            throw new System.NotImplementedException("TODO(codegen): ChatCommandSignedPacket wire layout is not fully generated for this protocol version.");
+            var command = reader.ReadString();
+            var timestamp = reader.ReadSignedLong();
+            var salt = reader.ReadSignedLong();
+            int argumentSignaturesCount = reader.ReadVarInt();
+            var argumentSignatures = new ArgumentSignature[argumentSignaturesCount];
+            for (int i = 0; i < argumentSignatures.Length; i++)
+                argumentSignatures[i] = reader.ReadType<ArgumentSignature>(protocolVersion);
+            var messageCount = reader.ReadVarInt();
+            var acknowledged = reader.ReadFixedBytes(3);
+            return new ChatCommandSignedPacket(command, timestamp, salt, argumentSignatures, messageCount, acknowledged);
         }
 
         if (protocolVersion >= 770)
         {
-            // TODO(codegen): read 'Acknowledged' (FixedBytes 3)
-            throw new System.NotImplementedException("TODO(codegen): ChatCommandSignedPacket wire layout is not fully generated for this protocol version.");
+            var command = reader.ReadString();
+            var timestamp = reader.ReadSignedLong();
+            var salt = reader.ReadSignedLong();
+            int argumentSignaturesCount = reader.ReadVarInt();
+            var argumentSignatures = new ArgumentSignature[argumentSignaturesCount];
+            for (int i = 0; i < argumentSignatures.Length; i++)
+                argumentSignatures[i] = reader.ReadType<ArgumentSignature>(protocolVersion);
+            var messageCount = reader.ReadVarInt();
+            var acknowledged = reader.ReadFixedBytes(3);
+            var checksum = reader.ReadUnsignedByte();
+            return new ChatCommandSignedPacket(command, timestamp, salt, argumentSignatures, messageCount, acknowledged, V770_Last: new V770_LastLayer(checksum));
         }
 
         throw new System.NotSupportedException($"ChatCommandSignedPacket has no wire layout for protocol version {protocolVersion}.");
@@ -37,14 +54,31 @@ public sealed partial record ChatCommandSignedPacket(string Command, long Timest
         ThrowHelper.ThrowIfProtocolNotSupported<ChatCommandSignedPacket>(protocolVersion);
         if (protocolVersion >= 766 && protocolVersion <= 769)
         {
-            // TODO(codegen): write 'Acknowledged' (FixedBytes 3)
-            throw new System.NotImplementedException("TODO(codegen): ChatCommandSignedPacket wire layout is not fully generated for this protocol version.");
+            writer.WriteString(Command);
+            writer.WriteSignedLong(Timestamp);
+            writer.WriteSignedLong(Salt);
+            writer.WriteVarInt(ArgumentSignatures.Length);
+            foreach (var argumentSignaturesItem in ArgumentSignatures)
+                writer.WriteType<ArgumentSignature>(argumentSignaturesItem, protocolVersion);
+            writer.WriteVarInt(MessageCount);
+            writer.WriteFixedBytes(Acknowledged, 3);
+            return;
         }
 
         if (protocolVersion >= 770)
         {
-            // TODO(codegen): write 'Acknowledged' (FixedBytes 3)
-            throw new System.NotImplementedException("TODO(codegen): ChatCommandSignedPacket wire layout is not fully generated for this protocol version.");
+            var layer = V770_Last ?? throw new WrongLayerException("ChatCommandSignedPacket", protocolVersion, "V770_Last");
+            int Checksum = layer.Checksum;
+            writer.WriteString(Command);
+            writer.WriteSignedLong(Timestamp);
+            writer.WriteSignedLong(Salt);
+            writer.WriteVarInt(ArgumentSignatures.Length);
+            foreach (var argumentSignaturesItem in ArgumentSignatures)
+                writer.WriteType<ArgumentSignature>(argumentSignaturesItem, protocolVersion);
+            writer.WriteVarInt(MessageCount);
+            writer.WriteFixedBytes(Acknowledged, 3);
+            writer.WriteUnsignedByte((byte)Checksum);
+            return;
         }
 
         throw new System.NotSupportedException($"ChatCommandSignedPacket has no wire layout for protocol version {protocolVersion}.");
