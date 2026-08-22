@@ -5,35 +5,48 @@ public delegate void PacketHandler<T>(T packet) where T : class, IPacket<T>;
 
 /// <summary>
 ///     Subscription facade in front of an <see cref="IPacketVisitor" />-driven dispatch loop.
-///     Slots are indexed by <see cref="PacketIdentity.Ordinal" />; the array grows on demand in
-///     <see cref="On{T}" /> because there is no registry yet to pre-size it from. Visit is the
-///     hot path: bounds check, index, pattern-cast — no allocation, no reflection.
+///     <see cref="PacketIdentity.Ordinal" /> is dense only inside one (phase, direction) catalog, so
+///     the ordinal alone is not a key: <c>play.toClient</c> and <c>login.toClient</c> both start at 0.
+///     Slots therefore hang off one catalog per (phase, direction), and the ordinal indexes inside it.
+///     Each catalog grows on demand in <see cref="On{T}" />; only the number of catalogs is known up
+///     front, from the generated <see cref="PacketRegistry.CatalogCount" />. Visit is the hot path:
+///     two bounds checks, two indexes, pattern-cast — no allocation, no reflection.
 /// </summary>
 public sealed class PacketSubscriptions : IPacketVisitor
 {
-    private Delegate?[] _slots = [];
+    private readonly Delegate?[]?[] _catalogs = new Delegate?[]?[PacketRegistry.CatalogCount];
 
-    /// <summary>Registers or replaces the handler for T. Growing the slot array is a cold-path cost.</summary>
+    /// <summary>Registers or replaces the handler for T. Growing a catalog is a cold-path cost.</summary>
     public void On<T>(PacketHandler<T> handler) where T : class, IPacket<T>
     {
-        var ordinal = T.Identity.Ordinal;
-        if (ordinal >= _slots.Length)
-            Array.Resize(ref _slots, ordinal + 1);
+        var identity = T.Identity;
+        var slot = CatalogOf(identity.Phase, identity.Direction);
+        var catalog = _catalogs[slot] ?? [];
 
-        _slots[ordinal] = handler;
+        if (identity.Ordinal >= catalog.Length)
+            Array.Resize(ref catalog, identity.Ordinal + 1);
+
+        catalog[identity.Ordinal] = handler;
+        _catalogs[slot] = catalog;
     }
 
     public void Visit<T>(T packet) where T : class, IPacket<T>
     {
-        var ordinal = T.Identity.Ordinal;
-        if (ordinal >= _slots.Length)
+        var identity = T.Identity;
+        var catalog = _catalogs[CatalogOf(identity.Phase, identity.Direction)];
+        if (catalog is null || identity.Ordinal >= catalog.Length)
             return;
 
-        if (_slots[ordinal] is PacketHandler<T> handler)
+        if (catalog[identity.Ordinal] is PacketHandler<T> handler)
             handler(packet);
     }
 
     public void Unknown(in IncomingPacket raw)
     {
+    }
+
+    private static int CatalogOf(PacketPhase phase, PacketDirection direction)
+    {
+        return (int)phase * PacketRegistry.DirectionCount + (int)direction;
     }
 }

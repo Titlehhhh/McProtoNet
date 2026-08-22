@@ -81,8 +81,10 @@ project `McProtoNet` references both, and a client app references the glue.
   `IPacketVisitor` (`Visit<T>` typed, `Unknown` for unmapped ids — a normal
   stream condition, not an error); `PacketIo` (`TryDecode`/`Decode`:
   IncomingPacket → concrete packet, trailing bytes =
-  `DecodeError.TrailingBytes`); `PacketSubscriptions` (ordinal-indexed handler
-  slots); `DecodeError`, `PacketExceptions`. Typed send lives in the glue, not
+  `DecodeError.TrailingBytes`); `PacketSubscriptions` (handler slots, one
+  catalog per (phase, direction) with the ordinal indexing inside it —
+  `Ordinal` is dense only within one catalog, so it is not a key on its own);
+  `DecodeError`, `PacketExceptions`. Typed send lives in the glue, not
   here — Protocol must not see the transport.
 - **Packet layer, generated implementation
   (`src/McProtoNet.Protocol/Generated/`, 267 files at 1abac13):**
@@ -90,13 +92,22 @@ project `McProtoNet` references both, and a client app references the glue.
   `[Packet]`, `[PacketField]`, `[ProtocolSupport]`
   (`src/McProtoNet.Protocol/Attributes/`) with per-version `Read`/`Write`;
   `Types/` and `Bitflags/` for nested protocol types; `Flow/` with
-  `PacketRegistry.g.cs` (descriptor catalogs cold, dense id→ordinal span
-  tables hot; every entry point is Try), `PacketFlow.g.cs`
-  (`Dispatch`: id → ordinal → typed decode → `visitor.Visit<T>`; unknown ids
-  fall through to `Unknown`; trailing bytes raise the `OnTrailingBytes` hook),
-  and `ClientboundHandler.g.cs` (abstract handler base:
-  `HandleAsync(in IncomingPacket, pv)`, consumer-owned `Phase`, one virtual
-  `On<Name>` per packet).
+  `PacketRegistry.g.cs` (descriptor catalogs cold; hot is one flat blob of
+  every id→ordinal table, addressed by arithmetic over `(int)phase`,
+  `(int)direction` and the protocol version — phase and direction are bounded
+  separately, or an out-of-range direction would alias onto another phase's
+  row; `PhaseCount`/`DirectionCount`/`CatalogCount` are public so callers
+  index by the same numbers instead of reflecting; every entry point is Try),
+  `PacketFlow.g.cs` (`Dispatch`: id → ordinal → typed decode →
+  `visitor.Visit<T>`; unknown ids fall through to `Unknown`; trailing bytes
+  raise the `OnTrailingBytes` hook), and `ClientboundHandler.g.cs` /
+  `ServerboundHandler.g.cs` (abstract handler base per direction:
+  `HandleAsync(in IncomingPacket, pv)`, consumer-owned `Phase` — `Login` and
+  `Handshaking` respectively — one virtual `On<Name>` per packet). A handler
+  is deliberately **not** an `IPacketVisitor`: `HandleAsync` goes id → ordinal
+  → `Read` → `On<Name>` in one case block, where the packet type is statically
+  known. Routing it through `PacketFlow` instead would hand `Visit<T>` a
+  `ValueTask` it has nowhere to return, silently dropping the continuation.
 - **The receive loop is consumer code:** `await foreach` over
   `client.ReadPacketsAsync()` → `handler.HandleAsync(raw, pv)`.
   `examples/MinimalBot` walks the whole path (handshake → login →

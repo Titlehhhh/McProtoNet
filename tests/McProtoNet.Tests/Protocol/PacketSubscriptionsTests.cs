@@ -93,6 +93,87 @@ public class PacketSubscriptionsTests
         Assert.True(secondCalled);
     }
 
+    // Ordinal is dense per (phase, direction) catalog, so the same Ordinal is reused across
+    // catalogs. These three share Ordinal 0 with FakePacket and differ only in phase/direction.
+    private sealed record SameOrdinalOtherPhasePacket(int Value) : IPacket<SameOrdinalOtherPhasePacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toClient.login", "LoginFake", PacketPhase.Login, PacketDirection.Clientbound, 0);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x44;
+            return true;
+        }
+
+        public static SameOrdinalOtherPhasePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadVarInt());
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteVarInt(Value);
+    }
+
+    private sealed record SameOrdinalOtherDirectionPacket(int Value) : IPacket<SameOrdinalOtherDirectionPacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toServer.fake", "FakeServerbound", PacketPhase.Play, PacketDirection.Serverbound, 0);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x45;
+            return true;
+        }
+
+        public static SameOrdinalOtherDirectionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadVarInt());
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteVarInt(Value);
+    }
+
+    [Fact]
+    public void On_TypesSharingAnOrdinalAcrossPhases_DoNotOverwriteEachOther()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var playCalls = 0;
+        var loginCalls = 0;
+        subscriptions.On<FakePacket>(_ => playCalls++);
+        subscriptions.On<SameOrdinalOtherPhasePacket>(_ => loginCalls++);
+
+        subscriptions.Visit(new FakePacket(1L));
+        subscriptions.Visit(new SameOrdinalOtherPhasePacket(2));
+
+        Assert.Equal(1, playCalls);
+        Assert.Equal(1, loginCalls);
+    }
+
+    [Fact]
+    public void On_TypesSharingAnOrdinalAcrossDirections_DoNotOverwriteEachOther()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var clientboundCalls = 0;
+        var serverboundCalls = 0;
+        subscriptions.On<FakePacket>(_ => clientboundCalls++);
+        subscriptions.On<SameOrdinalOtherDirectionPacket>(_ => serverboundCalls++);
+
+        subscriptions.Visit(new FakePacket(1L));
+        subscriptions.Visit(new SameOrdinalOtherDirectionPacket(2));
+
+        Assert.Equal(1, clientboundCalls);
+        Assert.Equal(1, serverboundCalls);
+    }
+
+    [Fact]
+    public void Visit_TypeSharingAnOrdinalWithASubscribedOtherCatalog_IsNotDelivered()
+    {
+        var subscriptions = new PacketSubscriptions();
+        subscriptions.On<FakePacket>(_ => Assert.Fail("a Play clientbound handler saw a Login packet"));
+
+        var exception = Record.Exception(() => subscriptions.Visit(new SameOrdinalOtherPhasePacket(1)));
+
+        Assert.Null(exception);
+    }
+
     [Fact]
     public void Unknown_DoesNotThrow()
     {

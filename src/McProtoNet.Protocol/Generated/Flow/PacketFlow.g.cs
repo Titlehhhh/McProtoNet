@@ -14,6 +14,11 @@ public delegate void TrailingBytesHook(int packetId, int protocolVersion, long r
 public static partial class PacketFlow
 {
     public static event TrailingBytesHook? OnTrailingBytes;
+    /// <summary>Raises <see cref = "OnTrailingBytes"/> for a caller that decoded the body
+    /// itself. An event can only be raised inside the type that declares it, and the
+    /// generated handlers decode without going through <see cref = "Dispatch"/>; the hook
+    /// stays the one place a suspect spec is reported from.</summary>
+    internal static void RaiseTrailingBytes(int packetId, int protocolVersion, long remainingBytes) => OnTrailingBytes?.Invoke(packetId, protocolVersion, remainingBytes);
     public static void Dispatch<TVisitor>(in IncomingPacket raw, int protocolVersion, PacketPhase phase, PacketDirection dir, ref TVisitor visitor)
         where TVisitor : IPacketVisitor
     {
