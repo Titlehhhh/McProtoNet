@@ -28,9 +28,47 @@ jobs:
         run: dotnet build src/McProtoNet.Protocol/McProtoNet.Protocol.csproj -c Release
       - name: Build McProtoNet
         run: dotnet build src/McProtoNet/McProtoNet.csproj -c Release
-      # 33 tests fail at f9fd575 (NBT roundtrip, pipeline compression/encryption)
-      # - known debt, see workspace backlog. Make this step blocking (remove
-      # continue-on-error) once they are fixed.
-      - name: Test (non-blocking)
-        continue-on-error: true
+      - name: Test
         run: dotnet run --project tests/McProtoNet.Tests/McProtoNet.Tests.csproj -c Release
+
+  build-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+      - name: Build McProtoNet.Protocol
+        run: dotnet build src/McProtoNet.Protocol/McProtoNet.Protocol.csproj -c Release
+      - name: Build McProtoNet
+        run: dotnet build src/McProtoNet/McProtoNet.csproj -c Release
+      - name: Test NBT and Primitives on ARM64
+        run: |
+          dotnet run --project tests/McProtoNet.Tests -c Release -- -namespace McProtoNet.Tests.Nbt
+          dotnet run --project tests/McProtoNet.Tests -c Release -- -namespace McProtoNet.Tests.Primitives
+
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+      - name: Build McProtoNet.Protocol
+        run: dotnet build src/McProtoNet.Protocol/McProtoNet.Protocol.csproj -c Release
+      - name: Build McProtoNet
+        run: dotnet build src/McProtoNet/McProtoNet.csproj -c Release
+      - name: Test NBT and Primitives on Apple Silicon
+        run: |
+          dotnet run --project tests/McProtoNet.Tests -c Release -- -namespace McProtoNet.Tests.Nbt
+          dotnet run --project tests/McProtoNet.Tests -c Release -- -namespace McProtoNet.Tests.Primitives

@@ -57,12 +57,12 @@ internal sealed class NbtBinaryReader : BinaryReader
 
     public override float ReadSingle()
     {
-        return BitConverter.Int32BitsToSingle(ReadInt32());
+        return Unsafe.BitCast<int, float>(ReadInt32());
     }
 
     public override double ReadDouble()
     {
-        return BitConverter.Int64BitsToDouble(ReadInt64());
+        return Unsafe.BitCast<long, double>(ReadInt64());
     }
 
     public override string ReadString()
@@ -145,7 +145,7 @@ internal sealed class NbtBinaryReader : BinaryReader
         }
 
         if (result.Length != count) Array.Resize(ref result, count);
-        if (BitConverter.IsLittleEndian) ReverseEndianness(result);
+        BigEndianArray.FromBigEndian<T>(MemoryMarshal.AsBytes(result.AsSpan()), result);
         return result;
     }
 
@@ -166,22 +166,6 @@ internal sealed class NbtBinaryReader : BinaryReader
         if (byteCount > remaining)
             throw new NbtFormatException(
                 $"NBT payload claims {byteCount} bytes but only {remaining} remain in the stream.");
-    }
-
-    private static void ReverseEndianness<T>(T[] values) where T : unmanaged
-    {
-        switch (values)
-        {
-            case short[] shorts:
-                BinaryPrimitives.ReverseEndianness(shorts, shorts);
-                break;
-            case int[] ints:
-                BinaryPrimitives.ReverseEndianness(ints, ints);
-                break;
-            case long[] longs:
-                BinaryPrimitives.ReverseEndianness(longs, longs);
-                break;
-        }
     }
 
     private void FillExactly(Span<byte> destination)

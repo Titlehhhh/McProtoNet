@@ -1,5 +1,4 @@
 using System.Buffers;
-using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
@@ -62,16 +61,14 @@ public static class NbtSequenceReader
             {
                 var result = new int[ReadLength(ref reader, sizeof(int))];
                 Fill(ref reader, MemoryMarshal.AsBytes(result.AsSpan()));
-                if (BitConverter.IsLittleEndian)
-                    BinaryPrimitives.ReverseEndianness(result, result);
+                BigEndianArray.FromBigEndian<int>(MemoryMarshal.AsBytes(result.AsSpan()), result);
                 return NbtIntArray.CreateFromArray(result, name);
             }
             case NbtTagType.LongArray:
             {
                 var result = new long[ReadLength(ref reader, sizeof(long))];
                 Fill(ref reader, MemoryMarshal.AsBytes(result.AsSpan()));
-                if (BitConverter.IsLittleEndian)
-                    BinaryPrimitives.ReverseEndianness(result, result);
+                BigEndianArray.FromBigEndian<long>(MemoryMarshal.AsBytes(result.AsSpan()), result);
                 return NbtLongArray.CreateFromArray(result, name);
             }
             case NbtTagType.List:

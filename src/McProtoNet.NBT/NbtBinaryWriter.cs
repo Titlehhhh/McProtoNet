@@ -1,6 +1,6 @@
 using System.Buffers;
 using System.Buffers.Binary;
-using System.Runtime.InteropServices;
+using System.Runtime.CompilerServices;
 
 namespace McProtoNet.NBT;
 
@@ -141,30 +141,15 @@ internal sealed class NbtBinaryWriter
 
     private void WriteBigEndian<T>(ReadOnlySpan<T> values) where T : unmanaged
     {
-        var elementSize = System.Runtime.CompilerServices.Unsafe.SizeOf<T>();
+        var elementSize = Unsafe.SizeOf<T>();
         var perChunk = BufferSize / elementSize;
         while (!values.IsEmpty)
         {
             var take = Math.Min(perChunk, values.Length);
-            var target = MemoryMarshal.Cast<byte, T>(_buffer.AsSpan(0, take * elementSize));
-            if (BitConverter.IsLittleEndian)
-                ReverseEndianness(values.Slice(0, take), target);
-            else
-                values.Slice(0, take).CopyTo(target);
-            _stream.Write(_buffer, 0, take * elementSize);
+            var byteCount = take * elementSize;
+            BigEndianArray.ToBigEndian(values.Slice(0, take), _buffer.AsSpan(0, byteCount));
+            _stream.Write(_buffer, 0, byteCount);
             values = values.Slice(take);
         }
-    }
-
-    private static void ReverseEndianness<T>(ReadOnlySpan<T> source, Span<T> destination) where T : unmanaged
-    {
-        if (typeof(T) == typeof(int))
-            BinaryPrimitives.ReverseEndianness(
-                MemoryMarshal.Cast<T, int>(source), MemoryMarshal.Cast<T, int>(destination));
-        else if (typeof(T) == typeof(long))
-            BinaryPrimitives.ReverseEndianness(
-                MemoryMarshal.Cast<T, long>(source), MemoryMarshal.Cast<T, long>(destination));
-        else
-            source.CopyTo(destination);
     }
 }

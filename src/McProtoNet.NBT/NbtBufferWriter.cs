@@ -2,7 +2,6 @@ using System.Buffers;
 using System.Buffers.Binary;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace McProtoNet.NBT;
 
@@ -169,27 +168,12 @@ public static class NbtBufferWriter
         writer.Advance(sizeof(long));
     }
 
-    private static void WriteBigEndian<TWriter>(TWriter writer, scoped ReadOnlySpan<int> values)
-        where TWriter : IBufferWriter<byte>
+    private static void WriteBigEndian<TWriter, T>(TWriter writer, scoped ReadOnlySpan<T> values)
+        where TWriter : IBufferWriter<byte> where T : unmanaged
     {
-        var byteCount = ByteCount(values.Length, sizeof(int));
+        var byteCount = ByteCount(values.Length, Unsafe.SizeOf<T>());
         var span = writer.GetSpan(byteCount);
-        if (BitConverter.IsLittleEndian)
-            BinaryPrimitives.ReverseEndianness(values, MemoryMarshal.Cast<byte, int>(span).Slice(0, values.Length));
-        else
-            MemoryMarshal.AsBytes(values).CopyTo(span);
-        writer.Advance(byteCount);
-    }
-
-    private static void WriteBigEndian<TWriter>(TWriter writer, scoped ReadOnlySpan<long> values)
-        where TWriter : IBufferWriter<byte>
-    {
-        var byteCount = ByteCount(values.Length, sizeof(long));
-        var span = writer.GetSpan(byteCount);
-        if (BitConverter.IsLittleEndian)
-            BinaryPrimitives.ReverseEndianness(values, MemoryMarshal.Cast<byte, long>(span).Slice(0, values.Length));
-        else
-            MemoryMarshal.AsBytes(values).CopyTo(span);
+        BigEndianArray.ToBigEndian(values, span.Slice(0, byteCount));
         writer.Advance(byteCount);
     }
 

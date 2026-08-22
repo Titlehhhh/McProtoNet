@@ -1,9 +1,7 @@
 using System.Buffers;
-using System.Buffers.Binary;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
 namespace McProtoNet.NBT;
 
@@ -174,30 +172,8 @@ public ref struct NbtSpanReader
         _reader.EnsureRemaining((long)count * Unsafe.SizeOf<T>());
         var source = _reader.Read(count * Unsafe.SizeOf<T>());
         var result = new T[count];
-        if (BitConverter.IsLittleEndian)
-            ReverseEndianness(source, result);
-        else
-            source.CopyTo(MemoryMarshal.AsBytes(result.AsSpan()));
+        BigEndianArray.FromBigEndian<T>(source, result);
         return result;
-    }
-
-    private static void ReverseEndianness<T>(ReadOnlySpan<byte> source, T[] destination) where T : unmanaged
-    {
-        switch (destination)
-        {
-            case short[] shorts:
-                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, short>(source), shorts);
-                break;
-            case int[] ints:
-                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, int>(source), ints);
-                break;
-            case long[] longs:
-                BinaryPrimitives.ReverseEndianness(MemoryMarshal.Cast<byte, long>(source), longs);
-                break;
-            default:
-                source.CopyTo(MemoryMarshal.AsBytes(destination.AsSpan()));
-                break;
-        }
     }
 
     private int ReadLength(int elementSize)

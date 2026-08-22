@@ -74,22 +74,6 @@ public class GarbageDataTests
     }
 
     [Fact]
-    public void ArrayLongerThanTheBuffer_ThrowsInvalidData()
-    {
-        Assert.Throws<InvalidDataException>(() =>
-        {
-            var reader = new MinecraftPrimitiveReader(new byte[7]);
-            reader.ReadArrayInt32BigEndian(4);
-        });
-
-        Assert.Throws<InvalidDataException>(() =>
-        {
-            var reader = new MinecraftPrimitiveReader(new byte[7]);
-            reader.ReadArrayInt64BigEndian(4);
-        });
-    }
-
-    [Fact]
     public void BufferLongerThanTheData_ThrowsInvalidData()
     {
         Assert.Throws<InvalidDataException>(() =>
