@@ -77,8 +77,9 @@ public sealed class MinecraftClient : IAsyncDisposable
     public bool IsEncrypted => Connection.IsEncrypted;
 
     /// <summary>
-    ///     Resolves the address (SRV first, as vanilla does), opens the TCP connection and takes
-    ///     ownership of it. No packets are sent.
+    ///     Resolves the address (SRV first, as vanilla does), opens the connection — a socket, or a
+    ///     tunnel from <see cref="MinecraftClientOptions.Proxy" /> to the same resolved host and port —
+    ///     and takes ownership of it. No packets are sent.
     /// </summary>
     /// <exception cref="TimeoutException"><see cref="MinecraftClientOptions.ConnectTimeout" /> ran out.</exception>
     /// <exception cref="OperationCanceledException">The caller's own token was cancelled.</exception>
@@ -92,14 +93,23 @@ public sealed class MinecraftClient : IAsyncDisposable
         timeout.CancelAfter(Options.ConnectTimeout);
 
         TcpClient? tcp = null;
+        Stream? stream = null;
         try
         {
             var (host, port) = await ResolveAsync(timeout.Token).ConfigureAwait(false);
 
-            tcp = new TcpClient { NoDelay = Options.NoDelay };
-            await tcp.ConnectAsync(host, port, timeout.Token).ConfigureAwait(false);
+            if (Options.Proxy is { } proxy)
+            {
+                stream = await proxy.ConnectAsync(host, port, timeout.Token).ConfigureAwait(false);
+            }
+            else
+            {
+                tcp = new TcpClient { NoDelay = Options.NoDelay };
+                await tcp.ConnectAsync(host, port, timeout.Token).ConfigureAwait(false);
+                stream = tcp.GetStream();
+            }
 
-            var connection = new MinecraftConnection(tcp.GetStream());
+            var connection = new MinecraftConnection(stream);
             _tcp = tcp;
             _connection = connection;
 
@@ -113,13 +123,13 @@ public sealed class MinecraftClient : IAsyncDisposable
         }
         catch (OperationCanceledException) when (!cancellationToken.IsCancellationRequested)
         {
-            Failed(tcp);
+            Failed(tcp, stream);
             throw new TimeoutException(
                 $"Connecting to {Options.Host}:{Options.Port} timed out after {Options.ConnectTimeout}.");
         }
         catch (OperationCanceledException)
         {
-            Failed(tcp);
+            Failed(tcp, stream);
 
             // the exception in hand carries the linked token; the caller must see its own
             cancellationToken.ThrowIfCancellationRequested();
@@ -127,12 +137,13 @@ public sealed class MinecraftClient : IAsyncDisposable
         }
         catch
         {
-            Failed(tcp);
+            Failed(tcp, stream);
             throw;
         }
 
-        void Failed(TcpClient? opened)
+        void Failed(TcpClient? opened, Stream? openedStream)
         {
+            openedStream?.Dispose();
             opened?.Dispose();
             Volatile.Write(ref _connecting, 0);
         }

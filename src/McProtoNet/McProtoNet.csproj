@@ -22,6 +22,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="QuickProxyNet"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\McProtoNet.Transport\McProtoNet.Transport.csproj"/>
         <ProjectReference Include="..\McProtoNet.Protocol\McProtoNet.Protocol.csproj"/>
     </ItemGroup>

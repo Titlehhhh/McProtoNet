@@ -1,3 +1,5 @@
+using QuickProxyNet;
+
 namespace McProtoNet;
 
 /// <summary>Connection options for <see cref="MinecraftClient" />.</summary>
@@ -27,6 +29,18 @@ public sealed class MinecraftClientOptions
     ///     changes nothing.
     /// </summary>
     public TimeSpan SrvTimeout { get; init; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>
+    ///     Route the connection through a proxy instead of opening a socket to the server. The client
+    ///     asks it for a stream to the resolved host and port, and owns that stream from then on.
+    ///     Build one with <c>ProxyClientFactory.Instance.Create("socks5://user:pass@127.0.0.1:1080")</c>.
+    ///     Null connects straight over TCP.
+    /// </summary>
+    /// <remarks>
+    ///     <see cref="NoDelay" /> does not reach the proxy socket — the proxy client carries its own
+    ///     <c>NoDelay</c>, and this client does not touch settings on an object the caller owns.
+    /// </remarks>
+    public IProxyClient? Proxy { get; init; }
 
     /// <summary>
     ///     Send small frames as they come instead of waiting for a full segment. On by default: a

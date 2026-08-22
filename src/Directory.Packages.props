@@ -56,6 +56,7 @@
     <PackageVersion Include="Dunet" Version="1.16.2" />
     <PackageVersion Include="MinVer" Version="7.0.0" />
     <PackageVersion Include="McProtoNet.Native" Version="1.0.0" />
+    <PackageVersion Include="QuickProxyNet" Version="4.0.0" />
     <PackageVersion Include="System.IO.Pipelines" Version="10.0.11" />
     <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.400" />
     <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.5" />
