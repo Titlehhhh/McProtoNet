@@ -46,10 +46,17 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
             await SendAsync(new HandshakeSb.SetProtocolPacket(pv, host, port, 2), token);
             await SendAsync(new LoginSb.LoginStartPacket(Name, V764_Last: new(Guid.NewGuid())), token);
 
-            await foreach (var packet in _client.ReadPacketsAsync(token))
+            try
             {
-                await HandleAsync(in packet, pv);
-                if (_stopped) break;
+                await foreach (var packet in _client.ReadPacketsAsync(token))
+                {
+                    await HandleAsync(in packet, pv);
+                    if (_stopped) break;
+                }
+            }
+            catch (EndOfStreamException)
+            {
+                DisconnectReason ??= "сервер закрыл соединение";
             }
         }
         finally

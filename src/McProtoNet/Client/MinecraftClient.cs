@@ -198,16 +198,19 @@ public sealed class MinecraftClient : IAsyncDisposable
         Connection.ReadPacketAsync(cancellationToken);
 
     /// <summary>
-    ///     Every frame until the stream ends. A clean end of stream — the server closed, or this
-    ///     client did — ends the enumeration; an abort or any other failure comes out as an exception.
+    ///     Every frame until the connection ends. The enumeration never finishes quietly: every way a
+    ///     session can end comes out as an exception, so the caller always learns why. A server that
+    ///     closed cleanly is <see cref="EndOfStreamException" />, an abort is
+    ///     <see cref="ConnectionAbortedException" />, and this client disposing itself is
+    ///     <see cref="ObjectDisposedException" /> or <see cref="OperationCanceledException" />.
     ///     Each body stays valid only until the next step of the enumeration.
     /// </summary>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var connection = Connection;
-        while (await ReadOrEndAsync(connection, cancellationToken).ConfigureAwait(false) is { } packet)
-            yield return packet;
+        while (true)
+            yield return await connection.ReadPacketAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -248,24 +251,6 @@ public sealed class MinecraftClient : IAsyncDisposable
         finally
         {
             if (fenced) _sendGate.Release();
-        }
-    }
-
-    /// <summary>Null means the enumeration is over: the stream ended, or this client closed it.</summary>
-    private async ValueTask<IncomingPacket?> ReadOrEndAsync(MinecraftConnection connection, CancellationToken token)
-    {
-        try
-        {
-            return await connection.ReadPacketAsync(token).ConfigureAwait(false);
-        }
-        catch (EndOfStreamException)
-        {
-            return null;
-        }
-        catch (Exception ex) when (Volatile.Read(ref _disposed) == 1 &&
-                                   ex is ConnectionAbortedException or ObjectDisposedException)
-        {
-            return null;
         }
     }
 

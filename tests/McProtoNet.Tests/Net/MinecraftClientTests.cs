@@ -53,25 +53,29 @@ public class MinecraftClientTests
         Assert.Equal(body, frame.Body.ToArray());
     }
 
+    /// <summary>
+    ///     A server that closed cleanly is still a disconnect: the enumeration never ends quietly, so
+    ///     the caller always has a reason in hand. Every frame before the close still arrives.
+    /// </summary>
     [Fact]
-    public async Task ReadPacketsAsync_EndsWithoutErrorWhenTheServerCloses()
+    public async Task ReadPacketsAsync_ThrowsEndOfStreamWhenTheServerCloses()
     {
         var token = TestContext.Current.CancellationToken;
         await using var peers = await Peers.CreateAsync(token);
 
+        var ids = new List<int>();
         var pump = Task.Run(async () =>
         {
-            var ids = new List<int>();
             await foreach (var packet in peers.Client.ReadPacketsAsync(token)) ids.Add(packet.Id);
-            return ids;
         }, token);
 
         await peers.Server.WritePacketAsync(7, new byte[] { 1, 2, 3 }, token);
         await peers.Server.WritePacketAsync(9, new byte[] { 4 }, token);
         peers.HalfCloseServer();
 
-        var seen = await pump.WaitAsync(TimeSpan.FromSeconds(15), token);
-        Assert.Equal([7, 9], seen);
+        await Assert.ThrowsAsync<EndOfStreamException>(async () =>
+            await pump.WaitAsync(TimeSpan.FromSeconds(15), token));
+        Assert.Equal([7, 9], ids);
     }
 
     [Fact]
@@ -150,16 +154,14 @@ public class MinecraftClientTests
         await using var peers = await Peers.CreateAsync(token);
 
         var arrived = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var count = 0;
         var pump = Task.Run(async () =>
         {
-            var count = 0;
             await foreach (var _ in peers.Client.ReadPacketsAsync(token))
             {
                 count++;
                 arrived.TrySetResult();
             }
-
-            return count;
         }, token);
 
         await peers.Server.WritePacketAsync(11, new byte[] { 1 }, token);
@@ -170,8 +172,12 @@ public class MinecraftClientTests
         await Task.Delay(200, token);
         await peers.Client.DisposeAsync();
 
-        var seen = await pump.WaitAsync(TimeSpan.FromSeconds(15), token);
-        Assert.Equal(1, seen);
+        // a self-dispose is a disconnect like any other now — it comes out, it does not end quietly
+        var thrown = await Record.ExceptionAsync(async () =>
+            await pump.WaitAsync(TimeSpan.FromSeconds(15), token));
+        Assert.True(thrown is ConnectionAbortedException or ObjectDisposedException or OperationCanceledException,
+            $"unexpected {thrown?.GetType().Name ?? "success"}");
+        Assert.Equal(1, count);
         Assert.False(peers.Client.IsConnected);
     }
 

@@ -63,7 +63,8 @@ project `McProtoNet` references both, and a client app references the glue.
   `Data` is a window into the pipe buffer — valid only until the next read;
   decode immediately, never across an `await`. Sends are serialized by an
   internal gate; pump failures on either side complete the app-side pipe with
-  the error; clean EOF ends enumeration without an exception; `DisposeAsync`
+  the error; every end of a session throws — a clean EOF is
+  `EndOfStreamException`, never a quiet end of enumeration; `DisposeAsync`
   fences senders and releases buffers after both pumps stop. `Framing/` holds
   the one-at-a-time `PacketStreamReader`/`PacketStreamWriter` over a `Stream`
   and the `PacketWriteExtensions` frame bricks. Compression is libdeflate

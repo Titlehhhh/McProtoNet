@@ -30,10 +30,17 @@ Console.WriteLine("[login] handshake + login start отправлены");
 
 var bot = new Bot(client, Pv);
 
-await foreach (var packet in client.ReadPacketsAsync())
+try
 {
-    await bot.HandleAsync(in packet, Pv);
-    if (bot.Stopped) break;
+    await foreach (var packet in client.ReadPacketsAsync())
+    {
+        await bot.HandleAsync(in packet, Pv);
+        if (bot.Stopped) break;
+    }
+}
+catch (EndOfStreamException)
+{
+    // сервер закрыл соединение — обычный конец сессии, причина уже в логе выше
 }
 
 Console.WriteLine("Соединение закрыто.");
