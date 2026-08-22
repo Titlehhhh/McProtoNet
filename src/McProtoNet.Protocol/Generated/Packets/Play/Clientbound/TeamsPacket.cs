@@ -22,7 +22,7 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         if (protocolVersion >= 771)
         {
             var teamName = reader.ReadString();
-            var _mode = reader.ReadVarInt();
+            var _mode = reader.ReadSignedByte();
             var action = TeamAction.Read(ref reader, protocolVersion, (int)_mode);
             return new TeamsPacket(teamName, action);
         }
@@ -44,7 +44,7 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         if (protocolVersion >= 771)
         {
             writer.WriteString(TeamName);
-            writer.WriteVarInt(Action.Discriminator(protocolVersion));
+            writer.WriteSignedByte(checked((sbyte)Action.Discriminator(protocolVersion)));
             Action.Write(writer, protocolVersion);
             return;
         }

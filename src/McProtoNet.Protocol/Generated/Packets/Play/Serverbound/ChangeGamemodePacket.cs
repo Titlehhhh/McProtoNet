@@ -4,20 +4,20 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.change_gamemode", PacketPhase.Play, PacketDirection.Serverbound)]
-[PacketField("Mode", "int")]
-public sealed partial record ChangeGamemodePacket(int Mode) : IPacket<ChangeGamemodePacket>, IPacket
+[PacketField("Mode", "Gamemode")]
+public sealed partial record ChangeGamemodePacket(Gamemode Mode) : IPacket<ChangeGamemodePacket>, IPacket
 {
     public static ChangeGamemodePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChangeGamemodePacket>(protocolVersion);
-        var mode = reader.ReadVarInt();
+        var mode = new Gamemode((int)reader.ReadVarInt());
         return new ChangeGamemodePacket(mode);
     }
 
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChangeGamemodePacket>(protocolVersion);
-        writer.WriteVarInt(Mode);
+        writer.WriteVarInt((int)Mode.Value);
     }
 
     public static PacketIdentity Identity => new("play.toServer.change_gamemode", "ChangeGamemode", PacketPhase.Play, PacketDirection.Serverbound, 5);

@@ -4,23 +4,23 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.difficulty", PacketPhase.Play, PacketDirection.Clientbound)]
-[PacketField("Difficulty", "int")]
+[PacketField("Difficulty", "Difficulty")]
 [PacketField("DifficultyLocked", "bool")]
-public sealed partial record DifficultyPacket(int Difficulty, bool DifficultyLocked) : IPacket<DifficultyPacket>, IPacket
+public sealed partial record DifficultyPacket(Difficulty Difficulty, bool DifficultyLocked) : IPacket<DifficultyPacket>, IPacket
 {
     public static DifficultyPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<DifficultyPacket>(protocolVersion);
         if (protocolVersion <= 770)
         {
-            var difficulty = reader.ReadUnsignedByte();
+            var difficulty = new Difficulty((int)reader.ReadUnsignedByte());
             var difficultyLocked = reader.ReadBoolean();
             return new DifficultyPacket(difficulty, difficultyLocked);
         }
 
         if (protocolVersion >= 771)
         {
-            var difficulty = reader.ReadVarInt();
+            var difficulty = reader.ReadType<Difficulty>(protocolVersion);
             var difficultyLocked = reader.ReadBoolean();
             return new DifficultyPacket(difficulty, difficultyLocked);
         }
@@ -33,14 +33,14 @@ public sealed partial record DifficultyPacket(int Difficulty, bool DifficultyLoc
         ThrowHelper.ThrowIfProtocolNotSupported<DifficultyPacket>(protocolVersion);
         if (protocolVersion <= 770)
         {
-            writer.WriteUnsignedByte((byte)Difficulty);
+            writer.WriteUnsignedByte((byte)Difficulty.Value);
             writer.WriteBoolean(DifficultyLocked);
             return;
         }
 
         if (protocolVersion >= 771)
         {
-            writer.WriteVarInt(Difficulty);
+            writer.WriteType<Difficulty>(Difficulty, protocolVersion);
             writer.WriteBoolean(DifficultyLocked);
             return;
         }

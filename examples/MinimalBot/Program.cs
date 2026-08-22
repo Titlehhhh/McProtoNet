@@ -85,7 +85,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
         Phase = PacketPhase.Configuration;
 
         await client.SendAsync(new ConfSb.ClientInformationPacket(
-            "en_us", 2, 0, true, 0x7F, 1, false, true, V768_Last: new(0)), pv);
+            "en_us", 2, 0, true, 0x7F, 1, false, true, V768_Last: new(ParticleStatus.All)), pv);
         Console.WriteLine("[config] вошли в configuration, client information отправлена");
     }
 

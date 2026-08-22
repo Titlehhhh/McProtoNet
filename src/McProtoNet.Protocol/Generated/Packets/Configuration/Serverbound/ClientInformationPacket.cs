@@ -12,10 +12,10 @@ namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 [PacketField("MainHand", "int")]
 [PacketField("EnableTextFiltering", "bool")]
 [PacketField("EnableServerListing", "bool")]
-[PacketField("ParticleStatus", "int", Group = "V768_Last", From = 768)]
+[PacketField("ParticleStatus", "ParticleStatus", Group = "V768_Last", From = 768)]
 public sealed partial record ClientInformationPacket(string Locale, int ViewDistance, int ChatFlags, bool ChatColors, int SkinParts, int MainHand, bool EnableTextFiltering, bool EnableServerListing, ClientInformationPacket.V768_LastLayer? V768_Last = null) : IPacket<ClientInformationPacket>, IPacket
 {
-    public readonly record struct V768_LastLayer(int ParticleStatus);
+    public readonly record struct V768_LastLayer(ParticleStatus ParticleStatus);
     public static ClientInformationPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ClientInformationPacket>(protocolVersion);
@@ -42,7 +42,7 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
             var mainHand = reader.ReadVarInt();
             var enableTextFiltering = reader.ReadBoolean();
             var enableServerListing = reader.ReadBoolean();
-            var particleStatus = reader.ReadVarInt();
+            var particleStatus = reader.ReadType<ParticleStatus>(protocolVersion);
             return new ClientInformationPacket(locale, viewDistance, chatFlags, chatColors, skinParts, mainHand, enableTextFiltering, enableServerListing, V768_Last: new V768_LastLayer(particleStatus));
         }
 
@@ -68,7 +68,7 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
         if (protocolVersion >= 768)
         {
             var layer = V768_Last ?? throw new WrongLayerException("ClientInformationPacket", protocolVersion, "V768_Last");
-            int ParticleStatus = layer.ParticleStatus;
+            ParticleStatus ParticleStatus = layer.ParticleStatus;
             writer.WriteString(Locale);
             writer.WriteSignedByte((sbyte)ViewDistance);
             writer.WriteVarInt(ChatFlags);
@@ -77,7 +77,7 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
             writer.WriteVarInt(MainHand);
             writer.WriteBoolean(EnableTextFiltering);
             writer.WriteBoolean(EnableServerListing);
-            writer.WriteVarInt(ParticleStatus);
+            writer.WriteType<ParticleStatus>(ParticleStatus, protocolVersion);
             return;
         }
 

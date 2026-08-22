@@ -91,7 +91,8 @@ project `McProtoNet` references both, and a client app references the glue.
   `Packets/<Phase>/<Direction>/*.cs` — sealed partial records carrying
   `[Packet]`, `[PacketField]`, `[ProtocolSupport]`
   (`src/McProtoNet.Protocol/Attributes/`) with per-version `Read`/`Write`;
-  `Types/` and `Bitflags/` for nested protocol types; `Flow/` with
+  `Types/`, `Bitflags/` and `Enums/` (record structs over one `int`, unknown
+  ids kept verbatim) for nested protocol types; `Flow/` with
   `PacketRegistry.g.cs` (descriptor catalogs cold; hot is one flat blob of
   every id→ordinal table, addressed by arithmetic over `(int)phase`,
   `(int)direction` and the protocol version — phase and direction are bounded

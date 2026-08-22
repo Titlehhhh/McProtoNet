@@ -153,7 +153,7 @@ public class GeneratedRoundTripTests
     [Fact]
     public void ClientInformation_772_9Fields_RoundTrips()
     {
-        var p = new ConfigSb.ClientInformationPacket("ru_ru", 32, 1, false, 0x3F, 0, false, true, V768_Last: new(2));
+        var p = new ConfigSb.ClientInformationPacket("ru_ru", 32, 1, false, 0x3F, 0, false, true, V768_Last: new(ParticleStatus.Minimal));
         var back = RoundTrip(p, 772);
 
         Assert.Equal(p.Locale, back.Locale);
@@ -164,7 +164,7 @@ public class GeneratedRoundTripTests
         Assert.Equal(p.MainHand, back.MainHand);
         Assert.Equal(p.EnableTextFiltering, back.EnableTextFiltering);
         Assert.Equal(p.EnableServerListing, back.EnableServerListing);
-        Assert.Equal(2, back.V768_Last?.ParticleStatus);
+        Assert.Equal(ParticleStatus.Minimal, back.V768_Last?.ParticleStatus);
     }
 
     // Form-A contract: writing at a version whose layer group is not filled must throw, never

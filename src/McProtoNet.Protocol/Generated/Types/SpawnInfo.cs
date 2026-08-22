@@ -8,7 +8,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
     public int Dimension { get; }
     public string Name { get; }
     public long HashedSeed { get; }
-    public int Gamemode { get; }
+    public Gamemode Gamemode { get; }
     public int PreviousGamemode { get; }
     public bool IsDebug { get; }
     public bool IsFlat { get; }
@@ -16,7 +16,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
     public int PortalCooldown { get; }
     public int SeaLevel { get; }
 
-    public SpawnInfo(int dimension, string name, long hashedSeed, int gamemode, int previousGamemode, bool isDebug, bool isFlat, DeathLocation? death, int portalCooldown, int seaLevel)
+    public SpawnInfo(int dimension, string name, long hashedSeed, Gamemode gamemode, int previousGamemode, bool isDebug, bool isFlat, DeathLocation? death, int portalCooldown, int seaLevel)
     {
         Dimension = dimension;
         Name = name;
@@ -38,7 +38,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
             var dimension = reader.ReadVarInt();
             var name = reader.ReadString();
             var hashedSeed = reader.ReadSignedLong();
-            var gamemode = reader.ReadSignedByte();
+            var gamemode = new Gamemode((int)reader.ReadSignedByte());
             var previousGamemode = reader.ReadUnsignedByte();
             var isDebug = reader.ReadBoolean();
             var isFlat = reader.ReadBoolean();
@@ -54,7 +54,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
             var dimension = reader.ReadVarInt();
             var name = reader.ReadString();
             var hashedSeed = reader.ReadSignedLong();
-            var gamemode = reader.ReadSignedByte();
+            var gamemode = new Gamemode((int)reader.ReadSignedByte());
             var previousGamemode = reader.ReadUnsignedByte();
             var isDebug = reader.ReadBoolean();
             var isFlat = reader.ReadBoolean();
@@ -77,7 +77,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
             writer.WriteVarInt(Dimension);
             writer.WriteString(Name);
             writer.WriteSignedLong(HashedSeed);
-            writer.WriteSignedByte((sbyte)Gamemode);
+            writer.WriteSignedByte((sbyte)Gamemode.Value);
             writer.WriteUnsignedByte((byte)PreviousGamemode);
             writer.WriteBoolean(IsDebug);
             writer.WriteBoolean(IsFlat);
@@ -93,7 +93,7 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
             writer.WriteVarInt(Dimension);
             writer.WriteString(Name);
             writer.WriteSignedLong(HashedSeed);
-            writer.WriteSignedByte((sbyte)Gamemode);
+            writer.WriteSignedByte((sbyte)Gamemode.Value);
             writer.WriteUnsignedByte((byte)PreviousGamemode);
             writer.WriteBoolean(IsDebug);
             writer.WriteBoolean(IsFlat);

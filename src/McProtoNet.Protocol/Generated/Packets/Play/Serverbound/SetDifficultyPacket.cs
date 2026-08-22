@@ -4,21 +4,21 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.set_difficulty", PacketPhase.Play, PacketDirection.Serverbound)]
-[PacketField("NewDifficulty", "int")]
-public sealed partial record SetDifficultyPacket(int NewDifficulty) : IPacket<SetDifficultyPacket>, IPacket
+[PacketField("NewDifficulty", "Difficulty")]
+public sealed partial record SetDifficultyPacket(Difficulty NewDifficulty) : IPacket<SetDifficultyPacket>, IPacket
 {
     public static SetDifficultyPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SetDifficultyPacket>(protocolVersion);
         if (protocolVersion <= 770)
         {
-            var newDifficulty = reader.ReadUnsignedByte();
+            var newDifficulty = new Difficulty((int)reader.ReadUnsignedByte());
             return new SetDifficultyPacket(newDifficulty);
         }
 
         if (protocolVersion >= 771)
         {
-            var newDifficulty = reader.ReadVarInt();
+            var newDifficulty = reader.ReadType<Difficulty>(protocolVersion);
             return new SetDifficultyPacket(newDifficulty);
         }
 
@@ -30,13 +30,13 @@ public sealed partial record SetDifficultyPacket(int NewDifficulty) : IPacket<Se
         ThrowHelper.ThrowIfProtocolNotSupported<SetDifficultyPacket>(protocolVersion);
         if (protocolVersion <= 770)
         {
-            writer.WriteUnsignedByte((byte)NewDifficulty);
+            writer.WriteUnsignedByte((byte)NewDifficulty.Value);
             return;
         }
 
         if (protocolVersion >= 771)
         {
-            writer.WriteVarInt(NewDifficulty);
+            writer.WriteType<Difficulty>(NewDifficulty, protocolVersion);
             return;
         }
 

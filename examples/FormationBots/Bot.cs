@@ -83,7 +83,7 @@ public sealed class Bot(string name, string host, int port, int pv) : Clientboun
         // обзор 2 чанка: боту мир не нужен, а сервер шлёт каждому в разы меньше чанков
         await SendAsync(new ConfSb.ClientInformationPacket(
             "en_us", 2, 0, true, 0x7F, 1, false, true,
-            V768_Last: pv >= 768 ? new(0) : null));
+            V768_Last: pv >= 768 ? new(ParticleStatus.All) : null));
     }
 
     protected override ValueTask OnLoginDisconnect(LoginCb.LoginDisconnectPacket packet)
