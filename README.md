@@ -5,7 +5,7 @@
     <img alt="NuGet" src="https://img.shields.io/nuget/v/McProtoNet?style=for-the-badge">
   </a>
   <a href="https://f.feedz.io/mcprotonet/night/nuget/index.json">
-    <img alt="nightly" src="https://img.shields.io/badge/endpoint.svg?url=https%3A%2F%2Ff.feedz.io%2Fmcprotonet%2Fnight%2Fshield%2FMcProtoNet%2Flatest&label=nightly&style=for-the-badge">
+    <img alt="nightly" src="https://img.shields.io/endpoint?url=https%3A%2F%2Ff.feedz.io%2Fmcprotonet%2Fnight%2Fshield%2FMcProtoNet%2Flatest&label=nightly&style=for-the-badge">
   </a>
 </h1>
 
