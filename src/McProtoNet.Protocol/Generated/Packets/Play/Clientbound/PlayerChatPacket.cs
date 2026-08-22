@@ -338,8 +338,9 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
             writer.WriteVarInt(FilterType);
             if (FilterType == 2)
             {
-                writer.WriteVarInt((FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")).Length);
-                foreach (var filterTypeMaskItem in (FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")))
+                var filterTypeMaskValue = FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.");
+                writer.WriteVarInt(filterTypeMaskValue.Length);
+                foreach (var filterTypeMaskItem in filterTypeMaskValue)
                     writer.WriteSignedLong(filterTypeMaskItem);
             }
             else if (FilterTypeMask is not null)
@@ -384,8 +385,9 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
             writer.WriteVarInt(FilterType);
             if (FilterType == 2)
             {
-                writer.WriteVarInt((FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")).Length);
-                foreach (var filterTypeMaskItem in (FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")))
+                var filterTypeMaskValue = FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.");
+                writer.WriteVarInt(filterTypeMaskValue.Length);
+                foreach (var filterTypeMaskItem in filterTypeMaskValue)
                     writer.WriteSignedLong(filterTypeMaskItem);
             }
             else if (FilterTypeMask is not null)
@@ -430,8 +432,9 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
             writer.WriteVarInt(FilterType);
             if (FilterType == 2)
             {
-                writer.WriteVarInt((FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")).Length);
-                foreach (var filterTypeMaskItem in (FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")))
+                var filterTypeMaskValue = FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.");
+                writer.WriteVarInt(filterTypeMaskValue.Length);
+                foreach (var filterTypeMaskItem in filterTypeMaskValue)
                     writer.WriteSignedLong(filterTypeMaskItem);
             }
             else if (FilterTypeMask is not null)
@@ -476,8 +479,9 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
             writer.WriteVarInt(FilterType);
             if (FilterType == 2)
             {
-                writer.WriteVarInt((FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")).Length);
-                foreach (var filterTypeMaskItem in (FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")))
+                var filterTypeMaskValue = FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.");
+                writer.WriteVarInt(filterTypeMaskValue.Length);
+                foreach (var filterTypeMaskItem in filterTypeMaskValue)
                     writer.WriteSignedLong(filterTypeMaskItem);
             }
             else if (FilterTypeMask is not null)
@@ -524,8 +528,9 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
             writer.WriteVarInt(FilterType);
             if (FilterType == 2)
             {
-                writer.WriteVarInt((FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")).Length);
-                foreach (var filterTypeMaskItem in (FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.")))
+                var filterTypeMaskValue = FilterTypeMask ?? throw new System.InvalidOperationException("FilterTypeMask is required at this protocol version.");
+                writer.WriteVarInt(filterTypeMaskValue.Length);
+                foreach (var filterTypeMaskItem in filterTypeMaskValue)
                     writer.WriteSignedLong(filterTypeMaskItem);
             }
             else if (FilterTypeMask is not null)
