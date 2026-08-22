@@ -7,6 +7,9 @@
   <a href="https://f.feedz.io/mcprotonet/night/nuget/index.json">
     <img alt="nightly" src="https://img.shields.io/endpoint?url=https%3A%2F%2Ff.feedz.io%2Fmcprotonet%2Fnight%2Fshield%2FMcProtoNet%2Flatest&label=nightly&style=for-the-badge">
   </a>
+  <a href="https://discord.gg/PWfYWRDJme">
+    <img alt="Discord" src="https://img.shields.io/badge/Discord-join-5865F2?style=for-the-badge&logo=discord&logoColor=white">
+  </a>
 </h1>
 
 **McProtoNet** is a .NET library for the Minecraft Java Edition protocol, client side.
@@ -112,6 +115,11 @@ runs one client per bot in the picture above.
 ## License
 
 MIT. See [LICENSE](https://github.com/Titlehhhh/McProtoNet/blob/master/LICENSE).
+
+## Community
+
+Questions, bugs, ideas: [Discord](https://discord.gg/PWfYWRDJme) or
+[GitHub issues](https://github.com/Titlehhhh/McProtoNet/issues).
 
 ## 💸 Support the project
 
