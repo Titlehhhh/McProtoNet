@@ -8,7 +8,13 @@
     </PropertyGroup>
     <PropertyGroup>
         <Description>Client glue over the transport and the packet layer: connect, typed send, server lookup</Description>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Remove="Readme.md"/>
+        <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath=""/>
+    </ItemGroup>
 
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
