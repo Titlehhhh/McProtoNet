@@ -1,0 +1,14 @@
+{
+  "name": "mcprotonet-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "metadata": "docfx metadata docfx.json",
+    "build": "node build.mjs",
+    "serve": "npx --yes serve -l 8091 _site"
+  },
+  "dependencies": {
+    "marked": "^17.0.0",
+    "yaml": "^2.8.0"
+  }
+}
