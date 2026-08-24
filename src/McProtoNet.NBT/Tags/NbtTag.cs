@@ -4,34 +4,41 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Base class for different kinds of named binary tags.
+/// Represents a named binary tag. This class is abstract.
 /// </summary>
 public abstract class NbtTag : ICloneable
 {
+    /// <summary>
+    /// The tag that marks the end of a compound. This field is read-only.
+    /// </summary>
     public static readonly NbtTag EndTag = new NbtEnd();
 
     private static string _defaultIndentString = "  ";
 
-    /// <summary>
-    ///     Used by impls to bypass setter checks (and avoid side effects) when initializing state
-    /// </summary>
+    /// <summary>Backing field of <see cref="Name"/>, assigned directly to bypass the checks of the setter.</summary>
     internal string? StrName;
 
     /// <summary>
-    ///     Parent compound tag, either NbtList or NbtCompound, if any.
-    ///     May be <c>null</c> for detached tags.
+    /// Gets the tag that contains this tag.
     /// </summary>
+    /// <value>
+    /// The <see cref="NbtCompound"/> or <see cref="NbtList"/> that contains this tag, or <see langword="null"/> if
+    /// this tag is not contained in another tag.
+    /// </value>
     public NbtTag? Parent { get; internal set; }
 
     /// <summary>
-    ///     Type of this tag.
+    /// When overridden in a derived class, gets the type of this tag.
     /// </summary>
     public abstract NbtTagType TagType { get; }
 
     /// <summary>
-    ///     Returns true if tags of this type have a value attached.
-    ///     All tags except Compound, List, and End have values.
+    /// Gets a value indicating whether this tag carries a value.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the type of this tag is neither <see cref="NbtTagType.Compound"/>,
+    /// <see cref="NbtTagType.List"/> nor <see cref="NbtTagType.End"/>; otherwise, <see langword="false"/>.
+    /// </value>
     public bool HasValue
     {
         get
@@ -47,16 +54,19 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Name of this tag. Immutable, and set by the constructor. May be <c>null</c>.
+    /// Gets or sets the name of this tag.
     /// </summary>
-    /// <exception cref="ArgumentNullException">
-    ///     If <paramref name="value" /> is <c>null</c>, and <c>Parent</c> tag is an NbtCompound.
-    ///     Name of tags inside an <c>NbtCompound</c> may not be null.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     If this tag resides in an <c>NbtCompound</c>, and a sibling tag with the name
-    ///     already exists.
-    /// </exception>
+    /// <value>
+    /// The name of this tag, or <see langword="null"/> if this tag is unnamed.
+    /// </value>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/> while this tag is
+    /// contained in an <see cref="NbtCompound"/>. A tag inside a compound must be named.</exception>
+    /// <exception cref="ArgumentException">This tag is contained in an <see cref="NbtCompound"/> that already holds
+    /// a tag with the new name.</exception>
+    /// <remarks>
+    /// Setting this property while the tag is contained in an <see cref="NbtCompound"/> also renames the entry in
+    /// that compound.
+    /// </remarks>
     public string? Name
     {
         get => StrName;
@@ -78,9 +88,12 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Gets the full name of this tag, including all parent tag names, separated by dots.
-    ///     Unnamed tags show up as empty strings.
+    /// Gets the full name of this tag, which includes the names of all parent tags separated by periods.
     /// </summary>
+    /// <value>
+    /// The full name of this tag. An unnamed tag contributes an empty string; an element of an
+    /// <see cref="NbtList"/> contributes its index in brackets.
+    /// </value>
     public string Path
     {
         get
@@ -93,9 +106,12 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     String to use for indentation in NbtTag.ToString() by default.
+    /// Gets or sets the string that <see cref="ToString()"/> uses for one level of indentation.
     /// </summary>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <value>
+    /// The indentation string. The default is two spaces.
+    /// </value>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
     public static string DefaultIndentString
     {
         get => _defaultIndentString;
@@ -103,9 +119,9 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Creates a deep copy of this tag.
+    /// When overridden in a derived class, creates a deep copy of this tag.
     /// </summary>
-    /// <returns> A new NbtTag object that is a deep copy of this instance. </returns>
+    /// <returns>A new <see cref="NbtTag"/> that is a deep copy of this instance. The copy has no parent.</returns>
     public abstract object Clone();
 
     internal abstract void ReadTag(NbtBinaryReader readStream);
@@ -133,19 +149,16 @@ public abstract class NbtTag : ICloneable
         };
     }
 
-    /// <summary>
-    ///     WriteData does not write the tag's ID byte or the name
-    /// </summary>
+    /// <summary>Writes the payload of this tag, without the type byte and without the name.</summary>
     internal abstract void WriteData(NbtBinaryWriter writeStream);
 
     /// <summary>
-    ///     Returns a canonical (Notchy) name for the given NbtTagType,
-    ///     e.g. "TAG_Byte_Array" for NbtTagType.ByteArray
+    /// Returns the canonical name of the specified tag type, such as <c>TAG_Byte_Array</c> for
+    /// <see cref="NbtTagType.ByteArray"/>.
     /// </summary>
-    /// <param name="type"> NbtTagType to name. </param>
-    /// <returns>
-    ///     String representing the canonical name of a tag, or null when the value is not a tag type.
-    /// </returns>
+    /// <param name="type">The tag type to name.</param>
+    /// <returns>The canonical name of the tag type, or <see langword="null"/> if <paramref name="type"/> is not a
+    /// recognized tag type.</returns>
     public static string? GetCanonicalTagName(NbtTagType type)
     {
         return type switch
@@ -168,22 +181,22 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Prints contents of this tag, and any child tags, to a string.
-    ///     Indents the string using multiples of the given indentation string.
+    /// Returns a string that represents this tag and all its child tags, indented with
+    /// <see cref="DefaultIndentString"/>.
     /// </summary>
-    /// <returns> A string representing contents of this tag, and all child tags (if any). </returns>
+    /// <returns>A string that represents this tag and all its child tags.</returns>
     public override string ToString()
     {
         return ToString(DefaultIndentString);
     }
 
     /// <summary>
-    ///     Prints contents of this tag, and any child tags, to a string.
-    ///     Indents the string using multiples of the given indentation string.
+    /// Returns a string that represents this tag and all its child tags, indented with the specified string.
     /// </summary>
-    /// <param name="indentString"> String to be used for indentation. </param>
-    /// <returns> A string representing contents of this tag, and all child tags (if any). </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="indentString" /> is <c>null</c>. </exception>
+    /// <param name="indentString">The string used for one level of indentation.</param>
+    /// <returns>A string that represents this tag and all its child tags.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="indentString"/> is
+    /// <see langword="null"/>.</exception>
     public string ToString(string indentString)
     {
         if (indentString == null) throw new ArgumentNullException(nameof(indentString));
@@ -197,14 +210,15 @@ public abstract class NbtTag : ICloneable
     #region Shortcuts
 
     /// <summary>
-    ///     Gets or sets the tag with the specified name. May return <c>null</c>.
+    /// Gets or sets the tag with the specified name.
     /// </summary>
-    /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
-    /// <param name="tagName"> The name of the tag to get or set. Must match tag's actual name. </param>
-    /// <exception cref="InvalidOperationException"> If used on a tag that is not NbtCompound. </exception>
+    /// <param name="tagName">The name of the tag to get or set. It must match the name of the tag being set.</param>
+    /// <returns>The tag with the specified name, or <see langword="null"/> if no tag with that name is
+    /// present.</returns>
+    /// <exception cref="InvalidOperationException">This tag is not an <see cref="NbtCompound"/>.</exception>
     /// <remarks>
-    ///     ONLY APPLICABLE TO NbtCompound OBJECTS!
-    ///     Included in NbtTag base class for programmers' convenience, to avoid extra type casts.
+    /// Only <see cref="NbtCompound"/> overrides this indexer. It is declared on <see cref="NbtTag"/> so that a
+    /// caller does not have to cast.
     /// </remarks>
     public virtual NbtTag? this[string tagName]
     {
@@ -213,17 +227,19 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Gets or sets the tag at the specified index.
+    /// Gets or sets the tag at the specified index.
     /// </summary>
-    /// <returns> The tag at the specified index. </returns>
-    /// <param name="tagIndex"> The zero-based index of the tag to get or set. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> tagIndex is not a valid index in this tag. </exception>
-    /// <exception cref="ArgumentNullException"> Given tag is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> Given tag's type does not match ListType. </exception>
-    /// <exception cref="InvalidOperationException"> If used on a tag that is not NbtList, NbtByteArray, or NbtIntArray. </exception>
+    /// <param name="tagIndex">The zero-based index of the tag to get or set.</param>
+    /// <returns>The tag at the specified index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tagIndex"/> is not a valid index in this
+    /// tag.</exception>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The type of the tag being set does not match
+    /// <see cref="NbtList.ListType"/>.</exception>
+    /// <exception cref="InvalidOperationException">This tag is not an <see cref="NbtList"/>.</exception>
     /// <remarks>
-    ///     ONLY APPLICABLE TO NbtList, NbtByteArray, and NbtIntArray OBJECTS!
-    ///     Included in NbtTag base class for programmers' convenience, to avoid extra type casts.
+    /// Only <see cref="NbtList"/> overrides this indexer. It is declared on <see cref="NbtTag"/> so that a caller
+    /// does not have to cast. The array tags declare their own indexers over their element type.
     /// </remarks>
     public virtual NbtTag this[int tagIndex]
     {
@@ -231,13 +247,22 @@ public abstract class NbtTag : ICloneable
         set => throw new InvalidOperationException("Integer indexers only work on NbtList tags.");
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the value of this tag is nonzero.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the value of this tag is not 0; otherwise, <see langword="false"/>.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>.</exception>
     public bool BoolValue => ByteValue != 0;
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a byte.
-    ///     Only supported by NbtByte tags.
+    /// Gets the value of this tag as a byte.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on a tag other than NbtByte. </exception>
+    /// <value>
+    /// The value of this tag.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>.</exception>
     public byte ByteValue
     {
         get
@@ -249,10 +274,13 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a short (16-bit signed integer).
-    ///     Only supported by NbtByte and NbtShort.
+    /// Gets the value of this tag as a signed 16-bit integer.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The value of this tag, converted to a signed 16-bit integer.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is neither an <see cref="NbtByte"/> nor an
+    /// <see cref="NbtShort"/>.</exception>
     public short ShortValue
     {
         get
@@ -267,10 +295,13 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as an int (32-bit signed integer).
-    ///     Only supported by NbtByte, NbtShort, and NbtInt.
+    /// Gets the value of this tag as a signed 32-bit integer.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The value of this tag, converted to a signed 32-bit integer.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>, an <see cref="NbtShort"/> or
+    /// an <see cref="NbtInt"/>.</exception>
     public int IntValue
     {
         get
@@ -286,10 +317,13 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a long (64-bit signed integer).
-    ///     Only supported by NbtByte, NbtShort, NbtInt, and NbtLong.
+    /// Gets the value of this tag as a signed 64-bit integer.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The value of this tag, converted to a signed 64-bit integer.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>, an <see cref="NbtShort"/>,
+    /// an <see cref="NbtInt"/> or an <see cref="NbtLong"/>.</exception>
     public long LongValue
     {
         get
@@ -306,10 +340,15 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a long (64-bit signed integer).
-    ///     Only supported by NbtFloat and, with loss of precision, by NbtDouble, NbtByte, NbtShort, NbtInt, and NbtLong.
+    /// Gets the value of this tag as a single-precision floating-point number.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The value of this tag, converted to a single-precision floating-point number. The conversion from
+    /// <see cref="NbtDouble"/>, <see cref="NbtInt"/> and <see cref="NbtLong"/> can lose precision.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>, an <see cref="NbtShort"/>,
+    /// an <see cref="NbtInt"/>, an <see cref="NbtLong"/>, an <see cref="NbtFloat"/> or an
+    /// <see cref="NbtDouble"/>.</exception>
     public float FloatValue
     {
         get
@@ -328,10 +367,15 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a long (64-bit signed integer).
-    ///     Only supported by NbtFloat, NbtDouble, and, with loss of precision, by NbtByte, NbtShort, NbtInt, and NbtLong.
+    /// Gets the value of this tag as a double-precision floating-point number.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The value of this tag, converted to a double-precision floating-point number. The conversion from
+    /// <see cref="NbtLong"/> can lose precision.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByte"/>, an <see cref="NbtShort"/>,
+    /// an <see cref="NbtInt"/>, an <see cref="NbtLong"/>, an <see cref="NbtFloat"/> or an
+    /// <see cref="NbtDouble"/>.</exception>
     public double DoubleValue
     {
         get
@@ -350,10 +394,12 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a byte array.
-    ///     Only supported by NbtByteArray tags.
+    /// Gets the value of this tag as an array of bytes.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on a tag other than NbtByteArray. </exception>
+    /// <value>
+    /// The array held by this tag. The array is returned by reference and is not copied.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtByteArray"/>.</exception>
     public byte[] ByteArrayValue
     {
         get
@@ -365,10 +411,12 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as an int array.
-    ///     Only supported by NbtIntArray tags.
+    /// Gets the value of this tag as an array of signed 32-bit integers.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on a tag other than NbtIntArray. </exception>
+    /// <value>
+    /// The array held by this tag. The array is returned by reference and is not copied.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtIntArray"/>.</exception>
     public int[] IntArrayValue
     {
         get
@@ -380,10 +428,12 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a long array.
-    ///     Only supported by NbtLongArray tags.
+    /// Gets the value of this tag as an array of signed 64-bit integers.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on a tag other than NbtLongArray. </exception>
+    /// <value>
+    /// The array held by this tag. The array is returned by reference and is not copied.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is not an <see cref="NbtLongArray"/>.</exception>
     public long[] LongArrayValue
     {
         get
@@ -395,12 +445,14 @@ public abstract class NbtTag : ICloneable
     }
 
     /// <summary>
-    ///     Returns the value of this tag, cast as a string.
-    ///     Returns exact value for NbtString, and stringified (using InvariantCulture) value for NbtByte, NbtDouble, NbtFloat,
-    ///     NbtInt, NbtLong, and NbtShort.
-    ///     Not supported by NbtCompound, NbtList, NbtByteArray, or NbtIntArray.
+    /// Gets the value of this tag as a string.
     /// </summary>
-    /// <exception cref="InvalidCastException"> When used on an unsupported tag. </exception>
+    /// <value>
+    /// The exact value for an <see cref="NbtString"/>; for a numeric tag, the value formatted with
+    /// <see cref="CultureInfo.InvariantCulture"/>.
+    /// </value>
+    /// <exception cref="InvalidCastException">This tag is neither an <see cref="NbtString"/> nor a numeric
+    /// tag.</exception>
     public string StringValue
     {
         get

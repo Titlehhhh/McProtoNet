@@ -5,6 +5,10 @@ using System.Runtime.InteropServices;
 using McProtoNet.Transport.Compression.Native;
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>
+/// Provides zlib decompression through a native libdeflate decompressor handle owned by a
+/// heap-allocated instance.
+/// </summary>
 internal class ZlibDecompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr decompressor;
@@ -91,4 +95,4 @@ internal class ZlibDecompressorHeapAlloc : IDisposable
     {
         Dispose();
     }
-}
+}

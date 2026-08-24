@@ -6,33 +6,44 @@ using System.Runtime.CompilerServices;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Reads NBT out of a contiguous buffer. Java Edition only: numbers big-endian, strings in
-///     modified UTF-8. Nesting is capped at 512 levels and every declared length is checked
-///     against the bytes actually left before anything is allocated.
+/// Provides a forward-only reader that reads NBT data from a contiguous buffer.
 /// </summary>
+/// <remarks>
+/// The input is Java Edition NBT only: every number is big-endian and every string is modified UTF-8.
+/// Nesting is limited to 512 levels, and every declared length is checked against the bytes that remain
+/// before anything is allocated.
+/// </remarks>
 public ref struct NbtSpanReader
 {
     private SpanBinaryReader _reader;
 
-    /// <summary>Number of bytes consumed so far.</summary>
+    /// <summary>
+    /// Gets the number of bytes consumed from the buffer so far.
+    /// </summary>
     public int ConsumedCount => _reader.ConsumedCount;
 
-    /// <summary>Creates a reader over the given buffer.</summary>
-    /// <param name="data">Buffer positioned at the tag type byte.</param>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NbtSpanReader"/> structure over the specified buffer.
+    /// </summary>
+    /// <param name="data">The buffer, positioned at the tag type byte.</param>
     public NbtSpanReader(ReadOnlySpan<byte> data)
     {
         _reader = new SpanBinaryReader(data);
     }
 
     /// <summary>
-    ///     Reads one complete tag. Returns null when the first byte is TAG_End.
+    /// Reads one complete tag and advances the reader past it.
     /// </summary>
-    /// <typeparam name="T">Expected tag type.</typeparam>
-    /// <param name="readRootName">
-    ///     True reads the root tag's name after the type byte (the file format). False expects the
-    ///     nameless root of the network format used since 1.20.2.
-    /// </param>
-    /// <exception cref="NbtFormatException">The data is malformed, truncated, or too deeply nested.</exception>
+    /// <typeparam name="T">The expected type of the root tag.</typeparam>
+    /// <param name="readRootName"><see langword="true"/> to read the root tag's name after the type byte, as
+    /// the file format requires; <see langword="false"/> to expect the nameless root of the network format
+    /// used since 1.20.2.</param>
+    /// <returns>The tag that was read, or <see langword="null"/> if the first byte is TAG_End.</returns>
+    /// <exception cref="NbtFormatException">
+    /// The data is malformed, truncated, or nested too deeply.
+    /// -or-
+    /// The root tag is not of type <typeparamref name="T"/>.
+    /// </exception>
     public T? ReadAsTag<T>(bool readRootName) where T : NbtTag
     {
         var type = ReadTagType();

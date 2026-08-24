@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace McProtoNet.NBT;
 
+/// <summary>Provides a forward-only reader that reads bytes and big-endian integers sequentially from a span.</summary>
 [StructLayout(LayoutKind.Auto)]
 internal ref struct SpanBinaryReader
 {

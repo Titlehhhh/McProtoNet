@@ -1,5 +1,6 @@
 namespace McProtoNet.Transport.Cryptography;
 
+/// <summary>Provides the AES-128 key expansion used by <see cref="AesCfb8ArmCipher"/>.</summary>
 internal static class AesKeySchedule
 {
     public const int ExpandedKey128Length = 176;

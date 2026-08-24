@@ -3,11 +3,14 @@ using System.Diagnostics;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     An efficient writer for writing NBT data directly to streams.
-///     Each instance of NbtWriter writes one complete file.
-///     NbtWriter enforces all constraints of the NBT file format
-///     EXCEPT checking for duplicate tag names within a compound.
+/// Provides a forward-only writer that writes NBT data to a stream.
 /// </summary>
+/// <remarks>
+/// Each instance writes one complete document. The writer enforces the constraints of the NBT format, except
+/// that it does not check for duplicate tag names within a compound. The output is Java Edition NBT only:
+/// every number is big-endian and every string is modified UTF-8. The writer does not close the underlying
+/// stream.
+/// </remarks>
 public sealed class NbtWriter
 {
     private const int MaxStreamCopyBufferSize = 8 * 1024;
@@ -21,13 +24,19 @@ public sealed class NbtWriter
 
 
     /// <summary>
-    ///     Opens a writer that starts a named root compound — the NBT file format. Java Edition
-    ///     only: numbers big-endian, strings modified UTF-8. There is no little-endian mode.
+    /// Initializes a new instance of the <see cref="NbtWriter"/> class that starts a named root compound,
+    /// which is the NBT file format.
     /// </summary>
-    /// <param name="stream"> Stream to write to. </param>
-    /// <param name="rootTagName"> Name to give to the root tag (written immediately). </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> or <paramref name="rootTagName" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not writable. </exception>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="rootTagName">The name of the root tag. It is written immediately.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="stream"/> is <see langword="null"/>.
+    /// -or-
+    /// <paramref name="rootTagName"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException"><paramref name="stream"/> is not writable.</exception>
+    /// <exception cref="NbtFormatException">The encoded <paramref name="rootTagName"/> is longer than
+    /// 65535 bytes.</exception>
     public NbtWriter(Stream stream, string rootTagName)
     {
         ArgumentNullException.ThrowIfNull(rootTagName);
@@ -38,11 +47,13 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Opens a writer that starts a nameless root compound — the network format used since 1.20.2.
+    /// Initializes a new instance of the <see cref="NbtWriter"/> class that starts a nameless root compound,
+    /// which is the network format used since 1.20.2.
     /// </summary>
-    /// <param name="stream"> Stream to write to. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not writable. </exception>
+    /// <param name="stream">The stream to write to.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="stream"/> is not writable.</exception>
     public NbtWriter(Stream stream)
     {
         _writer = new NbtBinaryWriter(stream);
@@ -51,15 +62,23 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes one complete tag to a stream: the type byte, the root name when asked for, then
-    ///     the payload. The root may be of any type — since 1.20.3 a network root can be a TAG_String.
+    /// Writes one complete tag to the specified stream: the type byte, the root name when requested, then
+    /// the payload.
     /// </summary>
-    /// <param name="stream"> Stream to write to. </param>
-    /// <param name="tag"> Tag to write. </param>
-    /// <param name="writeRootName">
-    ///     True writes the root tag's name after the type byte (the file format). False writes the
-    ///     nameless root of the network format.
-    /// </param>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="tag">The tag to write.</param>
+    /// <param name="writeRootName"><see langword="true"/> to write the root tag's name after the type byte,
+    /// as the file format requires; <see langword="false"/> to write the nameless root of the network
+    /// format. The default is <see langword="true"/>.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="stream"/> is <see langword="null"/>.
+    /// -or-
+    /// <paramref name="tag"/> is <see langword="null"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException"><paramref name="stream"/> is not writable.</exception>
+    /// <remarks>
+    /// The root tag can be of any type. A network root can be a TAG_String since 1.20.3.
+    /// </remarks>
     public static void WriteTag(Stream stream, NbtTag tag, bool writeRootName = true)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -72,24 +91,35 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Gets whether the root tag has been closed.
-    ///     No more tags may be written after the root tag has been closed.
+    /// Gets a value indicating whether the root tag has been closed.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the root tag has been closed and no more tags can be written; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
     public bool IsDone { get; private set; }
 
     /// <summary>
-    ///     Gets the underlying stream of the NbtWriter.
+    /// Gets the stream that the writer writes to.
     /// </summary>
+    /// <remarks>
+    /// Buffered data is flushed before the stream is returned.
+    /// </remarks>
     public Stream BaseStream => _writer.BaseStream;
 
     /// <summary>
-    ///     Writes a NbtTag object, and all of its child tags, to stream.
-    ///     Use this method sparingly with NbtWriter -- constructing NbtTag objects defeats the purpose of this class.
-    ///     When you already hold a whole tag tree, <see cref="WriteTag(Stream,NbtTag,bool)" /> writes it in one call.
+    /// Writes the specified tag and all of its child tags.
     /// </summary>
-    /// <param name="tag"> Tag to write. Must not be null. </param>
-    /// <exception cref="NbtFormatException"> No more tags can be written -OR- given tag is unacceptable at this time. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="tag" /> is null </exception>
+    /// <param name="tag">The tag to write. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// The tag is not acceptable in the current position.
+    /// </exception>
+    /// <remarks>
+    /// <see cref="WriteTag(Stream,NbtTag,bool)"/> writes a complete tag tree in one call.
+    /// </remarks>
     public void WriteTag(NbtTag tag)
     {
         if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -101,18 +131,20 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Closes the root compound (writing its TAG_End byte) if it is still open,
-    ///     and marks the writer as done. Safe to call after an explicit root
-    ///     <see cref="EndCompound" />, in which case it does nothing.
+    /// Closes the root compound if it is still open and marks the writer as done.
     /// </summary>
-    /// <exception cref="NbtFormatException"> A nested tag is still open. </exception>
+    /// <exception cref="NbtFormatException">A nested tag is still open.</exception>
+    /// <remarks>
+    /// The TAG_End byte of the root compound is written. Calling this method after the root compound was
+    /// closed by <see cref="EndCompound"/> does nothing.
+    /// </remarks>
     public void Finish()
     {
         if (IsDone) return;
         if (_nodes is { Count: > 0 })
             throw new NbtFormatException("Cannot finish: not all tags have been closed yet.");
 
-        // Only the root compound (opened by the constructor) remains — close it.
+        // Only the root compound, opened by the constructor, remains open; close it.
         _writer.Write(NbtTagType.End);
         IsDone = true;
     }
@@ -171,10 +203,7 @@ public sealed class NbtWriter
         }
     }
 
-    /// <summary>
-    ///     An element type of TAG_End is legal only for an empty list, which is how vanilla
-    ///     writes one.
-    /// </summary>
+    // An element type of TAG_End is legal only for an empty list, which is how vanilla writes one.
     private static void CheckListType(NbtTagType elementType, int size)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(size);
@@ -214,12 +243,16 @@ public sealed class NbtWriter
     #region Compounds and Lists
 
     /// <summary>
-    ///     Begins an unnamed compound tag.
+    /// Begins an unnamed compound tag.
     /// </summary>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named compound tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named compound tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void BeginCompound()
     {
@@ -228,12 +261,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Begins a named compound tag.
+    /// Begins a named compound tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
+    /// <param name="tagName">The name of the compound tag. This value cannot be
+    /// <see langword="null"/>.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed compound tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed compound tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void BeginCompound(string tagName)
     {
@@ -245,9 +284,9 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Ends a compound tag.
+    /// Ends the current compound tag.
     /// </summary>
-    /// <exception cref="NbtFormatException"> Not currently in a compound. </exception>
+    /// <exception cref="NbtFormatException">The writer is not currently in a compound.</exception>
     public void EndCompound()
     {
         if (IsDone || _parentType != NbtTagType.Compound) throw new NbtFormatException("Not currently in a compound.");
@@ -256,18 +295,26 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Begins an unnamed list tag.
+    /// Begins an unnamed list tag.
     /// </summary>
-    /// <param name="elementType"> Type of elements of this list. </param>
-    /// <param name="size"> Number of elements in this list. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named list tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
-    /// </exception>
+    /// <param name="elementType">The type of the list elements.</param>
+    /// <param name="size">The number of elements in the list. This value cannot be negative.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="size" /> is negative -OR-
-    ///     <paramref name="elementType" /> is not a valid NbtTagType.
+    /// <paramref name="size"/> is less than zero.
+    /// -or-
+    /// <paramref name="elementType"/> is not a valid <see cref="NbtTagType"/> value.
+    /// -or-
+    /// <paramref name="elementType"/> is <see cref="NbtTagType.End"/> and <paramref name="size"/> is greater
+    /// than zero.
+    /// </exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// A named list tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void BeginList(NbtTagType elementType, int size)
     {
@@ -282,18 +329,27 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Begins an unnamed list tag.
+    /// Begins a named list tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="elementType"> Type of elements of this list. </param>
-    /// <param name="size"> Number of elements in this list. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed list tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
+    /// <param name="tagName">The name of the list tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="elementType">The type of the list elements.</param>
+    /// <param name="size">The number of elements in the list. This value cannot be negative.</param>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="size" /> is negative -OR-
-    ///     <paramref name="elementType" /> is not a valid NbtTagType.
+    /// <paramref name="size"/> is less than zero.
+    /// -or-
+    /// <paramref name="elementType"/> is not a valid <see cref="NbtTagType"/> value.
+    /// -or-
+    /// <paramref name="elementType"/> is <see cref="NbtTagType.End"/> and <paramref name="size"/> is greater
+    /// than zero.
+    /// </exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed list tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void BeginList(string tagName, NbtTagType elementType, int size)
     {
@@ -310,11 +366,12 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Ends a list tag.
+    /// Ends the current list tag.
     /// </summary>
     /// <exception cref="NbtFormatException">
-    ///     Not currently in a list -OR-
-    ///     not all list elements have been written yet.
+    /// The writer is not currently in a list.
+    /// -or-
+    /// Not all list elements have been written.
     /// </exception>
     public void EndList()
     {
@@ -331,13 +388,17 @@ public sealed class NbtWriter
     #region Value Tags
 
     /// <summary>
-    ///     Writes an unnamed byte tag.
+    /// Writes an unnamed byte tag.
     /// </summary>
-    /// <param name="value"> The unsigned byte to write. </param>
+    /// <param name="value">The unsigned byte to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named byte tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named byte tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteByte(byte value)
     {
@@ -346,13 +407,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte tag.
+    /// Writes a named byte tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The unsigned byte to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The unsigned byte to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed byte tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteByte(string tagName, byte value)
     {
@@ -363,13 +429,17 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed double tag.
+    /// Writes an unnamed double tag.
     /// </summary>
-    /// <param name="value"> The eight-byte floating-point value to write. </param>
+    /// <param name="value">The eight-byte floating-point value to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named double tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named double tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteDouble(double value)
     {
@@ -378,13 +448,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte tag.
+    /// Writes a named double tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The unsigned byte to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The eight-byte floating-point value to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed double tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteDouble(string tagName, double value)
     {
@@ -395,13 +470,17 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed float tag.
+    /// Writes an unnamed float tag.
     /// </summary>
-    /// <param name="value"> The four-byte floating-point value to write. </param>
+    /// <param name="value">The four-byte floating-point value to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named float tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named float tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteFloat(float value)
     {
@@ -410,13 +489,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed float tag.
+    /// Writes a named float tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The four-byte floating-point value to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The four-byte floating-point value to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed float tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed float tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteFloat(string tagName, float value)
     {
@@ -427,13 +511,17 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed int tag.
+    /// Writes an unnamed int tag.
     /// </summary>
-    /// <param name="value"> The four-byte signed integer to write. </param>
+    /// <param name="value">The four-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named int tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named int tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteInt(int value)
     {
@@ -442,13 +530,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed int tag.
+    /// Writes a named int tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The four-byte signed integer to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The four-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed int tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed int tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteInt(string tagName, int value)
     {
@@ -459,13 +552,17 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed long tag.
+    /// Writes an unnamed long tag.
     /// </summary>
-    /// <param name="value"> The eight-byte signed integer to write. </param>
+    /// <param name="value">The eight-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named long tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named long tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteLong(long value)
     {
@@ -474,13 +571,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed long tag.
+    /// Writes a named long tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The eight-byte signed integer to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The eight-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed long tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed long tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteLong(string tagName, long value)
     {
@@ -491,13 +593,17 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed short tag.
+    /// Writes an unnamed short tag.
     /// </summary>
-    /// <param name="value"> The two-byte signed integer to write. </param>
+    /// <param name="value">The two-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named short tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named short tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteShort(short value)
     {
@@ -506,13 +612,18 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed short tag.
+    /// Writes a named short tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The two-byte signed integer to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The two-byte signed integer to write.</param>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed short tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed short tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteShort(string tagName, short value)
     {
@@ -523,13 +634,21 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed string tag.
+    /// Writes an unnamed string tag.
     /// </summary>
-    /// <param name="value"> The string to write. </param>
+    /// <param name="value">The string to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is
+    /// <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named string tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named string tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
+    /// -or-
+    /// The encoded text is longer than 65535 bytes.
     /// </exception>
     public void WriteString(string value)
     {
@@ -539,13 +658,22 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed string tag.
+    /// Writes a named string tag.
     /// </summary>
-    /// <param name="tagName"> Name to give to this compound tag. May not be null. </param>
-    /// <param name="value"> The string to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="value">The string to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is
+    /// <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed string tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed string tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
+    /// -or-
+    /// The encoded text is longer than 65535 bytes.
     /// </exception>
     public void WriteString(string tagName, string value)
     {
@@ -561,15 +689,19 @@ public sealed class NbtWriter
     #region ByteArray, IntArray and LongArray
 
     /// <summary>
-    ///     Writes an unnamed byte array tag, copying data from an array.
+    /// Writes an unnamed byte array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="data"> A byte array containing the data to write. </param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named byte array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
     public void WriteByteArray(byte[] data)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
@@ -577,24 +709,28 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte array tag, copying data from an array.
+    /// Writes an unnamed byte array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="data"> A byte array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named byte array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
-    /// </exception>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// A named byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteByteArray(byte[] data, int offset, int count)
     {
@@ -605,17 +741,19 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named byte array tag, copying data from an array.
+    /// Writes a named byte array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this byte array tag. May not be null. </param>
-    /// <param name="data"> A byte array containing the data to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteByteArray(string tagName, byte[] data)
     {
@@ -624,27 +762,29 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named byte array tag, copying data from an array.
+    /// Writes a named byte array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this byte array tag. May not be null. </param>
-    /// <param name="data"> A byte array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteByteArray(string tagName, byte[] data, int offset, int count)
     {
@@ -657,22 +797,31 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte array tag, copying data from a stream.
+    /// Writes an unnamed byte array tag, copying the data from the specified stream.
     /// </summary>
-    /// <remarks>
-    ///     A temporary buffer will be allocated, of size up to 8192 bytes.
-    ///     To manually specify a buffer, use one of the other WriteByteArray() overloads.
-    /// </remarks>
-    /// <param name="dataSource"> A Stream from which data will be copied. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
+    /// <param name="dataSource">The stream that the data is copied from.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dataSource"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than
+    /// zero.</exception>
+    /// <exception cref="ArgumentException"><paramref name="dataSource"/> does not support
+    /// reading.</exception>
+    /// <exception cref="EndOfStreamException">The end of <paramref name="dataSource"/> was reached before
+    /// <paramref name="count"/> bytes were read.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named byte array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count" /> is negative. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="dataSource" /> is null. </exception>
-    /// <exception cref="ArgumentException"> Given stream does not support reading. </exception>
+    /// <remarks>
+    /// A temporary buffer of up to 8192 bytes is allocated. The overloads that take a buffer use the buffer
+    /// that is passed to them instead.
+    /// </remarks>
     public void WriteByteArray(Stream dataSource, int count)
     {
         if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
@@ -686,21 +835,35 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte array tag, copying data from a stream.
+    /// Writes an unnamed byte array tag, copying the data from the specified stream through the specified
+    /// buffer.
     /// </summary>
-    /// <param name="dataSource"> A Stream from which data will be copied. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
-    /// <param name="buffer"> Buffer to use for copying. Size must be greater than 0. Must not be null. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named byte array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// <param name="dataSource">The stream that the data is copied from.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <param name="buffer">The buffer used for copying. Its length must be greater than zero when
+    /// <paramref name="count"/> is greater than zero.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="dataSource"/> is <see langword="null"/>.
+    /// -or-
+    /// <paramref name="buffer"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count" /> is negative. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="dataSource" /> is null. </exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than
+    /// zero.</exception>
     /// <exception cref="ArgumentException">
-    ///     Given stream does not support reading -OR-
-    ///     <paramref name="buffer" /> size is 0.
+    /// <paramref name="dataSource"/> does not support reading.
+    /// -or-
+    /// The length of <paramref name="buffer"/> is zero and <paramref name="count"/> is greater than zero.
+    /// </exception>
+    /// <exception cref="EndOfStreamException">The end of <paramref name="dataSource"/> was reached before
+    /// <paramref name="count"/> bytes were read.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// A named byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteByteArray(Stream dataSource, int count, byte[] buffer)
     {
@@ -719,22 +882,32 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named byte array tag, copying data from a stream.
+    /// Writes a named byte array tag, copying the data from the specified stream.
     /// </summary>
-    /// <remarks>
-    ///     A temporary buffer will be allocated, of size up to 8192 bytes.
-    ///     To manually specify a buffer, use one of the other WriteByteArray() overloads.
-    /// </remarks>
-    /// <param name="tagName"> Name to give to this byte array tag. May not be null. </param>
-    /// <param name="dataSource"> A Stream from which data will be copied. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="dataSource">The stream that the data is copied from.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="dataSource"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than
+    /// zero.</exception>
+    /// <exception cref="ArgumentException"><paramref name="dataSource"/> does not support
+    /// reading.</exception>
+    /// <exception cref="EndOfStreamException">The end of <paramref name="dataSource"/> was reached before
+    /// <paramref name="count"/> bytes were read.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte array tag was expected -OR- a tag of a different type was expected.
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count" /> is negative. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="dataSource" /> is null. </exception>
-    /// <exception cref="ArgumentException"> Given stream does not support reading. </exception>
+    /// <remarks>
+    /// A temporary buffer of up to 8192 bytes is allocated. The overloads that take a buffer use the buffer
+    /// that is passed to them instead.
+    /// </remarks>
     public void WriteByteArray(string tagName, Stream dataSource, int count)
     {
         if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
@@ -745,21 +918,36 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed byte array tag, copying data from another stream.
+    /// Writes a named byte array tag, copying the data from the specified stream through the specified
+    /// buffer.
     /// </summary>
-    /// <param name="tagName"> Name to give to this byte array tag. May not be null. </param>
-    /// <param name="dataSource"> A Stream from which data will be copied. </param>
-    /// <param name="count"> The number of bytes to write. Must not be negative. </param>
-    /// <param name="buffer"> Buffer to use for copying. Size must be greater than 0. Must not be null. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed byte array tag was expected -OR- a tag of a different type was expected.
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="dataSource">The stream that the data is copied from.</param>
+    /// <param name="count">The number of bytes to write. This value cannot be negative.</param>
+    /// <param name="buffer">The buffer used for copying. Its length must be greater than zero when
+    /// <paramref name="count"/> is greater than zero.</param>
+    /// <exception cref="ArgumentNullException">
+    /// <paramref name="dataSource"/> is <see langword="null"/>.
+    /// -or-
+    /// <paramref name="buffer"/> is <see langword="null"/>.
     /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="count" /> is negative. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="dataSource" /> is null. </exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is less than
+    /// zero.</exception>
     /// <exception cref="ArgumentException">
-    ///     Given stream does not support reading -OR-
-    ///     <paramref name="buffer" /> size is 0.
+    /// <paramref name="dataSource"/> does not support reading.
+    /// -or-
+    /// The length of <paramref name="buffer"/> is zero and <paramref name="count"/> is greater than zero.
+    /// </exception>
+    /// <exception cref="EndOfStreamException">The end of <paramref name="dataSource"/> was reached before
+    /// <paramref name="count"/> bytes were read.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed byte array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteByteArray(string tagName, Stream dataSource, int count,
         byte[] buffer)
@@ -781,15 +969,19 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed int array tag, copying data from an array.
+    /// Writes an unnamed int array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="data"> An int array containing the data to write. </param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named int array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named int array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
     public void WriteIntArray(int[] data)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
@@ -797,24 +989,28 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed int array tag, copying data from an array.
+    /// Writes an unnamed int array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="data"> An int array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of elements to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named int array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
-    /// </exception>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of elements to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// A named int array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteIntArray(int[] data, int offset, int count)
     {
@@ -825,17 +1021,19 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named int array tag, copying data from an array.
+    /// Writes a named int array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this int array tag. May not be null. </param>
-    /// <param name="data"> An int array containing the data to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed int array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed int array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteIntArray(string tagName, int[] data)
     {
@@ -844,27 +1042,29 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named int array tag, copying data from an array.
+    /// Writes a named int array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this int array tag. May not be null. </param>
-    /// <param name="data"> An int array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of elements to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed int array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of elements to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed int array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteIntArray(string tagName, int[] data, int offset, int count)
     {
@@ -877,15 +1077,19 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed long array tag, copying data from an array.
+    /// Writes an unnamed long array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="data"> A long array containing the data to write. </param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named long array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
+    /// No more tags can be written.
+    /// -or-
+    /// A named long array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
     public void WriteLongArray(long[] data)
     {
         if (data == null) throw new ArgumentNullException(nameof(data));
@@ -893,24 +1097,28 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes an unnamed long array tag, copying data from an array.
+    /// Writes an unnamed long array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="data"> A long array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of elements to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     a named long array tag was expected -OR- a tag of a different type was expected -OR-
-    ///     the size of a parent list has been exceeded.
-    /// </exception>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of elements to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="data" /> is null </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// A named long array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The size of the parent list has been exceeded.
     /// </exception>
     public void WriteLongArray(long[] data, int offset, int count)
     {
@@ -921,17 +1129,19 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named long array tag, copying data from an array.
+    /// Writes a named long array tag that contains the whole of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this long array tag. May not be null. </param>
-    /// <param name="data"> A long array containing the data to write. </param>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed long array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed long array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteLongArray(string tagName, long[] data)
     {
@@ -940,27 +1150,29 @@ public sealed class NbtWriter
     }
 
     /// <summary>
-    ///     Writes a named long array tag, copying data from an array.
+    /// Writes a named long array tag that contains a range of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to give to this long array tag. May not be null. </param>
-    /// <param name="data"> A long array containing the data to write. </param>
-    /// <param name="offset"> The starting point in <paramref name="data" /> at which to begin writing. Must not be negative. </param>
-    /// <param name="count"> The number of elements to write. Must not be negative. </param>
-    /// <exception cref="NbtFormatException">
-    ///     No more tags can be written -OR-
-    ///     an unnamed long array tag was expected -OR- a tag of a different type was expected.
-    /// </exception>
+    /// <param name="tagName">The name of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <param name="data">The array that holds the data to write.</param>
+    /// <param name="offset">The zero-based index in <paramref name="data"/> at which writing starts. This
+    /// value cannot be negative.</param>
+    /// <param name="count">The number of elements to write. This value cannot be negative.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="data"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentOutOfRangeException">
-    ///     <paramref name="offset" /> or
-    ///     <paramref name="count" /> is negative.
+    /// <paramref name="offset"/> is less than zero.
+    /// -or-
+    /// <paramref name="count"/> is less than zero.
     /// </exception>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="tagName" /> or
-    ///     <paramref name="data" /> is null
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="count" /> is greater than
-    ///     <paramref name="offset" /> subtracted from the array length.
+    /// <exception cref="ArgumentException"><paramref name="count"/> is greater than the length of
+    /// <paramref name="data"/> minus <paramref name="offset"/>.</exception>
+    /// <exception cref="NbtFormatException">
+    /// No more tags can be written.
+    /// -or-
+    /// An unnamed long array tag was expected.
+    /// -or-
+    /// A tag of a different type was expected.
+    /// -or-
+    /// The encoded tag name is longer than 65535 bytes.
     /// </exception>
     public void WriteLongArray(string tagName, long[] data, int offset, int count)
     {

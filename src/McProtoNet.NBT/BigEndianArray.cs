@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace McProtoNet.NBT;
 
+/// <summary>Provides methods to convert arrays of primitive values between big-endian bytes and native layout.</summary>
 internal static class BigEndianArray
 {
     public static void FromBigEndian<T>(ReadOnlySpan<byte> source, Span<T> destination) where T : unmanaged

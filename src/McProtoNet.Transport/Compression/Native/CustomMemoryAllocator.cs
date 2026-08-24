@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace McProtoNet.Transport.Compression.Native;
 
+/// <summary>Declares the libdeflate memory allocator callbacks and the entry point that installs them.</summary>
 internal static class CustomMemoryAllocator
 {
     public delegate IntPtr malloc_func(UIntPtr size);

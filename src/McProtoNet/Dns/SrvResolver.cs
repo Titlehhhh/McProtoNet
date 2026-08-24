@@ -9,19 +9,20 @@ using System.Security.Cryptography;
 namespace McProtoNet;
 
 /// <summary>
-///     The <c>_minecraft._tcp</c> SRV lookup, the way vanilla does it: ask the system resolver where the
-///     server really is, and take the literal host and port when it has nothing to say.
-///     <para>
-///     No record is not an error — <see cref="ResolveAsync(string, CancellationToken)" /> returns
-///     <see langword="null" />. Only a real failure throws: no DNS server answered, or the caller cancelled.
-///     </para>
-///     <para>
-///     The whole lookup runs on one budget. Each configured server gets an equal slice of it, so a first
-///     resolver that has gone quiet cannot swallow the time the second one needed. The DNS query is built
-///     and parsed here (RFC 1035 plus RFC 2782) over UDP, with the usual TCP retry when the answer does not
-///     fit a datagram. .NET has no in-box SRV lookup on the frameworks this library targets.
-///     </para>
+/// Provides the <c>_minecraft._tcp</c> SRV lookup that the vanilla client performs before connecting.
 /// </summary>
+/// <remarks>
+/// <para>
+/// A host that publishes no record is not a failure: <see cref="ResolveAsync(string, CancellationToken)"/>
+/// returns <see langword="null"/>. Only a lookup that no configured DNS server answered, or that the
+/// caller canceled, raises an exception.
+/// </para>
+/// <para>
+/// The whole lookup runs on one budget, and each configured server gets an equal slice of it. The query
+/// is built and parsed in this library (RFC 1035 and RFC 2782) and sent over UDP, with a TCP retry when
+/// the answer does not fit a datagram.
+/// </para>
+/// </remarks>
 public static class SrvResolver
 {
     /// <summary>The service label Minecraft servers publish under.</summary>
@@ -30,13 +31,13 @@ public static class SrvResolver
     /// <summary>How long the whole lookup may take, across every configured server.</summary>
     internal static readonly TimeSpan DefaultBudget = TimeSpan.FromSeconds(5);
 
-    /// <summary>No server gets less than this, however many of them are configured.</summary>
+    /// <summary>The smallest slice of the budget any one server gets.</summary>
     internal static readonly TimeSpan MinimumSlice = TimeSpan.FromSeconds(1);
 
     private const int DnsPort = 53;
     private const int UdpAnswerLimit = 4096;
 
-    /// <summary>Datagrams that are not our answer before we give up on a server and try the next.</summary>
+    // Datagrams that do not answer the question before this server is abandoned for the next one.
     private const int MaxStrayDatagrams = 32;
 
     private static readonly TimeSpan ServerCacheLifetime = TimeSpan.FromSeconds(30);
@@ -45,12 +46,24 @@ public static class SrvResolver
     private static long _cachedAt;
 
     /// <summary>
-    ///     Picks the record a client should connect to, or <see langword="null" /> when the host publishes
-    ///     no SRV record, when a record says "no service", or when the machine has no DNS server configured.
+    /// Asynchronously looks up the SRV records of the specified host and selects one of them.
     /// </summary>
-    /// <param name="host">Host name the user typed, without the service prefix.</param>
-    /// <param name="cancellationToken">Cancels the lookup.</param>
+    /// <param name="host">The host name, without the service prefix.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous lookup operation. The result contains the record
+    /// to connect to, or <see langword="null"/> if the host publishes no SRV record, if a record says "no
+    /// service", or if the machine has no DNS server configured.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="host"/> is empty or consists only of white-space
+    /// characters.</exception>
     /// <exception cref="IOException">No configured DNS server produced an answer.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// Selection follows RFC 2782: the lowest priority wins, and records inside that group are drawn by
+    /// weight.
+    /// </remarks>
     public static async ValueTask<SrvResult?> ResolveAsync(string host, CancellationToken cancellationToken = default)
     {
         var records = await ResolveAllAsync(host, cancellationToken).ConfigureAwait(false);
@@ -58,10 +71,19 @@ public static class SrvResolver
     }
 
     /// <summary>
-    ///     Every SRV record published for the host, in the order the resolver returned them, for callers
-    ///     that want to walk the list themselves. Empty when there is no record.
+    /// Asynchronously looks up every SRV record published for the specified host.
     /// </summary>
+    /// <param name="host">The host name, without the service prefix.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous lookup operation. The result contains the records
+    /// in the order the resolver returned them, and is empty if the host publishes no SRV record.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="host"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="host"/> is empty or consists only of white-space
+    /// characters.</exception>
     /// <exception cref="IOException">No configured DNS server produced an answer.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
     public static ValueTask<IReadOnlyList<SrvResult>> ResolveAllAsync(string host,
         CancellationToken cancellationToken = default)
     {
@@ -69,7 +91,7 @@ public static class SrvResolver
         return ResolveAllAsync(host, GetSystemDnsServers(), DefaultBudget, cancellationToken);
     }
 
-    /// <summary>The same lookup against named servers, so a test can stand one up on the loopback.</summary>
+    /// <summary>Runs the same lookup against the specified DNS servers.</summary>
     internal static async ValueTask<SrvResult?> ResolveAsync(string host, IReadOnlyList<IPEndPoint> servers,
         CancellationToken cancellationToken)
     {
@@ -77,7 +99,7 @@ public static class SrvResolver
         return Select(records, Random.Shared.Next);
     }
 
-    /// <inheritdoc cref="ResolveAsync(string, IReadOnlyList{IPEndPoint}, CancellationToken)" />
+    /// <summary>Runs the same full-list lookup against the specified DNS servers and budget.</summary>
     internal static async ValueTask<IReadOnlyList<SrvResult>> ResolveAllAsync(string host,
         IReadOnlyList<IPEndPoint> servers, TimeSpan budget, CancellationToken cancellationToken)
     {
@@ -131,10 +153,8 @@ public static class SrvResolver
         throw new IOException($"SRV lookup for '{name}' failed: no DNS server answered.", failure);
     }
 
-    /// <summary>
-    ///     RFC 2782 selection: keep the lowest priority, then draw inside that group by weight.
-    ///     <paramref name="roll" /> takes an exclusive upper bound and returns a number below it.
-    /// </summary>
+    /// <summary>Selects one record per RFC 2782: lowest priority first, then a weighted draw inside that
+    /// group.</summary>
     internal static SrvResult? Select(IReadOnlyList<SrvResult> records, Func<int, int> roll)
     {
         ArgumentNullException.ThrowIfNull(records);
@@ -174,10 +194,8 @@ public static class SrvResolver
         return group[^1];
     }
 
-    /// <summary>
-    ///     The resolvers the operating system is configured with, IPv4 first, cached briefly because
-    ///     enumerating the interfaces is a blocking call into the OS and DNS settings rarely move.
-    /// </summary>
+    /// <summary>Gets the DNS servers the operating system is configured with, IPv4 first, from a
+    /// short-lived cache.</summary>
     internal static List<IPEndPoint> GetSystemDnsServers()
     {
         var now = Environment.TickCount64;
@@ -193,7 +211,7 @@ public static class SrvResolver
         }
     }
 
-    /// <summary>Forgets the cached resolver list, so the next lookup reads the interfaces again.</summary>
+    /// <summary>Clears the cached resolver list, so the next lookup reads the interfaces again.</summary>
     internal static void ClearServerCache()
     {
         lock (CacheGate)
@@ -243,7 +261,7 @@ public static class SrvResolver
         return [.. v4.Select(address => new IPEndPoint(address, DnsPort))];
     }
 
-    /// <summary>Punycode, so a host in a national alphabet reaches the wire as the labels DNS carries.</summary>
+    // Punycode, so a host in a non-ASCII alphabet reaches the wire as the labels DNS carries.
     private static string ToAscii(string host)
     {
         foreach (var c in host)
@@ -253,10 +271,8 @@ public static class SrvResolver
         return host;
     }
 
-    /// <summary>
-    ///     One server, one slice of the budget for the datagram and — if the answer did not fit one — a
-    ///     fresh slice for the TCP retry, so a truncated answer is not cut off by the time UDP already used.
-    /// </summary>
+    // One slice of the budget for the datagram, and a fresh slice for the TCP retry when the answer was
+    // truncated, so a truncated answer is not cut short by the time UDP already used.
     private static async ValueTask<DnsResponse> QueryAsync(IPEndPoint server, ReadOnlyMemory<byte> question,
         TimeSpan slice, CancellationToken overallToken)
     {

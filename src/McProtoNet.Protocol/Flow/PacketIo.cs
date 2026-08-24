@@ -4,20 +4,40 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 /// <summary>
-///     IncomingPacket -> concrete packet. <see cref="IncomingPacket.Body" /> is a window into the
-///     transport buffer, valid only until the next read — both entry points decode immediately;
-///     what leaves is a materialized packet that owns its data.
+/// Provides static methods that decode an <see cref="IncomingPacket"/> into a concrete packet type.
 /// </summary>
 /// <remarks>
-///     Only a broken or unsupported wire is caught: garbage bytes
-///     (<see cref="InvalidDataException" />, <see cref="EndOfStreamException" />) become
-///     <see cref="DecodeError.Malformed" />, a version mismatch
-///     (<see cref="ProtocolNotSupportException" />) becomes
-///     <see cref="DecodeError.UnsupportedVersion" />. A bug in the reader — a null reference, memory
-///     that ran out — is not a decode error and goes straight through.
+/// <para>
+/// <see cref="IncomingPacket.Body"/> is a window into the transport buffer and is valid only until the
+/// next read. Both entry points decode immediately and return a packet that owns its data.
+/// </para>
+/// <para>
+/// Only a broken or unsupported wire form is reported as a decode error. <see cref="InvalidDataException"/>,
+/// <see cref="EndOfStreamException"/>, <see cref="NbtFormatException"/>, <see cref="WrongLayerException"/>
+/// and <see cref="PacketDecodeException"/> map to <see cref="DecodeError.Malformed"/>, and
+/// <see cref="ProtocolNotSupportException"/> maps to <see cref="DecodeError.UnsupportedVersion"/>. Any
+/// other exception is not treated as a decode error and is propagated to the caller.
+/// </para>
 /// </remarks>
 public static class PacketIo
 {
+    /// <summary>
+    /// Attempts to decode the body of the specified raw packet as the packet type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The packet type to decode.</typeparam>
+    /// <param name="raw">The raw packet whose body is decoded.</param>
+    /// <param name="protocolVersion">The protocol version to decode the body for.</param>
+    /// <param name="packet">When this method returns, contains the decoded packet, or
+    /// <see langword="null"/> if the body could not be decoded.</param>
+    /// <param name="error">When this method returns, contains the reason the body could not be decoded,
+    /// or <see cref="DecodeError.None"/> if it was decoded.</param>
+    /// <returns>
+    /// <see langword="true"/> if the body was decoded; otherwise, <see langword="false"/>.
+    /// </returns>
+    /// <remarks>
+    /// A body that is decoded but leaves unread bytes is reported as
+    /// <see cref="DecodeError.TrailingBytes"/>.
+    /// </remarks>
     public static bool TryDecode<T>(in IncomingPacket raw, int protocolVersion,
         [NotNullWhen(true)] out T? packet, out DecodeError error)
         where T : class, IPacket<T>
@@ -50,6 +70,20 @@ public static class PacketIo
         return true;
     }
 
+    /// <summary>
+    /// Decodes the body of the specified raw packet as the packet type <typeparamref name="T"/>.
+    /// </summary>
+    /// <typeparam name="T">The packet type to decode.</typeparam>
+    /// <param name="raw">The raw packet whose body is decoded.</param>
+    /// <param name="protocolVersion">The protocol version to decode the body for.</param>
+    /// <returns>The decoded packet.</returns>
+    /// <exception cref="PacketDecodeException">
+    /// The body is malformed.
+    /// -or-
+    /// The packet is not supported on <paramref name="protocolVersion"/>.
+    /// -or-
+    /// The body was decoded but bytes remain unread.
+    /// </exception>
     public static T Decode<T>(in IncomingPacket raw, int protocolVersion) where T : class, IPacket<T>
     {
         var reader = new MinecraftPrimitiveReader(raw.Body);

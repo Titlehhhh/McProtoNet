@@ -7,21 +7,27 @@ using System.Runtime.InteropServices;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Reads NBT tags directly from a <see cref="SequenceReader{T}" />, so callers can parse
-///     tags out of a possibly multi-segment <see cref="ReadOnlySequence{T}" /> without copying
-///     the buffer first. Counterpart of <see cref="NbtSpanReader" /> for non-contiguous input.
-///     The reader is advanced by exactly the number of bytes the tag occupies.
+/// Provides methods that read NBT tags from a <see cref="SequenceReader{T}"/>.
 /// </summary>
+/// <remarks>
+/// A tag is read out of a possibly multi-segment <see cref="ReadOnlySequence{T}"/> without copying the
+/// buffer first, and the reader is advanced by exactly the number of bytes the tag occupies.
+/// <see cref="NbtSpanReader"/> is the counterpart for contiguous input.
+/// </remarks>
 public static class NbtSequenceReader
 {
     private const int StackAllocByteThreshold = 256;
 
     /// <summary>
-    ///     Reads one NBT tag from the sequence. Returns null when the first byte is TAG_End.
+    /// Reads one complete tag from the sequence and advances the reader past it.
     /// </summary>
-    /// <param name="reader">The sequence reader positioned at the tag type byte.</param>
-    /// <param name="readRootName">Whether the root tag carries a name (pre-network NBT format).</param>
-    /// <exception cref="NbtFormatException">The data is malformed, truncated, or too deeply nested.</exception>
+    /// <param name="reader">The sequence reader, positioned at the tag type byte.</param>
+    /// <param name="readRootName"><see langword="true"/> to read the root tag's name after the type byte, as
+    /// the file format requires; <see langword="false"/> to expect the nameless root of the network
+    /// format.</param>
+    /// <returns>The tag that was read, or <see langword="null"/> if the first byte is TAG_End.</returns>
+    /// <exception cref="NbtFormatException">The data is malformed, truncated, or nested too
+    /// deeply.</exception>
     public static NbtTag? ReadTag(ref SequenceReader<byte> reader, bool readRootName)
     {
         var type = ReadTagType(ref reader);

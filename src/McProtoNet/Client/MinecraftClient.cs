@@ -8,23 +8,27 @@ using McProtoNet.Transport;
 namespace McProtoNet;
 
 /// <summary>
-///     The standard client: connect, send a packet, read packets, turn on encryption and
-///     compression. One frame per read and one frame per write for the whole session — simple, not
-///     fast. Whoever needs the fast path takes <see cref="Connection" /> and calls
-///     <see cref="MinecraftConnection.ToStreaming" /> itself.
-///     <para>
-///     Everything above raw packets — handshake, login, the phase the connection is in — is
-///     consumer code (see examples/).
-///     </para>
+/// Provides a Minecraft protocol client that connects to a server, sends and reads single packet
+/// frames, and switches encryption and compression on.
 /// </summary>
 /// <remarks>
-///     Sends are serialized by one gate inside, so any number of threads may call
-///     <see cref="SendAsync{T}" /> at once. Reads are not: one reader at a time, as the transport
-///     requires.
+/// <para>
+/// The client reads and writes one frame per call for the whole session. To use the streaming
+/// path, take <see cref="Connection"/> and call <see cref="MinecraftConnection.ToStreaming"/>.
+/// </para>
+/// <para>
+/// The handshake, the login sequence and the current protocol phase are not handled by this type;
+/// they belong to consumer code.
+/// </para>
+/// <para>
+/// Sends are serialized by an internal gate, so multiple threads can call
+/// <see cref="SendAsync{T}"/> concurrently. Reads are not synchronized: the transport allows one
+/// reader at a time.
+/// </para>
 /// </remarks>
 public sealed class MinecraftClient : IAsyncDisposable
 {
-    /// <summary>How long <see cref="DisposeAsync" /> waits for an in-flight send before giving up on it.</summary>
+    // How long DisposeAsync waits for an in-flight send before giving up on it.
     private static readonly TimeSpan DisposeGateBudget = TimeSpan.FromSeconds(5);
 
     private readonly SemaphoreSlim _sendGate = new(1, 1);
@@ -34,6 +38,25 @@ public sealed class MinecraftClient : IAsyncDisposable
     private int _connecting;
     private int _disposed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinecraftClient"/> class with the specified options.
+    /// </summary>
+    /// <param name="options">The connection options to use. The instance is not copied.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="options"/> is <see langword="null"/>.
+    /// -or-
+    /// <see cref="MinecraftClientOptions.Host"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">
+    /// <see cref="MinecraftClientOptions.Host"/> is empty or consists only of white space.
+    /// </exception>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <see cref="MinecraftClientOptions.Port"/> is less than 1 or greater than 65535.
+    /// -or-
+    /// <see cref="MinecraftClientOptions.ConnectTimeout"/> is less than or equal to
+    /// <see cref="TimeSpan.Zero"/>.
+    /// -or-
+    /// <see cref="MinecraftClientOptions.SrvTimeout"/> is less than or equal to
+    /// <see cref="TimeSpan.Zero"/>.
+    /// </exception>
     public MinecraftClient(MinecraftClientOptions options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -46,43 +69,80 @@ public sealed class MinecraftClient : IAsyncDisposable
         Options = options;
     }
 
+    /// <summary>
+    /// Gets the options this instance was created with.
+    /// </summary>
     public MinecraftClientOptions Options { get; }
 
     /// <summary>
-    ///     The transport underneath — the escape hatch for everything this client does not do:
-    ///     <see cref="MinecraftConnection.ToStreaming" />, <see cref="MinecraftConnection.BaseStream" />,
-    ///     <see cref="MinecraftConnection.Completion" />. Using it at the same time as the client's own
-    ///     calls is the caller's problem: the send gate here does not know about it, and a connection
-    ///     moved to streaming leaves every member of this client throwing.
+    /// Gets the underlying <see cref="MinecraftConnection"/>.
     /// </summary>
+    /// <remarks>
+    /// This connection exposes members the client does not wrap, such as
+    /// <see cref="MinecraftConnection.ToStreaming"/>, <see cref="MinecraftConnection.BaseStream"/> and
+    /// <see cref="MinecraftConnection.Completion"/>. The client does not synchronize its own send
+    /// operations with direct use of this connection. After the connection is switched to streaming
+    /// mode, all members of this client throw <see cref="InvalidOperationException"/>.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     public MinecraftConnection Connection =>
         _connection ?? throw new InvalidOperationException("The client is not connected. Call ConnectAsync first.");
 
-    /// <summary>True between a successful <see cref="ConnectAsync" /> and the close of the connection.</summary>
+    /// <summary>
+    /// Gets a value indicating whether the client is connected.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> between a successful call to <see cref="ConnectAsync"/> and the end of
+    /// the connection; otherwise, <see langword="false"/>.
+    /// </value>
     public bool IsConnected =>
         Volatile.Read(ref _disposed) == 0 && _connection is { } connection && !connection.Completion.IsCompleted;
 
     /// <summary>
-    ///     Negative means no compression envelope. A change takes effect from the next frame. Set it
-    ///     between two frames — from the read loop itself, not from another thread while a read is
-    ///     parked, which the transport refuses.
+    /// Gets or sets the compression threshold, in bytes. A negative value disables compression.
     /// </summary>
+    /// <remarks>
+    /// A new value applies from the next frame in both directions.
+    /// </remarks>
+    /// <exception cref="InvalidOperationException">The client is not connected.
+    /// -or-
+    /// The connection was moved to streaming mode by
+    /// <see cref="MinecraftConnection.ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
     public int CompressionThreshold
     {
         get => Connection.CompressionThreshold;
         set => Connection.CompressionThreshold = value;
     }
 
-    /// <summary>True once <see cref="EnableEncryption" /> has run.</summary>
+    /// <summary>
+    /// Gets a value indicating whether encryption is enabled on the connection.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> after <see cref="EnableEncryption"/> has been called; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
     public bool IsEncrypted => Connection.IsEncrypted;
 
     /// <summary>
-    ///     Resolves the address (SRV first, as vanilla does), opens the connection — a socket, or a
-    ///     tunnel from <see cref="MinecraftClientOptions.Proxy" /> to the same resolved host and port —
-    ///     and takes ownership of it. No packets are sent.
+    /// Asynchronously resolves the server address and opens the connection.
     /// </summary>
-    /// <exception cref="TimeoutException"><see cref="MinecraftClientOptions.ConnectTimeout" /> ran out.</exception>
-    /// <exception cref="OperationCanceledException">The caller's own token was cancelled.</exception>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous connect operation.</returns>
+    /// <exception cref="InvalidOperationException">The client is already connected.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="TimeoutException">The connection was not established within
+    /// <see cref="MinecraftClientOptions.ConnectTimeout"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// The address is resolved through an SRV lookup first, as the vanilla client does. When
+    /// <see cref="MinecraftClientOptions.Proxy"/> is set, the connection is opened through the proxy to the
+    /// same resolved host and port. The client takes ownership of the connection. No packets are sent.
+    /// </remarks>
     public async ValueTask ConnectAsync(CancellationToken cancellationToken = default)
     {
         ObjectDisposedException.ThrowIf(Volatile.Read(ref _disposed) == 1, this);
@@ -152,11 +212,27 @@ public sealed class MinecraftClient : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Serializes the packet, takes its id from the type and writes one frame. When the call
-    ///     returns the bytes are at the socket. Callers are serialized by one gate, so a keep-alive
-    ///     answered from a timer never lands in the middle of somebody else's frame.
+    /// Asynchronously serializes the specified packet and writes it as one frame.
     /// </summary>
-    /// <exception cref="ProtocolNotSupportException">The packet has no id on this protocol version.</exception>
+    /// <typeparam name="T">The packet type. Its wire id is taken from the type.</typeparam>
+    /// <param name="packet">The packet to send.</param>
+    /// <param name="protocolVersion">The protocol version to serialize for.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous send operation. When it completes, the bytes have
+    /// been handed to the socket.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="ProtocolNotSupportException">The packet has no id on the specified protocol
+    /// version.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream
+    /// failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// Callers are serialized by a single gate, so a frame written from another thread cannot be
+    /// interleaved with this one.
+    /// </remarks>
     public async ValueTask SendAsync<T>(T packet, int protocolVersion, CancellationToken cancellationToken = default)
         where T : class, IPacket<T>
     {
@@ -173,7 +249,23 @@ public sealed class MinecraftClient : IAsyncDisposable
         }
     }
 
-    /// <summary>The same gate, with the id and the body given by hand: replays, fuzzing, packets outside the specs.</summary>
+    /// <summary>
+    /// Asynchronously writes one frame from the specified packet id and body.
+    /// </summary>
+    /// <param name="id">The wire id of the packet.</param>
+    /// <param name="body">The already serialized packet body, without the id.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous send operation.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream
+    /// failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// This method uses the same send gate as <see cref="SendAsync{T}"/>.
+    /// </remarks>
     public async ValueTask SendRawAsync(int id, ReadOnlyMemory<byte> body,
         CancellationToken cancellationToken = default)
     {
@@ -191,20 +283,52 @@ public sealed class MinecraftClient : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Reads exactly one frame. <see cref="IncomingPacket.Body" /> is a window owned by the
-    ///     transport and stays valid only until the next read — decode it before reading again.
+    /// Asynchronously reads exactly one frame.
     /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the packet that
+    /// was read.</returns>
+    /// <exception cref="InvalidOperationException">The client is not connected.
+    /// -or-
+    /// Another read is already in progress.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream
+    /// failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// <see cref="IncomingPacket.Body"/> is a window owned by the transport and stays valid only until
+    /// the next read. Decode it before reading again.
+    /// </remarks>
     public ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken cancellationToken = default) =>
         Connection.ReadPacketAsync(cancellationToken);
 
     /// <summary>
-    ///     Every frame until the connection ends. The enumeration never finishes quietly: every way a
-    ///     session can end comes out as an exception, so the caller always learns why. A server that
-    ///     closed cleanly is <see cref="EndOfStreamException" />, an abort is
-    ///     <see cref="ConnectionAbortedException" />, and this client disposing itself is
-    ///     <see cref="ObjectDisposedException" /> or <see cref="OperationCanceledException" />.
-    ///     Each body stays valid only until the next step of the enumeration.
+    /// Returns an asynchronous sequence of every frame read until the connection ends.
     /// </summary>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>An asynchronous sequence of the packets read from the connection.</returns>
+    /// <exception cref="InvalidOperationException">The client is not connected.
+    /// -or-
+    /// Another read is already in progress.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream
+    /// failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// <para>
+    /// The enumeration never ends without an exception. A server that closed cleanly raises
+    /// <see cref="EndOfStreamException"/>. Aborting the connection, including through
+    /// <see cref="DisposeAsync"/>, raises <see cref="ConnectionAbortedException"/> for a read already in
+    /// progress, or <see cref="ObjectDisposedException"/> for a read started after disposal has completed.
+    /// </para>
+    /// <para>
+    /// Each <see cref="IncomingPacket.Body"/> stays valid only until the next step of the enumeration.
+    /// </para>
+    /// </remarks>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
@@ -214,22 +338,46 @@ public sealed class MinecraftClient : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Turns on AES/CFB8 in both directions from the next frame on. Call it from the read loop,
-    ///     right after the awaited send of the frame that agreed the secret: the transport refuses the
-    ///     switch while a read is parked, and refusing it halfway leaves the connection unusable.
+    /// Enables AES/CFB8 encryption in both directions, starting with the next frame.
     /// </summary>
+    /// <param name="sharedSecret">The shared secret agreed with the server. This value must be exactly
+    /// <see cref="McProtoNet.Transport.Cryptography.PacketCipher.SharedSecretLength"/> bytes long. It serves
+    /// as both the key and the initialization vector.</param>
+    /// <exception cref="ArgumentException"><paramref name="sharedSecret"/> is not
+    /// <see cref="McProtoNet.Transport.Cryptography.PacketCipher.SharedSecretLength"/> bytes
+    /// long.</exception>
+    /// <exception cref="InvalidOperationException">The client is not connected.
+    /// -or-
+    /// Encryption is already enabled.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <remarks>
+    /// Call this method after the frame that agreed the secret has been written and before the next frame
+    /// is read.
+    /// </remarks>
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret) => Connection.EnableEncryption(sharedSecret);
 
-    /// <summary>Closes the connection from any thread; an in-flight read or write fails with the reason.</summary>
+    /// <summary>
+    /// Closes the connection and fails any read or write in progress.
+    /// </summary>
+    /// <param name="reason">The exception to fail pending operations with, or <see langword="null"/> to use
+    /// the default reason.</param>
+    /// <remarks>
+    /// This method can be called from any thread. It does nothing when the client is not connected.
+    /// </remarks>
     public void Abort(Exception? reason = null) => _connection?.Abort(reason);
 
     /// <summary>
-    ///     Kills the stream first so a send parked on a full socket fails now instead of holding the
-    ///     gate, then takes the gate before the transport gives its pooled buffers back: a write still
-    ///     inside the transport and a buffer already returned to the pool must not overlap. A
-    ///     connection handed to <see cref="MinecraftConnection.ToStreaming" /> is no longer this
-    ///     client's to close.
+    /// Asynchronously releases all resources used by the current instance of the
+    /// <see cref="MinecraftClient"/> class.
     /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <remarks>
+    /// The stream is closed first, so a send blocked on a full socket fails instead of holding the send
+    /// gate. The gate is then taken before the transport returns its pooled buffers. A connection passed
+    /// to <see cref="MinecraftConnection.ToStreaming"/> is no longer owned by this client and is not
+    /// closed here.
+    /// </remarks>
     public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposed, 1) == 1) return;
@@ -254,12 +402,8 @@ public sealed class MinecraftClient : IAsyncDisposable
         }
     }
 
-    /// <summary>
-    ///     Vanilla's rule: an SRV lookup only when the user left the port alone and typed a name, not an
-    ///     address. A dead resolver is not a dead server, so the lookup gets its own small budget and every
-    ///     way it can fail — silence, a broken answer, an unencodable name — ends at the host the user typed.
-    ///     Only the caller's own cancellation and the connect timeout come back out.
-    /// </summary>
+    // SRV lookup only when the port is still the default and the host is a name, not an IP literal.
+    // Every lookup failure falls back to the host as typed; only the caller's own cancellation escapes.
     private async ValueTask<(string Host, int Port)> ResolveAsync(CancellationToken connectToken)
     {
         if (!Options.UseSrv || Options.Port != MinecraftClientOptions.DefaultPort) return (Options.Host, Options.Port);

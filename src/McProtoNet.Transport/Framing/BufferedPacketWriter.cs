@@ -4,16 +4,9 @@ using McProtoNet.Transport.Cryptography;
 namespace McProtoNet.Transport.Framing;
 
 /// <summary>
-///     Streaming writer: framing and encryption happen synchronously into one pooled buffer, and
-///     <see cref="FlushAsync" /> hands the whole buffer to the stream in a single write. When the
-///     flush returns, the bytes are at the socket.
+/// Provides a writer that frames and encrypts packets into one pooled buffer that a flush sends in a
+/// single write.
 /// </summary>
-/// <remarks>
-///     One owner: there is no lock inside. A flush that fails or is cancelled kills the writer for
-///     good, because part of a frame may already be on the wire: every member afterwards throws a
-///     fresh <see cref="InvalidOperationException" /> that carries the original failure as its inner
-///     exception.
-/// </remarks>
 internal sealed class BufferedPacketWriter : IDisposable
 {
     private const int DefaultCapacity = 64 * 1024;
@@ -37,16 +30,16 @@ internal sealed class BufferedPacketWriter : IDisposable
         _buffer = new PooledBufferWriter(Math.Max(initialCapacity, 1024));
     }
 
-    /// <summary>Negative means no compression envelope. Fixed for the life of the writer.</summary>
+    /// <summary>Gets the compression threshold, in bytes. A negative value disables compression.</summary>
     public int CompressionThreshold => _compressionThreshold;
 
-    /// <summary>True once a flush failed part-way; from then on the writer can only throw.</summary>
+    /// <summary>Gets a value indicating whether a flush failed part-way, after which every member throws.</summary>
     public bool IsBroken => _fault is not null;
 
-    /// <summary>True when an encryptor is attached.</summary>
+    /// <summary>Gets a value indicating whether an encryptor is attached.</summary>
     public bool IsEncrypted => _cipher is not null;
 
-    /// <summary>Bytes framed but not yet handed to the stream.</summary>
+    /// <summary>Gets the number of bytes framed but not yet handed to the stream.</summary>
     public long UnflushedBytes
     {
         get
@@ -56,7 +49,7 @@ internal sealed class BufferedPacketWriter : IDisposable
         }
     }
 
-    /// <summary>Frames one packet — varint id plus body, already assembled by the caller.</summary>
+    /// <summary>Frames one packet that already carries its varint id.</summary>
     public void WritePacket(ReadOnlySpan<byte> packet)
     {
         ThrowIfBroken();
@@ -83,7 +76,7 @@ internal sealed class BufferedPacketWriter : IDisposable
         Encrypt(start);
     }
 
-    /// <summary>One write plus one stream flush. When it returns, the bytes are at the socket.</summary>
+    /// <summary>Asynchronously sends everything framed so far in one write and flushes the stream.</summary>
     public ValueTask FlushAsync(CancellationToken token = default)
     {
         ThrowIfBroken();
@@ -96,7 +89,7 @@ internal sealed class BufferedPacketWriter : IDisposable
         return FlushCoreAsync(token);
     }
 
-    /// <summary>Flushes whatever is left. After it the writer holds nothing.</summary>
+    /// <summary>Asynchronously sends everything framed so far and leaves the writer empty.</summary>
     public ValueTask CompleteAsync() => FlushAsync(CancellationToken.None);
 
     private async ValueTask FlushCoreAsync(CancellationToken token)

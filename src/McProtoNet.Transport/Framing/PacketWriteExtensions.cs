@@ -4,12 +4,30 @@ using McProtoNet.Transport.Compression;
 using McProtoNet.Primitives;
 namespace McProtoNet.Transport.Framing;
 
+/// <summary>
+/// Provides extension methods that frame packets into an <see cref="IBufferWriter{T}"/>, a
+/// <see cref="PipeWriter"/>, or a <see cref="Stream"/>.
+/// </summary>
+/// <remarks>
+/// Without compression a frame is the packet length as a varint followed by the packet. With
+/// compression the frame carries an extra varint after the length: 0 for a packet shorter than the
+/// threshold, which is then written as it is, or the uncompressed size for a packet compressed with
+/// zlib.
+/// </remarks>
 public static class PacketWriteExtensions
 {
     private const int MaxHeaderLength = 16;
 
     #region IBufferWriter
 
+    /// <summary>
+    /// Frames one packet that already carries its varint id into the specified buffer writer.
+    /// </summary>
+    /// <param name="writer">The buffer writer that the frame is written to.</param>
+    /// <param name="packet">The packet to frame: the varint packet id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
     public static void WritePacket(this IBufferWriter<byte> writer, ReadOnlySpan<byte> packet,
         int compressionThreshold = -1)
     {
@@ -33,6 +51,16 @@ public static class PacketWriteExtensions
         WriteCompressed(writer, packet);
     }
 
+    /// <summary>
+    /// Frames one packet into the specified buffer writer, prefixing the body with the specified packet
+    /// id.
+    /// </summary>
+    /// <param name="writer">The buffer writer that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
     public static void WritePacket(this IBufferWriter<byte> writer, int id, ReadOnlySpan<byte> body,
         int compressionThreshold = -1)
     {
@@ -71,6 +99,21 @@ public static class PacketWriteExtensions
         }
     }
 
+    /// <summary>
+    /// Frames one packet that already carries its varint id into the specified buffer writer, from a
+    /// segmented buffer and without joining the segments first.
+    /// </summary>
+    /// <param name="writer">The buffer writer that the frame is written to.</param>
+    /// <param name="packet">The packet to frame, split across one or more segments: the varint packet
+    /// id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException"><paramref name="packet"/> is longer than
+    /// <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// A packet that is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static void WritePacket(this IBufferWriter<byte> writer, in ReadOnlySequence<byte> packet,
         int compressionThreshold = -1)
     {
@@ -111,6 +154,21 @@ public static class PacketWriteExtensions
         }
     }
 
+    /// <summary>
+    /// Frames one packet into the specified buffer writer from a segmented body, prefixing it with the
+    /// specified packet id and without joining the segments first.
+    /// </summary>
+    /// <param name="writer">The buffer writer that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id, split across one or more segments.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException">The length of <paramref name="body"/> and the packet id
+    /// together exceed <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// A packet that is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static void WritePacket(this IBufferWriter<byte> writer, int id, in ReadOnlySequence<byte> body,
         int compressionThreshold = -1)
     {
@@ -159,6 +217,19 @@ public static class PacketWriteExtensions
 
     #region PipeWriter
 
+    /// <summary>
+    /// Asynchronously frames one packet that already carries its varint id into the specified pipe and
+    /// flushes it.
+    /// </summary>
+    /// <param name="writer">The pipe writer that the frame is written to.</param>
+    /// <param name="packet">The packet to frame: the varint packet id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous flush operation. The result contains the
+    /// <see cref="FlushResult"/> of the pipe.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
     public static ValueTask<FlushResult> WritePacketAsync(this PipeWriter writer, ReadOnlyMemory<byte> packet,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -168,6 +239,20 @@ public static class PacketWriteExtensions
         return writer.FlushAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet into the specified pipe, prefixing the body with the specified
+    /// packet id, and flushes it.
+    /// </summary>
+    /// <param name="writer">The pipe writer that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous flush operation. The result contains the
+    /// <see cref="FlushResult"/> of the pipe.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
     public static ValueTask<FlushResult> WritePacketAsync(this PipeWriter writer, int id, ReadOnlyMemory<byte> body,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -177,6 +262,22 @@ public static class PacketWriteExtensions
         return writer.FlushAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet that already carries its varint id into the specified pipe from
+    /// a segmented buffer, and flushes it.
+    /// </summary>
+    /// <param name="writer">The pipe writer that the frame is written to.</param>
+    /// <param name="packet">The packet to frame, split across one or more segments: the varint packet
+    /// id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous flush operation. The result contains the
+    /// <see cref="FlushResult"/> of the pipe.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException"><paramref name="packet"/> is longer than
+    /// <see cref="int.MaxValue"/> bytes.</exception>
     public static ValueTask<FlushResult> WritePacketAsync(this PipeWriter writer, ReadOnlySequence<byte> packet,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -186,6 +287,22 @@ public static class PacketWriteExtensions
         return writer.FlushAsync(cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet into the specified pipe from a segmented body, prefixing it
+    /// with the specified packet id, and flushes it.
+    /// </summary>
+    /// <param name="writer">The pipe writer that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id, split across one or more segments.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous flush operation. The result contains the
+    /// <see cref="FlushResult"/> of the pipe.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="writer"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException">The length of <paramref name="body"/> and the packet id
+    /// together exceed <see cref="int.MaxValue"/> bytes.</exception>
     public static ValueTask<FlushResult> WritePacketAsync(this PipeWriter writer, int id, ReadOnlySequence<byte> body,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -199,6 +316,17 @@ public static class PacketWriteExtensions
 
     #region Stream
 
+    /// <summary>
+    /// Frames one packet that already carries its varint id and writes it to the specified stream.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="packet">The packet to frame: the varint packet id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The stream is not flushed.
+    /// </remarks>
     public static void WritePacket(this Stream stream, ReadOnlySpan<byte> packet, int compressionThreshold = -1)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -215,6 +343,19 @@ public static class PacketWriteExtensions
         stream.Write(packet);
     }
 
+    /// <summary>
+    /// Frames one packet and writes it to the specified stream, prefixing the body with the specified
+    /// packet id.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The stream is not flushed.
+    /// </remarks>
     public static void WritePacket(this Stream stream, int id, ReadOnlySpan<byte> body,
         int compressionThreshold = -1)
     {
@@ -247,6 +388,22 @@ public static class PacketWriteExtensions
         stream.Write(body);
     }
 
+    /// <summary>
+    /// Frames one packet that already carries its varint id and writes it to the specified stream, from
+    /// a segmented buffer and without joining the segments first.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="packet">The packet to frame, split across one or more segments: the varint packet
+    /// id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException"><paramref name="packet"/> is longer than
+    /// <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// The header and each segment are written separately, and the stream is not flushed. A packet that
+    /// is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static void WritePacket(this Stream stream, in ReadOnlySequence<byte> packet,
         int compressionThreshold = -1)
     {
@@ -286,6 +443,22 @@ public static class PacketWriteExtensions
         }
     }
 
+    /// <summary>
+    /// Frames one packet from a segmented body and writes it to the specified stream, prefixing it with
+    /// the specified packet id and without joining the segments first.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id, split across one or more segments.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OverflowException">The length of <paramref name="body"/> and the packet id
+    /// together exceed <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// The header and each segment are written separately, and the stream is not flushed. A packet that
+    /// is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static void WritePacket(this Stream stream, int id, in ReadOnlySequence<byte> body,
         int compressionThreshold = -1)
     {
@@ -332,6 +505,23 @@ public static class PacketWriteExtensions
 
     #region Stream async
 
+    /// <summary>
+    /// Asynchronously frames one packet that already carries its varint id and writes it to the
+    /// specified stream.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="packet">The packet to frame: the varint packet id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
+    /// is stored into the returned task.</exception>
+    /// <remarks>
+    /// The stream is not flushed.
+    /// </remarks>
     public static ValueTask WritePacketAsync(this Stream stream, ReadOnlyMemory<byte> packet,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -339,6 +529,24 @@ public static class PacketWriteExtensions
         return WriteMemoryCoreAsync(stream, packet, compressionThreshold, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet and writes it to the specified stream, prefixing the body with
+    /// the specified packet id.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
+    /// is stored into the returned task.</exception>
+    /// <remarks>
+    /// The stream is not flushed.
+    /// </remarks>
     public static ValueTask WritePacketAsync(this Stream stream, int id, ReadOnlyMemory<byte> body,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -346,6 +554,27 @@ public static class PacketWriteExtensions
         return WriteMemoryCoreAsync(stream, id, body, compressionThreshold, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet that already carries its varint id and writes it to the
+    /// specified stream, from a segmented buffer and without joining the segments first.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="packet">The packet to frame, split across one or more segments: the varint packet
+    /// id followed by the body.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
+    /// is stored into the returned task.</exception>
+    /// <exception cref="OverflowException"><paramref name="packet"/> is longer than
+    /// <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// The header and each segment are written separately, and the stream is not flushed. A packet that
+    /// is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static ValueTask WritePacketAsync(this Stream stream, ReadOnlySequence<byte> packet,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {
@@ -353,6 +582,27 @@ public static class PacketWriteExtensions
         return WriteSequenceCoreAsync(stream, packet, compressionThreshold, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously frames one packet from a segmented body and writes it to the specified stream,
+    /// prefixing it with the specified packet id and without joining the segments first.
+    /// </summary>
+    /// <param name="stream">The stream that the frame is written to.</param>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id, split across one or more segments.</param>
+    /// <param name="compressionThreshold">The compression threshold, in bytes. A negative value
+    /// disables the compression envelope. The default is -1.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default
+    /// value is <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
+    /// is stored into the returned task.</exception>
+    /// <exception cref="OverflowException">The length of <paramref name="body"/> and the packet id
+    /// together exceed <see cref="int.MaxValue"/> bytes.</exception>
+    /// <remarks>
+    /// The header and each segment are written separately, and the stream is not flushed. A packet that
+    /// is compressed is copied into one pooled buffer first.
+    /// </remarks>
     public static ValueTask WritePacketAsync(this Stream stream, int id, ReadOnlySequence<byte> body,
         int compressionThreshold = -1, CancellationToken cancellationToken = default)
     {

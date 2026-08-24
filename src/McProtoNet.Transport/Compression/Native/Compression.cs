@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 
 namespace McProtoNet.Transport.Compression.Native;
 
+/// <summary>Declares the libdeflate compression entry points.</summary>
 internal static class Compression
 {
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
@@ -40,4 +41,4 @@ internal static class Compression
 
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
     public static extern void libdeflate_free_compressor(IntPtr compressor);
-}
+}

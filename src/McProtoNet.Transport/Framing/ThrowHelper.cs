@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace McProtoNet.Transport.Framing;
 
-/// <summary>Cold throws kept out of the framing loops, so the loops stay inlineable.</summary>
+/// <summary>Provides the throw sites of the framing code so the surrounding loops stay inlineable.</summary>
 internal static class ThrowHelper
 {
     [DoesNotReturn]
@@ -57,7 +57,7 @@ internal static class ThrowHelper
     public static void ThrowAborted(Exception? reason)
         => throw new ConnectionAbortedException(reason);
 
-    /// <summary>A flush failed part-way, so the writer can never frame again: a fresh throw, never the stored fault.</summary>
+    /// <summary>Throws a new exception that carries the stored fault, instead of rethrowing it.</summary>
     [DoesNotReturn]
     [StackTraceHidden]
     public static void ThrowWriterDead(Exception? fault)

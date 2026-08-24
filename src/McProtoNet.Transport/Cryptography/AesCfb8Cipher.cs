@@ -2,6 +2,9 @@ using System.Security.Cryptography;
 
 namespace McProtoNet.Transport.Cryptography;
 
+/// <summary>
+/// Provides an AES/CFB8 packet cipher that runs on the platform <see cref="Aes"/> implementation.
+/// </summary>
 internal sealed class AesCfb8Cipher : PacketCipher
 {
     private const int RegisterLength = 16;

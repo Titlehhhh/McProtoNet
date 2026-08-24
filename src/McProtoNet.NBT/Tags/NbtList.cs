@@ -4,8 +4,11 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing a list of unnamed tags, all of the same kind.
+/// Represents an NBT tag that holds a list of unnamed tags of the same type.
 /// </summary>
+/// <remarks>
+/// A tag added to this list becomes its child and cannot be added to another compound or list until it is removed.
+/// </remarks>
 public sealed class NbtList : NbtTag, IList<NbtTag>, IList
 {
     private readonly List<NbtTag> _tags = new();
@@ -13,7 +16,8 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     private NbtTagType _listType;
 
     /// <summary>
-    ///     Creates an unnamed NbtList with empty contents and an element type of TAG_End.
+    /// Initializes a new instance of the <see cref="NbtList"/> class that is unnamed and empty, with an element type
+    /// of <see cref="NbtTagType.End"/>.
     /// </summary>
     public NbtList()
         : this(null!, null!, NbtTagType.End)
@@ -21,24 +25,27 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Creates an NbtList with given name, empty contents, and undefined ListType.
+    /// Initializes a new instance of the <see cref="NbtList"/> class with the specified name that is empty, with an
+    /// element type of <see cref="NbtTagType.End"/>.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
     public NbtList(string? tagName)
         : this(tagName, null, NbtTagType.End)
     {
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtList with the given contents, and inferred ListType.
-    ///     If the given tag collection is empty, the element type stays TAG_End.
+    /// Initializes a new instance of the <see cref="NbtList"/> class that is unnamed and contains the specified
+    /// tags, with the element type inferred from them.
     /// </summary>
-    /// <param name="tags">
-    ///     Collection of tags to insert into the list. All tags are expected to be of the same type.
-    ///     ListType is inferred from the first tag. List may be empty, but may not be <c>null</c>.
-    /// </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> If given tags are of mixed types. </exception>
+    /// <param name="tags">The tags to add. All tags must be unnamed and of the same type. The collection can be
+    /// empty, in which case the element type stays <see cref="NbtTagType.End"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The tags are of mixed types.
+    /// -or-
+    /// One of the tags is named or already belongs to another compound or list.</exception>
     public NbtList(IEnumerable<NbtTag> tags)
         : this(null, tags, NbtTagType.End)
     {
@@ -47,28 +54,31 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtList with empty contents and an explicitly specified ListType.
-    ///     If the element type is TAG_End, it is inferred from the first tag added.
-    ///     Otherwise, all tags added to this list are expected to be of the given type.
+    /// Initializes a new instance of the <see cref="NbtList"/> class that is unnamed and empty, with the specified
+    /// element type.
     /// </summary>
-    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a recognized tag type. </exception>
+    /// <param name="givenListType">The element type of the list. <see cref="NbtTagType.End"/> means that the
+    /// element type is inferred from the first tag added.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="givenListType"/> is not a recognized tag
+    /// type.</exception>
     public NbtList(NbtTagType givenListType)
         : this(null, null, givenListType)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtList with the given name and contents, and inferred ListType.
-    ///     If the given tag collection is empty, the element type stays TAG_End.
+    /// Initializes a new instance of the <see cref="NbtList"/> class with the specified name that contains the
+    /// specified tags, with the element type inferred from them.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="tags">
-    ///     Collection of tags to insert into the list. All tags are expected to be of the same type.
-    ///     ListType is inferred from the first tag. List may be empty, but may not be <c>null</c>.
-    /// </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> If given tags are of mixed types. </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="tags">The tags to add. All tags must be unnamed and of the same type. The collection can be
+    /// empty, in which case the element type stays <see cref="NbtTagType.End"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The tags are of mixed types.
+    /// -or-
+    /// One of the tags is named or already belongs to another compound or list.</exception>
     public NbtList(string? tagName, IEnumerable<NbtTag> tags)
         : this(tagName, tags, NbtTagType.End)
     {
@@ -77,20 +87,22 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtList with the given contents, and an explicitly specified ListType.
+    /// Initializes a new instance of the <see cref="NbtList"/> class that is unnamed and contains the specified
+    /// tags, with the specified element type.
     /// </summary>
-    /// <param name="tags">
-    ///     Collection of tags to insert into the list.
-    ///     All tags are expected to be of the same type (matching givenListType).
-    ///     List may be empty, but may not be <c>null</c>.
-    /// </param>
-    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
-    /// <exception cref="ArgumentException">
-    ///     If given tags do not match <paramref name="givenListType" />, or are of mixed
-    ///     types.
-    /// </exception>
+    /// <param name="tags">The tags to add. All tags must be unnamed and must match
+    /// <paramref name="givenListType"/>. The collection can be empty.</param>
+    /// <param name="givenListType">The element type of the list. <see cref="NbtTagType.End"/> means that the
+    /// element type is inferred from the first tag added.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="givenListType"/> is not a recognized tag
+    /// type.</exception>
+    /// <exception cref="ArgumentException">The tags do not match <paramref name="givenListType"/> or are of mixed
+    /// types.
+    /// -or-
+    /// One of the tags is named or already belongs to another compound or list.</exception>
     public NbtList(IEnumerable<NbtTag> tags, NbtTagType givenListType)
         : this(null, tags, givenListType)
     {
@@ -99,33 +111,35 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Creates an NbtList with the given name, empty contents, and an explicitly specified ListType.
+    /// Initializes a new instance of the <see cref="NbtList"/> class with the specified name that is empty, with the
+    /// specified element type.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="givenListType">
-    ///     Name to assign to this tag.
-    ///     If givenListType is TAG_End, the element type is inferred from the first tag added.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="givenListType">The element type of the list. <see cref="NbtTagType.End"/> means that the
+    /// element type is inferred from the first tag added.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="givenListType"/> is not a recognized tag
+    /// type.</exception>
     public NbtList(string? tagName, NbtTagType givenListType)
         : this(tagName, null, givenListType)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtList with the given name and contents, and an explicitly specified ListType.
+    /// Initializes a new instance of the <see cref="NbtList"/> class with the specified name and contents, with the
+    /// specified element type.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="tags">
-    ///     Collection of tags to insert into the list.
-    ///     All tags are expected to be of the same type (matching givenListType). May be empty or <c>null</c>.
-    /// </param>
-    /// <param name="givenListType"> Element type of the list. TAG_End means: infer from the first tag added. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="givenListType" /> is not a valid tag type. </exception>
-    /// <exception cref="ArgumentException">
-    ///     If given tags do not match <paramref name="givenListType" />, or are of mixed
-    ///     types.
-    /// </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="tags">The tags to add. All tags must be unnamed and must match
+    /// <paramref name="givenListType"/>. The collection can be empty or <see langword="null"/>.</param>
+    /// <param name="givenListType">The element type of the list. <see cref="NbtTagType.End"/> means that the
+    /// element type is inferred from the first tag added.</param>
+    /// <exception cref="ArgumentNullException">One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="givenListType"/> is not a recognized tag
+    /// type.</exception>
+    /// <exception cref="ArgumentException">The tags do not match <paramref name="givenListType"/> or are of mixed
+    /// types.
+    /// -or-
+    /// One of the tags is named or already belongs to another compound or list.</exception>
     public NbtList(string? tagName, IEnumerable<NbtTag>? tags, NbtTagType givenListType)
     {
         Name = tagName;
@@ -136,10 +150,11 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Creates a deep copy of given NbtList.
+    /// Initializes a new instance of the <see cref="NbtList"/> class that is a deep copy of the specified tag.
     /// </summary>
-    /// <param name="other"> An existing NbtList to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    /// <param name="other">The tag to copy. The name, the element type and a clone of every child tag are
+    /// copied.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtList(NbtList other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -149,18 +164,22 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Type of this tag (List).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.List"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.List;
 
     /// <summary>
-    ///     Gets or sets the tag type of this list. All tags in this NbtTag must be of the same type.
+    /// Gets or sets the element type of this list. All tags in the list are of this type.
     /// </summary>
-    /// <exception cref="ArgumentException">
-    ///     If the given NbtTagType does not match the type of existing list items (for
-    ///     non-empty lists).
-    /// </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> If the given NbtTagType is a recognized tag type. </exception>
+    /// <exception cref="ArgumentException">The property is set to <see cref="NbtTagType.End"/> while the list is not
+    /// empty.
+    /// -or-
+    /// The property is set to a type that does not match the type of the elements already in the list.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">The property is set to a value that is not a recognized tag
+    /// type.</exception>
+    /// <remarks>
+    /// <see cref="NbtTagType.End"/> means that the element type is inferred from the first tag added.
+    /// </remarks>
     public NbtTagType ListType
     {
         get => _listType;
@@ -192,13 +211,20 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Gets or sets the tag at the specified index.
+    /// Gets or sets the tag at the specified index.
     /// </summary>
-    /// <returns> The tag at the specified index. </returns>
-    /// <param name="tagIndex"> The zero-based index of the tag to get or set. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="tagIndex" /> is not a valid index in the NbtList. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> Given tag's type does not match ListType. </exception>
+    /// <param name="tagIndex">The zero-based index of the tag to get or set.</param>
+    /// <returns>The tag at the specified index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tagIndex"/> is not a valid index in the
+    /// list.</exception>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The tag being set already belongs to another compound or list.
+    /// -or-
+    /// The tag being set is this list or its parent.
+    /// -or-
+    /// The tag being set is named.
+    /// -or-
+    /// The type of the tag being set does not match <see cref="ListType"/>.</exception>
     public override NbtTag this[int tagIndex]
     {
         get => _tags[tagIndex];
@@ -223,24 +249,30 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Gets or sets the tag with the specified name.
+    /// Gets the tag at the specified index, cast to the specified type.
     /// </summary>
-    /// <param name="tagIndex"> The zero-based index of the tag to get or set. </param>
-    /// <typeparam name="T"> Type to cast the result to. Must derive from NbtTag. </typeparam>
-    /// <returns> The tag with the specified key. </returns>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="tagIndex" /> is not a valid index in the NbtList. </exception>
-    /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
+    /// <typeparam name="T">The type to cast the tag to.</typeparam>
+    /// <param name="tagIndex">The zero-based index of the tag to get.</param>
+    /// <returns>The tag at the specified index.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tagIndex"/> is not a valid index in the
+    /// list.</exception>
+    /// <exception cref="InvalidCastException">The tag cannot be cast to <typeparamref name="T"/>.</exception>
     public T Get<T>(int tagIndex) where T : NbtTag
     {
         return (T)_tags[tagIndex];
     }
 
     /// <summary>
-    ///     Adds all tags from the specified collection to the end of this NbtList.
+    /// Adds all tags of the specified collection to the end of this list.
     /// </summary>
-    /// <param name="newTags"> The collection whose elements should be added to this NbtList. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="newTags" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> If given tags do not match ListType, or are of mixed types. </exception>
+    /// <param name="newTags">The tags to add. All tags must be unnamed and must match
+    /// <see cref="ListType"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newTags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The tags do not match <see cref="ListType"/> or are of mixed types.
+    /// -or-
+    /// One of the tags is named or already belongs to another compound or list.</exception>
     public void AddRange(IEnumerable<NbtTag> newTags)
     {
         if (newTags == null) throw new ArgumentNullException(nameof(newTags));
@@ -248,9 +280,9 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Copies all tags in this NbtList to an array.
+    /// Copies all tags in this list to a new array.
     /// </summary>
-    /// <returns> Array of NbtTags. </returns>
+    /// <returns>An array that contains the tags of this list.</returns>
 
     // ReSharper disable ReturnTypeCanBeEnumerable.Global
     public NbtTag[] ToArray()
@@ -260,11 +292,12 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Copies all tags in this NbtList to an array, and casts it to the desired type.
+    /// Copies all tags in this list to a new array of the specified type.
     /// </summary>
-    /// <typeparam name="T"> Type to cast every member of NbtList to. Must derive from NbtTag. </typeparam>
-    /// <returns> Array of NbtTags cast to the desired type. </returns>
-    /// <exception cref="InvalidCastException"> If contents of this list cannot be cast to the given type. </exception>
+    /// <typeparam name="T">The type to cast every tag to.</typeparam>
+    /// <returns>An array that contains the tags of this list, cast to <typeparamref name="T"/>.</returns>
+    /// <exception cref="InvalidCastException">A tag in this list cannot be cast to
+    /// <typeparamref name="T"/>.</exception>
     public T[] ToArray<T>() where T : NbtTag
     {
         var result = new T[_tags.Count];
@@ -345,9 +378,9 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     #region Implementation of IEnumerable<NBtTag> and IEnumerable
 
     /// <summary>
-    ///     Returns an enumerator that iterates through all tags in this NbtList.
+    /// Returns an enumerator that iterates through all tags in this list.
     /// </summary>
-    /// <returns> An IEnumerator&gt;NbtTag&lt; that can be used to iterate through the list. </returns>
+    /// <returns>An enumerator for the tags in this list.</returns>
     public IEnumerator<NbtTag> GetEnumerator()
     {
         return _tags.GetEnumerator();
@@ -363,10 +396,11 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     #region Implementation of IList<NbtTag> and ICollection<NbtTag>
 
     /// <summary>
-    ///     Determines the index of a specific tag in this NbtList
+    /// Determines the index of the specified tag in this list.
     /// </summary>
-    /// <returns> The index of tag if found in the list; otherwise, -1. </returns>
-    /// <param name="tag"> The tag to locate in this NbtList. </param>
+    /// <param name="tag">The tag to locate.</param>
+    /// <returns>The zero-based index of the tag if it was found; otherwise, -1. This method returns -1 if
+    /// <paramref name="tag"/> is <see langword="null"/>.</returns>
     public int IndexOf(NbtTag? tag)
     {
         if (tag == null) return -1;
@@ -374,12 +408,21 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Inserts an item to this NbtList at the specified index.
+    /// Inserts a tag into this list at the specified index.
     /// </summary>
-    /// <param name="tagIndex"> The zero-based index at which newTag should be inserted. </param>
-    /// <param name="newTag"> The tag to insert into this NbtList. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="tagIndex" /> is not a valid index in this NbtList. </exception>
-    /// <exception cref="ArgumentNullException"> <paramref name="newTag" /> is <c>null</c>. </exception>
+    /// <param name="tagIndex">The zero-based index at which the tag is inserted.</param>
+    /// <param name="newTag">The tag to insert. It must match <see cref="ListType"/> and must have no parent.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="tagIndex"/> is not a valid index in the
+    /// list.</exception>
+    /// <exception cref="ArgumentNullException"><paramref name="newTag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">The type of <paramref name="newTag"/> does not match
+    /// <see cref="ListType"/>.
+    /// -or-
+    /// <paramref name="newTag"/> already belongs to another compound or list.</exception>
+    /// <remarks>
+    /// If <see cref="ListType"/> is <see cref="NbtTagType.End"/>, it is set to the type of
+    /// <paramref name="newTag"/>.
+    /// </remarks>
     public void Insert(int tagIndex, NbtTag newTag)
     {
         if (newTag == null) throw new ArgumentNullException(nameof(newTag));
@@ -396,10 +439,14 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Removes a tag at the specified index from this NbtList.
+    /// Removes the tag at the specified index from this list.
     /// </summary>
-    /// <param name="index"> The zero-based index of the item to remove. </param>
-    /// <exception cref="ArgumentOutOfRangeException"> <paramref name="index" /> is not a valid index in the NbtList. </exception>
+    /// <param name="index">The zero-based index of the tag to remove.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> is not a valid index in the
+    /// list.</exception>
+    /// <remarks>
+    /// The parent of the removed tag is set to <see langword="null"/>.
+    /// </remarks>
     public void RemoveAt(int index)
     {
         var tag = this[index];
@@ -408,11 +455,22 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Adds a tag to this NbtList.
+    /// Adds a tag to the end of this list.
     /// </summary>
-    /// <param name="newTag"> The tag to add to this NbtList. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="newTag" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> If <paramref name="newTag" /> does not match ListType. </exception>
+    /// <param name="newTag">The tag to add. It must be unnamed, must match <see cref="ListType"/> and must have no
+    /// parent.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newTag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newTag"/> already belongs to another compound or list.
+    /// -or-
+    /// <paramref name="newTag"/> is this list or its parent.
+    /// -or-
+    /// <paramref name="newTag"/> is named.
+    /// -or-
+    /// The type of <paramref name="newTag"/> does not match <see cref="ListType"/>.</exception>
+    /// <remarks>
+    /// The added tag becomes a child of this list. If <see cref="ListType"/> is <see cref="NbtTagType.End"/>, it is
+    /// set to the type of <paramref name="newTag"/>.
+    /// </remarks>
     public void Add(NbtTag newTag)
     {
         if (newTag == null) throw new ArgumentNullException(nameof(newTag));
@@ -435,8 +493,11 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Removes all tags from this NbtList.
+    /// Removes all tags from this list.
     /// </summary>
+    /// <remarks>
+    /// The parent of every removed tag is set to <see langword="null"/>. <see cref="ListType"/> is not changed.
+    /// </remarks>
     public void Clear()
     {
         foreach (var t in _tags) t.Parent = null;
@@ -445,46 +506,39 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Determines whether this NbtList contains a specific tag.
+    /// Determines whether this list contains the specified tag.
     /// </summary>
-    /// <returns> true if given tag is found in this NbtList; otherwise, false. </returns>
-    /// <param name="item"> The tag to locate in this NbtList. </param>
+    /// <param name="item">The tag to locate. This value can be <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if the tag was found; otherwise, <see langword="false"/>.</returns>
     public bool Contains(NbtTag? item)
     {
         return _tags.Contains(item!);
     }
 
     /// <summary>
-    ///     Copies the tags of this NbtList to an array, starting at a particular array index.
+    /// Copies the tags of this list to an array, starting at the specified index.
     /// </summary>
-    /// <param name="array">
-    ///     The one-dimensional array that is the destination of the tag copied from NbtList.
-    ///     The array must have zero-based indexing.
-    /// </param>
-    /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="array" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> arrayIndex is less than 0. </exception>
-    /// <exception cref="ArgumentException">
-    ///     Given array is multidimensional; arrayIndex is equal to or greater than the length of array;
-    ///     the number of tags in this NbtList is greater than the available space from arrayIndex to the end of the
-    ///     destination array;
-    ///     or type NbtTag cannot be cast automatically to the type of the destination array.
-    /// </exception>
+    /// <param name="array">The one-dimensional array that is the destination of the copied tags. The array must
+    /// have zero-based indexing.</param>
+    /// <param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="array"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is less than zero.</exception>
+    /// <exception cref="ArgumentException">The number of tags in this list is greater than the available space from
+    /// <paramref name="arrayIndex"/> to the end of <paramref name="array"/>.</exception>
     public void CopyTo(NbtTag[] array, int arrayIndex)
     {
         _tags.CopyTo(array, arrayIndex);
     }
 
     /// <summary>
-    ///     Removes the first occurrence of a specific NbtTag from the NbtCompound.
-    ///     Looks for exact object matches, not name matches.
+    /// Removes the first occurrence of the specified tag from this list.
     /// </summary>
-    /// <returns>
-    ///     true if tag was successfully removed from this NbtList; otherwise, false.
-    ///     This method also returns false if tag is not found.
-    /// </returns>
-    /// <param name="tag"> The tag to remove from this NbtList. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tag" /> is <c>null</c>. </exception>
+    /// <param name="tag">The tag to remove.</param>
+    /// <returns><see langword="true"/> if the tag was found and removed; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The parent of the removed tag is set to <see langword="null"/>.
+    /// </remarks>
     public bool Remove(NbtTag tag)
     {
         if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -494,9 +548,8 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     }
 
     /// <summary>
-    ///     Gets the number of tags contained in the NbtList.
+    /// Gets the number of tags contained in this list.
     /// </summary>
-    /// <returns> The number of tags contained in the NbtList. </returns>
     public int Count => _tags.Count;
 
     bool ICollection<NbtTag>.IsReadOnly => false;

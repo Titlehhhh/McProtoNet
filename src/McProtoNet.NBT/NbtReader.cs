@@ -3,9 +3,12 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Represents a reader that provides fast, non-cached, forward-only access to NBT data.
-///     Each instance of NbtReader reads one complete file.
+/// Provides fast, non-cached, forward-only access to NBT data in a stream.
 /// </summary>
+/// <remarks>
+/// Each instance reads one complete document. The input is Java Edition NBT only: every number is
+/// big-endian, every string is modified UTF-8, and there is no little-endian (Bedrock) mode.
+/// </remarks>
 public class NbtReader
 {
     private const string NoValueToReadError = "Value already read, or no value to read.",
@@ -24,16 +27,15 @@ public class NbtReader
     private object? _valueCache;
 
     /// <summary>
-    ///     Opens a reader over a stream of Java Edition NBT — big-endian numbers, modified UTF-8
-    ///     strings. There is no little-endian (Bedrock) mode.
+    /// Initializes a new instance of the <see cref="NbtReader"/> class that reads from the specified stream.
     /// </summary>
-    /// <param name="stream"> Stream to read from. </param>
-    /// <param name="readRootName">
-    ///     True (the default) expects a named root, as NBT files carry it. False expects the nameless
-    ///     root of the network format used since 1.20.2.
-    /// </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="stream" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> <paramref name="stream" /> is not readable. </exception>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="readRootName"><see langword="true"/> to expect a named root tag, as an NBT file carries
+    /// it; <see langword="false"/> to expect the nameless root of the network format used since 1.20.2. The
+    /// default is <see langword="true"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="stream"/> is not readable.</exception>
     public NbtReader(Stream stream, bool readRootName = true)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -50,16 +52,22 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Reads one complete tag from a stream and builds the tag tree. The root may be of any
-    ///     type — since 1.20.3 a network root can be a TAG_String. Returns null when the first
-    ///     byte is TAG_End.
+    /// Reads one complete tag from the specified stream and builds the tag tree.
     /// </summary>
-    /// <param name="stream"> Stream positioned at the tag type byte. </param>
-    /// <param name="readRootName">
-    ///     True (the default) reads the root tag's name after the type byte. False expects the
-    ///     nameless root of the network format.
-    /// </param>
-    /// <exception cref="NbtFormatException"> The data is malformed, truncated, or too deeply nested. </exception>
+    /// <param name="stream">The stream, positioned at the tag type byte.</param>
+    /// <param name="readRootName"><see langword="true"/> to read the root tag's name after the type byte;
+    /// <see langword="false"/> to expect the nameless root of the network format. The default is
+    /// <see langword="true"/>.</param>
+    /// <returns>The tag that was read, or <see langword="null"/> if the first byte is
+    /// <see cref="NbtTagType.End"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="stream"/> is not readable.</exception>
+    /// <exception cref="NbtFormatException">The data is malformed, truncated, or nested too
+    /// deeply.</exception>
+    /// <remarks>
+    /// The root tag can be of any type. A network root can be a <see cref="NbtTagType.String"/> since 1.20.3.
+    /// </remarks>
     public static NbtTag? ReadTag(Stream stream, bool readRootName = true)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -76,128 +84,205 @@ public class NbtReader
 
 
     /// <summary>
-    ///     Gets the name of the root tag of this NBT stream.
+    /// Gets the name of the root tag.
     /// </summary>
+    /// <value>
+    /// The name of the root tag, or <see langword="null"/> if the root tag has not been read yet or the
+    /// stream uses the nameless network format.
+    /// </value>
     public string? RootName { get; private set; }
 
     /// <summary>
-    ///     Gets the name of the parent tag. May be null (for root tags and descendants of list elements).
+    /// Gets the name of the parent tag.
     /// </summary>
+    /// <value>
+    /// The name of the parent tag, or <see langword="null"/> for a root tag and for a descendant of a list
+    /// element.
+    /// </value>
     public string? ParentName { get; private set; }
 
     /// <summary>
-    ///     Gets the name of the current tag. May be null (for list elements and end tags).
+    /// Gets the name of the current tag.
     /// </summary>
+    /// <value>
+    /// The name of the current tag, or <see langword="null"/> for a list element and for an end tag.
+    /// </value>
     public string? TagName { get; private set; }
 
     /// <summary>
-    ///     Gets the type of the parent tag. Returns TAG_End when there is no parent tag.
+    /// Gets the type of the parent tag.
     /// </summary>
+    /// <value>
+    /// The type of the parent tag, or <see cref="NbtTagType.End"/> if there is no parent tag.
+    /// </value>
     public NbtTagType ParentTagType { get; private set; }
 
     /// <summary>
-    ///     Gets the type of the current tag.
+    /// Gets the type of the current tag.
     /// </summary>
     public NbtTagType TagType { get; private set; }
 
     /// <summary>
-    ///     Whether tag that we are currently on is a list element.
+    /// Gets a value indicating whether the current tag is an element of a list.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag is an element of a list; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
     public bool IsListElement => ParentTagType == NbtTagType.List;
 
     /// <summary>
-    ///     Whether current tag has a value to read.
+    /// Gets a value indicating whether the current tag has a value to read.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag is neither a compound, nor a list, nor an end tag;
+    /// otherwise, <see langword="false"/>.
+    /// </value>
     public bool HasValue =>
         TagType is not (NbtTagType.Compound or NbtTagType.End or NbtTagType.List);
 
     /// <summary>
-    ///     Whether current tag has a name.
+    /// Gets a value indicating whether the current tag has a name.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag has a name; otherwise, <see langword="false"/>.
+    /// </value>
     public bool HasName => TagName != null;
 
     /// <summary>
-    ///     Whether this reader has reached the end of stream.
+    /// Gets a value indicating whether the reader has reached the end of the stream.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the reader has reached the end of the stream; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
     public bool IsAtStreamEnd => _state == NbtParseState.AtStreamEnd;
 
     /// <summary>
-    ///     Whether the current tag is a Compound.
+    /// Gets a value indicating whether the current tag is a compound.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag is a compound; otherwise, <see langword="false"/>.
+    /// </value>
     public bool IsCompound => TagType == NbtTagType.Compound;
 
     /// <summary>
-    ///     Whether the current tag is a List.
+    /// Gets a value indicating whether the current tag is a list.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag is a list; otherwise, <see langword="false"/>.
+    /// </value>
     public bool IsList => TagType == NbtTagType.List;
 
     /// <summary>
-    ///     Whether the current tag has length (Lists, ByteArrays, and IntArrays have length).
-    ///     Compound tags also have length, technically, but it is not known until all child tags are read.
+    /// Gets a value indicating whether the current tag declares a length.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the current tag is a list, a byte array, an int array, or a long array;
+    /// otherwise, <see langword="false"/>.
+    /// </value>
+    /// <remarks>
+    /// A compound tag also has a length, but the length is not known until all of its child tags are read.
+    /// </remarks>
     public bool HasLength =>
         TagType is NbtTagType.List or NbtTagType.ByteArray or NbtTagType.IntArray or NbtTagType.LongArray;
 
     /// <summary>
-    ///     Gets the Stream from which data is being read.
+    /// Gets the stream that the reader reads from.
     /// </summary>
     public Stream BaseStream => _reader.BaseStream;
 
     /// <summary>
-    ///     Gets the number of bytes from the beginning of the stream to the beginning of this tag.
-    ///     If the stream is not seekable, this value will always be 0.
+    /// Gets the number of bytes from the beginning of the stream to the beginning of the current tag.
     /// </summary>
+    /// <value>
+    /// The offset of the current tag, in bytes. The value is always 0 when the stream is not seekable.
+    /// </value>
     public int TagStartOffset { get; private set; }
 
     /// <summary>
-    ///     Gets the number of tags read from the stream so far
-    ///     (including the current tag and all skipped tags).
-    ///     If <c>SkipEndTags</c> is <c>false</c>, all end tags are also counted.
+    /// Gets the number of tags read from the stream so far.
     /// </summary>
+    /// <value>
+    /// The number of tags read, including the current tag and all skipped tags.
+    /// </value>
+    /// <remarks>
+    /// End tags are counted only when <see cref="SkipEndTags"/> is <see langword="false"/>.
+    /// </remarks>
     public int TagsRead { get; private set; }
 
     /// <summary>
-    ///     Gets the depth of the current tag in the hierarchy.
-    ///     <c>RootTag</c> is at depth 1, its descendant tags are 2, etc.
+    /// Gets the depth of the current tag in the tag tree.
     /// </summary>
+    /// <value>
+    /// The depth of the current tag. The root tag is at depth 1, its child tags are at depth 2, and so on.
+    /// </value>
     public int Depth { get; private set; }
 
     /// <summary>
-    ///     If the current tag is TAG_List, returns type of the list elements.
+    /// Gets the type of the elements of the current list tag.
     /// </summary>
+    /// <value>
+    /// The element type when the current tag is a list; otherwise, <see cref="NbtTagType.End"/>.
+    /// </value>
     public NbtTagType ListType { get; private set; }
 
     /// <summary>
-    ///     If the current tag is TAG_List, TAG_Byte_Array, or TAG_Int_Array, returns the number of elements.
+    /// Gets the number of elements of the current tag.
     /// </summary>
+    /// <value>
+    /// The number of elements when the current tag is a list, a byte array, an int array, or a long array;
+    /// otherwise, 0.
+    /// </value>
     public int TagLength { get; private set; }
 
     /// <summary>
-    ///     If the parent tag is TAG_List, returns the number of elements.
+    /// Gets the number of elements of the parent list tag.
     /// </summary>
+    /// <value>
+    /// The number of elements when the parent tag is a list; otherwise, 0.
+    /// </value>
     public int ParentTagLength { get; private set; }
 
     /// <summary>
-    ///     If the parent tag is TAG_List, returns index of the current tag.
+    /// Gets the index of the current tag within its parent list tag.
     /// </summary>
+    /// <value>
+    /// The zero-based index of the current tag when the parent tag is a list.
+    /// </value>
     public int ListIndex { get; private set; }
 
     /// <summary>
-    ///     Gets whether this NbtReader instance is in state of error.
-    ///     No further reading can be done from this instance if a parse error occurred.
+    /// Gets a value indicating whether the reader is in an error state.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if a parse error occurred; otherwise, <see langword="false"/>.
+    /// </value>
+    /// <remarks>
+    /// No further reading is possible from an instance that is in an error state.
+    /// </remarks>
     public bool IsInErrorState => _state == NbtParseState.Error;
 
     /// <summary>
-    ///     Parsing option: Whether NbtReader should skip End tags in ReadToFollowing() automatically while parsing.
-    ///     Default is <c>true</c>.
+    /// Gets or sets a value indicating whether end tags are skipped automatically while parsing.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if <see cref="ReadToFollowing()"/> skips end tags; otherwise,
+    /// <see langword="false"/>. The default is <see langword="true"/>.
+    /// </value>
     public bool SkipEndTags { get; set; }
 
     /// <summary>
-    ///     Parsing option: Whether NbtReader should save a copy of the most recently read tag's value.
-    ///     Unless CacheTagValues is <c>true</c>, tag values can only be read once. Default is <c>false</c>.
+    /// Gets or sets a value indicating whether the most recently read tag value is kept.
     /// </summary>
+    /// <value>
+    /// <see langword="true"/> if a copy of the most recently read tag value is kept; otherwise,
+    /// <see langword="false"/>. The default is <see langword="false"/>.
+    /// </value>
+    /// <remarks>
+    /// Unless this property is <see langword="true"/>, a tag value can be read only once. Setting it to
+    /// <see langword="false"/> discards the value that is currently held.
+    /// </remarks>
     public bool CacheTagValues
     {
         get => _cacheTagValues;
@@ -210,11 +295,13 @@ public class NbtReader
 
 
     /// <summary>
-    ///     Reads the next tag from the stream.
+    /// Reads the next tag from the stream.
     /// </summary>
-    /// <returns> true if the next tag was read successfully; false if there are no more tags to read. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <returns><see langword="true"/> if the next tag was read; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
     public bool ReadToFollowing()
     {
         switch (_state)
@@ -389,9 +476,7 @@ public class NbtReader
         }
     }
 
-    /// <summary>
-    ///     Goes one step down the NBT file's hierarchy, preserving current state
-    /// </summary>
+    // Goes one step down the tag tree, saving the current state on the node stack.
     private void GoDown()
     {
         if (Depth > NbtLimits.MaxDepth)
@@ -416,9 +501,7 @@ public class NbtReader
         Depth++;
     }
 
-    /// <summary>
-    ///     Goes one step up the NBT file's hierarchy, restoring previous state
-    /// </summary>
+    // Goes one step up the tag tree, restoring the state saved on the node stack.
     private void GoUp()
     {
         var oldNode = _nodes.Pop();
@@ -472,13 +555,18 @@ public class NbtReader
 
 
     /// <summary>
-    ///     Reads until a tag with the specified name is found.
-    ///     Returns false if are no more tags to read (end of stream is reached).
+    /// Reads until a tag with the specified name is found.
     /// </summary>
-    /// <param name="tagName"> Name of the tag. May be null (to look for next unnamed tag). </param>
-    /// <returns> <c>true</c> if a matching tag is found; otherwise <c>false</c>. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidOperationException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <param name="tagName">The name of the tag to look for. Can be <see langword="null"/> to look for the
+    /// next unnamed tag.</param>
+    /// <returns><see langword="true"/> if a matching tag is found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <remarks>
+    /// When no matching tag is found, the reader is positioned at the end of the stream.
+    /// </remarks>
     public bool ReadToFollowing(string? tagName)
     {
         while (ReadToFollowing())
@@ -488,13 +576,18 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Advances the NbtReader to the next descendant tag with the specified name.
-    ///     If a matching child tag is not found, the NbtReader is positioned on the end tag.
+    /// Advances the reader to the next descendant tag with the specified name.
     /// </summary>
-    /// <param name="tagName"> Name of the tag you wish to move to. May be null (to look for next unnamed tag). </param>
-    /// <returns> <c>true</c> if a matching descendant tag is found; otherwise <c>false</c>. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <param name="tagName">The name of the tag to move to. Can be <see langword="null"/> to look for the
+    /// next unnamed tag.</param>
+    /// <returns><see langword="true"/> if a matching descendant tag is found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <remarks>
+    /// When no matching child tag is found, the reader is positioned on the end tag.
+    /// </remarks>
     public bool ReadToDescendant(string? tagName)
     {
         switch (_state)
@@ -514,12 +607,17 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Advances the NbtReader to the next sibling tag, skipping any child tags.
-    ///     If there are no more siblings, NbtReader is positioned on the tag following the last of this tag's descendants.
+    /// Advances the reader to the next sibling tag, skipping any child tags.
     /// </summary>
-    /// <returns> <c>true</c> if a sibling element is found; otherwise <c>false</c>. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <returns><see langword="true"/> if a sibling tag is found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <remarks>
+    /// When there are no more siblings, the reader is positioned on the tag that follows the last descendant
+    /// of the current tag.
+    /// </remarks>
     public bool ReadToNextSibling()
     {
         switch (_state)
@@ -539,13 +637,19 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Advances the NbtReader to the next sibling tag with the specified name.
-    ///     If a matching sibling tag is not found, NbtReader is positioned on the tag following the last siblings.
+    /// Advances the reader to the next sibling tag with the specified name.
     /// </summary>
-    /// <param name="tagName"> The name of the sibling tag you wish to move to. </param>
-    /// <returns> <c>true</c> if a matching sibling element is found; otherwise <c>false</c>. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidOperationException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <param name="tagName">The name of the sibling tag to move to. Can be <see langword="null"/> to look
+    /// for the next unnamed sibling tag.</param>
+    /// <returns><see langword="true"/> if a matching sibling tag is found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <remarks>
+    /// When no matching sibling tag is found, the reader is positioned on the tag that follows the last
+    /// sibling.
+    /// </remarks>
     public bool ReadToNextSibling(string? tagName)
     {
         while (ReadToNextSibling())
@@ -555,12 +659,14 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Skips current tag, its value/descendants, and any following siblings.
-    ///     In other words, reads until parent tag's sibling.
+    /// Skips the current tag, its value and descendants, and any following siblings, reading up to the
+    /// sibling of the parent tag.
     /// </summary>
-    /// <returns> Total number of tags that were skipped. Returns 0 if end of the stream is reached. </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <returns>The total number of tags that were skipped, or 0 if the end of the stream is
+    /// reached.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
     public int Skip()
     {
         switch (_state)
@@ -579,17 +685,16 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Reads the entirety of the current tag, including any descendants,
-    ///     and constructs an NbtTag object of the appropriate type.
+    /// Reads the whole of the current tag, including any descendants, and builds a tag of the matching type.
     /// </summary>
-    /// <returns>
-    ///     Constructed NbtTag object;
-    ///     <c>null</c> if <c>SkipEndTags</c> is <c>true</c> and trying to read an End tag.
-    /// </returns>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
-    /// <exception cref="EndOfStreamException"> End of stream has been reached (no more tags can be read). </exception>
-    /// <exception cref="InvalidOperationException"> Tag value has already been read, and CacheTagValues is false. </exception>
+    /// <returns>The tag that was read.</returns>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <exception cref="EndOfStreamException">The end of the stream has been reached and no more tags can be
+    /// read.</exception>
+    /// <exception cref="InvalidOperationException">The current tag is an end tag, or its value has already
+    /// been read.</exception>
     public NbtTag ReadAsTag()
     {
         switch (_state)
@@ -713,32 +818,36 @@ public class NbtReader
 
 
     /// <summary>
-    ///     Reads the value as an object of the type specified.
+    /// Reads the value of the current tag as a value of the specified type.
     /// </summary>
-    /// <typeparam name="T">
-    ///     The type of the value to be returned.
-    ///     Tag value should be convertible to this type.
-    /// </typeparam>
-    /// <returns> Tag value converted to the requested type. </returns>
-    /// <exception cref="EndOfStreamException"> End of stream has been reached (no more tags can be read). </exception>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidOperationException"> Value has already been read, or there is no value to read. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
-    /// <exception cref="InvalidCastException"> Tag value cannot be converted to the requested type. </exception>
+    /// <typeparam name="T">The type to return the value as. The tag value must be castable to this
+    /// type.</typeparam>
+    /// <returns>The tag value, cast to <typeparamref name="T"/>.</returns>
+    /// <exception cref="EndOfStreamException">The end of the stream has been reached and no more tags can be
+    /// read.</exception>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidOperationException">The value has already been read, or there is no value to
+    /// read.</exception>
+    /// <exception cref="InvalidCastException">The tag value cannot be cast to
+    /// <typeparamref name="T"/>.</exception>
     public T ReadValueAs<T>()
     {
         return (T)ReadValue();
     }
 
     /// <summary>
-    ///     Reads the value as an object of the correct type, boxed.
-    ///     Cannot be called for tags that do not have a single-object value (compound, list, and end tags).
+    /// Reads the value of the current tag as a boxed object of the matching type.
     /// </summary>
-    /// <returns> Tag value converted to the requested type. </returns>
-    /// <exception cref="EndOfStreamException"> End of stream has been reached (no more tags can be read). </exception>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
-    /// <exception cref="InvalidOperationException"> Value has already been read, or there is no value to read. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
+    /// <returns>The tag value, boxed.</returns>
+    /// <exception cref="EndOfStreamException">The end of the stream has been reached and no more tags can be
+    /// read.</exception>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <exception cref="InvalidOperationException">The value has already been read, or there is no value to
+    /// read.</exception>
+    /// <remarks>
+    /// This method cannot be called on a tag that has no single-object value: a compound, a list, or an end
+    /// tag.
+    /// </remarks>
     public object ReadValue()
     {
         if (_state == NbtParseState.AtStreamEnd) throw new EndOfStreamException();
@@ -799,20 +908,21 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     If the current tag is a List, reads all elements of this list as an array.
-    ///     If any tags/values have already been read from this list, only reads the remaining unread tags/values.
-    ///     ListType must be a value type (byte, short, int, long, float, double, or string).
-    ///     Stops reading after the last list element.
+    /// Reads the elements of the current list tag as an array and stops after the last element.
     /// </summary>
-    /// <typeparam name="T">
-    ///     Element type of the array to be returned.
-    ///     Tag contents should be convertible to this type.
-    /// </typeparam>
-    /// <returns> List contents converted to an array of the requested type. </returns>
-    /// <exception cref="EndOfStreamException"> End of stream has been reached (no more tags can be read). </exception>
-    /// <exception cref="InvalidOperationException"> Current tag is not of type List. </exception>
-    /// <exception cref="InvalidReaderStateException"> If NbtReader cannot recover from a previous parsing error. </exception>
-    /// <exception cref="NbtFormatException"> If an error occurred while parsing data in NBT format. </exception>
+    /// <typeparam name="T">The element type of the array to return. The tag contents must be convertible to
+    /// this type.</typeparam>
+    /// <returns>An array that contains the list elements, converted to <typeparamref name="T"/>.</returns>
+    /// <exception cref="EndOfStreamException">The end of the stream has been reached and no more tags can be
+    /// read.</exception>
+    /// <exception cref="InvalidOperationException">The current tag is not a list.</exception>
+    /// <exception cref="InvalidReaderStateException">The reader cannot recover from a previous parsing
+    /// error.</exception>
+    /// <exception cref="NbtFormatException">An error occurred while the NBT data was parsed.</exception>
+    /// <remarks>
+    /// The element type of the list must be byte, short, int, long, float, double, or string. When elements
+    /// of the list have already been read, only the remaining elements are returned.
+    /// </remarks>
     public T[] ReadListAsArray<T>()
     {
         switch (_state)
@@ -894,24 +1004,35 @@ public class NbtReader
     }
 
     /// <summary>
-    ///     Returns a String that represents the tag currently being read by this NbtReader instance.
-    ///     Prints current tag's depth, ordinal number, type, name, and size (for arrays and lists). Does not print value.
-    ///     Indents the tag according default indentation (NbtTag.DefaultIndentString).
+    /// Returns a string that represents the tag that the reader is positioned on.
     /// </summary>
+    /// <returns>A string that contains the depth, ordinal number, type, name, and, for an array or a list,
+    /// the size of the current tag. The value is not included.</returns>
+    /// <remarks>
+    /// The tag is indented with <see cref="NbtTag.DefaultIndentString"/>.
+    /// </remarks>
     public override string ToString()
     {
         return ToString(false, NbtTag.DefaultIndentString);
     }
 
     /// <summary>
-    ///     Returns a String that represents the tag currently being read by this NbtReader instance.
-    ///     Prints current tag's depth, ordinal number, type, name, size (for arrays and lists), and optionally value.
-    ///     Indents the tag according default indentation (NbtTag.DefaultIndentString).
+    /// Returns a string that represents the tag that the reader is positioned on, optionally including its
+    /// value.
     /// </summary>
-    /// <param name="includeValue">
-    ///     If set to <c>true</c>, also reads and prints the current tag's value.
-    ///     Note that unless CacheTagValues is set to <c>true</c>, you can only read every tag's value ONCE.
-    /// </param>
+    /// <param name="includeValue"><see langword="true"/> to read and include the value of the current tag;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <returns>A string that contains the depth, ordinal number, type, name, and, for an array or a list,
+    /// the size of the current tag.</returns>
+    /// <exception cref="EndOfStreamException"><paramref name="includeValue"/> is <see langword="true"/> and
+    /// the end of the stream has been reached.</exception>
+    /// <exception cref="InvalidOperationException"><paramref name="includeValue"/> is
+    /// <see langword="true"/> and the value of the current tag has already been read.</exception>
+    /// <remarks>
+    /// The tag is indented with <see cref="NbtTag.DefaultIndentString"/>. Unless
+    /// <see cref="CacheTagValues"/> is <see langword="true"/>, the value of a tag can be read only once, and
+    /// this method reads it.
+    /// </remarks>
     public string ToString(bool includeValue)
     {
         return ToString(includeValue, NbtTag.DefaultIndentString);
@@ -919,11 +1040,25 @@ public class NbtReader
 
 
     /// <summary>
-    ///     Returns a String that represents the current NbtReader object.
-    ///     Prints current tag's depth, ordinal number, type, name, size (for arrays and lists), and optionally value.
+    /// Returns a string that represents the tag that the reader is positioned on, using the specified
+    /// indentation.
     /// </summary>
-    /// <param name="indentString"> String to be used for indentation. May be empty string, but may not be <c>null</c>. </param>
-    /// <param name="includeValue"> If set to <c>true</c>, also reads and prints the current tag's value. </param>
+    /// <param name="includeValue"><see langword="true"/> to read and include the value of the current tag;
+    /// otherwise, <see langword="false"/>.</param>
+    /// <param name="indentString">The string used for one level of indentation. Can be an empty string, but
+    /// cannot be <see langword="null"/>.</param>
+    /// <returns>A string that contains the depth, ordinal number, type, name, and, for an array or a list,
+    /// the size of the current tag.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="indentString"/> is
+    /// <see langword="null"/>.</exception>
+    /// <exception cref="EndOfStreamException"><paramref name="includeValue"/> is <see langword="true"/> and
+    /// the end of the stream has been reached.</exception>
+    /// <exception cref="InvalidOperationException"><paramref name="includeValue"/> is
+    /// <see langword="true"/> and the value of the current tag has already been read.</exception>
+    /// <remarks>
+    /// Unless <see cref="CacheTagValues"/> is <see langword="true"/>, the value of a tag can be read only
+    /// once, and this method reads it.
+    /// </remarks>
     public string ToString(bool includeValue, string indentString)
     {
         if (indentString == null) throw new ArgumentNullException(nameof(indentString));

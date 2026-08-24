@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace McProtoNet.Transport.Compression.Native;
 
+/// <summary>Represents the libdeflate options structure passed to the extended allocation entry points.</summary>
 internal readonly struct libdeflate_options
 {
     private static readonly UIntPtr Size = (nuint)(nint)Unsafe.SizeOf<libdeflate_options>();

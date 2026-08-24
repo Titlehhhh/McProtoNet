@@ -9,38 +9,45 @@ using McProtoNet.NBT;
 namespace McProtoNet.Primitives;
 
 /// <summary>
-/// Represents stack-allocated reader for primitive types of Minecraft
+/// Provides a forward-only reader for the primitive types of the Minecraft protocol.
 /// </summary>
+/// <remarks>
+/// The reader does not own the data it reads from and holds no resources.
+/// </remarks>
 [StructLayout(LayoutKind.Auto)]
 public ref struct MinecraftPrimitiveReader
 {
     private SequenceReader<byte> _reader;
 
     /// <summary>
-    /// Gets the number of bytes consumed from the reader
+    /// Gets the number of bytes consumed so far.
     /// </summary>
     public long ConsumedCount => _reader.Consumed;
 
     /// <summary>
-    /// Gets the number of remaining bytes to be read
+    /// Gets the number of bytes left to read.
     /// </summary>
     public readonly long RemainingCount => _reader.Remaining;
 
     /// <summary>
-    /// Initializes a new instance of the MinecraftPrimitiveReader with a memory of bytes
+    /// Initializes a new instance of the <see cref="MinecraftPrimitiveReader"/> structure that reads from
+    /// the specified memory.
     /// </summary>
-    /// <param name="data">The memory of bytes to read from</param>
+    /// <param name="data">The memory to read from. It is not copied and must stay valid for the lifetime of
+    /// the reader.</param>
     public MinecraftPrimitiveReader(ReadOnlyMemory<byte> data) : this(new ReadOnlySequence<byte>(data))
     {
-        
+
     }
 
-    
+
 
     /// <summary>
-    /// Initializes a new instance of the MinecraftPrimitiveReader with a sequence of bytes
+    /// Initializes a new instance of the <see cref="MinecraftPrimitiveReader"/> structure that reads from
+    /// the specified sequence.
     /// </summary>
-    /// <param name="data">The sequence of bytes to read from</param>
+    /// <param name="data">The sequence to read from. It is not copied and must stay valid for the lifetime
+    /// of the reader.</param>
     public MinecraftPrimitiveReader(ReadOnlySequence<byte> data)
     {
         _reader = new SequenceReader<byte>(data);
@@ -48,15 +55,25 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Advances the reader by the specified number of bytes
+    /// Advances the reader by the specified number of bytes.
     /// </summary>
-    /// <param name="count">The number of bytes to advance</param>
+    /// <param name="count">The number of bytes to skip. This value must not be negative and must not
+    /// exceed <see cref="RemainingCount"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative or greater than
+    /// the number of bytes left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Advance(int count)
     {
         _reader.Advance(count);
     }
 
+    /// <summary>
+    /// Moves the reader back by the specified number of bytes.
+    /// </summary>
+    /// <param name="count">The number of bytes to move back. This value must not be negative and must not
+    /// exceed <see cref="ConsumedCount"/>.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="count"/> is negative or greater than
+    /// the number of bytes consumed.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Rewind(int count)
     {
@@ -64,6 +81,13 @@ public ref struct MinecraftPrimitiveReader
     }
 
 
+    /// <summary>
+    /// Reads the specified number of bytes as a sequence.
+    /// </summary>
+    /// <param name="count">The number of bytes to read.</param>
+    /// <returns>A sequence over the bytes read. It is a window into the reader's own data and is not a
+    /// copy.</returns>
+    /// <exception cref="InvalidDataException">Fewer than <paramref name="count"/> bytes are left.</exception>
     public ReadOnlySequence<byte> Read(int count)
     {
         if (!_reader.TryReadExact(count, out var result))
@@ -75,10 +99,16 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads bytes into the provided output span
+    /// Reads bytes into the specified span until it is full.
     /// </summary>
-    /// <param name="output">The span to read bytes into</param>
-    /// <returns>The number of bytes read</returns>
+    /// <param name="output">The span to copy the bytes into. Its length decides how many bytes are
+    /// read.</param>
+    /// <returns>The number of bytes read, which is always the length of <paramref name="output"/>.</returns>
+    /// <exception cref="InvalidDataException">Fewer bytes are left than <paramref name="output"/> can
+    /// hold.</exception>
+    /// <remarks>
+    /// The reader is not advanced by this method.
+    /// </remarks>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int Read(scoped Span<byte> output)
     {
@@ -92,10 +122,11 @@ public ref struct MinecraftPrimitiveReader
 
 
     /// <summary>
-    /// Reads a VarInt from the reader
+    /// Reads a VarInt.
     /// </summary>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="InvalidDataException">Thrown when the VarInt is too long or the data runs out</exception>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes, or the data runs
+    /// out.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadVarInt()
     {
@@ -108,10 +139,11 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a VarLong from the reader
+    /// Reads a VarLong.
     /// </summary>
-    /// <returns>The decoded VarLong value</returns>
-    /// <exception cref="InvalidDataException">Thrown when the VarLong is too long or the data runs out</exception>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="InvalidDataException">The VarLong is longer than 10 bytes, or the data runs
+    /// out.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public long ReadVarLong()
     {
@@ -142,9 +174,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a boolean value from the reader
+    /// Reads a single byte as a Boolean value.
     /// </summary>
-    /// <returns>The boolean value read</returns>
+    /// <returns><see langword="true"/> if the byte read is 1; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidDataException">No byte is left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool ReadBoolean()
     {
@@ -157,9 +190,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an unsigned byte from the reader
+    /// Reads an unsigned byte.
     /// </summary>
-    /// <returns>The unsigned byte value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">No byte is left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte ReadUnsignedByte()
     {
@@ -172,9 +206,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a signed byte from the reader
+    /// Reads a signed byte.
     /// </summary>
-    /// <returns>The signed byte value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">No byte is left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public sbyte ReadSignedByte()
     {
@@ -182,9 +217,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an unsigned short in big-endian format from the reader
+    /// Reads a big-endian unsigned 16-bit integer.
     /// </summary>
-    /// <returns>The unsigned short value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 2 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ushort ReadUnsignedShort()
     {
@@ -197,9 +233,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a signed short in big-endian format from the reader
+    /// Reads a big-endian signed 16-bit integer.
     /// </summary>
-    /// <returns>The signed short value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 2 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public short ReadSignedShort()
     {
@@ -212,9 +249,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a signed integer in big-endian format from the reader
+    /// Reads a big-endian signed 32-bit integer.
     /// </summary>
-    /// <returns>The signed integer value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 4 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadSignedInt()
     {
@@ -227,9 +265,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an unsigned integer in big-endian format from the reader
+    /// Reads a big-endian unsigned 32-bit integer.
     /// </summary>
-    /// <returns>The unsigned integer value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 4 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public uint ReadUnsignedInt()
     {
@@ -237,9 +276,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a signed long in big-endian format from the reader
+    /// Reads a big-endian signed 64-bit integer.
     /// </summary>
-    /// <returns>The signed long value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 8 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public long ReadSignedLong()
     {
@@ -252,9 +292,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an unsigned long in big-endian format from the reader
+    /// Reads a big-endian unsigned 64-bit integer.
     /// </summary>
-    /// <returns>The unsigned long value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 8 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ulong ReadUnsignedLong()
     {
@@ -262,9 +303,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a float in big-endian format from the reader
+    /// Reads a big-endian single-precision floating-point number.
     /// </summary>
-    /// <returns>The float value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 4 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public float ReadFloat()
     {
@@ -273,9 +315,10 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a double in big-endian format from the reader
+    /// Reads a big-endian double-precision floating-point number.
     /// </summary>
-    /// <returns>The double value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 8 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public double ReadDouble()
     {
@@ -284,9 +327,20 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a UTF-8 encoded string from the reader
+    /// Reads a length-prefixed string using UTF-8.
     /// </summary>
-    /// <returns>The decoded string</returns>
+    /// <param name="maxLength">The maximum number of characters the decoded string may contain. The default
+    /// is <see cref="short.MaxValue"/>.</param>
+    /// <returns>The decoded string.</returns>
+    /// <exception cref="InvalidDataException">
+    /// The length prefix is negative.
+    /// -or-
+    /// The byte count exceeds three times <paramref name="maxLength"/>.
+    /// -or-
+    /// The decoded string is longer than <paramref name="maxLength"/>.
+    /// -or-
+    /// The data runs out.
+    /// </exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public string ReadString(int maxLength = short.MaxValue)
     {
@@ -294,6 +348,23 @@ public ref struct MinecraftPrimitiveReader
     }
 
 
+    /// <summary>
+    /// Reads a length-prefixed string using the specified encoding.
+    /// </summary>
+    /// <param name="encoding">The encoding to decode the bytes with.</param>
+    /// <param name="maxLength">The maximum number of characters the decoded string may contain. The default
+    /// is <see cref="short.MaxValue"/>.</param>
+    /// <returns>The decoded string.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="encoding"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidDataException">
+    /// The length prefix is negative.
+    /// -or-
+    /// The byte count exceeds three times <paramref name="maxLength"/>.
+    /// -or-
+    /// The decoded string is longer than <paramref name="maxLength"/>.
+    /// -or-
+    /// The data runs out.
+    /// </exception>
     public string ReadString(Encoding encoding, int maxLength = short.MaxValue)
     {
         ArgumentNullException.ThrowIfNull(encoding);
@@ -324,9 +395,10 @@ public ref struct MinecraftPrimitiveReader
    
 
     /// <summary>
-    /// Reads a UUID from the reader
+    /// Reads a 16-byte big-endian UUID.
     /// </summary>
-    /// <returns>The UUID value read</returns>
+    /// <returns>The value read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than 16 bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Guid ReadUUID()
     {
@@ -346,9 +418,9 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads all remaining bytes from the reader
+    /// Reads every byte left and copies it into a new array.
     /// </summary>
-    /// <returns>An array containing the remaining bytes</returns>
+    /// <returns>A new array that contains the remaining bytes.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadRestBuffer()
     {
@@ -358,10 +430,11 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads a specified number of bytes from the reader
+    /// Reads the specified number of bytes and copies them into a new array.
     /// </summary>
-    /// <param name="length">The number of bytes to read</param>
-    /// <returns>An array containing the read bytes</returns>
+    /// <param name="length">The number of bytes to read.</param>
+    /// <returns>A new array of <paramref name="length"/> bytes.</returns>
+    /// <exception cref="InvalidDataException">Fewer than <paramref name="length"/> bytes are left.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte[] ReadBuffer(int length)
     {
@@ -369,10 +442,13 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an optional NBT tag from the reader
+    /// Reads a presence flag and, when it is set, the NBT tag that follows.
     /// </summary>
-    /// <param name="readRootTag">Whether to read the root tag</param>
-    /// <returns>The NBT tag if present, null otherwise</returns>
+    /// <param name="readRootTag"><see langword="true"/> if the root tag carries a name, which is the
+    /// pre-network NBT format; <see langword="false"/> for the nameless network root.</param>
+    /// <returns>The tag read, or <see langword="null"/> if the presence flag was not set.</returns>
+    /// <exception cref="InvalidDataException">The data runs out.</exception>
+    /// <exception cref="NbtFormatException">The tag is not valid NBT.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public NbtTag? ReadOptionalNbtTag(bool readRootTag)
     {
@@ -385,10 +461,18 @@ public ref struct MinecraftPrimitiveReader
     }
 
     /// <summary>
-    /// Reads an NBT tag from the reader without copying the buffer
+    /// Reads an NBT tag without copying the underlying buffer.
     /// </summary>
-    /// <param name="readRootTag">Whether the root tag carries a name (pre-network NBT format)</param>
-    /// <returns>The NBT tag read, or null when the first byte is TAG_End</returns>
+    /// <param name="readRootTag"><see langword="true"/> if the root tag carries a name, which is the
+    /// pre-network NBT format; <see langword="false"/> for the nameless network root.</param>
+    /// <returns>The tag read, or <see langword="null"/> if the first byte is TAG_End.</returns>
+    /// <exception cref="NbtFormatException">
+    /// The data is malformed.
+    /// -or-
+    /// The data is truncated.
+    /// -or-
+    /// The tags are nested too deeply.
+    /// </exception>
     public NbtTag? ReadNbtTag(bool readRootTag)
     {
         var unread = _reader.UnreadSequence;

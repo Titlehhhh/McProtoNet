@@ -8,21 +8,21 @@ using System.Text;
 namespace McProtoNet;
 
 /// <summary>
-///     Listens for the "open to LAN" announcements a Minecraft client shouts every 1.5 seconds:
-///     <c>[MOTD]…[/MOTD][AD]…[/AD]</c> in UDP datagrams to the multicast group 224.0.2.60:4445.
-///     <para>
-///     The detector owns the socket, not the enumerator. Constructing one binds port 4445 and joins the
-///     group; <see cref="DisposeAsync" /> closes it and ends any listen in flight. That ownership is the
-///     whole point: an async iterator cannot be torn down while a read is pending, so a socket that
-///     belonged to the iterator would stay bound forever when a caller disposed the enumerator mid-read.
-///     Here <c>await using</c> on the detector always frees the port.
-///     </para>
-///     <para>
-///     <see cref="ListenAsync" /> yields every announcement as it arrives, so the same world shows up
-///     again and again; that is the raw feed. <see cref="DiscoverAsync(TimeSpan, CancellationToken)" /> is
-///     the one-shot form and removes the repeats itself.
-///     </para>
+/// Provides a listener for the "open to LAN" announcements a Minecraft client sends every 1.5 seconds as
+/// <c>[MOTD]…[/MOTD][AD]…[/AD]</c> in UDP datagrams to the multicast group 224.0.2.60:4445.
 /// </summary>
+/// <remarks>
+/// <para>
+/// The detector owns the socket, not the enumerator. The constructor binds port 4445 and joins the
+/// group; <see cref="DisposeAsync"/> closes the socket and ends any listen in progress. Disposing an
+/// enumerator returned by <see cref="ListenAsync"/> does not free the port.
+/// </para>
+/// <para>
+/// <see cref="ListenAsync"/> yields every announcement as it arrives, so the same world appears
+/// repeatedly. <see cref="DiscoverAsync(TimeSpan, CancellationToken)"/> is the one-shot form and removes
+/// the repeats itself.
+/// </para>
+/// </remarks>
 public sealed class LanServerDetector : IAsyncDisposable
 {
     /// <summary>The UDP port worlds announce to.</summary>
@@ -36,14 +36,25 @@ public sealed class LanServerDetector : IAsyncDisposable
     private int _listening;
     private int _disposed;
 
-    /// <summary>Binds the announce port and joins the group on every interface that carries multicast.</summary>
-    /// <exception cref="SocketException">The port could not be bound or no group could be joined.</exception>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LanServerDetector"/> class that listens on every
+    /// interface that carries multicast.
+    /// </summary>
+    /// <exception cref="SocketException">The port could not be bound, or no group could be joined.</exception>
     public LanServerDetector() : this(null)
     {
     }
 
-    /// <summary>Listens on one interface, named by a local IPv4 address; <see langword="null" /> means all.</summary>
-    /// <exception cref="SocketException">The port could not be bound or the group could not be joined.</exception>
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LanServerDetector"/> class that listens on the
+    /// specified interface.
+    /// </summary>
+    /// <param name="localInterface">The local IPv4 address of the interface to listen on, or
+    /// <see langword="null"/> to listen on every interface that carries multicast.</param>
+    /// <exception cref="ArgumentException"><paramref name="localInterface"/> is not an IPv4
+    /// address.</exception>
+    /// <exception cref="SocketException">The port could not be bound, or the group could not be
+    /// joined.</exception>
     public LanServerDetector(IPAddress? localInterface)
     {
         if (localInterface is not null && localInterface.AddressFamily != AddressFamily.InterNetwork)
@@ -53,10 +64,19 @@ public sealed class LanServerDetector : IAsyncDisposable
         _socket = CreateSocket(localInterface);
     }
 
-    /// <summary>The multicast group worlds announce to.</summary>
+    /// <summary>
+    /// Gets the multicast group worlds announce to.
+    /// </summary>
     public static IPAddress MulticastGroup { get; } = IPAddress.Parse("224.0.2.60");
 
-    /// <summary>Closes the socket and frees the port. Any listen in flight ends without an error.</summary>
+    /// <summary>
+    /// Asynchronously releases all resources used by the current instance of the
+    /// <see cref="LanServerDetector"/> class.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <remarks>
+    /// The socket is closed and the port is freed. A listen in progress ends without an error.
+    /// </remarks>
     public ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposed, 1) == 0) _socket.Dispose();
@@ -64,14 +84,18 @@ public sealed class LanServerDetector : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Yields announcements as they arrive until the token is cancelled, the caller stops enumerating,
-    ///     or the detector is disposed. Malformed datagrams are dropped without a sound.
-    ///     <para>
-    ///     The token is required, not optional: it is how a listen that is otherwise endless comes to a
-    ///     stop from the inside.
-    ///     </para>
+    /// Returns an asynchronous sequence of announcements as they arrive.
     /// </summary>
-    /// <exception cref="InvalidOperationException">Another listen is already running on this detector.</exception>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. This parameter has
+    /// no default value.</param>
+    /// <returns>An asynchronous sequence of the announcements received.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Another listen is already running on this
+    /// detector.</exception>
+    /// <remarks>
+    /// The sequence ends when the token is canceled, when the caller stops enumerating, or when the
+    /// detector is disposed. Malformed datagrams are dropped silently.
+    /// </remarks>
     public async IAsyncEnumerable<LanServer> ListenAsync(
         [EnumeratorCancellation] CancellationToken cancellationToken)
     {
@@ -107,23 +131,57 @@ public sealed class LanServerDetector : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Collects everything announced during <paramref name="window" />, each world once, then returns.
-    ///     Worlds announce every 1.5 seconds, so a window under two seconds can come back empty.
-    ///     <para>
-    ///     Two announcements are the same world when <see cref="LanServer.EndPoint" /> matches. The source
-    ///     port cannot take part: an announcer that opens a fresh socket each time is the same world.
-    ///     </para>
+    /// Asynchronously collects the worlds announced during the specified window, listening on every
+    /// interface that carries multicast.
     /// </summary>
+    /// <param name="window">How long to listen. This value must be greater than
+    /// <see cref="TimeSpan.Zero"/>.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous discovery operation. The result contains each
+    /// announced world once.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="window"/> is less than or equal to
+    /// <see cref="TimeSpan.Zero"/>.</exception>
+    /// <exception cref="SocketException">The port could not be bound, or no group could be
+    /// joined.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// Worlds announce every 1.5 seconds, so a window shorter than two seconds can return an empty list.
+    /// Two announcements are treated as the same world when <see cref="LanServer.EndPoint"/> matches; the
+    /// source port is not compared.
+    /// </remarks>
     public static Task<IReadOnlyList<LanServer>> DiscoverAsync(TimeSpan window,
         CancellationToken cancellationToken = default)
     {
         return DiscoverAsync(window, null, cancellationToken);
     }
 
-    /// <inheritdoc cref="DiscoverAsync(TimeSpan, CancellationToken)" />
-    /// <param name="window">How long to listen.</param>
-    /// <param name="localInterface">Local IPv4 address of the interface to listen on, or all when null.</param>
-    /// <param name="cancellationToken">Cancels the collection.</param>
+    /// <summary>
+    /// Asynchronously collects the worlds announced during the specified window, listening on the
+    /// specified interface.
+    /// </summary>
+    /// <param name="window">How long to listen. This value must be greater than
+    /// <see cref="TimeSpan.Zero"/>.</param>
+    /// <param name="localInterface">The local IPv4 address of the interface to listen on, or
+    /// <see langword="null"/> to listen on every interface that carries multicast.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous discovery operation. The result contains each
+    /// announced world once.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="window"/> is less than or equal to
+    /// <see cref="TimeSpan.Zero"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="localInterface"/> is not an IPv4
+    /// address.</exception>
+    /// <exception cref="SocketException">The port could not be bound, or the group could not be
+    /// joined.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
+    /// <remarks>
+    /// Worlds announce every 1.5 seconds, so a window shorter than two seconds can return an empty list.
+    /// Two announcements are treated as the same world when <see cref="LanServer.EndPoint"/> matches; the
+    /// source port is not compared.
+    /// </remarks>
     public static async Task<IReadOnlyList<LanServer>> DiscoverAsync(TimeSpan window, IPAddress? localInterface,
         CancellationToken cancellationToken = default)
     {
@@ -158,11 +216,7 @@ public sealed class LanServerDetector : IAsyncDisposable
         return found;
     }
 
-    /// <summary>
-    ///     Reads <c>[MOTD]…[/MOTD][AD]…[/AD]</c>. Lenient on purpose: a missing closing tag, a missing MOTD,
-    ///     surrounding noise, and an <c>address:port</c> in place of a bare port are all accepted. A payload
-    ///     without a usable port is not an announcement.
-    /// </summary>
+    /// <summary>Attempts to parse an <c>[MOTD]…[/MOTD][AD]…[/AD]</c> payload into an MOTD and a port.</summary>
     internal static bool TryParse(ReadOnlySpan<char> payload, out string motd, out int port)
     {
         motd = string.Empty;
@@ -249,10 +303,8 @@ public sealed class LanServerDetector : IAsyncDisposable
                 new MulticastOption(MulticastGroup, IPAddress.Any));
     }
 
-    /// <summary>
-    ///     One datagram, or <see langword="null" /> when the listen is over because the detector was
-    ///     disposed. Cancellation still surfaces, so a cancelled listen ends the way callers expect.
-    /// </summary>
+    // Returns one datagram, or null when the listen is over because the detector was disposed.
+    // Cancellation still surfaces as an exception.
     private async ValueTask<(int Length, IPEndPoint Source)?> ReceiveAsync(CancellationToken cancellationToken)
     {
         var any = new IPEndPoint(IPAddress.Any, 0);

@@ -7,6 +7,7 @@ using X86Aes = System.Runtime.Intrinsics.X86.Aes;
 
 namespace McProtoNet.Transport.Cryptography;
 
+/// <summary>Provides an AES/CFB8 packet cipher that runs on the x86 AES-NI and SSE intrinsics.</summary>
 internal sealed class AesCfb8HardwareCipher : PacketCipher
 {
     private readonly bool _encrypting;

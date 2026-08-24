@@ -3,14 +3,14 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing an array of signed 32-bit integers.
+/// Represents an NBT tag that holds an array of signed 32-bit integers.
 /// </summary>
 public sealed class NbtIntArray : NbtTag
 {
     private int[] _ints;
 
     /// <summary>
-    ///     Creates an unnamed NbtIntArray tag, containing an empty array of ints.
+    /// Initializes a new instance of the <see cref="NbtIntArray"/> class that is unnamed and holds an empty array.
     /// </summary>
     public NbtIntArray()
         : this((string)null!)
@@ -18,13 +18,13 @@ public sealed class NbtIntArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtIntArray tag, containing the given array of ints.
+    /// Initializes a new instance of the <see cref="NbtIntArray"/> class that is unnamed and holds a copy of the
+    /// specified array.
     /// </summary>
-    /// <param name="value"> Int array to assign to this tag's Value. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="value">The array to copy into the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     /// <remarks>
-    ///     Given int array will be cloned. To avoid unnecessary copying, call one of the other constructor
-    ///     overloads (that do not take a int[]) and then set the Value property yourself.
+    /// The array is cloned. Setting <see cref="Value"/> stores an array without copying it.
     /// </remarks>
     public NbtIntArray(int[] value)
         : this(null!, value)
@@ -40,9 +40,10 @@ public sealed class NbtIntArray : NbtTag
     } 
 
     /// <summary>
-    ///     Creates an NbtIntArray tag with the given name, containing an empty array of ints.
+    /// Initializes a new instance of the <see cref="NbtIntArray"/> class with the specified name that holds an
+    /// empty array.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
     public NbtIntArray(string? tagName)
     {
         Name = tagName;
@@ -50,14 +51,14 @@ public sealed class NbtIntArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates an NbtIntArray tag with the given name, containing the given array of ints.
+    /// Initializes a new instance of the <see cref="NbtIntArray"/> class with the specified name that holds a copy
+    /// of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="value"> Int array to assign to this tag's Value. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="value">The array to copy into the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     /// <remarks>
-    ///     Given int array will be cloned. To avoid unnecessary copying, call one of the other constructor
-    ///     overloads (that do not take a int[]) and then set the Value property yourself.
+    /// The array is cloned. Setting <see cref="Value"/> stores an array without copying it.
     /// </remarks>
     public NbtIntArray(string? tagName, int[] value)
     {
@@ -67,11 +68,13 @@ public sealed class NbtIntArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates a deep copy of given NbtIntArray.
+    /// Initializes a new instance of the <see cref="NbtIntArray"/> class that is a deep copy of the specified tag.
     /// </summary>
-    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
-    /// <remarks> Int array of given tag will be cloned. </remarks>
+    /// <param name="other">The tag to copy. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The array of the source tag is cloned.
+    /// </remarks>
     public NbtIntArray(NbtIntArray other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -80,15 +83,17 @@ public sealed class NbtIntArray : NbtTag
     }
 
     /// <summary>
-    ///     Type of this tag (ByteArray).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.IntArray"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.IntArray;
 
     /// <summary>
-    ///     Value/payload of this tag (an array of signed 32-bit integers). Value is stored as-is and is NOT cloned. May not be
-    ///     <c>null</c>.
+    /// Gets or sets the array held by this tag.
     /// </summary>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The array is stored by reference and is not cloned.
+    /// </remarks>
     public int[] Value
     {
         get => _ints;
@@ -96,11 +101,12 @@ public sealed class NbtIntArray : NbtTag
     }
 
     /// <summary>
-    ///     Gets or sets an integer at the given index.
+    /// Gets or sets the integer at the specified index.
     /// </summary>
-    /// <param name="tagIndex"> The zero-based index of the element to get or set. </param>
-    /// <returns> The integer at the specified index. </returns>
-    /// <exception cref="IndexOutOfRangeException"> <paramref name="tagIndex" /> is outside the array bounds. </exception>
+    /// <param name="tagIndex">The zero-based index of the element to get or set.</param>
+    /// <returns>The integer at the specified index.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="tagIndex"/> is outside the bounds of the
+    /// array.</exception>
     public new int this[int tagIndex]
     {
         get => Value[tagIndex];

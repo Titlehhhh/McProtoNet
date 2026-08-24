@@ -3,14 +3,14 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing an array of signed 64-bit integers.
+/// Represents an NBT tag that holds an array of signed 64-bit integers.
 /// </summary>
 public sealed class NbtLongArray : NbtTag
 {
     private long[] _longs;
 
     /// <summary>
-    ///     Creates an unnamed NbtLongArray tag, containing an empty array of longs.
+    /// Initializes a new instance of the <see cref="NbtLongArray"/> class that is unnamed and holds an empty array.
     /// </summary>
     public NbtLongArray()
         : this((string)null!)
@@ -18,13 +18,13 @@ public sealed class NbtLongArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtLongArray tag, containing the given array of longs.
+    /// Initializes a new instance of the <see cref="NbtLongArray"/> class that is unnamed and holds a copy of the
+    /// specified array.
     /// </summary>
-    /// <param name="value"> Long array to assign to this tag's Value. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="value">The array to copy into the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     /// <remarks>
-    ///     Given long array will be cloned. To avoid unnecessary copying, call one of the other constructor
-    ///     overloads (that do not take a long[]) and then set the Value property yourself.
+    /// The array is cloned. Setting <see cref="Value"/> stores an array without copying it.
     /// </remarks>
     public NbtLongArray(long[] value)
         : this(null!, value)
@@ -32,9 +32,10 @@ public sealed class NbtLongArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates an NbtLongArray tag with the given name, containing an empty array of longs.
+    /// Initializes a new instance of the <see cref="NbtLongArray"/> class with the specified name that holds an
+    /// empty array.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
     public NbtLongArray(string? tagName)
     {
         Name = tagName;
@@ -50,14 +51,14 @@ public sealed class NbtLongArray : NbtTag
     }
     
     /// <summary>
-    ///     Creates an NbtLongArray tag with the given name, containing the given array of longs.
+    /// Initializes a new instance of the <see cref="NbtLongArray"/> class with the specified name that holds a copy
+    /// of the specified array.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="value"> Long array to assign to this tag's Value. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="value">The array to copy into the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     /// <remarks>
-    ///     Given long array will be cloned. To avoid unnecessary copying, call one of the other constructor
-    ///     overloads (that do not take a long[]) and then set the Value property yourself.
+    /// The array is cloned. Setting <see cref="Value"/> stores an array without copying it.
     /// </remarks>
     public NbtLongArray(string? tagName, long[] value)
     {
@@ -67,11 +68,13 @@ public sealed class NbtLongArray : NbtTag
     }
 
     /// <summary>
-    ///     Creates a deep copy of given NbtLongArray.
+    /// Initializes a new instance of the <see cref="NbtLongArray"/> class that is a deep copy of the specified tag.
     /// </summary>
-    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
-    /// <remarks> Long array of given tag will be cloned. </remarks>
+    /// <param name="other">The tag to copy. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The array of the source tag is cloned.
+    /// </remarks>
     public NbtLongArray(NbtLongArray other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -81,15 +84,17 @@ public sealed class NbtLongArray : NbtTag
     }
 
     /// <summary>
-    ///     Type of this tag (LongArray).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.LongArray"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.LongArray;
 
     /// <summary>
-    ///     Value/payload of this tag (an array of signed 64-bit integers). Value is stored as-is and is NOT cloned. May not be
-    ///     <c>null</c>.
+    /// Gets or sets the array held by this tag.
     /// </summary>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The array is stored by reference and is not cloned.
+    /// </remarks>
     public long[] Value
     {
         get => _longs;
@@ -97,11 +102,12 @@ public sealed class NbtLongArray : NbtTag
     }
 
     /// <summary>
-    ///     Gets or sets a long at the given index.
+    /// Gets or sets the 64-bit integer at the specified index.
     /// </summary>
-    /// <param name="index"> The zero-based index of the element to get or set. </param>
-    /// <returns> The long at the specified index. </returns>
-    /// <exception cref="IndexOutOfRangeException"> <paramref name="index" /> is outside the array bounds. </exception>
+    /// <param name="index">The zero-based index of the element to get or set.</param>
+    /// <returns>The 64-bit integer at the specified index.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="index"/> is outside the bounds of the
+    /// array.</exception>
     public new long this[int index]
     {
         get => Value[index];
