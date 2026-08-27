@@ -1,13 +1,8 @@
 name: Build documentation
 
+# Автозапуска нет намеренно: сайт публикуется только вручную,
+# кнопкой "Run workflow" во вкладке Actions.
 on:
-  push:
-    branches:
-      - master
-      - docs/new-site
-    paths:
-      - 'docs/site/**'
-      - '.github/workflows/gh-pages.yaml'
   workflow_dispatch:
 
 concurrency:
