@@ -1,7 +1,11 @@
+# Docusaurus
+.docusaurus/
+build/
+node_modules/
+
+# DocFX
 _site/
 api/
-node_modules/
 obj/
 
 !package-lock.json
-
