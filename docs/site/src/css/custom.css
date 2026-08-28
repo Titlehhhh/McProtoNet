@@ -1,30 +1,315 @@
 /**
- * Any CSS included here will be global. The classic template
- * bundles Infima by default. Infima is a CSS framework designed to
- * work well for content-centric websites.
+ * Оформление сайта.
+ *
+ * Палитра, шрифты и плотность взяты из прототипа (docs/site/styles.css до
+ * перехода на Docusaurus): тёмный фон #0e1013, зелёный акцент #4ade80,
+ * Inter для текста и JetBrains Mono для кода.
+ *
+ * Правки после аудита 2026-08-28 (контраст по WCAG 2.1 и APCA, типографика):
+ * - приглушённые серые подняты по светлоте, тон и хрома не тронуты;
+ * - для ссылок в тексте отдельный зелёный с вдвое меньшей хромой, плюс
+ *   подчёркивание: цвет в одиночку — нарушение WCAG 1.4.1;
+ * - база 16px вместо 15px, колонка текста ограничена по длине строки.
  */
 
-/* You can override the default Infima variables here. */
-:root {
-  --ifm-color-primary: #2e8555;
-  --ifm-color-primary-dark: #29784c;
-  --ifm-color-primary-darker: #277148;
-  --ifm-color-primary-darkest: #205d3b;
-  --ifm-color-primary-light: #33925d;
-  --ifm-color-primary-lighter: #359962;
-  --ifm-color-primary-lightest: #3cad6e;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+/* Шрифты локально: Google Fonts блокирует рендер и нестабилен у части
+   читателей. Берём файлы по весу целиком (400.css и т.д.): в них все
+   подмножества с unicode-range, включая кириллицу. Отдельные cyrillic-*.css
+   брать нельзя — у них нет unicode-range, и latin того же веса их перекроет. */
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/600.css';
+@import '@fontsource/jetbrains-mono/700.css';
+
+:root,
+[data-theme='dark'] {
+  /* Палитра прототипа */
+  --mc-bg: #0e1013;
+  --mc-bg2: #13161a;
+  --mc-bg3: #191d22;
+  --mc-line: #333b46;
+  --mc-fg: #d9dde3;
+  --mc-fg2: #acb5bf;
+  --mc-fg3: #a0a9b3;
+  --mc-acc: #4ade80;
+  /* Зелёный для протяжённого текста: та же светлота, хрома меньше на 36%. */
+  --mc-acc-text: #7fd7a0;
+  /* Зелёный для инлайнового кода: те же числа, что у #86efac, но спокойнее. */
+  --mc-acc-code: #a7e8c0;
+
+  --ifm-color-primary: #4ade80;
+  --ifm-color-primary-dark: #2fd06c;
+  --ifm-color-primary-darker: #22c55e;
+  --ifm-color-primary-darkest: #16a34a;
+  --ifm-color-primary-light: #6ee7a0;
+  --ifm-color-primary-lighter: #86efac;
+  --ifm-color-primary-lightest: #bbf7d0;
+
+  --ifm-background-color: var(--mc-bg);
+  --ifm-background-surface-color: var(--mc-bg2);
+  --ifm-navbar-background-color: var(--mc-bg);
+  --ifm-footer-background-color: var(--mc-bg2);
+  --ifm-toc-border-color: var(--mc-line);
+  --ifm-hr-border-color: var(--mc-line);
+  --ifm-table-border-color: var(--mc-line);
+  --ifm-table-stripe-background: transparent;
+  --ifm-alert-background-color: var(--mc-bg2);
+  --ifm-alert-border-color: var(--mc-line);
+
+  --ifm-font-color-base: var(--mc-fg);
+  --ifm-heading-color: #ffffff;
+  --ifm-font-family-base: Inter, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --ifm-font-family-monospace: 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, monospace;
+  --ifm-font-size-base: 16px;
+  --ifm-line-height-base: 1.65;
+
+  --ifm-code-font-size: 0.9em;
+  --ifm-code-background: var(--mc-bg3);
+  --ifm-pre-background: var(--mc-bg2);
+  --ifm-pre-line-height: 1.55;
+  --docusaurus-highlighted-code-line-bg: rgba(74, 222, 128, 0.1);
+
+  --ifm-link-color: var(--mc-acc-text);
+  --ifm-link-hover-color: var(--mc-acc);
+  --ifm-menu-color: var(--mc-fg2);
+  --ifm-menu-color-active: var(--mc-fg);
+  --ifm-menu-color-background-active: var(--mc-bg3);
+  --ifm-menu-color-background-hover: var(--mc-bg2);
+  --ifm-navbar-link-color: var(--mc-fg2);
+  --ifm-navbar-link-hover-color: var(--mc-fg);
+  --ifm-breadcrumb-color-active: var(--mc-fg);
+  --ifm-breadcrumb-item-background-active: var(--mc-bg3);
 }
 
-/* For readability concerns, you should choose a lighter palette in dark mode. */
-[data-theme='dark'] {
-  --ifm-color-primary: #25c2a0;
-  --ifm-color-primary-dark: #21af90;
-  --ifm-color-primary-darker: #1fa588;
-  --ifm-color-primary-darkest: #1a8870;
-  --ifm-color-primary-light: #29d5b0;
-  --ifm-color-primary-lighter: #32d8b4;
-  --ifm-color-primary-lightest: #4fddbf;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+/* Блок кода: тема Dracula притаскивает свой фон #282a36, который светлее
+   нашей рамки — рамка выглядела вдавленной. Возвращаем фон палитры. */
+:root {
+  --prism-background-color: var(--mc-bg2) !important;
+}
+.theme-code-block pre {
+  background-color: var(--mc-bg2) !important;
+}
+/* Комментарии Dracula #6272a4 дают 3.03:1 — провал AA. Тот же тон, светлее. */
+.token.comment,
+.token.prolog,
+.token.cdata {
+  color: #8493c4 !important;
+}
+
+/* Полосы прокрутки — как в прототипе */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #3b4450 transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #3b4450;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4b5563;
+}
+
+/* Шапка: содержимое по той же оси, что и текст страницы */
+.navbar {
+  height: 58px;
+  border-bottom: 1px solid var(--mc-line);
+  box-shadow: none;
+}
+.navbar__inner {
+  max-width: var(--ifm-container-width-xl);
+  margin: 0 auto;
+  padding: 0 var(--ifm-spacing-horizontal);
+}
+.navbar__title {
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--mc-fg);
+}
+/* Тач-цель бургера: 30x30 мало для пальца, нужно 44x44 */
+.navbar__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin-right: 4px;
+}
+
+/* Боковое меню */
+.theme-doc-sidebar-container {
+  border-right: 1px solid var(--mc-line) !important;
+}
+.menu {
+  padding: 22px 12px 40px 16px !important;
+  font-size: 14px;
+}
+.menu__link {
+  border-radius: 5px;
+  padding: 6px 10px;
+}
+.menu__link--active:not(.menu__link--sublist),
+.menu__list-item-collapsible .menu__link--active {
+  font-weight: 600;
+}
+.menu__caret::before,
+.menu__link--sublist-caret::after {
+  opacity: 0.55;
+}
+
+/* Оглавление справа */
+.table-of-contents {
+  border-left: 1px solid var(--mc-line);
+  font-size: 13px;
+}
+.table-of-contents__link {
+  color: var(--mc-fg2);
+}
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--mc-acc);
+}
+
+/* Длина строки. Главная причина, почему текст читался тяжело: колонка
+   доходила до 960px, а это 107 знаков в строке при норме 60-80.
+   Ограничиваем статью, а не контейнер, иначе уедет оглавление. */
+.theme-doc-markdown {
+  max-width: 720px;
+}
+
+/* Текст страницы. Комбинатор потомка, а не прямого ребёнка: иначе заголовки
+   внутри вкладок, admonition и <details> выпадут из шкалы. */
+.markdown h1:first-child {
+  font-size: 34px;
+  letter-spacing: -0.01em;
+  font-weight: 700;
+  margin-bottom: 18px;
+}
+.markdown h2 {
+  font-size: 24px;
+  margin-top: 44px;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.markdown h3 {
+  font-size: 18px;
+  margin-top: 34px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+.markdown p {
+  hyphens: auto;
+}
+/* Ссылка в тексте не должна отличаться от него только цветом:
+   контраст между ними 1.28:1 при требуемых 3:1 (WCAG 1.4.1, уровень A). */
+.markdown a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(127, 215, 160, 0.45);
+}
+.markdown a:hover {
+  text-decoration-color: currentColor;
+}
+/* Заголовки и карточки навигации — не проза, подчёркивание там лишнее */
+.markdown a.hash-link,
+.markdown a.card,
+.pagination-nav__link {
+  text-decoration: none;
+}
+
+/* Инлайновый код. --ifm-code-color в этой версии Infima не читается:
+   правило code {} задаёт фон и шрифт, но не цвет. Ставим явно. */
+.markdown code {
+  color: var(--mc-acc-code);
+  border: 0;
+}
+.markdown a code {
+  color: inherit;
+}
+/* JetBrains Mono внутри **жирного**: без веса 700 браузер синтезирует его сам */
+strong code,
+b code {
+  font-weight: 700;
+}
+
+/* Таблицы: без рамки по периметру, заголовок капителью */
+.markdown table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+.markdown table thead tr {
+  border-bottom: 1px solid var(--mc-line);
+}
+.markdown table th,
+.markdown table td {
+  border: 0;
+  border-bottom: 1px solid var(--mc-line);
+  padding: 8px 12px 8px 0;
+  text-align: left;
+  vertical-align: top;
+}
+.markdown table th {
+  color: var(--mc-fg3);
+  font-weight: 500;
+  /* 12px прописными с разрядкой не спасает никакой цвет — поднимаем кегль */
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.theme-code-block {
+  border: 1px solid var(--mc-line);
+  border-radius: 6px;
+  box-shadow: none !important;
+}
+
+/* Подвал */
+.footer,
+.footer--dark {
+  --ifm-footer-background-color: var(--mc-bg2);
+  --ifm-footer-color: var(--mc-fg2);
+  --ifm-footer-link-color: var(--mc-fg2);
+  --ifm-footer-link-hover-color: var(--mc-fg);
+  --ifm-footer-title-color: var(--mc-fg3);
+  border-top: 1px solid var(--mc-line);
+}
+.footer__title {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.footer__link-item {
+  line-height: 1.9;
+}
+/* Копирайт был отцентрован, а колонки прижаты влево — три разные оси */
+.footer__bottom {
+  text-align: left;
+}
+.footer__copyright {
+  color: var(--mc-fg3);
+  font-size: 13px;
+}
+
+/* Фокус с клавиатуры */
+a:focus-visible,
+button:focus-visible,
+summary:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--mc-acc);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

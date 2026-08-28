@@ -7,7 +7,7 @@ import remarkMcVersions from './src/remark/mc-versions';
 const config: Config = {
   title: 'McProtoNet',
   tagline: 'Протокол Minecraft на C#',
-  favicon: 'img/favicon.ico',
+  favicon: 'img/favicon.svg',
 
   future: {
     v4: true,
@@ -21,7 +21,10 @@ const config: Config = {
   projectName: 'McProtoNet',
   trailingSlash: false,
 
+  // Сборка должна падать на битой ссылке, а не выпускать её в мир.
   onBrokenLinks: 'throw',
+  onBrokenAnchors: 'throw',
+  onDuplicateRoutes: 'throw',
 
   // Русский — основной. Английский приезжает, когда русские тексты приняты.
   i18n: {
@@ -35,7 +38,30 @@ const config: Config = {
       onBrokenMarkdownLinks: 'warn',
     },
   },
-  themes: ['@docusaurus/theme-mermaid'],
+
+  themes: [
+    '@docusaurus/theme-mermaid',
+    [
+      // Поиск целиком статический: индекс собирается при сборке и лежит
+      // рядом с сайтом, свой сервер и Algolia не нужны.
+      // Внимание: в `npm start` поиск не работает — весь клиентский код
+      // обёрнут в проверку на production. Проверять через build + serve.
+      '@easyops-cn/docusaurus-search-local',
+      {
+        language: ['ru', 'en'],
+        hashed: 'filename',
+        indexDocs: true,
+        indexBlog: false,
+        indexPages: true,
+        docsRouteBasePath: '/docs',
+        docsDir: 'docs',
+        highlightSearchTermsOnTargetPage: true,
+        explicitSearchResultPath: true,
+        searchResultLimits: 8,
+        searchBarShortcutKeymap: 'mod+k',
+      },
+    ],
+  ],
 
   presets: [
     [
@@ -45,22 +71,49 @@ const config: Config = {
           path: 'docs',
           routeBasePath: 'docs',
           sidebarPath: './sidebars.ts',
+          // edit/, а не tree/ — иначе кнопка ведёт на просмотр, а не на правку.
           editUrl:
-            'https://github.com/Titlehhhh/McProtoNet/tree/master/docs/site/',
+            'https://github.com/Titlehhhh/McProtoNet/edit/master/docs/site/',
           remarkPlugins: [remarkMcVersions],
+          showLastUpdateTime: true,
+          showLastUpdateAuthor: false,
         },
         blog: false,
         theme: {
           customCss: './src/css/custom.css',
         },
+        // changefreq и priority Google давно игнорирует; полезен lastmod,
+        // и он работает только вместе с showLastUpdateTime выше.
+        sitemap: {lastmod: 'date', priority: null, changefreq: null},
       } satisfies Preset.Options,
     ],
   ],
 
   themeConfig: {
-    image: 'img/docusaurus-social-card.jpg',
+    image: 'img/social-card.png',
+    announcementBar: {
+      id: 'preview-2-0',
+      content: 'Документация к 2.0.0-preview.4. API ещё может меняться.',
+      isCloseable: true,
+    },
+    // Прототип был тёмным и только тёмным — здесь так же.
     colorMode: {
-      respectPrefersColorScheme: true,
+      defaultMode: 'dark',
+      disableSwitch: true,
+      respectPrefersColorScheme: false,
+    },
+    docs: {
+      sidebar: {
+        hideable: true,
+        autoCollapseCategories: true,
+      },
+    },
+    tableOfContents: {
+      minHeadingLevel: 2,
+      maxHeadingLevel: 4,
+    },
+    mermaid: {
+      theme: {light: 'neutral', dark: 'dark'},
     },
     navbar: {
       title: 'McProtoNet',
@@ -94,7 +147,22 @@ const config: Config = {
           title: 'Документация',
           items: [
             {label: 'Об проекте', to: '/docs/overview/about'},
+            {label: 'Первый бот', to: '/docs/getting-started/minimal-bot'},
             {label: 'Что библиотека не делает', to: '/docs/overview/non-goals'},
+            {label: 'Словарь', to: '/docs/reference/glossary'},
+          ],
+        },
+        {
+          title: 'Пакеты',
+          items: [
+            {
+              label: 'NuGet',
+              href: 'https://www.nuget.org/packages/McProtoNet',
+            },
+            {
+              label: 'Ночные сборки',
+              href: 'https://f.feedz.io/mcprotonet/night/nuget/index.json',
+            },
           ],
         },
         {
@@ -105,8 +173,8 @@ const config: Config = {
               href: 'https://github.com/Titlehhhh/McProtoNet',
             },
             {
-              label: 'NuGet',
-              href: 'https://www.nuget.org/packages/McProtoNet',
+              label: 'Issues',
+              href: 'https://github.com/Titlehhhh/McProtoNet/issues',
             },
           ],
         },
@@ -116,7 +184,17 @@ const config: Config = {
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
-      additionalLanguages: ['csharp', 'fsharp', 'bash', 'json'],
+      // Имя должно совпадать с компонентом Prism: для XML это markup,
+      // и он включён по умолчанию.
+      additionalLanguages: [
+        'csharp',
+        'fsharp',
+        'bash',
+        'json',
+        'powershell',
+        'diff',
+        'yaml',
+      ],
     },
   } satisfies Preset.ThemeConfig,
 };

@@ -1,23 +1,196 @@
 /**
- * CSS files with the .module.css suffix will be treated as CSS modules
- * and scoped locally.
+ * Главная страница.
+ * Раскладка — семь блоков подряд, каждый со своим вертикальным ритмом.
+ * Пустоты между hero и подвалом больше нет: её создавал flex-grow пустого
+ * main-wrapper, когда на странице не было ничего, кроме заголовка.
  */
 
-.heroBanner {
-  padding: 4rem 0;
+.hero {
+  background: var(--mc-bg2);
+  border-bottom: 1px solid var(--mc-line);
+  padding: 72px 0 64px;
   text-align: center;
-  position: relative;
-  overflow: hidden;
 }
 
-@media screen and (max-width: 996px) {
-  .heroBanner {
-    padding: 2rem;
-  }
+.heroTitle {
+  /* Фиксированные 45px рвали «McProtoNet» на «McProtoN / et» уже на 320px */
+  font-size: clamp(2rem, 1.4rem + 3vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.heroSubtitle {
+  color: var(--mc-fg2);
+  font-size: clamp(1rem, 0.95rem + 0.5vw, 1.375rem);
+  margin-bottom: 28px;
 }
 
 .buttons {
   display: flex;
-  align-items: center;
+  gap: 12px;
   justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.install {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.installCode :global(.theme-code-block) {
+  margin-bottom: 8px;
+}
+
+.installNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+}
+
+.section {
+  padding: 56px 0;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Код и его вывод рядом — приём с главной Serilog */
+.sampleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.sampleCode,
+.sampleOut {
+  min-width: 0;
+}
+
+.sampleNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  margin: 0;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--mc-bg2);
+  border: 1px solid var(--mc-line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cardBody {
+  color: var(--mc-fg2);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.band {
+  background: var(--mc-bg2);
+  border-top: 1px solid var(--mc-line);
+  border-bottom: 1px solid var(--mc-line);
+  text-align: center;
+}
+
+.bandTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.bandRange {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem);
+  color: var(--mc-acc);
+  margin-bottom: 12px;
+}
+
+.bandDash {
+  color: var(--mc-fg3);
+  margin: 0 8px;
+}
+
+.bandNote {
+  color: var(--mc-fg2);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 0;
+  border-bottom: 1px solid var(--mc-line);
+  padding: 10px 12px 10px 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.table td:first-child {
+  white-space: nowrap;
+}
+
+.tableNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.next {
+  border-top: 1px solid var(--mc-line);
+}
+
+.nextList {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--mc-fg2);
+}
+
+.nextList li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 996px) {
+  .sampleGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero {
+    padding: 48px 0 40px;
+  }
+  .section {
+    padding: 40px 0;
+  }
 }

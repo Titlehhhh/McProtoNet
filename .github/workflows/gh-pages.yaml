@@ -23,6 +23,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          # Docusaurus читает git-историю ради «последнее обновление»;
+          # при глубине 1 даты будут пустые.
+          fetch-depth: 0
 
       - name: Setup Node
         uses: actions/setup-node@v4

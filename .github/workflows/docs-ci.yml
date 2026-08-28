@@ -1,0 +1,31 @@
+name: Docs build check
+
+# Ловит битые ссылки и ошибки типов до деплоя: onBrokenLinks: 'throw'
+# работает как тест только если сборку кто-то запускает.
+on:
+  pull_request:
+    paths:
+      - 'docs/site/**'
+      - '.github/workflows/docs-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs/site
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: docs/site/package-lock.json
+
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run build

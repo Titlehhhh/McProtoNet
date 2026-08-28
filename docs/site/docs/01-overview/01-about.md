@@ -1,3 +1,7 @@
+---
+description: 'McProtoNet — открытая библиотека на C# для протокола Minecraft: одна сборка на версии %min_minecraft_version%–%max_minecraft_version%.'
+---
+
 # Об проекте
 
 **McProtoNet** — это открытая библиотека, написанная на **C#**, 
