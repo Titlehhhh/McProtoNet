@@ -2,7 +2,54 @@ import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
 
+import {execSync} from 'node:child_process';
+
 import remarkMcVersions from './src/remark/mc-versions';
+
+/**
+ * Версия для полосы сверху берётся из последнего git-тега, а не пишется
+ * руками: номер превью считает MinVer по тем же тегам, и любая копия
+ * в тексте однажды отстанет. Если тегов нет (мелкий клон, архив без .git),
+ * полоса обходится без номера.
+ */
+function taggedVersion(): string | null {
+  try {
+    const tag = execSync('git describe --tags --abbrev=0 --match "v*"', {
+      cwd: __dirname,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+    return tag.replace(/^v/, '') || null;
+  } catch {
+    return null;
+  }
+}
+
+const version = taggedVersion();
+
+/**
+ * Полоса сверху не переводится через `i18n`: Docusaurus не заводит для неё
+ * слот, содержимое остаётся сырым HTML из конфига. Язык берём из окружения
+ * сборки - конфиг читается заново на каждую локаль.
+ */
+const locale = process.env.DOCUSAURUS_CURRENT_LOCALE ?? 'en';
+
+const announcement =
+  locale === 'ru'
+    ? [
+        version
+          ? `Это документация к <b>${version}</b>, версия ещё в работе.`
+          : 'Это документация к 2.0, версия ещё в работе.',
+        'Без <code>--prerelease</code> NuGet поставит стабильную 1.x,',
+        'её описывает <a href="https://titlehhhh.github.io/McProtoNet/">старая документация</a>.',
+      ].join(' ')
+    : [
+        version
+          ? `This documents <b>${version}</b>, still in development.`
+          : 'This documents 2.0, still in development.',
+        'Without <code>--prerelease</code> NuGet installs the stable 1.x,',
+        'described by the <a href="https://titlehhhh.github.io/McProtoNet/">old documentation</a>.',
+      ].join(' ');
 
 const config: Config = {
   title: 'McProtoNet',
@@ -98,7 +145,7 @@ const config: Config = {
     image: 'img/social-card.png',
     announcementBar: {
       id: 'preview-2-0',
-      content: 'Documentation for 2.0.0-preview.4. The API can still change.',
+      content: announcement,
       isCloseable: true,
     },
     // Прототип был тёмным и только тёмным — здесь так же.
