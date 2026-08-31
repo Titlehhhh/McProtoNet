@@ -1,13 +1,13 @@
 # First bot
 
-The bot in this chapter connects to a server, reaches the game world, and
-stays there: it answers keep-alive, confirms teleports, and prints what
-happens to it to the console. It cannot play, but everything needed for play
-is already in place.
+The bot in this chapter connects to a server, reaches the game world, and stays
+there: it answers keep-alive, confirms teleports, and prints what happens to it
+to the console. It cannot play, but everything needed for play is already in
+place.
 
-The server needs `online-mode=false`: the library does not go to Mojang for
-a session. The protocol version is an integer: here it is 772, which is
-1.21.8. The number for a given version is in the
+The server needs `online-mode=false`: the library does not go to Mojang for a
+session. The protocol version is an integer: here it is 772, which is 1.21.8.
+The number for a given version is in the
 [Version to protocol](../07-reference/01-version-to-protocol.md).
 
 The full example is in the repository: `examples/MinimalBot`.
@@ -27,9 +27,9 @@ await using var client = new MinecraftClient(new MinecraftClientOptions
 await client.ConnectAsync();
 ```
 
-The first two packets go out right away: the handshake with the protocol
-number, and the login request. The number 2 at the end of the handshake is
-the switch into login.
+The first two packets go out right away: the handshake with the protocol number,
+and the login request. The number 2 at the end of the handshake is the switch
+into login.
 
 ```csharp
 await client.SendAsync(
@@ -41,8 +41,10 @@ await client.SendAsync(
 
 ## Handler
 
-A subclass of `ClientboundHandler` parses incoming packets. A method for
-each packet is already declared; only the needed ones get overridden.
+A subclass of
+[`ClientboundHandler`](../08-api-reference/McProtoNet/Protocol/ClientboundHandler.md)
+parses incoming packets. A method for each packet is already declared; only the
+needed ones get overridden.
 
 ```csharp
 sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
@@ -60,16 +62,15 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 }
 ```
 
-A packet without an overridden method still gets parsed, then quietly
-dropped: the server sends a lot that the bot does not need. A packet lands
-in `OnUnknown` for a different reason - when its number is not registered
-for this version, phase, and direction. That is also a normal state of the
-stream, not an error.
+A packet without an overridden method still gets parsed, then quietly dropped:
+the server sends a lot that the bot does not need. A packet lands in `OnUnknown`
+for a different reason - when its number is not registered for this version,
+phase, and direction. That is also a normal state of the stream, not an error.
 
 ## Read loop
 
-Packets arrive as a stream, and the loop that reads them lives in
-application code.
+Packets arrive as a stream, and the loop that reads them lives in application
+code.
 
 ```csharp
 var bot = new Bot(client, Pv);
@@ -92,17 +93,16 @@ catch (EndOfStreamException)
 }
 ```
 
-Without a token, the read waits for the next packet for as long as the
-server stays silent. The loop can also be broken from the outside - `Abort`
-or `DisposeAsync` from another task - but a token is the most convenient way
-to do it.
+Without a token, the read waits for the next packet for as long as the server
+stays silent. The loop can also be broken from the outside - `Abort` or
+`DisposeAsync` from another task - but a token is the most convenient way to do
+it.
 
-The end of a session always arrives as an exception. A clean disconnect is
-an `EndOfStreamException`. The enumeration never ends quietly.
+The end of a session always arrives as an exception. A clean disconnect is an
+`EndOfStreamException`. The enumeration never ends quietly.
 
-A packet lives only until the next read: its data is a window into a
-buffer, not its own copy. Parse it right away. Do not carry it across an
-`await`.
+A packet lives only until the next read: its data is a window into a buffer, not
+its own copy. Parse it right away. Do not carry it across an `await`.
 
 ## The bot switches phases
 
@@ -124,14 +124,14 @@ protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurat
 ```
 
 The server can send the player back to configuration right from the game:
-`StartConfiguration` arrives, the bot confirms it, and sets `Phase` back.
-For more on the full path, see
+`StartConfiguration` arrives, the bot confirms it, and sets `Phase` back. For
+more on the full path, see
 [Phase and direction](../05-packets/01-phases-and-direction.md).
 
 ## Three replies the bot needs to reach the world
 
-The server waits for a reply to three packets, and staying silent on any of
-them ends with the bot stuck in configuration or kicked after spawn.
+The server waits for a reply to three packets, and staying silent on any of them
+ends with the bot stuck in configuration or kicked after spawn.
 
 Right after `LoginAcknowledged`, client settings go out - language, render
 distance, visible skin parts:
@@ -142,8 +142,8 @@ await client.SendAsync(new ConfSb.ClientInformationPacket(
     V768_Last: new(ParticleStatus.All)), pv);
 ```
 
-Next the server sends the list of data packs it knows, and waits for the
-client to confirm the same list:
+Next the server sends the list of data packs it knows, and waits for the client
+to confirm the same list:
 
 ```csharp
 protected override ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket packet)
@@ -160,12 +160,13 @@ protected override ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket packet
 
 ## Encryption
 
-Encryption turns on even on an offline server: an `EncryptionRequestPacket`
-arrives, the bot replies with its own key, and turns on the cipher. Since
-1.20.5 the server encrypts the stream even without a session check - the
-protocol describes this on the
-[Encryption](https://minecraft.wiki/w/Java_Edition_protocol/Encryption)
-page, in the History section.
+Encryption turns on even on an offline server: an
+[`EncryptionRequestPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Login/Clientbound/EncryptionRequestPacket.md)
+arrives, the bot replies with its own key, and turns on the cipher. Since 1.20.5
+the server encrypts the stream even without a session check - the protocol
+describes this on the
+[Encryption](https://minecraft.wiki/w/Java_Edition_protocol/Encryption) page, in
+the History section.
 
 ```csharp
 using var rsa = EncryptionHelpers.DecodeRSAPublicKey(packet.PublicKey)!;
@@ -178,19 +179,19 @@ await client.SendAsync(new LoginSb.EncryptionResponsePacket(
 client.EnableEncryption(secret);
 ```
 
-If the server requires session confirmation with Mojang, the example stops
-here.
+If the server requires session confirmation with Mojang, the example stops here.
 
 ## Life in play
 
 After spawn, the bot is in the world. From there, it needs three things.
 
 The first is keep-alive. The server sends a number and waits for it back. It
-treats a silent client as frozen and closes the connection. The reply
-already appeared above, in the Handler section.
+treats a silent client as frozen and closes the connection. The reply already
+appeared above, in the Handler section.
 
-The second is chat. A player message arrives as a `PlayerChatPacket`. The
-message body sits ready as a string in `PlainMessage`, while the sender name
+The second is chat. A player message arrives as a
+[`PlayerChatPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Play/Clientbound/PlayerChatPacket.md).
+The message body sits ready as a string in `PlainMessage`, while the sender name
 and formatting sit in separate fields nearby.
 
 ```csharp
@@ -202,13 +203,15 @@ protected override ValueTask OnPlayerChat(PlayCb.PlayerChatPacket packet)
 ```
 
 System strings (join, leave, command replies) arrive as a separate
-`SystemChatPacket` in the `OnSystemChat` method, and the text in it sits as
-an NBT component. The library returns the component as is. Building a string
-out of it is application work.
+[`SystemChatPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Play/Clientbound/SystemChatPacket.md)
+in the `OnSystemChat` method, and the text in it sits as an NBT component. The
+library returns the component as is. Building a string out of it is application
+work.
 
-The bot's own message goes out as a `ChatMessagePacket`. Besides the text,
-it carries a timestamp, a salt, and a signature, followed by acknowledgment
-of other messages: the offset `Offset`, exactly three bytes of
+The bot's own message goes out as a
+[`ChatMessagePacket`](../08-api-reference/McProtoNet/Protocol/Packets/Play/Serverbound/ChatMessagePacket.md).
+Besides the text, it carries a timestamp, a salt, and a signature, followed by
+acknowledgment of other messages: the offset `Offset`, exactly three bytes of
 `Acknowledged`, and a checksum `Checksum`. A server that does not check
 signatures accepts zeros.
 
@@ -218,10 +221,11 @@ await client.SendAsync(new PlaySb.ChatMessagePacket(
     V770_Last: new(0, new byte[3], 0)), pv);
 ```
 
-The third is the bot's own position. `PositionPacket` carries it: three
-coordinates and movement flags - whether the client is on the ground and
-whether it is pressed against a wall. The packet goes out not once but for
-as long as the bot moves. Without it, the server keeps the bot where the
+The third is the bot's own position.
+[`PositionPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Play/Serverbound/PositionPacket.md)
+carries it: three coordinates and movement flags - whether the client is on the
+ground and whether it is pressed against a wall. The packet goes out not once
+but for as long as the bot moves. Without it, the server keeps the bot where the
 last teleport placed it.
 
 ```csharp

@@ -7,9 +7,9 @@ dotnet add package McProtoNet --prerelease
 ```
 
 The flag is required. All of this documentation describes 2.0, and 2.0 still
-ships as prerelease versions. Without `--prerelease`, NuGet installs the
-latest stable release from the 1.x branch, which has a different API, and
-none of the examples here will build.
+ships as prerelease versions. Without `--prerelease`, NuGet installs the latest
+stable release from the 1.x branch, which has a different API, and none of the
+examples here will build.
 
 .NET 8 or newer is required: the builds target net8.0, net9.0, net10.0, and
 net11.0.
@@ -26,8 +26,8 @@ If the whole set is not needed, the packages install separately.
 | `McProtoNet.Primitives` | Primitive reading and writing, packet structures |
 | `McProtoNet.NBT` | NBT reading and writing |
 
-The transport pulls in the native package `McProtoNet.Native` 1.0.0, which
-holds libdeflate. It does not need to be installed separately.
+The transport pulls in the native package `McProtoNet.Native` 1.0.0, which holds
+libdeflate. It does not need to be installed separately.
 
 ## Nightly builds
 
@@ -40,8 +40,8 @@ dotnet nuget add source https://f.feedz.io/mcprotonet/night/nuget/index.json -n 
 dotnet add package McProtoNet --prerelease
 ```
 
-The nightly build comes from the latest `dev`: new packages and fixes land
-there first, but so do breaks.
+The nightly build comes from the latest `dev`: new packages and fixes land there
+first, but so do breaks.
 
 ## Next
 

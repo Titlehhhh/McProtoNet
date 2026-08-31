@@ -2,24 +2,23 @@
 
 Everything broken into pieces in [First bot](02-first-bot.md), in one file:
 connection, handler, read loop, phase switching. The same code sits in the
-repository as `examples/MinimalBot` and runs without changes, from the root
-of the McProtoNet clone:
+repository as `examples/MinimalBot` and runs without changes, from the root of
+the McProtoNet clone:
 
 ```
 dotnet run --project examples/MinimalBot -- 127.0.0.1 25565 McProtoBot
 ```
 
-The arguments are address, port, and bot name. If they are missing, the
-defaults are `127.0.0.1`, `25565`, and `McProtoBot`. The protocol number is
-set by the `Pv` constant at the top of the listing. The server needs
-`online-mode=false`: the example stops at the Mojang session check.
+The arguments are address, port, and bot name. If they are missing, the defaults
+are `127.0.0.1`, `25565`, and `McProtoBot`. The protocol number is set by the
+`Pv` constant at the top of the listing. The server needs `online-mode=false`:
+the example stops at the Mojang session check.
 
 ## What shows up in the console
 
-The output is shortened: in play there are noticeably more skipped
-packets. There is no
-line about the compression threshold, because compression is off on this
-server.
+The output is shortened: in play there are noticeably more skipped packets.
+There is no line about the compression threshold, because compression is off on
+this server.
 
 ```text
 MinimalBot: McProtoBot -> 127.0.0.1:25565 (pv 772)
@@ -40,17 +39,16 @@ MinimalBot: McProtoBot -> 127.0.0.1:25565 (pv 772)
 [play] keep-alive #1 - answered and waved
 ```
 
-The dotted lines are packets the library has no method for: the number is
-not described for this version, phase, and direction, or it is described
-but no code has been generated for it yet. A packet whose `On<Name>` is
-not overridden gets parsed and quietly dropped - it does not show up
-in the console. Each dotted line prints once per phase, or there would be
-hundreds of them. A name instead of a number appears when the packet is
-found in the registry.
+The dotted lines are packets the library has no method for: the number is not
+described for this version, phase, and direction, or it is described but no code
+has been generated for it yet. A packet whose `On<Name>` is not overridden gets
+parsed and quietly dropped - it does not show up in the console. Each dotted
+line prints once per phase, or there would be hundreds of them. A name instead
+of a number appears when the packet is found in the registry.
 
-The listing has no `CancellationTokenSource` loop: the example stops on a
-kick or at the end of the stream. The token from the Read loop section gets
-added by anyone who needs an outside stop.
+The listing has no `CancellationTokenSource` loop: the example stops on a kick
+or at the end of the stream. The token from the Read loop section gets added by
+anyone who needs an outside stop.
 
 ## Listing
 
@@ -240,8 +238,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 ```
 
 Chat and movement get added directly to the `Bot` class: the methods from
-[Life in play](02-first-bot.md#life-in-play) sit next to the other
-handlers.
+[Life in play](02-first-bot.md#life-in-play) sit next to the other handlers.
 
 ## Next
 

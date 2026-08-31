@@ -14,3 +14,10 @@ docs/08-api-reference/**
 !docs/08-api-reference/_category_.json
 
 !package-lock.json
+
+# временные скрипты, которые агенты кладут рядом с конфигом
+/_*.py
+/_*.yml
+
+# справка API кладётся и в русское дерево локали - тоже генерат
+i18n/ru/docusaurus-plugin-content-docs/current/08-api-reference/**

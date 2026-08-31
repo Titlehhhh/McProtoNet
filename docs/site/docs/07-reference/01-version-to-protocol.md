@@ -1,11 +1,11 @@
 # Version to protocol
 
 Minecraft Java Edition tells versions apart not by name but by a number, the
-protocol version. It decides the layout of a packet's fields: the library
-keeps several layouts for the same packet, and the number that comes from
-the calling code picks the one to use. That number is passed as a parameter
-to `SendAsync`, `PacketIo.TryDecode`, `PacketFlow.Dispatch`,
-`PacketRegistry.TryResolve`, and in the first handshake packet:
+protocol version. It decides the layout of a packet's fields: the library keeps
+several layouts for the same packet, and the number that comes from the calling
+code picks the one to use. That number is passed as a parameter to `SendAsync`,
+`PacketIo.TryDecode`, `PacketFlow.Dispatch`, `PacketRegistry.TryResolve`, and in
+the first handshake packet:
 
 ```csharp
 await client.SendAsync(
@@ -25,10 +25,10 @@ public const int LatestProtocol = V26_2_Protocol;  // 776
 ## Mapping table
 
 `MinecraftVersion.FromProtocol` reduces a number to a version. Snapshots and
-pre-releases of 1.16.2 collapse to the string 1.16.2, and 1.16.3-rc1
-collapses to 1.16.3. The full, constantly updated table of versions and
-protocol numbers is on the [Protocol
-version](https://minecraft.wiki/w/Protocol_version) page on minecraft.wiki.
+pre-releases of 1.16.2 collapse to the string 1.16.2, and 1.16.3-rc1 collapses
+to 1.16.3. The full, constantly updated table of versions and protocol numbers
+is on the [Protocol version](https://minecraft.wiki/w/Protocol_version) page on
+minecraft.wiki.
 
 | Game version | Protocol |
 | --- | --- |
@@ -62,8 +62,9 @@ version](https://minecraft.wiki/w/Protocol_version) page on minecraft.wiki.
 
 ## Getting the number from code
 
-`MinecraftVersion` carries named constants, a reverse lookup, and the full
-list. There is no need to copy the table into application code:
+[`MinecraftVersion`](../08-api-reference/McProtoNet/Protocol/MinecraftVersion.md)
+carries named constants, a reverse lookup, and the full list. There is no need
+to copy the table into application code:
 
 ```csharp
 int pv = MinecraftVersion.V1_21_11;      // implicit to int, gives 774
@@ -72,22 +73,24 @@ foreach (var v in MinecraftVersion.AllVersions)
     Console.WriteLine($"{v.Name} -> {v.Protocol}");
 ```
 
-`FromProtocol` throws `NotSupportedException` on a number outside the
-table, including inside the 735-776 range, if it does not match a version.
+`FromProtocol` throws `NotSupportedException` on a number outside the table,
+including inside the 735-776 range, if it does not match a version.
 
 ## A number outside the range
 
-`MinecraftClient` does no check on input. The check comes from the packets
-themselves. `SetProtocolPacket`, and any packet with layouts that vary by
-version, declares a range:
+[`MinecraftClient`](../08-api-reference/McProtoNet/MinecraftClient.md) does no
+check on input. The check comes from the packets themselves.
+[`SetProtocolPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Handshaking/Serverbound/SetProtocolPacket.md),
+and any packet with layouts that vary by version, declares a range:
 
 ```csharp
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 ```
 
-A number outside the range produces `ProtocolNotSupportException` on the
-first attempt to send or parse a packet, before it reaches the network. The
-exception carries the type name, the number, and the ranges the type exists
+A number outside the range produces
+[`ProtocolNotSupportException`](../08-api-reference/McProtoNet/Protocol/ProtocolNotSupportException.md)
+on the first attempt to send or parse a packet, before it reaches the network.
+The exception carries the type name, the number, and the ranges the type exists
 on.
 
 ## Next

@@ -124,8 +124,17 @@ const config: Config = {
           routeBasePath: 'docs',
           sidebarPath: './sidebars.ts',
           // edit/, а не tree/ — иначе кнопка ведёт на просмотр, а не на правку.
-          editUrl:
-            'https://github.com/Titlehhhh/McProtoNet/edit/master/docs/site/',
+          // Ветка dev: в master каталога docs/site нет, ссылки вели в никуда.
+          // Русские страницы лежат в i18n, справка API вообще не в git -
+          // для неё кнопки правки нет.
+          editUrl: ({locale, docPath}) => {
+            if (docPath.startsWith('08-api-reference/')) return undefined;
+            const base =
+              'https://github.com/Titlehhhh/McProtoNet/edit/dev/docs/site';
+            return locale === 'ru'
+              ? `${base}/i18n/ru/docusaurus-plugin-content-docs/current/${docPath}`
+              : `${base}/docs/${docPath}`;
+          },
           remarkPlugins: [remarkMcVersions],
           showLastUpdateTime: true,
           showLastUpdateAuthor: false,

@@ -125,7 +125,7 @@ Questions, bugs, ideas: [Discord](https://discord.gg/PWfYWRDJme) or
 
 You can support development with crypto. Send only in the network named
 next to the address; a transfer that arrives through another network cannot
-be returned. Neither address needs a memo or a tag.
+be returned. None of the addresses needs a memo or a tag.
 
 **USDT, TRON network (TRC-20)**: `TVw4jCehZspPk3aT1fecQWhEzH2LEkG9WG`
 

@@ -1,11 +1,11 @@
 # Версия → протокол
 
-Minecraft Java Edition различает версии не по имени, а по числу -
-номеру протокола. От него зависит раскладка полей пакета: библиотека
-держит по несколько раскладок одного пакета, нужную выбирает номер,
-пришедший от вызывающего кода. Он передаётся параметром в `SendAsync`,
-`PacketIo.TryDecode`, `PacketFlow.Dispatch`, `PacketRegistry.TryResolve`
-и в первом пакете рукопожатия:
+Minecraft Java Edition различает версии не по имени, а по числу - номеру
+протокола. От него зависит раскладка полей пакета: библиотека держит по
+несколько раскладок одного пакета, нужную выбирает номер, пришедший от
+вызывающего кода. Он передаётся параметром в `SendAsync`, `PacketIo.TryDecode`,
+`PacketFlow.Dispatch`, `PacketRegistry.TryResolve` и в первом пакете
+рукопожатия:
 
 ```csharp
 await client.SendAsync(
@@ -14,8 +14,8 @@ await client.SendAsync(
 
 ## Поддержанный диапазон
 
-Библиотека поддерживает диапазон от %min_minecraft_version%
-до %max_minecraft_version%. В коде границы - именованные константы:
+Библиотека поддерживает диапазон от %min_minecraft_version% до
+%max_minecraft_version%. В коде границы - именованные константы:
 
 ```csharp
 public const int StartProtocol = V1_16_Protocol;   // 735
@@ -24,11 +24,10 @@ public const int LatestProtocol = V26_2_Protocol;  // 776
 
 ## Таблица соответствий
 
-`MinecraftVersion.FromProtocol` сводит номер к версии; снапшоты
-и пре-релизы 1.16.2 сведены к строке 1.16.2, 1.16.3-rc1 - к 1.16.3.
-Полная и постоянно обновляемая таблица версий и номеров протокола - на
-странице [Protocol version](https://minecraft.wiki/w/Protocol_version)
-на minecraft.wiki.
+`MinecraftVersion.FromProtocol` сводит номер к версии; снапшоты и пре-релизы
+1.16.2 сведены к строке 1.16.2, 1.16.3-rc1 - к 1.16.3. Полная и постоянно
+обновляемая таблица версий и номеров протокола - на странице
+[Protocol version](https://minecraft.wiki/w/Protocol_version) на minecraft.wiki.
 
 | Версия игры | Протокол |
 | --- | --- |
@@ -62,8 +61,9 @@ public const int LatestProtocol = V26_2_Protocol;  // 776
 
 ## Как получить номер программно
 
-`MinecraftVersion` несёт именованные константы, обратный поиск
-и полный список - таблицу переписывать в код не нужно:
+[`MinecraftVersion`](../08-api-reference/McProtoNet/Protocol/MinecraftVersion.md)
+несёт именованные константы, обратный поиск и полный список - таблицу
+переписывать в код не нужно:
 
 ```csharp
 int pv = MinecraftVersion.V1_21_11;      // неявно в int, даёт 774
@@ -72,22 +72,25 @@ foreach (var v in MinecraftVersion.AllVersions)
     Console.WriteLine($"{v.Name} -> {v.Protocol}");
 ```
 
-`FromProtocol` бросает `NotSupportedException` на числе вне таблицы,
-в том числе внутри диапазона 735-776, если оно не отвечает версии.
+`FromProtocol` бросает `NotSupportedException` на числе вне таблицы, в том числе
+внутри диапазона 735-776, если оно не отвечает версии.
 
 ## Номер вне диапазона
 
-Проверки на входе в `MinecraftClient` нет - она приходит от самих
-пакетов. У `SetProtocolPacket` и любого пакета с раскладками по версиям
-объявлен диапазон:
+Проверки на входе в
+[`MinecraftClient`](../08-api-reference/McProtoNet/MinecraftClient.md) нет - она
+приходит от самих пакетов. У
+[`SetProtocolPacket`](../08-api-reference/McProtoNet/Protocol/Packets/Handshaking/Serverbound/SetProtocolPacket.md)
+и любого пакета с раскладками по версиям объявлен диапазон:
 
 ```csharp
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 ```
 
-Номер вне диапазона даёт `ProtocolNotSupportException` при первой попытке
-отправить или разобрать пакет, до выхода в сеть. Исключение несёт имя типа,
-номер и диапазоны, на которых этот тип существует.
+Номер вне диапазона даёт
+[`ProtocolNotSupportException`](../08-api-reference/McProtoNet/Protocol/ProtocolNotSupportException.md)
+при первой попытке отправить или разобрать пакет, до выхода в сеть. Исключение
+несёт имя типа, номер и диапазоны, на которых этот тип существует.
 
 ## Дальше
 
