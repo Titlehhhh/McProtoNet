@@ -6,9 +6,8 @@
  */
 
 .hero {
-  background-size: cover;
-  background-position: center 42%;
-  background-repeat: no-repeat;
+  position: relative;
+  overflow: hidden;
 
   background: var(--mc-bg2);
   border-bottom: 1px solid var(--mc-line);
@@ -239,4 +238,35 @@
   .table td:first-child {
     white-space: normal;
   }
+}
+
+/* Слой с постройкой: сильное приближение, лёгкое размытие и затемнение
+   сверху. Целиком надпись не показываем - она повторяла бы заголовок. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  background-image: var(--hero-backdrop);
+  background-size: 190%;
+  background-position: 18% 46%;
+  background-repeat: no-repeat;
+  filter: blur(2px) saturate(0.8);
+  opacity: 0.55;
+  z-index: 0;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 16, 19, 0.55) 0%,
+    rgba(14, 16, 19, 0.78) 55%,
+    var(--mc-bg) 100%
+  );
+  z-index: 0;
+}
+.hero > :global(.container) {
+  position: relative;
+  z-index: 1;
 }

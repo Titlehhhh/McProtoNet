@@ -121,6 +121,36 @@ protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurat
 `StartConfiguration`, бот подтверждает и переставляет `Phase` назад. Подробнее
 про весь путь - [«Фазы протокола»](../05-packets/01-phases-and-direction.md).
 
+## Три ответа, без которых бот не доживёт до мира
+
+Сервер ждёт ответа на три пакета, и молчание в любом из них кончается тем,
+что бот повисает в configuration или получает кик после спавна.
+
+Сразу после `LoginAcknowledged` уходят настройки клиента - язык, дальность
+прорисовки, видимые части скина:
+
+```csharp
+await client.SendAsync(new ConfSb.ClientInformationPacket(
+    "en_us", 2, 0, true, 0x7F, 1, false, true,
+    V768_Last: new(ParticleStatus.All)), pv);
+```
+
+Дальше сервер присылает список известных ему наборов данных и ждёт, что
+клиент подтвердит тот же список:
+
+```csharp
+protected override ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket packet)
+    => client.SendAsync(new ConfSb.SelectKnownPacksPacket(packet.Packs), pv);
+```
+
+А в play каждый телепорт - включая первый, на спавне - нужно подтвердить
+его номером, иначе сервер решит, что клиент завис:
+
+```csharp
+protected override ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket packet)
+    => client.SendAsync(new PlaySb.TeleportConfirmPacket(packet.TeleportId), pv);
+```
+
 ## Шифрование
 
 Даже на offline-сервере шифрование включается: приходит

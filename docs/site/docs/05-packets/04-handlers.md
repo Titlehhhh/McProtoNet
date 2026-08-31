@@ -51,25 +51,13 @@ protected virtual ValueTask OnEncryptionRequest(
 
 ## Кто выставляет Phase
 
-У `Phase` открытый `get` и `set` только для наследника. Обработчик
-не следит за протоколом сам - это решение владельца: клиент тонкий,
-состояние фаз ведёт код приложения (см. [«Фазу и направление»](01-phases-and-direction.md)). Обработчик стартует в фазе, с которой
-начинается любое соединение: `login` для `ClientboundHandler`,
-`handshaking` для `ServerboundHandler`. Дальше фазу двигает сам
-обработчик, обычно сразу после пакета, который сообщает о переходе:
-
-```csharp
-protected override async ValueTask OnLoginSuccess(
-    LoginCb.LoginSuccessPacket packet)
-{
-    await client.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
-    Phase = PacketPhase.Configuration;
-}
-```
-
-Если забыть подвинуть `Phase`, следующий пакет разберётся не той
-таблицей номеров - и почти наверняка попадёт в `OnUnknown` или получит
-неверный тип.
+У `Phase` открытый `get` и `set` только для наследника - это решение
+владельца: фазы ведёт код приложения
+([«Фаза и направление»](01-phases-and-direction.md)). Обработчик
+стартует в фазе, с которой начинается любое соединение: `login` для
+`ClientboundHandler`, `handshaking` для `ServerboundHandler`, и дальше
+сам двигает `Phase` в ответ на пакеты перехода. Пример перехода и
+последствия забытого `Phase` - там же.
 
 ## Неизвестный пакет
 
@@ -94,8 +82,10 @@ protected override ValueTask OnUnknown(in IncomingPacket raw)
 }
 ```
 
-`raw` живёт только на время вызова, как и везде при разборе - если
-байты тела нужны дальше, их нужно скопировать здесь же.
+`raw` живёт только на время вызова: тело пакета - окно в буфер, которое
+живёт до следующего чтения
+([«Буфер приёма»](../04-transport/03-packet-stream.md)) - если байты
+тела нужны дальше, их нужно скопировать здесь же.
 
 ## Лишние байты в конце
 

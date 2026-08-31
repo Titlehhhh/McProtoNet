@@ -60,8 +60,8 @@ if (record is { } srv)
 и `LocalEndPoint` в этом случае не действуют - прокси-клиент владеет
 своим сокетом и настраивает его сам. Реализации берутся из
 [QuickProxyNet](https://github.com/Titlehhhh/QuickProxyNet) - отдельной
-библиотеки без зависимостей, с HTTP CONNECT, SOCKS и несколькими
-современными протоколами.
+библиотеки без зависимостей. Она понимает HTTP CONNECT и SOCKS4/4a/5,
+а из современного - VLESS, VMess и Trojan; QUIC и Shadowsocks не умеет.
 
 ```csharp
 var options = new MinecraftClientOptions
@@ -91,19 +91,9 @@ foreach (var server in found)
 
 ## Что уходит на сервер сразу после соединения
 
-`ConnectAsync` не отправляет ни одного пакета - он только открывает
-соединение. Первым уходит handshaking-пакет с протокольной версией,
-адресом и портом сервера и следующим состоянием, вторым - заявка
-на вход в login:
-
-```csharp
-await client.SendAsync(
-    new HandshakeSb.SetProtocolPacket(protocolVersion, host, port, 2),
-    protocolVersion);
-await client.SendAsync(
-    new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())),
-    protocolVersion);
-```
+Первым уходит handshaking-пакет с протокольной версией, адресом и портом
+сервера, вторым - заявка на вход в login. Пример с кодом - в
+[«Первом боте»](../02-getting-started/02-first-bot.md).
 
 ## Одно соединение на один клиент
 

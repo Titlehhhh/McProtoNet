@@ -52,8 +52,8 @@ const FEATURES: Feature[] = [
     body: 'Подключиться к серверу, отправлять и принимать типизированные пакеты, включать сжатие и шифрование. Основа для ботов, своих клиентов и инструментов.',
   },
   {
-    title: 'Много версий, один API',
-    body: 'Каждый пакет знает свою раскладку по версиям. Версия протокола задаётся один раз, при подключении.',
+    title: 'Быстрый транспорт',
+    body: 'Сжатие через libdeflate, аппаратный AES для шифра, разбор без лишних копий поверх Span<byte>. Совместимо с NativeAOT.',
   },
   {
     title: 'Offline-серверы',
@@ -65,26 +65,16 @@ const FEATURES: Feature[] = [
   },
 ];
 
-const PACKAGES: [string, string][] = [
-  ['McProtoNet', 'Клей: MinecraftClient, типизированный SendAsync<T>, SRV, LAN'],
-  ['McProtoNet.Transport', 'Байты между сокетом и пакетом: кадры, сжатие, шифрование'],
-  ['McProtoNet.Protocol', 'Пакетный слой: классы пакетов, реестр, диспетчер, базы обработчиков'],
-  ['McProtoNet.Primitives', 'Примитивный читатель и писатель, буферы, IncomingPacket / OutgoingPacket'],
-  ['McProtoNet.NBT', 'Разбор и запись NBT'],
-];
-
 function Hero() {
   const {siteConfig} = useDocusaurusContext();
-  // Надпись из блоков уходит фоном под затемнение: контраст текста держит
-  // градиент, картинка остаётся фактурой, а не иллюстрацией.
+  // Фон - крупный кусок постройки, а не вся надпись: слово McProtoNet уже
+  // стоит заголовком, второй раз читать его под ним незачем. Картинка
+  // отдаётся в CSS через переменную, чтобы слой с размытием жил в ::before.
   const backdrop = useBaseUrl('/img/formation.png');
   return (
     <header
       className={clsx('hero', styles.hero)}
-      style={{
-        backgroundImage:
-          `linear-gradient(180deg, rgba(14,16,19,0.72) 0%, rgba(14,16,19,0.86) 60%, var(--mc-bg) 100%), url(${backdrop})`,
-      }}>
+      style={{['--hero-backdrop' as string]: `url(${backdrop})`}}>
       <div className="container">
         <img
           className={styles.heroIcon}
@@ -202,34 +192,18 @@ function Packages() {
     <section className={styles.section}>
       <div className="container">
         <Heading as="h2" className={styles.sectionTitle}>
-          <Translate id="home.packages.title">NuGet-пакеты</Translate>
+          <Translate id="home.packages.title">Пакеты</Translate>
         </Heading>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>
-                <Translate id="home.packages.col1">Пакет</Translate>
-              </th>
-              <th>
-                <Translate id="home.packages.col2">Что внутри</Translate>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {PACKAGES.map(([name, what]) => (
-              <tr key={name}>
-                <td>
-                  <code>{name}</code>
-                </td>
-                <td>{what}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
         <p className={styles.tableNote}>
           <Translate id="home.packages.note">
-            Ставится один McProtoNet - остальные приезжают вместе с ним.
-          </Translate>
+            Библиотека разложена на пять пакетов NuGet. Ставится один
+            McProtoNet - остальные приезжают вместе с ним.
+          </Translate>{' '}
+          <Link to="/docs/getting-started/installation">
+            <Translate id="home.packages.link">
+              Что внутри каждого - в «Установке»
+            </Translate>
+          </Link>
         </p>
       </div>
     </section>
