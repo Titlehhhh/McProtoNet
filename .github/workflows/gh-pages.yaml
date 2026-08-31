@@ -2,6 +2,9 @@ name: Build documentation
 
 # Автозапуска нет намеренно: сайт публикуется только вручную,
 # кнопкой "Run workflow" во вкладке Actions.
+#
+# Публикуются оба сайта сразу: старая документация Writerside в корне
+# Pages, новая на Docusaurus - в подпапке /next/.
 on:
   workflow_dispatch:
 
@@ -14,8 +17,48 @@ permissions:
   id-token: write
   pages: write
 
+env:
+  INSTANCE: 'docs/legacy-writerside/in'
+  DOCKER_VERSION: '243.22562'
+
 jobs:
-  build:
+  legacy:
+    name: Writerside (корень сайта)
+    runs-on: ubuntu-latest
+    outputs:
+      artifact: ${{ steps.define-ids.outputs.artifact }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Define instance id and artifact
+        id: define-ids
+        run: |
+          # INSTANCE - это путь до проекта и идентификатор инстанса через
+          # слэш; имя архива собирается из одного идентификатора.
+          INSTANCE_ID=${INSTANCE##*/}
+          INSTANCE_ID_UPPER=$(echo "$INSTANCE_ID" | tr '[:lower:]' '[:upper:]')
+          ARTIFACT="webHelp${INSTANCE_ID_UPPER}2-all.zip"
+          echo "ARTIFACT: $ARTIFACT"
+          echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
+
+      - name: Build docs using Writerside Docker builder
+        uses: JetBrains/writerside-github-action@v4
+        with:
+          instance: ${{ env.INSTANCE }}
+          docker-version: ${{ env.DOCKER_VERSION }}
+
+      - name: Save artifact with build results
+        uses: actions/upload-artifact@v4
+        with:
+          name: legacy-docs
+          path: artifacts/${{ steps.define-ids.outputs.artifact }}
+          retention-days: 7
+
+  site:
+    name: Docusaurus (/next/)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -41,21 +84,43 @@ jobs:
       - name: Build site
         run: npm run build
 
+      - name: Save artifact with build results
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-docs
+          path: docs/site/build
+          retention-days: 7
+
+  deploy:
+    needs: [legacy, site]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download Writerside artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: legacy-docs
+          path: artifacts
+
+      - name: Unzip Writerside artifact into the site root
+        run: unzip -O UTF-8 -qq "artifacts/${{ needs.legacy.outputs.artifact }}" -d public
+
+      - name: Download Docusaurus artifact into /next/
+        uses: actions/download-artifact@v4
+        with:
+          name: next-docs
+          path: public/next
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs/site/build
+          path: public
 
-  deploy:
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
