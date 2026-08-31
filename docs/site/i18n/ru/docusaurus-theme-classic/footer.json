@@ -46,5 +46,9 @@
   "link.item.label.Nightly builds": {
     "message": "Ночные сборки",
     "description": "The label of footer link with label=Nightly builds linking to https://f.feedz.io/mcprotonet/night/nuget/index.json"
+  },
+  "link.item.label.Discord": {
+    "message": "Discord",
+    "description": "The label of footer link with label=Discord linking to https://discord.gg/PWfYWRDJme"
   }
 }

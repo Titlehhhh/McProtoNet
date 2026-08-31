@@ -159,12 +159,17 @@ const config: Config = {
           position: 'right',
         },
         {
-          type: 'localeDropdown',
+          href: 'https://github.com/Titlehhhh/McProtoNet',
+          label: 'GitHub',
           position: 'right',
         },
         {
-          href: 'https://github.com/Titlehhhh/McProtoNet',
-          label: 'GitHub',
+          href: 'https://discord.gg/PWfYWRDJme',
+          label: 'Discord',
+          position: 'right',
+        },
+        {
+          type: 'localeDropdown',
           position: 'right',
         },
       ],
@@ -204,6 +209,10 @@ const config: Config = {
             {
               label: 'Issues',
               href: 'https://github.com/Titlehhhh/McProtoNet/issues',
+            },
+            {
+              label: 'Discord',
+              href: 'https://discord.gg/PWfYWRDJme',
             },
           ],
         },
