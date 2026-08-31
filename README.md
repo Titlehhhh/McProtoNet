@@ -131,6 +131,8 @@ be returned. Neither address needs a memo or a tag.
 
 **TON and USDT, TON network**: `UQDp_mDSj3VH0uIqBl2aNsyZJ8Drymo3qX-nlYNr5r6zTCaI`
 
+**BTC, Bitcoin network**: `bc1q3ushl443q9xvclxtqxcvltdd64ffy3h8x7xsm4`
+
 The same is on the site: [Support the project](https://titlehhhh.github.io/McProtoNet/next/support).
 
 [libdeflate]: https://github.com/ebiggers/libdeflate

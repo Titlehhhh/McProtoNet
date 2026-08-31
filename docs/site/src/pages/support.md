@@ -25,6 +25,16 @@ UQDp_mDSj3VH0uIqBl2aNsyZJ8Drymo3qX-nlYNr5r6zTCaI
 
 TON and USDT go to one address here; the coin is chosen in the wallet.
 
+## BTC, Bitcoin network
+
+```text
+bc1q3ushl443q9xvclxtqxcvltdd64ffy3h8x7xsm4
+```
+
+A native segwit address. The network fee is charged per transfer and does
+not depend on the amount, so small donations are better sent through TRON
+or TON.
+
 ## Before sending
 
 Send only in the network named above the address. A transfer that arrives
