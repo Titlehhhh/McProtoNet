@@ -6,7 +6,7 @@
                  name="McProtoNet"
                  start-page="about.md">
 
-    <toc-element toc-title="Новая документация (2.0)"
+    <toc-element toc-title="Ветка разработки / Development docs"
                  href="https://titlehhhh.github.io/McProtoNet/next/"/>
     <toc-element topic="about.md"/>
     <toc-element topic="non-goals.md"/>

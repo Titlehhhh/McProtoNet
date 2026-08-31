@@ -1,8 +1,11 @@
 # Об проекте
 
-> Есть новая документация: [McProtoNet 2.0](https://titlehhhh.github.io/McProtoNet/next/).
-> Она описывает нынешнюю раскладку библиотеки; страницы ниже
-> остались от прежней и местами устарели.
+> Эта документация описывает выпущенное превью **2.0.0-preview.4**.
+> Документация к ветке разработки - [McProtoNet 2.0](https://titlehhhh.github.io/McProtoNet/next/).
+>
+> This documentation describes the released **2.0.0-preview.4**.
+> The documentation for the development branch is at
+> [McProtoNet 2.0](https://titlehhhh.github.io/McProtoNet/next/).
 {style="warning"}
 
 **McProtoNet** — это открытая библиотека, написанная на **C#**, 

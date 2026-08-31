@@ -7,25 +7,32 @@ import {execSync} from 'node:child_process';
 import remarkMcVersions from './src/remark/mc-versions';
 
 /**
- * Версия для полосы сверху берётся из последнего git-тега, а не пишется
- * руками: номер превью считает MinVer по тем же тегам, и любая копия
- * в тексте однажды отстанет. Если тегов нет (мелкий клон, архив без .git),
- * полоса обходится без номера.
+ * Версия для полосы сверху считается так же, как её считает MinVer для
+ * ночных сборок: последний тег плюс число коммитов после него. Сайт
+ * собирается из dev, который ушёл вперёд от выпущенного превью, поэтому
+ * писать голый номер тега нельзя - он назвал бы чужую версию.
+ * Если тегов нет (мелкий клон, архив без .git), полоса обходится без номера.
  */
-function taggedVersion(): string | null {
-  try {
-    const tag = execSync('git describe --tags --abbrev=0 --match "v*"', {
-      cwd: __dirname,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
-    return tag.replace(/^v/, '') || null;
-  } catch {
-    return null;
-  }
+function devVersion(): string | null {
+  const git = (args: string) => {
+    try {
+      return execSync(`git ${args}`, {
+        cwd: __dirname,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      }).trim();
+    } catch {
+      return '';
+    }
+  };
+  const tag = git('describe --tags --abbrev=0 --match "v*"');
+  if (!tag) return null;
+  const height = git(`rev-list ${tag}..HEAD --count`);
+  const base = tag.replace(/^v/, '');
+  return height && height !== '0' ? `${base}.${height}` : base;
 }
 
-const version = taggedVersion();
+const version = devVersion();
 
 /**
  * Полоса сверху не переводится через `i18n`: Docusaurus не заводит для неё
@@ -38,17 +45,17 @@ const announcement =
   locale === 'ru'
     ? [
         version
-          ? `Это документация к <b>${version}</b>, версия ещё в работе.`
-          : 'Это документация к 2.0, версия ещё в работе.',
-        'Без <code>--prerelease</code> NuGet поставит стабильную 1.x,',
-        'её описывает <a href="https://titlehhhh.github.io/McProtoNet/">старая документация</a>.',
+          ? `Это документация к ветке разработки, ночная сборка <b>${version}</b>.`
+          : 'Это документация к ветке разработки.',
+        'Выпущенное превью 2.0.0-preview.4 описывает',
+        '<a href="https://titlehhhh.github.io/McProtoNet/">старая документация</a>.',
       ].join(' ')
     : [
         version
-          ? `This documents <b>${version}</b>, still in development.`
-          : 'This documents 2.0, still in development.',
-        'Without <code>--prerelease</code> NuGet installs the stable 1.x,',
-        'described by the <a href="https://titlehhhh.github.io/McProtoNet/">old documentation</a>.',
+          ? `This documents the development branch, nightly <b>${version}</b>.`
+          : 'This documents the development branch.',
+        'The released 2.0.0-preview.4 is described by the',
+        '<a href="https://titlehhhh.github.io/McProtoNet/">old documentation</a>.',
       ].join(' ');
 
 const config: Config = {
