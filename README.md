@@ -123,14 +123,14 @@ Questions, bugs, ideas: [Discord](https://discord.gg/PWfYWRDJme) or
 
 ## 💸 Support the project
 
-You can support development by donating cryptocurrency:
+You can support development with crypto. Send only in the network named
+next to the address; a transfer that arrives through another network cannot
+be returned. Neither address needs a memo or a tag.
 
-**USDT (TON)**: `UQB5OyxViBHENXXKPpIZdAXJmrmmqn599_aNkYeRe9HqXY4Q`
+**USDT, TRON network (TRC-20)**: `TVw4jCehZspPk3aT1fecQWhEzH2LEkG9WG`
 
-**USDT (TRC20)**: `TKbnv1CkfQs1UBSoJVbwuqPAhaHDiy7Vbm`
+**TON and USDT, TON network**: `UQDp_mDSj3VH0uIqBl2aNsyZJ8Drymo3qX-nlYNr5r6zTCaI`
 
-**BTC**: `bc1qgx4glhjhjyw7sz2qt5mhyg40cspgp8lanpl282`
-
-**ETH**: `0xc657D636f22701E0B4D20B098DFd123450D89518`
+The same is on the site: [Support the project](https://titlehhhh.github.io/McProtoNet/next/support).
 
 [libdeflate]: https://github.com/ebiggers/libdeflate

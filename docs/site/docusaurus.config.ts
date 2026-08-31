@@ -261,6 +261,10 @@ const config: Config = {
               label: 'Discord',
               href: 'https://discord.gg/PWfYWRDJme',
             },
+            {
+              label: 'Support the project',
+              to: '/support',
+            },
           ],
         },
       ],

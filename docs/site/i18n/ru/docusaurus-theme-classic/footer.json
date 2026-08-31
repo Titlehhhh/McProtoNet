@@ -50,5 +50,9 @@
   "link.item.label.Discord": {
     "message": "Discord",
     "description": "The label of footer link with label=Discord linking to https://discord.gg/PWfYWRDJme"
+  },
+  "link.item.label.Support the project": {
+    "message": "Поддержать проект",
+    "description": "The label of footer link with label=Support the project linking to /support"
   }
 }
