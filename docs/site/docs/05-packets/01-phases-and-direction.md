@@ -1,36 +1,37 @@
-# Фаза и направление: адрес пакета
+# Phase and direction: a packet's address
 
-Номер пакета сам по себе ничего не значит: один и тот же номер в разных
-фазах и в разных направлениях - это разные пакеты. Тип пакета ищется
-не по номеру, а по тройке фаза-направление-номер, да ещё и с оглядкой
-на версию протокола: одна и та же тройка в разных версиях может вести
-к разным пакетам или пропадать вовсе. Именно эту тройку с версией
-и принимает `PacketRegistry.TryResolve` - разбор номера без фазы
-и направления смысла не имеет.
+A packet number means nothing on its own: the same number in different
+phases and directions is a different packet. The packet type comes not
+from the number alone, but from the triple phase-direction-number, and
+also depends on the protocol version: the same triple can point to a
+different packet in a different version, or point to nothing at all.
+`PacketRegistry.TryResolve` takes exactly this triple plus the version -
+parsing a number without a phase and a direction makes no sense.
 
-## Фазы и направления
+## Phases and directions
 
-Фазы заданы перечислением `PacketPhase` в `McProtoNet.Protocol`, в порядке
-жизни соединения:
+The `PacketPhase` enum in `McProtoNet.Protocol` lists the phases, in the
+order a connection lives through them:
 
-- `Handshaking` - первый пакет сессии, выбор следующей фазы;
-- `Status` - опрос сервера (пинг, список игроков в MOTD);
-- `Login` - авторизация, шифрование, сжатие;
-- `Configuration` - обмен данными о клиенте и серверными реестрами;
-- `Play` - игра.
+- `Handshaking` - the first packet of the session, chooses the next phase;
+- `Status` - server query (ping, player list in the MOTD);
+- `Login` - authentication, encryption, compression;
+- `Configuration` - exchange of client data and server registries;
+- `Play` - the game.
 
-Направление задаёт `PacketDirection`: `Clientbound` - пакет идёт от
-сервера к клиенту, `Serverbound` - от клиента к серверу. Одна и та же
-фаза несёт два независимых набора пакетов, по одному на направление.
-Порядок фаз и обмена пакетами при входе на сервер описан в протоколе
-на странице [Protocol FAQ](https://minecraft.wiki/w/Java_Edition_protocol/FAQ).
+`PacketDirection` sets the direction: `Clientbound` - the packet goes
+from the server to the client, `Serverbound` - from the client to the
+server. The same phase carries two independent packet sets, one per
+direction. The order of phases and packets when joining a server is
+described in the protocol on the
+[Protocol FAQ](https://minecraft.wiki/w/Java_Edition_protocol/FAQ) page.
 
-## Каталог и ordinal
+## Catalog and ordinal
 
-Пара (фаза, направление) - это каталог: `PacketRegistry.Catalog(phase,
-dir)` отдаёт его целиком, списком `PacketDescriptor`. Внутри каталога
-у пакета есть плотный номер `Ordinal` - `PacketIdentity` несёт его вместе
-с именем и ключом:
+A (phase, direction) pair is a catalog: `PacketRegistry.Catalog(phase,
+dir)` returns it in full, as a list of `PacketDescriptor`. Inside a
+catalog, a packet carries a dense number, `Ordinal` - `PacketIdentity`
+carries it along with the name and the key:
 
 ```csharp
 public readonly record struct PacketIdentity(
@@ -41,14 +42,15 @@ public readonly record struct PacketIdentity(
     ushort Ordinal);
 ```
 
-`Ordinal` плотный только внутри своего каталога, и это не то же самое,
-что номер пакета протокола (поле `Id` у `IncomingPacket`): номер приходит
-с сервера и может меняться от версии к версии, а `Ordinal` стабилен между
-сборками и служит индексом в таблицах разбора.
+`Ordinal` is dense only within its own catalog, and it is not the same
+as the protocol packet number (the `Id` field on `IncomingPacket`): the
+number arrives from the server and can change between versions, while
+`Ordinal` stays stable across builds and serves as an index into the
+parsing tables.
 
-Чтобы получить `Ordinal` по номеру пакета, нужна вся тройка и версия
-протокола - так `PacketRegistry.TryResolve` в `MinimalBot` находит имя
-незнакомого пакета:
+Getting `Ordinal` from a packet number needs the full triple plus the
+protocol version - this is how `PacketRegistry.TryResolve` in
+`MinimalBot` finds the name of an unfamiliar packet:
 
 ```csharp
 var packetName = PacketRegistry.TryResolve(
@@ -57,15 +59,16 @@ var packetName = PacketRegistry.TryResolve(
     : $"0x{raw.Id:X2}";
 ```
 
-## Кто хранит фазу
+## Who holds the phase
 
-Библиотека фазу не выводит сама - её знает только код приложения, который
-ведёт диалог с сервером. У `ClientboundHandler` и `ServerboundHandler`
-есть свойство `Phase`, и приложение переставляет его в ответ на пакеты,
-которые сигналят о переходе. Пока `Phase` не переставлен, `PacketRegistry`
-продолжает искать тип по старой фазе - и, значит, по старому каталогу.
+The library does not infer the phase on its own - only the application
+code that talks to the server knows it. `ClientboundHandler` and
+`ServerboundHandler` each expose a `Phase` property, and the application
+sets it in response to packets that signal a transition. Until `Phase`
+is set, `PacketRegistry` keeps looking up the type by the old phase -
+and so, by the old catalog.
 
-Один из переходов `MinimalBot` - после успешного логина:
+One of the transitions in `MinimalBot` happens after a successful login:
 
 ```csharp
 protected override async ValueTask OnLoginSuccess(
@@ -77,46 +80,48 @@ protected override async ValueTask OnLoginSuccess(
 }
 ```
 
-## Все переходы
+## All transitions
 
-Переключение фаз - не забота библиотеки: она возит пакеты, а последовательность
-ведёт код приложения. Но знать эту последовательность нужно, поэтому вот она
-целиком, для клиента.
+Switching phases is not the library's concern: it carries packets, and
+the application code drives the sequence. But knowing the sequence
+matters, so here it is in full, for the client.
 
-| Из фазы | Сигнал от сервера | Что шлёт приложение | Новая фаза |
+| From phase | Server signal | Application sends | New phase |
 | --- | --- | --- | --- |
-| - | - | `SetProtocol` с `NextState = 2` | `Login` |
-| - | - | `SetProtocol` с `NextState = 1` | `Status` |
+| - | - | `SetProtocol` with `NextState = 2` | `Login` |
+| - | - | `SetProtocol` with `NextState = 1` | `Status` |
 | `Login` | `LoginSuccess` | `LoginAcknowledged` | `Configuration` |
 | `Configuration` | `FinishConfiguration` | `FinishConfiguration` | `Play` |
 | `Play` | `StartConfiguration` | `ConfigurationAcknowledged` | `Configuration` |
 
-Первый переход задаётся ещё до всякой фазы: поле `NextState` в рукопожатии
-говорит серверу, куда идти дальше. Остальные три - ответ на конкретный пакет,
-после которого приложение переставляет `Phase` у обработчика.
+The first transition is set before any phase begins: the `NextState`
+field in the handshake tells the server where to go next. The other
+three are a reply to a specific packet, after which the application
+sets `Phase` on the handler.
 
-Последняя строка - не опечатка: сервер возвращает игрока из play обратно
-в configuration, когда меняет ресурспак или реестры. Обработчик, который
-об этом не знает, продолжит читать пакеты по каталогу play и утонет
-в `Unknown`.
+The last row is not a typo: the server sends the player back from play
+to configuration when it changes the resource pack or the registries. A
+handler that does not know about this keeps reading packets by the play
+catalog and drowns in `Unknown`.
 
-Сжатие и шифрование включаются внутри `Login` и фазу не меняют - про них
-[«Сжатие и шифрование»](../04-transport/05-encryption-and-compression.md).
-Как этот путь выглядит кодом целиком - в
-[«Первом боте»](../02-getting-started/02-first-bot.md).
+Compression and encryption turn on inside `Login` and do not change the
+phase - see
+[Encryption and compression](../04-transport/05-encryption-and-compression.md).
+For the whole path as code, see
+[First bot](../02-getting-started/02-first-bot.md).
 
-## Если фазу не переставить
+## If the phase is not set
 
-Если `Phase` не переставлен вовремя, входящие пакеты продолжают
-разбираться по старой фазе - и адрес выходит неверным: то, что сервер
-шлёт как пакет play, `PacketRegistry` ищет среди пакетов configuration.
-Итог - либо `Unknown` (номер не нашёлся в чужом каталоге), либо пакет,
-разобранный по чужому описанию.
+If `Phase` is not set in time, incoming packets keep parsing against the
+old phase - and the address comes out wrong: what the server sends as a
+play packet, `PacketRegistry` looks up among configuration packets. The
+result is either `Unknown` (the number is not found in the wrong
+catalog) or a packet parsed by the wrong description.
 
-## Дальше
+## Next
 
-- [«Из сырого пакета в объект»](03-from-raw-packet.md) - как из номера
-  пакета получить его имя и разобранный объект
-- [«Обработчики»](04-handlers.md) - как подписаться на конкретный пакет
-- [«Вход на сервер»](../04-transport/01-joining-a-server.md) - весь путь
-  от TCP до игрового мира
+- [From a raw packet](03-from-raw-packet.md) - how to get a
+  packet's name and parsed object from its number
+- [Handlers and unknown packets](04-handlers.md) - how to subscribe to a specific packet
+- [Joining a server](../04-transport/01-joining-a-server.md) - the whole
+  path from TCP to the game world

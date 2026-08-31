@@ -1,36 +1,39 @@
-# Кадры: где кончается пакет
+# Frames: where a packet ends
 
-TCP отдаёт непрерывный поток байт. Отправитель мог вызвать `Write` три раза
-подряд, а получатель увидит эти байты одним куском, двумя или пятью - границ
-вызовов протокол не сохраняет. Чтобы понять, где кончается один пакет
-и начинается следующий, перед телом пакета нужна длина. Это и есть кадр:
-служебная обвязка вокруг пакета, которая делает границу видимой на приёмной
-стороне - в протоколе она описана на странице
-[Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Packet_format).
-`McProtoNet.Transport.Framing` собирает и разбирает эту обвязку.
+TCP delivers a continuous stream of bytes. The sender may call `Write`
+three times in a row, and the receiver may see these bytes as one chunk,
+two chunks, or five - the protocol keeps no record of call boundaries. To
+tell where one packet ends and the next begins, the packet body needs a
+length in front of it. This is the frame: a wrapper around the packet that
+makes the boundary visible on the receiving side. The protocol describes
+it on the
+[Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Packet_format)
+page. `McProtoNet.Transport.Framing` builds and parses this wrapper.
 
-## Кадр без сжатия
+## Frame without compression
 
-Без сжатия кадр - это длина пакета как VarInt, за которой идёт сам пакет:
-VarInt-идентификатор и тело. `PacketWriteExtensions` пишет его в две строки:
+Without compression, a frame is the packet length as a VarInt, followed by
+the packet itself: a VarInt id and a body. `PacketWriteExtensions` writes
+it in two lines:
 
 ```csharp
 writer.WriteVarInt(packet.Length);
 writer.Write(packet);
 ```
 
-Читающая сторона идёт в обратном порядке: сначала VarInt длины, байт за
-байтом, затем ровно столько байт тела, сколько эта длина назвала - ни
-байтом больше.
+The reading side goes in reverse order: first the length VarInt, byte by
+byte, then exactly as many body bytes as the length gives - not one
+more.
 
-## Кадр со сжатием
+## Frame with compression
 
-Когда у `PacketStreamReader`/`PacketStreamWriter` включён
-`CompressionThreshold`, после длины кадра появляется второй VarInt.
-Пакет короче порога идёт как есть, и этот VarInt - просто 0. Пакет
-не короче порога сжимается целиком (идентификатор и тело вместе) через
-libdeflate, и тогда второй VarInt несёт несжатый размер - он нужен,
-чтобы выделить буфер под распаковку заранее:
+When `PacketStreamReader`/`PacketStreamWriter` has `CompressionThreshold`
+turned on, a second VarInt appears after the frame length. A packet
+shorter than the threshold goes as is, and this VarInt is just 0. A packet
+at or above the threshold is compressed whole (the id and the body
+together) through libdeflate, and then the second VarInt carries the
+uncompressed size. This value lets the reader allocate the decompression
+buffer ahead of time:
 
 ```csharp
 writer.WriteVarInt(compressedLength + uncompressedSize.GetVarIntLength());
@@ -38,66 +41,73 @@ writer.WriteVarInt(uncompressedSize);
 writer.Write(rented.AsSpan(0, compressedLength));
 ```
 
-Первый VarInt здесь - длина всего, что после него: размер несжатого
-значения плюс сжатые байты. Читающая сторона смотрит на второй VarInt:
-0 или отрицательное значит «пакет не сжат, дальше его сырые байты»,
-положительное - «дальше zlib, распаковать в буфер именно такого размера».
-Если после распаковки байт вышло больше или меньше заявленного, кадр
-считается повреждённым.
+The first VarInt here is the length of everything after it: the size of
+the uncompressed value field plus the compressed bytes. The reading side
+looks at the second VarInt: 0 or negative means "the packet is not
+compressed, its raw bytes follow", positive means "zlib follows,
+decompress into a buffer of exactly this size". If decompression produces
+more or fewer bytes than declared, the frame counts as corrupt.
 
-## Кто этим занимается
+## Who handles this
 
-`PacketWriteExtensions` - статический класс с кирпичами кадра: одни и те же
-методы `WritePacket` работают поверх `IBufferWriter<byte>`, `PipeWriter`
-и обычного `Stream`, синхронно и асинхронно. Конвейер приёма и отправки
-собирает из них кадры пачками через `BufferedPacketReader`
-и `PacketBatch` - про это разбор в «Потоке пакетов». `PooledBufferWriter` -
-вспомогательный буфер из пула: `PacketStreamWriter` использует его, когда
-включён шифр, чтобы собрать кадр целиком в памяти перед тем, как прогнать
-его через `PacketCipher` - шифру нужен весь кадр сразу, кусками его не
-отдать.
+`PacketWriteExtensions` is a static class with the frame building blocks:
+the same `WritePacket` methods work over `IBufferWriter<byte>`,
+`PipeWriter`, and a plain `Stream`, both synchronously and asynchronously.
+`StreamingConnection` assembles frames from them in batches through
+`BufferedPacketReader` and `PacketBatch` - this is covered in
+"Connection without a client". `PooledBufferWriter` is a helper buffer from the pool:
+`PacketStreamWriter` uses it when encryption is on, to build the whole
+frame in memory before running it through `PacketCipher` - the cipher
+needs the whole frame at once, it cannot take it in pieces.
 
-Транспорт про содержимое пакета не знает ничего: кадр несёт номер пакета
-и байты, а что это за пакет и какие у него поля - решает пакетный слой.
+The transport knows nothing about the packet's content: the frame carries
+the packet number and bytes, while the packet layer decides what kind of
+packet it is and what fields it has.
 
-## Ограничения и ошибки
+## Limits and errors
 
-Длина кадра - от 1 до 32 МиБ (`BufferedPacketReader.MaxFrameLength`).
-Ноль, отрицательное значение или превышение потолка - `InvalidDataException`
-от `ThrowHelper.ThrowInvalidFrameLength`. VarInt длины не может занимать
-больше пяти байт - если занимает, это `ThrowVarIntTooLong`. С несжатым
-размером та же проверка потолка: если он выходит за 32 МиБ, кадр
-отклоняется до попытки выделить буфер. Провал распаковки или несовпадение
-итогового размера с заявленным несжатым размером - тоже `InvalidDataException`,
-с разными сообщениями (`ThrowDecompressFailed`, `ThrowDecompressSizeMismatch`).
+The frame length runs from 1 to 32 MiB
+(`BufferedPacketReader.MaxFrameLength`). Zero, a negative value, or a
+length over the cap throws `InvalidDataException` from
+`ThrowHelper.ThrowInvalidFrameLength`. The length VarInt cannot take more
+than five bytes - if it does, this is `ThrowVarIntTooLong`. The
+uncompressed size gets the same cap check: if it exceeds 32 MiB, the frame
+is rejected before the reader tries to allocate a buffer. A decompression
+failure, or a mismatch between the final size and the declared
+uncompressed size, also throws `InvalidDataException`, with different
+messages (`ThrowDecompressFailed`, `ThrowDecompressSizeMismatch`).
 
-Обрыв соединения посреди кадра тоже даёт `EndOfStreamException`, без
-пустого пакета на этом месте - полная таблица «что произошло → какое
-исключение» в [«Отмене, ошибках, закрытии»](06-cancellation.md).
+A connection drop in the middle of a frame also throws
+`EndOfStreamException`, with no empty packet in its place - the full "what
+happened -> which exception" table is in
+[Cancellation, errors, closing](06-cancellation.md).
 
-`PacketStreamReader` и `PacketStreamWriter` не читают и не пишут два кадра
-одновременно - параллельный `ReadPacketAsync`/`WritePacketAsync` поверх
-незавершённого первого получает `InvalidOperationException`, как и везде
-в транспорте (там же). По той же причине `Cipher` и `CompressionThreshold`
-меняются только между кадрами - попытка сменить их посреди чтения или
-записи тоже бросает `InvalidOperationException`. `ConnectionAbortedException`
-к этому слою отношения не имеет - это исключение уровня конвейера, разобрано
-в «Потоке пакетов».
+`PacketStreamReader` and `PacketStreamWriter` do not read or write two
+frames at once - a parallel `ReadPacketAsync`/`WritePacketAsync` call on
+top of an unfinished first call gets `InvalidOperationException`, as
+everywhere else in the transport (see the same page). For the same reason,
+`Cipher` and `CompressionThreshold` change only between frames - trying to
+change them in the middle of a read or a write also throws
+`InvalidOperationException`. `ConnectionAbortedException` has nothing to
+do with this layer - it is a connection-level exception, covered in
+"Cancellation, errors, closing".
 
-## Где это трогает приложение напрямую
+## Where this touches application code directly
 
-Обычно кадры не видно: конвейер прячет их за `IncomingPacket`/`OutgoingPacket`.
-Но когда конвейер не нужен - например, для рукопожатия до логина или для
-короткого протокольного разговора без буферизации - `PacketStreamReader`
-и `PacketStreamWriter` дают тот же формат кадра напрямую поверх любого
-`Stream`, по одному пакету за вызов. Тело пакета - окно в буфер, которое
-живёт до следующего чтения; разбирать его нужно сразу, не через `await`
-([«Буфер приёма»](03-packet-stream.md)).
+Frames are normally invisible: the connection hides them behind
+`IncomingPacket`/`OutgoingPacket`. But when `MinecraftConnection` is not
+needed -
+for example, for the handshake before login, or for a short protocol
+exchange without buffering - `PacketStreamReader` and `PacketStreamWriter`
+give the same frame format directly over any `Stream`, one packet per
+call. The packet body is a window into a buffer that lives until the next
+read. It must be parsed right away, not across an `await`
+([Receive buffer](03-packet-stream.md)).
 
-## Дальше
+## Next
 
-- [Поток пакетов](03-packet-stream.md) - как из кадров складывается поток
-- [Сжатие и шифрование](05-encryption-and-compression.md) - что кадр здесь
-  только упоминает
-- [Чтение и запись примитивов](../05-packets/02-primitives.md) - откуда
-  берётся VarInt
+- [Packet stream](03-packet-stream.md) - how frames add up to a stream
+- [Encryption and compression](05-encryption-and-compression.md) - what
+  the frame here only mentions
+- [Reading and writing primitives](../05-packets/02-primitives.md) - where
+  VarInt comes from

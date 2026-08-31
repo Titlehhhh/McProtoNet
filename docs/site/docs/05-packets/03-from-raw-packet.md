@@ -1,14 +1,14 @@
-# Из сырого пакета: номер, имя, экземпляр
+# From a raw packet: number, name, instance
 
-Разбор входящего пакета идёт в три ступени: сначала виден только номер,
-потом по номеру находится имя пакета, и только затем, если это нужно,
-пакет становится типизированным объектом. Каждая следующая ступень дороже
-предыдущей и требует больше контекста.
+Parsing an incoming packet goes through three steps: first only the
+number is visible, then the packet's name is found from the number, and
+only after that, if needed, the packet becomes a typed object. Each next
+step costs more than the previous one and needs more context.
 
-## Номер
+## Number
 
-`IncomingPacket` - то, что транспорт отдаёт после чтения, до всякого
-разбора:
+`IncomingPacket` is what the transport hands back after a read, before
+any parsing:
 
 ```csharp
 public readonly struct IncomingPacket
@@ -18,24 +18,26 @@ public readonly struct IncomingPacket
 }
 ```
 
-`Id` - номер пакета на проводе, `Body` - тело без номера. В протоколе это
-поле называется Packet ID, формат пакета - на странице
-[Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression).
-Тело пакета - окно в буфер, которое живёт до следующего чтения; разбирать
-его нужно сразу, не через `await`
-([«Буфер приёма»](../04-transport/03-packet-stream.md)).
+`Id` is the packet number on the wire, `Body` is the body without the
+number. In the protocol this field is called Packet ID, the packet
+format is on the
+[Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression)
+page. A packet body is a window into a buffer that lives until the next
+read; it must be parsed right away, not across an `await`
+([Receive buffer](../04-transport/03-packet-stream.md)).
 
-Одного `Id` мало. Один и тот же номер в разных фазах и направлениях
-означает разные пакеты - `0x00` в login и `0x00` в play не имеют между
-собой ничего общего. Больше того, номер одного пакета меняется от версии
-протокола к версии. Разобрать пакет по одному номеру нельзя - нужны ещё
-фаза, направление и версия протокола (откуда берутся фаза и направление -
-[«Фазы протокола»](01-phases-and-direction.md)).
+`Id` alone is not enough. The same number in different phases and
+directions means different packets - `0x00` in login and `0x00` in play
+have nothing in common. More than that, the number of one packet
+changes from one protocol version to the next. A packet cannot be
+parsed from a single number - it also needs the phase, the direction,
+and the protocol version (where the phase and the direction come from -
+[Phase and direction](01-phases-and-direction.md)).
 
-## Имя
+## Name
 
-`PacketRegistry.TryResolve` переводит номер вместе с фазой, направлением
-и версией протокола в `PacketDescriptor`:
+`PacketRegistry.TryResolve` turns the number, together with the phase,
+the direction, and the protocol version, into a `PacketDescriptor`:
 
 ```csharp
 public static bool TryResolve(int id, int protocolVersion,
@@ -43,17 +45,17 @@ public static bool TryResolve(int id, int protocolVersion,
     [NotNullWhen(true)] out PacketDescriptor? descriptor)
 ```
 
-`PacketDescriptor` несёт `Identity` - структуру `PacketIdentity` с
-человеческим именем `Name` (вроде `Teams`) и ключом манифеста `Key`
-(вроде `play.toClient.teams`) - и `Ids`, массив `IdRange`: для каких
-версий протокола у пакета какой номер на проводе. Внутри TryResolve
-сначала ищет `TryGetOrdinal` - плотный внутренний индекс пакета
-в каталоге его (фазы, направления) - и по нему уже берёт нужный
-дескриптор из `Catalog`. Наружу этот индекс не нужен, снаружи нужен
-только результат.
+`PacketDescriptor` carries `Identity` - a `PacketIdentity` struct with a
+human-readable name, `Name` (like `Teams`), and a manifest key, `Key`
+(like `play.toClient.teams`) - and `Ids`, an array of `IdRange`: which
+wire number the packet has for which protocol versions. Inside,
+`TryResolve` first looks up `TryGetOrdinal` - the packet's dense
+internal index in the catalog of its (phase, direction) - and only then
+takes the matching descriptor from `Catalog`. This index is not needed
+outside; outside, only the result matters.
 
-Этого достаточно, чтобы логировать пакеты по имени, даже когда
-декодировать их не нужно:
+This is enough to log packets by name, even when there is no need to
+decode them:
 
 ```csharp
 if (PacketRegistry.TryResolve(raw.Id, pv, phase, direction, out var d))
@@ -63,9 +65,9 @@ else
         raw.Id, phase, direction);
 ```
 
-`PacketRegistry.Catalog(phase, dir)` отдаёт весь список пакетов одной
-фазы и направления, `ReadOnlySpan<PacketDescriptor>`. Годится, чтобы
-напечатать таблицу пакетов фазы:
+`PacketRegistry.Catalog(phase, dir)` returns the full list of packets
+for one phase and direction, as `ReadOnlySpan<PacketDescriptor>`. This
+works for printing a table of a phase's packets:
 
 ```csharp
 foreach (var d in PacketRegistry.Catalog(PacketPhase.Play,
@@ -73,13 +75,14 @@ foreach (var d in PacketRegistry.Catalog(PacketPhase.Play,
     Console.WriteLine($"{d.Identity.Name,-24} {d.Identity.Key}");
 ```
 
-## Экземпляр
+## Instance
 
-Типизированный объект - самая дорогая ступень, и до неё доходят тремя
-разными путями, в зависимости от того, известен ли тип пакета заранее.
+A typed object is the most expensive step, and it is reached through
+three different paths, depending on whether the packet type is known in
+advance.
 
-Когда тип известен заранее - например, после login ожидается именно
-`LoginSuccessPacket`, - берут `PacketIo`:
+When the type is known in advance - for example, right after login,
+exactly a `LoginSuccessPacket` is expected - `PacketIo` is used:
 
 ```csharp
 public static bool TryDecode<T>(in IncomingPacket raw, int protocolVersion,
@@ -87,13 +90,14 @@ public static bool TryDecode<T>(in IncomingPacket raw, int protocolVersion,
     where T : class, IPacket<T>
 ```
 
-`Decode<T>` делает то же самое, но вместо `false` и `error` бросает
-`PacketDecodeException`. Обе перегрузки читают тело прямо в `T`, минуя
-номер пакета: вызывающий код и так знает, что он ждёт именно этот тип.
+`Decode<T>` does the same thing, but instead of `false` and `error` it
+throws `PacketDecodeException`. Both overloads read the body straight
+into `T`, bypassing the packet number: the calling code already knows
+it expects exactly this type.
 
-Когда тип заранее не известен - идёт произвольный поток пакетов одной
-фазы, и его нужно разобрать целиком, - берут `PacketFlow.Dispatch` или
-`PacketFlow.TryDispatch` с посетителем:
+When the type is not known in advance - an arbitrary stream of packets
+of one phase arrives, and it must be parsed in full - `PacketFlow.Dispatch`
+or `PacketFlow.TryDispatch` is used, with a visitor:
 
 ```csharp
 public static void Dispatch<TVisitor>(in IncomingPacket raw,
@@ -101,40 +105,41 @@ public static void Dispatch<TVisitor>(in IncomingPacket raw,
     ref TVisitor visitor) where TVisitor : IPacketVisitor
 ```
 
-`IPacketVisitor` - это `Visit<T>(T packet)`, куда попадает статически
-типизированный пакет без бокса, и `Unknown(in IncomingPacket raw)` -
-для номера, которого реестр не знает в этой фазе и направлении.
-`TryDispatch` - тот же путь диспетчеризации, но вместо исключения на
-битом теле отдаёт `false` и `DecodeError`. У `PacketFlow` есть и путь
-совсем без посетителя, свой `TryDecode`, который сразу отдаёт `IPacket?`.
+`IPacketVisitor` is `Visit<T>(T packet)`, which receives a statically
+typed packet without boxing, and `Unknown(in IncomingPacket raw)`, for a
+number the registry does not know in this phase and direction.
+`TryDispatch` follows the same dispatch path, but instead of an
+exception on a broken body it returns `false` and a `DecodeError`.
+`PacketFlow` also has a path with no visitor at all, its own
+`TryDecode`, which returns an `IPacket?` directly.
 
-Третий путь - асинхронный обработчик, `ClientboundHandler` (или
-`ServerboundHandler` для обратного направления): он сам находит номер,
-разбирает тело и вызывает нужный виртуальный метод `On<Имя>`. Это самый
-частый путь в коде приложения; подробно о нём - на странице
-[«Обработчики»](04-handlers.md).
+The third path is the async handler, `ClientboundHandler` (or
+`ServerboundHandler` for the opposite direction): it finds the number
+itself, parses the body, and calls the matching virtual `On<Name>`
+method. This is the most common path in application code; for the
+details, see the [Handlers and unknown packets](04-handlers.md) page.
 
-## Ошибки разбора
+## Parse errors
 
-`DecodeError` - причина, по которой тело не разобралось:
+`DecodeError` is the reason a body failed to parse:
 
-- `UnsupportedVersion` - пакета с таким именем нет на этой версии
-  протокола;
-- `TrailingBytes` - тело разобралось, но в конце остались лишние байты:
-  спецификация пакета для этой версии, видимо, неверна;
-- `Malformed` - тело оборвалось раньше времени или несёт битые данные.
+- `UnsupportedVersion` - no packet with this name exists for this
+  protocol version;
+- `TrailingBytes` - the body parsed, but extra bytes remain at the end:
+  the packet's spec for this version is apparently wrong;
+- `Malformed` - the body cut off early, or carries broken data.
 
-Номер, которого реестр не знает, - не ошибка разбора, а штатное состояние
-потока: подробнее в [«Исключениях»](06-exceptions.md). Настоящая ошибка -
-только когда номер найден, а тело не разобралось.
+A number the registry does not know is not a parse error but a normal
+state of the stream: more on this in [Exceptions](06-exceptions.md).
+A real error happens only when the number is found but the body fails
+to parse.
 
-## Дальше
+## Next
 
-- [Обработчики](04-handlers.md) - асинхронный путь через
-  `ClientboundHandler`
-- [Фазы протокола](01-phases-and-direction.md) - откуда берутся фаза
-  и направление
-- [Одна сборка - много версий](05-multiversion.md) - как номер одного
-  пакета меняется между версиями протокола
-- [Исключения](06-exceptions.md) - когда ошибка разбора долетает
-  до кода приложения как исключение
+- [Handlers and unknown packets](04-handlers.md) - the async path through `ClientboundHandler`
+- [Phase and direction](01-phases-and-direction.md) - where the phase and
+  the direction come from
+- [One build - many versions](05-multiversion.md) - how one packet's
+  number changes between protocol versions
+- [Exceptions](06-exceptions.md) - when a parse error reaches
+  application code as an exception

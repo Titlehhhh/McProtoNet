@@ -35,35 +35,16 @@ await client.SendAsync(
     new LoginSb.LoginStartPacket("McProtoBot", V764_Last: new(Guid.NewGuid())),
     Pv);
 
-var bot = new Bot(client, Pv);                         // класс из «Первого бота»
+var bot = new Bot(client, Pv);                         // the class from First bot
 
 await foreach (var packet in client.ReadPacketsAsync())
     await bot.HandleAsync(in packet, Pv);`;
 
-const OUTPUT = `здоровье 20, еда 20
-здоровье 20, еда 19
-здоровье 18, еда 19`;
+const OUTPUT = `health 20, food 20
+health 20, food 19
+health 18, food 19`;
 
-type Feature = {title: string; body: string};
-
-const FEATURES: Feature[] = [
-  {
-    title: 'Протокол, а не игра',
-    body: 'Подключиться к серверу, отправлять и принимать типизированные пакеты, включать сжатие и шифрование. Основа для ботов, своих клиентов и инструментов.',
-  },
-  {
-    title: 'Быстрый транспорт',
-    body: 'Сжатие через libdeflate, аппаратный AES для шифра, разбор без лишних копий поверх Span<byte>. Совместимо с NativeAOT.',
-  },
-  {
-    title: 'Offline-серверы',
-    body: 'Handshake и login на серверы в offline-режиме. Порядок входа остаётся в коде приложения, поэтому нестандартный сервер не превращается в тупик.',
-  },
-  {
-    title: 'Сетевые помощники',
-    body: 'Поиск SRV-записей и обнаружение LAN-серверов.',
-  },
-];
+type Feature = {id: string; title: string; body: string};
 
 function Hero() {
   const {siteConfig} = useDocusaurusContext();
@@ -79,7 +60,10 @@ function Hero() {
         <img
           className={styles.heroIcon}
           src={useBaseUrl('/img/icon.png')}
-          alt="Иконка пакета McProtoNet на nuget.org"
+          alt={translate({
+            id: 'home.hero.iconAlt',
+            message: 'The McProtoNet package icon on nuget.org',
+          })}
           width={96}
           height={96}
         />
@@ -91,7 +75,7 @@ function Hero() {
           <Link
             className="button button--primary button--lg"
             to="/docs/getting-started/first-bot">
-            <Translate id="home.cta.tutorial">Первый бот</Translate>
+            <Translate id="home.cta.tutorial">First bot</Translate>
           </Link>
           <Link
             className="button button--secondary button--lg"
@@ -105,16 +89,19 @@ function Hero() {
           </CodeBlock>
           <p className={styles.installNote}>
             <Translate id="home.install.note">
-              Нужен .NET 8 или новее. Стабильного 2.0 пока нет, поэтому
+              .NET 8 or newer is required. There is no stable 2.0 yet, hence
               --prerelease.
             </Translate>
           </p>
           <p className={styles.backdropNote}>
             <Translate id="home.backdrop.note">
-              Надпись на фоне собрали 117 ботов по команде из чата.
+              The sign in the background was built by 117 bots on a chat
+              command.
             </Translate>{' '}
             <Link to="https://github.com/Titlehhhh/McProtoNet/tree/dev/examples/FormationBots">
-              <Translate id="home.backdrop.link">Пример FormationBots</Translate>
+              <Translate id="home.backdrop.link">
+                The FormationBots example
+              </Translate>
             </Link>
           </p>
         </div>
@@ -134,10 +121,13 @@ function Sample() {
             </CodeBlock>
           </div>
           <div className={styles.sampleOut}>
-            <CodeBlock title="Вывод">{OUTPUT}</CodeBlock>
+            <CodeBlock
+              title={translate({id: 'home.sample.output', message: 'Output'})}>
+              {OUTPUT}
+            </CodeBlock>
             <p className={styles.sampleNote}>
               <Translate id="home.sample.note">
-                Полный разбор по шагам - в «Первом боте».
+                The step by step walkthrough is in First bot.
               </Translate>
             </p>
           </div>
@@ -147,13 +137,66 @@ function Sample() {
   );
 }
 
+function useFeatures(): Feature[] {
+  return [
+    {
+      id: 'protocol',
+      title: translate({
+        id: 'home.feature.protocol.title',
+        message: 'The protocol, not the game',
+      }),
+      body: translate({
+        id: 'home.feature.protocol.body',
+        message:
+          'Connect to a server, send and receive typed packets, turn on compression and encryption. A base for bots, custom clients and tools.',
+      }),
+    },
+    {
+      id: 'transport',
+      title: translate({
+        id: 'home.feature.transport.title',
+        message: 'Fast transport',
+      }),
+      body: translate({
+        id: 'home.feature.transport.body',
+        message:
+          'Compression through libdeflate, hardware AES for the cipher, parsing over Span<byte> without extra copies. NativeAOT compatible.',
+      }),
+    },
+    {
+      id: 'offline',
+      title: translate({
+        id: 'home.feature.offline.title',
+        message: 'Offline servers',
+      }),
+      body: translate({
+        id: 'home.feature.offline.body',
+        message:
+          'Handshake and login against servers in offline mode. The join order stays in the application code, so a non-standard server is not a dead end.',
+      }),
+    },
+    {
+      id: 'network',
+      title: translate({
+        id: 'home.feature.network.title',
+        message: 'Network helpers',
+      }),
+      body: translate({
+        id: 'home.feature.network.body',
+        message: 'SRV record lookup and LAN server discovery.',
+      }),
+    },
+  ];
+}
+
 function Features() {
+  const features = useFeatures();
   return (
     <section className={styles.section}>
       <div className="container">
         <div className={styles.cards}>
-          {FEATURES.map((f) => (
-            <div key={f.title} className={styles.card}>
+          {features.map((f) => (
+            <div key={f.id} className={styles.card}>
               <Heading as="h2" className={styles.cardTitle}>
                 {f.title}
               </Heading>
@@ -171,15 +214,15 @@ function Multiversion() {
     <section className={clsx(styles.section, styles.band)}>
       <div className="container">
         <Heading as="h2" className={styles.bandTitle}>
-          <Translate id="home.mv.title">Одна сборка - много версий</Translate>
+          <Translate id="home.mv.title">One build, many versions</Translate>
         </Heading>
         <p className={styles.bandRange}>
           1.16 <span className={styles.bandDash}>—</span> 26.2
         </p>
         <p className={styles.bandNote}>
           <Translate id="home.mv.note">
-            Протоколы 735–776. Версия задаётся при подключении, пересобирать под неё
-            ничего не нужно.
+            Protocols 735-776. The version is given at connection time, and
+            nothing has to be rebuilt for it.
           </Translate>
         </p>
       </div>
@@ -192,16 +235,16 @@ function Packages() {
     <section className={styles.section}>
       <div className="container">
         <Heading as="h2" className={styles.sectionTitle}>
-          <Translate id="home.packages.title">Пакеты</Translate>
+          <Translate id="home.packages.title">Packages</Translate>
         </Heading>
         <p className={styles.tableNote}>
           <Translate id="home.packages.note">
-            Библиотека разложена на пять пакетов NuGet. Ставится один
-            McProtoNet - остальные приезжают вместе с ним.
+            The library is split into five NuGet packages. Only McProtoNet is
+            installed; the rest come with it.
           </Translate>{' '}
           <Link to="/docs/getting-started/installation">
             <Translate id="home.packages.link">
-              Что внутри каждого - в «Установке»
+              What is inside each one is in Installation
             </Translate>
           </Link>
         </p>
@@ -215,20 +258,35 @@ function Next() {
     <section className={clsx(styles.section, styles.next)}>
       <div className="container">
         <Heading as="h2" className={styles.sectionTitle}>
-          <Translate id="home.next.title">Куда дальше</Translate>
+          <Translate id="home.next.title">Where to go next</Translate>
         </Heading>
         <ul className={styles.nextList}>
           <li>
-            <Link to="/docs/getting-started/first-bot">Первый бот</Link> -
-            установка, версия протокола, четыре фазы, работающий бот.
+            <Link to="/docs/getting-started/first-bot">
+              <Translate id="home.next.firstBot.link">First bot</Translate>
+            </Link>{' '}
+            <Translate id="home.next.firstBot.note">
+              - installation, the protocol version, four phases, a bot that
+              works.
+            </Translate>
           </li>
           <li>
-            <Link to="/docs/overview/non-goals">Что библиотека не делает</Link> -
-            стоит прочитать до того, как планировать бота.
+            <Link to="/docs/overview/non-goals">
+              <Translate id="home.next.nonGoals.link">
+                What the library does not do
+              </Translate>
+            </Link>{' '}
+            <Translate id="home.next.nonGoals.note">
+              - worth reading before a bot is planned.
+            </Translate>
           </li>
           <li>
-            <Link to="/docs/reference/glossary">Словарь</Link> - кадр, фаза,
-            ordinal и другие слова из API.
+            <Link to="/docs/reference/glossary">
+              <Translate id="home.next.glossary.link">Glossary</Translate>
+            </Link>{' '}
+            <Translate id="home.next.glossary.note">
+              - frame, phase, ordinal and other words from the API.
+            </Translate>
           </li>
         </ul>
       </div>
@@ -242,7 +300,7 @@ export default function Home(): ReactNode {
       description={translate({
         id: 'home.description',
         message:
-          'Открытая библиотека на C# для протокола Minecraft Java Edition: одна сборка работает на версиях 1.16–26.2.',
+          'An open C# library for the Minecraft Java Edition protocol: one build works on versions 1.16-26.2.',
       })}>
       <Hero />
       <main>

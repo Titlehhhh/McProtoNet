@@ -1,91 +1,97 @@
-# Отмена, ошибки, закрытие
+# Cancellation, errors, closing
 
-Соединение можно закончить тремя способами: отменить операцию через
-`CancellationToken`, вызвать `Abort` с причиной или вызвать `DisposeAsync`.
-Все три закрывают соединение, но по-разному ведут себя для вызова, который
-в этот момент ждёт байты, и оставляют разный след в `CloseReason`. Ниже -
-про `MinecraftConnection` и `MinecraftClient`; у `StreamingConnection` те
-же правила, с одной добавкой в конце страницы.
+A connection can end in three ways: cancel the operation through a
+`CancellationToken`, call `Abort` with a reason, or call `DisposeAsync`.
+All three close the connection, but they behave differently for a call
+that is waiting for bytes at that moment, and they leave a different
+trace in `CloseReason`. What follows covers `MinecraftConnection` and
+`MinecraftClient`. `StreamingConnection` follows the same rules, with
+one addition at the end of the page.
 
-## Три способа
+## Three ways
 
-Токен передаётся в `ReadPacketAsync`, `WritePacketAsync` и `SendAsync`.
-Дёшево обходится ровно один случай: токен отменён ещё до вызова. Тогда
-проверка на входе бросает `OperationCanceledException`, соединение при этом
-остаётся живым. Как только вызов начался, отмена закрывает соединение
-целиком - даже если из сокета ещё не пришло ни байта. Почему так - в
-следующем разделе.
+The token passes into `ReadPacketAsync`, `WritePacketAsync`, and
+`SendAsync`. Exactly one case comes cheap: the token is already canceled
+before the call. Then the check at the entry throws
+`OperationCanceledException`, and the connection stays alive. Once the
+call has started, cancellation closes the whole connection - even if not
+a single byte has arrived from the socket yet. The next section explains
+why.
 
-`Abort(reason)` можно вызвать из любого потока и в любой момент, не ожидая
-ничего в ответ: чтение или запись, которые в этот момент занимали сокет,
-проваливаются с указанной причиной, а `CloseReason` её запоминает. Это тот
-инструмент, которым код приложения сообщает библиотеке, что соединение
-испортил протокол, а не транспорт - например, сервер прислал пакет, какого
-не должно быть в этой фазе.
+`Abort(reason)` can be called from any thread and at any moment, with no
+wait for a response: a read or write that was holding the socket at that
+moment fails with the given reason, and `CloseReason` remembers it. This
+is the tool the application code uses to tell the library that the
+protocol broke the connection, not the transport - for example, the
+server sent a packet that should not appear in this phase.
 
-`DisposeAsync` использует тот же `Abort`, но без причины, и добавляет к
-нему ожидание; порядок этих шагов описан в «Потоке пакетов». На уровне
-`MinecraftClient` к этому добавляется свой гейт отправки: `SendAsync` и
-`SendRawAsync` занимают его на время вызова, и `DisposeAsync` клиента ждёт
-освобождения гейта тем же бюджетом в пять секунд, а затем закрывает
-соединение в любом случае - даже если гейт так и не освободился.
+`DisposeAsync` uses the same `Abort`, but with no reason, and adds a
+wait after it. The order of these steps is described in "Packet
+stream". At the `MinecraftClient` level, its own send gate joins this:
+`SendAsync` and `SendRawAsync` hold the gate for the duration of the
+call, and the client's `DisposeAsync` waits for the gate to free up
+within the same five-second budget, then closes the connection
+regardless - even if the gate never freed up.
 
-## Почему отмена начатого чтения рвёт соединение
+## Why canceling a started read breaks the connection
 
-Начатое чтение уже сидит внутри читателя кадров, и снаружи не видно, что
-именно оно успело взять: часть кадра - длина или кусок тела - может быть
-вынута из потока и осесть в буфере. Отдать её обратно
-нельзя, а значит, нельзя и вернуть соединение к границе кадра для
-следующего вызова: кадр разорван так же, как при обрыве сети или ошибке
-кодирования.
+A started read already sits inside the frame reader, and from outside
+it is not visible what exactly it managed to take: part of a frame -
+the length or a piece of the body - may already be pulled from the
+stream and sitting in the buffer. There is no way to give it back, and
+so there is no way to return the connection to a frame boundary for the
+next call: the frame is broken, the same as after a network break or an
+encoding error.
 
-Поэтому пайплайн не различает «отменённое чтение» и «сбойное чтение» -
-оба закрывают соединение. Вызывающий, чей токен сработал, получает
-`OperationCanceledException`; любой другой вызов, начатый позже или
-ждавший рядом, получает `ConnectionAbortedException` с этим же
-исключением внутри. Для кода приложения это значит: токен, переданный
-в `ReadPacketsAsync`, работает как выключатель всего цикла чтения, а не
-как способ отменить текущий вызов и получить следующий пакет как ни в
-чём не бывало.
+So the connection does not tell a "canceled read" apart from a "failed
+read" - both close the connection. The caller whose token fired gets
+`OperationCanceledException`. Any other call, started later or waiting
+alongside it, gets `ConnectionAbortedException` with that same
+exception inside it. For the application code this means: the token
+passed into `ReadPacketsAsync` works as a switch for the whole read
+loop, not as a way to cancel the current call and get the next packet
+as if nothing happened.
 
-## Как узнать причину
+## How to learn the reason
 
-`CloseReason` - `null`, пока соединение открыто, и `null` же после
-чистого конца потока. Во всех остальных случаях там лежит исключение:
-либо то, что передали в `Abort`, либо первый сбой, который поймал
-собственный читатель или писатель соединения. `Completion` - задача,
-которая завершается в момент закрытия и никогда не падает: код может
-ждать её без `try/catch`, чтобы узнать факт закрытия, а затем прочитать
-`CloseReason` и узнать причину.
+`CloseReason` is `null` while the connection is open, and it stays
+`null` after a clean end of stream. In every other case it holds an
+exception: either what was passed into `Abort`, or the first failure
+that the connection's own reader or writer caught. `Completion` is a
+task that completes at the moment of closing and never faults: the code
+can wait for it without a `try/catch` to learn that closing happened,
+and then read `CloseReason` to learn why.
 
-Первый сбой потока долетает до вызвавшего его кода своим собственным
-типом и в этот же момент оседает в `CloseReason`. Все последующие вызовы -
-и того же метода, и любых других членов соединения - не трогают мёртвый
-сокет ещё раз, а сразу бросают `ConnectionAbortedException` с той же
-причиной внутри: второй читатель или писатель, подоспевший к уже мёртвому
-соединению, видит настоящую причину, а не случайный обрывок ошибки.
-Исключение из этого правила - `InvalidOperationException` не от
-`ObjectDisposedException`: параллельное чтение или вызов после
-`ToStreaming` - это ошибка вызывающего кода, которая не дошла до потока,
-и соединение из-за неё не закрывается.
+The first failure of the stream reaches the code that caused it as its
+own exception type, and at the same moment it settles into
+`CloseReason`. Every later call - of the same method and of any other
+connection member - does not touch the dead socket again, and instead
+throws `ConnectionAbortedException` right away, with the same reason
+inside it: a second reader or writer that arrives at an already-dead
+connection sees the real reason, not some unrelated later error. The
+exception to this rule is `InvalidOperationException` that does not come
+from `ObjectDisposedException`: a concurrent read or a call after
+`ToStreaming` is a bug in the calling code that never reached the
+stream, and the connection does not close because of it.
 
-## Что произошло → какое исключение
+## What happened -> which exception
 
-| Что произошло | Исключение |
+| What happened | Exception |
 | --- | --- |
-| Сервер закрыл поток чисто, между кадрами | `EndOfStreamException` |
-| Поток оборвался посреди кадра | `EndOfStreamException` |
-| Закрытие своей стороной, когда вызов ждал байты | `ConnectionAbortedException` |
-| Вызов после того, как `DisposeAsync` завершился | `ObjectDisposedException` |
-| Второй параллельный `ReadPacketAsync` на связи | `InvalidOperationException` |
-| Битый кадр (длина, varint, размер распаковки) | `InvalidDataException` |
+| The server closed the stream cleanly, between frames | `EndOfStreamException` |
+| The stream broke off in the middle of a frame | `EndOfStreamException` |
+| This side closed while a call was waiting for bytes | `ConnectionAbortedException` |
+| A call after `DisposeAsync` completed | `ObjectDisposedException` |
+| A second, concurrent `ReadPacketAsync` on the connection | `InvalidOperationException` |
+| A broken frame (length, varint, decompression size) | `InvalidDataException` |
 
-Первые два случая читатель не различает - оба приходят как чистый
-`EndOfStreamException`. Строка про битый кадр - не закрытие соединения
-по причине снаружи, а находка самого читателя: она тоже осядет в
-`CloseReason`, но это ошибка данных, а не обрыв связи.
+The reader does not tell the first two cases apart - both arrive as a
+plain `EndOfStreamException`. The row about a broken frame is not the
+connection closing for an outside reason, but a finding by the reader
+itself: it also settles into `CloseReason`, but it is a data error, not
+a broken connection.
 
-## Порядок закрытия в коде приложения
+## Closing order in application code
 
 ```csharp
 await using var client = new MinecraftClient(options);
@@ -97,42 +103,45 @@ try
 }
 catch (EndOfStreamException)
 {
-    // штатный конец сеанса, сервер закрыл поток сам
+    // a normal end of session, the server closed the stream itself
 }
 catch (ConnectionAbortedException ex)
 {
-    Log(ex.InnerException); // причина уже внутри
+    Log(ex.InnerException); // the reason is already inside
 }
 ```
 
-Отдельно звать `Abort` или `DisposeAsync` тут не нужно - `await using`
-берёт это на себя: гейт отправки дождётся своего бюджета, буферы вернутся
-в пул. Явный `Abort` нужен, только когда соединение закрывает код, не
-связанный с циклом чтения - например, другая задача, заметившая, что
-сервер ведёт себя не по протоколу.
+There is no need to call `Abort` or `DisposeAsync` separately here -
+`await using` takes care of that: the send gate waits out its budget,
+and the buffers return to the pool. An explicit `Abort` is needed only
+when code unrelated to the read loop closes the connection - for
+example, another task that notices the server is not following the
+protocol.
 
-## Потоковый путь
+## The streaming path
 
-`StreamingConnection`, полученный через `ToStreaming`, наследует общее:
-`Abort` из любого потока, `CloseReason`, `Completion`, то же запоминание
-первой ошибки: она оседает в `CloseReason`, и её же получают все следующие
-вызовы. Разница в трёх местах.
+A `StreamingConnection` obtained through `ToStreaming` inherits the
+common behavior: `Abort` from any thread, `CloseReason`, `Completion`,
+and the same memory of the first error - it settles into `CloseReason`,
+and every later call gets it too. The difference sits in three places.
 
-Главное отличие - отмена. Отменённый собственным токеном `ReadBatchAsync`
-соединение не закрывает: буфер цел, граница кадра не потеряна, читать можно
-дальше. Закрывает соединение только отмена `FlushAsync` после того, как
-байты уже пошли в поток.
+The main difference is cancellation. A `ReadBatchAsync` canceled by its
+own token does not close the connection: the buffer is intact, the
+frame boundary is not lost, and reading can continue. Only canceling
+`FlushAsync` closes the connection, and only after bytes have already
+gone into the stream.
 
-Рядом с `Abort` у него есть
-`CompleteAsync` - чистое завершение, которое досылает накопленное в буфере
-отправки, и после которого `CloseReason` остаётся `null`. А его
-`DisposeAsync` не использует пятисекундный бюджет: он ждёт `Completion`
-целиком, а несброшенные в поток байты просто отбрасывает.
+Next to `Abort` it has `CompleteAsync` - a clean finish that sends off
+whatever accumulated in the send buffer, after which `CloseReason`
+stays `null`. And its `DisposeAsync` does not use the five-second
+budget: it waits out `Completion` in full, and it drops any
+bytes not yet flushed into the stream.
 
-## Дальше
+## Next
 
-- [Поток пакетов](03-packet-stream.md) - те же правила для одного кадра
-- [Соединение без клиента](04-raw-connection.md) - `MinecraftConnection`
-  и потоковый путь без `MinecraftClient` сверху
-- [Исключения](../05-packets/06-exceptions.md) - что бросает пакетный
-  слой поверх транспорта
+- [Packet stream](03-packet-stream.md) - the same rules for one frame
+- [Connection without a client](04-raw-connection.md) -
+  `MinecraftConnection` and the streaming path without `MinecraftClient`
+  on top
+- [Exceptions](../05-packets/06-exceptions.md) - what the packet layer
+  throws on top of the transport

@@ -1,30 +1,33 @@
-# Поток пакетов
+# Packet stream
 
-`MinecraftClient.ReadPacketsAsync` - тонкая обёртка вокруг одного цикла:
-клиент держит один `MinecraftConnection`, и метод раз за разом отдаёт
-управление его `ReadPacketAsync`. Очереди кадров нет, и буферизации вперёд
-нет: за один вызов транспорт читает ровно один кадр - длину, затем тело -
-и отдаёт его наружу как `IncomingPacket`. Где кончается кадр и как читается
-длина - в [«Кадрах»](02-framing.md).
+`MinecraftClient.ReadPacketsAsync` is a thin wrapper around one loop: the
+client holds one `MinecraftConnection`, and the method hands control to
+its `ReadPacketAsync` again and again. There is no frame queue and no
+read-ahead buffering: in one call the transport reads exactly one frame -
+the length, then the body - and hands it out as an `IncomingPacket`. Where
+a frame ends and how the length is read is in [Frames](02-framing.md).
 
-Поток пакетов не знает, в какой фазе клиент - handshaking, login,
-configuration или play: кадры через него идут одинаково во всех фазах.
-Фазы ведёт код приложения
-([«Фаза и направление»](../05-packets/01-phases-and-direction.md)).
+The packet stream does not know which phase the client is in -
+handshaking, login, configuration, or play. Frames pass through it the
+same way in every phase. Application code tracks the phase
+([Phase and direction](../05-packets/01-phases-and-direction.md)).
 
-## Буфер приёма
+## Receive buffer
 
-Тело пакета - не собственная копия байт, а окно в буфер, который читатель
-арендует у `ArrayPool<byte>`. Буфер держится, пока не начался следующий
-`ReadPacketAsync`: тогда прежний буфер возвращается в пул, и данные, на
-которые смотрело старое `IncomingPacket.Body`, становятся чужими. При
-сжатии буферов два - под сжатые байты и под распакованные - но первый
-освобождается сразу после распаковки, и правило для `Body` не меняется.
+The packet body is not its own copy of bytes - it is a window into a
+buffer that the reader rents from `ArrayPool<byte>`. The buffer holds
+until the next `ReadPacketAsync` starts. At that point the previous buffer
+returns to the pool, and the data that the old `IncomingPacket.Body`
+pointed to becomes someone else's. With compression there are two
+buffers, one for the compressed bytes and one for the decompressed bytes,
+but the first one is freed right after decompression, and the rule for
+`Body` does not change.
 
-Отсюда и правило из «Первого бота»: пакет разбирается сразу, `Body` через
-`await` не тащится. Если данные нужны дольше - например, лечь в очередь
-для другого потока - их копируют явно, `Body.ToArray()` или похожим
-способом; сам буфер для долгого хранения не годится.
+This is where the rule from "first bot" comes from: a packet is parsed
+right away, and `Body` never crosses an `await`. If the data is needed
+longer - for example, to sit in a queue for another thread - it is copied
+explicitly, with `Body.ToArray()` or something similar. The buffer itself
+is not fit for long-term storage.
 
 ```csharp
 var toKeep = new List<byte[]>();
@@ -32,34 +35,35 @@ var toKeep = new List<byte[]>();
 await foreach (var packet in client.ReadPacketsAsync(token))
 {
     if (packet.Id == interestingId)
-        toKeep.Add(packet.Body.ToArray()); // копия, не окно
+        toKeep.Add(packet.Body.ToArray()); // a copy, not a window
 }
 ```
 
-Куда дальше уходит разобранный пакет - какой метод обработчика он вызовет
-и что происходит с неизвестными id - описано в
-[«Обработчиках и неизвестных пакетах»](../05-packets/04-handlers.md).
+Where a parsed packet goes next - which handler method it calls, and what
+happens with unknown ids - is described in
+[Handlers and unknown packets](../05-packets/04-handlers.md).
 
-## Конец сеанса
+## End of session
 
-Перечисление `ReadPacketsAsync` никогда не заканчивается тихо - оно всегда
-бросает исключение. Полная таблица «что произошло → какое исключение» - в
-[«Отмене, ошибках, закрытии»](06-cancellation.md).
+The `ReadPacketsAsync` enumeration never ends quietly - it always throws
+an exception. The full "what happened -> which exception" table is in
+[Cancellation, errors, closing](06-cancellation.md).
 
-## Отмена
+## Cancellation
 
-Токен отмены не отменяет одно чтение: если чтение уже тронуло сокет, отмена
-закрывает соединение целиком, и цикл `ReadPacketsAsync` только
-останавливается. Полная картина - в
-[«Отмене, ошибках, закрытии»](06-cancellation.md).
+A cancellation token does not cancel a single read: if the read has
+already touched the socket, cancellation closes the whole connection, and
+the `ReadPacketsAsync` loop stops with it. The full picture is in
+[Cancellation, errors, closing](06-cancellation.md).
 
-## Отправка
+## Sending
 
-`SendAsync` и `SendRawAsync` проходят через общий гейт - `SemaphoreSlim(1, 1)`
-внутри `MinecraftClient`. Каждый вызов сначала занимает гейт, потом пишет
-кадр через соединение, потом гейт отпускает. Если несколько задач шлют
-пакеты одновременно, кадры не перемешиваются: вызовы встают в очередь на
-гейте и уходят на сокет по одному, каждый целиком.
+`SendAsync` and `SendRawAsync` pass through a shared gate - a
+`SemaphoreSlim(1, 1)` inside `MinecraftClient`. Each call first takes the
+gate, then writes the frame through the connection, then releases the
+gate. If several tasks send packets at the same time, the frames do not
+mix - the calls queue up at the gate and go out to the socket one at a
+time, each one whole.
 
 ```csharp
 await Task.WhenAll(
@@ -67,30 +71,32 @@ await Task.WhenAll(
     client.SendRawAsync(customId, customBody).AsTask());
 ```
 
-Чтение так не защищено: параллельный `ReadPacketAsync` - это
-`InvalidOperationException`, ошибка вызывающего кода, а не гонка данных
-([«Отмене, ошибках, закрытии»](06-cancellation.md)). У `ReadPacketsAsync`
-обхода для этого нет: пока `await foreach` не отдал управление обратно,
-второе чтение той же связи начинать нельзя.
+Reading is not guarded this way: a parallel `ReadPacketAsync` throws
+`InvalidOperationException`, a bug in the calling code, not a data race
+([Cancellation, errors, closing](06-cancellation.md)). `ReadPacketsAsync`
+has no way around this: until `await foreach` hands control back, a
+second read on the same connection must not start.
 
-## Закрытие
+## Closing
 
-`DisposeAsync` закрывает соединение и отпускает буферы; порядок шагов и
-таблица исключений - в [«Отмене, ошибках, закрытии»](06-cancellation.md).
+`DisposeAsync` closes the connection and releases the buffers. The order
+of steps and the exception table are in
+[Cancellation, errors, closing](06-cancellation.md).
 
-## Когда клиент лишний
+## When the client is not needed
 
-Тот же поток пакетов доступен без `MinecraftClient`: `MinecraftConnection`
-читает и пишет по одному кадру поверх любого `Stream`, `StreamingConnection`
-делает то же пачками. Про оба - в
-[«Соединении без клиента»](04-raw-connection.md).
+The same packet stream is available without `MinecraftClient`:
+`MinecraftConnection` reads and writes one frame at a time over any
+`Stream`, and `StreamingConnection` does the same in batches. Both are
+covered in [Connection without a client](04-raw-connection.md).
 
-## Дальше
+## Next
 
-- [Кадры](02-framing.md) - как устроен один кадр
-- [Обработчики и неизвестные пакеты](../05-packets/04-handlers.md) - куда
-  уходит прочитанный пакет
-- [Сжатие и шифрование](05-encryption-and-compression.md) - что включается
-  посреди потока
-- [Отмена, ошибки, закрытие](06-cancellation.md) - чем кончается сессия
-- [Соединение без клиента](04-raw-connection.md) - тот же поток уровнем ниже
+- [Frames](02-framing.md) - how one frame is built
+- [Handlers and unknown packets](../05-packets/04-handlers.md) - where a
+  parsed packet goes
+- [Encryption and compression](05-encryption-and-compression.md) - what
+  turns on mid-stream
+- [Cancellation, errors, closing](06-cancellation.md) - how a session ends
+- [Connection without a client](04-raw-connection.md) - the same stream
+  one level down

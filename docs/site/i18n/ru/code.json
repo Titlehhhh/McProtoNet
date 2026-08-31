@@ -20,12 +20,6 @@
   "home.packages.title": {
     "message": "NuGet-пакеты"
   },
-  "home.packages.col1": {
-    "message": "Пакет"
-  },
-  "home.packages.col2": {
-    "message": "Что внутри"
-  },
   "home.packages.note": {
     "message": "Ставится один McProtoNet — остальные приезжают вместе с ним."
   },
@@ -396,5 +390,62 @@
   "theme.tags.tagsPageTitle": {
     "message": "Теги",
     "description": "The title of the tag list page"
+  },
+  "home.hero.iconAlt": {
+    "message": "Иконка пакета McProtoNet на nuget.org"
+  },
+  "home.backdrop.note": {
+    "message": "Надпись на фоне собрали 117 ботов по команде из чата."
+  },
+  "home.backdrop.link": {
+    "message": "Пример FormationBots"
+  },
+  "home.sample.output": {
+    "message": "Вывод"
+  },
+  "home.packages.link": {
+    "message": "Что внутри каждого - в «Установке»"
+  },
+  "home.next.firstBot.link": {
+    "message": "Первый бот"
+  },
+  "home.next.firstBot.note": {
+    "message": "- установка, версия протокола, четыре фазы, работающий бот."
+  },
+  "home.next.nonGoals.link": {
+    "message": "Что библиотека не делает"
+  },
+  "home.next.nonGoals.note": {
+    "message": "- стоит прочитать до того, как планировать бота."
+  },
+  "home.next.glossary.link": {
+    "message": "Словарь"
+  },
+  "home.next.glossary.note": {
+    "message": "- кадр, фаза, ordinal и другие слова из API."
+  },
+  "home.feature.protocol.title": {
+    "message": "Протокол, а не игра"
+  },
+  "home.feature.protocol.body": {
+    "message": "Подключиться к серверу, отправлять и принимать типизированные пакеты, включать сжатие и шифрование. Основа для ботов, своих клиентов и инструментов."
+  },
+  "home.feature.transport.title": {
+    "message": "Быстрый транспорт"
+  },
+  "home.feature.transport.body": {
+    "message": "Сжатие через libdeflate, аппаратный AES для шифра, разбор без лишних копий поверх Span<byte>. Совместимо с NativeAOT."
+  },
+  "home.feature.offline.title": {
+    "message": "Offline-серверы"
+  },
+  "home.feature.offline.body": {
+    "message": "Handshake и login на серверы в offline-режиме. Порядок входа остаётся в коде приложения, поэтому нестандартный сервер не превращается в тупик."
+  },
+  "home.feature.network.title": {
+    "message": "Сетевые помощники"
+  },
+  "home.feature.network.body": {
+    "message": "Поиск SRV-записей и обнаружение LAN-серверов."
   }
 }

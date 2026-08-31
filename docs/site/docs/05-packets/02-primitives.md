@@ -1,30 +1,32 @@
-# Чтение и запись примитивов
+# Reading and writing primitives
 
-Тело пакета - это просто байты. Протокол поверх них определяет свои типы
-(полный список - на странице
-[Data types](https://minecraft.wiki/w/Java_Edition_protocol/Data_types)):
-VarInt и VarLong переменной длины, строки с длиной-VarInt перед байтами,
-16-байтный UUID, NBT-теги произвольной вложенности. Кодировать и
-декодировать их одинаково при чтении и при записи, без лишних аллокаций -
-задача отдельного слоя: `MinecraftPrimitiveReader` и
-`MinecraftPrimitiveWriter` из `McProtoNet.Primitives`.
+A packet body is just bytes. The protocol defines its own types on top
+of them (full list on the
+[Data types](https://minecraft.wiki/w/Java_Edition_protocol/Data_types)
+page): variable-length VarInt and VarLong, strings with a VarInt length
+before the bytes, a 16-byte UUID, NBT tags of arbitrary nesting.
+Encoding and decoding them the same way on read and on write, without
+extra allocations, is the job of a separate layer:
+`MinecraftPrimitiveReader` and `MinecraftPrimitiveWriter` from
+`McProtoNet.Primitives`.
 
-## Что читается и пишется
+## What gets read and written
 
-У читателя и писателя симметричные наборы методов: `ReadVarInt`/`WriteVarInt`
-и `ReadVarLong`/`WriteVarLong` для переменной длины; `ReadBoolean` - один
-байт; знаковые и беззнаковые byte, short, int, long, float и double идут
-big-endian, кроме VarInt и VarLong. `ReadString`/`WriteString` кодируют
-строку в UTF-8 с длиной в байтах впереди, тем же VarInt, и ограничивают её
-длину параметром `maxLength` (по умолчанию `short.MaxValue`).
-`ReadUUID`/`WriteUUID` - 16 байт big-endian поверх `Guid`. `ReadNbtTag` и
-`WriteNbt`, а также их варианты с байтом-флагом присутствия
-`ReadOptionalNbtTag`/`WriteOptionalNbt`, работают с NBT-деревом.
-`ReadBuffer`/`ReadRestBuffer`/`WriteBuffer` копируют голые байты без
-префикса длины - когда длина известна извне.
+The reader and the writer carry symmetric method sets:
+`ReadVarInt`/`WriteVarInt` and `ReadVarLong`/`WriteVarLong` for
+variable-length values; `ReadBoolean` for one byte; signed and unsigned
+byte, short, int, long, float, and double go big-endian, except VarInt
+and VarLong. `ReadString`/`WriteString` encode a string as UTF-8 with
+the length in bytes in front, using the same VarInt, and cap the length
+with the `maxLength` parameter (`short.MaxValue` by default).
+`ReadUUID`/`WriteUUID` read and write a `Guid` as 16 big-endian bytes.
+`ReadNbtTag` and `WriteNbt`, along with their variants with a presence
+flag byte, `ReadOptionalNbtTag`/`WriteOptionalNbt`, work with the NBT
+tree. `ReadBuffer`/`ReadRestBuffer`/`WriteBuffer` copy raw bytes without
+a length prefix - for when the length is known from outside.
 
-`ReadVarInt` показывает форму типичной сигнатуры и то, куда уходит ошибка
-при нехватке данных:
+`ReadVarInt` shows the shape of a typical signature, and where the
+error goes when data runs short:
 
 ```csharp
 public int ReadVarInt()
@@ -38,11 +40,11 @@ public int ReadVarInt()
 }
 ```
 
-## `Span<byte>` без лишних копий
+## `Span<byte>` without extra copies
 
-`MinecraftPrimitiveReader` - `ref struct` над `SequenceReader<byte>`.
-Конструктор оборачивает переданные `ReadOnlyMemory<byte>` или
-`ReadOnlySequence<byte>`, ничего не копируя:
+`MinecraftPrimitiveReader` is a `ref struct` over `SequenceReader<byte>`.
+The constructor wraps the given `ReadOnlyMemory<byte>` or
+`ReadOnlySequence<byte>`, without copying anything:
 
 ```csharp
 public ref struct MinecraftPrimitiveReader
@@ -56,23 +58,23 @@ public ref struct MinecraftPrimitiveReader
 }
 ```
 
-Типичный источник этой памяти - `IncomingPacket.Body`: тело пакета - окно
-в буфер, которое живёт до следующего чтения; разбирать его нужно сразу,
-не через `await`
-([«Буфер приёма»](../04-transport/03-packet-stream.md)).
-`Read(Span<byte> output)` копирует байты прямо в буфер вызывающего кода
-и ничего не выделяет сам.
+A typical source of this memory is `IncomingPacket.Body`: a packet body
+is a window into a buffer that lives until the next read; it must be
+parsed right away, not across an `await`
+([Receive buffer](../04-transport/03-packet-stream.md)).
+`Read(Span<byte> output)` copies bytes straight into the caller's buffer
+and allocates nothing on its own.
 
-У `MinecraftPrimitiveWriter` та же экономия в обратную сторону: он держит
-`ArrayBufferWriter<byte>`, а `WrittenSpan` и `WrittenMemory` - окна в этот
-буфер, которые следующая запись делает невалидными: буфер может переехать
-при росте, а старое окно об этом не узнает.
+`MinecraftPrimitiveWriter` makes the same saving in the other direction: it
+holds an `ArrayBufferWriter<byte>`, and `WrittenSpan` and `WrittenMemory`
+are windows into that buffer, which the next write invalidates: the
+buffer can move when it grows, and the old window will not know it.
 
-## Кто владеет памятью
+## Who owns the memory
 
-`MemoryOwner<T>` - структура поверх массива, арендованного у
-`ArrayPool<T>.Shared`. `Allocate` берёт массив нужной длины, `Dispose`
-возвращает его в пул:
+`MemoryOwner<T>` is a struct over an array rented from
+`ArrayPool<T>.Shared`. `Allocate` takes an array of the needed length,
+`Dispose` returns it to the pool:
 
 ```csharp
 public static MemoryOwner<T> Allocate(int length)
@@ -93,11 +95,12 @@ public void Dispose()
 }
 ```
 
-`MemoryOwner<T>` - мутируемая структура: копия оправдана только когда она
-передаёт владение дальше, иначе оба держателя вернут в пул один массив.
+`MemoryOwner<T>` is a mutable struct: a copy makes sense only when it
+passes ownership onward, otherwise both holders return the same array
+to the pool.
 
-Писатель отдаёт готовые байты через `GetWrittenMemory`, и это уже копия -
-не окно в собственный буфер писателя:
+The writer hands out finished bytes through `GetWrittenMemory`, and this
+is already a copy - not a window into the writer's own buffer:
 
 ```csharp
 public MemoryOwner<byte> GetWrittenMemory()
@@ -109,39 +112,42 @@ public MemoryOwner<byte> GetWrittenMemory()
 }
 ```
 
-Копия здесь не лишняя: буфер писателя переиспользуется через
-`MinecraftPrimitiveWriterCache` (`Rent`/`Return`, по писателю на поток,
-писатели крупнее 64 килобайт отбрасываются), и после `Return` его трогать
-нельзя. `OutgoingPacket` берёт готовый `MemoryOwner<byte>` и должен быть
-освобождён ровно один раз, чтобы буфер вернулся в пул.
+The copy here is not wasted: the writer's buffer gets reused through
+`MinecraftPrimitiveWriterCache` (`Rent`/`Return`, one writer per thread,
+writers larger than 64 kilobytes get dropped), and it must not be
+touched after `Return`. `OutgoingPacket` takes the finished
+`MemoryOwner<byte>` and must be disposed exactly once, so the buffer
+returns to the pool.
 
-## Ошибки при чтении битых данных
+## Errors on reading broken data
 
-Нехватка данных - самая частая ошибка чтения, и она везде одна:
-`InvalidDataException` через внутренний `ThrowHelper.ThrowNotEnoughData`.
-VarInt длиннее 5 байт и VarLong длиннее 10 байт - тоже
-`InvalidDataException`, с отдельным сообщением про длину. У строк проверок
-больше: отрицательная длина-префикс, число байт больше `maxLength * 3`,
-итоговая длина строки больше `maxLength` - каждая через
-`ThrowHelper.ThrowInvalidData` со своим текстом. Битый NBT всплывает как
-`NbtFormatException` изнутри `ReadNbtTag`. У методов чтения VarInt прямо
-из `Stream` (`Stream.ReadVarInt`, `ReadVarIntAsync`) - расширений над
-потоком, не самого читателя - обрыв данных даёт `EndOfStreamException`.
+Running out of data is the most common read error, and it is the same
+everywhere: `InvalidDataException` through the internal
+`ThrowHelper.ThrowNotEnoughData`. A VarInt longer than 5 bytes and a
+VarLong longer than 10 bytes also throw `InvalidDataException`, with a
+separate message about the length. Strings carry more checks: a
+negative length prefix, a byte count above `maxLength * 3`, a final
+string length above `maxLength` - each through
+`ThrowHelper.ThrowInvalidData` with its own text. Broken NBT surfaces as
+`NbtFormatException` from inside `ReadNbtTag`. For the methods that read
+a VarInt straight from a `Stream` (`Stream.ReadVarInt`,
+`ReadVarIntAsync`) - extensions over the stream, not over the reader
+itself - a data cutoff throws `EndOfStreamException`.
 
-## Когда это трогает приложение
+## When this touches application code
 
-Обычно напрямую - нет: у сгенерированных пакетов свои `Read`/`Write` на
-каждую версию протокола, и они уже написаны поверх этого слоя. Прямой
-доступ к `MinecraftPrimitiveReader`/`Writer` нужен в двух случаях: когда
-приложение реализует собственный пакет со своими `Read`/`Write`, и когда
-тело разбирается вручную - тип пакета заранее не известен или нужны
-только первые несколько полей, без декодирования пакета целиком.
+Usually, not directly: generated packets carry their own `Read`/`Write`
+for each protocol version, and those are already written on top of this
+layer. Direct access to `MinecraftPrimitiveReader`/`Writer` is needed in
+two cases: when application code implements its own packet with its own
+`Read`/`Write`, and when the body is parsed by hand - the packet type is
+not known in advance, or only the first few fields are needed, without
+decoding the whole packet.
 
-## Дальше
+## Next
 
-- [Из сырого пакета: номер, имя, экземпляр](03-from-raw-packet.md) - где
-  тело пакета становится типизированным объектом
-- [NBT](../06-nbt/01-nbt.md) - формат тегов, с которым работает этот же
-  слой
-- [Кадры: где кончается пакет](../04-transport/02-framing.md) - откуда
-  берётся тело, которое видит `MinecraftPrimitiveReader`
+- [From a raw packet](03-from-raw-packet.md) -
+  where a packet body becomes a typed object
+- [NBT](../06-nbt/01-nbt.md) - the tag format this same layer works with
+- [Frames](../04-transport/02-framing.md) - where
+  the body that `MinecraftPrimitiveReader` sees comes from

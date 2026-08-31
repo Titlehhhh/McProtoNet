@@ -1,17 +1,17 @@
-# Одна сборка - много версий
+# One build - many versions
 
-На странице «Об проекте» об этом сказано в двух абзацах: один диапазон
-протоколов, одна сборка вместо пересборки под каждую игру. Здесь - как
-это устроено в пакетном слое: какие атрибуты видны на сгенерированном
-пакете, откуда берётся раскладка полей и что происходит, когда просят
-версию, которой в коде попросту нет.
+The "About the project" page states this in two paragraphs: one range of
+protocols, one build instead of a rebuild for each game version. This page
+covers how it works in the packet layer: which attributes appear on a
+generated packet, where the field layout comes from, and what happens when
+code asks for a version the build does not have.
 
-## Атрибуты, из которых собран пакет
+## Attributes that build a packet
 
-Каждый пакет несёт три атрибута: `ProtocolSupport` - диапазон версий,
-на котором пакет существует; `Packet` - манифестный ключ, фаза
-и направление; `PacketField` - поле, а если оно не на всём диапазоне,
-то ещё `Group` и границы `From`/`To`.
+Every packet carries three attributes: `ProtocolSupport` - the range of
+versions where the packet exists; `Packet` - the manifest key, phase, and
+direction; `PacketField` - a field, and if it does not span the whole
+range, also `Group` and the `From`/`To` bounds.
 
 ```csharp
 [ProtocolSupport(
@@ -24,22 +24,22 @@
 [PacketField("WindowTitle", "NbtTag", Group = "V765_Last", From = 765)]
 ```
 
-`WindowId` и `InventoryType` без `Group` - общие поля, есть в любой
-версии из диапазона. `WindowTitleJson` и `WindowTitle` - одно и то же
-поле по смыслу, заголовок открываемого окна, но на старых версиях это
-строка JSON, а на новых - тег NBT: разные типы, ни одна не входит
-в общую часть.
+`WindowId` and `InventoryType` carry no `Group` - they are shared fields,
+present in every version of the range. `WindowTitleJson` and `WindowTitle`
+are the same field in meaning, the title of the window being opened, but on
+older versions it is a JSON string, and on newer versions it is an NBT tag:
+different types, and neither belongs in the shared part.
 
-Эти атрибуты читает `VersionRangeGenerator`, единственный генератор
-Roslyn в проекте: по `ProtocolSupport` он достраивает
-`IsSupportedVersion(int)` и хелпер на бросок исключения. Раскладку
-полей сам не строит - она уже собрана в коде пакета.
+`VersionRangeGenerator`, the only Roslyn generator in the project, reads
+these attributes: from `ProtocolSupport` it builds
+`IsSupportedVersion(int)` and a helper that throws. It does not build the
+field layout itself - that is already assembled in the packet code.
 
-## Слой вместо отдельного пакета
+## A layer instead of a separate packet
 
-Библиотека не заводит по классу на версию. У пакета один класс на весь
-диапазон, а версии, расходящиеся полями, оседают во вложенных
-структурах - слоях:
+The library does not create one class per version. A packet has one class
+for the whole range, and versions that diverge in their fields settle into
+nested structures - layers:
 
 ```csharp
 public sealed partial record OpenWindowPacket(
@@ -52,16 +52,17 @@ public sealed partial record OpenWindowPacket(
     public readonly record struct V765_LastLayer(NbtTag WindowTitle);
 ```
 
-Имя слоя следует диапазону: `VUntil764` - от начала до версии
-включительно, `V765_Last` - от неё до конца, `V759_765` (в других
-пакетах) - отрезок между двумя версиями. Общие поля лежат в записи
-пакета, версийные - в своём слое, и заполнен всегда один слой.
+The layer name follows the range: `VUntil764` runs from the start up to and
+including that version, `V765_Last` runs from it to the end, and
+`V759_765` (in other packets) is a segment between two versions. Shared
+fields live in the packet record, version-specific fields live in their own
+layer, and exactly one layer is ever filled.
 
-## Разбор идёт по номеру версии, а не по классу
+## Parsing follows the version number, not the class
 
-`Read` и `Write` ветвятся по `protocolVersion` и строят или читают
-ровно тот слой, что подходит. Вот ветка для версий, где поля
-`WindowTitleJson` уже нет и заголовок приходит тегом NBT:
+`Read` and `Write` branch on `protocolVersion` and build or read exactly
+the layer that fits. Here is the branch for versions where the
+`WindowTitleJson` field is gone and the title arrives as an NBT tag:
 
 ```csharp
 if (protocolVersion >= 765)
@@ -74,19 +75,20 @@ if (protocolVersion >= 765)
 }
 ```
 
-Ветка для старых версий устроена зеркально: те же `WindowId`
-и `InventoryType`, но вместо `ReadNbtTag` - `ReadString`, а слой
-собирается как `VUntil764`. Код приложения этой ветки не видит: он
-получает готовый `OpenWindowPacket` и смотрит, какой слой заполнен.
-Запись чужого слоя не в ту версию `Write` пресекает
-`WrongLayerException` - защита от ручной ошибки, не обычный путь.
+The branch for older versions is a mirror: the same `WindowId` and
+`InventoryType`, but `ReadString` instead of `ReadNbtTag`, and the layer is
+built as `VUntil764`. Application code never sees this branch: it gets a
+ready `OpenWindowPacket` and checks which layer is filled. Writing the
+wrong layer for the wrong version is blocked by `Write` with a
+`WrongLayerException` - a guard against a manual mistake, not the normal
+path.
 
-## Номер пакета меняется чаще, чем сам пакет
+## The packet number changes more often than the packet itself
 
-Заголовок окна поменялся один раз за весь диапазон, а номер пакета
-`open_window` прыгает почти на каждой версии - разные вещи. Номер
-знает не библиотека целиком, а конкретный тип, через собственный
-`TryGetPacketId`:
+The window title changed once across the whole range, while the number of
+the `open_window` packet jumps on almost every version - different things.
+The number is not known by the library as a whole, but by the specific
+type, through its own `TryGetPacketId`:
 
 ```csharp
 if (protocolVersion >= 762 && protocolVersion <= 763)
@@ -102,50 +104,52 @@ if (protocolVersion >= 764 && protocolVersion <= 765)
 }
 ```
 
-Таких диапазонов в одном `OpenWindowPacket` больше десятка. Сводку по
-всем пакетам держит `PacketRegistry.g.cs` (`IdRange` на диапазон,
-`PacketDescriptor` на пакет), а поверх - плоские таблицы
-номер-в-ordinal по фазе, направлению и версии; через них код ищет тип
-пакета по чужому номеру - устройство адреса на странице
-«Фаза и направление».
+A single `OpenWindowPacket` holds more than a dozen ranges like this.
+`PacketRegistry.g.cs` keeps the summary for every packet (`IdRange` for a
+range, `PacketDescriptor` for a packet), and on top of it sit flat
+number-to-ordinal tables by phase, direction, and version. Code uses them
+to find the packet type from a foreign number - the layout of the address
+is on the "Phase and direction" page.
 
-## Если версии у пакета нет
+## When a packet has no such version
 
-Отказов два. Версия вне диапазона `ProtocolSupport` целиком - `Read`,
-`Write` и типизированная отправка бросают `ProtocolNotSupportException`
-с версией и списком поддержанных диапазонов. Версия внутри диапазона,
-но без своей ветки в `Read`/`Write` - пробел в раскладке полей, а не
-в поддержке версии, - и оба метода бросают `NotSupportedException`
-с текстом «has no wire layout for protocol version». А когда сам номер
-пакета не находится в чужой версии, до этих исключений дело не
-доходит: `PacketRegistry.TryResolve` возвращает отказ, пакет уходит
-в `Unknown` - см. «Фаза и направление».
+There are two kinds of rejection. A version outside the whole
+`ProtocolSupport` range: `Read`, `Write`, and typed sending throw
+`ProtocolNotSupportException` with the version and the list of supported
+ranges. A version inside the range but with no matching branch in
+`Read`/`Write` is a gap in the field layout, not in version support, and
+both methods throw `NotSupportedException` with the text "has no wire
+layout for protocol version". When the packet number itself is not found
+for a foreign version, it never reaches these exceptions:
+`PacketRegistry.TryResolve` returns a failure, and the packet goes to
+`Unknown` - see "Phase and direction".
 
-## Что менять в коде приложения при переезде
+## What to change in application code on a version move
 
-Обычно - только число: версию протокола, которую код передаёт при
-подключении. Диспетчеризация, номера пакетов, выбор слоя
-пересчитываются по новому числу сами, без правок в остальном коде.
+Usually only a number: the protocol version that the code passes on
+connect. Dispatch, packet numbers, and layer selection recompute themselves
+from the new number, with no changes anywhere else in the code.
 
-Правки нужны там, где код приложения трогает версийный слой напрямую -
-читает `packet.VUntil764` вместо общих полей. На новой версии свойство
-станет `null`, а нужное поле переедет в `V765_Last`, не всегда того же
-типа: строка JSON и тег NBT друг в друга не конвертируются. Код,
-читающий только общие поля пакета, версийных слоёв не видит вовсе.
+Changes are needed where application code touches a version layer
+directly - reads `packet.VUntil764` instead of the shared fields. On a
+newer version, that property becomes `null`, and the needed field moves to
+`V765_Last`, not always of the same type: a JSON string and an NBT tag do
+not convert into each other. Code that reads only the shared fields of a
+packet never sees the version layers at all.
 
-## Чего от мультиверсии ждать нельзя
+## What multi-version support does not cover
 
-Диапазон - `%min_minecraft_version%` - `%max_minecraft_version%`,
-и это диапазон конкретной сборки, а не вся история протокола: версия
-за его границами получает `ProtocolNotSupportException`, а не
-приблизительный разбор. Мультиверсия здесь - про форму пакета на
-проводе, не про игровые данные: числовые идентификаторы блоков
-и предметов между версиями библиотекой не выравниваются. И раскладка
-по слоям версию не прячет - код, которому нужны версийные поля,
-обязан знать, какой слой заполнен.
+The range is `%min_minecraft_version%` - `%max_minecraft_version%`, and it
+is the range of a specific build, not the whole history of the protocol: a
+version outside its bounds gets `ProtocolNotSupportException`, not an
+approximate parse. Multi-version support here is about the shape of the
+packet on the wire, not about game data: the library does not align
+numeric block and item ids between versions. And the layer layout does not
+hide the version either - code that needs version-specific fields must
+know which layer is filled.
 
-## Дальше
+## Next
 
-- [«Из сырого пакета в объект»](03-from-raw-packet.md)
-- [«Фаза и направление»](01-phases-and-direction.md)
-- [«От версии игры к номеру протокола»](../07-reference/01-version-to-protocol.md)
+- [From a raw packet](03-from-raw-packet.md)
+- [Phase and direction](01-phases-and-direction.md)
+- [Version to protocol](../07-reference/01-version-to-protocol.md)

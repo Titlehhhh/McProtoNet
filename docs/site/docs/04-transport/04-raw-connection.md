@@ -1,134 +1,138 @@
-# Соединение без клиента
+# Connection without a client
 
-`MinecraftClient` держит один сокет, один `MinecraftConnection` внутри
-и цикл `ReadPacketsAsync`, идущий через все фазы протокола подряд - этому
-пути посвящена страница «Поток пакетов». Иногда весь путь не нужен: сокет
-уже открыт другим кодом, а нужен только протокол кадров поверх
-произвольного `Stream`, без фаз и параметров подключения клиента -
-прокси-инструмент, тестовый стенд, самописный игровой сервер.
-`MinecraftConnection` и `StreamingConnection` дают то же чтение и запись
-кадров, что и клиент, но без состояния фаз и без TCP-обвязки подключения.
+`MinecraftClient` holds one socket, one `MinecraftConnection` inside it,
+and a `ReadPacketsAsync` loop that runs through all protocol phases in
+order - the "Packet stream" page covers that path. Sometimes the full
+path is not needed: some other code already opened the socket, and the
+only thing needed is the frame protocol over an arbitrary `Stream`,
+without phases or client connection options - a proxy tool, a test rig,
+a hand-written game server. `MinecraftConnection` and
+`StreamingConnection` give the same frame reading and writing as the
+client, but without phase state and without the TCP connection wrapper.
 
-## MinecraftConnection: кадр за кадром
+## MinecraftConnection: frame by frame
 
-`MinecraftConnection` строится прямо от `Stream`: конструктор берёт
-поток и флаг `leaveOpen`, больше ничего не открывает и никуда не
-подключается. `ReadPacketAsync` читает ровно один кадр и возвращает
-`IncomingPacket`. `WritePacketAsync` (две перегрузки: пакет с уже
-записанным varint-id одним куском памяти или id отдельно от тела) пишет
-один кадр и сам
-сбрасывает поток - каждый вызов уходит на сокет сразу, не дожидаясь
-соседних пакетов.
+`MinecraftConnection` builds directly on a `Stream`: the constructor
+takes the stream and a `leaveOpen` flag, and opens or connects nothing
+else. `ReadPacketAsync` reads exactly one frame and returns an
+`IncomingPacket`. `WritePacketAsync` (two overloads: a packet with the
+varint id already written as one memory block, or the id separate from
+the body) writes one frame and flushes the stream itself - each call
+goes to the socket right away, without waiting for any other packets.
 
-`CompressionThreshold` переключает сжатие так же, как в клиенте: новое
-значение действует с следующего кадра в обе стороны. `EnableEncryption`
-включает AES/CFB8 сразу для чтения и записи и может быть вызван только
-один раз за жизнь соединения; `IsEncrypted` показывает, включён ли шифр.
+`CompressionThreshold` switches compression the same way as in the
+client: a new value takes effect from the next frame, in both
+directions. `EnableEncryption` turns on AES/CFB8 for reading and writing
+at once, and it can be called only once in the lifetime of a connection.
+`IsEncrypted` shows whether encryption is on.
 
-Вместо тихого разрыва `MinecraftConnection` держит `Completion` - задачу,
-завершающийся при закрытии, - и `CloseReason`: причину закрытия или
-`null` для чистого конца потока либо перехода в потоковый режим.
-`Abort` рвёт соединение с любого потока. `DisposeAsync` останавливает
-его и возвращает буферы в пул; после него любой вызов бросает
-`ObjectDisposedException`.
+`MinecraftConnection` does not break silently. It holds `Completion` - a
+task that completes on close - and `CloseReason`: the reason for
+closing, or `null` for a clean end of stream or a switch to streaming
+mode. `Abort` breaks the connection from any thread. `DisposeAsync`
+stops the connection and returns the buffers to the pool. After that,
+any call throws `ObjectDisposedException`.
 
-## StreamingConnection: пачками
+## StreamingConnection: in batches
 
-`StreamingConnection` не создаётся напрямую - только через
-`MinecraftConnection.ToStreaming()`. Метод передаёт новому объекту поток,
-уже включённый шифр и текущий порог сжатия и лишает исходный
-`MinecraftConnection` дальнейшей работы: после перехода любой его вызов,
-кроме `Abort`, бросает `InvalidOperationException`. На
-`StreamingConnection` шифр и порог сжатия зафиксированы на всё время
-жизни соединения - сменить их здесь нельзя.
+`StreamingConnection` is never created directly - only through
+`MinecraftConnection.ToStreaming()`. The method passes the new object
+the stream, the already-enabled cipher, and the current compression
+threshold, and it strips the original `MinecraftConnection` of further
+work: after the switch, any call on it besides `Abort` throws
+`InvalidOperationException`. On a `StreamingConnection`, the cipher and
+the compression threshold are fixed for the lifetime of the connection -
+they cannot be changed here.
 
-`ReadBatchAsync` читает не один кадр, а всё, что нашлось за одно
-обращение к потоку, и возвращает `PacketBatch` - структуру, по которой
-можно пройти `foreach`. `Count == 0` вместе с `IsCompleted == true`
-означает конец потока. `ReadPacketsAsync` оборачивает `ReadBatchAsync`
-в один `IAsyncEnumerable<IncomingPacket>`, но заканчивается он иначе, чем
-у клиента: чистый конец потока здесь просто выходит из `await foreach`,
-без `EndOfStreamException`.
+`ReadBatchAsync` reads not one frame but everything found in a single
+call to the stream, and it returns a `PacketBatch` - a struct that
+supports `foreach`. `Count == 0` together with `IsCompleted == true`
+means the end of the stream. `ReadPacketsAsync` wraps `ReadBatchAsync` in
+one `IAsyncEnumerable<IncomingPacket>`, but it ends differently than the
+client version: here, a clean end of stream just exits the `await
+foreach`, without an `EndOfStreamException`.
 
-Запись устроена иначе. `WritePacket` (три формы, все синхронные, без
-токена отмены: готовый кадр одним куском, id и тело куском, id и тело
-россыпью через `ReadOnlySequence<byte>`) кладёт кадр
-в буфер отправки и ничего не шлёт на сокет. Байты уходят только по
-`FlushAsync` - весь накопленный буфер одним вызовом - или по
-`CompleteAsync`, который делает то же самое и закрывает соединение
-чисто. `UnflushedBytes` показывает, сколько байт закадрировано, но ещё
-не отправлено.
+Writing works differently. `WritePacket` (three forms, all synchronous,
+with no cancellation token: a ready frame as one block, id and body as a
+block, or id and body scattered across a `ReadOnlySequence<byte>`)
+places the frame in the send buffer and sends nothing to the socket.
+Bytes go out only through `FlushAsync` - the whole accumulated buffer in
+one call - or through `CompleteAsync`, which does the same and closes
+the connection cleanly. `UnflushedBytes` shows how many bytes are framed
+but not yet sent.
 
-## Почему пачками быстрее
+## Why batches are faster
 
-За `ReadPacketAsync` у `MinecraftConnection` стоит `PacketStreamReader`:
-длину кадра он читает варинтом байт за байтом, каждый байт - отдельный
-`ReadExactlyAsync`, а тело - ещё один: минимум два обращения к потоку
-на кадр. За `ReadBatchAsync` у `StreamingConnection` стоит
-`BufferedPacketReader`: один `stream.ReadAsync` в общий пул-буфер,
-а дальше разбор всех кадров, что уже нашлись в прочитанных байтах.
-К сети реализация обращается заново, только когда буфера не хватило
-на следующий кадр целиком - один системный вызов может отдать сразу
-десяток пакетов.
+Behind `MinecraftConnection`'s `ReadPacketAsync` stands
+`PacketStreamReader`: it reads the frame length as a varint byte by
+byte, each byte a separate `ReadExactlyAsync`, and the body is one more
+call - at least two calls to the stream per frame. Behind
+`StreamingConnection`'s `ReadBatchAsync` stands `BufferedPacketReader`:
+one `stream.ReadAsync` into a shared pooled buffer, then parsing of
+every frame already found in the bytes read. The implementation touches
+the network again only when the buffer does not hold the next frame in
+full - one system call can hand back a dozen packets at once.
 
-Запись устроена симметрично. `WritePacketAsync` пишет и сбрасывает поток
-на каждый вызов - N пакетов дают N обращений к сети. `WritePacket` на
-`StreamingConnection` синхронный и работает только с буфером в памяти,
-без `await` и без похода к сокету; `FlushAsync` отправляет накопленное
-одним `WriteAsync` и одним `FlushAsync`, сколько бы вызовов
-`WritePacket` до этого ни было.
+Writing is symmetric. `WritePacketAsync` writes and flushes the stream
+on every call - N packets mean N calls to the network. `WritePacket` on
+a `StreamingConnection` is synchronous and works only with the in-memory
+buffer, with no `await` and no trip to the socket. `FlushAsync` sends
+the accumulated data with one `WriteAsync` and one `FlushAsync`, no
+matter how many `WritePacket` calls came before it.
 
 ```mermaid
 flowchart TB
-    subgraph Кадр за кадром
+    subgraph Frame by frame
         direction TB
-        A1[ReadPacketAsync] --> A2[длина: варинт байт за байтом]
-        A2 --> A3[тело: один ReadExactlyAsync]
-        A3 --> A4[один IncomingPacket наружу]
-        A4 -.следующий кадр.-> A1
+        A1[ReadPacketAsync] --> A2[length: varint byte by byte]
+        A2 --> A3[body: one ReadExactlyAsync]
+        A3 --> A4[one IncomingPacket out]
+        A4 -.next frame.-> A1
     end
-    subgraph Пачками
+    subgraph In batches
         direction TB
-        B1[ReadBatchAsync] --> B2[один stream.ReadAsync в буфер]
-        B2 --> B3[разобрать все кадры из буфера]
-        B3 --> B4[PacketBatch из нескольких пакетов]
-        B4 -.буфер пуст, ждать сеть.-> B1
+        B1[ReadBatchAsync] --> B2[one stream.ReadAsync into buffer]
+        B2 --> B3[parse all frames from buffer]
+        B3 --> B4[PacketBatch of several packets]
+        B4 -.buffer empty, wait for network.-> B1
     end
 ```
 
-Плата за скорость - шире окно жизни данных: пачка держится целиком
-до следующего `ReadBatchAsync`, а не кадр за кадром.
+The price for speed is a wider data lifetime window: a batch stays whole
+until the next `ReadBatchAsync`, not frame by frame.
 
-## Ограничения и особенности
+## Limits and quirks
 
-`IncomingPacket.Body` - окно в буфер транспорта в обоих случаях
-([«Буфер приёма»](03-packet-stream.md)), но граница разная. У
-`MinecraftConnection` тело живёт до следующего `ReadPacketAsync`, как
-и везде. У `StreamingConnection` живёт вся пачка: тело любого пакета
-портится с началом следующего `ReadBatchAsync`, даже если из прошлой
-пачки разобрали не все пакеты. Данные, нужные дольше, копируют явно,
-как описано в «Потоке пакетов».
+`IncomingPacket.Body` is a window into the transport buffer in both
+cases ([Receive buffer](03-packet-stream.md)), but the boundary differs.
+On `MinecraftConnection`, the body lives until the next
+`ReadPacketAsync`, as everywhere else. On `StreamingConnection`, the
+whole batch lives: the body of any packet goes stale as soon as the next
+`ReadBatchAsync` starts, even if the previous batch was not fully
+parsed. Data needed for longer is copied explicitly, as described in
+"Packet stream".
 
-Ни один из двух типов не переживает параллельное чтение: второй
-`ReadPacketAsync` (или `ReadBatchAsync` у `StreamingConnection`) поверх
-незавершённого первого получает `InvalidOperationException` - это
-держит два чтения разом вызывающий код, а не транспорт словил гонку.
-У `MinecraftConnection` `CompressionThreshold` и `EnableEncryption`
-тоже можно менять только между кадрами - вызов посреди чтения или
-записи бросает то же исключение. `StreamingConnection` этого выбора не
-даёт вообще: шифр и порог сжатия фиксируются в момент `ToStreaming()`.
+Neither type survives concurrent reads: a second `ReadPacketAsync` (or
+`ReadBatchAsync` on `StreamingConnection`) started on top of an
+unfinished first one gets `InvalidOperationException` - the calling code
+is holding two reads at once, not the transport hitting a race. On
+`MinecraftConnection`, `CompressionThreshold` and `EnableEncryption` can
+also change only between frames - a call in the middle of a read or
+write throws the same exception. `StreamingConnection` does not offer
+that choice at all: the cipher and the compression threshold are fixed
+at the moment of `ToStreaming()`.
 
-Запись в буфер `StreamingConnection` не значит отправку: `WritePacket`
-только кадрирует байты в памяти, пока не вызван `FlushAsync` или
-`CompleteAsync`. `DisposeAsync` без предшествующего `FlushAsync` молча
-теряет то, что осело в буфере.
+Writing into a `StreamingConnection` buffer does not mean sending:
+`WritePacket` only frames bytes in memory until `FlushAsync` or
+`CompleteAsync` is called. `DisposeAsync` without a preceding
+`FlushAsync` silently drops whatever settled in the buffer.
 
-## Пример: отправка через очередь
+## Example: sending through a queue
 
-Один поток кладёт пакеты в `Channel<T>`, другая задача читает канал
-и пишет их в `StreamingConnection`, сбрасывая буфер раз в тридцать два
-пакета или когда канал опустел - без задержки, если пакетов пришло
-меньше порога:
+One thread puts packets into a `Channel<T>`, another task reads the
+channel and writes them to a `StreamingConnection`, flushing the buffer
+every thirty-two packets or when the channel runs empty - with no delay
+if fewer packets arrived than the threshold:
 
 ```csharp
 readonly record struct Outgoing(int Id, byte[] Body);
@@ -161,15 +165,17 @@ async Task SenderAsync(StreamingConnection conn, CancellationToken token)
 }
 ```
 
-`WritePacket` здесь не пересекает `await` ни разу, поэтому кадрирование
-десятков пакетов между двумя `FlushAsync` не стоит ни одного лишнего
-обращения к сети.
+`WritePacket` never crosses an `await` here, so framing dozens of
+packets between two `FlushAsync` calls costs no extra trip to the
+network.
 
-## Дальше
+## Next
 
-- [Поток пакетов](03-packet-stream.md) - тот же протокол через клиента
-- [Кадры](02-framing.md) - формат одного кадра, со сжатием и без
-- [Сжатие и шифрование](05-encryption-and-compression.md) - что
-  переключают `CompressionThreshold` и `EnableEncryption`
-- [Отмена и закрытие](06-cancellation.md) - токен отмены, `Abort`
-  и `DisposeAsync` на обоих типах соединения
+- [Packet stream](03-packet-stream.md) - the same protocol through the
+  client
+- [Frames](02-framing.md) - the format of one frame, with and without
+  compression
+- [Encryption and compression](05-encryption-and-compression.md) - what
+  `CompressionThreshold` and `EnableEncryption` switch
+- [Cancellation, errors, closing](06-cancellation.md) - the cancellation
+  token, `Abort`, and `DisposeAsync` on both connection types

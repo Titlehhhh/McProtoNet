@@ -1,49 +1,49 @@
-# Установка
+# Installation
 
-Один пакет тянет за собой весь набор:
+One package pulls in the whole set:
 
 ```
 dotnet add package McProtoNet --prerelease
 ```
 
-Флаг обязателен. Вся эта документация описывает 2.0, а 2.0 пока выходит
-предварительными версиями; без `--prerelease` NuGet поставит последний
-стабильный релиз ветки 1.x, у которого другой API, и ни один пример отсюда
-не соберётся.
+The flag is required. All of this documentation describes 2.0, and 2.0 still
+ships as prerelease versions. Without `--prerelease`, NuGet installs the
+latest stable release from the 1.x branch, which has a different API, and
+none of the examples here will build.
 
-Нужен .NET 8 или новее: сборки собираются под net8.0, net9.0, net10.0
-и net11.0.
+.NET 8 or newer is required: the builds target net8.0, net9.0, net10.0, and
+net11.0.
 
-## Взять только нужный слой
+## Take only the layer needed
 
-Если весь набор не нужен, пакеты ставятся по отдельности.
+If the whole set is not needed, the packages install separately.
 
-| Пакет | Что внутри |
+| Package | What it holds |
 | --- | --- |
-| `McProtoNet` | Обвязка клиента: подключение, SRV-записи, типизированная отправка, поиск серверов в локальной сети |
-| `McProtoNet.Protocol` | Сгенерированные пакеты, типы и базовые обработчики |
-| `McProtoNet.Transport` | Кадры, сжатие, шифрование |
-| `McProtoNet.Primitives` | Чтение и запись примитивов, структуры пакетов |
-| `McProtoNet.NBT` | Чтение и запись NBT |
+| `McProtoNet` | Glue: connection, SRV records, typed send, LAN server discovery |
+| `McProtoNet.Protocol` | Generated packets, types, and base handlers |
+| `McProtoNet.Transport` | Framing, compression, encryption |
+| `McProtoNet.Primitives` | Primitive reading and writing, packet structures |
+| `McProtoNet.NBT` | NBT reading and writing |
 
-Транспорт тянет нативный пакет `McProtoNet.Native` 1.0.0: в нём лежит
-libdeflate. Отдельно ставить его не нужно.
+The transport pulls in the native package `McProtoNet.Native` 1.0.0, which
+holds libdeflate. It does not need to be installed separately.
 
-## Ночные сборки
+## Nightly builds
 
-Каждый пуш в ветку `dev` уезжает на фид Feedz. Версии выглядят как
-`2.0.0-preview.4.<номер>` и помечены как предварительные, поэтому нужен
-`--prerelease`. Стабильные релизы уходят на nuget.org.
+Every push to the `dev` branch ships to the Feedz feed. Versions look like
+`2.0.0-preview.4.<number>` and are marked as prerelease, so `--prerelease` is
+required. Stable releases ship to nuget.org.
 
 ```
 dotnet nuget add source https://f.feedz.io/mcprotonet/night/nuget/index.json -n mcprotonet-night
 dotnet add package McProtoNet --prerelease
 ```
 
-Ночная сборка собирается из свежей `dev`: там раньше появляются новые пакеты
-и правки, но и ломается тоже раньше.
+The nightly build comes from the latest `dev`: new packages and fixes land
+there first, but so do breaks.
 
-## Дальше
+## Next
 
-- [Первый бот](02-first-bot.md)
-- [Фазы протокола](../05-packets/01-phases-and-direction.md)
+- [First bot](02-first-bot.md)
+- [Phase and direction](../05-packets/01-phases-and-direction.md)

@@ -1,50 +1,54 @@
-# Четыре слоя на одном экране
+# Four layers on one screen
 
-Библиотека разложена на четыре части. Каждая живёт в своём проекте и уезжает
-в свой пакет NuGet, так что взять можно как весь набор, так и один слой.
+The library splits into four parts. Each part lives in its own project and
+ships as its own NuGet package. An application can take the whole set or a
+single layer.
 
-## Примитивы
+## Primitives
 
-`McProtoNet.Primitives` - нижний этаж. Здесь чтение и запись простых значений:
-VarInt, строки, позиции, всё то, из чего собраны пакеты. Здесь же владелец
-памяти `MemoryOwner` и два типа, на которых сходятся остальные слои:
-`IncomingPacket` (номер пакета и его тело) и `OutgoingPacket`. Снаружи
-примитивы знают только про NBT.
+`McProtoNet.Primitives` is the bottom layer. It reads and writes simple
+values: VarInt, strings, positions, and everything packets are built from.
+It also holds the memory owner `MemoryOwner` and the two types the other
+layers meet on: `IncomingPacket` (a packet number and its body) and
+`OutgoingPacket`. Outside its own code, Primitives knows only about NBT.
 
-## Транспорт
+## Transport
 
-`McProtoNet.Transport` превращает байты в пакеты и обратно. Внутри четыре
-занятия: кадры (`Framing`), конвейер приёма и отправки (`Pipelines`), сжатие
-(`Compression`, libdeflate), шифрование (`Cryptography`, свой AES/CFB8).
+`McProtoNet.Transport` turns bytes into packets and back. It handles four
+jobs: frames (`Framing`), connections (`Connection`), compression
+(`Compression`, libdeflate), and encryption (`Cryptography`, its own
+AES/CFB8).
 
-Транспорт отдаёт сырые пакеты: номер и кусок байтов. Что это за пакет и какие
-у него поля, он не знает и знать не хочет.
+Transport hands back raw packets: a number and a body. It does not
+know, and does not need to know, what kind of packet it is or what fields it
+carries.
 
-## Пакетный слой
+## Packet layer
 
-`McProtoNet.Protocol` знает пакеты по именам. Он состоит из двух половин.
-Написанная руками часть (`Flow`) задаёт правила: как пакет объявляет свой
-идентификатор, как его разобрать, как разложить обработчики по фазам
-и направлениям. Сгенерированная часть (`Generated`) - сами пакеты, вложенные
-типы, перечисления и реестр, который переводит номер пакета в конкретный тип
-для нужной версии протокола.
+`McProtoNet.Protocol` knows packets by name. It has two halves. The
+hand-written half (`Flow`) sets the rules: how a packet declares its
+identity, how to decode it, and how handlers are sorted by phase and
+direction. The generated half (`Generated`) holds the packets themselves,
+nested types, enums, and the registry that maps a packet number to a
+concrete type for a given protocol version.
 
-Про транспорт этот слой тоже ничего не знает: ему дают готовый `IncomingPacket`,
-он возвращает разобранный пакет.
+This layer knows nothing about transport either. It receives a ready
+`IncomingPacket` and returns a decoded packet.
 
-## Клей
+## Glue
 
-Проект `McProtoNet` соединяет два предыдущих. В нём `MinecraftClient`:
-подключение по TCP, опционально через прокси, чтение потока пакетов, отправка,
-переключатели сжатия и шифра. Тут же типизированная отправка `SendAsync<T>`,
-поиск сервера по SRV-записи и детектор серверов в локальной сети.
+The `McProtoNet` project joins the two layers above. It holds
+`MinecraftClient`: a TCP connection, optionally through a proxy, reading the
+packet stream, sending packets, and the compression and cipher switches. It
+also holds typed sending (`SendAsync<T>`), server lookup by SRV record, and
+a LAN server detector.
 
-Клиент намеренно тонкий: фазы ведёт код приложения
-([«Фаза и направление»](../05-packets/01-phases-and-direction.md)), там же
-живёт логика бота.
+The client is deliberately thin. Application code drives the phases
+([Phase and direction](../05-packets/01-phases-and-direction.md)), and bot
+logic lives there too.
 
-## Что из этого следует
+## What follows from this
 
-Приложению обычно хватает пакета `McProtoNet`. Но слои разбираются по
-одному, и это не случайность - как они друг с другом связаны, разобрано
-в [«Кто кого знает»](02-who-knows-whom.md).
+An application usually needs only the `McProtoNet` package. But the layers
+separate on purpose. How they connect is covered in
+[Who knows whom](02-who-knows-whom.md).

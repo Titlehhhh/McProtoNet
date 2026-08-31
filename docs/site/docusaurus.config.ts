@@ -6,7 +6,7 @@ import remarkMcVersions from './src/remark/mc-versions';
 
 const config: Config = {
   title: 'McProtoNet',
-  tagline: 'Протокол Minecraft на C#',
+  tagline: 'The Minecraft protocol in C#',
   favicon: 'img/favicon.svg',
 
   future: {
@@ -14,9 +14,10 @@ const config: Config = {
     faster: true,
   },
 
-  // GitHub Pages: project site у пользователя Titlehhhh.
+  // GitHub Pages: project site у пользователя Titlehhhh. Новый сайт живёт
+  // на /next/, в корне пока публикуется старая документация Writerside.
   url: 'https://titlehhhh.github.io',
-  baseUrl: '/McProtoNet/',
+  baseUrl: '/McProtoNet/next/',
   organizationName: 'Titlehhhh',
   projectName: 'McProtoNet',
   trailingSlash: false,
@@ -26,10 +27,14 @@ const config: Config = {
   onBrokenAnchors: 'throw',
   onDuplicateRoutes: 'throw',
 
-  // Русский — основной. Английский приезжает, когда русские тексты приняты.
+  // Английский — основной, русский живёт на /ru/.
   i18n: {
-    defaultLocale: 'ru',
-    locales: ['ru'],
+    defaultLocale: 'en',
+    locales: ['en', 'ru'],
+    localeConfigs: {
+      en: {label: 'English'},
+      ru: {label: 'Русский'},
+    },
   },
 
   markdown: {
@@ -93,7 +98,7 @@ const config: Config = {
     image: 'img/social-card.png',
     announcementBar: {
       id: 'preview-2-0',
-      content: 'Документация к 2.0.0-preview.4. API ещё может меняться.',
+      content: 'Documentation for 2.0.0-preview.4. The API can still change.',
       isCloseable: true,
     },
     // Прототип был тёмным и только тёмным — здесь так же.
@@ -146,11 +151,15 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'docs',
           position: 'left',
-          label: 'Документация',
+          label: 'Docs',
         },
         {
           href: 'https://www.nuget.org/packages/McProtoNet',
           label: 'NuGet',
+          position: 'right',
+        },
+        {
+          type: 'localeDropdown',
           position: 'right',
         },
         {
@@ -164,29 +173,29 @@ const config: Config = {
       style: 'dark',
       links: [
         {
-          title: 'Документация',
+          title: 'Docs',
           items: [
-            {label: 'Об проекте', to: '/docs/overview/about'},
-            {label: 'Установка', to: '/docs/getting-started/installation'},
-            {label: 'Первый бот', to: '/docs/getting-started/first-bot'},
-            {label: 'Словарь', to: '/docs/reference/glossary'},
+            {label: 'About the project', to: '/docs/overview/about'},
+            {label: 'Installation', to: '/docs/getting-started/installation'},
+            {label: 'First bot', to: '/docs/getting-started/first-bot'},
+            {label: 'Glossary', to: '/docs/reference/glossary'},
           ],
         },
         {
-          title: 'Пакеты',
+          title: 'Packages',
           items: [
             {
               label: 'NuGet',
               href: 'https://www.nuget.org/packages/McProtoNet',
             },
             {
-              label: 'Ночные сборки',
+              label: 'Nightly builds',
               href: 'https://f.feedz.io/mcprotonet/night/nuget/index.json',
             },
           ],
         },
         {
-          title: 'Проект',
+          title: 'Project',
           items: [
             {
               label: 'GitHub',

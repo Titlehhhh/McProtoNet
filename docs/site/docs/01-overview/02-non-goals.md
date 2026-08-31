@@ -1,41 +1,45 @@
-# Что библиотека не делает
+# What the library does not do
 
-McProtoNet закрывает протокол: соединение, кадры, сжатие, шифрование,
-чтение и запись пакетов во всех поддержанных версиях. Дальше начинается
-чужая территория. Вот что придётся писать самому.
+McProtoNet covers the protocol: connection, framing, compression,
+encryption, and reading and writing packets across all supported versions.
+Beyond that starts someone else's territory. Here is what the application
+must write itself.
 
-## Порядок входа на сервер
+## Server login order
 
-Handshaking → login → configuration → play библиотека сама не крутит: эта
-машина состояний живёт в коде приложения. Так сделано намеренно. Серверы
-с плагинами ведут себя по-разному, и доступ к каждому шагу входа полезнее,
-чем красивый метод `Login()`, который однажды упрётся в чужую конфигурацию.
+The library does not drive handshaking → login → configuration → play on
+its own: this state machine lives in the application code. This is
+deliberate. Servers with plugins behave differently, and access to every
+login step is more useful than a neat `Login()` method that eventually
+runs into someone else's configuration.
 
-Как это выглядит на практике, показывают [«Фазы протокола»](../05-packets/01-phases-and-direction.md)
-и пример `MinimalBot` в репозитории.
+[Phase and direction](../05-packets/01-phases-and-direction.md) and the
+`MinimalBot` example in the repository show how this looks in practice.
 
-## Вход на online-серверы
+## Login to online-mode servers
 
-Шифрование в библиотеке есть целиком, а поход в Mojang за сессией и проверка
-входа остаются за приложением. Пока проще поднять локальный сервер
-с `online-mode=false`.
+The library has full encryption support, but requesting a session from
+Mojang and verifying the login stay with the application. For now,
+running a local server with `online-mode=false` is simpler.
 
-## Игровое поведение
+## Game behavior
 
-Решения за бота библиотека не принимает: куда идти, как обходить препятствия,
-когда бить моба, что ответить в чат. Пакеты она доставит в обе стороны, смысл
-в них вкладывает код приложения.
+The library does not make decisions for the bot: where to go, how to
+avoid obstacles, when to hit a mob, what to say in chat. It delivers
+packets in both directions. The application code gives them meaning.
 
-Готовых сценариев тоже нет. Ферма, PvP, поиск руды, крафт, торговля
-с жителями - всё это пишется поверх.
+There are no ready-made scenarios either. Farming, PvP, ore finding,
+crafting, trading with villagers - the application writes all of this on
+top.
 
-## Картинка
+## Graphics
 
-Отрисовки мира, окон и кнопок здесь нет. Библиотека работает с байтами
-и пакетами; если нужен интерфейс, он строится отдельно и поверх.
+There is no rendering of the world, windows, or buttons here. The
+library works with bytes and packets. If an interface is needed, it is
+built separately, on top.
 
-## Всё, что вокруг игры
+## Everything around the game
 
-Библиотека не ходит в сторонние сервисы, не понимает API модов вроде Forge
-и Fabric и не хранит игровые данные в базе. Такие вещи подключаются рядом,
-своим кодом.
+The library does not call third-party services, does not understand mod
+APIs like Forge and Fabric, and does not store game data in a database.
+These things connect alongside it, through the application's own code.

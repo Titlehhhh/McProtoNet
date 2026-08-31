@@ -1,56 +1,63 @@
-# Сжатие и шифрование
+# Encryption and compression
 
-Соединение открывается сырым: без сжатия и без шифра. Оба слоя включаются
-посреди сессии, каждый своим действием кода приложения, и оба относятся
-к транспорту в целом - к обоим направлениям сразу.
+A connection opens raw: without compression and without encryption. Both
+layers turn on mid-session, each through its own action in the
+application code, and both apply to the transport as a whole - to both
+directions at once.
 
-## Сжатие
+## Compression
 
-Порог сжатия сообщает сервер пакетом `LoginCompressPacket`. Код приложения
-переносит число в `CompressionThreshold` у `MinecraftClient` (то же свойство
-есть у `MinecraftConnection`, `MinecraftClient` его только пробрасывает).
-Значение отрицательное - сжатие выключено, это же и начальное состояние
-соединения. Новое значение действует с ближайшего кадра, а не с текущего.
+The server reports the compression threshold in a `LoginCompressPacket`.
+The application code copies the number into `CompressionThreshold` on
+`MinecraftClient` (`MinecraftConnection` has the same property;
+`MinecraftClient` only forwards it). A negative value means compression
+is off, and that is also the initial state of a connection. A new value
+takes effect from the next frame, not the current one.
 
-Порог решает судьбу каждого исходящего пакета отдельно. Пакет короче
-порога уходит как есть, но в кадре появляется дополнительный VarInt
-перед телом - 0, означающий «не сжат». Пакет не короче порога сжимается,
-и в этом же месте кадра стоит VarInt с исходным (несжатым)
-размером. На входящей стороне ноль в этом поле - сигнал развернуть пакет
-как есть, отличное от нуля значение - сколько байт распаковать. В протоколе
-этот формат описан на странице
-[With compression](https://minecraft.wiki/w/Java_Edition_protocol/Packets#With_compression).
+The threshold decides the fate of each outgoing packet on its own. A
+packet shorter than the threshold goes out as is, but the frame gains an
+extra VarInt before the body - 0, meaning "not compressed". A packet not
+shorter than the threshold gets compressed, and the same spot in the
+frame holds a VarInt with the original (uncompressed) size. On the
+incoming side, zero in this field signals to unpack the packet as is,
+and a value other than zero says how many bytes to decompress. The
+protocol describes this format on the
+[With compression](https://minecraft.wiki/w/Java_Edition_protocol/Packets#With_compression)
+page.
 
-Движок сжатия - libdeflate, из пакета `McProtoNet.Native`. Управляющий код
-вызывает его через `DllImport`: `libdeflate_zlib_compress`,
-`libdeflate_zlib_decompress` и парные функции `alloc`/`free` для хэндла
-компрессора и декомпрессора. Нативный вызов вместо встроенного `ZLibStream` взят ради скорости, формат
-от этого не меняется: на проводе всё тот же поток zlib.
+The compression engine is libdeflate, from the `McProtoNet.Native`
+package. Managed code calls it through `DllImport`:
+`libdeflate_zlib_compress`, `libdeflate_zlib_decompress`, and the paired
+`alloc`/`free` functions for the compressor and decompressor handles.
+The native call replaces the built-in `ZLibStream` for speed, and the
+format does not change because of it: the wire still carries the same
+zlib stream.
 
-Хэндлы компрессора и декомпрессора не создаются на каждый пакет:
-`LibDeflateCache` держит по одному на поток (`[ThreadStatic]`)
-и переиспользует их на все кадры этого потока. Уровень сжатия компрессора
-зашит в коде - 4 из диапазона libdeflate 0-12.
+The compressor and decompressor handles are not created per packet:
+`LibDeflateCache` keeps one of each per thread (`[ThreadStatic]`) and
+reuses them for every frame on that thread. The compressor's compression
+level is fixed in code - 4 out of the libdeflate range 0-12.
 
-## Шифрование
+## Encryption
 
-Шифр - AES/CFB8: тот же режим, что описан в протоколе на странице
-[Encryption](https://minecraft.wiki/w/Java_Edition_protocol/Encryption).
-Общий секрет, которым стороны обменялись через `EncryptionRequestPacket`
-и `EncryptionResponsePacket`, служит сразу и ключом, и вектором
-инициализации - `PacketCipher.SharedSecretLength` требует ровно 16 байт,
-это ключ AES-128.
+The cipher is AES/CFB8: the same mode the protocol describes on the
+[Encryption](https://minecraft.wiki/w/Java_Edition_protocol/Encryption)
+page. The shared secret that both sides exchange through
+`EncryptionRequestPacket` and `EncryptionResponsePacket` serves as both
+the key and the initialization vector - `PacketCipher.SharedSecretLength`
+requires exactly 16 bytes, an AES-128 key.
 
-`PacketCipher.CreateEncryptor` и `CreateDecryptor` собирают по шифру на
-каждое направление - `MinecraftConnection.EnableEncryption` создаёт оба
-сразу и отдаёт их читателю и писателю кадров. Шифр включается с ближайшего
-следующего кадра в обе стороны и назад не выключается: `EnableEncryption`
-второй раз на том же соединении бросает исключение.
+`PacketCipher.CreateEncryptor` and `CreateDecryptor` build one cipher
+per direction - `MinecraftConnection.EnableEncryption` creates both at
+once and hands them to the frame reader and writer. Encryption turns on
+from the next frame in both directions and does not turn off again:
+calling `EnableEncryption` a second time on the same connection throws
+an exception.
 
-## Аппаратные пути
+## Hardware paths
 
-Конкретную реализацию `PacketCipher` выбирает статическая фабрика
-по поддержке процессора, в порядке проверки:
+A static factory picks the concrete `PacketCipher` implementation based
+on processor support, in this check order:
 
 ```csharp
 if (AesCfb8HardwareCipher.IsSupported)
@@ -62,40 +69,42 @@ if (AesCfb8ArmCipher.IsSupported)
 return new AesCfb8Cipher(sharedSecret, sharedSecret, encrypting);
 ```
 
-`AesCfb8HardwareCipher` - интринсики x86 AES-NI поверх SSE2/SSSE3/SSE4.1.
-`AesCfb8ArmCipher` - AES и AdvSimd (NEON) на ARM64, с собственным
-расширением ключа AES-128 (`AesKeySchedule`), потому что платформенного
-`Aes.Create()` для этого пути не хватает. Когда не поддержано ни то ни
-другое, в дело идёт `AesCfb8Cipher` - обёртка над платформенным `Aes`
-с `EncryptCfb`/`DecryptCfb` и `feedbackSizeInBits: 8`.
-Обе интринсик-реализации при расшифровке дополнительно распараллеливают
-блоки по 16 байт за проход, а не идут байт за байтом, как того требует
-CFB8 сам по себе.
+`AesCfb8HardwareCipher` uses x86 AES-NI intrinsics on top of
+SSE2/SSSE3/SSE4.1. `AesCfb8ArmCipher` uses AES and AdvSimd (NEON) on
+ARM64, with its own AES-128 key expansion (`AesKeySchedule`), because the
+platform `Aes.Create()` does not cover this path. When neither is
+supported, `AesCfb8Cipher` takes over - a wrapper over the platform
+`Aes` with `EncryptCfb`/`DecryptCfb` and `feedbackSizeInBits: 8`. Both
+intrinsic implementations also parallelize decryption in 16-byte blocks
+per pass, instead of going byte by byte the way CFB8 itself requires.
 
-## Порядок на потоке
+## Order on the stream
 
-Снаружи, ближе к сокету, - шифр. Внутри - кадр целиком, включая varint
-длины и, если он есть, конверт сжатия. При записи `BufferedPacketWriter`
-сперва достраивает кадр (длина, при необходимости - сжатие), и только
-затем шифрует получившиеся байты на месте. При чтении наоборот: сырые
-байты из сокета сначала проходят через шифр, и лишь потом код разбирает
-в них длину кадра и, если нужно, распаковывает тело.
+On the outside, closer to the socket, sits the cipher. On the inside
+sits the whole frame, including the length varint and, if present, the
+compression envelope. When writing, `BufferedPacketWriter` first
+completes the frame (length, and compression if needed), and only then
+encrypts the resulting bytes in place. When reading, it works the other
+way: raw bytes from the socket first pass through the cipher, and only
+then does the code parse the frame length in them and, if needed,
+decompress the body.
 
-## Что делает приложение
+## What the application does
 
-Сжатие и шифрование не переключаются сами - оба включает код
-приложения, по одной строке на каждый:
+Compression and encryption do not switch on by themselves - the
+application code turns on both, one line for each:
 
 ```csharp
 client.CompressionThreshold = packet.Threshold;
 client.EnableEncryption(secret);
 ```
 
-Всё остальное - выбор движка, аппаратного пути, формат кадра и порядок
-применения на потоке - остаётся внутри транспорта.
+Everything else - the choice of engine, the hardware path, the frame
+format, and the order of application on the stream - stays inside the
+transport.
 
-## Дальше
+## Next
 
-- [Кадры](02-framing.md)
-- [Вход на сервер](01-joining-a-server.md)
-- [Первый бот](../02-getting-started/02-first-bot.md)
+- [Frames](02-framing.md)
+- [Joining a server](01-joining-a-server.md)
+- [First bot](../02-getting-started/02-first-bot.md)

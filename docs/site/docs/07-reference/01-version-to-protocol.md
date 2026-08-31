@@ -1,36 +1,36 @@
-# Версия → протокол
+# Version to protocol
 
-Minecraft Java Edition различает версии не по имени, а по числу -
-номеру протокола. От него зависит раскладка полей пакета: библиотека
-держит по несколько раскладок одного пакета, нужную выбирает номер,
-пришедший от вызывающего кода. Он передаётся параметром в `SendAsync`,
-`PacketIo.TryDecode`, `PacketFlow.Dispatch`, `PacketRegistry.TryResolve`
-и в первом пакете рукопожатия:
+Minecraft Java Edition tells versions apart not by name but by a number, the
+protocol version. It decides the layout of a packet's fields: the library
+keeps several layouts for the same packet, and the number that comes from
+the calling code picks the one to use. That number is passed as a parameter
+to `SendAsync`, `PacketIo.TryDecode`, `PacketFlow.Dispatch`,
+`PacketRegistry.TryResolve`, and in the first handshake packet:
 
 ```csharp
 await client.SendAsync(
     new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
 ```
 
-## Поддержанный диапазон
+## Supported range
 
-Библиотека поддерживает диапазон от %min_minecraft_version%
-до %max_minecraft_version%. В коде границы - именованные константы:
+The library supports the range from %min_minecraft_version% to
+%max_minecraft_version%. In the code, the boundaries are named constants:
 
 ```csharp
 public const int StartProtocol = V1_16_Protocol;   // 735
 public const int LatestProtocol = V26_2_Protocol;  // 776
 ```
 
-## Таблица соответствий
+## Mapping table
 
-`MinecraftVersion.FromProtocol` сводит номер к версии; снапшоты
-и пре-релизы 1.16.2 сведены к строке 1.16.2, 1.16.3-rc1 - к 1.16.3.
-Полная и постоянно обновляемая таблица версий и номеров протокола - на
-странице [Protocol version](https://minecraft.wiki/w/Protocol_version)
-на minecraft.wiki.
+`MinecraftVersion.FromProtocol` reduces a number to a version. Snapshots and
+pre-releases of 1.16.2 collapse to the string 1.16.2, and 1.16.3-rc1
+collapses to 1.16.3. The full, constantly updated table of versions and
+protocol numbers is on the [Protocol
+version](https://minecraft.wiki/w/Protocol_version) page on minecraft.wiki.
 
-| Версия игры | Протокол |
+| Game version | Protocol |
 | --- | --- |
 | 1.16 | 735 |
 | 1.16.1 | 736 |
@@ -60,36 +60,37 @@ public const int LatestProtocol = V26_2_Protocol;  // 776
 | 26.1-26.1.2 | 775 |
 | 26.2 | 776 |
 
-## Как получить номер программно
+## Getting the number from code
 
-`MinecraftVersion` несёт именованные константы, обратный поиск
-и полный список - таблицу переписывать в код не нужно:
+`MinecraftVersion` carries named constants, a reverse lookup, and the full
+list. There is no need to copy the table into application code:
 
 ```csharp
-int pv = MinecraftVersion.V1_21_11;      // неявно в int, даёт 774
+int pv = MinecraftVersion.V1_21_11;      // implicit to int, gives 774
 string name = MinecraftVersion.FromProtocol(772).Name;  // "1.21.7–1.21.8"
 foreach (var v in MinecraftVersion.AllVersions)
     Console.WriteLine($"{v.Name} -> {v.Protocol}");
 ```
 
-`FromProtocol` бросает `NotSupportedException` на числе вне таблицы,
-в том числе внутри диапазона 735-776, если оно не отвечает версии.
+`FromProtocol` throws `NotSupportedException` on a number outside the
+table, including inside the 735-776 range, if it does not match a version.
 
-## Номер вне диапазона
+## A number outside the range
 
-Проверки на входе в `MinecraftClient` нет - она приходит от самих
-пакетов. У `SetProtocolPacket` и любого пакета с раскладками по версиям
-объявлен диапазон:
+`MinecraftClient` does no check on input. The check comes from the packets
+themselves. `SetProtocolPacket`, and any packet with layouts that vary by
+version, declares a range:
 
 ```csharp
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 ```
 
-Номер вне диапазона даёт `ProtocolNotSupportException` при первой попытке
-отправить или разобрать пакет, до выхода в сеть. Исключение несёт имя типа,
-номер и диапазоны, на которых этот тип существует.
+A number outside the range produces `ProtocolNotSupportException` on the
+first attempt to send or parse a packet, before it reaches the network. The
+exception carries the type name, the number, and the ranges the type exists
+on.
 
-## Дальше
+## Next
 
-- [Словарь](02-glossary.md)
-- [Одна сборка - много версий](../05-packets/05-multiversion.md)
+- [Glossary](02-glossary.md)
+- [One build - many versions](../05-packets/05-multiversion.md)

@@ -1,54 +1,59 @@
-# Что из этого видно снаружи
+# What is visible from outside
 
-Слоёв четыре, но приложение обычно трогает десяток имён. Вот они.
+There are four layers, but an application usually touches about ten names.
+Here they are.
 
-## Клиент
+## Client
 
-`MinecraftClient` создаётся с `MinecraftClientOptions` (хост, порт,
-при необходимости прокси), открывает соединение через `ConnectAsync`
-и дальше умеет немного:
+`MinecraftClient` is created with `MinecraftClientOptions` (host, port, and
+a proxy if needed), opens a connection through `ConnectAsync`, and then does
+a few things:
 
-- `ReadPacketsAsync(token)` - поток входящих пакетов;
-- `ReadPacketAsync(token)` - один пакет, если поток не нужен;
-- `SendAsync(packet, protocolVersion)` - отправить типизированный пакет;
-- `SendRawAsync(id, body)` - отправить готовые байты;
-- `CompressionThreshold` - включить сжатие, когда сервер о нём сообщил;
-- `EnableEncryption(secret)` - включить шифр начиная со следующего кадра;
-- `DisposeAsync` - закрыть соединение и отпустить буферы.
+- `ReadPacketsAsync(token)` - the stream of incoming packets;
+- `ReadPacketAsync(token)` - a single packet, when a stream is not needed;
+- `SendAsync(packet, protocolVersion)` - send a typed packet;
+- `SendRawAsync(id, body)` - send raw bytes;
+- `CompressionThreshold` - turn on compression once the server reports it;
+- `EnableEncryption(secret)` - turn on the cipher starting from the next
+  frame;
+- `DisposeAsync` - close the connection and release the buffers.
 
-## Прокси
+## Proxy
 
-Сокет можно открыть не самому: в `MinecraftClientOptions` кладётся
-`IProxyClient`, реализации - в
+An application does not have to open the socket by itself.
+`MinecraftClientOptions` takes an `IProxyClient`, with implementations in
 [QuickProxyNet](https://github.com/Titlehhhh/QuickProxyNet)
-([«Вход на сервер»](../04-transport/01-joining-a-server.md)).
+([Joining a server](../04-transport/01-joining-a-server.md)).
 
-## Пакеты
+## Packets
 
-`IncomingPacket` и `OutgoingPacket` - общая валюта всех слоёв. У входящего
-есть номер и тело; тело - окно в буфер, которое живёт до следующего
-чтения ([«Буфер приёма»](../04-transport/03-packet-stream.md)).
+`IncomingPacket` and `OutgoingPacket` are the common currency of every
+layer. An incoming packet has a number and a body. The body is a window
+into a buffer that lives until the next read
+([Receive buffer](../04-transport/03-packet-stream.md)).
 
-Каждый сгенерированный пакет знает свой идентификатор и умеет читать и писать
-себя для конкретной версии протокола. Реестр `PacketRegistry` переводит номер
-в описание пакета, если это нужно вручную.
+Each generated packet knows its own identifier and can read and write
+itself for a specific protocol version. The `PacketRegistry` maps a number
+to a packet descriptor when this lookup is needed by hand.
 
-## Обработчики
+## Handlers
 
-`ClientboundHandler` (и `ServerboundHandler` для серверного направления) -
-база с методом на каждый пакет. Приложение наследуется, переопределяет
-нужное и само переставляет `Phase`: фазы ведёт код приложения
-([«Фаза и направление»](../05-packets/01-phases-and-direction.md)). Всё,
-что не переопределено, приходит в `OnUnknown`.
+`ClientboundHandler` (and `ServerboundHandler` for the serverbound
+direction) is a base class with one method per packet. An application
+inherits from it, overrides what it needs, and sets `Phase` itself.
+Application code drives the phases
+([Phase and direction](../05-packets/01-phases-and-direction.md)).
+A number the registry does not know for this version, phase and direction
+arrives in `OnUnknown`.
 
-## Мимо клиента
+## Bypassing the client
 
-Иногда сокет свой, а разобрать пакеты хочется. Тогда берут
-`PacketStreamReader` и `PacketStreamWriter`: они читают и пишут по одному
-пакету поверх обычного `Stream`, без конвейера.
+Sometimes the socket is already open, but packets still need decoding.
+`PacketStreamReader` and `PacketStreamWriter` read and write one packet at a
+time on top of a plain `Stream`, without `MinecraftConnection`.
 
-## Вокруг
+## Around the client
 
-`SrvResolver` находит настоящий адрес сервера по SRV-записи домена.
-`LanServerDetector` слушает широковещательные объявления и отдаёт серверы,
-открытые в локальной сети.
+`SrvResolver` finds the real server address from a domain's SRV record.
+`LanServerDetector` listens for broadcast announcements and returns servers
+open on the local network.
