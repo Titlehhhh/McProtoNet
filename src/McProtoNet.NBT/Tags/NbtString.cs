@@ -3,35 +3,38 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing a single string. On the wire the string is modified UTF-8 (see <see cref="ModifiedUtf8" />).
+/// Represents an NBT tag that holds a single string.
 /// </summary>
+/// <remarks>
+/// The string is encoded on the wire as modified UTF-8. See <see cref="ModifiedUtf8"/>.
+/// </remarks>
 public sealed class NbtString : NbtTag
 {
     private string _stringVal = "";
 
     /// <summary>
-    ///     Creates an unnamed NbtString tag with the default value (empty string).
+    /// Initializes a new instance of the <see cref="NbtString"/> class that is unnamed and has an empty value.
     /// </summary>
     public NbtString()
     {
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtString tag with the given value.
+    /// Initializes a new instance of the <see cref="NbtString"/> class that is unnamed and has the specified value.
     /// </summary>
-    /// <param name="value"> String value to assign to this tag. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="value">The value of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     public NbtString(string value)
         : this(null!, value)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtString tag with the given name and value.
+    /// Initializes a new instance of the <see cref="NbtString"/> class with the specified name and value.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="value"> String value to assign to this tag. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="value" /> is <c>null</c>. </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="value">The value of the tag. This value cannot be <see langword="null"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
     public NbtString(string? tagName, string value)
     {
         Name = tagName;
@@ -39,10 +42,10 @@ public sealed class NbtString : NbtTag
     }
 
     /// <summary>
-    ///     Creates a copy of given NbtString tag.
+    /// Initializes a new instance of the <see cref="NbtString"/> class that is a copy of the specified tag.
     /// </summary>
-    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    /// <param name="other">The tag to copy. The name and the value are copied.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtString(NbtString other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -51,13 +54,14 @@ public sealed class NbtString : NbtTag
     }
 
     /// <summary>
-    ///     Type of this tag (String).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.String"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.String;
 
     /// <summary>
-    ///     Value/payload of this tag (a single string). May not be <c>null</c>.
+    /// Gets or sets the value of this tag. The default is an empty string.
     /// </summary>
+    /// <exception cref="ArgumentNullException">The property is set to <see langword="null"/>.</exception>
     public string Value
     {
         get => _stringVal;

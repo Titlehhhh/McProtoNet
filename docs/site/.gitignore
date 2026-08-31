@@ -1,0 +1,16 @@
+# Docusaurus
+.docusaurus/
+build/
+node_modules/
+
+# DocFX
+_site/
+api/
+obj/
+
+# Справка API: страницы генерируются из api/*.yml скриптом scripts/api-to-md.mjs
+# (npm run api), в git не хранятся. _category_.json верхнего раздела — рукописный.
+docs/08-api-reference/**
+!docs/08-api-reference/_category_.json
+
+!package-lock.json

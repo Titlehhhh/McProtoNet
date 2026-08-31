@@ -6,19 +6,14 @@ using McProtoNet.Transport.Cryptography;
 namespace McProtoNet.Transport.Framing;
 
 /// <summary>
-///     Streaming reader: one pooled buffer filled in big reads, decrypted in place right after the
-///     read, and split into frames where it lies. A batch is every whole frame the buffer holds after
-///     one await. Compressed frames are inflated into a grow-only arena that is reset on every batch.
+/// Provides a reader that reads frames in batches from one pooled buffer, decrypting and inflating in
+/// place.
 /// </summary>
-/// <remarks>
-///     One owner: concurrent reads are not allowed. Cipher and compression threshold are fixed at
-///     construction. A batch and its bodies live until the next <see cref="ReadBatchAsync" />.
-/// </remarks>
 internal sealed class BufferedPacketReader : IDisposable
 {
     private const int DefaultCapacity = 64 * 1024;
 
-    /// <summary>Wire-supplied lengths above this are treated as a broken stream, not honoured.</summary>
+    /// <summary>The largest frame length accepted from the wire, in bytes.</summary>
     public const int MaxFrameLength = 32 * 1024 * 1024;
 
     private readonly Stream _stream;
@@ -50,19 +45,16 @@ internal sealed class BufferedPacketReader : IDisposable
         _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(initialCapacity, 1024));
     }
 
-    /// <summary>Negative means no compression envelope. Fixed for the life of the reader.</summary>
+    /// <summary>Gets the compression threshold, in bytes. A negative value disables compression.</summary>
     public int CompressionThreshold => _compressionThreshold;
 
-    /// <summary>True when a decryptor is attached.</summary>
+    /// <summary>Gets a value indicating whether a decryptor is attached.</summary>
     public bool IsEncrypted => _cipher is not null;
 
-    /// <summary>Bytes already read but not yet handed out as packets.</summary>
+    /// <summary>Gets the number of bytes already read but not yet handed out as packets.</summary>
     public int BufferedBytes => _end - _start;
 
-    /// <summary>
-    ///     Reads until at least one whole frame is available and returns all of them. An empty batch
-    ///     with <see cref="PacketBatch.IsCompleted" /> means end of stream.
-    /// </summary>
+    /// <summary>Asynchronously reads until at least one whole frame is available and returns all of them.</summary>
     public ValueTask<PacketBatch> ReadBatchAsync(CancellationToken token = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
@@ -99,7 +91,7 @@ internal sealed class BufferedPacketReader : IDisposable
         return FillAndParseAsync(token);
     }
 
-    /// <summary>Batches flattened into one sequence. Enumeration ends at end of stream.</summary>
+    /// <summary>Asynchronously reads batches and returns their packets as one sequence that ends at end of stream.</summary>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken token = default)
     {

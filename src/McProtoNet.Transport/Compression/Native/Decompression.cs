@@ -5,6 +5,7 @@ using libdeflate_decompressor = System.IntPtr;
 
 namespace McProtoNet.Transport.Compression.Native;
 
+/// <summary>Declares the libdeflate decompression entry points.</summary>
 internal static class Decompression
 {
     public enum libdeflate_result
@@ -65,4 +66,4 @@ internal static class Decompression
 
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
     public static extern void libdeflate_free_decompressor(libdeflate_decompressor decompressor);
-}
+}

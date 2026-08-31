@@ -5,32 +5,33 @@ using McProtoNet.Transport.Framing;
 namespace McProtoNet.Transport;
 
 /// <summary>
-///     A connection in one-at-a-time mode: one frame per read, one frame per write, nothing held
-///     back. This is where the switches live — the compression threshold and encryption — because
-///     nothing of the next frame is ever buffered, so a switch always lands between two frames.
-///     Handshaking, status and login live here; <see cref="ToStreaming" /> moves the rest of the
-///     connection to <see cref="StreamingConnection" />.
+/// Represents a connection that reads and writes one frame at a time over a stream.
 /// </summary>
 /// <remarks>
-///     One reader, one writer, no queue inside: send policy belongs to the caller.
-///     <see cref="Abort" /> may be called from any thread.
-///     <para>
-///     What comes out when a call cannot go through: <see cref="ObjectDisposedException" /> after
-///     <see cref="DisposeAsync" />; <see cref="InvalidOperationException" /> for a misuse that never
-///     touched the stream — two reads at once, a connection already moved — which leaves the
-///     connection alone; <see cref="OperationCanceledException" /> only for the caller's own
-///     cancelled token; <see cref="ConnectionAbortedException" /> for everything else, with the
-///     reason as its inner exception. The first failure of the stream itself comes out as it is and
-///     is latched — every call after it reports the closed connection and that reason.
-///     </para>
-///     <para>
-///     Cancelling a read or a write here kills the connection. One frame at a time means the call
-///     has already eaten part of a frame off the wire, or put part of one on it, and the cipher has
-///     moved with those bytes; there is no resuming from that. Whoever cancelled still gets its own
-///     <see cref="OperationCanceledException" />, and every call after it gets
-///     <see cref="ConnectionAbortedException" />. A token already cancelled before the call started
-///     costs nothing and leaves the connection open.
-///     </para>
+/// <para>
+/// No part of the next frame is ever buffered, so the compression threshold and encryption can be
+/// switched between two frames. <see cref="ToStreaming"/> hands the connection over to a
+/// <see cref="StreamingConnection"/>, which reads in batches instead.
+/// </para>
+/// <para>
+/// The connection supports one reader and one writer and holds no send queue. <see cref="Abort"/>
+/// can be called from any thread.
+/// </para>
+/// <para>
+/// A call that cannot go through throws <see cref="ObjectDisposedException"/> after
+/// <see cref="DisposeAsync"/>, <see cref="InvalidOperationException"/> for a misuse that never
+/// reached the stream, such as two concurrent reads or a connection that was already moved, which
+/// leaves the connection usable, <see cref="OperationCanceledException"/> for the caller's own
+/// canceled token, and <see cref="ConnectionAbortedException"/> in every other case, with the reason
+/// as its inner exception. The first failure of the stream itself is thrown as it is and is latched;
+/// every later call reports the closed connection and that reason.
+/// </para>
+/// <para>
+/// Cancellation of a read or a write that has already started closes the connection. The caller
+/// that canceled receives <see cref="OperationCanceledException"/>, and every later call receives
+/// <see cref="ConnectionAbortedException"/>. A token that is already canceled when the call starts
+/// leaves the connection open.
+/// </para>
 /// </remarks>
 public sealed class MinecraftConnection : IAsyncDisposable
 {
@@ -50,6 +51,13 @@ public sealed class MinecraftConnection : IAsyncDisposable
     private Exception? _closeReason;
     private int _disposed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="MinecraftConnection"/> class over the specified stream.
+    /// </summary>
+    /// <param name="stream">The duplex stream that frames are read from and written to.</param>
+    /// <param name="leaveOpen"><see langword="true"/> to leave the stream open when the connection is
+    /// disposed; otherwise, <see langword="false"/>. The default is <see langword="false"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     public MinecraftConnection(Stream stream, bool leaveOpen = false)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -59,20 +67,39 @@ public sealed class MinecraftConnection : IAsyncDisposable
         _writer = new PacketStreamWriter(stream, leaveOpen: true);
     }
 
-    /// <summary>The stream underneath — the raw escape hatch for proxies and replays.</summary>
+    /// <summary>
+    /// Gets the stream that frames are read from and written to.
+    /// </summary>
     public Stream BaseStream => _stream;
 
     /// <summary>
-    ///     Completes when the connection is closed, cleanly or not, and also once
-    ///     <see cref="ToStreaming" /> has handed everything over — after the move this object owns
-    ///     nothing, so it is done whatever the streaming connection goes on to do. Never faults.
+    /// Gets a task that completes when the connection is closed.
     /// </summary>
+    /// <remarks>
+    /// The task also completes once <see cref="ToStreaming"/> has handed the stream over, because
+    /// this instance then owns nothing. The task never faults.
+    /// </remarks>
     public Task Completion => _completion.Task;
 
-    /// <summary>Why the connection ended. Null for a clean close or while it is still open.</summary>
+    /// <summary>
+    /// Gets the exception that ended the connection.
+    /// </summary>
+    /// <value>
+    /// The reason the connection ended, or <see langword="null"/> for a clean close or while the
+    /// connection is still open.
+    /// </value>
     public Exception? CloseReason => Volatile.Read(ref _closeReason);
 
-    /// <summary>Negative means no compression envelope. A change takes effect from the next frame.</summary>
+    /// <summary>
+    /// Gets or sets the compression threshold, in bytes. A negative value disables the compression envelope.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">The connection was moved to streaming mode by
+    /// <see cref="ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <remarks>
+    /// A new value applies from the next frame in both directions.
+    /// </remarks>
     public int CompressionThreshold
     {
         get
@@ -89,13 +116,32 @@ public sealed class MinecraftConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>True once <see cref="EnableEncryption" /> has run.</summary>
+    /// <summary>
+    /// Gets a value indicating whether encryption is enabled on the connection.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if <see cref="EnableEncryption"/> has been called; otherwise,
+    /// <see langword="false"/>.
+    /// </value>
     public bool IsEncrypted => _encryptor is not null;
 
     /// <summary>
-    ///     Turns on AES/CFB8 in both directions from the next frame on. Call it right after the frame
-    ///     that agreed the secret has been written and before the next one is read.
+    /// Enables AES/CFB8 encryption in both directions.
     /// </summary>
+    /// <param name="sharedSecret">The shared secret, which must be exactly
+    /// <see cref="PacketCipher.SharedSecretLength"/> bytes long. It serves as both the key and the
+    /// initialization vector.</param>
+    /// <exception cref="ArgumentException"><paramref name="sharedSecret"/> is not
+    /// <see cref="PacketCipher.SharedSecretLength"/> bytes long.</exception>
+    /// <exception cref="InvalidOperationException">Encryption is already enabled.
+    /// -or-
+    /// The connection was moved to streaming mode by <see cref="ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <remarks>
+    /// Encryption applies from the next frame. Call this method after the frame that agreed the
+    /// secret has been written and before the next frame is read.
+    /// </remarks>
     public void EnableEncryption(ReadOnlySpan<byte> sharedSecret)
     {
         ThrowIfUnusable();
@@ -107,7 +153,24 @@ public sealed class MinecraftConnection : IAsyncDisposable
         _writer.Cipher = _encryptor;
     }
 
-    /// <summary>Reads exactly one frame. The body window is valid until the next read.</summary>
+    /// <summary>
+    /// Asynchronously reads exactly one frame from the connection.
+    /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the
+    /// packet that was read.</returns>
+    /// <exception cref="InvalidOperationException">Another read is already in progress.
+    /// -or-
+    /// The connection was moved to streaming mode by <see cref="ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
+    /// exception is stored into the returned task.</exception>
+    /// <remarks>
+    /// <see cref="IncomingPacket.Body"/> is a window into a pooled buffer and stays valid only until
+    /// the next read on this connection.
+    /// </remarks>
     public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
     {
         ThrowIfUnusable();
@@ -126,7 +189,21 @@ public sealed class MinecraftConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>Writes one packet and flushes. When it returns, the bytes are at the socket.</summary>
+    /// <summary>
+    /// Asynchronously writes one packet that already carries its varint id and flushes the stream.
+    /// </summary>
+    /// <param name="packet">The packet to write: the varint packet id followed by the body.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation. When it completes, the bytes
+    /// have been handed to the stream and flushed.</returns>
+    /// <exception cref="InvalidOperationException">Another write is already in progress.
+    /// -or-
+    /// The connection was moved to streaming mode by <see cref="ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
+    /// exception is stored into the returned task.</exception>
     public async ValueTask WritePacketAsync(ReadOnlyMemory<byte> packet, CancellationToken token = default)
     {
         ThrowIfUnusable();
@@ -143,7 +220,23 @@ public sealed class MinecraftConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>Writes one packet, putting the varint id in front of the body, and flushes.</summary>
+    /// <summary>
+    /// Asynchronously writes one packet, prefixing the body with the specified packet id, and flushes
+    /// the stream.
+    /// </summary>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation. When it completes, the bytes
+    /// have been handed to the stream and flushed.</returns>
+    /// <exception cref="InvalidOperationException">Another write is already in progress.
+    /// -or-
+    /// The connection was moved to streaming mode by <see cref="ToStreaming"/>.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
+    /// exception is stored into the returned task.</exception>
     public async ValueTask WritePacketAsync(int id, ReadOnlyMemory<byte> body, CancellationToken token = default)
     {
         ThrowIfUnusable();
@@ -161,13 +254,19 @@ public sealed class MinecraftConnection : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Consumes this connection and hands the stream, the ciphers and the threshold to a
-    ///     streaming one. Afterwards every member here throws, <see cref="DisposeAsync" /> is empty
-    ///     and <see cref="Abort" /> goes to the streaming connection instead.
+    /// Switches the connection to streaming mode and returns the connection that takes it over.
     /// </summary>
+    /// <returns>A <see cref="StreamingConnection"/> that owns the stream, the ciphers and the
+    /// compression threshold of this instance.</returns>
+    /// <exception cref="InvalidOperationException">The connection was already moved to streaming
+    /// mode.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
     /// <remarks>
-    ///     Like a read, this invalidates the body of the last packet <see cref="ReadPacketAsync" />
-    ///     returned — decode it before moving.
+    /// After the move, every other member of this instance throws
+    /// <see cref="InvalidOperationException"/>, <see cref="DisposeAsync"/> does nothing, and
+    /// <see cref="Abort"/> aborts the streaming connection instead. Like a read, the move invalidates
+    /// the body of the last packet returned by <see cref="ReadPacketAsync"/>.
     /// </remarks>
     public StreamingConnection ToStreaming()
     {
@@ -189,10 +288,16 @@ public sealed class MinecraftConnection : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Closes the stream from any thread; an in-flight read or write fails with the reason.
-    ///     After <see cref="ToStreaming" /> this aborts the streaming connection instead, so a
-    ///     watchdog holding the old reference still brings the right one down with the right reason.
+    /// Closes the connection and the underlying stream.
     /// </summary>
+    /// <param name="reason">The exception to report as <see cref="CloseReason"/>, or
+    /// <see langword="null"/> for a clean close. The default value is <see langword="null"/>.</param>
+    /// <remarks>
+    /// This method can be called from any thread. A read or a write in progress fails with the
+    /// reason. The stream is closed even when the connection was created with <c>leaveOpen</c> set to
+    /// <see langword="true"/>. After <see cref="ToStreaming"/>, the call aborts the streaming
+    /// connection instead.
+    /// </remarks>
     public void Abort(Exception? reason = null)
     {
         var moved = Volatile.Read(ref _movedTo);
@@ -205,6 +310,15 @@ public sealed class MinecraftConnection : IAsyncDisposable
         Close(reason, closeStream: true);
     }
 
+    /// <summary>
+    /// Asynchronously releases all resources used by the current instance of the
+    /// <see cref="MinecraftConnection"/> class.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <remarks>
+    /// The underlying stream is closed unless the connection was created with <c>leaveOpen</c> set to
+    /// <see langword="true"/>. After <see cref="ToStreaming"/>, this method does nothing.
+    /// </remarks>
     public ValueTask DisposeAsync()
     {
         if (Volatile.Read(ref _moved) == 1) return ValueTask.CompletedTask;
@@ -253,10 +367,7 @@ public sealed class MinecraftConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>
-    ///     Latches a dead stream so the next call reports the close instead of reading a corpse, and
-    ///     says what the caller must see. Null means the original exception, rethrown with its stack.
-    /// </summary>
+    // Latches a dead stream and returns what the caller must see; null means rethrow the original.
     private Exception? OnFailure(Exception ex, CancellationToken token)
     {
         if (Volatile.Read(ref _closed) == 1)

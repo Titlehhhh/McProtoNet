@@ -5,6 +5,7 @@ using McProtoNet.Primitives;
 using McProtoNet.Transport.Framing;
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>Provides zlib decompression methods for buffered packet payloads.</summary>
 internal static class Extensions
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -67,6 +68,7 @@ internal static class Extensions
     }
 }
 
+/// <summary>Provides zlib decompression through the thread-local libdeflate decompressor.</summary>
 internal static class LibDeflateStatic
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

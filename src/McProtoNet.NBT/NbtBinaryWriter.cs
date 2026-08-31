@@ -4,14 +4,10 @@ using System.Runtime.CompilerServices;
 
 namespace McProtoNet.NBT;
 
-/// <summary>
-///     Writes NBT primitives to a stream: numbers big-endian, strings in modified UTF-8.
-/// </summary>
+/// <summary>Provides a stream writer for NBT primitives: numbers big-endian, strings in modified UTF-8.</summary>
 internal sealed class NbtBinaryWriter
 {
-    /// <summary>
-    ///     Writes at most 4 MiB at a time.
-    /// </summary>
+    /// <summary>The largest number of bytes written to the stream in one call.</summary>
     public const int MaxWriteChunk = 4 * 1024 * 1024;
 
     private const int BufferSize = 256;
@@ -92,11 +88,8 @@ internal sealed class NbtBinaryWriter
         Write(BitConverter.DoubleToInt64Bits(value));
     }
 
-    /// <summary>
-    ///     Writes an NBT string: unsigned big-endian byte count, then the modified UTF-8 bytes.
-    ///     Encoding is chunked through a fixed buffer; every UTF-16 unit encodes on its own, so
-    ///     a chunk may end at any character boundary.
-    /// </summary>
+    /// <summary>Writes an NBT string: an unsigned big-endian byte count, then the modified UTF-8
+    /// bytes.</summary>
     public void Write(string value)
     {
         ArgumentNullException.ThrowIfNull(value);

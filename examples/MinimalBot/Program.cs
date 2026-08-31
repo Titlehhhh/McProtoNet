@@ -1,4 +1,4 @@
-// dotnet run [host] [port] [name] — по умолчанию 127.0.0.1 25565 McProtoBot (pv 772)
+// dotnet run [host] [port] [name] - defaults are 127.0.0.1 25565 McProtoBot (pv 772)
 
 using McProtoNet;
 using McProtoNet.Primitives;
@@ -22,11 +22,11 @@ Console.WriteLine($"MinimalBot: {name} -> {host}:{port} (pv {Pv})");
 
 await using var client = new MinecraftClient(new MinecraftClientOptions { Host = host, Port = port });
 await client.ConnectAsync();
-Console.WriteLine("[net] соединение открыто");
+Console.WriteLine("[net] connection open");
 
 await client.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, host, port, 2), Pv);
 await client.SendAsync(new LoginSb.LoginStartPacket(name, V764_Last: new(Guid.NewGuid())), Pv);
-Console.WriteLine("[login] handshake + login start отправлены");
+Console.WriteLine("[login] handshake + login start sent");
 
 var bot = new Bot(client, Pv);
 
@@ -40,10 +40,10 @@ try
 }
 catch (EndOfStreamException)
 {
-    // сервер закрыл соединение — обычный конец сессии, причина уже в логе выше
+    // the server closed the connection - a normal end of session, the reason is logged above
 }
 
-Console.WriteLine("Соединение закрыто.");
+Console.WriteLine("Connection closed.");
 
 sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 {
@@ -51,13 +51,13 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     private int _keepAlives;
     private bool _spawned;
 
-    /// <summary>Сессия окончена: кик, ошибка входа или конец потока.</summary>
+    /// <summary>The session is over: a kick, a login failure or the end of the stream.</summary>
     public bool Stopped { get; private set; }
 
     protected override ValueTask OnLoginCompress(LoginCb.LoginCompressPacket packet)
     {
         client.CompressionThreshold = packet.Threshold;
-        Console.WriteLine($"[login] компрессия включена, порог {packet.Threshold}");
+        Console.WriteLine($"[login] compression on, threshold {packet.Threshold}");
         return default;
     }
 
@@ -65,13 +65,13 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     {
         if (packet.V766_Last is { ShouldAuthenticate: true })
         {
-            Console.WriteLine("[login] сервер требует Mojang-авторизацию — пример работает только с offline");
+            Console.WriteLine("[login] the server wants Mojang authentication - this example is offline only");
             Stopped = true;
             return;
         }
 
         using var rsa = EncryptionHelpers.DecodeRSAPublicKey(packet.PublicKey)
-                        ?? throw new InvalidOperationException("не разобрали открытый ключ сервера");
+                        ?? throw new InvalidOperationException("could not parse the server public key");
         var secret = EncryptionHelpers.GenerateAESPrivateKey();
 
         await client.SendAsync(new LoginSb.EncryptionResponsePacket(
@@ -79,7 +79,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
             rsa.Encrypt(packet.VerifyToken, false)), pv);
 
         client.EnableEncryption(secret);
-        Console.WriteLine("[login] шифр включён: AES/CFB8");
+        Console.WriteLine("[login] cipher on: AES/CFB8");
     }
 
     protected override ValueTask OnLoginPluginRequest(LoginCb.LoginPluginRequestPacket packet)
@@ -87,13 +87,13 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 
     protected override async ValueTask OnLoginSuccess(LoginCb.LoginSuccessPacket packet)
     {
-        Console.WriteLine($"[login] успех: {packet.Username} {packet.Uuid}");
+        Console.WriteLine($"[login] success: {packet.Username} {packet.Uuid}");
         await client.SendAsync(new LoginSb.LoginAcknowledgedPacket(), pv);
         Phase = PacketPhase.Configuration;
 
         await client.SendAsync(new ConfSb.ClientInformationPacket(
             "en_us", 2, 0, true, 0x7F, 1, false, true, V768_Last: new(ParticleStatus.All)), pv);
-        Console.WriteLine("[config] вошли в configuration, client information отправлена");
+        Console.WriteLine("[config] in configuration, client information sent");
     }
 
     protected override ValueTask OnLoginDisconnect(LoginCb.LoginDisconnectPacket packet)
@@ -108,14 +108,14 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     protected override async ValueTask OnSelectKnownPacks(ConfCb.SelectKnownPacksPacket packet)
     {
         await client.SendAsync(new ConfSb.SelectKnownPacksPacket(packet.Packs), pv);
-        Console.WriteLine($"[config] known packs: {packet.Packs.Length} шт, подтвердили");
+        Console.WriteLine($"[config] known packs: {packet.Packs.Length}, acknowledged");
     }
 
     protected override async ValueTask OnFinishConfiguration(ConfCb.FinishConfigurationPacket packet)
     {
         await client.SendAsync(new ConfSb.FinishConfigurationPacket(), pv);
         Phase = PacketPhase.Play;
-        Console.WriteLine("[play] configuration завершена, вошли в play");
+        Console.WriteLine("[play] configuration finished, in play");
     }
 
     protected override ValueTask OnDisconnect(ConfCb.DisconnectPacket packet)
@@ -125,7 +125,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     {
         await client.SendAsync(new PlaySb.KeepAlivePacket(packet.KeepAliveId), pv);
         await client.SendAsync(new PlaySb.ArmAnimationPacket(0), pv);
-        Console.WriteLine($"[play] keep-alive #{++_keepAlives} — ответили и махнули рукой");
+        Console.WriteLine($"[play] keep-alive #{++_keepAlives} - answered and waved");
     }
 
     protected override ValueTask OnPing(PlayCb.PingPacket packet)
@@ -135,25 +135,25 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
     {
         await client.SendAsync(new PlaySb.ConfigurationAcknowledgedPacket(), pv);
         Phase = PacketPhase.Configuration;
-        Console.WriteLine("[config] сервер вернул нас в configuration");
+        Console.WriteLine("[config] the server sent us back to configuration");
     }
 
     protected override async ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket packet)
     {
         await client.SendAsync(new PlaySb.TeleportConfirmPacket(packet.TeleportId), pv);
         Console.WriteLine(
-            $"[play] позиция: x={packet.X:F1} y={packet.Y:F1} z={packet.Z:F1} — телепорт {packet.TeleportId} подтверждён");
+            $"[play] position: x={packet.X:F1} y={packet.Y:F1} z={packet.Z:F1} - teleport {packet.TeleportId} confirmed");
 
         if (!_spawned)
         {
             _spawned = true;
-            Console.WriteLine("[play] спавн");
+            Console.WriteLine("[play] spawned");
         }
     }
 
     protected override ValueTask OnUpdateHealth(PlayCb.UpdateHealthPacket packet)
     {
-        Console.WriteLine($"[play] здоровье: {packet.Health}, еда {packet.Food}");
+        Console.WriteLine($"[play] health: {packet.Health}, food {packet.Food}");
         return default;
     }
 
@@ -167,7 +167,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
             var packetName = PacketRegistry.TryResolve(raw.Id, pv, Phase, Direction, out var desc)
                 ? desc.Identity.Name
                 : $"0x{raw.Id:X2}";
-            Console.WriteLine($"  .. [{Phase}] пропущен {packetName} ({raw.Body.Length} байт) — и все следующие такие");
+            Console.WriteLine($"  .. [{Phase}] skipped {packetName} ({raw.Body.Length} bytes) - and every later one");
         }
 
         return default;
@@ -175,7 +175,7 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 
     private ValueTask Kicked(string phase, string? reason)
     {
-        Console.WriteLine($"[{phase}] кик: {reason ?? "без причины"}");
+        Console.WriteLine($"[{phase}] kick: {reason ?? "no reason given"}");
         Stopped = true;
         return default;
     }

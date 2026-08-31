@@ -3,61 +3,85 @@ using QuickProxyNet;
 
 namespace McProtoNet;
 
-/// <summary>Connection options for <see cref="MinecraftClient" />.</summary>
+/// <summary>
+/// Represents the connection options used by <see cref="MinecraftClient"/>.
+/// </summary>
 public sealed class MinecraftClientOptions
 {
-    /// <summary>The port a Minecraft server listens on unless it says otherwise.</summary>
+    /// <summary>The default port a Minecraft server listens on.</summary>
     public const int DefaultPort = 25565;
 
-    /// <summary>Host name or IP literal the user typed.</summary>
+    /// <summary>
+    /// Gets or sets the host name or IP literal of the server.
+    /// </summary>
     public required string Host { get; init; }
 
-    /// <summary>Port the user typed. Leaving it at <see cref="DefaultPort" /> is what allows the SRV lookup.</summary>
+    /// <summary>
+    /// Gets or sets the TCP port of the server.
+    /// </summary>
+    /// <value>The port to connect to. The default is <see cref="DefaultPort"/>, which is also the only
+    /// value that allows the SRV lookup.</value>
     public int Port { get; init; } = DefaultPort;
 
+    /// <summary>
+    /// Gets or sets the maximum time a connect attempt may take.
+    /// </summary>
+    /// <value>The connect timeout. The default is 30 seconds.</value>
     public TimeSpan ConnectTimeout { get; init; } = TimeSpan.FromSeconds(30);
 
     /// <summary>
-    ///     Look up <c>_minecraft._tcp.&lt;host&gt;</c> before connecting, as vanilla does. The lookup only
-    ///     happens when the port was left at <see cref="DefaultPort" /> and the host is not an IP literal.
+    /// Gets or sets a value indicating whether <c>_minecraft._tcp.&lt;host&gt;</c> is looked up before
+    /// connecting, as the vanilla client does.
     /// </summary>
+    /// <value><see langword="true"/> to perform the SRV lookup; otherwise, <see langword="false"/>. The
+    /// default is <see langword="true"/>.</value>
+    /// <remarks>
+    /// The lookup runs only when <see cref="Port"/> is <see cref="DefaultPort"/> and <see cref="Host"/> is
+    /// not an IP literal.
+    /// </remarks>
     public bool UseSrv { get; init; } = true;
 
     /// <summary>
-    ///     How long the SRV lookup may take before the connect goes ahead with the host as typed. Capped by
-    ///     <see cref="ConnectTimeout" />, so a slow resolver can never eat the whole connect budget. It can
-    ///     only shorten the lookup: the resolver carries a budget of its own, so a value above five seconds
-    ///     changes nothing.
+    /// Gets or sets the maximum time the SRV lookup may take before the connect proceeds with
+    /// <see cref="Host"/> as given.
     /// </summary>
+    /// <value>The SRV lookup timeout. The default is 5 seconds.</value>
+    /// <remarks>
+    /// The value is capped by <see cref="ConnectTimeout"/>. It can only shorten the lookup: the resolver
+    /// applies a budget of its own, so a value above five seconds has no effect.
+    /// </remarks>
     public TimeSpan SrvTimeout { get; init; } = TimeSpan.FromSeconds(5);
 
     /// <summary>
-    ///     Route the connection through a proxy instead of opening a socket to the server. The client
-    ///     asks it for a stream to the resolved host and port, and owns that stream from then on.
-    ///     Build one with <c>ProxyClientFactory.Instance.Create("socks5://user:pass@127.0.0.1:1080")</c>.
-    ///     Null connects straight over TCP.
+    /// Gets or sets the proxy client through which the connection is opened.
     /// </summary>
+    /// <value>The proxy client to use, or <see langword="null"/> to connect directly over TCP. The default
+    /// is <see langword="null"/>.</value>
     /// <remarks>
-    ///     <see cref="NoDelay" /> does not reach the proxy socket — the proxy client carries its own
-    ///     <c>NoDelay</c>, and this client does not touch settings on an object the caller owns.
+    /// The client asks the proxy for a stream to the resolved host and port and owns that stream from then
+    /// on. <see cref="NoDelay"/> is not applied to the proxy socket; the proxy client carries its own
+    /// setting.
     /// </remarks>
     public IProxyClient? Proxy { get; init; }
 
     /// <summary>
-    ///     Bind the outgoing socket to this local address before connecting — the way to pick which
-    ///     network interface or source address the connection leaves from. Port 0 lets the OS choose
-    ///     an ephemeral port. The address family must match the server's: an IPv4 local endpoint
-    ///     cannot reach an IPv6-only host. Null keeps the default, unbound socket.
+    /// Gets or sets the local endpoint the outgoing socket is bound to before connecting.
     /// </summary>
+    /// <value>The local address and port to bind to, or <see langword="null"/> to leave the socket unbound.
+    /// The default is <see langword="null"/>.</value>
     /// <remarks>
-    ///     This applies to the direct TCP path only. When <see cref="Proxy" /> is set the proxy client
-    ///     owns its socket, and it carries a <c>LocalEndPoint</c> of its own to set instead.
+    /// Port 0 lets the operating system choose an ephemeral port. The address family must match the
+    /// server's; an IPv4 local endpoint cannot reach an IPv6-only host. This applies to the direct TCP path
+    /// only. When <see cref="Proxy"/> is set, the proxy client owns its socket and carries a local endpoint
+    /// setting of its own.
     /// </remarks>
     public IPEndPoint? LocalEndPoint { get; init; }
 
     /// <summary>
-    ///     Send small frames as they come instead of waiting for a full segment. On by default: a
-    ///     Minecraft client writes small packets and wants each one out now.
+    /// Gets or sets a value indicating whether small frames are sent as they come instead of waiting for a full
+    /// segment.
     /// </summary>
+    /// <value><see langword="true"/> to disable Nagle's algorithm on the socket; otherwise,
+    /// <see langword="false"/>. The default is <see langword="true"/>.</value>
     public bool NoDelay { get; init; } = true;
 }

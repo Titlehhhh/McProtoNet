@@ -7,6 +7,7 @@ using System.Text;
 
 namespace McProtoNet.NBT;
 
+/// <summary>Provides a stream reader for NBT primitives: numbers big-endian, strings in modified UTF-8.</summary>
 internal sealed class NbtBinaryReader : BinaryReader
 {
     private const int SeekBufferSize = 8 * 1024;
@@ -115,11 +116,7 @@ internal sealed class NbtBinaryReader : BinaryReader
         }
     }
 
-    /// <summary>
-    ///     Reads a length-prefixed payload of <paramref name="count" /> elements without trusting the
-    ///     declared length: the buffer starts small and grows only as bytes actually arrive, so a bogus
-    ///     length fails on end of stream instead of on a huge allocation.
-    /// </summary>
+    /// <summary>Reads a big-endian array payload of the specified element count.</summary>
     public T[] ReadArrayBigEndian<T>(int count) where T : unmanaged
     {
         if (count < 0) throw new NbtFormatException("Negative array length given: " + count);

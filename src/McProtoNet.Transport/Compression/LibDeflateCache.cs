@@ -2,6 +2,7 @@ using System.Runtime.CompilerServices;
 
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>Provides the thread-local libdeflate compressor and decompressor instances.</summary>
 internal static class LibDeflateCache
 {
     [ThreadStatic] private static ZlibCompressorHeapAlloc? t_compressor;

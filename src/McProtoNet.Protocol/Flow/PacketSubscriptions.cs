@@ -1,22 +1,40 @@
 using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
+/// <summary>
+/// Represents the method that handles a decoded packet of the type <typeparamref name="T"/>.
+/// </summary>
+/// <typeparam name="T">The packet type that is handled.</typeparam>
+/// <param name="packet">The decoded packet.</param>
 public delegate void PacketHandler<T>(T packet) where T : class, IPacket<T>;
 
 /// <summary>
-///     Subscription facade in front of an <see cref="IPacketVisitor" />-driven dispatch loop.
-///     <see cref="PacketIdentity.Ordinal" /> is dense only inside one (phase, direction) catalog, so
-///     the ordinal alone is not a key: <c>play.toClient</c> and <c>login.toClient</c> both start at 0.
-///     Slots therefore hang off one catalog per (phase, direction), and the ordinal indexes inside it.
-///     Each catalog grows on demand in <see cref="On{T}" />; only the number of catalogs is known up
-///     front, from the generated <see cref="PacketRegistry.CatalogCount" />. Visit is the hot path:
-///     two bounds checks, two indexes, pattern-cast — no allocation, no reflection.
+/// Provides a subscription facade over an <see cref="IPacketVisitor"/> dispatch loop that routes each
+/// packet to the handler registered for its type.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <see cref="PacketIdentity.Ordinal"/> is dense only inside one catalog, which is one pair of phase and
+/// direction, so the ordinal alone is not a key. Handler slots are held in one catalog per pair, and the
+/// ordinal indexes inside that catalog. The number of catalogs is known from
+/// <see cref="PacketRegistry.CatalogCount"/>; each catalog grows on demand in <see cref="On{T}"/>.
+/// </para>
+/// <para>
+/// <see cref="Visit{T}"/> performs two bounds checks, two array accesses and a pattern-matching cast.
+/// It does not allocate and does not use reflection.
+/// </para>
+/// </remarks>
 public sealed class PacketSubscriptions : IPacketVisitor
 {
     private readonly Delegate?[]?[] _catalogs = new Delegate?[]?[PacketRegistry.CatalogCount];
 
-    /// <summary>Registers or replaces the handler for T. Growing a catalog is a cold-path cost.</summary>
+    /// <summary>
+    /// Registers the handler for the packet type <typeparamref name="T"/>, replacing any handler that is
+    /// already registered for it.
+    /// </summary>
+    /// <typeparam name="T">The packet type to handle.</typeparam>
+    /// <param name="handler">The handler to invoke for each packet of the type.</param>
+    /// <remarks>Growing a catalog to fit the ordinal of the packet type is a cold-path cost.</remarks>
     public void On<T>(PacketHandler<T> handler) where T : class, IPacket<T>
     {
         var identity = T.Identity;
@@ -30,6 +48,10 @@ public sealed class PacketSubscriptions : IPacketVisitor
         _catalogs[slot] = catalog;
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// If no handler is registered for the packet type, the packet is ignored.
+    /// </remarks>
     public void Visit<T>(T packet) where T : class, IPacket<T>
     {
         var identity = T.Identity;
@@ -41,6 +63,10 @@ public sealed class PacketSubscriptions : IPacketVisitor
             handler(packet);
     }
 
+    /// <inheritdoc />
+    /// <remarks>
+    /// This implementation ignores the packet.
+    /// </remarks>
     public void Unknown(in IncomingPacket raw)
     {
     }

@@ -7,6 +7,7 @@ using static McProtoNet.Transport.Compression.Native.Decompression;
 
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>Provides zlib decompression through a native libdeflate decompressor handle.</summary>
 internal ref struct ZlibDecompressor
 {
     private readonly IntPtr decompressor;

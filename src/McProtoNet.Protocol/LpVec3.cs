@@ -3,10 +3,19 @@ using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
 
 /// <summary>
-/// Quantized vector the protocol uses for velocities and hit offsets from 1.21.9 on. One byte
-/// carries the zero vector; otherwise 48 bits hold a two-bit scale, a continuation flag and three
-/// 15-bit components, and the rest of the scale follows as a VarInt.
+/// Represents a quantized three-dimensional vector that the protocol uses for velocities and hit
+/// offsets.
 /// </summary>
+/// <param name="X">The X component of the vector.</param>
+/// <param name="Y">The Y component of the vector.</param>
+/// <param name="Z">The Z component of the vector.</param>
+/// <remarks>
+/// This type exists from protocol 773 (1.21.9) onward. A zero vector occupies a single byte.
+/// Any other value occupies 48 bits that hold the two low bits of the scale, a continuation flag
+/// and three 15-bit components; when the continuation flag is set, the remaining bits of the scale
+/// follow as a VarInt. Components are clamped and rounded on write, so a value read back is not
+/// exactly the value written.
+/// </remarks>
 [ProtocolSupport(MinecraftVersion.V1_21_9_To_1_21_10_Protocol, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct LpVec3(double X, double Y, double Z) : IProtocolType<LpVec3>
 {
@@ -14,6 +23,14 @@ public readonly partial record struct LpVec3(double X, double Y, double Z) : IPr
     private const double AbsMax = 1.7179869183E10;
     private const double AbsMin = 3.051944088384301E-5;
 
+    /// <summary>
+    /// Reads an <see cref="LpVec3"/> from the specified reader.
+    /// </summary>
+    /// <param name="reader">The reader to read from.</param>
+    /// <param name="protocolVersion">The protocol version of the connection.</param>
+    /// <returns>The vector that was read.</returns>
+    /// <exception cref="ProtocolNotSupportException"><paramref name="protocolVersion"/> does not
+    /// support this type.</exception>
     public static LpVec3 Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LpVec3>(protocolVersion);
@@ -33,6 +50,18 @@ public readonly partial record struct LpVec3(double X, double Y, double Z) : IPr
             Unpack(packed >> 33) * scale);
     }
 
+    /// <summary>
+    /// Writes the current vector to the specified writer.
+    /// </summary>
+    /// <param name="writer">The writer to write to.</param>
+    /// <param name="protocolVersion">The protocol version of the connection.</param>
+    /// <exception cref="ProtocolNotSupportException"><paramref name="protocolVersion"/> does not
+    /// support this type.</exception>
+    /// <remarks>
+    /// A component that is <see cref="double.NaN"/> is written as zero. Other components are clamped
+    /// to the representable range. A vector whose largest component is below the smallest
+    /// representable magnitude is written as the zero vector.
+    /// </remarks>
     public readonly void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LpVec3>(protocolVersion);

@@ -1,0 +1,23 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "../../src",
+          "files": [
+            "McProtoNet/McProtoNet.csproj",
+            "McProtoNet.Transport/McProtoNet.Transport.csproj",
+            "McProtoNet.Protocol/McProtoNet.Protocol.csproj",
+            "McProtoNet.Primitives/McProtoNet.Primitives.csproj",
+            "McProtoNet.NBT/McProtoNet.NBT.csproj"
+          ]
+        }
+      ],
+      "dest": "api",
+      "properties": { "TargetFramework": "net10.0" },
+      "filter": "filter.yml",
+      "memberLayout": "separatePages",
+      "enumSortOrder": "declaringOrder"
+    }
+  ]
+}

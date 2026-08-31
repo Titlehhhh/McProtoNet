@@ -56,10 +56,7 @@ internal sealed class PooledBufferWriter : IBufferWriter<byte>, IDisposable
         if (array.Length > 0) ArrayPool<byte>.Shared.Return(array);
     }
 
-    /// <summary>
-    ///     Drops the buffer without returning it to the pool — for the case where a write the
-    ///     operating system may still be reading from was abandoned.
-    /// </summary>
+    /// <summary>Drops the buffer without returning it to the pool, for an abandoned write.</summary>
     public void Abandon()
     {
         _array = [];

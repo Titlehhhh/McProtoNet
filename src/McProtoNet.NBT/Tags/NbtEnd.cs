@@ -2,6 +2,7 @@ using System.Text;
 
 namespace McProtoNet.NBT;
 
+/// <summary>Represents the NBT tag that marks the end of a compound and carries no payload.</summary>
 internal sealed class NbtEnd : NbtTag
 {
     public override NbtTagType TagType => NbtTagType.End;

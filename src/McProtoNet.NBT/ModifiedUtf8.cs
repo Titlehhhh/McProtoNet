@@ -7,24 +7,32 @@ using System.Text.Unicode;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Modified UTF-8 — the string encoding Java uses in <c>DataOutput.writeUTF</c> /
-///     <c>DataInput.readUTF</c> and, through them, in every NBT string. It differs from
-///     standard UTF-8 in two places: U+0000 is written as <c>C0 80</c> so that no encoded
-///     byte is zero, and characters outside the Basic Multilingual Plane are written as two
-///     three-byte sequences (one per UTF-16 surrogate) instead of one four-byte sequence.
-///     Every method works on spans only and allocates nothing except <see cref="GetString" />.
+/// Provides methods that convert between UTF-16 text and modified UTF-8.
 /// </summary>
+/// <remarks>
+/// Modified UTF-8 is the string encoding that Java uses in <c>DataOutput.writeUTF</c> and
+/// <c>DataInput.readUTF</c>, and through them in every NBT string. It differs from standard UTF-8 in two
+/// places: U+0000 is written as <c>C0 80</c>, so that no encoded byte is zero, and a character outside the
+/// Basic Multilingual Plane is written as two three-byte sequences, one per UTF-16 surrogate, instead of
+/// one four-byte sequence.
+/// <para>
+/// All methods operate on spans. Only <see cref="GetString"/> allocates.
+/// </para>
+/// </remarks>
 public static class ModifiedUtf8
 {
     private const int StackAllocCharThreshold = 512;
 
     /// <summary>
-    ///     Counts the bytes <see cref="FromUtf16" /> writes for the given UTF-16 text.
-    ///     Lone surrogates are counted like any other BMP character (three bytes each).
+    /// Returns the exact number of bytes that <see cref="FromUtf16"/> writes for the specified UTF-16 text.
     /// </summary>
-    /// <param name="chars">Text to measure.</param>
-    /// <returns>Number of modified UTF-8 bytes.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">The encoded form does not fit in an <see cref="int" />.</exception>
+    /// <param name="chars">The text to measure.</param>
+    /// <returns>The number of modified UTF-8 bytes.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">The encoded form does not fit in an
+    /// <see cref="int"/>.</exception>
+    /// <remarks>
+    /// A lone surrogate is counted like any other character of the Basic Multilingual Plane, as three bytes.
+    /// </remarks>
     public static int GetByteCount(ReadOnlySpan<char> chars)
     {
         long count = 0;
@@ -55,10 +63,16 @@ public static class ModifiedUtf8
     }
 
     /// <summary>
-    ///     Returns the largest number of bytes <see cref="FromUtf16" /> can produce for
-    ///     <paramref name="charCount" /> UTF-16 units: three bytes each.
+    /// Returns the largest number of bytes that <see cref="FromUtf16"/> can produce for the specified number
+    /// of UTF-16 units.
     /// </summary>
-    /// <param name="charCount">Number of UTF-16 units.</param>
+    /// <param name="charCount">The number of UTF-16 units. This value cannot be negative.</param>
+    /// <returns>The largest number of modified UTF-8 bytes, three per UTF-16 unit.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">
+    /// <paramref name="charCount"/> is less than zero.
+    /// -or-
+    /// The encoded form does not fit in an <see cref="int"/>.
+    /// </exception>
     public static int GetMaxByteCount(int charCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(charCount);
@@ -69,10 +83,14 @@ public static class ModifiedUtf8
     }
 
     /// <summary>
-    ///     Returns the largest number of UTF-16 units <see cref="ToUtf16" /> can produce for
-    ///     <paramref name="byteCount" /> bytes: one per byte, because the shortest sequence is one byte.
+    /// Returns the largest number of UTF-16 units that <see cref="ToUtf16"/> can produce for the specified
+    /// number of bytes.
     /// </summary>
-    /// <param name="byteCount">Number of modified UTF-8 bytes.</param>
+    /// <param name="byteCount">The number of modified UTF-8 bytes. This value cannot be negative.</param>
+    /// <returns>The largest number of UTF-16 units, one per byte, because the shortest encoded sequence is
+    /// one byte.</returns>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="byteCount"/> is less than
+    /// zero.</exception>
     public static int GetMaxCharCount(int byteCount)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(byteCount);
@@ -80,18 +98,20 @@ public static class ModifiedUtf8
     }
 
     /// <summary>
-    ///     Encodes UTF-16 text as modified UTF-8. Every UTF-16 unit is encoded on its own, so
-    ///     the call may be split at any character boundary and the pieces concatenated.
+    /// Encodes UTF-16 text as modified UTF-8.
     /// </summary>
-    /// <param name="source">Text to encode.</param>
-    /// <param name="destination">Buffer that receives the bytes.</param>
-    /// <param name="charsRead">Number of UTF-16 units fully encoded.</param>
-    /// <param name="bytesWritten">Number of bytes written to <paramref name="destination" />.</param>
-    /// <returns>
-    ///     <see cref="OperationStatus.Done" /> when all of <paramref name="source" /> was encoded, or
-    ///     <see cref="OperationStatus.DestinationTooSmall" /> when the buffer ran out. Encoding never fails
-    ///     on the input: lone surrogates are legal here.
-    /// </returns>
+    /// <param name="source">The text to encode.</param>
+    /// <param name="destination">The buffer that receives the bytes.</param>
+    /// <param name="charsRead">When this method returns, contains the number of UTF-16 units that were fully
+    /// encoded.</param>
+    /// <param name="bytesWritten">When this method returns, contains the number of bytes written to
+    /// <paramref name="destination"/>.</param>
+    /// <returns><see cref="OperationStatus.Done"/> if all of <paramref name="source"/> was encoded; otherwise,
+    /// <see cref="OperationStatus.DestinationTooSmall"/>.</returns>
+    /// <remarks>
+    /// Each UTF-16 unit is encoded on its own, so a call can be split at any character boundary and the
+    /// pieces concatenated. Encoding never fails on the input; a lone surrogate is valid.
+    /// </remarks>
     public static OperationStatus FromUtf16(ReadOnlySpan<char> source, Span<byte> destination,
         out int charsRead, out int bytesWritten)
     {
@@ -146,23 +166,25 @@ public static class ModifiedUtf8
     }
 
     /// <summary>
-    ///     Decodes modified UTF-8 into UTF-16, mirroring the byte switch of Java's
-    ///     <c>DataInput.readUTF</c>: a raw <c>00</c> byte decodes to U+0000, overlong forms are
-    ///     accepted as written, and three-byte surrogate encodings pass through unchanged.
+    /// Decodes modified UTF-8 into UTF-16.
     /// </summary>
-    /// <param name="source">Bytes to decode.</param>
-    /// <param name="destination">Buffer that receives the UTF-16 units.</param>
-    /// <param name="bytesRead">Number of bytes consumed.</param>
-    /// <param name="charsWritten">Number of UTF-16 units written.</param>
-    /// <param name="allowFourByteSequences">
-    ///     When true (the default) valid four-byte UTF-8 sequences are also accepted and decoded to a
-    ///     surrogate pair, which reads files written by encoders that used plain UTF-8. When false only
-    ///     strict modified UTF-8 is accepted.
-    /// </param>
-    /// <returns>
-    ///     <see cref="OperationStatus.Done" />, <see cref="OperationStatus.DestinationTooSmall" />, or
-    ///     <see cref="OperationStatus.InvalidData" /> for malformed or truncated input.
-    /// </returns>
+    /// <param name="source">The bytes to decode.</param>
+    /// <param name="destination">The buffer that receives the UTF-16 units.</param>
+    /// <param name="bytesRead">When this method returns, contains the number of bytes consumed.</param>
+    /// <param name="charsWritten">When this method returns, contains the number of UTF-16 units
+    /// written.</param>
+    /// <param name="allowFourByteSequences"><see langword="true"/> to accept a valid four-byte UTF-8 sequence
+    /// and decode it to a surrogate pair, which reads data written by an encoder that used plain UTF-8;
+    /// <see langword="false"/> to accept strict modified UTF-8 only. The default is
+    /// <see langword="true"/>.</param>
+    /// <returns><see cref="OperationStatus.Done"/> if all of <paramref name="source"/> was decoded;
+    /// <see cref="OperationStatus.DestinationTooSmall"/> if <paramref name="destination"/> ran out; otherwise,
+    /// <see cref="OperationStatus.InvalidData"/> for malformed or truncated input.</returns>
+    /// <remarks>
+    /// Decoding follows the byte switch of Java's <c>DataInput.readUTF</c>: a raw <c>00</c> byte decodes to
+    /// U+0000, an overlong form is accepted as written, and a three-byte surrogate encoding passes through
+    /// unchanged.
+    /// </remarks>
     public static OperationStatus ToUtf16(ReadOnlySpan<byte> source, Span<char> destination,
         out int bytesRead, out int charsWritten, bool allowFourByteSequences = true)
     {
@@ -204,11 +226,14 @@ public static class ModifiedUtf8
         }
     }
 
-    /// <summary>Encodes UTF-16 text as modified UTF-8 into a buffer that must be large enough.</summary>
-    /// <param name="source">Text to encode.</param>
-    /// <param name="destination">Buffer that receives the bytes.</param>
-    /// <returns>Number of bytes written.</returns>
-    /// <exception cref="ArgumentException"><paramref name="destination" /> is too small.</exception>
+    /// <summary>
+    /// Encodes UTF-16 text as modified UTF-8 into a buffer that is large enough to hold all of it.
+    /// </summary>
+    /// <param name="source">The text to encode.</param>
+    /// <param name="destination">The buffer that receives the bytes.</param>
+    /// <returns>The number of bytes written.</returns>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> is too small for the encoded
+    /// text.</exception>
     public static int GetBytes(ReadOnlySpan<char> source, Span<byte> destination)
     {
         if (FromUtf16(source, destination, out _, out var bytesWritten) != OperationStatus.Done)
@@ -216,12 +241,15 @@ public static class ModifiedUtf8
         return bytesWritten;
     }
 
-    /// <summary>Decodes modified UTF-8 into a buffer that must be large enough.</summary>
-    /// <param name="source">Bytes to decode.</param>
-    /// <param name="destination">Buffer that receives the UTF-16 units.</param>
-    /// <returns>Number of UTF-16 units written.</returns>
-    /// <exception cref="ArgumentException"><paramref name="destination" /> is too small.</exception>
-    /// <exception cref="NbtFormatException"><paramref name="source" /> is malformed.</exception>
+    /// <summary>
+    /// Decodes modified UTF-8 into a buffer that is large enough to hold all of it.
+    /// </summary>
+    /// <param name="source">The bytes to decode.</param>
+    /// <param name="destination">The buffer that receives the UTF-16 units.</param>
+    /// <returns>The number of UTF-16 units written.</returns>
+    /// <exception cref="ArgumentException"><paramref name="destination"/> is too small for the decoded
+    /// text.</exception>
+    /// <exception cref="NbtFormatException"><paramref name="source"/> is malformed.</exception>
     public static int GetChars(ReadOnlySpan<byte> source, Span<char> destination)
     {
         var status = ToUtf16(source, destination, out _, out var charsWritten);
@@ -231,21 +259,29 @@ public static class ModifiedUtf8
         throw MalformedInput();
     }
 
-    /// <summary>Decodes modified UTF-8, reporting failure instead of throwing.</summary>
-    /// <param name="source">Bytes to decode.</param>
-    /// <param name="destination">Buffer that receives the UTF-16 units.</param>
-    /// <param name="charsWritten">Number of UTF-16 units written.</param>
-    /// <returns>True when the whole input was decoded into <paramref name="destination" />.</returns>
+    /// <summary>
+    /// Attempts to decode modified UTF-8 into UTF-16.
+    /// </summary>
+    /// <param name="source">The bytes to decode.</param>
+    /// <param name="destination">The buffer that receives the UTF-16 units.</param>
+    /// <param name="charsWritten">When this method returns, contains the number of UTF-16 units
+    /// written.</param>
+    /// <returns><see langword="true"/> if all of <paramref name="source"/> was decoded into
+    /// <paramref name="destination"/>; otherwise, <see langword="false"/>.</returns>
     public static bool TryGetChars(ReadOnlySpan<byte> source, Span<char> destination, out int charsWritten)
     {
         return ToUtf16(source, destination, out _, out charsWritten) == OperationStatus.Done;
     }
 
     /// <summary>
-    ///     Counts the UTF-16 units <see cref="ToUtf16" /> produces. Exact for well-formed input;
-    ///     for malformed input it is an upper bound, never below what decoding actually writes.
+    /// Returns the number of UTF-16 units that <see cref="ToUtf16"/> produces for the specified bytes.
     /// </summary>
-    /// <param name="source">Bytes to measure.</param>
+    /// <param name="source">The bytes to measure.</param>
+    /// <returns>The number of UTF-16 units.</returns>
+    /// <remarks>
+    /// The count is exact for well-formed input. For malformed input it is an upper bound, never below the
+    /// number of units that decoding writes.
+    /// </remarks>
     public static int GetCharCount(ReadOnlySpan<byte> source)
     {
         var count = source.Length - CountInRangeInclusive(source, 0x80, 0xBF);
@@ -255,9 +291,11 @@ public static class ModifiedUtf8
     }
 
     /// <summary>
-    ///     Tells whether the bytes decode as modified UTF-8, four-byte UTF-8 sequences included.
+    /// Returns a value that indicates whether the specified bytes decode as modified UTF-8.
     /// </summary>
-    /// <param name="source">Bytes to check.</param>
+    /// <param name="source">The bytes to check.</param>
+    /// <returns><see langword="true"/> if <paramref name="source"/> decodes as modified UTF-8, four-byte
+    /// UTF-8 sequences included; otherwise, <see langword="false"/>.</returns>
     public static bool IsValid(ReadOnlySpan<byte> source)
     {
         if (Utf8.IsValid(source)) return true;
@@ -295,9 +333,12 @@ public static class ModifiedUtf8
         return true;
     }
 
-    /// <summary>Decodes modified UTF-8 into a new string.</summary>
-    /// <param name="source">Bytes to decode.</param>
-    /// <exception cref="NbtFormatException"><paramref name="source" /> is malformed.</exception>
+    /// <summary>
+    /// Decodes modified UTF-8 into a new string.
+    /// </summary>
+    /// <param name="source">The bytes to decode.</param>
+    /// <returns>A string that contains the decoded text.</returns>
+    /// <exception cref="NbtFormatException"><paramref name="source"/> is malformed.</exception>
     public static string GetString(ReadOnlySpan<byte> source)
     {
         if (source.IsEmpty) return string.Empty;

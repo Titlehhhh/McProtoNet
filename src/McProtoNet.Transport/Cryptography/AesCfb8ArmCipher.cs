@@ -6,6 +6,7 @@ using ArmAes = System.Runtime.Intrinsics.Arm.Aes;
 
 namespace McProtoNet.Transport.Cryptography;
 
+/// <summary>Provides an AES/CFB8 packet cipher that runs on the ARM AES and AdvSimd intrinsics.</summary>
 internal sealed class AesCfb8ArmCipher : PacketCipher
 {
     private readonly bool _encrypting;

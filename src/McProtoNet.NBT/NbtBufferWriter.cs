@@ -6,25 +6,31 @@ using System.Runtime.CompilerServices;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     Writes NBT straight into an <see cref="IBufferWriter{T}" /> — the counterpart of
-///     <see cref="NbtSpanReader" /> on the writing side. Java Edition NBT only: every number is
-///     big-endian and every string is modified UTF-8. Nesting is capped at 512 levels.
+/// Provides methods that write NBT data to an <see cref="IBufferWriter{T}"/>.
 /// </summary>
+/// <remarks>
+/// The output is Java Edition NBT only: every number is big-endian and every string is modified UTF-8.
+/// Nesting is limited to <see cref="MaxDepth"/> levels. <see cref="NbtSpanReader"/> is the counterpart on
+/// the reading side.
+/// </remarks>
 public static class NbtBufferWriter
 {
-    /// <summary>Deepest nesting the writer accepts, matching vanilla's cap.</summary>
+    /// <summary>The maximum nesting depth the writer accepts, which matches the vanilla limit.</summary>
     public const int MaxDepth = NbtLimits.MaxDepth;
 
     /// <summary>
-    ///     Writes a complete tag: the type byte, the root name when asked for, then the payload.
+    /// Writes a complete tag: the type byte, the root name when requested, then the payload.
     /// </summary>
-    /// <param name="writer">Destination buffer writer.</param>
-    /// <param name="tag">Tag to write.</param>
-    /// <param name="writeRootName">
-    ///     True writes the root tag's name after the type byte (the file format). False writes the
-    ///     nameless root of the network format used since 1.20.2.
-    /// </param>
-    /// <exception cref="NbtFormatException">The tag is malformed, too deep, or holds an oversized string.</exception>
+    /// <typeparam name="TWriter">The type of the destination buffer writer.</typeparam>
+    /// <param name="writer">The buffer writer to write to.</param>
+    /// <param name="tag">The tag to write.</param>
+    /// <param name="writeRootName"><see langword="true"/> to write the root tag's name after the type byte,
+    /// as the file format requires; <see langword="false"/> to write the nameless root of the network format
+    /// used since 1.20.2. The default is <see langword="false"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NbtFormatException">The tag is malformed, nested too deeply, holds a string
+    /// longer than 65535 bytes when encoded, or holds an array whose encoded length does not fit in an
+    /// <see cref="int"/>.</exception>
     public static void WriteTag<TWriter>(TWriter writer, NbtTag tag, bool writeRootName = false)
         where TWriter : IBufferWriter<byte>
     {
@@ -35,10 +41,16 @@ public static class NbtBufferWriter
         WritePayload(writer, tag, MaxDepth);
     }
 
-    /// <summary>Writes only a tag's payload, without the type byte or the name.</summary>
-    /// <param name="writer">Destination buffer writer.</param>
-    /// <param name="tag">Tag whose payload is written.</param>
-    /// <exception cref="NbtFormatException">The tag is malformed, too deep, or holds an oversized string.</exception>
+    /// <summary>
+    /// Writes only a tag's payload, without the type byte and without the name.
+    /// </summary>
+    /// <typeparam name="TWriter">The type of the destination buffer writer.</typeparam>
+    /// <param name="writer">The buffer writer to write to.</param>
+    /// <param name="tag">The tag whose payload is written.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="NbtFormatException">The tag is malformed, nested too deeply, holds a string
+    /// longer than 65535 bytes when encoded, or holds an array whose encoded length does not fit in an
+    /// <see cref="int"/>.</exception>
     public static void WritePayload<TWriter>(TWriter writer, NbtTag tag)
         where TWriter : IBufferWriter<byte>
     {
@@ -47,10 +59,13 @@ public static class NbtBufferWriter
     }
 
     /// <summary>
-    ///     Writes an NBT string: an unsigned big-endian 16-bit byte count, then the modified UTF-8 bytes.
+    /// Writes an NBT string: an unsigned big-endian 16-bit byte count, then the modified UTF-8 bytes.
     /// </summary>
-    /// <param name="writer">Destination buffer writer.</param>
-    /// <param name="value">Text to write.</param>
+    /// <typeparam name="TWriter">The type of the destination buffer writer.</typeparam>
+    /// <param name="writer">The buffer writer to write to.</param>
+    /// <param name="value">The text to write.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The encoded form of <paramref name="value"/> does not
+    /// fit in an <see cref="int"/>.</exception>
     /// <exception cref="NbtFormatException">The encoded text is longer than 65535 bytes.</exception>
     public static void WriteString<TWriter>(TWriter writer, scoped ReadOnlySpan<char> value)
         where TWriter : IBufferWriter<byte>

@@ -1,8 +1,6 @@
 namespace McProtoNet.NBT;
 
-/// <summary>
-///     Represents state of a node in the NBT file tree, used by NbtWriter
-/// </summary>
+/// <summary>Holds the saved state of one node of the NBT tree while a writer descends into it.</summary>
 internal sealed class NbtWriterNode
 {
     public int ListIndex;

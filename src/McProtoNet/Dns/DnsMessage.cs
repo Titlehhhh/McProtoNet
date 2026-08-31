@@ -3,7 +3,7 @@ using System.Text;
 
 namespace McProtoNet;
 
-/// <summary>What a DNS answer says: the two header bits we care about and the SRV records in it.</summary>
+/// <summary>Holds the header bits and the SRV records of a parsed DNS answer.</summary>
 internal readonly struct DnsResponse
 {
     public DnsResponse(bool truncated, int responseCode, IReadOnlyList<SrvResult> records)
@@ -13,30 +13,27 @@ internal readonly struct DnsResponse
         Records = records;
     }
 
-    /// <summary>TC bit: the answer did not fit a datagram and has to be asked again over TCP.</summary>
+    /// <summary>Gets the TC bit: the answer did not fit a datagram and must be asked again over TCP.</summary>
     public bool Truncated { get; }
 
-    /// <summary>RCODE: 0 no error, 3 name does not exist, anything else is a server-side failure.</summary>
+    /// <summary>Gets the RCODE of the answer.</summary>
     public int ResponseCode { get; }
 
     public IReadOnlyList<SrvResult> Records { get; }
 }
 
-/// <summary>
-///     The DNS wire format, only as much of it as an SRV lookup needs (RFC 1035 plus RFC 2782):
-///     write one question, read the answer section, follow name compression.
-/// </summary>
+/// <summary>Reads and writes the part of the DNS wire format an SRV lookup needs (RFC 1035, RFC 2782).</summary>
 internal static class DnsMessage
 {
     public const int HeaderLength = 12;
 
-    /// <summary>Longest query this file can produce: header, a 255-byte name, type and class.</summary>
+    /// <summary>The longest query this type can produce: header, a 255-byte name, type and class.</summary>
     public const int MaxQueryLength = HeaderLength + MaxNameLength + 4;
 
-    /// <summary>RCODE 0: the answer is authoritative about what is there.</summary>
+    /// <summary>RCODE 0: no error.</summary>
     public const int CodeNoError = 0;
 
-    /// <summary>RCODE 3: the name does not exist, which is an answer and not a failure.</summary>
+    /// <summary>RCODE 3: the name does not exist.</summary>
     public const int CodeNameError = 3;
 
     private const int TypeSrv = 33;
@@ -46,7 +43,7 @@ internal static class DnsMessage
     private const int PointerMask = 0xC0;
     private const int MaxPointerJumps = 64;
 
-    /// <summary>Writes a recursion-desired SRV question and returns how many bytes it took.</summary>
+    /// <summary>Writes a recursion-desired SRV question and returns the number of bytes written.</summary>
     public static int WriteQuery(Span<byte> destination, ushort id, string name)
     {
         BinaryPrimitives.WriteUInt16BigEndian(destination, id);
@@ -60,20 +57,13 @@ internal static class DnsMessage
         return offset + 4;
     }
 
-    /// <summary>
-    ///     Reads the answer to the question <paramref name="expectedId" /> was asked with. False means these
-    ///     bytes are not that answer: a stray datagram, a short read, or a malformed message.
-    /// </summary>
+    /// <summary>Attempts to read the answer to the question that carried the specified transaction id.</summary>
     public static bool TryRead(ReadOnlySpan<byte> message, ushort expectedId, out DnsResponse response)
     {
         return TryRead(message, expectedId, default, out response);
     }
 
-    /// <summary>
-    ///     The same read, with the question section the query carried. A real answer echoes the question
-    ///     back verbatim, so comparing it turns away a forgery that guessed the transaction id but not what
-    ///     was asked. An empty <paramref name="expectedQuestion" /> skips the comparison.
-    /// </summary>
+    /// <summary>Attempts to read the answer, also requiring the echoed question to match; an empty question skips that check.</summary>
     public static bool TryRead(ReadOnlySpan<byte> message, ushort expectedId, ReadOnlySpan<byte> expectedQuestion,
         out DnsResponse response)
     {
@@ -134,10 +124,7 @@ internal static class DnsMessage
         return true;
     }
 
-    /// <summary>
-    ///     Encodes a name as labels. Measured before a byte is written: a name that cannot be encoded is a
-    ///     bad argument, never a half-written buffer or an index off its end.
-    /// </summary>
+    // Measured before a byte is written, so a name that cannot be encoded never leaves a half-written buffer.
     private static int WriteName(Span<byte> destination, string name)
     {
         var required = 1;
@@ -169,7 +156,7 @@ internal static class DnsMessage
         return written;
     }
 
-    /// <summary>Splits a name on dots, dropping the empty labels a leading, doubled or trailing dot leaves.</summary>
+    // Splits a name on dots, dropping the empty labels a leading, doubled or trailing dot leaves.
     private static LabelEnumerator Labels(string name)
     {
         return new LabelEnumerator(name.AsSpan());
@@ -213,11 +200,8 @@ internal static class DnsMessage
         }
     }
 
-    /// <summary>
-    ///     Compares an echoed question with the one that was asked. DNS names are case-insensitive on the
-    ///     wire and some resolvers echo a different case, so letters are folded; the type and class bytes
-    ///     that follow are outside the letter range and so compare exactly.
-    /// </summary>
+    // Letters are folded because DNS names are case-insensitive on the wire and some resolvers echo a
+    // different case; the type and class bytes lie outside the letter range and so compare exactly.
     private static bool EchoesQuestion(ReadOnlySpan<byte> echoed, ReadOnlySpan<byte> asked)
     {
         if (echoed.Length != asked.Length) return false;
@@ -234,7 +218,7 @@ internal static class DnsMessage
         }
     }
 
-    /// <summary>Steps over a name without expanding it: a pointer ends the name where it stands.</summary>
+    // Steps over a name without expanding it: a pointer ends the name where it stands.
     private static bool TrySkipName(ReadOnlySpan<byte> message, ref int offset)
     {
         while (true)
@@ -260,11 +244,9 @@ internal static class DnsMessage
         }
     }
 
-    /// <summary>
-    ///     Expands a name, following compression pointers. Labels written in place must stay inside
-    ///     <paramref name="limit" /> — a record's own data section — while a pointer may reach anywhere
-    ///     earlier in the message. A pointer that does not go backwards is malformed, so no loop and no hang.
-    /// </summary>
+    // Expands a name, following compression pointers. Labels written in place must stay inside `limit` (a
+    // record's own data section); a pointer may reach anywhere earlier in the message. A pointer that does
+    // not go backwards is malformed, which rules out a loop.
     private static bool TryReadName(ReadOnlySpan<byte> message, int offset, int limit, out string name)
     {
         name = string.Empty;

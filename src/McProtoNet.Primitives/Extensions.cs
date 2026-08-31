@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 namespace McProtoNet.Primitives;
 
 /// <summary>
-/// Extension methods for working with Minecraft protocol data types and networking
+/// Provides extension methods that read, write and measure Minecraft protocol VarInt values.
 /// </summary>
 public static class Extensions
 {
@@ -15,15 +15,28 @@ public static class Extensions
     private static int CONTINUE_BIT = 0x80;
 
     /// <summary>
-    /// Reads a VarInt from a span of bytes
+    /// Reads a VarInt from the start of a span.
     /// </summary>
-    /// <param name="data">The span of bytes to read from</param>
-    /// <returns>The read VarInt</returns>
+    /// <param name="data">The span to read from. It must contain a complete VarInt.</param>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="data"/> ends before the VarInt does.</exception>
     public static int ReadVarInt(this ReadOnlySpan<byte> data)
     {
         return ReadVarInt(data, out _);
     }
 
+    /// <summary>
+    /// Attempts to read a VarInt from the current position of a sequence reader.
+    /// </summary>
+    /// <param name="reader">The reader to read from. It is advanced past the VarInt on success and left
+    /// where it was on failure.</param>
+    /// <param name="res">When this method returns, contains the decoded value, or 0 if the read
+    /// failed.</param>
+    /// <param name="length">When this method returns, contains the number of bytes consumed, or -1 if the
+    /// read failed.</param>
+    /// <returns><see langword="true"/> if the value was read; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
     public static bool TryReadVarInt(this ref SequenceReader<byte> reader, out int res, out int length)
     {
         var numRead = 0;
@@ -57,6 +70,19 @@ public static class Extensions
     }
 
 
+    /// <summary>
+    /// Attempts to read a VarInt from the start of a sequence.
+    /// </summary>
+    /// <param name="sequence">The sequence to read from.</param>
+    /// <param name="result">When this method returns, contains the decoded value, or 0 if the read
+    /// failed.</param>
+    /// <param name="length">When this method returns, contains the number of bytes the VarInt occupies, or
+    /// 0 if the read failed.</param>
+    /// <returns><see langword="true"/> if the value was read; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
+    /// <remarks>
+    /// The sequence is not advanced.
+    /// </remarks>
     public static bool TryReadVarInt(
         this in ReadOnlySequence<byte> sequence,
         out int result,
@@ -109,12 +135,13 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Reads a VarInt from a byte span
+    /// Reads a VarInt from the start of a span and reports how many bytes it occupied.
     /// </summary>
-    /// <param name="data">The span to read from</param>
-    /// <param name="len">The number of bytes read</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="ArithmeticException">Thrown when VarInt is too long</exception>
+    /// <param name="data">The span to read from. It must contain a complete VarInt.</param>
+    /// <param name="len">When this method returns, contains the number of bytes read.</param>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="data"/> ends before the VarInt does.</exception>
     public static int ReadVarInt(this in ReadOnlySpan<byte> data, out int len)
     {
         var numRead = 0;
@@ -137,6 +164,16 @@ public static class Extensions
     }
 
 
+    /// <summary>
+    /// Attempts to read a VarInt from the start of a span.
+    /// </summary>
+    /// <param name="span">The span to read from.</param>
+    /// <param name="result">When this method returns, contains the decoded value, or 0 if the read
+    /// failed.</param>
+    /// <param name="len">When this method returns, contains the number of bytes the VarInt occupies, or 0
+    /// if the read failed.</param>
+    /// <returns><see langword="true"/> if the value was read; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
     public static bool TryReadVarInt(this in ReadOnlySpan<byte> span, out int result, out int len)
     {
         var numRead = 0;
@@ -164,10 +201,10 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Writes a VarInt to a buffer writer
+    /// Writes a value as a VarInt to a buffer writer.
     /// </summary>
-    /// <param name="writer">The buffer writer to write to</param>
-    /// <param name="value">The integer value to write as a VarInt</param>
+    /// <param name="writer">The buffer writer to write to.</param>
+    /// <param name="value">The value to encode.</param>
     public static void WriteVarInt(this IBufferWriter<byte> writer, int value)
     {
         if (value == 0)
@@ -185,46 +222,43 @@ public static class Extensions
 
 
     /// <summary>
-    /// Gets the length in bytes needed to encode an integer as a VarInt using optimized bit operations
+    /// Returns the number of bytes needed to encode a value as a VarInt, without branches or loops.
     /// </summary>
-    /// <param name="value">The integer value to measure</param>
-    /// <returns>The number of bytes needed to encode the value as VarInt</returns>
-    /// <remarks>
-    /// This implementation uses mathematical optimization for maximum performance.
-    /// It has no branches or loops, making it ideal for high-performance scenarios.
-    /// </remarks>
+    /// <param name="value">The value to measure.</param>
+    /// <returns>The number of bytes the VarInt encoding of the value occupies.</returns>
     public static int GetVarIntLengthFast(this int value)
     {
         return (BitOperations.LeadingZeroCount((uint)value | 1) - 38) * -1171 >> 13;
     }
 
     /// <summary>
-    /// Gets the length in bytes needed to encode an integer as a VarInt
+    /// Returns the number of bytes needed to encode a value as a VarInt.
     /// </summary>
-    /// <param name="value">The integer value to measure</param>
-    /// <returns>The number of bytes needed to encode the value as VarInt</returns>
+    /// <param name="value">The value to measure.</param>
+    /// <returns>The number of bytes the VarInt encoding of the value occupies, from 1 to 5.</returns>
     /// <remarks>
-    /// <para>VarInt encoding uses 1-5 bytes where each byte contains 7 bits of data:</para>
+    /// <para>A VarInt carries 7 bits of the value per byte, so the length depends on the value read as
+    /// unsigned:</para>
     /// <list type="bullet">
     /// <item>
     /// <term>1 byte</term>
-    /// <description>Values from 0 to 127 (0x00 to 0x7F)</description>
+    /// <description>0 to 127.</description>
     /// </item>
     /// <item>
     /// <term>2 bytes</term>
-    /// <description>Values from 128 to 16,383 (0x80 to 0x3FFF)</description>
+    /// <description>128 to 16,383.</description>
     /// </item>
     /// <item>
     /// <term>3 bytes</term>
-    /// <description>Values from 16,384 to 2,097,151 (0x4000 to 0x1FFFFF)</description>
+    /// <description>16,384 to 2,097,151.</description>
     /// </item>
     /// <item>
     /// <term>4 bytes</term>
-    /// <description>Values from 2,097,152 to 268,435,455 (0x200000 to 0xFFFFFFF)</description>
+    /// <description>2,097,152 to 268,435,455.</description>
     /// </item>
     /// <item>
     /// <term>5 bytes</term>
-    /// <description>Values from 268,435,456 to 4,294,967,295 (0x10000000 to 0xFFFFFFFF)</description>
+    /// <description>268,435,456 to 4,294,967,295, which covers every negative value.</description>
     /// </item>
     /// </list>
     /// </remarks>
@@ -236,6 +270,11 @@ public static class Extensions
         return GetVarIntLengthFast((int)val);
     }
     
+    /// <summary>
+    /// Returns a new array that holds the VarInt encoding of a value.
+    /// </summary>
+    /// <param name="value">The value to encode.</param>
+    /// <returns>An array of 1 to 5 bytes that contains the VarInt encoding of the value.</returns>
     public static byte[] VarIntToArray(this int value)
     {
         Span<byte> span = stackalloc byte[5];
@@ -245,11 +284,13 @@ public static class Extensions
 
 
     /// <summary>
-    /// Writes a VarInt to a byte span and returns its length
+    /// Writes a value as a VarInt into a span and returns the number of bytes written.
     /// </summary>
-    /// <param name="value">The integer value to encode</param>
-    /// <param name="data">The byte span to write to</param>
-    /// <returns>The number of bytes written</returns>
+    /// <param name="value">The value to encode.</param>
+    /// <param name="data">The span to write to. It must hold at least 5 bytes to accept every value.</param>
+    /// <returns>The number of bytes written, from 1 to 5.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="data"/> is shorter than the encoding of
+    /// <paramref name="value"/>.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte GetVarIntLength(this int value, Span<byte> data)
     {
@@ -272,11 +313,14 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Writes a VarInt to a memory region and returns its length
+    /// Writes a value as a VarInt into a memory region and returns the number of bytes written.
     /// </summary>
-    /// <param name="value">The integer value to encode</param>
-    /// <param name="data">The memory region to write to</param>
-    /// <returns>The number of bytes written</returns>
+    /// <param name="value">The value to encode.</param>
+    /// <param name="data">The memory region to write to. It must hold at least 5 bytes to accept every
+    /// value.</param>
+    /// <returns>The number of bytes written, from 1 to 5.</returns>
+    /// <exception cref="IndexOutOfRangeException"><paramref name="data"/> is shorter than the encoding of
+    /// <paramref name="value"/>.</exception>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static byte GetVarIntLength(this int value, Memory<byte> data)
     {
@@ -284,24 +328,31 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Reads a VarInt from a stream
+    /// Reads a VarInt from a stream.
     /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
-    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    /// <param name="stream">The stream to read from.</param>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended before the VarInt did.</exception>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
     public static int ReadVarInt(this Stream stream)
     {
         return stream.ReadVarInt(out _);
     }
 
     /// <summary>
-    /// Reads a VarInt from a stream asynchronously
+    /// Asynchronously reads a VarInt from a stream, using a buffer rented from the shared array pool.
     /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="token">Cancellation token</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the decoded
+    /// value.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended before the VarInt did.</exception>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
     //[AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
@@ -335,6 +386,22 @@ public static class Extensions
         }
     }
 
+    /// <summary>
+    /// Asynchronously reads a VarInt from a stream, using a caller-supplied buffer.
+    /// </summary>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="buff">The buffer each byte of the VarInt is read into. Its length must be at least
+    /// 1 byte, and the whole buffer is filled on every step of the read.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the decoded
+    /// value.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="buff"/> is empty.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended before the VarInt did.</exception>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, Memory<byte> buff,
         CancellationToken token = default)
     {
@@ -365,13 +432,14 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Reads a VarInt from a stream and returns the number of bytes read
+    /// Reads a VarInt from a stream and reports how many bytes it occupied.
     /// </summary>
-    /// <param name="stream">The stream to read from</param>
-    /// <param name="len">The number of bytes read</param>
-    /// <returns>The decoded VarInt value</returns>
-    /// <exception cref="EndOfStreamException">Thrown when the stream ends unexpectedly</exception>
-    /// <exception cref="InvalidOperationException">Thrown when VarInt is too big</exception>
+    /// <param name="stream">The stream to read from.</param>
+    /// <param name="len">When this method returns, contains the number of bytes read.</param>
+    /// <returns>The decoded value.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended before the VarInt did.</exception>
+    /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
     public static int ReadVarInt(this Stream stream, out int len)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -399,10 +467,11 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Writes a VarInt to a stream
+    /// Writes a value as a VarInt to a stream, one byte at a time.
     /// </summary>
-    /// <param name="stream">The stream to write to</param>
-    /// <param name="value">The integer value to write as a VarInt</param>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="value">The value to encode.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     public static void WriteVarInt(this Stream stream, int value)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -421,12 +490,17 @@ public static class Extensions
     }
 
     /// <summary>
-    /// Writes a VarInt to a stream asynchronously
+    /// Asynchronously writes a value as a VarInt to a stream, using a buffer rented from the shared array
+    /// pool.
     /// </summary>
-    /// <param name="stream">The stream to write to</param>
-    /// <param name="value">The integer value to write as a VarInt</param>
-    /// <param name="token">Cancellation token</param>
-    /// <returns>A ValueTask representing the asynchronous operation</returns>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="value">The value to encode.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
     public static async ValueTask WriteVarIntAsync(this Stream stream, int value, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
@@ -441,6 +515,20 @@ public static class Extensions
         }
     }
 
+    /// <summary>
+    /// Asynchronously writes a value as a VarInt to a stream, using a caller-supplied buffer.
+    /// </summary>
+    /// <param name="stream">The stream to write to.</param>
+    /// <param name="value">The value to encode.</param>
+    /// <param name="buffer">The scratch buffer the encoding is built in. Its length must be at least
+    /// 5 bytes.</param>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous write operation.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="buffer"/> is shorter than 5 bytes.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
+    /// stored into the returned task.</exception>
     public static async ValueTask WriteVarIntAsync(this Stream stream, int value, Memory<byte> buffer,
         CancellationToken token = default)
     {

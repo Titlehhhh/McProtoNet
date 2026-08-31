@@ -3,13 +3,15 @@ using System.Runtime.InteropServices;
 using McProtoNet.Transport.Compression.Native;
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>
+/// Provides zlib compression through a native libdeflate compressor handle owned by a
+/// heap-allocated instance.
+/// </summary>
 internal class ZlibCompressorHeapAlloc : IDisposable
 {
     private readonly IntPtr compressor;
 
-    // One flag, read by the guard and written by Dispose. There used to be a second one here
-    // (disposedValue) that the guard read and nobody ever set, so every call after Dispose
-    // sailed past the check straight into freed native memory.
+    // Set by Dispose and read by the guard; the native handle is freed only once.
     private bool disposed;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -86,4 +88,4 @@ internal class ZlibCompressorHeapAlloc : IDisposable
         Native.Compression.libdeflate_free_compressor(compressor);
         GC.SuppressFinalize(this);
     }
-}
+}

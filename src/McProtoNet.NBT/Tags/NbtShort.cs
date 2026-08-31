@@ -3,40 +3,40 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing a single signed 16-bit integer.
+/// Represents an NBT tag that holds a single signed 16-bit integer.
 /// </summary>
 public sealed class NbtShort : NbtTag
 {
     /// <summary>
-    ///     Creates an unnamed NbtShort tag with the default value of 0.
+    /// Initializes a new instance of the <see cref="NbtShort"/> class that is unnamed and has a value of 0.
     /// </summary>
     public NbtShort()
     {
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtShort tag with the given value.
+    /// Initializes a new instance of the <see cref="NbtShort"/> class that is unnamed and has the specified value.
     /// </summary>
-    /// <param name="value"> Value to assign to this tag. </param>
+    /// <param name="value">The value of the tag.</param>
     public NbtShort(short value)
         : this(null!, value)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtShort tag with the given name and the default value of 0.
+    /// Initializes a new instance of the <see cref="NbtShort"/> class with the specified name and a value of 0.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
     public NbtShort(string? tagName)
         : this(tagName!, 0)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtShort tag with the given name and value.
+    /// Initializes a new instance of the <see cref="NbtShort"/> class with the specified name and value.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="value"> Value to assign to this tag. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="value">The value of the tag.</param>
     public NbtShort(string? tagName, short value)
     {
         Name = tagName;
@@ -44,10 +44,10 @@ public sealed class NbtShort : NbtTag
     }
 
     /// <summary>
-    ///     Creates a copy of given NbtShort tag.
+    /// Initializes a new instance of the <see cref="NbtShort"/> class that is a copy of the specified tag.
     /// </summary>
-    /// <param name="other"> Tag to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    /// <param name="other">The tag to copy. The name and the value are copied.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtShort(NbtShort other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -56,12 +56,12 @@ public sealed class NbtShort : NbtTag
     }
 
     /// <summary>
-    ///     Type of this tag (Short).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.Short"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.Short;
 
     /// <summary>
-    ///     Value/payload of this tag (a single signed 16-bit integer).
+    /// Gets or sets the value of this tag.
     /// </summary>
     public short Value { get; set; }
 

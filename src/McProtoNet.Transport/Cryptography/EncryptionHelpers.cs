@@ -3,15 +3,27 @@ using System.Text;
 
 namespace McProtoNet.Transport.Cryptography;
 
+/// <summary>
+/// Provides helper methods for the encryption handshake: decoding the server RSA public key,
+/// generating the shared secret, and computing the session server hash.
+/// </summary>
 public static class EncryptionHelpers
 {
+    /// <summary>
+    /// The AES key chosen by the client, or <see langword="null"/> when none is stored.
+    /// </summary>
+    /// <remarks>
+    /// No member of this library reads this field.
+    /// </remarks>
     public static byte[]? ClientAESPrivateKey;
 
     /// <summary>
-    ///     Get a cryptographic service for encrypting data using the server's RSA public key
+    /// Creates an RSA provider from an X.509 SubjectPublicKeyInfo key.
     /// </summary>
-    /// <param name="x509key">Byte array containing the encoded key</param>
-    /// <returns>Returns the corresponding RSA Crypto Service</returns>
+    /// <param name="x509key">The DER-encoded key, as the server sends it.</param>
+    /// <returns>An <see cref="RSACryptoServiceProvider"/> initialized with the modulus and exponent of
+    /// the key, or <see langword="null"/> if the data is not a PKCS#1 RSA public key in that
+    /// form.</returns>
     public static RSACryptoServiceProvider? DecodeRSAPublicKey(byte[] x509key)
     {
         /* Code from StackOverflow no. 18091460 */
@@ -85,11 +97,7 @@ public static class EncryptionHelpers
         return null;
     }
 
-    /// <summary>
-    ///     Subfunction for decrypting ASN.1 (x509) RSA certificate data fields lengths
-    /// </summary>
-    /// <param name="reader">StreamReader containing the stream to decode</param>
-    /// <returns>Return the read length</returns>
+    // Reads one ASN.1 length field; lengths longer than 4 bytes are not handled.
     private static int ReadASNLength(BinaryReader reader)
     {
         //Note: this method only reads lengths up to 4 bytes long as
@@ -108,9 +116,9 @@ public static class EncryptionHelpers
     }
 
     /// <summary>
-    ///     Generate a new random AES key for symmetric encryption
+    /// Generates a new random 128-bit AES key.
     /// </summary>
-    /// <returns>Returns a byte array containing the key</returns>
+    /// <returns>A new array of 16 bytes that holds the key.</returns>
     public static byte[] GenerateAESPrivateKey()
     {
         var AES = Aes.Create();
@@ -120,12 +128,15 @@ public static class EncryptionHelpers
     }
 
     /// <summary>
-    ///     Get a SHA-1 hash for online-mode session checking
+    /// Computes the session hash used for online-mode authentication.
     /// </summary>
-    /// <param name="serverID">Server ID hash</param>
-    /// <param name="PublicKey">Server's RSA key</param>
-    /// <param name="SecretKey">Secret key chosen by the client</param>
-    /// <returns>Returns the corresponding SHA-1 hex hash</returns>
+    /// <param name="serverID">The server id string, encoded as ISO-8859-1.</param>
+    /// <param name="PublicKey">The encoded RSA public key of the server.</param>
+    /// <param name="SecretKey">The shared secret chosen by the client.</param>
+    /// <returns>The SHA-1 digest of <paramref name="serverID"/>, <paramref name="SecretKey"/> and
+    /// <paramref name="PublicKey"/>, in that order, as a hexadecimal string without leading zeros,
+    /// prefixed with a minus sign and expressed as its two's complement when the digest is
+    /// negative.</returns>
     public static string GetServerHash(string serverID, byte[] PublicKey, byte[] SecretKey)
     {
         var hash = Digest(new[] { Encoding.GetEncoding("iso-8859-1").GetBytes(serverID), SecretKey, PublicKey });
@@ -138,11 +149,7 @@ public static class EncryptionHelpers
         return result;
     }
 
-    /// <summary>
-    ///     Generate a SHA-1 hash using several byte arrays
-    /// </summary>
-    /// <param name="tohash">array of byte arrays to hash</param>
-    /// <returns>Returns the hashed data</returns>
+    // Computes one SHA-1 digest over the given arrays, in order.
     private static byte[] Digest(byte[][] tohash)
     {
         var sha1 = SHA1.Create();
@@ -152,11 +159,6 @@ public static class EncryptionHelpers
         return sha1.Hash!;
     }
 
-    /// <summary>
-    ///     Converts a byte array to its hex string representation
-    /// </summary>
-    /// <param name="p">Byte array to convert</param>
-    /// <returns>Returns the string representation</returns>
     private static string GetHexString(byte[] p)
     {
         var result = string.Empty;
@@ -165,11 +167,7 @@ public static class EncryptionHelpers
         return result;
     }
 
-    /// <summary>
-    ///     Compute the two's complement of a little endian byte array
-    /// </summary>
-    /// <param name="p">Byte array to compute</param>
-    /// <returns>Returns the corresponding two's complement</returns>
+    // Replaces the array with its two's complement, in place.
     private static byte[] TwosComplementLittleEndian(byte[] p)
     {
         int i;

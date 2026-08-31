@@ -1,0 +1,54 @@
+{
+  "link.item.label.NuGet": {
+    "message": "NuGet",
+    "description": "The label of footer link with label=NuGet linking to https://www.nuget.org/packages/McProtoNet"
+  },
+  "link.item.label.GitHub": {
+    "message": "GitHub",
+    "description": "The label of footer link with label=GitHub linking to https://github.com/Titlehhhh/McProtoNet"
+  },
+  "link.item.label.Issues": {
+    "message": "Issues",
+    "description": "The label of footer link with label=Issues linking to https://github.com/Titlehhhh/McProtoNet/issues"
+  },
+  "copyright": {
+    "message": "McProtoNet, 2026.",
+    "description": "The footer copyright"
+  },
+  "link.title.Docs": {
+    "message": "Документация",
+    "description": "The title of the footer links column with title=Docs in the footer"
+  },
+  "link.title.Packages": {
+    "message": "Пакеты",
+    "description": "The title of the footer links column with title=Packages in the footer"
+  },
+  "link.title.Project": {
+    "message": "Проект",
+    "description": "The title of the footer links column with title=Project in the footer"
+  },
+  "link.item.label.About the project": {
+    "message": "Об проекте",
+    "description": "The label of footer link with label=About the project linking to /docs/overview/about"
+  },
+  "link.item.label.Installation": {
+    "message": "Установка",
+    "description": "The label of footer link with label=Installation linking to /docs/getting-started/installation"
+  },
+  "link.item.label.First bot": {
+    "message": "Первый бот",
+    "description": "The label of footer link with label=First bot linking to /docs/getting-started/first-bot"
+  },
+  "link.item.label.Glossary": {
+    "message": "Словарь",
+    "description": "The label of footer link with label=Glossary linking to /docs/reference/glossary"
+  },
+  "link.item.label.Nightly builds": {
+    "message": "Ночные сборки",
+    "description": "The label of footer link with label=Nightly builds linking to https://f.feedz.io/mcprotonet/night/nuget/index.json"
+  },
+  "link.item.label.Discord": {
+    "message": "Discord",
+    "description": "The label of footer link with label=Discord linking to https://discord.gg/PWfYWRDJme"
+  }
+}

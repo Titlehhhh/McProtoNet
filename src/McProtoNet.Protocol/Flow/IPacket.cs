@@ -1,32 +1,56 @@
 namespace McProtoNet.Protocol;
 
 /// <summary>
-///     What every packet answers when it is held by a plain reference: "which packet are you?".
-///     <see cref="IPacket{TSelf}" /> puts <c>Identity</c> on the type (static abstract), so it is
-///     reachable only where the concrete type is known statically. A decoded packet that left the
-///     dispatcher — an element of a packet stream, a value in a switch — has lost that type, and
-///     without this interface its only common type is <see cref="object" />.
-///     Generated packets implement it explicitly (<c>PacketIdentity IPacket.Identity => Identity;</c>):
-///     an explicit implementation is not a named member of the class, so the instance property and
-///     the static one coexist.
-///     <see cref="IPacket{TSelf}" /> does NOT inherit this interface — the static member cannot
-///     satisfy the instance one, so inheriting would break every hand-written packet.
+/// Defines the identity that a packet reports when it is held by a reference to a non-generic type.
 /// </summary>
+/// <remarks>
+/// <para>
+/// <see cref="IPacket{TSelf}"/> declares the identity as a static abstract member, which is reachable
+/// only where the concrete packet type is known statically. A decoded packet that has left the
+/// dispatcher, such as an element of a packet stream or a value in a switch, no longer carries that
+/// type; without this interface its only common type is <see cref="object"/>.
+/// </para>
+/// <para>
+/// Generated packets implement this interface explicitly, so that the instance property and the
+/// static property coexist on the same type. <see cref="IPacket{TSelf}"/> does not inherit this
+/// interface, because a static member cannot satisfy an instance member.
+/// </para>
+/// </remarks>
 public interface IPacket
 {
-    /// <summary>Identity of the packet this instance is — the same value as the type's static one.</summary>
+    /// <summary>
+    /// Gets the identity of the packet.
+    /// </summary>
+    /// <value>The same value as the static identity declared by the concrete packet type.</value>
     PacketIdentity Identity { get; }
 }
 
 /// <summary>
-///     A protocol type that is a top-level packet: carries identity and wire ids.
-///     Nested protocol types (Slot, LoginSignature, ...) stay plain <see cref="IProtocolType{TSelf}" />.
-///     Packets are classes (owner decision 2026-08-08): one allocation per packet, no boxing anywhere.
+/// Defines a protocol type that is a top-level packet and therefore carries an identity and per-version
+/// wire ids.
 /// </summary>
+/// <typeparam name="TSelf">The packet type that implements the interface.</typeparam>
+/// <remarks>
+/// Nested protocol types, such as a slot or a login signature, implement
+/// <see cref="IProtocolType{TSelf}"/> instead. Packets are classes, so a packet costs one allocation
+/// and dispatch does not box.
+/// </remarks>
 public interface IPacket<TSelf> : IProtocolType<TSelf> where TSelf : class, IPacket<TSelf>
 {
+    /// <summary>
+    /// Gets the identity of the packet type.
+    /// </summary>
     static abstract PacketIdentity Identity { get; }
 
-    /// <summary>False when the packet does not exist on the given protocol version.</summary>
+    /// <summary>
+    /// Attempts to get the wire id of the packet for the specified protocol version.
+    /// </summary>
+    /// <param name="protocolVersion">The protocol version to look the wire id up for.</param>
+    /// <param name="id">When this method returns, contains the wire id of the packet for the specified
+    /// protocol version, if the packet exists on that version; otherwise, the value is unspecified.</param>
+    /// <returns>
+    /// <see langword="true"/> if the packet exists on the specified protocol version; otherwise,
+    /// <see langword="false"/>.
+    /// </returns>
     static abstract bool TryGetPacketId(int protocolVersion, out int id);
 }

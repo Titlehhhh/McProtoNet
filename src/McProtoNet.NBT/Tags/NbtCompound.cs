@@ -5,52 +5,64 @@ using System.Text;
 namespace McProtoNet.NBT;
 
 /// <summary>
-///     A tag containing a set of other named tags. Order is not guaranteed.
+/// Represents an NBT tag that holds a set of named tags.
 /// </summary>
+/// <remarks>
+/// The order in which the tags are enumerated is not guaranteed. A tag added to this compound becomes its child and
+/// cannot be added to another compound or list until it is removed.
+/// </remarks>
 public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
 {
     private readonly Dictionary<string, NbtTag> _tags = new();
 
     /// <summary>
-    ///     Creates an empty unnamed NbtByte tag.
+    /// Initializes a new instance of the <see cref="NbtCompound"/> class that is unnamed and empty.
     /// </summary>
     public NbtCompound()
     {
     }
 
     /// <summary>
-    ///     Creates an empty NbtByte tag with the given name.
+    /// Initializes a new instance of the <see cref="NbtCompound"/> class with the specified name and no child tags.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
     public NbtCompound(string? tagName)
     {
         Name = tagName;
     }
 
     /// <summary>
-    ///     Creates an unnamed NbtByte tag, containing the given tags.
+    /// Initializes a new instance of the <see cref="NbtCompound"/> class that is unnamed and contains the specified
+    /// tags.
     /// </summary>
-    /// <param name="tags"> Collection of tags to assign to this tag's Value. May not be null </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>, or one of the tags is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException">
-    ///     If some of the given tags were not named, or two tags with the same name were
-    ///     given.
-    /// </exception>
+    /// <param name="tags">The tags to add. Every tag must be named and must have no parent.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">One of the tags is unnamed.
+    /// -or-
+    /// Two tags have the same name.
+    /// -or-
+    /// One of the tags already belongs to another compound or list.</exception>
     public NbtCompound(IEnumerable<NbtTag> tags)
         : this(null!, tags)
     {
     }
 
     /// <summary>
-    ///     Creates an NbtByte tag with the given name, containing the given tags.
+    /// Initializes a new instance of the <see cref="NbtCompound"/> class with the specified name that contains the
+    /// specified tags.
     /// </summary>
-    /// <param name="tagName"> Name to assign to this tag. May be <c>null</c>. </param>
-    /// <param name="tags"> Collection of tags to assign to this tag's Value. May not be null </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tags" /> is <c>null</c>, or one of the tags is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException">
-    ///     If some of the given tags were not named, or two tags with the same name were
-    ///     given.
-    /// </exception>
+    /// <param name="tagName">The name of the tag, or <see langword="null"/> for an unnamed tag.</param>
+    /// <param name="tags">The tags to add. Every tag must be named and must have no parent.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="tags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">One of the tags is unnamed.
+    /// -or-
+    /// Two tags have the same name.
+    /// -or-
+    /// One of the tags already belongs to another compound or list.</exception>
     public NbtCompound(string? tagName, IEnumerable<NbtTag> tags)
     {
         if (tags == null) throw new ArgumentNullException(nameof(tags));
@@ -59,10 +71,10 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Creates a deep copy of given NbtCompound.
+    /// Initializes a new instance of the <see cref="NbtCompound"/> class that is a deep copy of the specified tag.
     /// </summary>
-    /// <param name="other"> An existing NbtCompound to copy. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="other" /> is <c>null</c>. </exception>
+    /// <param name="other">The tag to copy. The name and a clone of every child tag are copied.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtCompound(NbtCompound other)
     {
         if (other == null) throw new ArgumentNullException(nameof(other));
@@ -71,20 +83,27 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Type of this tag (Compound).
+    /// Gets the type of this tag, which is always <see cref="NbtTagType.Compound"/>.
     /// </summary>
     public override NbtTagType TagType => NbtTagType.Compound;
 
     /// <summary>
-    ///     Gets or sets the tag with the specified name. May return <c>null</c>.
+    /// Gets or sets the tag with the specified name.
     /// </summary>
-    /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
-    /// <param name="tagName"> The name of the tag to get or set. Must match tag's actual name. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>; or if trying to assign null value. </exception>
-    /// <exception cref="ArgumentException">
-    ///     <paramref name="tagName" /> does not match the given tag's actual name;
-    ///     or given tag already has a Parent.
-    /// </exception>
+    /// <param name="tagName">The name of the tag to get or set. It must match the name of the tag being set.</param>
+    /// <returns>The tag with the specified name, or <see langword="null"/> if no tag with that name is
+    /// present.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.
+    /// -or-
+    /// The property is set to <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tagName"/> does not match the name of the tag being set.
+    /// -or-
+    /// The tag being set already belongs to another compound or list.
+    /// -or-
+    /// The tag being set is this compound.</exception>
+    /// <remarks>
+    /// The setter replaces any tag already stored under the specified name.
+    /// </remarks>
     public override NbtTag? this[string tagName]
     {
         get => Get<NbtTag>(tagName);
@@ -104,23 +123,24 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Gets a collection containing all tag names in this NbtCompound.
+    /// Gets a collection that contains the names of all tags in this compound.
     /// </summary>
     public IEnumerable<string> Names => _tags.Keys;
 
     /// <summary>
-    ///     Gets a collection containing all tags in this NbtCompound.
+    /// Gets a collection that contains all tags in this compound.
     /// </summary>
     public IEnumerable<NbtTag> Tags => _tags.Values;
 
     /// <summary>
-    ///     Gets the tag with the specified name. May return <c>null</c>.
+    /// Gets the tag with the specified name, cast to the specified type.
     /// </summary>
-    /// <param name="tagName"> The name of the tag to get. </param>
-    /// <typeparam name="T"> Type to cast the result to. Must derive from NbtTag. </typeparam>
-    /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
-    /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
+    /// <typeparam name="T">The type to cast the tag to.</typeparam>
+    /// <param name="tagName">The name of the tag to get.</param>
+    /// <returns>The tag with the specified name, or <see langword="null"/> if no tag with that name is
+    /// present.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidCastException">The tag cannot be cast to <typeparamref name="T"/>.</exception>
     public T? Get<T>(string tagName) where T : NbtTag
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -129,12 +149,12 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Gets the tag with the specified name. May return <c>null</c>.
+    /// Gets the tag with the specified name.
     /// </summary>
-    /// <param name="tagName"> The name of the tag to get. </param>
-    /// <returns> The tag with the specified key. Null if tag with the given name was not found. </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
-    /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
+    /// <param name="tagName">The name of the tag to get.</param>
+    /// <returns>The tag with the specified name, or <see langword="null"/> if no tag with that name is
+    /// present.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public NbtTag? Get(string tagName)
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -142,17 +162,16 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Gets the tag with the specified name.
+    /// Attempts to get the tag with the specified name, cast to the specified type.
     /// </summary>
-    /// <param name="tagName"> The name of the tag to get. </param>
-    /// <param name="result">
-    ///     When this method returns, contains the tag associated with the specified name, if the tag is found;
-    ///     otherwise, null. This parameter is passed uninitialized.
-    /// </param>
-    /// <typeparam name="T"> Type to cast the result to. Must derive from NbtTag. </typeparam>
-    /// <returns> true if the NbtCompound contains a tag with the specified name; otherwise, false. </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
-    /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
+    /// <typeparam name="T">The type to cast the tag to.</typeparam>
+    /// <param name="tagName">The name of the tag to get.</param>
+    /// <param name="result">When this method returns, contains the tag with the specified name, if it was found;
+    /// otherwise, <see langword="null"/>. This parameter is passed uninitialized.</param>
+    /// <returns><see langword="true"/> if a tag with the specified name was found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidCastException">The tag cannot be cast to <typeparamref name="T"/>.</exception>
     public bool TryGet<T>(string tagName, out T result) where T : NbtTag
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -167,16 +186,14 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Gets the tag with the specified name.
+    /// Attempts to get the tag with the specified name.
     /// </summary>
-    /// <param name="tagName"> The name of the tag to get. </param>
-    /// <param name="result">
-    ///     When this method returns, contains the tag associated with the specified name, if the tag is found;
-    ///     otherwise, null. This parameter is passed uninitialized.
-    /// </param>
-    /// <returns> true if the NbtCompound contains a tag with the specified name; otherwise, false. </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
-    /// <exception cref="InvalidCastException"> If tag could not be cast to the desired tag. </exception>
+    /// <param name="tagName">The name of the tag to get.</param>
+    /// <param name="result">When this method returns, contains the tag with the specified name, if it was found;
+    /// otherwise, <see langword="null"/>. This parameter is passed uninitialized.</param>
+    /// <returns><see langword="true"/> if a tag with the specified name was found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public bool TryGet(string tagName, out NbtTag result)
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -191,17 +208,17 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Adds all tags from the specified collection to this NbtCompound.
+    /// Adds all tags of the specified collection to this compound.
     /// </summary>
-    /// <param name="newTags"> The collection whose elements should be added to this NbtCompound. </param>
-    /// <exception cref="ArgumentNullException">
-    ///     <paramref name="newTags" /> is <c>null</c>, or one of the tags in newTags is
-    ///     <c>null</c>.
-    /// </exception>
-    /// <exception cref="ArgumentException">
-    ///     If one of the given tags was unnamed,
-    ///     or if a tag with the given name already exists in this NbtCompound.
-    /// </exception>
+    /// <param name="newTags">The tags to add. Every tag must be named and must have no parent.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newTags"/> is <see langword="null"/>.
+    /// -or-
+    /// One of the tags is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException">One of the tags is unnamed.
+    /// -or-
+    /// A tag with the same name is already present in this compound.
+    /// -or-
+    /// One of the tags already belongs to another compound or list.</exception>
     public void AddRange(IEnumerable<NbtTag> newTags)
     {
         if (newTags == null) throw new ArgumentNullException(nameof(newTags));
@@ -209,11 +226,12 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Determines whether this NbtCompound contains a tag with a specific name.
+    /// Determines whether this compound contains a tag with the specified name.
     /// </summary>
-    /// <param name="tagName"> Tag name to search for. May not be <c>null</c>. </param>
-    /// <returns> true if a tag with given name was found; otherwise, false. </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
+    /// <param name="tagName">The name to locate. This value cannot be <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if a tag with the specified name was found; otherwise,
+    /// <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public bool Contains(string tagName)
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -221,14 +239,14 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Removes the tag with the specified name from this NbtCompound.
+    /// Removes the tag with the specified name from this compound.
     /// </summary>
-    /// <param name="tagName"> The name of the tag to remove. </param>
-    /// <returns>
-    ///     true if the tag is successfully found and removed; otherwise, false.
-    ///     This method returns false if name is not found in the NbtCompound.
-    /// </returns>
-    /// <exception cref="ArgumentNullException"> <paramref name="tagName" /> is <c>null</c>. </exception>
+    /// <param name="tagName">The name of the tag to remove.</param>
+    /// <returns><see langword="true"/> if the tag was found and removed; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The parent of a removed tag is set to <see langword="null"/>.
+    /// </remarks>
     public bool Remove(string tagName)
     {
         if (tagName == null) throw new ArgumentNullException(nameof(tagName));
@@ -321,9 +339,9 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     #region Implementation of IEnumerable<NbtTag>
 
     /// <summary>
-    ///     Returns an enumerator that iterates through all tags in this NbtCompound.
+    /// Returns an enumerator that iterates through all tags in this compound.
     /// </summary>
-    /// <returns> An IEnumerator&gt;NbtTag&lt; that can be used to iterate through the collection. </returns>
+    /// <returns>An enumerator for the tags in this compound.</returns>
     public IEnumerator<NbtTag> GetEnumerator()
     {
         return _tags.Values.GetEnumerator();
@@ -339,14 +357,20 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     #region Implementation of ICollection<NbtTag>
 
     /// <summary>
-    ///     Adds a tag to this NbtCompound.
+    /// Adds a tag to this compound.
     /// </summary>
-    /// <param name="newTag"> The object to add to this NbtCompound. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="newTag" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException">
-    ///     If the given tag is unnamed;
-    ///     or if a tag with the given name already exists in this NbtCompound.
-    /// </exception>
+    /// <param name="newTag">The tag to add. It must be named and must have no parent.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="newTag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="newTag"/> is this compound.
+    /// -or-
+    /// <paramref name="newTag"/> is unnamed.
+    /// -or-
+    /// <paramref name="newTag"/> already belongs to another compound or list.
+    /// -or-
+    /// A tag with the same name is already present in this compound.</exception>
+    /// <remarks>
+    /// The added tag becomes a child of this compound.
+    /// </remarks>
     public void Add(NbtTag newTag)
     {
         if (newTag == null) throw new ArgumentNullException(nameof(newTag));
@@ -362,10 +386,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
         newTag.Parent = this;
     }
 
-    /// <summary>
-    ///     Adds a named tag, replacing any tag that already carries the name. Vanilla lets the last
-    ///     duplicate in a compound win, so readers use this instead of <see cref="Add" />.
-    /// </summary>
+    /// <summary>Adds a named tag, replacing any tag already stored under that name, as vanilla does when a compound holds duplicate names.</summary>
     internal void SetOrReplace(NbtTag tag)
     {
         if (_tags.Remove(tag.Name!, out var replaced)) replaced.Parent = null;
@@ -374,8 +395,11 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Removes all tags from this NbtCompound.
+    /// Removes all tags from this compound.
     /// </summary>
+    /// <remarks>
+    /// The parent of every removed tag is set to <see langword="null"/>.
+    /// </remarks>
     public void Clear()
     {
         foreach (var tag in _tags.Values) tag.Parent = null;
@@ -383,12 +407,14 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Determines whether this NbtCompound contains a specific NbtTag.
-    ///     Looks for exact object matches, not name matches.
+    /// Determines whether this compound contains the specified tag.
     /// </summary>
-    /// <returns> true if tag is found; otherwise, false. </returns>
-    /// <param name="tag"> The object to locate in this NbtCompound. May not be <c>null</c>. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tag" /> is <c>null</c>. </exception>
+    /// <param name="tag">The tag to locate. This value cannot be <see langword="null"/>.</param>
+    /// <returns><see langword="true"/> if the tag was found; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <remarks>
+    /// The comparison matches the tag instance, not the tag name.
+    /// </remarks>
     public bool Contains(NbtTag tag)
     {
         if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -396,37 +422,31 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Copies the tags of the NbtCompound to an array, starting at a particular array index.
+    /// Copies the tags of this compound to an array, starting at the specified index.
     /// </summary>
-    /// <param name="array">
-    ///     The one-dimensional array that is the destination of the tag copied from NbtCompound.
-    ///     The array must have zero-based indexing.
-    /// </param>
-    /// <param name="arrayIndex"> The zero-based index in array at which copying begins. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="array" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentOutOfRangeException"> arrayIndex is less than 0. </exception>
-    /// <exception cref="ArgumentException">
-    ///     Given array is multidimensional; arrayIndex is equal to or greater than the length of array;
-    ///     the number of tags in this NbtCompound is greater than the available space from arrayIndex to the end of the
-    ///     destination array;
-    ///     or type NbtTag cannot be cast automatically to the type of the destination array.
-    /// </exception>
+    /// <param name="array">The one-dimensional array that is the destination of the copied tags. The array must
+    /// have zero-based indexing.</param>
+    /// <param name="arrayIndex">The zero-based index in <paramref name="array"/> at which copying begins.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="array"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="arrayIndex"/> is less than zero.</exception>
+    /// <exception cref="ArgumentException">The number of tags in this compound is greater than the available space
+    /// from <paramref name="arrayIndex"/> to the end of <paramref name="array"/>.</exception>
     public void CopyTo(NbtTag[] array, int arrayIndex)
     {
         _tags.Values.CopyTo(array, arrayIndex);
     }
 
     /// <summary>
-    ///     Removes the first occurrence of a specific NbtTag from the NbtCompound.
-    ///     Looks for exact object matches, not name matches.
+    /// Removes the specified tag from this compound.
     /// </summary>
-    /// <returns>
-    ///     true if tag was successfully removed from the NbtCompound; otherwise, false.
-    ///     This method also returns false if tag is not found.
-    /// </returns>
-    /// <param name="tag"> The tag to remove from the NbtCompound. </param>
-    /// <exception cref="ArgumentNullException"> <paramref name="tag" /> is <c>null</c>. </exception>
-    /// <exception cref="ArgumentException"> If the given tag is unnamed </exception>
+    /// <param name="tag">The tag to remove. It must be named.</param>
+    /// <returns><see langword="true"/> if the tag was found and removed; otherwise, <see langword="false"/>.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="tag"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="tag"/> is unnamed.</exception>
+    /// <remarks>
+    /// The comparison matches the tag instance, not the tag name. The parent of a removed tag is set to
+    /// <see langword="null"/>.
+    /// </remarks>
     public bool Remove(NbtTag tag)
     {
         if (tag == null) throw new ArgumentNullException(nameof(tag));
@@ -438,9 +458,8 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     }
 
     /// <summary>
-    ///     Gets the number of tags contained in the NbtCompound.
+    /// Gets the number of tags contained in this compound.
     /// </summary>
-    /// <returns> The number of tags contained in the NbtCompound. </returns>
     public int Count => _tags.Count;
 
     bool ICollection<NbtTag>.IsReadOnly => false;

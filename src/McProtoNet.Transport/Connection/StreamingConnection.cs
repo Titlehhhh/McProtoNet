@@ -7,24 +7,27 @@ using McProtoNet.Transport.Framing;
 namespace McProtoNet.Transport;
 
 /// <summary>
-///     A connection in streaming mode: reads come in batches, writes are synchronous into a buffer
-///     and leave on <see cref="FlushAsync" />. Neither the cipher nor the compression threshold can
-///     change here — that is what makes the big buffers safe. Reached only through
-///     <see cref="MinecraftConnection.ToStreaming" />.
+/// Represents a connection that reads packets in batches and buffers writes until they are flushed.
 /// </summary>
 /// <remarks>
-///     One reader, one writer, no queue inside: send policy belongs to the caller. Another thread
-///     may only call <see cref="Abort" />. A batch and its bodies live until the next
-///     <see cref="ReadBatchAsync" />.
-///     <para>
-///     What comes out when a call cannot go through: <see cref="ObjectDisposedException" /> after
-///     <see cref="DisposeAsync" />; <see cref="InvalidOperationException" /> for a misuse that never
-///     touched the stream — two reads at once — which leaves the connection alone; an
-///     <see cref="OperationCanceledException" /> only for the caller's own cancelled token;
-///     <see cref="ConnectionAbortedException" /> for everything else, with the reason as its inner
-///     exception. The first failure of the stream itself comes out as it is and is latched — every
-///     call after it reports the closed connection and that reason.
-///     </para>
+/// <para>
+/// An instance is obtained only from <see cref="MinecraftConnection.ToStreaming"/>. Neither the
+/// cipher nor the compression threshold can change on this connection.
+/// </para>
+/// <para>
+/// The connection supports one reader and one writer and holds no send queue. Another thread may
+/// call only <see cref="Abort"/>. A batch and the packet bodies it hands out stay valid until the
+/// next <see cref="ReadBatchAsync"/>.
+/// </para>
+/// <para>
+/// A call that cannot go through throws <see cref="ObjectDisposedException"/> after
+/// <see cref="DisposeAsync"/>, <see cref="InvalidOperationException"/> for a misuse that never
+/// reached the stream, such as two concurrent reads, which leaves the connection usable,
+/// <see cref="OperationCanceledException"/> for the caller's own canceled token, and
+/// <see cref="ConnectionAbortedException"/> in every other case, with the reason as its inner
+/// exception. The first failure of the stream itself is thrown as it is and is latched; every later
+/// call reports the closed connection and that reason.
+/// </para>
 /// </remarks>
 public sealed class StreamingConnection : IAsyncDisposable
 {
@@ -52,28 +55,56 @@ public sealed class StreamingConnection : IAsyncDisposable
         _writer = new BufferedPacketWriter(stream, compressionThreshold, encryptor);
     }
 
-    /// <summary>The stream underneath — the raw escape hatch for proxies and replays.</summary>
+    /// <summary>
+    /// Gets the stream that frames are read from and written to.
+    /// </summary>
     public Stream BaseStream => _stream;
 
-    /// <summary>Negative means no compression envelope. Fixed for the life of this connection.</summary>
+    /// <summary>
+    /// Gets the compression threshold, in bytes. A negative value disables the compression envelope.
+    /// </summary>
+    /// <remarks>
+    /// The value is fixed for the life of the connection.
+    /// </remarks>
     public int CompressionThreshold => _reader.CompressionThreshold;
 
-    /// <summary>True when the connection was moved here with encryption already on.</summary>
+    /// <summary>
+    /// Gets a value indicating whether encryption is enabled on the connection.
+    /// </summary>
+    /// <value>
+    /// <see langword="true"/> if the connection was moved here with encryption already enabled;
+    /// otherwise, <see langword="false"/>.
+    /// </value>
     public bool IsEncrypted => _encryptor is not null;
 
     /// <summary>
-    ///     Completes when the connection is closed, cleanly or not. Never faults. There are no pumps
-    ///     behind it, so it means "closed", not "every in-flight call has returned".
+    /// Gets a task that completes when the connection is closed.
     /// </summary>
+    /// <remarks>
+    /// The task never faults. Completion means the connection is closed, not that every call in
+    /// progress has returned.
+    /// </remarks>
     public Task Completion => _completion.Task;
 
-    /// <summary>Why the connection ended. Null for a clean end of stream or <see cref="CompleteAsync" />.</summary>
+    /// <summary>
+    /// Gets the exception that ended the connection.
+    /// </summary>
+    /// <value>
+    /// The reason the connection ended, or <see langword="null"/> for a clean end of stream, for a
+    /// close through <see cref="CompleteAsync"/>, or while the connection is still open.
+    /// </value>
     public Exception? CloseReason => Volatile.Read(ref _closeReason);
 
     /// <summary>
-    ///     Bytes framed but not yet handed to the stream. A closed connection reports 0 — nothing it
-    ///     still holds will ever go out — so it stays readable after <see cref="CompleteAsync" />.
+    /// Gets the number of bytes that are framed but not yet handed to the stream.
     /// </summary>
+    /// <value>
+    /// The number of buffered bytes, or 0 when the connection is closed or the writer failed.
+    /// </value>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <remarks>
+    /// This property remains readable after <see cref="CompleteAsync"/>.
+    /// </remarks>
     public long UnflushedBytes
     {
         get
@@ -84,9 +115,23 @@ public sealed class StreamingConnection : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Every whole frame that one read produced. An empty batch with
-    ///     <see cref="PacketBatch.IsCompleted" /> means the stream ended.
+    /// Asynchronously reads every whole frame that one read produced.
     /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the batch
+    /// that was read. An empty batch whose <see cref="PacketBatch.IsCompleted"/> is
+    /// <see langword="true"/> means the stream ended.</returns>
+    /// <exception cref="InvalidOperationException">Another read is already in progress.</exception>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended in the middle of a frame.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
+    /// exception is stored into the returned task.</exception>
+    /// <remarks>
+    /// The batch and the packet bodies it hands out stay valid until the next call. Cancellation
+    /// through <paramref name="token"/> leaves the connection open.
+    /// </remarks>
     public async ValueTask<PacketBatch> ReadBatchAsync(CancellationToken token = default)
     {
         ThrowIfClosed();
@@ -108,7 +153,16 @@ public sealed class StreamingConnection : IAsyncDisposable
         return batch;
     }
 
-    /// <summary>Batches flattened into one sequence. Enumeration ends when the stream ends.</summary>
+    /// <summary>
+    /// Asynchronously reads batches and returns their packets as a single sequence.
+    /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A sequence of packets that ends when the stream ends.</returns>
+    /// <remarks>
+    /// Every packet body stays valid only until the next batch is read. The exceptions of
+    /// <see cref="ReadBatchAsync"/> surface during enumeration.
+    /// </remarks>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(
         [EnumeratorCancellation] CancellationToken token = default)
     {
@@ -125,21 +179,55 @@ public sealed class StreamingConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>Frames one packet into the send buffer. Nothing leaves until <see cref="FlushAsync" />.</summary>
+    /// <summary>
+    /// Frames one packet that already carries its varint id into the send buffer.
+    /// </summary>
+    /// <param name="packet">The packet to frame: the varint packet id followed by the body.</param>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <exception cref="InvalidOperationException">A flush failed part-way, so the writer can no
+    /// longer be used.</exception>
+    /// <remarks>
+    /// Nothing is sent until <see cref="FlushAsync"/> or <see cref="CompleteAsync"/> is called.
+    /// </remarks>
     public void WritePacket(ReadOnlySpan<byte> packet)
     {
         ThrowIfClosed();
         _writer.WritePacket(packet);
     }
 
-    /// <summary>Frames one packet, putting the varint id in front of the body.</summary>
+    /// <summary>
+    /// Frames one packet into the send buffer, prefixing the body with the specified packet id.
+    /// </summary>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id.</param>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <exception cref="InvalidOperationException">A flush failed part-way, so the writer can no
+    /// longer be used.</exception>
+    /// <remarks>
+    /// Nothing is sent until <see cref="FlushAsync"/> or <see cref="CompleteAsync"/> is called.
+    /// </remarks>
     public void WritePacket(int id, ReadOnlySpan<byte> body)
     {
         ThrowIfClosed();
         _writer.WritePacket(id, body);
     }
 
-    /// <summary>Frames one packet whose body is split across segments, without joining it first.</summary>
+    /// <summary>
+    /// Frames one packet into the send buffer from a segmented body, without joining the segments
+    /// first.
+    /// </summary>
+    /// <param name="id">The packet id, written in front of the body as a varint.</param>
+    /// <param name="body">The packet body, without the id, split across one or more segments.</param>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed.</exception>
+    /// <exception cref="InvalidOperationException">A flush failed part-way, so the writer can no
+    /// longer be used.</exception>
+    /// <remarks>
+    /// Nothing is sent until <see cref="FlushAsync"/> or <see cref="CompleteAsync"/> is called. A body
+    /// that is compressed is copied into one buffer first.
+    /// </remarks>
     public void WritePacket(int id, in ReadOnlySequence<byte> body)
     {
         ThrowIfClosed();
@@ -147,12 +235,25 @@ public sealed class StreamingConnection : IAsyncDisposable
     }
 
     /// <summary>
-    ///     One write plus one stream flush. When it returns, everything written so far is at the
-    ///     socket. A cancelled or failed flush kills the connection — part of a frame may be on the
-    ///     wire — so the caller who cancelled still gets its own
-    ///     <see cref="OperationCanceledException" />, and every call after that gets
-    ///     <see cref="ConnectionAbortedException" />.
+    /// Asynchronously sends everything framed so far in one write and flushes the stream.
     /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous flush operation. When it completes, the bytes
+    /// have been handed to the stream and flushed.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="InvalidOperationException">A flush failed part-way, so the writer can no
+    /// longer be used.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
+    /// exception is stored into the returned task.</exception>
+    /// <remarks>
+    /// A flush that fails or is canceled after a byte has reached the stream closes the connection.
+    /// The caller that canceled receives <see cref="OperationCanceledException"/>, and every later
+    /// call receives
+    /// <see cref="ConnectionAbortedException"/>. Cancellation with an empty send buffer leaves the
+    /// connection open.
+    /// </remarks>
     public async ValueTask FlushAsync(CancellationToken token = default)
     {
         ThrowIfClosed();
@@ -168,7 +269,19 @@ public sealed class StreamingConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>Flushes what is left and closes cleanly.</summary>
+    /// <summary>
+    /// Asynchronously sends everything framed so far and closes the connection cleanly.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous complete operation.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="ConnectionAbortedException">The connection is closed, or the stream failed.</exception>
+    /// <exception cref="InvalidOperationException">A flush failed part-way, so the writer can no
+    /// longer be used.</exception>
+    /// <remarks>
+    /// <see cref="CloseReason"/> stays <see langword="null"/> after this method. The underlying stream
+    /// is closed unless the connection was created with <c>leaveOpen</c> set to
+    /// <see langword="true"/>.
+    /// </remarks>
     public async ValueTask CompleteAsync()
     {
         // it promises the bytes are on the wire: on a closed connection that would be a lie
@@ -189,11 +302,26 @@ public sealed class StreamingConnection : IAsyncDisposable
     }
 
     /// <summary>
-    ///     Closes the connection from any thread; an in-flight read or flush fails with the reason.
-    ///     The stream goes down even when the caller owns it — that is what breaks the in-flight call.
+    /// Closes the connection and the underlying stream.
     /// </summary>
+    /// <param name="reason">The exception to report as <see cref="CloseReason"/>, or
+    /// <see langword="null"/> for a clean close. The default value is <see langword="null"/>.</param>
+    /// <remarks>
+    /// This method can be called from any thread. A read or a flush in progress fails with the
+    /// reason. The stream is closed even when the connection was created with <c>leaveOpen</c> set to
+    /// <see langword="true"/>.
+    /// </remarks>
     public void Abort(Exception? reason = null) => Close(reason, closeStream: true);
 
+    /// <summary>
+    /// Asynchronously releases all resources used by the current instance of the
+    /// <see cref="StreamingConnection"/> class.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <remarks>
+    /// Bytes that are framed but not flushed are discarded. The underlying stream is closed unless the
+    /// connection was created with <c>leaveOpen</c> set to <see langword="true"/>.
+    /// </remarks>
     public async ValueTask DisposeAsync()
     {
         if (Interlocked.Exchange(ref _disposed, 1) == 1) return;
@@ -242,10 +370,7 @@ public sealed class StreamingConnection : IAsyncDisposable
         }
     }
 
-    /// <summary>
-    ///     Latches a dead stream so the next call reports the close instead of reading a corpse, and
-    ///     says what the caller must see. Null means the original exception, rethrown with its stack.
-    /// </summary>
+    // Latches a dead stream and returns what the caller must see; null means rethrow the original.
     private Exception? OnFailure(Exception ex, CancellationToken token)
     {
         if (ex is OperationCanceledException && token.IsCancellationRequested) return null;
@@ -263,11 +388,8 @@ public sealed class StreamingConnection : IAsyncDisposable
         return ex is OperationCanceledException ? new ConnectionAbortedException(ex) : null;
     }
 
-    /// <summary>
-    ///     Same, for the send side, where even the caller's own cancellation is fatal: the buffered
-    ///     writer is dead after any failed flush and part of a frame may already be on the wire. The
-    ///     caller who cancelled still gets its own cancellation; the connection goes down behind it.
-    /// </summary>
+    // Same for the send side, where the caller's own cancellation is fatal too: the buffered writer is
+    // dead after any failed flush and part of a frame may already be on the wire.
     private Exception? OnFlushFailure(Exception ex, CancellationToken token)
     {
         if (Volatile.Read(ref _closed) == 1)

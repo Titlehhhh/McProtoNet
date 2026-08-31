@@ -4,6 +4,7 @@ using static McProtoNet.Transport.Compression.Native.Compression;
 
 namespace McProtoNet.Transport.Compression;
 
+/// <summary>Provides zlib compression through a native libdeflate compressor handle.</summary>
 internal ref struct ZlibCompressor
 {
     private readonly IntPtr compressor;
