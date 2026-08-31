@@ -114,6 +114,26 @@ const config: Config = {
     },
     mermaid: {
       theme: {light: 'neutral', dark: 'dark'},
+      // Схемы рисуются палитрой сайта, а не серым по умолчанию.
+      options: {
+        fontFamily:
+          'Inter, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif',
+        themeVariables: {
+          background: '#0e1013',
+          primaryColor: '#191d22',
+          primaryBorderColor: '#626d7c',
+          primaryTextColor: '#d9dde3',
+          secondaryColor: '#13161a',
+          tertiaryColor: '#13161a',
+          lineColor: '#8b95a3',
+          textColor: '#d9dde3',
+          mainBkg: '#191d22',
+          nodeBorder: '#626d7c',
+          clusterBkg: '#13161a',
+          clusterBorder: '#333b46',
+          edgeLabelBackground: '#13161a',
+        },
+      },
     },
     navbar: {
       title: 'McProtoNet',
@@ -147,8 +167,8 @@ const config: Config = {
           title: 'Документация',
           items: [
             {label: 'Об проекте', to: '/docs/overview/about'},
-            {label: 'Первый бот', to: '/docs/getting-started/minimal-bot'},
-            {label: 'Что библиотека не делает', to: '/docs/overview/non-goals'},
+            {label: 'Установка', to: '/docs/getting-started/installation'},
+            {label: 'Первый бот', to: '/docs/getting-started/first-bot'},
             {label: 'Словарь', to: '/docs/reference/glossary'},
           ],
         },

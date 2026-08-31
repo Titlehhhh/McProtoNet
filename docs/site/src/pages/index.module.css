@@ -6,6 +6,10 @@
  */
 
 .hero {
+  background-size: cover;
+  background-position: center 42%;
+  background-repeat: no-repeat;
+
   background: var(--mc-bg2);
   border-bottom: 1px solid var(--mc-line);
   padding: 72px 0 64px;
@@ -192,5 +196,47 @@
   }
   .section {
     padding: 40px 0;
+  }
+}
+
+/* Иконка пакета с nuget.org над заголовком. Растр 128px, показываем 96:
+   мельче — теряется кирка, крупнее — видно пиксельную кромку. */
+.heroIcon {
+  display: block;
+  margin: 0 auto 18px;
+  image-rendering: pixelated;
+}
+
+/* Подпись к фоновой картинке первого экрана */
+.backdropNote {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--mc-fg3);
+}
+
+/* Снимок строя ботов. Тёмная рамка, чтобы кадр не сливался с фоном. */
+.shot {
+  margin: 0;
+  border: 1px solid var(--mc-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--mc-bg2);
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.shotCaption {
+  padding: 14px 18px 16px;
+  color: var(--mc-fg2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* На узком экране nowrap в первом столбце отдавал описанию половину ширины */
+@media (max-width: 576px) {
+  .table td:first-child {
+    white-space: normal;
   }
 }

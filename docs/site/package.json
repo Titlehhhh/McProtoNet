@@ -12,7 +12,8 @@
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids",
     "typecheck": "tsc",
-    "metadata": "docfx metadata docfx.json"
+    "metadata": "docfx metadata docfx.json",
+    "api": "node scripts/api-to-md.mjs"
   },
   "dependencies": {
     "@docusaurus/core": "3.10.2",
@@ -34,7 +35,8 @@
     "@docusaurus/tsconfig": "3.10.2",
     "@docusaurus/types": "3.10.2",
     "@types/react": "^19.0.0",
-    "typescript": "~6.0.2"
+    "typescript": "~6.0.2",
+    "yaml": "^2.9.0"
   },
   "browserslist": {
     "production": [

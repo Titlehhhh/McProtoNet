@@ -1,0 +1,34 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Обзор": {
+    "message": "Обзор",
+    "description": "The label for category 'Обзор' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Начало работы": {
+    "message": "Начало работы",
+    "description": "The label for category 'Начало работы' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Как устроена библиотека": {
+    "message": "Как устроена библиотека",
+    "description": "The label for category 'Как устроена библиотека' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Транспорт": {
+    "message": "Транспорт",
+    "description": "The label for category 'Транспорт' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Пакеты": {
+    "message": "Пакеты",
+    "description": "The label for category 'Пакеты' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.NBT": {
+    "message": "NBT",
+    "description": "The label for category 'NBT' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Справка": {
+    "message": "Справка",
+    "description": "The label for category 'Справка' in sidebar 'docs'"
+  }
+}

@@ -10,6 +10,19 @@
  * - для ссылок в тексте отдельный зелёный с вдвое меньшей хромой, плюс
  *   подчёркивание: цвет в одиночку — нарушение WCAG 1.4.1;
  * - база 16px вместо 15px, колонка текста ограничена по длине строки.
+ *
+ * Правки после визуальной проверки 2026-08-31 (сайт собран и отснят):
+ * - инлайновый код был зелёным, из-за обилия имён типов абзацы рябили:
+ *   цвет нейтральный, отличие несут моноширинный шрифт и подложка
+ *   (12.4:1 к тексту на ней);
+ * - узкие таблицы не растягиваются на всю ширину (столбцы «версия» и
+ *   «протокол» расходились по краям экрана);
+ * - для интерактивных границ отдельная линия --mc-line-strong (3.63:1,
+ *   SC 1.4.11), декоративные разделители остались прежними;
+ * - колонка текста 680px: кириллица шире латиницы, при 720px строка
+ *   доходила до 85 знаков при норме 45-75;
+ * - добавлены prefers-reduced-motion и минимальные цели нажатия 24x24
+ *   (SC 2.5.8, новое в WCAG 2.2).
  */
 
 /* Шрифты локально: Google Fonts блокирует рендер и нестабилен у части
@@ -32,6 +45,10 @@
   --mc-bg2: #13161a;
   --mc-bg3: #191d22;
   --mc-line: #333b46;
+  /* Линия для интерактивных элементов: поиск, поля, активные вкладки.
+     #333b46 к фону даёт 1.5:1, а SC 1.4.11 требует 3:1 для несущих
+     смысл границ. Декоративные разделители остаются на --mc-line. */
+  --mc-line-strong: #626d7c;
   --mc-fg: #d9dde3;
   --mc-fg2: #acb5bf;
   --mc-fg3: #a0a9b3;
@@ -138,14 +155,19 @@
   font-size: 17px;
   color: var(--mc-fg);
 }
-/* Тач-цель бургера: 30x30 мало для пальца, нужно 44x44 */
-.navbar__toggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 44px;
-  min-height: 44px;
-  margin-right: 4px;
+/* Тач-цель бургера: 30x30 мало для пальца, нужно 44x44.
+   Только на узких экранах: на широких бургера быть не должно, а `display`
+   без медиазапроса перебивал штатное скрытие - кнопка висела на десктопе
+   и не открывала ничего, потому что панели на этой ширине нет в DOM. */
+@media (max-width: 996px) {
+  .navbar__toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    margin-right: 4px;
+  }
 }
 
 /* Боковое меню */
@@ -184,15 +206,18 @@
 
 /* Длина строки. Главная причина, почему текст читался тяжело: колонка
    доходила до 960px, а это 107 знаков в строке при норме 60-80.
-   Ограничиваем статью, а не контейнер, иначе уедет оглавление. */
+   Ограничиваем статью, а не контейнер, иначе уедет оглавление.
+   680px: кириллица шире латиницы, при 720px строка доходила до 85 знаков. */
 .theme-doc-markdown {
-  max-width: 720px;
+  max-width: 680px;
 }
 
 /* Текст страницы. Комбинатор потомка, а не прямого ребёнка: иначе заголовки
    внутри вкладок, admonition и <details> выпадут из шкалы. */
 .markdown h1:first-child {
-  font-size: 34px;
+  /* Фиксированные 34px на узком экране съедали треть первого экрана:
+     заголовок из трёх слов ложился в три строки. */
+  font-size: clamp(26px, 5.5vw + 8px, 34px);
   letter-spacing: -0.01em;
   font-weight: 700;
   margin-bottom: 18px;
@@ -231,10 +256,18 @@
 }
 
 /* Инлайновый код. --ifm-code-color в этой версии Infima не читается:
-   правило code {} задаёт фон и шрифт, но не цвет. Ставим явно. */
+   правило code {} задаёт фон и шрифт, но не цвет. Ставим явно.
+   Цвет нейтральный: имён типов в тексте много, и на зелёном абзацы
+   рябили. Отличие несёт моноширинный шрифт и подложка, а не цвет
+   (нецветовой признак нужен и по SC 1.4.1). */
 .markdown code {
-  color: var(--mc-acc-code);
+  color: var(--mc-fg);
+  background: rgba(255, 255, 255, 0.04);
   border: 0;
+  border-radius: 4px;
+  /* Рамка и высокая подложка ломали строку: абзац шёл ступеньками
+     из прямоугольников. Подложка только намекает. */
+  padding: 0.05em 0.3em;
 }
 .markdown a code {
   color: inherit;
@@ -246,10 +279,21 @@ b code {
 }
 
 /* Таблицы: без рамки по периметру, заголовок капителью */
+/* Ширина по содержимому: таблица «версия - протокол» на 100% ширины
+   разносила два столбца по разным краям экрана. */
 .markdown table {
   display: table;
-  width: 100%;
+  width: auto;
+  max-width: 100%;
   border-collapse: collapse;
+}
+.markdown table th,
+.markdown table td {
+  padding-right: 32px;
+}
+.markdown table th:last-child,
+.markdown table td:last-child {
+  padding-right: 0;
 }
 .markdown table thead tr {
   border-bottom: 1px solid var(--mc-line);
@@ -312,4 +356,107 @@ input:focus-visible {
   outline: 2px solid var(--mc-acc);
   outline-offset: 2px;
   border-radius: 4px;
+}
+
+/* Поиск и другие поля: граница должна быть видна (SC 1.4.11, 3:1) */
+.navbar__search-input,
+.DocSearch-Button,
+[class*='searchBar'] input {
+  border: 1px solid var(--mc-line-strong);
+}
+
+/* Сокращённое движение: анимации по просьбе системы выключаются целиком */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Размер цели нажатия 24x24 (SC 2.5.8): стрелки разделов в меню
+   и кнопка сворачивания оглавления на мобильном. */
+.menu__caret,
+.menu__link--sublist-caret::after,
+.theme-doc-toc-mobile button {
+  min-width: 24px;
+  min-height: 24px;
+}
+
+/* Полоса анонса приезжает белой из коробки и бьёт по глазам на тёмном сайте */
+div[class*='announcementBar_'] {
+  background: var(--mc-bg3);
+  color: var(--mc-fg);
+  border-bottom: 1px solid var(--mc-line);
+  font-size: 14px;
+}
+div[class*='announcementBar_'] button {
+  color: var(--mc-fg2);
+}
+
+/* Ссылка не может отличаться от текста только цветом (SC 1.4.1): в статьях
+   подчёркивание уже есть, но главная под .markdown не попадает. */
+main a:not(.button):not([class*='card']):not(.pagination-nav__link):not(.hash-link) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+  text-decoration-color: rgba(127, 215, 160, 0.45);
+}
+main a:hover {
+  text-decoration-color: currentColor;
+}
+
+/* Прокручиваемый код: без видимого края непонятно, что строка продолжается */
+.theme-code-block pre {
+  scrollbar-color: #626d7c transparent;
+}
+
+/* Справка API (docs/08-api-reference/, генератор scripts/api-to-md.mjs) -
+ * 507 страниц с таблицами членов и сигнатурами, плотность страницы 01-07 им
+ * не подходит. Правки после снимка _shots/api-client.png, 2026-08-31.
+ * Селектор бьёт только по этому разделу: у каждой страницы Docusaurus сам
+ * вешает класс docs-doc-id-<id> на <html> (id страницы - её путь без
+ * расширения), а id всех страниц раздела начинается с "api-reference/" -
+ * отдельный класс на обёртку заводить не пришлось.
+ */
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown h1 {
+  /* Заголовок типа был кодовой плашкой (# `Имя`) - моноширинность теперь
+     задаёт стиль, а не обратные кавычки в разметке. Длинные имена
+     пространств (McProtoNet.Protocol.Packets.Play.Clientbound) не влезают
+     в 34px, поэтому кегль плавающий, а перенос разрешён по любому месту. */
+  font-family: var(--ifm-font-family-monospace);
+  font-size: clamp(20px, 2.1vw + 6px, 30px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  background: none;
+}
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table {
+  /* Таблицы членов длиннее обычных (сигнатура + описание на 400+ страницах),
+     плотность важнее декоративных отступов раздела 01-07. */
+  font-size: 14px;
+}
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table th,
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table td {
+  padding: 6px 20px 6px 0;
+}
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table th:last-child,
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table td:last-child {
+  padding-right: 0;
+}
+/* Сигнатуры вида ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken)
+   не переносились и раздвигали таблицу за край страницы. */
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+}
+/* Подчёркивание всех ссылок в тексте (правило выше, SC 1.4.1) в плотной
+   таблице членов рябит на каждой строке - здесь ссылку несёт ячейка целиком,
+   !important нужен только чтобы перебить специфичность того правила. */
+html[class*='docs-doc-id-api-reference/'] .theme-doc-markdown table a {
+  text-decoration: none !important;
 }

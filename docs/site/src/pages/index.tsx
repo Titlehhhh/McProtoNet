@@ -6,6 +6,7 @@ import Layout from '@theme/Layout';
 import Heading from '@theme/Heading';
 import CodeBlock from '@theme/CodeBlock';
 import Translate, {translate} from '@docusaurus/Translate';
+import useBaseUrl from '@docusaurus/useBaseUrl';
 
 import styles from './index.module.css';
 
@@ -28,8 +29,13 @@ await using var client = new MinecraftClient(
     new MinecraftClientOptions { Host = "127.0.0.1", Port = 25565 });
 await client.ConnectAsync();
 
-await client.SendAsync(new HandshakeSb.SetProtocolPacket(Pv, "127.0.0.1", 25565, 2), Pv);
-await client.SendAsync(new LoginSb.LoginStartPacket("McProtoBot", V764_Last: new(Guid.NewGuid())), Pv);
+await client.SendAsync(
+    new HandshakeSb.SetProtocolPacket(Pv, "127.0.0.1", 25565, 2), Pv);
+await client.SendAsync(
+    new LoginSb.LoginStartPacket("McProtoBot", V764_Last: new(Guid.NewGuid())),
+    Pv);
+
+var bot = new Bot(client, Pv);                         // класс из «Первого бота»
 
 await foreach (var packet in client.ReadPacketsAsync())
     await bot.HandleAsync(in packet, Pv);`;
@@ -47,11 +53,11 @@ const FEATURES: Feature[] = [
   },
   {
     title: 'Много версий, один API',
-    body: 'Каждый пакет знает свою раскладку по версиям. Версию протокола вы выбираете один раз, при подключении.',
+    body: 'Каждый пакет знает свою раскладку по версиям. Версия протокола задаётся один раз, при подключении.',
   },
   {
-    title: 'Оффлайн-серверы',
-    body: 'Handshake и login на серверы в offline-режиме из коробки. Машина состояний входа остаётся в вашем коде, поэтому нестандартные серверы — не тупик.',
+    title: 'Offline-серверы',
+    body: 'Handshake и login на серверы в offline-режиме. Порядок входа остаётся в коде приложения, поэтому нестандартный сервер не превращается в тупик.',
   },
   {
     title: 'Сетевые помощники',
@@ -69,9 +75,24 @@ const PACKAGES: [string, string][] = [
 
 function Hero() {
   const {siteConfig} = useDocusaurusContext();
+  // Надпись из блоков уходит фоном под затемнение: контраст текста держит
+  // градиент, картинка остаётся фактурой, а не иллюстрацией.
+  const backdrop = useBaseUrl('/img/formation.png');
   return (
-    <header className={clsx('hero', styles.hero)}>
+    <header
+      className={clsx('hero', styles.hero)}
+      style={{
+        backgroundImage:
+          `linear-gradient(180deg, rgba(14,16,19,0.72) 0%, rgba(14,16,19,0.86) 60%, var(--mc-bg) 100%), url(${backdrop})`,
+      }}>
       <div className="container">
+        <img
+          className={styles.heroIcon}
+          src={useBaseUrl('/img/icon.png')}
+          alt="Иконка пакета McProtoNet на nuget.org"
+          width={96}
+          height={96}
+        />
         <Heading as="h1" className={styles.heroTitle}>
           {siteConfig.title}
         </Heading>
@@ -79,7 +100,7 @@ function Hero() {
         <div className={styles.buttons}>
           <Link
             className="button button--primary button--lg"
-            to="/docs/getting-started/minimal-bot">
+            to="/docs/getting-started/first-bot">
             <Translate id="home.cta.tutorial">Первый бот</Translate>
           </Link>
           <Link
@@ -97,6 +118,14 @@ function Hero() {
               Нужен .NET 8 или новее. Стабильного 2.0 пока нет, поэтому
               --prerelease.
             </Translate>
+          </p>
+          <p className={styles.backdropNote}>
+            <Translate id="home.backdrop.note">
+              Надпись на фоне собрали 117 ботов по команде из чата.
+            </Translate>{' '}
+            <Link to="https://github.com/Titlehhhh/McProtoNet/tree/dev/examples/FormationBots">
+              <Translate id="home.backdrop.link">Пример FormationBots</Translate>
+            </Link>
           </p>
         </div>
       </div>
@@ -118,7 +147,7 @@ function Sample() {
             <CodeBlock title="Вывод">{OUTPUT}</CodeBlock>
             <p className={styles.sampleNote}>
               <Translate id="home.sample.note">
-                Полный разбор по шагам — в «Первом боте».
+                Полный разбор по шагам - в «Первом боте».
               </Translate>
             </p>
           </div>
@@ -135,7 +164,7 @@ function Features() {
         <div className={styles.cards}>
           {FEATURES.map((f) => (
             <div key={f.title} className={styles.card}>
-              <Heading as="h3" className={styles.cardTitle}>
+              <Heading as="h2" className={styles.cardTitle}>
                 {f.title}
               </Heading>
               <p className={styles.cardBody}>{f.body}</p>
@@ -152,15 +181,15 @@ function Multiversion() {
     <section className={clsx(styles.section, styles.band)}>
       <div className="container">
         <Heading as="h2" className={styles.bandTitle}>
-          <Translate id="home.mv.title">Одна сборка — много версий</Translate>
+          <Translate id="home.mv.title">Одна сборка - много версий</Translate>
         </Heading>
         <p className={styles.bandRange}>
           1.16 <span className={styles.bandDash}>—</span> 26.2
         </p>
         <p className={styles.bandNote}>
           <Translate id="home.mv.note">
-            Протоколы 735–776. Версию вы называете при подключении, пересобирать
-            под неё ничего не нужно.
+            Протоколы 735–776. Версия задаётся при подключении, пересобирать под неё
+            ничего не нужно.
           </Translate>
         </p>
       </div>
@@ -199,7 +228,7 @@ function Packages() {
         </table>
         <p className={styles.tableNote}>
           <Translate id="home.packages.note">
-            Ставится один McProtoNet — остальные приезжают вместе с ним.
+            Ставится один McProtoNet - остальные приезжают вместе с ним.
           </Translate>
         </p>
       </div>
@@ -216,16 +245,16 @@ function Next() {
         </Heading>
         <ul className={styles.nextList}>
           <li>
-            <Link to="/docs/getting-started/minimal-bot">Первый бот</Link> —
+            <Link to="/docs/getting-started/first-bot">Первый бот</Link> -
             установка, версия протокола, четыре фазы, работающий бот.
           </li>
           <li>
-            <Link to="/docs/overview/non-goals">Что библиотека не делает</Link> —
-            прочитайте до того, как планировать бота.
+            <Link to="/docs/overview/non-goals">Что библиотека не делает</Link> -
+            стоит прочитать до того, как планировать бота.
           </li>
           <li>
-            <Link to="/docs/reference/glossary">Словарь</Link> — кадр, фаза,
-            ординал и другие слова из API.
+            <Link to="/docs/reference/glossary">Словарь</Link> - кадр, фаза,
+            ordinal и другие слова из API.
           </li>
         </ul>
       </div>
@@ -239,7 +268,7 @@ export default function Home(): ReactNode {
       description={translate({
         id: 'home.description',
         message:
-          'Библиотека на C# для протокола Minecraft Java Edition: одна сборка на версии 1.16–26.2, сторона клиента.',
+          'Открытая библиотека на C# для протокола Minecraft Java Edition: одна сборка работает на версиях 1.16–26.2.',
       })}>
       <Hero />
       <main>
