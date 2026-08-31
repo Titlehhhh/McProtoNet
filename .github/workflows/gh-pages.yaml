@@ -81,8 +81,30 @@ jobs:
           cache: npm
           cache-dependency-path: docs/site/package-lock.json
 
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
+      - name: Install docfx
+        run: |
+          dotnet tool install -g docfx
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - name: Install dependencies
         run: npm ci
+
+      # Справка API не лежит в git: docfx собирает метаданные из проектов,
+      # скрипт разворачивает их в страницы. Без этих двух шагов раздел
+      # "Справка API" на сайте пустой.
+      - name: Collect API metadata
+        run: npm run metadata
+
+      - name: Generate API pages
+        run: npm run api
 
       - name: Build site
         run: npm run build
