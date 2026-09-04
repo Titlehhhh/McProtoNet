@@ -145,7 +145,7 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
     /// <exception cref="InvalidOperationException">Another read is already in progress.</exception>
     /// <exception cref="InvalidDataException">The frame length is not positive or is greater than 32
     /// MiB, the length varint is longer than five bytes, the declared uncompressed size is out of
-    /// range, or decompression failed.</exception>
+    /// range, the compression envelope carries no packet, or decompression failed.</exception>
     /// <exception cref="EndOfStreamException">The stream ended in the middle of a frame.</exception>
     /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
     /// is stored into the returned task.</exception>
@@ -182,7 +182,11 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
                 var sizeUncompressed = memory.Span.ReadVarInt(out var offsetSizeUncompressed);
 
                 if (sizeUncompressed <= 0)
+                {
+                    if (len - offsetSizeUncompressed <= 0) ThrowHelper.ThrowEmptyEnvelope();
+
                     return CreatePacket(buffer, memory[offsetSizeUncompressed..]);
+                }
 
                 if (sizeUncompressed > BufferedPacketReader.MaxFrameLength)
                     ThrowHelper.ThrowInvalidUncompressedSize(sizeUncompressed);
@@ -193,8 +197,11 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
                     var decMem = decompressed.AsMemory(0, sizeUncompressed);
                     DecompressCore(memory.Span[offsetSizeUncompressed..], decMem.Span);
 
+                    // the compressed buffer goes back only once the packet is built: a throw inside
+                    // CreatePacket must leave it for the outer catch, not return it a second time
+                    var packet = CreatePacket(decompressed, decMem);
                     _pool.Return(buffer);
-                    return CreatePacket(decompressed, decMem);
+                    return packet;
                 }
                 catch
                 {
@@ -253,10 +260,13 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
 
     private IncomingPacket CreatePacket(byte[] pooledArr, Memory<byte> readData)
     {
+        // the header is read before the array is published: a throw here must leave the array with the
+        // caller, which returns it, instead of parking it in _bytes for a second return
+        var id = readData.Span.ReadVarInt(out var len);
+
         var old = Interlocked.Exchange(ref _bytes, pooledArr);
         if (old is not null) _pool.Return(old);
 
-        var id = readData.Span.ReadVarInt(out var len);
         return new IncomingPacket(id, readData[len..]);
     }
 

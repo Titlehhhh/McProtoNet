@@ -44,22 +44,22 @@ public struct MemoryOwner<T> : IMemoryOwner<T>
     /// </summary>
     /// <value><see langword="true"/> if no array is held or its visible length is 0; otherwise,
     /// <see langword="false"/>.</value>
-    public bool IsEmpty => _array is null || _length == 0;
+    public readonly bool IsEmpty => _array is null || _length == 0;
 
     /// <summary>
     /// Gets the number of elements the instance makes visible.
     /// </summary>
-    public int Length => _length;
+    public readonly int Length => _length;
 
     /// <summary>
     /// Gets the rented block as memory.
     /// </summary>
-    public Memory<T> Memory => _array is null ? Memory<T>.Empty : _array.AsMemory(0, _length);
+    public readonly Memory<T> Memory => _array is null ? Memory<T>.Empty : _array.AsMemory(0, _length);
 
     /// <summary>
     /// Gets the rented block as a span.
     /// </summary>
-    public Span<T> Span => _array is null ? Span<T>.Empty : _array.AsSpan(0, _length);
+    public readonly Span<T> Span => _array is null ? Span<T>.Empty : _array.AsSpan(0, _length);
 
     /// <summary>
     /// Attempts to change the visible length without renting a new array.

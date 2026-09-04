@@ -8,20 +8,23 @@ namespace McProtoNet.Primitives;
 /// it.</param>
 /// <remarks>
 /// Disposing the instance returns the buffer to the pool. <see cref="Memory"/> and <see cref="Span"/>
-/// are valid only until the instance is disposed, and the instance must be disposed exactly once.
+/// are valid only until the instance is disposed. Like the <see cref="MemoryOwner{T}"/> it holds, this
+/// is a mutable structure, so a copy must be made only to transfer ownership; a copy that outlives the
+/// transfer still holds the buffer and returns it a second time, which corrupts the pool. Disposing one
+/// instance twice has no effect the second time.
 /// </remarks>
 [method: MethodImpl(MethodImplOptions.AggressiveInlining)]
-public readonly struct OutgoingPacket(MemoryOwner<byte> owner) : IDisposable
+public struct OutgoingPacket(MemoryOwner<byte> owner) : IDisposable
 {
     /// <summary>
     /// Gets the packet data as read-only memory.
     /// </summary>
-    public ReadOnlyMemory<byte> Memory => owner.Memory;
+    public readonly ReadOnlyMemory<byte> Memory => owner.Memory;
 
     /// <summary>
     /// Gets the packet data as a read-only span.
     /// </summary>
-    public ReadOnlySpan<byte> Span => owner.Span;
+    public readonly ReadOnlySpan<byte> Span => owner.Span;
 
     /// <summary>
     /// Releases all resources used by the current instance of the <see cref="OutgoingPacket"/> structure by

@@ -75,6 +75,9 @@ internal ref struct ZlibCompressor
 
     public void Dispose()
     {
+        if (disposedValue)
+            return;
+        disposedValue = true;
         libdeflate_free_compressor(compressor);
     }
 }

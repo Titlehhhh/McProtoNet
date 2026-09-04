@@ -82,6 +82,9 @@ internal ref struct ZlibDecompressor
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
+        if (disposedValue)
+            return;
+        disposedValue = true;
         libdeflate_free_decompressor(decompressor);
     }
 }

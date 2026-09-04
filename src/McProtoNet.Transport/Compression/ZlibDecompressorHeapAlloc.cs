@@ -80,15 +80,14 @@ internal class ZlibDecompressorHeapAlloc : IDisposable
         static void ThrowHelperObjectDisposed() => throw new ObjectDisposedException(nameof(ZlibDecompressor));
     }
 
-    private bool disposed;
-
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Dispose()
     {
-        if (disposed)
+        if (disposedValue)
             return;
-        disposed = true;
+        disposedValue = true;
         Decompression.libdeflate_free_decompressor(decompressor);
+        GC.SuppressFinalize(this);
     }
 
     ~ZlibDecompressorHeapAlloc()
