@@ -298,8 +298,8 @@ public sealed class MinecraftClient : IAsyncDisposable
     /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
     /// stored into the returned task.</exception>
     /// <remarks>
-    /// <see cref="IncomingPacket.Body"/> is a window owned by the transport and stays valid only until
-    /// the next read. Decode it before reading again.
+    /// The packet owns the pooled block behind <see cref="IncomingPacket.Body"/>: dispose it when it is
+    /// no longer needed, or keep it as long as needed.
     /// </remarks>
     public ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken cancellationToken = default) =>
         Connection.ReadPacketAsync(cancellationToken);
@@ -326,7 +326,9 @@ public sealed class MinecraftClient : IAsyncDisposable
     /// progress, or <see cref="ObjectDisposedException"/> for a read started after disposal has completed.
     /// </para>
     /// <para>
-    /// Each <see cref="IncomingPacket.Body"/> stays valid only until the next step of the enumeration.
+    /// Each packet is borrowed for one step of the enumeration: the enumeration owns it and releases
+    /// its buffer when the next step begins. To keep a packet longer, call
+    /// <see cref="IncomingPacket.Retain"/>.
     /// </para>
     /// </remarks>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(
@@ -334,7 +336,17 @@ public sealed class MinecraftClient : IAsyncDisposable
     {
         var connection = Connection;
         while (true)
-            yield return await connection.ReadPacketAsync(cancellationToken).ConfigureAwait(false);
+        {
+            var packet = await connection.ReadPacketAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                yield return packet.Borrow();
+            }
+            finally
+            {
+                packet.Dispose();
+            }
+        }
     }
 
     /// <summary>

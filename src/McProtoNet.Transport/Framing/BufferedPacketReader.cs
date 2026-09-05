@@ -6,9 +6,16 @@ using McProtoNet.Transport.Cryptography;
 namespace McProtoNet.Transport.Framing;
 
 /// <summary>
-/// Provides a reader that reads frames in batches from one pooled buffer, decrypting and inflating in
-/// place.
+/// Provides a reader that reads frames in batches from one pooled block, decrypting in place and
+/// inflating into an arena block.
 /// </summary>
+/// <remarks>
+/// The reader holds one reference to its read block and one to its arena; the batch enumerator holds
+/// one to the block behind the packet it stands on. A block is overwritten in place only
+/// while the reader is its sole holder; otherwise the reader moves on to a fresh block and the old one
+/// dies with its last packet. Only the reading thread touches the blocks: a Dispose from another
+/// thread during a read is carried out by that read when it ends.
+/// </remarks>
 internal sealed class BufferedPacketReader : IDisposable
 {
     private const int DefaultCapacity = 64 * 1024;
@@ -17,32 +24,42 @@ internal sealed class BufferedPacketReader : IDisposable
     public const int MaxFrameLength = 32 * 1024 * 1024;
 
     private readonly Stream _stream;
+    private readonly ArrayPool<byte> _pool;
     private readonly PacketCipher? _cipher;
     private readonly int _compressionThreshold;
 
-    private byte[] _buffer;
+    private PooledBlock _block;
     private int _start;
     private int _end;
 
-    private byte[] _arena = [];
+    private PooledBlock? _arena;
     private int _arenaUsed;
+
+    // arenas outgrown inside the current batch: frames of the batch still point into them, so the
+    // reader lets go of them only when the next batch starts
+    private readonly List<PooledBlock> _retired = [];
 
     private Frame[] _frames = new Frame[64];
     private int _count;
     private int _needed = 1;
 
+    private const int Idle = 0;
+    private const int Reading = 1;
+    private const int Released = 2;
+
     private int _reading;
-    private bool _disposed;
+    private volatile bool _disposed;
     private bool _eof;
 
     public BufferedPacketReader(Stream stream, int compressionThreshold = -1, PacketCipher? cipher = null,
-        int initialCapacity = DefaultCapacity)
+        int initialCapacity = DefaultCapacity, ArrayPool<byte>? pool = null)
     {
         ArgumentNullException.ThrowIfNull(stream);
         _stream = stream;
+        _pool = pool ?? ArrayPool<byte>.Shared;
         _compressionThreshold = compressionThreshold;
         _cipher = cipher;
-        _buffer = ArrayPool<byte>.Shared.Rent(Math.Max(initialCapacity, 1024));
+        _block = new PooledBlock(_pool, Math.Max(initialCapacity, 1024));
     }
 
     /// <summary>Gets the compression threshold, in bytes. A negative value disables compression.</summary>
@@ -58,19 +75,20 @@ internal sealed class BufferedPacketReader : IDisposable
     public ValueTask<PacketBatch> ReadBatchAsync(CancellationToken token = default)
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
-        if (Interlocked.Exchange(ref _reading, 1) == 1) ThrowHelper.ThrowConcurrentRead();
+        var state = Interlocked.CompareExchange(ref _reading, Reading, Idle);
+        if (state == Reading) ThrowHelper.ThrowConcurrentRead();
+        ObjectDisposedException.ThrowIf(state == Released, this);
 
         try
         {
             token.ThrowIfCancellationRequested();
 
-            _arenaUsed = 0;
-            _count = 0;
+            StartBatch();
 
             ParseFrames();
             if (_count > 0)
             {
-                Volatile.Write(ref _reading, 0);
+                EndRead();
                 return new ValueTask<PacketBatch>(new PacketBatch(this, _count, false));
             }
 
@@ -78,13 +96,13 @@ internal sealed class BufferedPacketReader : IDisposable
             {
                 if (_end > _start) ThrowHelper.ThrowTruncatedFrame();
 
-                Volatile.Write(ref _reading, 0);
+                EndRead();
                 return new ValueTask<PacketBatch>(new PacketBatch(this, 0, true));
             }
         }
         catch
         {
-            Volatile.Write(ref _reading, 0);
+            EndRead();
             throw;
         }
 
@@ -116,7 +134,7 @@ internal sealed class BufferedPacketReader : IDisposable
             {
                 MakeRoom();
 
-                var read = await _stream.ReadAsync(_buffer.AsMemory(_end), token).ConfigureAwait(false);
+                var read = await _stream.ReadAsync(_block.Array.AsMemory(_end), token).ConfigureAwait(false);
                 if (read == 0)
                 {
                     _eof = true;
@@ -125,7 +143,7 @@ internal sealed class BufferedPacketReader : IDisposable
                     return new PacketBatch(this, 0, true);
                 }
 
-                _cipher?.Transform(_buffer.AsSpan(_end, read));
+                _cipher?.Transform(_block.Array.AsSpan(_end, read));
                 _end += read;
 
                 ParseFrames();
@@ -134,32 +152,70 @@ internal sealed class BufferedPacketReader : IDisposable
         }
         finally
         {
-            Volatile.Write(ref _reading, 0);
+            EndRead();
         }
+    }
+
+    /// <summary>
+    /// Ends the read. A Dispose that landed meanwhile left the blocks alone, because the read still
+    /// owned them; it is carried out here, once the read let go.
+    /// </summary>
+    private void EndRead()
+    {
+        Volatile.Write(ref _reading, Idle);
+        if (_disposed && Interlocked.CompareExchange(ref _reading, Released, Idle) == Idle) ReleaseAll();
+    }
+
+    /// <summary>
+    /// Forgets the frames of the previous batch: they left with references of their own. The arena is
+    /// reused from the top only while nobody else holds it.
+    /// </summary>
+    private void StartBatch()
+    {
+        ReleaseRetired();
+        if (_arena is { IsShared: true })
+        {
+            _arena.Release();
+            _arena = null;
+        }
+
+        _arenaUsed = 0;
+        _count = 0;
+    }
+
+    private void ReleaseRetired()
+    {
+        foreach (var block in _retired) block.Release();
+        _retired.Clear();
     }
 
     private void MakeRoom()
     {
         // room at the tail to read into, and the frame being assembled still fits where it lies
-        if (_end < _buffer.Length && _buffer.Length - _start >= _needed) return;
+        var capacity = _block.Length;
+        if (_end < capacity && capacity - _start >= _needed) return;
 
-        if (_start > 0)
+        // the tail slides down in place only while the reader is the sole holder: packets still out
+        // point below _start, and a copy over them would corrupt what they see
+        if (_start > 0 && !_block.IsShared)
         {
-            if (_end > _start) _buffer.AsSpan(_start, _end - _start).CopyTo(_buffer);
+            if (_end > _start) _block.Array.AsSpan(_start, _end - _start).CopyTo(_block.Array);
             _end -= _start;
             _start = 0;
         }
 
-        if (_buffer.Length < _needed) Grow(_needed);
-        else if (_buffer.Length == _end) Grow(_buffer.Length * 2);
+        if (_start > 0) Move(Math.Max(_needed, capacity));
+        else if (capacity < _needed) Move(_needed);
+        else if (capacity == _end) Move(capacity * 2);
     }
 
-    private void Grow(int wanted)
+    /// <summary>Carries the tail into a fresh block; the old one stays with whoever still holds it.</summary>
+    private void Move(int minimumLength)
     {
-        var next = ArrayPool<byte>.Shared.Rent(Math.Max(wanted, _buffer.Length + 1));
-        _buffer.AsSpan(_start, _end - _start).CopyTo(next);
-        ArrayPool<byte>.Shared.Return(_buffer);
-        _buffer = next;
+        var next = new PooledBlock(_pool, minimumLength);
+        _block.Array.AsSpan(_start, _end - _start).CopyTo(next.Array);
+        _block.Release();
+        _block = next;
         _end -= _start;
         _start = 0;
     }
@@ -175,7 +231,7 @@ internal sealed class BufferedPacketReader : IDisposable
                 return;
             }
 
-            if (!_buffer.AsSpan(_start, available).TryReadVarInt(out var length, out var lengthBytes))
+            if (!_block.Array.AsSpan(_start, available).TryReadVarInt(out var length, out var lengthBytes))
             {
                 _needed = available + 1;
                 return;
@@ -196,64 +252,74 @@ internal sealed class BufferedPacketReader : IDisposable
 
     private void AddFrame(int offset, int length)
     {
+        var array = _block.Array;
         if (_compressionThreshold < 0)
         {
-            var id = _buffer.AsSpan(offset, length).ReadVarInt(out var idLength);
-            Append(id, offset + idLength, length - idLength, fromArena: false);
+            var id = array.AsSpan(offset, length).ReadVarInt(out var idLength);
+            Append(id, _block, offset + idLength, length - idLength);
             return;
         }
 
-        var sizeUncompressed = _buffer.AsSpan(offset, length).ReadVarInt(out var sizeLength);
+        var sizeUncompressed = array.AsSpan(offset, length).ReadVarInt(out var sizeLength);
         if (sizeUncompressed <= 0)
         {
             var plainLength = length - sizeLength;
             if (plainLength <= 0) ThrowHelper.ThrowEmptyEnvelope();
 
-            var id = _buffer.AsSpan(offset + sizeLength, plainLength).ReadVarInt(out var idLength);
-            Append(id, offset + sizeLength + idLength, plainLength - idLength, fromArena: false);
+            var id = array.AsSpan(offset + sizeLength, plainLength).ReadVarInt(out var idLength);
+            Append(id, _block, offset + sizeLength + idLength, plainLength - idLength);
             return;
         }
 
         if (sizeUncompressed > MaxFrameLength || length - sizeLength <= 0)
             ThrowHelper.ThrowInvalidUncompressedSize(sizeUncompressed);
 
-        var target = ArenaAllocate(sizeUncompressed);
+        var arena = ArenaAllocate(sizeUncompressed, out var target);
         PacketStreamReader.DecompressCore(
-            _buffer.AsSpan(offset + sizeLength, length - sizeLength),
-            _arena.AsSpan(target, sizeUncompressed));
+            array.AsSpan(offset + sizeLength, length - sizeLength),
+            arena.Array.AsSpan(target, sizeUncompressed));
 
-        var packetId = _arena.AsSpan(target, sizeUncompressed).ReadVarInt(out var packetIdLength);
-        Append(packetId, target + packetIdLength, sizeUncompressed - packetIdLength, fromArena: true);
+        var packetId = arena.Array.AsSpan(target, sizeUncompressed).ReadVarInt(out var packetIdLength);
+        Append(packetId, arena, target + packetIdLength, sizeUncompressed - packetIdLength);
     }
 
-    private int ArenaAllocate(int size)
+    /// <summary>
+    /// Finds room for one inflated frame. An arena that runs out is not copied: it stays with the
+    /// frames already in it, and a fresh one takes the next frames.
+    /// </summary>
+    private PooledBlock ArenaAllocate(int size, out int offset)
     {
-        if (_arena.Length - _arenaUsed < size)
+        if (_arena is null || _arena.Length - _arenaUsed < size)
         {
-            var wanted = Math.Max(_arenaUsed + size, Math.Max(_arena.Length * 2, DefaultCapacity));
-            var next = ArrayPool<byte>.Shared.Rent(wanted);
-            if (_arenaUsed > 0) _arena.AsSpan(0, _arenaUsed).CopyTo(next);
-            if (_arena.Length > 0) ArrayPool<byte>.Shared.Return(_arena);
-            _arena = next;
+            var wanted = Math.Max(size, Math.Max((_arena?.Length ?? 0) * 2, DefaultCapacity));
+            if (_arena is not null)
+            {
+                if (_arenaUsed > 0) _retired.Add(_arena);
+                else _arena.Release();
+            }
+
+            _arena = new PooledBlock(_pool, wanted);
+            _arenaUsed = 0;
         }
 
-        var offset = _arenaUsed;
+        offset = _arenaUsed;
         _arenaUsed += size;
-        return offset;
+        return _arena;
     }
 
-    private void Append(int id, int offset, int length, bool fromArena)
+    private void Append(int id, PooledBlock block, int offset, int length)
     {
         if (length < 0) ThrowHelper.ThrowIdPastFrameEnd();
         if (_count == _frames.Length) Array.Resize(ref _frames, _frames.Length * 2);
-        _frames[_count++] = new Frame(id, offset, length, fromArena);
+        _frames[_count++] = new Frame(id, block, offset, length);
     }
 
+    /// <summary>Hands out the packet at the index, owning one reference to the block behind it.</summary>
     internal IncomingPacket GetPacket(int index)
     {
         var frame = _frames[index];
-        var source = frame.FromArena ? _arena : _buffer;
-        return new IncomingPacket(frame.Id, source.AsMemory(frame.Offset, frame.Length));
+        frame.Block.Retain();
+        return new IncomingPacket(frame.Id, frame.Block, frame.Offset, frame.Length);
     }
 
     public void Dispose()
@@ -261,33 +327,33 @@ internal sealed class BufferedPacketReader : IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        // a read abandoned mid-flight may still be pinned by the operating system: drop those
-        // buffers instead of handing them back to a pool that would lend them out again
-        var abandon = Volatile.Read(ref _reading) == 1;
+        // a read in flight still owns the blocks, and the operating system may still be writing into
+        // one of them: that read releases everything when it ends, in EndRead
+        if (Interlocked.CompareExchange(ref _reading, Released, Idle) == Idle) ReleaseAll();
+    }
 
+    private void ReleaseAll()
+    {
         _count = 0;
-        var buffer = _buffer;
-        _buffer = [];
-        if (!abandon && buffer.Length > 0) ArrayPool<byte>.Shared.Return(buffer);
-
-        var arena = _arena;
-        _arena = [];
-        if (!abandon && arena.Length > 0) ArrayPool<byte>.Shared.Return(arena);
+        _block.Release();
+        _arena?.Release();
+        _arena = null;
+        ReleaseRetired();
     }
 
     private readonly struct Frame
     {
         public readonly int Id;
+        public readonly PooledBlock Block;
         public readonly int Offset;
         public readonly int Length;
-        public readonly bool FromArena;
 
-        public Frame(int id, int offset, int length, bool fromArena)
+        public Frame(int id, PooledBlock block, int offset, int length)
         {
             Id = id;
+            Block = block;
             Offset = offset;
             Length = length;
-            FromArena = fromArena;
         }
     }
 }

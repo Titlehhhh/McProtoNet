@@ -168,8 +168,8 @@ public sealed class MinecraftConnection : IAsyncDisposable
     /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
     /// exception is stored into the returned task.</exception>
     /// <remarks>
-    /// <see cref="IncomingPacket.Body"/> is a window into a pooled buffer and stays valid only until
-    /// the next read on this connection.
+    /// The packet owns the pooled block behind <see cref="IncomingPacket.Body"/>: dispose it when it is
+    /// no longer needed, or keep it as long as needed.
     /// </remarks>
     public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
     {
@@ -265,8 +265,8 @@ public sealed class MinecraftConnection : IAsyncDisposable
     /// <remarks>
     /// After the move, every other member of this instance throws
     /// <see cref="InvalidOperationException"/>, <see cref="DisposeAsync"/> does nothing, and
-    /// <see cref="Abort"/> aborts the streaming connection instead. Like a read, the move invalidates
-    /// the body of the last packet returned by <see cref="ReadPacketAsync"/>.
+    /// <see cref="Abort"/> aborts the streaming connection instead. Packets already read are not
+    /// affected: each owns its buffer.
     /// </remarks>
     public StreamingConnection ToStreaming()
     {

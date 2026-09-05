@@ -8,8 +8,8 @@ namespace McProtoNet.Protocol;
 /// </summary>
 /// <remarks>
 /// <para>
-/// <see cref="IncomingPacket.Body"/> is a window into the transport buffer and is valid only until the
-/// next read. Both entry points decode immediately and return a packet that owns its data.
+/// <see cref="IncomingPacket.Body"/> belongs to the raw packet, which the caller disposes. Both entry
+/// points decode immediately and return a packet that owns its data.
 /// </para>
 /// <para>
 /// Only a broken or unsupported wire form is reported as a decode error. <see cref="InvalidDataException"/>,

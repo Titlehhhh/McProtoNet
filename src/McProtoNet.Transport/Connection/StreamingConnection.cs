@@ -16,8 +16,9 @@ namespace McProtoNet.Transport;
 /// </para>
 /// <para>
 /// The connection supports one reader and one writer and holds no send queue. Another thread may
-/// call only <see cref="Abort"/>. A batch and the packet bodies it hands out stay valid until the
-/// next <see cref="ReadBatchAsync"/>.
+/// call only <see cref="Abort"/>. A batch can be enumerated until the next
+/// <see cref="ReadBatchAsync"/>; its enumerator owns the packet it stands on and hands out a borrowed
+/// copy, which <see cref="IncomingPacket.Retain"/> keeps past the step.
 /// </para>
 /// <para>
 /// A call that cannot go through throws <see cref="ObjectDisposedException"/> after
@@ -129,8 +130,9 @@ public sealed class StreamingConnection : IAsyncDisposable
     /// <exception cref="OperationCanceledException">The cancellation token was canceled. This
     /// exception is stored into the returned task.</exception>
     /// <remarks>
-    /// The batch and the packet bodies it hands out stay valid until the next call. Cancellation
-    /// through <paramref name="token"/> leaves the connection open.
+    /// The batch can be enumerated until the next call; its enumerator owns the packet it stands on
+    /// and releases it at the next step. Cancellation through <paramref name="token"/> leaves the
+    /// connection open.
     /// </remarks>
     public async ValueTask<PacketBatch> ReadBatchAsync(CancellationToken token = default)
     {
@@ -160,7 +162,8 @@ public sealed class StreamingConnection : IAsyncDisposable
     /// <see cref="CancellationToken.None"/>.</param>
     /// <returns>A sequence of packets that ends when the stream ends.</returns>
     /// <remarks>
-    /// Every packet body stays valid only until the next batch is read. The exceptions of
+    /// Every packet is borrowed for one step of the enumeration and released when the next step
+    /// begins; <see cref="IncomingPacket.Retain"/> keeps it longer. The exceptions of
     /// <see cref="ReadBatchAsync"/> surface during enumeration.
     /// </remarks>
     public async IAsyncEnumerable<IncomingPacket> ReadPacketsAsync(

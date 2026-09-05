@@ -6,9 +6,9 @@ namespace McProtoNet.Protocol;
 /// </summary>
 /// <remarks>
 /// <para>
-/// The instance carries the wire id, the phase and the direction, but no body. The raw bytes live in
-/// a transport window that is valid only until the next read, so they are not exposed here; a
-/// consumer that needs the body reads the raw packet stream instead.
+/// The instance carries the wire id, the phase and the direction, but no body. The raw bytes stay
+/// with the raw packet that was dispatched, so they are not copied here; a consumer that needs the
+/// body keeps that packet through its <c>Retain</c> method instead.
 /// </para>
 /// <para>
 /// An unmapped id is a normal condition of the stream and is not an error. The type implements

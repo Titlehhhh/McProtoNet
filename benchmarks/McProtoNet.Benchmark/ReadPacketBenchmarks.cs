@@ -65,7 +65,7 @@ public class ReadPacketBenchmarks
 
         for (int i = 0; i < PacketsCount; i++)
         {
-            _ = await reader.ReadPacketAsync();
+            (await reader.ReadPacketAsync()).Dispose();
         }
     }
 

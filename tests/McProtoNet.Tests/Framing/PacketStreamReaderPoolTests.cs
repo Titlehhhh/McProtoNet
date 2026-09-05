@@ -5,9 +5,10 @@ using McProtoNet.Transport.Framing;
 namespace McProtoNet.Tests.Framing;
 
 /// <summary>
-///     A frame the reader refuses must leave the pool exactly as it found it: every rented array back
-///     once, never twice, and nothing kept that was already handed back. The counting pool refuses a
-///     second return on the spot, so a leak surfaces here instead of as someone else's corrupted buffer.
+///     Every array the reader rents goes back exactly once, and the one behind a packet goes back when
+///     the packet is disposed: not at the next read, not when the reader is disposed. A frame the
+///     reader refuses leaves nothing on loan. The counting pool refuses a second return on the spot,
+///     so a leak surfaces here instead of as someone else's corrupted buffer.
 /// </summary>
 /// <remarks>
 ///     The reader is disposed by hand rather than with <c>using</c>: a throw from <c>Dispose</c> would
@@ -25,36 +26,77 @@ public class PacketStreamReaderPoolTests
         return writer.WrittenSpan.ToArray();
     }
 
-    [Fact]
-    public async Task BrokenIdInPlainFrame_ReturnsEveryBufferExactlyOnce()
+    private static MemoryStream Wire(int compressionThreshold, params byte[][] packets)
+    {
+        var wire = new MemoryStream();
+        foreach (var packet in packets) wire.Write(Frame(packet, compressionThreshold));
+        wire.Position = 0;
+        return wire;
+    }
+
+    /// <summary>With threshold 1 every body here is above the threshold, so it goes through inflate.</summary>
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1)]
+    public async Task Packet_OwnsItsBuffer_PastTheNextRead_AndPastTheReader(int threshold)
     {
         var token = TestContext.Current.CancellationToken;
         var pool = new CountingArrayPool();
+        var reader = new PacketStreamReader(Wire(threshold, [0x07, 9, 8, 7], [0x08, 1, 2]), pool, leaveOpen: true)
+            { CompressionThreshold = threshold };
 
-        var wire = new MemoryStream(Frame(BrokenIdPacket, -1), writable: false);
-        var reader = new PacketStreamReader(wire, pool, leaveOpen: true);
+        var first = await reader.ReadPacketAsync(token);
+        Assert.Equal(1, pool.OnLoan);
 
-        var error = await Record.ExceptionAsync(async () => await reader.ReadPacketAsync(token));
-        Assert.IsType<IndexOutOfRangeException>(error);
-        Assert.Empty(pool.Violations);
+        var second = await reader.ReadPacketAsync(token);
+        Assert.Equal(2, pool.OnLoan);
+        Assert.Equal<byte[]>([9, 8, 7], first.Body.ToArray());
+        Assert.Equal<byte[]>([1, 2], second.Body.ToArray());
 
         Assert.Null(Record.Exception(reader.Dispose));
-        Assert.Empty(pool.Violations);
+        Assert.Equal(2, pool.OnLoan);
+        Assert.Equal(0x07, first.Id);
+        Assert.Equal<byte[]>([9, 8, 7], first.Body.ToArray());
+
+        first.Dispose();
+        second.Dispose();
         Assert.Equal(0, pool.OnLoan);
+        Assert.Empty(pool.Violations);
     }
 
     [Fact]
-    public async Task BrokenIdInCompressedFrame_ReturnsEveryBufferExactlyOnce()
+    public async Task CompressedFrame_ReturnsTheWireBuffer_AsSoonAsItIsInflated()
     {
         var token = TestContext.Current.CancellationToken;
         var pool = new CountingArrayPool();
+        var reader = new PacketStreamReader(Wire(1, [0x07, 9, 8, 7]), pool, leaveOpen: true)
+            { CompressionThreshold = 1 };
 
-        var wire = new MemoryStream(Frame(BrokenIdPacket, 1), writable: false);
-        var reader = new PacketStreamReader(wire, pool, leaveOpen: true) { CompressionThreshold = 1 };
+        var packet = await reader.ReadPacketAsync(token);
+
+        Assert.Equal(2, pool.Rents);
+        Assert.Equal(1, pool.OnLoan);
+
+        packet.Dispose();
+        Assert.Equal(0, pool.OnLoan);
+        Assert.Null(Record.Exception(reader.Dispose));
+        Assert.Empty(pool.Violations);
+    }
+
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(1)]
+    public async Task BrokenId_ReturnsEveryBufferExactlyOnce(int threshold)
+    {
+        var token = TestContext.Current.CancellationToken;
+        var pool = new CountingArrayPool();
+        var reader = new PacketStreamReader(Wire(threshold, BrokenIdPacket), pool, leaveOpen: true)
+            { CompressionThreshold = threshold };
 
         var error = await Record.ExceptionAsync(async () => await reader.ReadPacketAsync(token));
         Assert.IsType<IndexOutOfRangeException>(error);
         Assert.Empty(pool.Violations);
+        Assert.Equal(0, pool.OnLoan);
 
         Assert.Null(Record.Exception(reader.Dispose));
         Assert.Empty(pool.Violations);
@@ -66,13 +108,8 @@ public class PacketStreamReaderPoolTests
     {
         var token = TestContext.Current.CancellationToken;
         var pool = new CountingArrayPool();
-
-        var wire = new MemoryStream();
-        wire.Write(Frame(BrokenIdPacket, 1));
-        wire.Write(Frame([0x07, 9, 8, 7], 1));
-        wire.Position = 0;
-
-        var reader = new PacketStreamReader(wire, pool, leaveOpen: true) { CompressionThreshold = 1 };
+        var reader = new PacketStreamReader(Wire(1, BrokenIdPacket, [0x07, 9, 8, 7]), pool, leaveOpen: true)
+            { CompressionThreshold = 1 };
 
         var error = await Record.ExceptionAsync(async () => await reader.ReadPacketAsync(token));
         Assert.IsType<IndexOutOfRangeException>(error);
@@ -81,6 +118,7 @@ public class PacketStreamReaderPoolTests
         Assert.Equal(0x07, packet.Id);
         Assert.Equal<byte[]>([9, 8, 7], packet.Body.ToArray());
 
+        packet.Dispose();
         Assert.Null(Record.Exception(reader.Dispose));
         Assert.Empty(pool.Violations);
         Assert.Equal(0, pool.OnLoan);
@@ -99,10 +137,10 @@ public class PacketStreamReaderPoolTests
         var error = await Record.ExceptionAsync(async () => await reader.ReadPacketAsync(token));
         Assert.IsType<InvalidDataException>(error);
         Assert.Empty(pool.Violations);
+        Assert.Equal(0, pool.OnLoan);
 
         Assert.Null(Record.Exception(reader.Dispose));
         Assert.Empty(pool.Violations);
-        Assert.Equal(0, pool.OnLoan);
     }
 
     [Fact]

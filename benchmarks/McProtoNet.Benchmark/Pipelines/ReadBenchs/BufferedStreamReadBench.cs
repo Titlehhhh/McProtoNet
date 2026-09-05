@@ -29,7 +29,7 @@ public class BufferedStreamReadBench : IReceiveBench
     {
         for (var i = 0; i < packetsCount; i++)
         {
-            _ = await _reader.ReadPacketAsync();
+            (await _reader.ReadPacketAsync()).Dispose();
         }
     }
 
