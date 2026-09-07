@@ -13,9 +13,11 @@ public partial record TeamAction
     partial record UpdatedVUntil764(string Name, sbyte FriendlyFire, string NameTagVisibility, string CollisionRule, int Formatting, string Prefix, string Suffix);
     partial record PlayersAdded(string[] Players);
     partial record PlayersRemoved(string[] Players);
-    partial record CreatedV771_Last(NbtTag Name, TeamFlags Flags, int NameTagVisibility, int CollisionRule, int Formatting, NbtTag Prefix, NbtTag Suffix, string[] Players);
-    partial record UpdatedV771_Last(NbtTag Name, TeamFlags Flags, int NameTagVisibility, int CollisionRule, int Formatting, NbtTag Prefix, NbtTag Suffix);
+    partial record CreatedV771_775(NbtTag Name, TeamFlags Flags, int NameTagVisibility, int CollisionRule, int Formatting, NbtTag Prefix, NbtTag Suffix, string[] Players);
+    partial record UpdatedV771_775(NbtTag Name, TeamFlags Flags, int NameTagVisibility, int CollisionRule, int Formatting, NbtTag Prefix, NbtTag Suffix);
     partial record PlayersChanged(string[] Players);
+    partial record CreatedV776_Last(NbtTag Name, NbtTag Prefix, NbtTag Suffix, int NameTagVisibility, int CollisionRule, int? Formatting, TeamFlags Flags, string[] Players);
+    partial record UpdatedV776_Last(NbtTag Name, NbtTag Prefix, NbtTag Suffix, int NameTagVisibility, int CollisionRule, int? Formatting, TeamFlags Flags);
     public static TeamAction Read(ref MinecraftPrimitiveReader reader, int protocolVersion, int discriminator)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<TeamAction>(protocolVersion);
@@ -78,7 +80,7 @@ public partial record TeamAction
             throw new System.NotSupportedException($"TeamAction has no case for discriminator {discriminator} at protocol version {protocolVersion}.");
         }
 
-        if (protocolVersion >= 771)
+        if (protocolVersion >= 771 && protocolVersion <= 775)
         {
             switch (discriminator)
             {
@@ -95,7 +97,7 @@ public partial record TeamAction
                     var players = new string[playersCount];
                     for (int i = 0; i < players.Length; i++)
                         players[i] = reader.ReadString();
-                    return new CreatedV771_Last(name, flags, nameTagVisibility, collisionRule, formatting, prefix, suffix, players);
+                    return new CreatedV771_775(name, flags, nameTagVisibility, collisionRule, formatting, prefix, suffix, players);
                 }
 
                 case 1:
@@ -112,7 +114,62 @@ public partial record TeamAction
                     var formatting = reader.ReadVarInt();
                     var prefix = reader.ReadNbtTag(false)!;
                     var suffix = reader.ReadNbtTag(false)!;
-                    return new UpdatedV771_Last(name, flags, nameTagVisibility, collisionRule, formatting, prefix, suffix);
+                    return new UpdatedV771_775(name, flags, nameTagVisibility, collisionRule, formatting, prefix, suffix);
+                }
+
+                case 3:
+                case 4:
+                {
+                    int playersCount = reader.ReadVarInt();
+                    var players = new string[playersCount];
+                    for (int i = 0; i < players.Length; i++)
+                        players[i] = reader.ReadString();
+                    return new PlayersChanged(players);
+                }
+            }
+
+            throw new System.NotSupportedException($"TeamAction has no case for discriminator {discriminator} at protocol version {protocolVersion}.");
+        }
+
+        if (protocolVersion >= 776)
+        {
+            switch (discriminator)
+            {
+                case 0:
+                {
+                    var name = reader.ReadNbtTag(false)!;
+                    var prefix = reader.ReadNbtTag(false)!;
+                    var suffix = reader.ReadNbtTag(false)!;
+                    var nameTagVisibility = reader.ReadVarInt();
+                    var collisionRule = reader.ReadVarInt();
+                    int? formatting = null;
+                    if (reader.ReadBoolean())
+                        formatting = reader.ReadVarInt();
+                    var flags = reader.ReadType<TeamFlags>(protocolVersion);
+                    int playersCount = reader.ReadVarInt();
+                    var players = new string[playersCount];
+                    for (int i = 0; i < players.Length; i++)
+                        players[i] = reader.ReadString();
+                    return new CreatedV776_Last(name, prefix, suffix, nameTagVisibility, collisionRule, formatting, flags, players);
+                }
+
+                case 1:
+                {
+                    return new Removed();
+                }
+
+                case 2:
+                {
+                    var name = reader.ReadNbtTag(false)!;
+                    var prefix = reader.ReadNbtTag(false)!;
+                    var suffix = reader.ReadNbtTag(false)!;
+                    var nameTagVisibility = reader.ReadVarInt();
+                    var collisionRule = reader.ReadVarInt();
+                    int? formatting = null;
+                    if (reader.ReadBoolean())
+                        formatting = reader.ReadVarInt();
+                    var flags = reader.ReadType<TeamFlags>(protocolVersion);
+                    return new UpdatedV776_Last(name, prefix, suffix, nameTagVisibility, collisionRule, formatting, flags);
                 }
 
                 case 3:
@@ -208,11 +265,11 @@ public partial record TeamAction
             throw new System.NotSupportedException($"TeamAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
         }
 
-        if (protocolVersion >= 771)
+        if (protocolVersion >= 771 && protocolVersion <= 775)
         {
             switch (this)
             {
-                case CreatedV771_Last arm:
+                case CreatedV771_775 arm:
                 {
                     NbtTag Name = arm.Name;
                     TeamFlags Flags = arm.Flags;
@@ -240,7 +297,7 @@ public partial record TeamAction
                     return;
                 }
 
-                case UpdatedV771_Last arm:
+                case UpdatedV771_775 arm:
                 {
                     NbtTag Name = arm.Name;
                     TeamFlags Flags = arm.Flags;
@@ -256,6 +313,74 @@ public partial record TeamAction
                     writer.WriteVarInt(Formatting);
                     writer.WriteNbt(Prefix);
                     writer.WriteNbt(Suffix);
+                    return;
+                }
+
+                case PlayersChanged arm:
+                {
+                    string[] Players = arm.Players;
+                    writer.WriteVarInt(Players.Length);
+                    foreach (var playersItem in Players)
+                        writer.WriteString(playersItem);
+                    return;
+                }
+            }
+
+            throw new System.NotSupportedException($"TeamAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+        }
+
+        if (protocolVersion >= 776)
+        {
+            switch (this)
+            {
+                case CreatedV776_Last arm:
+                {
+                    NbtTag Name = arm.Name;
+                    NbtTag Prefix = arm.Prefix;
+                    NbtTag Suffix = arm.Suffix;
+                    int NameTagVisibility = arm.NameTagVisibility;
+                    int CollisionRule = arm.CollisionRule;
+                    int? Formatting = arm.Formatting;
+                    TeamFlags Flags = arm.Flags;
+                    string[] Players = arm.Players;
+                    writer.WriteNbt(Name);
+                    writer.WriteNbt(Prefix);
+                    writer.WriteNbt(Suffix);
+                    writer.WriteVarInt(NameTagVisibility);
+                    writer.WriteVarInt(CollisionRule);
+                    writer.WriteBoolean(Formatting is not null);
+                    if (Formatting is { } formattingValue)
+                        writer.WriteVarInt(formattingValue);
+                    writer.WriteType<TeamFlags>(Flags, protocolVersion);
+                    writer.WriteVarInt(Players.Length);
+                    foreach (var playersItem in Players)
+                        writer.WriteString(playersItem);
+                    return;
+                }
+
+                case Removed _:
+                {
+                    return;
+                }
+
+                case UpdatedV776_Last arm:
+                {
+                    NbtTag Name = arm.Name;
+                    NbtTag Prefix = arm.Prefix;
+                    NbtTag Suffix = arm.Suffix;
+                    int NameTagVisibility = arm.NameTagVisibility;
+                    int CollisionRule = arm.CollisionRule;
+                    int? Formatting = arm.Formatting;
+                    TeamFlags Flags = arm.Flags;
+                    writer.WriteNbt(Name);
+                    writer.WriteNbt(Prefix);
+                    writer.WriteNbt(Suffix);
+                    writer.WriteVarInt(NameTagVisibility);
+                    writer.WriteVarInt(CollisionRule);
+                    writer.WriteBoolean(Formatting is not null);
+                    if (Formatting is { } formattingValue)
+                        writer.WriteVarInt(formattingValue);
+                    writer.WriteType<TeamFlags>(Flags, protocolVersion);
                     return;
                 }
 
@@ -296,15 +421,32 @@ public partial record TeamAction
             throw new System.NotSupportedException($"TeamAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
         }
 
-        if (protocolVersion >= 771)
+        if (protocolVersion >= 771 && protocolVersion <= 775)
         {
             switch (this)
             {
-                case CreatedV771_Last _:
+                case CreatedV771_775 _:
                     return 0;
                 case Removed _:
                     return 1;
-                case UpdatedV771_Last _:
+                case UpdatedV771_775 _:
+                    return 2;
+                case PlayersChanged _:
+                    return 3;
+            }
+
+            throw new System.NotSupportedException($"TeamAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+        }
+
+        if (protocolVersion >= 776)
+        {
+            switch (this)
+            {
+                case CreatedV776_Last _:
+                    return 0;
+                case Removed _:
+                    return 1;
+                case UpdatedV776_Last _:
                     return 2;
                 case PlayersChanged _:
                     return 3;

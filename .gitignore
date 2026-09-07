@@ -380,3 +380,6 @@ FodyWeavers.xsd
 # Session files
 session-*.md
 .gitnexus
+
+# Локальный пример, пока не в репозитории
+examples/AlphaBot/
