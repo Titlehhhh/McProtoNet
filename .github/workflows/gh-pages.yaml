@@ -1,15 +1,26 @@
 name: Build documentation
 
-# Автозапуска нет намеренно: сайт публикуется только вручную,
-# кнопкой "Run workflow" во вкладке Actions.
-#
 # Публикуются оба сайта сразу: старая документация Writerside в корне
 # Pages, новая на Docusaurus - в подпапке /next/.
+#
+# Фильтр путей стоит на воркфлоу, а не на отдельных джобах, и это
+# обязательно: deploy ждёт оба артефакта, а Pages заменяет сайт целиком.
+# Пропусти джоба legacy правку в docs/site - и корень сайта уехал бы
+# пустым, то есть старая дока пропала бы с titlehhhh.github.io.
 on:
+  push:
+    branches:
+      - master
+      - dev
+    paths:
+      - 'docs/**'
+      - '.github/workflows/gh-pages.yaml'
   workflow_dispatch:
 
+# Группа общая на все ветки: пуш в dev и пуш в master иначе деплоят
+# одновременно и перезаписывают друг друга.
 concurrency:
-  group: gh-pages-${{ github.ref }}
+  group: gh-pages
   cancel-in-progress: true
 
 permissions:
