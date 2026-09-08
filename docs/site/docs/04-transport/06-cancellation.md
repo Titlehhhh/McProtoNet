@@ -27,11 +27,12 @@ connection, not the transport - for example, the server sent a packet that
 should not appear in this phase.
 
 `DisposeAsync` uses the same `Abort`, but with no reason, and adds a wait after
-it. The order of these steps is described in "Packet stream". At the
-`MinecraftClient` level, its own send gate joins this: `SendAsync` and
-`SendRawAsync` hold the gate for the duration of the call, and the client's
-`DisposeAsync` waits for the gate to free up within the same five-second budget,
-then closes the connection regardless - even if the gate never freed up.
+it. At the `MinecraftClient` level the order is: abort the connection if it is
+still running, wait for the send gate, then close the connection. The gate is
+what `SendAsync` and `SendRawAsync` hold for the duration of the call, the wait
+for it has a budget of five seconds, and the connection closes regardless - even
+if the gate never freed up. A connection handed over by `ToStreaming` is no
+longer the client's, and it is not closed here.
 
 ## Why canceling a started read breaks the connection
 
@@ -57,10 +58,10 @@ happened.
 `CloseReason` is `null` while the connection is open. After closing it holds an
 exception: either what was passed into `Abort`, or the first failure that the
 connection's own reader or writer caught. The end of the stream is one of those
-failures. The read that reaches it throws `EndOfStreamException`, and the same
-exception settles into `CloseReason`. A connection that closes with no reason at
-all is the streaming one, and only through `CompleteAsync` or an empty final
-batch - the last section of this page covers it.
+failures - the read that reaches it throws `EndOfStreamException`, and that same
+exception settles into `CloseReason`. Only a streaming connection can close with
+no reason at all, through `CompleteAsync` or an empty last batch, and the last
+section of this page covers it.
 
 `Completion` is a task that completes at the moment of closing and never faults.
 The code can wait for it without a `try/catch` to learn that closing happened,

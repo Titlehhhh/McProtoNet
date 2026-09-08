@@ -1,8 +1,8 @@
 # Four layers on one screen
 
 The library splits into four parts. Each part lives in its own project and ships
-as its own NuGet package. An application can take the whole set or a single
-layer.
+as its own NuGet package, and NBT ships as a fifth one, under Primitives. An
+application can take the whole set or a single layer.
 
 ## Primitives
 

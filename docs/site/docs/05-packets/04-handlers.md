@@ -82,10 +82,11 @@ protected override ValueTask OnUnknown(in IncomingPacket raw)
 }
 ```
 
-`raw` is borrowed for the duration of the call. The body is a window into a
+`raw` is borrowed for the duration of the call: the body is a window into a
 pooled block that the read loop owns, and the loop releases it on the next step
-(see [Who owns the body](../04-transport/03-packet-stream.md)). To use the body
-later, call `Retain` right here, or copy the bytes.
+(see [Who owns the body](../04-transport/03-packet-stream.md)) - if the body is
+needed later, code takes its own reference with `Retain` right here, or copies
+the bytes.
 
 ## Trailing bytes at the end
 

@@ -54,11 +54,11 @@ frame counts as corrupt.
 same `WritePacket` methods work over `IBufferWriter<byte>`, `PipeWriter`, and a
 plain `Stream`, both synchronously and asynchronously.
 [`StreamingConnection`](../08-api-reference/McProtoNet/Transport/StreamingConnection.md)
-assembles frames from them in batches through `BufferedPacketReader` and
+assembles frames from them in batches, one buffered read per batch, into a
 [`PacketBatch`](../08-api-reference/McProtoNet/Transport/Framing/PacketBatch.md)
-- this is covered in "Connection without a client". `PooledBufferWriter` is a
-helper buffer from the pool: `PacketStreamWriter` uses it when encryption is on,
-to build the whole frame in memory before running it through
+- this is covered in "Connection without a client". When encryption is on,
+`PacketStreamWriter` builds the whole frame in a helper buffer from the pool
+before running it through
 [`PacketCipher`](../08-api-reference/McProtoNet/Transport/Cryptography/PacketCipher.md)
 - the cipher needs the whole frame at once, it cannot take it in pieces.
 
@@ -68,8 +68,8 @@ is and what fields it has.
 
 ## Limits and errors
 
-The frame length runs from 1 to 32 MiB (`BufferedPacketReader.MaxFrameLength`).
-Zero, a negative value, or a length over the cap throws `InvalidDataException`
+The frame length runs from 1 to 32 MiB. Zero, a negative value, or a length over
+the cap throws `InvalidDataException`
 from `ThrowHelper.ThrowInvalidFrameLength`. The length VarInt cannot take more
 than five bytes - if it does, this is `ThrowVarIntTooLong`. The uncompressed
 size gets the same cap check: if it exceeds 32 MiB, the frame is rejected before
@@ -101,8 +101,8 @@ But when
 is not needed - for example, for the handshake before login, or for a short
 protocol exchange without buffering - `PacketStreamReader` and
 `PacketStreamWriter` give the same frame format directly over any `Stream`, one
-packet per call. The packet body is a window into a pooled block, and the packet
-owns that block. Dispose the packet once the body is no longer needed
+packet per call. The packet body is a window into a pooled block that the packet
+owns - dispose the packet once the body is no longer needed
 ([Who owns the body](03-packet-stream.md)).
 
 ## Next

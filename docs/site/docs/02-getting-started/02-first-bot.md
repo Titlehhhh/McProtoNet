@@ -101,9 +101,10 @@ it.
 The end of a session always arrives as an exception. A clean disconnect is an
 `EndOfStreamException`. The enumeration never ends quietly.
 
-A packet in this loop is borrowed. Its body is a window into a pooled block, not
+A packet in this loop is borrowed: its body is a window into a pooled block, not
 its own copy, and the loop releases the block on the next step. Parse it right
-away. To keep a body for longer, call `Retain` and dispose the result yourself
+away. If a body is needed for longer, ask for a reference of your own with
+`Retain` and dispose that packet yourself
 ([Who owns the body](../04-transport/03-packet-stream.md)).
 
 ## The bot switches phases

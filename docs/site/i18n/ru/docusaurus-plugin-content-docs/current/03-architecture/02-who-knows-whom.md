@@ -9,6 +9,7 @@ flowchart BT
     glue --> protocol
     transport["McProtoNet.Transport<br/>кадры, соединения, сжатие, шифр"] --> primitives
     protocol["McProtoNet.Protocol<br/>пакеты, реестр, обработчики"] --> primitives
+    protocol --> nbt
     primitives["McProtoNet.Primitives<br/>значения, IncomingPacket"] --> nbt["McProtoNet.NBT"]
 ```
 

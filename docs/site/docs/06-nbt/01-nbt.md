@@ -117,9 +117,9 @@ allocates.
 
 ## Limits
 
-`NbtLimits` sets two limits for the module: `MaxDepth = 512` for the nesting of
-compounds and lists, and `MaxStringByteLength = ushort.MaxValue` (65535 bytes -
-the limit of the format itself, since a string length is stored in two bytes).
+The module sets two limits: a nesting depth of 512 for compounds and lists, and
+a string length of 65535 bytes - the limit of the format itself, since a string
+length is stored in two bytes.
 Both limits are checked before allocation. `NbtSpanReader` and
 `NbtSequenceReader` compare the declared length against the bytes left in the
 buffer, and throw
@@ -140,9 +140,9 @@ its own.
 
 ## Common mistake: the buffer runs out before the tag
 
-The body of the packet that NBT is read from is a window into a pooled block. It
-must be parsed while the packet holds its reference to that block, and not
-across an `await`, like the rest of the packet fields
+The body of the packet that NBT is read from is a window into a pooled block: it
+must be parsed while the packet still holds its reference, not across an
+`await`, like the rest of the packet fields
 ([Who owns the body](../04-transport/03-packet-stream.md)). `ReadNbtTag` reads
 that same memory and must be called in the same synchronous frame. `NbtSpanReader`
 locks this in at the compiler level: as a `ref struct`, it cannot be stored in a

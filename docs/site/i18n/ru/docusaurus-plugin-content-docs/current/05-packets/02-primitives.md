@@ -17,8 +17,9 @@ UUID, NBT-теги произвольной вложенности. Кодиро
 `ReadVarLong`/`WriteVarLong` для переменной длины; `ReadBoolean` - один байт;
 знаковые и беззнаковые byte, short, int, long, float и double идут big-endian,
 кроме VarInt и VarLong. `ReadString`/`WriteString` кодируют строку в UTF-8 с
-длиной в байтах впереди, тем же VarInt, и ограничивают её длину параметром
-`maxLength` (по умолчанию `short.MaxValue`). `ReadUUID`/`WriteUUID` - 16 байт
+длиной в байтах впереди, тем же VarInt, - и читатель вдобавок ограничивает длину
+параметром `maxLength` (по умолчанию `short.MaxValue`), а писатель пишет что
+дали. `ReadUUID`/`WriteUUID` - 16 байт
 big-endian поверх `Guid`. `ReadNbtTag` и `WriteNbt`, а также их варианты с
 байтом-флагом присутствия `ReadOptionalNbtTag`/`WriteOptionalNbt`, работают с
 NBT-деревом. `ReadBuffer`/`ReadRestBuffer`/`WriteBuffer` копируют голые байты
@@ -58,7 +59,7 @@ public ref struct MinecraftPrimitiveReader
 ```
 
 Типичный источник этой памяти - `IncomingPacket.Body`: тело пакета - окно в блок
-из пула. Блок жив, пока пакет держит на него ссылку
+из пула, и он жив, пока пакет держит на него ссылку
 ([«Кто владеет телом пакета»](../04-transport/03-packet-stream.md)).
 `Read(Span<byte> output)` копирует байты прямо в буфер вызывающего кода и ничего
 не выделяет сам.

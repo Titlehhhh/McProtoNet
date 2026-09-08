@@ -6,7 +6,7 @@ and a link to the page that covers it in full.
 - **protocol version** - a number the client sends in the handshake (for
   example, 772). It sets which packet field layout and which packet numbers
   apply for the session. More detail:
-  [A packet and its identifier](../05-packets/03-from-raw-packet.md).
+  [From a raw packet](../05-packets/03-from-raw-packet.md).
 
 - **send gate** - a `SemaphoreSlim(1, 1)` inside
   [`MinecraftClient`](../08-api-reference/McProtoNet/MinecraftClient.md). Every
@@ -45,7 +45,7 @@ and a link to the page that covers it in full.
   the number on the wire. On its own it means nothing: the packet type is looked
   up by the number together with the phase, the direction, and the protocol
   version. More detail:
-  [A packet and its identifier](../05-packets/03-from-raw-packet.md).
+  [From a raw packet](../05-packets/03-from-raw-packet.md).
 
 - **handler** -
   [`ClientboundHandler`](../08-api-reference/McProtoNet/Protocol/ClientboundHandler.md)
@@ -97,7 +97,7 @@ and a link to the page that covers it in full.
   - `PacketRegistry`. It translates a packet number, together with the phase,
   the direction, and the protocol version, into a packet description or into the
   typed object itself. More detail:
-  [A packet and its identifier](../05-packets/03-from-raw-packet.md).
+  [From a raw packet](../05-packets/03-from-raw-packet.md).
 
 - **raw packet** - what the transport returns: a number and a chunk of bytes,
   with no knowledge of which packet it is or what fields it has. More detail:

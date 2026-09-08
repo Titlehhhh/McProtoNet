@@ -16,27 +16,29 @@ phase. Application code tracks the phase
 
 ## Who owns the body
 
-The packet body is not its own copy of bytes. It is a window into a block that
+The packet body is not its own copy of bytes - it is a window into a block that
 the reader rents from a pool, and the packet holds a reference to that block.
 The block goes back to the pool when the last reference is released. With
 compression there are two blocks, one for the compressed bytes and one for the
-decompressed bytes. The first one goes back right after decompression, and the
-rule for `Body` does not change.
+decompressed bytes, but the first one is freed right after decompression, and
+the rule for `Body` does not change.
 
-`ReadPacketAsync` hands the reference to the caller. The caller owns the packet
-and disposes it:
+`ReadPacketAsync` hands the reference over: the caller owns the packet and
+disposes it.
 
 ```csharp
 using var packet = await client.ReadPacketAsync(token);
 Handle(packet.Id, packet.Body.Span);
 ```
 
-`ReadPacketsAsync` lends instead of handing over. Every packet it yields is a
-borrowed one, and the loop releases the real reference before the next step. The
-body is valid inside one turn of the loop.
+`ReadPacketsAsync` lends instead: every packet it yields is a borrowed copy, the
+loop releases the real reference before the next step, and the body is valid
+inside one turn of the loop.
 
-To hold a body past that point, take a reference of your own with `Retain`. A
-retained packet is disposed separately:
+This is where the rule from "first bot" comes from: a packet is parsed right
+away, and `Body` never crosses an `await`. If the data is needed longer - for
+example, to sit in a queue for another thread - the loop is asked for a
+reference of its own with `Retain`, and that packet is disposed separately.
 
 ```csharp
 var kept = new List<IncomingPacket>();
@@ -49,8 +51,8 @@ await foreach (var packet in client.ReadPacketsAsync(token))
 ```
 
 `Body.ToArray()` still copies the bytes, and a copy is still the right answer
-when the data leaves for code that knows nothing about the pool. `Retain` costs
-no allocation, so it is the cheaper way to keep the packet itself.
+when the data leaves for code that knows nothing about the pool - but `Retain`
+allocates nothing, so keeping the packet itself is the cheaper way.
 
 Where a parsed packet goes next - which handler method it calls, and what
 happens with unknown ids - is described in
@@ -93,8 +95,8 @@ same connection must not start.
 
 ## Closing
 
-`DisposeAsync` closes the connection and releases the buffers. The order of
-steps and the exception table are in
+`DisposeAsync` closes the connection and releases the buffers. The order of the
+steps, and the table of what gets thrown, are in
 [Cancellation, errors, closing](06-cancellation.md).
 
 ## When the client is not needed

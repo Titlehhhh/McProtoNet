@@ -69,8 +69,8 @@ Behind `MinecraftConnection`'s `ReadPacketAsync` stands
 [`PacketStreamReader`](../08-api-reference/McProtoNet/Transport/Framing/PacketStreamReader.md):
 it reads the frame length as a varint byte by byte, each byte a separate
 `ReadExactlyAsync`, and the body is one more call - at least two calls to the
-stream per frame. Behind `StreamingConnection`'s `ReadBatchAsync` stands
-`BufferedPacketReader`: one `stream.ReadAsync` into a shared pooled buffer, then
+stream per frame. Behind `StreamingConnection`'s `ReadBatchAsync` stands a
+buffered reader: one `stream.ReadAsync` into a shared pooled buffer, then
 parsing of every frame already found in the bytes read. The implementation
 touches the network again only when the buffer does not hold the next frame in
 full - one system call can hand back a dozen packets at once.
@@ -100,18 +100,18 @@ flowchart TB
     end
 ```
 
-A batch does not widen the lifetime of a body in exchange. The enumerator
-releases the packet it stands on at every step, so the window is one packet,
-the same as on `MinecraftConnection`.
+A batch does not widen the lifetime of a body in exchange: the enumerator
+releases the packet it stands on at every step, so the window is one packet, the
+same as on `MinecraftConnection`.
 
 ## Limits and quirks
 
 `IncomingPacket.Body` is a window into a pooled block in both cases
 ([Who owns the body](03-packet-stream.md)), and the boundary is the same. On
 `MinecraftConnection`, `ReadPacketAsync` hands the packet to the caller, and the
-caller disposes it. Inside a batch the enumerator is the owner: `Current` is a
-borrowed copy, and the step to the next packet releases the previous one. A body
-needed past that point is kept with `Retain` on either path.
+caller disposes it. Inside a batch the owner is the enumerator: `Current` is a
+borrowed copy, and the step to the next packet releases the previous one. On
+either path, a body needed past that point is kept with `Retain`.
 
 Neither type survives concurrent reads: a second `ReadPacketAsync` (or
 `ReadBatchAsync` on `StreamingConnection`) started on top of an unfinished first

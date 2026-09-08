@@ -21,7 +21,7 @@ public struct IncomingPacket : IDisposable
 `Id` - номер пакета на проводе, `Body` - тело без номера. В протоколе это поле
 называется Packet ID, формат пакета - на странице
 [Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression).
-Тело пакета - окно в блок из пула. Пакет освобождаемый, потому что держит на
+Тело пакета - окно в блок из пула: пакет освобождаемый, потому что держит на
 этот блок ссылку, а `Retain` берёт ещё одну
 ([«Кто владеет телом пакета»](../04-transport/03-packet-stream.md)).
 

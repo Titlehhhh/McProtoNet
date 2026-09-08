@@ -83,9 +83,8 @@ CFB8 itself requires.
 
 On the outside, closer to the socket, sits the cipher. On the inside sits the
 whole frame, including the length varint and, if present, the compression
-envelope. When writing, `BufferedPacketWriter` first completes the frame
-(length, and compression if needed), and only then encrypts the resulting bytes
-in place. When reading, it works the other way: raw bytes from the socket first
+envelope. When writing, the writer first completes the frame (length, and compression if
+needed), and only then encrypts the resulting bytes in place. When reading, it works the other way: raw bytes from the socket first
 pass through the cipher, and only then does the code parse the frame length in
 them and, if needed, decompress the body.
 

@@ -11,7 +11,8 @@ packets - handshaking and login - stays the job of the calling code.
 
 `MinecraftClientOptions.Host` is required. `Port` defaults to 25565.
 `ConnectTimeout` (30 seconds by default) limits the whole `ConnectAsync` call,
-including the SRV lookup and the socket open. `LocalEndPoint` binds the outgoing
+including the SRV lookup and the socket open - when it runs out, the call throws
+`TimeoutException`. `LocalEndPoint` binds the outgoing
 socket to a specific interface and port. `NoDelay` (on by default) disables the
 Nagle algorithm. Both fields apply only to a direct TCP connection, not through
 a proxy.

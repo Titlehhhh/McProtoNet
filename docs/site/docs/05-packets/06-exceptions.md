@@ -75,7 +75,7 @@ paths, this collapses into `DecodeError.UnsupportedVersion`.
 | --- | --- | --- |
 | The body broke off too early or carries corrupt data (`VarInt`, NBT) | `InvalidDataException`, `EndOfStreamException`, `NbtFormatException` | `DecodeError.Malformed` |
 | No packet with this name exists on this protocol version | `ProtocolNotSupportException` | `DecodeError.UnsupportedVersion` |
-| A version-layered packet is written without the needed layer | [`WrongLayerException`](../08-api-reference/McProtoNet/Protocol/WrongLayerException.md) | `DecodeError.Malformed` |
+| A version-layered packet is written without the needed layer | [`WrongLayerException`](../08-api-reference/McProtoNet/Protocol/WrongLayerException.md) | writing has no Try path |
 | `PacketIo.Decode`/`TryDecode`: the body parsed, bytes remain | `PacketDecodeException` (`TrailingBytes`) | `DecodeError.TrailingBytes` |
 | `Dispatch`/`TryDispatch`/`HandleAsync`: same, but the packet already reached the visitor | does not throw, event `OnTrailingBytes` | does not throw, event `OnTrailingBytes` |
 | The number is unknown for (phase, direction) | `visitor.Unknown` / `OnUnknown`, not an error | the same, `true` |

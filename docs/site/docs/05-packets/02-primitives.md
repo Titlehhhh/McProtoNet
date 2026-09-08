@@ -19,8 +19,9 @@ The reader and the writer carry symmetric method sets:
 values; `ReadBoolean` for one byte; signed and unsigned byte, short, int, long,
 float, and double go big-endian, except VarInt and VarLong.
 `ReadString`/`WriteString` encode a string as UTF-8 with the length in bytes in
-front, using the same VarInt, and cap the length with the `maxLength` parameter
-(`short.MaxValue` by default). `ReadUUID`/`WriteUUID` read and write a `Guid` as
+front, using the same VarInt - the reader also caps the length with its
+`maxLength` parameter (`short.MaxValue` by default), the writer takes what it is
+given. `ReadUUID`/`WriteUUID` read and write a `Guid` as
 16 big-endian bytes. `ReadNbtTag` and `WriteNbt`, along with their variants with
 a presence flag byte, `ReadOptionalNbtTag`/`WriteOptionalNbt`, work with the NBT
 tree. `ReadBuffer`/`ReadRestBuffer`/`WriteBuffer` copy raw bytes without a
@@ -60,7 +61,7 @@ public ref struct MinecraftPrimitiveReader
 ```
 
 A typical source of this memory is `IncomingPacket.Body`: a packet body is a
-window into a pooled block. The block stays valid while the packet holds its
+window into a pooled block, and it stays valid while the packet holds its
 reference
 ([Who owns the body](../04-transport/03-packet-stream.md)). `Read(Span<byte>
 output)` copies bytes straight into the caller's buffer and allocates nothing on

@@ -75,7 +75,7 @@ HandleLoginSuccess(packet);
 | --- | --- | --- |
 | Тело оборвалось раньше времени или несёт битые данные (`VarInt`, NBT) | `InvalidDataException`, `EndOfStreamException`, `NbtFormatException` | `DecodeError.Malformed` |
 | Пакета с этим именем нет на данной версии протокола | `ProtocolNotSupportException` | `DecodeError.UnsupportedVersion` |
-| Версия-слоистый пакет пишется без нужного слоя | [`WrongLayerException`](../08-api-reference/McProtoNet/Protocol/WrongLayerException.md) | `DecodeError.Malformed` |
+| Версия-слоистый пакет пишется без нужного слоя | [`WrongLayerException`](../08-api-reference/McProtoNet/Protocol/WrongLayerException.md) | у записи Try-пути нет |
 | `PacketIo.Decode`/`TryDecode`: тело разобралось, остались лишние байты | `PacketDecodeException` (`TrailingBytes`) | `DecodeError.TrailingBytes` |
 | `Dispatch`/`TryDispatch`/`HandleAsync`: то же, но пакет уже у посетителя | не бросает, событие `OnTrailingBytes` | не бросает, событие `OnTrailingBytes` |
 | Номер неизвестен в (фаза, направление) | `visitor.Unknown` / `OnUnknown`, не ошибка | то же, `true` |

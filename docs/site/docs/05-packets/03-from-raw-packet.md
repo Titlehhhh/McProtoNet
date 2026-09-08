@@ -21,7 +21,7 @@ public struct IncomingPacket : IDisposable
 `Id` is the packet number on the wire, `Body` is the body without the number. In
 the protocol this field is called Packet ID, the packet format is on the
 [Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression)
-page. A packet body is a window into a pooled block. The packet is disposable
+page. A packet body is a window into a pooled block - the packet is disposable
 because it holds a reference to that block, and `Retain` takes one more
 ([Who owns the body](../04-transport/03-packet-stream.md)).
 

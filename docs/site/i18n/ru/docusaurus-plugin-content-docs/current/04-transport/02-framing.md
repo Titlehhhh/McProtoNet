@@ -52,12 +52,11 @@ writer.Write(rented.AsSpan(0, compressedLength));
 методы `WritePacket` работают поверх `IBufferWriter<byte>`, `PipeWriter` и
 обычного `Stream`, синхронно и асинхронно.
 [`StreamingConnection`](../08-api-reference/McProtoNet/Transport/StreamingConnection.md)
-собирает из них кадры пачками через `BufferedPacketReader` и
+собирает из них кадры пачками, по одному буферизованному чтению на пачку, в
 [`PacketBatch`](../08-api-reference/McProtoNet/Transport/Framing/PacketBatch.md)
-- про это разбор в «Соединении без клиента». `PooledBufferWriter` -
-вспомогательный буфер из пула: `PacketStreamWriter` использует его, когда
-включён шифр, чтобы собрать кадр целиком в памяти перед тем, как прогнать его
-через
+- про это разбор в «Соединении без клиента». Когда включён шифр,
+`PacketStreamWriter` собирает кадр целиком во вспомогательном буфере из пула,
+перед тем как прогнать его через
 [`PacketCipher`](../08-api-reference/McProtoNet/Transport/Cryptography/PacketCipher.md)
 - шифру нужен весь кадр сразу, кусками его не отдать.
 
@@ -66,8 +65,8 @@ writer.Write(rented.AsSpan(0, compressedLength));
 
 ## Ограничения и ошибки
 
-Длина кадра - от 1 до 32 МиБ (`BufferedPacketReader.MaxFrameLength`). Ноль,
-отрицательное значение или превышение потолка - `InvalidDataException` от
+Длина кадра - от 1 до 32 МиБ. Ноль, отрицательное значение или превышение
+потолка - `InvalidDataException` от
 `ThrowHelper.ThrowInvalidFrameLength`. VarInt длины не может занимать больше
 пяти байт - если занимает, это `ThrowVarIntTooLong`. С несжатым размером та же
 проверка потолка: если он выходит за 32 МиБ, кадр отклоняется до попытки
@@ -98,7 +97,7 @@ writer.Write(rented.AsSpan(0, compressedLength));
 не нужен - например, для рукопожатия до логина или для короткого протокольного
 разговора без буферизации - `PacketStreamReader` и `PacketStreamWriter` дают тот
 же формат кадра напрямую поверх любого `Stream`, по одному пакету за вызов. Тело
-пакета - окно в блок из пула, и блоком владеет сам пакет. Освободите пакет,
+пакета - окно в блок из пула, которым владеет сам пакет, - пакет освобождают,
 когда тело больше не нужно
 ([«Кто владеет телом пакета»](03-packet-stream.md)).
 
