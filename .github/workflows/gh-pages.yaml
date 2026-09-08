@@ -37,7 +37,7 @@ env:
 
 jobs:
   legacy:
-    name: Writerside (корень сайта)
+    name: Writerside (site root)
     runs-on: ubuntu-latest
     outputs:
       artifact: ${{ steps.define-ids.outputs.artifact }}
