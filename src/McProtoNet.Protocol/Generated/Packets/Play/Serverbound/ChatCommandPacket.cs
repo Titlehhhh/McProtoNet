@@ -20,7 +20,7 @@ public sealed partial record ChatCommandPacket(string Command) : IPacket<ChatCom
         writer.WriteString(Command);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat_command", "ChatCommand", PacketPhase.Play, PacketDirection.Serverbound, 7);
+    public static PacketIdentity Identity => new("play.toServer.chat_command", "ChatCommand", PacketPhase.Play, PacketDirection.Serverbound, 8);
 
     PacketIdentity IPacket.Identity => Identity;
 

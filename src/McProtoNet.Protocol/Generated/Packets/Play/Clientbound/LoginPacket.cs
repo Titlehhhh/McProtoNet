@@ -626,7 +626,7 @@ public sealed partial record LoginPacket(int EntityId, string[] WorldNames, int 
         throw new System.NotSupportedException($"LoginPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.login", "Login", PacketPhase.Play, PacketDirection.Clientbound, 52);
+    public static PacketIdentity Identity => new("play.toClient.login", "Login", PacketPhase.Play, PacketDirection.Clientbound, 56);
 
     PacketIdentity IPacket.Identity => Identity;
 

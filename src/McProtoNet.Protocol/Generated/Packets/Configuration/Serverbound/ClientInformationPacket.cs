@@ -84,7 +84,7 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
         throw new System.NotSupportedException($"ClientInformationPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 10);
+    public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 11);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -28,7 +28,7 @@ public sealed partial record DebugSamplePacket(long[] Sample, int Type) : IPacke
         writer.WriteVarInt(Type);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.debug_sample", "DebugSample", PacketPhase.Play, PacketDirection.Clientbound, 26);
+    public static PacketIdentity Identity => new("play.toClient.debug_sample", "DebugSample", PacketPhase.Play, PacketDirection.Clientbound, 28);
 
     PacketIdentity IPacket.Identity => Identity;
 

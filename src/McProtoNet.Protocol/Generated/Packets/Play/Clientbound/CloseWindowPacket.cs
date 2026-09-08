@@ -43,7 +43,7 @@ public sealed partial record CloseWindowPacket(int WindowId) : IPacket<CloseWind
         throw new System.NotSupportedException($"CloseWindowPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.close_window", "CloseWindow", PacketPhase.Play, PacketDirection.Clientbound, 18);
+    public static PacketIdentity Identity => new("play.toClient.close_window", "CloseWindow", PacketPhase.Play, PacketDirection.Clientbound, 19);
 
     PacketIdentity IPacket.Identity => Identity;
 

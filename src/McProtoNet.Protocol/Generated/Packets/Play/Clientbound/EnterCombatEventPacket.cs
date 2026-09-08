@@ -17,7 +17,7 @@ public sealed partial record EnterCombatEventPacket() : IPacket<EnterCombatEvent
         ThrowHelper.ThrowIfProtocolNotSupported<EnterCombatEventPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.enter_combat_event", "EnterCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 30);
+    public static PacketIdentity Identity => new("play.toClient.enter_combat_event", "EnterCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 32);
 
     PacketIdentity IPacket.Identity => Identity;
 

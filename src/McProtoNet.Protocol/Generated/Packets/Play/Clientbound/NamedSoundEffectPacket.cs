@@ -79,7 +79,7 @@ public sealed partial record NamedSoundEffectPacket(string SoundName, int SoundC
         throw new System.NotSupportedException($"NamedSoundEffectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.named_sound_effect", "NamedSoundEffect", PacketPhase.Play, PacketDirection.Clientbound, 58);
+    public static PacketIdentity Identity => new("play.toClient.named_sound_effect", "NamedSoundEffect", PacketPhase.Play, PacketDirection.Clientbound, 62);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -25,7 +25,7 @@ public sealed partial record FeatureFlagsPacket(string[] Features) : IPacket<Fea
             writer.WriteString(featuresItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.feature_flags", "FeatureFlags", PacketPhase.Play, PacketDirection.Clientbound, 43);
+    public static PacketIdentity Identity => new("play.toClient.feature_flags", "FeatureFlags", PacketPhase.Play, PacketDirection.Clientbound, 46);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -27,7 +27,7 @@ public sealed partial record ChatPacket(string Message, int Position, Guid Sende
         writer.WriteUUID(Sender);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chat", "Chat", PacketPhase.Play, PacketDirection.Clientbound, 10);
+    public static PacketIdentity Identity => new("play.toClient.chat", "Chat", PacketPhase.Play, PacketDirection.Clientbound, 11);
 
     PacketIdentity IPacket.Identity => Identity;
 

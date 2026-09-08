@@ -63,7 +63,7 @@ public sealed partial record EntityVelocityPacket(int EntityId, EntityVelocityPa
         throw new System.NotSupportedException($"EntityVelocityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_velocity", "EntityVelocity", PacketPhase.Play, PacketDirection.Clientbound, 40);
+    public static PacketIdentity Identity => new("play.toClient.entity_velocity", "EntityVelocity", PacketPhase.Play, PacketDirection.Clientbound, 42);
 
     PacketIdentity IPacket.Identity => Identity;
 

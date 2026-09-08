@@ -17,7 +17,7 @@ public sealed partial record ClearDialogPacket() : IPacket<ClearDialogPacket>, I
         ThrowHelper.ThrowIfProtocolNotSupported<ClearDialogPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.clear_dialog", "ClearDialog", PacketPhase.Play, PacketDirection.Clientbound, 16);
+    public static PacketIdentity Identity => new("play.toClient.clear_dialog", "ClearDialog", PacketPhase.Play, PacketDirection.Clientbound, 17);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -48,7 +48,7 @@ public sealed partial record DifficultyPacket(Difficulty Difficulty, bool Diffic
         throw new System.NotSupportedException($"DifficultyPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.difficulty", "Difficulty", PacketPhase.Play, PacketDirection.Clientbound, 28);
+    public static PacketIdentity Identity => new("play.toClient.difficulty", "Difficulty", PacketPhase.Play, PacketDirection.Clientbound, 30);
 
     PacketIdentity IPacket.Identity => Identity;
 

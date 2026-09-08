@@ -58,7 +58,7 @@ public sealed partial record EntityUpdateAttributesPacket(int EntityId, EntityAt
         throw new System.NotSupportedException($"EntityUpdateAttributesPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_update_attributes", "EntityUpdateAttributes", PacketPhase.Play, PacketDirection.Clientbound, 39);
+    public static PacketIdentity Identity => new("play.toClient.entity_update_attributes", "EntityUpdateAttributes", PacketPhase.Play, PacketDirection.Clientbound, 41);
 
     PacketIdentity IPacket.Identity => Identity;
 

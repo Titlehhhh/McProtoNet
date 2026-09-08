@@ -25,7 +25,7 @@ public sealed partial record ChunkBiomesPacket(ChunkBiomeData[] Biomes) : IPacke
             writer.WriteType<ChunkBiomeData>(biomesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chunk_biomes", "ChunkBiomes", PacketPhase.Play, PacketDirection.Clientbound, 15);
+    public static PacketIdentity Identity => new("play.toClient.chunk_biomes", "ChunkBiomes", PacketPhase.Play, PacketDirection.Clientbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

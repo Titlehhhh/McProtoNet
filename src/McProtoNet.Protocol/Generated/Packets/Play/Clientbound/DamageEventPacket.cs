@@ -36,7 +36,7 @@ public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, i
             writer.WriteType<Vec3f64>(sourcePositionValue, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 24);
+    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 26);
 
     PacketIdentity IPacket.Identity => Identity;
 

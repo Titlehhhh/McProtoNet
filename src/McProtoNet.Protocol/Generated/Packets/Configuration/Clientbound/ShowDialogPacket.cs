@@ -21,7 +21,7 @@ public sealed partial record ShowDialogPacket(NbtTag Dialog) : IPacket<ShowDialo
         writer.WriteNbt(Dialog);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
+    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

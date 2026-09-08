@@ -62,7 +62,7 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, Res
         throw new System.NotSupportedException($"ResourcePackSendPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Play, PacketDirection.Clientbound, 77);
+    public static PacketIdentity Identity => new("play.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Play, PacketDirection.Clientbound, 81);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -23,7 +23,7 @@ public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPac
         writer.WriteFloat(Yaw);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 48);
+    public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 52);
 
     PacketIdentity IPacket.Identity => Identity;
 

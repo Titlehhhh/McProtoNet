@@ -26,7 +26,7 @@ public sealed partial record CollectPacket(int CollectedEntityId, int CollectorE
         writer.WriteVarInt(PickupItemCount);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.collect", "Collect", PacketPhase.Play, PacketDirection.Clientbound, 19);
+    public static PacketIdentity Identity => new("play.toClient.collect", "Collect", PacketPhase.Play, PacketDirection.Clientbound, 20);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -38,7 +38,7 @@ public sealed partial record EntityTeleportPacket(int EntityId, double X, double
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_teleport", "EntityTeleport", PacketPhase.Play, PacketDirection.Clientbound, 38);
+    public static PacketIdentity Identity => new("play.toClient.entity_teleport", "EntityTeleport", PacketPhase.Play, PacketDirection.Clientbound, 40);
 
     PacketIdentity IPacket.Identity => Identity;
 

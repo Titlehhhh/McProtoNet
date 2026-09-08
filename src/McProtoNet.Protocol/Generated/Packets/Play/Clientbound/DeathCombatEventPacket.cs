@@ -78,7 +78,7 @@ public sealed partial record DeathCombatEventPacket(int PlayerId, DeathCombatEve
         throw new System.NotSupportedException($"DeathCombatEventPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.death_combat_event", "DeathCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 25);
+    public static PacketIdentity Identity => new("play.toClient.death_combat_event", "DeathCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 27);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -28,7 +28,7 @@ public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Ste
             writer.WriteType<MinecartStep>(stepsItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 56);
+    public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 60);
 
     PacketIdentity IPacket.Identity => Identity;
 

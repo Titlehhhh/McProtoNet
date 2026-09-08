@@ -20,7 +20,7 @@ public sealed partial record ChunkBatchFinishedPacket(int BatchSize) : IPacket<C
         writer.WriteVarInt(BatchSize);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chunk_batch_finished", "ChunkBatchFinished", PacketPhase.Play, PacketDirection.Clientbound, 13);
+    public static PacketIdentity Identity => new("play.toClient.chunk_batch_finished", "ChunkBatchFinished", PacketPhase.Play, PacketDirection.Clientbound, 14);
 
     PacketIdentity IPacket.Identity => Identity;
 

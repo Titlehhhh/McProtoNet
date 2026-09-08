@@ -23,7 +23,7 @@ public sealed partial record GameTestHighlightPosPacket(Position AbsolutePos, Po
         writer.WriteType<Position>(RelativePos, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.game_test_highlight_pos", "GameTestHighlightPos", PacketPhase.Play, PacketDirection.Clientbound, 46);
+    public static PacketIdentity Identity => new("play.toClient.game_test_highlight_pos", "GameTestHighlightPos", PacketPhase.Play, PacketDirection.Clientbound, 49);
 
     PacketIdentity IPacket.Identity => Identity;
 

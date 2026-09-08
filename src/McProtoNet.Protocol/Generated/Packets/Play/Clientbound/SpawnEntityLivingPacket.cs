@@ -54,7 +54,7 @@ public sealed partial record SpawnEntityLivingPacket(int EntityId, Guid EntityUu
         writer.WriteSignedShort((short)VelocityZ);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity_living", "SpawnEntityLiving", PacketPhase.Play, PacketDirection.Clientbound, 93);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity_living", "SpawnEntityLiving", PacketPhase.Play, PacketDirection.Clientbound, 100);
 
     PacketIdentity IPacket.Identity => Identity;
 

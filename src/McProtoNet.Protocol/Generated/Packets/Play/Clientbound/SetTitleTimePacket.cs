@@ -26,7 +26,7 @@ public sealed partial record SetTitleTimePacket(int FadeIn, int Stay, int FadeOu
         writer.WriteSignedInt(FadeOut);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_title_time", "SetTitleTime", PacketPhase.Play, PacketDirection.Clientbound, 88);
+    public static PacketIdentity Identity => new("play.toClient.set_title_time", "SetTitleTime", PacketPhase.Play, PacketDirection.Clientbound, 95);
 
     PacketIdentity IPacket.Identity => Identity;
 

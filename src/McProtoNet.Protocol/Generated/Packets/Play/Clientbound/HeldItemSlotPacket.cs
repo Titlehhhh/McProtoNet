@@ -43,7 +43,7 @@ public sealed partial record HeldItemSlotPacket(int Slot) : IPacket<HeldItemSlot
         throw new System.NotSupportedException($"HeldItemSlotPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Clientbound, 47);
+    public static PacketIdentity Identity => new("play.toClient.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Clientbound, 50);
 
     PacketIdentity IPacket.Identity => Identity;
 

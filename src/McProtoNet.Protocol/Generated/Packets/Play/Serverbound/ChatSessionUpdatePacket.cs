@@ -30,7 +30,7 @@ public sealed partial record ChatSessionUpdatePacket(Guid SessionUuid, long Expi
         writer.WriteByteArray(Signature);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chat_session_update", "ChatSessionUpdate", PacketPhase.Play, PacketDirection.Serverbound, 11);
+    public static PacketIdentity Identity => new("play.toServer.chat_session_update", "ChatSessionUpdate", PacketPhase.Play, PacketDirection.Serverbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -26,7 +26,7 @@ public sealed partial record ExperiencePacket(float ExperienceBar, int Level, in
         writer.WriteVarInt(TotalExperience);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.experience", "Experience", PacketPhase.Play, PacketDirection.Clientbound, 41);
+    public static PacketIdentity Identity => new("play.toClient.experience", "Experience", PacketPhase.Play, PacketDirection.Clientbound, 43);
 
     PacketIdentity IPacket.Identity => Identity;
 

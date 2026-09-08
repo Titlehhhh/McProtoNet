@@ -20,7 +20,7 @@ public sealed partial record ChangeGamemodePacket(Gamemode Mode) : IPacket<Chang
         writer.WriteVarInt((int)Mode.Value);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.change_gamemode", "ChangeGamemode", PacketPhase.Play, PacketDirection.Serverbound, 5);
+    public static PacketIdentity Identity => new("play.toServer.change_gamemode", "ChangeGamemode", PacketPhase.Play, PacketDirection.Serverbound, 6);
 
     PacketIdentity IPacket.Identity => Identity;
 

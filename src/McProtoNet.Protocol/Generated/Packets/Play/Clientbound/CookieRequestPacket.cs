@@ -20,7 +20,7 @@ public sealed partial record CookieRequestPacket(string Cookie) : IPacket<Cookie
         writer.WriteString(Cookie);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.cookie_request", "CookieRequest", PacketPhase.Play, PacketDirection.Clientbound, 20);
+    public static PacketIdentity Identity => new("play.toClient.cookie_request", "CookieRequest", PacketPhase.Play, PacketDirection.Clientbound, 22);
 
     PacketIdentity IPacket.Identity => Identity;
 

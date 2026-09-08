@@ -49,7 +49,7 @@ public sealed partial record EndCombatEventPacket(int Duration, EndCombatEventPa
         throw new System.NotSupportedException($"EndCombatEventPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.end_combat_event", "EndCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 29);
+    public static PacketIdentity Identity => new("play.toClient.end_combat_event", "EndCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 31);
 
     PacketIdentity IPacket.Identity => Identity;
 

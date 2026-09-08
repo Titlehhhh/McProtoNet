@@ -20,7 +20,7 @@ public sealed partial record CameraPacket(int CameraId) : IPacket<CameraPacket>,
         writer.WriteVarInt(CameraId);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.camera", "Camera", PacketPhase.Play, PacketDirection.Clientbound, 9);
+    public static PacketIdentity Identity => new("play.toClient.camera", "Camera", PacketPhase.Play, PacketDirection.Clientbound, 10);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -20,7 +20,7 @@ public sealed partial record PongPacket(int Id) : IPacket<PongPacket>, IPacket
         writer.WriteSignedInt(Id);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.pong", "Pong", PacketPhase.Play, PacketDirection.Serverbound, 37);
+    public static PacketIdentity Identity => new("play.toServer.pong", "Pong", PacketPhase.Play, PacketDirection.Serverbound, 39);
 
     PacketIdentity IPacket.Identity => Identity;
 

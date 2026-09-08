@@ -61,7 +61,7 @@ public sealed partial record OpenWindowPacket(int WindowId, int InventoryType, O
         throw new System.NotSupportedException($"OpenWindowPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.open_window", "OpenWindow", PacketPhase.Play, PacketDirection.Clientbound, 63);
+    public static PacketIdentity Identity => new("play.toClient.open_window", "OpenWindow", PacketPhase.Play, PacketDirection.Clientbound, 67);
 
     PacketIdentity IPacket.Identity => Identity;
 

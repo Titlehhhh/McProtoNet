@@ -20,7 +20,7 @@ public sealed partial record AttackPacket(int EntityId) : IPacket<AttackPacket>,
         writer.WriteVarInt(EntityId);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.attack", "Attack", PacketPhase.Play, PacketDirection.Serverbound, 2);
+    public static PacketIdentity Identity => new("play.toServer.attack", "Attack", PacketPhase.Play, PacketDirection.Serverbound, 3);
 
     PacketIdentity IPacket.Identity => Identity;
 

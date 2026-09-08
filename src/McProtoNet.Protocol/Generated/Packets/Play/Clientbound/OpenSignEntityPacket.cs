@@ -49,7 +49,7 @@ public sealed partial record OpenSignEntityPacket(Position Location, OpenSignEnt
         throw new System.NotSupportedException($"OpenSignEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.open_sign_entity", "OpenSignEntity", PacketPhase.Play, PacketDirection.Clientbound, 62);
+    public static PacketIdentity Identity => new("play.toClient.open_sign_entity", "OpenSignEntity", PacketPhase.Play, PacketDirection.Clientbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 

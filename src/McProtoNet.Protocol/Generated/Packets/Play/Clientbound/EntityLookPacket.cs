@@ -29,7 +29,7 @@ public sealed partial record EntityLookPacket(int EntityId, int Yaw, int Pitch, 
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_look", "EntityLook", PacketPhase.Play, PacketDirection.Clientbound, 34);
+    public static PacketIdentity Identity => new("play.toClient.entity_look", "EntityLook", PacketPhase.Play, PacketDirection.Clientbound, 36);
 
     PacketIdentity IPacket.Identity => Identity;
 

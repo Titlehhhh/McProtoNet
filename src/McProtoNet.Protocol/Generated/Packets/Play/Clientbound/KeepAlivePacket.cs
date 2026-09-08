@@ -20,7 +20,7 @@ public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAli
         writer.WriteSignedLong(KeepAliveId);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.keep_alive", "KeepAlive", PacketPhase.Play, PacketDirection.Clientbound, 50);
+    public static PacketIdentity Identity => new("play.toClient.keep_alive", "KeepAlive", PacketPhase.Play, PacketDirection.Clientbound, 54);
 
     PacketIdentity IPacket.Identity => Identity;
 

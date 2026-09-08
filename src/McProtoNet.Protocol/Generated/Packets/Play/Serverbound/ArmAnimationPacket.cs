@@ -20,7 +20,7 @@ public sealed partial record ArmAnimationPacket(int Hand) : IPacket<ArmAnimation
         writer.WriteVarInt(Hand);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.arm_animation", "ArmAnimation", PacketPhase.Play, PacketDirection.Serverbound, 1);
+    public static PacketIdentity Identity => new("play.toServer.arm_animation", "ArmAnimation", PacketPhase.Play, PacketDirection.Serverbound, 2);
 
     PacketIdentity IPacket.Identity => Identity;
 

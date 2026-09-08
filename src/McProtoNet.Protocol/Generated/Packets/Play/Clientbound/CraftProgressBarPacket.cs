@@ -53,7 +53,7 @@ public sealed partial record CraftProgressBarPacket(int WindowId, int Property, 
         throw new System.NotSupportedException($"CraftProgressBarPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.craft_progress_bar", "CraftProgressBar", PacketPhase.Play, PacketDirection.Clientbound, 21);
+    public static PacketIdentity Identity => new("play.toClient.craft_progress_bar", "CraftProgressBar", PacketPhase.Play, PacketDirection.Clientbound, 23);
 
     PacketIdentity IPacket.Identity => Identity;
 

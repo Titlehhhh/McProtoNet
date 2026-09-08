@@ -26,7 +26,7 @@ public sealed partial record SteerVehiclePacket(float Sideways, float Forward, i
         writer.WriteUnsignedByte((byte)Jump);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.steer_vehicle", "SteerVehicle", PacketPhase.Play, PacketDirection.Serverbound, 54);
+    public static PacketIdentity Identity => new("play.toServer.steer_vehicle", "SteerVehicle", PacketPhase.Play, PacketDirection.Serverbound, 56);
 
     PacketIdentity IPacket.Identity => Identity;
 

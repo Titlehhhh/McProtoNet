@@ -26,7 +26,7 @@ public sealed partial record UpdateHealthPacket(float Health, int Food, float Fo
         writer.WriteFloat(FoodSaturation);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 110);
+    public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 121);
 
     PacketIdentity IPacket.Identity => Identity;
 

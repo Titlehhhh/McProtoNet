@@ -27,7 +27,7 @@ public sealed partial record ChatPreviewPacket(int QueryId, string? Message) : I
             writer.WriteString(messageValue);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chat_preview", "ChatPreview", PacketPhase.Play, PacketDirection.Clientbound, 11);
+    public static PacketIdentity Identity => new("play.toClient.chat_preview", "ChatPreview", PacketPhase.Play, PacketDirection.Clientbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

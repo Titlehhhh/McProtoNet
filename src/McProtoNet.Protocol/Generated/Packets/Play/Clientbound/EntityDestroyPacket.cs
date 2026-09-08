@@ -53,7 +53,7 @@ public sealed partial record EntityDestroyPacket(int[] EntityIds) : IPacket<Enti
         throw new System.NotSupportedException($"EntityDestroyPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_destroy", "EntityDestroy", PacketPhase.Play, PacketDirection.Clientbound, 32);
+    public static PacketIdentity Identity => new("play.toClient.entity_destroy", "EntityDestroy", PacketPhase.Play, PacketDirection.Clientbound, 34);
 
     PacketIdentity IPacket.Identity => Identity;
 

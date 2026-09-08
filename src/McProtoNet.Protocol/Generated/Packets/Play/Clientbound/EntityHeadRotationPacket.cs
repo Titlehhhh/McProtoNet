@@ -23,7 +23,7 @@ public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw)
         writer.WriteSignedByte((sbyte)HeadYaw);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_head_rotation", "EntityHeadRotation", PacketPhase.Play, PacketDirection.Clientbound, 33);
+    public static PacketIdentity Identity => new("play.toClient.entity_head_rotation", "EntityHeadRotation", PacketPhase.Play, PacketDirection.Clientbound, 35);
 
     PacketIdentity IPacket.Identity => Identity;
 

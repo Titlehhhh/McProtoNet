@@ -20,7 +20,7 @@ public sealed partial record StepTickPacket(int TickSteps) : IPacket<StepTickPac
         writer.WriteVarInt(TickSteps);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 98);
+    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 105);
 
     PacketIdentity IPacket.Identity => Identity;
 

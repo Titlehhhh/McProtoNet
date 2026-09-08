@@ -118,7 +118,7 @@ public sealed partial record UpdateStructureBlockPacket(Position Location, int A
         throw new System.NotSupportedException($"UpdateStructureBlockPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.update_structure_block", "UpdateStructureBlock", PacketPhase.Play, PacketDirection.Serverbound, 63);
+    public static PacketIdentity Identity => new("play.toServer.update_structure_block", "UpdateStructureBlock", PacketPhase.Play, PacketDirection.Serverbound, 65);
 
     PacketIdentity IPacket.Identity => Identity;
 

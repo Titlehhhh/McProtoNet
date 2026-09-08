@@ -549,7 +549,7 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
         throw new System.NotSupportedException($"PlayerChatPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.player_chat", "PlayerChat", PacketPhase.Play, PacketDirection.Clientbound, 66);
+    public static PacketIdentity Identity => new("play.toClient.player_chat", "PlayerChat", PacketPhase.Play, PacketDirection.Clientbound, 70);
 
     PacketIdentity IPacket.Identity => Identity;
 

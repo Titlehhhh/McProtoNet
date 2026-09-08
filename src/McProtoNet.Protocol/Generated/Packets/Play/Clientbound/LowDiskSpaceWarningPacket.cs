@@ -17,7 +17,7 @@ public sealed partial record LowDiskSpaceWarningPacket() : IPacket<LowDiskSpaceW
         ThrowHelper.ThrowIfProtocolNotSupported<LowDiskSpaceWarningPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.low_disk_space_warning", "LowDiskSpaceWarning", PacketPhase.Play, PacketDirection.Clientbound, 53);
+    public static PacketIdentity Identity => new("play.toClient.low_disk_space_warning", "LowDiskSpaceWarning", PacketPhase.Play, PacketDirection.Clientbound, 57);
 
     PacketIdentity IPacket.Identity => Identity;
 

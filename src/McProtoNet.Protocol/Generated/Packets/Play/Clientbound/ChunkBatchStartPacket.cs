@@ -17,7 +17,7 @@ public sealed partial record ChunkBatchStartPacket() : IPacket<ChunkBatchStartPa
         ThrowHelper.ThrowIfProtocolNotSupported<ChunkBatchStartPacket>(protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chunk_batch_start", "ChunkBatchStart", PacketPhase.Play, PacketDirection.Clientbound, 14);
+    public static PacketIdentity Identity => new("play.toClient.chunk_batch_start", "ChunkBatchStart", PacketPhase.Play, PacketDirection.Clientbound, 15);
 
     PacketIdentity IPacket.Identity => Identity;
 

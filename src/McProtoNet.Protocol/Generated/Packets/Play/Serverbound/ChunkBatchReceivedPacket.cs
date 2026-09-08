@@ -20,7 +20,7 @@ public sealed partial record ChunkBatchReceivedPacket(float ChunksPerTick) : IPa
         writer.WriteFloat(ChunksPerTick);
     }
 
-    public static PacketIdentity Identity => new("play.toServer.chunk_batch_received", "ChunkBatchReceived", PacketPhase.Play, PacketDirection.Serverbound, 12);
+    public static PacketIdentity Identity => new("play.toServer.chunk_batch_received", "ChunkBatchReceived", PacketPhase.Play, PacketDirection.Serverbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 

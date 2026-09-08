@@ -113,7 +113,7 @@ public sealed partial record BlockPlacePacket(int Hand, Position Location, int D
         throw new System.NotSupportedException($"BlockPlacePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toServer.block_place", "BlockPlace", PacketPhase.Play, PacketDirection.Serverbound, 4);
+    public static PacketIdentity Identity => new("play.toServer.block_place", "BlockPlace", PacketPhase.Play, PacketDirection.Serverbound, 5);
 
     PacketIdentity IPacket.Identity => Identity;
 

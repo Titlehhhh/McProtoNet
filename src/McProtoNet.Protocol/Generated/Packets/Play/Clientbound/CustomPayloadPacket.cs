@@ -23,7 +23,7 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
         writer.WriteRestBytes(Data);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Clientbound, 22);
+    public static PacketIdentity Identity => new("play.toClient.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Clientbound, 24);
 
     PacketIdentity IPacket.Identity => Identity;
 

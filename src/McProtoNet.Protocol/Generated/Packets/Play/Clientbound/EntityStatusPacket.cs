@@ -23,7 +23,7 @@ public sealed partial record EntityStatusPacket(int EntityId, int EntityStatus) 
         writer.WriteSignedByte((sbyte)EntityStatus);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_status", "EntityStatus", PacketPhase.Play, PacketDirection.Clientbound, 37);
+    public static PacketIdentity Identity => new("play.toClient.entity_status", "EntityStatus", PacketPhase.Play, PacketDirection.Clientbound, 39);
 
     PacketIdentity IPacket.Identity => Identity;
 

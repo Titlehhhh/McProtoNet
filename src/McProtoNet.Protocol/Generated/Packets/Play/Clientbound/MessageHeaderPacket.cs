@@ -34,7 +34,7 @@ public sealed partial record MessageHeaderPacket(byte[]? PreviousSignature, Guid
         writer.WriteByteArray(MessageHash);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.message_header", "MessageHeader", PacketPhase.Play, PacketDirection.Clientbound, 55);
+    public static PacketIdentity Identity => new("play.toClient.message_header", "MessageHeader", PacketPhase.Play, PacketDirection.Clientbound, 59);
 
     PacketIdentity IPacket.Identity => Identity;
 

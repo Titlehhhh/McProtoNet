@@ -20,7 +20,7 @@ public sealed partial record ClearTitlesPacket(bool Reset) : IPacket<ClearTitles
         writer.WriteBoolean(Reset);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.clear_titles", "ClearTitles", PacketPhase.Play, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("play.toClient.clear_titles", "ClearTitles", PacketPhase.Play, PacketDirection.Clientbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 

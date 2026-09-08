@@ -23,7 +23,7 @@ public sealed partial record GameStateChangePacket(int Reason, float GameMode) :
         writer.WriteFloat(GameMode);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.game_state_change", "GameStateChange", PacketPhase.Play, PacketDirection.Clientbound, 45);
+    public static PacketIdentity Identity => new("play.toClient.game_state_change", "GameStateChange", PacketPhase.Play, PacketDirection.Clientbound, 48);
 
     PacketIdentity IPacket.Identity => Identity;
 

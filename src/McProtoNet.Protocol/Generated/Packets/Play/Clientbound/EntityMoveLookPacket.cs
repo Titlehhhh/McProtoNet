@@ -38,7 +38,7 @@ public sealed partial record EntityMoveLookPacket(int EntityId, int Dx, int Dy, 
         writer.WriteBoolean(OnGround);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.entity_move_look", "EntityMoveLook", PacketPhase.Play, PacketDirection.Clientbound, 36);
+    public static PacketIdentity Identity => new("play.toClient.entity_move_look", "EntityMoveLook", PacketPhase.Play, PacketDirection.Clientbound, 38);
 
     PacketIdentity IPacket.Identity => Identity;
 

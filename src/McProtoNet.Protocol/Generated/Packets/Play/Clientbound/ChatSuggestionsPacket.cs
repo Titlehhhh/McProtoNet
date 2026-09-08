@@ -28,7 +28,7 @@ public sealed partial record ChatSuggestionsPacket(int Action, string[] Entries)
             writer.WriteString(entriesItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.chat_suggestions", "ChatSuggestions", PacketPhase.Play, PacketDirection.Clientbound, 12);
+    public static PacketIdentity Identity => new("play.toClient.chat_suggestions", "ChatSuggestions", PacketPhase.Play, PacketDirection.Clientbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 

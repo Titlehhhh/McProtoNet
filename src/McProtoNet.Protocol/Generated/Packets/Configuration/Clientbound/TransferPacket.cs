@@ -23,7 +23,7 @@ public sealed partial record TransferPacket(string Host, int Port) : IPacket<Tra
         writer.WriteVarInt(Port);
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 18);
+    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 19);
 
     PacketIdentity IPacket.Identity => Identity;
 

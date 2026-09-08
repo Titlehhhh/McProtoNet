@@ -25,7 +25,7 @@ public sealed partial record GameRuleValuesPacket(GameRule[] Values) : IPacket<G
             writer.WriteType<GameRule>(valuesItem, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.game_rule_values", "GameRuleValues", PacketPhase.Play, PacketDirection.Clientbound, 44);
+    public static PacketIdentity Identity => new("play.toClient.game_rule_values", "GameRuleValues", PacketPhase.Play, PacketDirection.Clientbound, 47);
 
     PacketIdentity IPacket.Identity => Identity;
 
