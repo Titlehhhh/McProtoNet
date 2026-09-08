@@ -2,6 +2,10 @@ name: Docs build check
 
 # Ловит битые ссылки и ошибки типов до деплоя: onBrokenLinks: 'throw'
 # работает как тест только если сборку кто-то запускает.
+#
+# Справка API в git не лежит, а рукописные страницы ссылаются на неё из
+# девятнадцати мест. Без metadata и api сборка падает на битых ссылках —
+# те же два шага стоят в gh-pages.yaml перед сборкой сайта.
 on:
   pull_request:
     paths:
@@ -26,6 +30,22 @@ jobs:
           cache: npm
           cache-dependency-path: docs/site/package-lock.json
 
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
+      - name: Install docfx
+        run: |
+          dotnet tool install -g docfx
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
       - run: npm ci
       - run: npm run typecheck
+      - name: Collect API metadata
+        run: npm run metadata
+      - name: Generate API pages
+        run: npm run api
       - run: npm run build
