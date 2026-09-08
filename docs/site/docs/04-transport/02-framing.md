@@ -85,9 +85,11 @@ table is in [Cancellation, errors, closing](06-cancellation.md).
 `PacketStreamReader` and `PacketStreamWriter` do not read or write two frames at
 once - a parallel `ReadPacketAsync`/`WritePacketAsync` call on top of an
 unfinished first call gets `InvalidOperationException`, as everywhere else in
-the transport (see the same page). For the same reason, `Cipher` and
-`CompressionThreshold` change only between frames - trying to change them in the
-middle of a read or a write also throws `InvalidOperationException`.
+the transport (see the same page). For the same reason, `Cipher`,
+`CompressionThreshold` and the writer's `AutoFlush` change only between frames -
+trying to change them in the middle of a read or a write also throws
+`InvalidOperationException`. `AutoFlush` is on by default: turn it off, and
+frames pile up in the stream buffer until `FlushAsync`.
 [`ConnectionAbortedException`](../08-api-reference/McProtoNet/Transport/ConnectionAbortedException.md)
 has nothing to do with this layer - it is a connection-level exception, covered
 in "Cancellation, errors, closing".

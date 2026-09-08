@@ -81,9 +81,11 @@ writer.Write(rented.AsSpan(0, compressedLength));
 `PacketStreamReader` и `PacketStreamWriter` не читают и не пишут два кадра
 одновременно - параллельный `ReadPacketAsync`/`WritePacketAsync` поверх
 незавершённого первого получает `InvalidOperationException`, как и везде в
-транспорте (там же). По той же причине `Cipher` и `CompressionThreshold`
-меняются только между кадрами - попытка сменить их посреди чтения или записи
-тоже бросает `InvalidOperationException`.
+транспорте (там же). По той же причине `Cipher`, `CompressionThreshold` и
+`AutoFlush` у писателя меняются только между кадрами - попытка сменить их
+посреди чтения или записи тоже бросает `InvalidOperationException`. `AutoFlush`
+включён по умолчанию: если его выключить, кадры копятся в буфере потока до
+`FlushAsync`.
 [`ConnectionAbortedException`](../08-api-reference/McProtoNet/Transport/ConnectionAbortedException.md)
 к этому слою отношения не имеет - это исключение уровня соединения, разобрано в
 «Потоке пакетов».

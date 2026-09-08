@@ -28,6 +28,10 @@ an exception they return `false` and a
 `ClientboundHandler.HandleAsync` (and
 [`ServerboundHandler`](../08-api-reference/McProtoNet/Protocol/ServerboundHandler.md))
 is built only as a throwing entry point: handlers have no matching Try method.
+The Try path of `PacketIo` is also narrower than the one of `PacketFlow`: a
+generated `Read` that has no layout for the protocol version throws
+`NotSupportedException`, and `PacketFlow` turns that into
+`DecodeError.UnsupportedVersion`, while `PacketIo.TryDecode` lets it out.
 
 ```csharp
 if (!PacketIo.TryDecode<LoginSuccessPacket>(

@@ -112,8 +112,8 @@ two bytes, `C0 80`, not as the zero byte of plain UTF-8. A character outside the
 basic multilingual plane is encoded as two three-byte sequences, one per UTF-16
 surrogate, instead of one four-byte sequence.
 [`ModifiedUtf8`](../08-api-reference/McProtoNet/NBT/ModifiedUtf8.md) provides
-`GetByteCount`, `GetBytes`, and `GetString`. Of these, only `GetString`
-allocates.
+`GetByteCount`, `GetBytes`, and `GetString`, along with their non-throwing and
+UTF-16 counterparts. Of the three, only `GetString` allocates.
 
 ## Limits
 

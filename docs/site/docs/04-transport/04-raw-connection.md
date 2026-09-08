@@ -38,6 +38,11 @@ buffers to the pool. After that, any call throws `ObjectDisposedException`.
 
 ## StreamingConnection: in batches
 
+A connection does not have to be built by hand: a client that has connected
+hands out its own through `MinecraftClient.Connection`, and `SendAsync` and
+`SendRawAsync` from `ClientPacketExtensions` work on it the same way they work
+on the client, so a typed packet does not have to be turned into bytes first.
+
 `StreamingConnection` is never created directly - only through
 `MinecraftConnection.ToStreaming()`. The method passes the new object the
 stream, the already-enabled cipher, and the current compression threshold, and

@@ -91,9 +91,12 @@ foreach (var server in found)
     Console.WriteLine($"{server.Motd} -> {server.EndPoint}");
 ```
 
-`DiscoverAsync` listens for a set time window and removes duplicate
+`DiscoverAsync` is static, listens for a set time window, and removes duplicate
 announcements from the same world by address. `ListenAsync` yields announcements
 as they arrive, without deduplication - for a list that must update on the fly.
+That one is an instance method: the detector is created, and it owns the socket
+until it is disposed. Its constructor takes the local interface to listen on,
+and both entry points can be pointed at a specific one.
 
 ## What goes to the server right after connecting
 

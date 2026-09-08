@@ -110,7 +110,8 @@ NBT-строки кодируются не обычным UTF-8, а modified UTF
 плоскости кодируется как две трёхбайтовые последовательности, по одной на
 суррогат UTF-16, вместо одной четырёхбайтовой.
 [`ModifiedUtf8`](../08-api-reference/McProtoNet/NBT/ModifiedUtf8.md) даёт
-`GetByteCount`, `GetBytes`, `GetString`; аллоцирует из них только `GetString`.
+`GetByteCount`, `GetBytes`, `GetString` и их непадающие и UTF-16 варианты;
+аллоцирует из этих трёх только `GetString`.
 
 ## Ограничения
 

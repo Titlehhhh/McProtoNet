@@ -114,7 +114,9 @@ instead of an exception on a broken body it returns `false` and a
 [`DecodeError`](../08-api-reference/McProtoNet/Protocol/DecodeError.md).
 [`PacketFlow`](../08-api-reference/McProtoNet/Protocol/PacketFlow.md) also has a
 path with no visitor at all, its own `TryDecode`, which returns an `IPacket?`
-directly.
+directly - a number the registry does not know comes back as
+[`UnknownPacket`](../08-api-reference/McProtoNet/Protocol/UnknownPacket.md),
+which carries the number and the body and nothing else.
 
 The third path is the async handler,
 [`ClientboundHandler`](../08-api-reference/McProtoNet/Protocol/ClientboundHandler.md)

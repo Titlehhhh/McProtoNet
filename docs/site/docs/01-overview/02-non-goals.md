@@ -17,9 +17,10 @@ configuration.
 
 ## Login to online-mode servers
 
-The library has full encryption support, but requesting a session from Mojang
-and verifying the login stay with the application. For now, running a local
-server with `online-mode=false` is simpler.
+The library has full encryption support, and `EncryptionHelpers.GetServerHash`
+computes the hash that the session request needs, but the request itself and the
+login check stay with the application. For now, running a local server with
+`online-mode=false` is simpler.
 
 ## Game behavior
 

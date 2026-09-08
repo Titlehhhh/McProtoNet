@@ -35,6 +35,11 @@ TCP-обвязки подключения.
 
 ## StreamingConnection: пачками
 
+Соединение не обязательно собирать руками: подключившийся клиент отдаёт своё
+через `MinecraftClient.Connection`, а `SendAsync` и `SendRawAsync` из
+`ClientPacketExtensions` работают на нём так же, как на клиенте, - типизированный
+пакет не нужно превращать в байты заранее.
+
 `StreamingConnection` не создаётся напрямую - только через
 `MinecraftConnection.ToStreaming()`. Метод передаёт новому объекту поток, уже
 включённый шифр и текущий порог сжатия и лишает исходный `MinecraftConnection`

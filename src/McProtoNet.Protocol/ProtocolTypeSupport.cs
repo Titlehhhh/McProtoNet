@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using McProtoNet.NBT;
 using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
@@ -58,6 +59,7 @@ public static class ProtocolTypeExtensions
     /// </summary>
     /// <param name="reader">The reader to read from.</param>
     /// <returns>The bytes that were read.</returns>
+    /// <exception cref="InvalidDataException">Fewer bytes are left than the length says.</exception>
     /// <remarks>
     /// The length is read first as a VarInt.
     /// </remarks>
@@ -84,6 +86,8 @@ public static class ProtocolTypeExtensions
     /// <param name="reader">The reader to read from.</param>
     /// <param name="length">The number of bytes to read.</param>
     /// <returns>The bytes that were read.</returns>
+    /// <exception cref="InvalidDataException">Fewer than <paramref name="length"/> bytes are
+    /// left.</exception>
     public static byte[] ReadFixedBytes(this ref MinecraftPrimitiveReader reader, int length)
         => reader.ReadBuffer(length);
 

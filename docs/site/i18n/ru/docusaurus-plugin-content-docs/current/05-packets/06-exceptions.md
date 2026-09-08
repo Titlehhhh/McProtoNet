@@ -27,7 +27,11 @@
 `None`, `UnsupportedVersion`, `TrailingBytes` или `Malformed`.
 `ClientboundHandler.HandleAsync` (и
 [`ServerboundHandler`](../08-api-reference/McProtoNet/Protocol/ServerboundHandler.md))
-устроен только как бросающий вход: у обработчиков нет парного Try-метода.
+устроен только как бросающий вход: у обработчиков нет парного Try-метода. И
+Try-путь у `PacketIo` уже, чем у `PacketFlow`: сгенерированный `Read`, у
+которого нет раскладки под версию протокола, бросает `NotSupportedException`, и
+`PacketFlow` превращает его в `DecodeError.UnsupportedVersion`, а
+`PacketIo.TryDecode` выпускает наружу.
 
 ```csharp
 if (!PacketIo.TryDecode<LoginSuccessPacket>(

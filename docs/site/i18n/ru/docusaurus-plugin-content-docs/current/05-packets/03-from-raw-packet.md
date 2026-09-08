@@ -113,7 +113,10 @@ public static void Dispatch<TVisitor>(in IncomingPacket raw,
 [`DecodeError`](../08-api-reference/McProtoNet/Protocol/DecodeError.md). У
 [`PacketFlow`](../08-api-reference/McProtoNet/Protocol/PacketFlow.md) есть и
 путь совсем без посетителя, свой `TryDecode`, который сразу отдаёт
-[`IPacket?`](../08-api-reference/McProtoNet/Protocol/IPacket.md).
+[`IPacket?`](../08-api-reference/McProtoNet/Protocol/IPacket.md), - номер,
+которого реестр не знает, возвращается как
+[`UnknownPacket`](../08-api-reference/McProtoNet/Protocol/UnknownPacket.md), где
+есть только номер и тело.
 
 Третий путь - асинхронный обработчик,
 [`ClientboundHandler`](../08-api-reference/McProtoNet/Protocol/ClientboundHandler.md)
