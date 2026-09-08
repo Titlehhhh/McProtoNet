@@ -60,9 +60,9 @@ public ref struct MinecraftPrimitiveReader
 ```
 
 A typical source of this memory is `IncomingPacket.Body`: a packet body is a
-window into a buffer that lives until the next read; it must be parsed right
-away, not across an `await`
-([Receive buffer](../04-transport/03-packet-stream.md)). `Read(Span<byte>
+window into a pooled block. The block stays valid while the packet holds its
+reference
+([Who owns the body](../04-transport/03-packet-stream.md)). `Read(Span<byte>
 output)` copies bytes straight into the caller's buffer and allocates nothing on
 its own.
 

@@ -101,8 +101,10 @@ it.
 The end of a session always arrives as an exception. A clean disconnect is an
 `EndOfStreamException`. The enumeration never ends quietly.
 
-A packet lives only until the next read: its data is a window into a buffer, not
-its own copy. Parse it right away. Do not carry it across an `await`.
+A packet in this loop is borrowed. Its body is a window into a pooled block, not
+its own copy, and the loop releases the block on the next step. Parse it right
+away. To keep a body for longer, call `Retain` and dispose the result yourself
+([Who owns the body](../04-transport/03-packet-stream.md)).
 
 ## The bot switches phases
 

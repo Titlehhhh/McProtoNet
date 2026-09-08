@@ -64,8 +64,9 @@ and a link to the page that covers it in full.
   [Compression and encryption](../04-transport/05-encryption-and-compression.md).
 
 - **window into a buffer** - a packet body is not a copy of the bytes but a
-  region of a rented buffer. It lives only until the next read, so it must be
-  parsed right away, not carried across an `await`. More detail:
+  region of a block rented from a pool. The packet holds a reference to that
+  block, `Retain` takes one more, and the block goes back to the pool when the
+  last one is released. More detail:
   [Packet stream](../04-transport/03-packet-stream.md).
 
 - **ordinal** - the dense packet number inside its own catalog, part of

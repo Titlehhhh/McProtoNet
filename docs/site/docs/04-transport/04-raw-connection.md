@@ -100,18 +100,18 @@ flowchart TB
     end
 ```
 
-The price for speed is a wider data lifetime window: a batch stays whole until
-the next `ReadBatchAsync`, not frame by frame.
+A batch does not widen the lifetime of a body in exchange. The enumerator
+releases the packet it stands on at every step, so the window is one packet,
+the same as on `MinecraftConnection`.
 
 ## Limits and quirks
 
-`IncomingPacket.Body` is a window into the transport buffer in both cases
-([Receive buffer](03-packet-stream.md)), but the boundary differs. On
-`MinecraftConnection`, the body lives until the next `ReadPacketAsync`, as
-everywhere else. On `StreamingConnection`, the whole batch lives: the body of
-any packet goes stale as soon as the next `ReadBatchAsync` starts, even if the
-previous batch was not fully parsed. Data needed for longer is copied
-explicitly, as described in "Packet stream".
+`IncomingPacket.Body` is a window into a pooled block in both cases
+([Who owns the body](03-packet-stream.md)), and the boundary is the same. On
+`MinecraftConnection`, `ReadPacketAsync` hands the packet to the caller, and the
+caller disposes it. Inside a batch the enumerator is the owner: `Current` is a
+borrowed copy, and the step to the next packet releases the previous one. A body
+needed past that point is kept with `Retain` on either path.
 
 Neither type survives concurrent reads: a second `ReadPacketAsync` (or
 `ReadBatchAsync` on `StreamingConnection`) started on top of an unfinished first

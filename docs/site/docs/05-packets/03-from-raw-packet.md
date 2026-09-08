@@ -11,19 +11,19 @@ previous one and needs more context.
 is what the transport hands back after a read, before any parsing:
 
 ```csharp
-public readonly struct IncomingPacket
+public struct IncomingPacket : IDisposable
 {
     public readonly int Id;
-    public readonly ReadOnlyMemory<byte> Body;
+    public ReadOnlyMemory<byte> Body { get; }
 }
 ```
 
 `Id` is the packet number on the wire, `Body` is the body without the number. In
 the protocol this field is called Packet ID, the packet format is on the
 [Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression)
-page. A packet body is a window into a buffer that lives until the next read; it
-must be parsed right away, not across an `await`
-([Receive buffer](../04-transport/03-packet-stream.md)).
+page. A packet body is a window into a pooled block. The packet is disposable
+because it holds a reference to that block, and `Retain` takes one more
+([Who owns the body](../04-transport/03-packet-stream.md)).
 
 `Id` alone is not enough. The same number in different phases and directions
 means different packets - `0x00` in login and `0x00` in play have nothing in

@@ -32,8 +32,9 @@ An application does not have to open the socket by itself.
 and
 [`OutgoingPacket`](../08-api-reference/McProtoNet/Primitives/OutgoingPacket.md)
 are the common currency of every layer. An incoming packet has a number and a
-body. The body is a window into a buffer that lives until the next read
-([Receive buffer](../04-transport/03-packet-stream.md)).
+body. The body is a window into a block rented from a pool, and the packet holds
+a reference to that block
+([Who owns the body](../04-transport/03-packet-stream.md)).
 
 Each generated packet knows its own identifier and can read and write itself for
 a specific protocol version. The

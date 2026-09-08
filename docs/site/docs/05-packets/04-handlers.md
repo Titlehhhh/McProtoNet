@@ -34,7 +34,7 @@ a typed read of the body and a call to `On<Name>` with the ready packet.
 ## Why there are many methods but few overrides
 
 The handler carries one virtual method per packet of a phase and a direction -
-`ClientboundHandler` has 143 of them, plus `OnUnknown` for everything else. By
+`ClientboundHandler` has 156 of them, plus `OnUnknown` for everything else. By
 default each one does nothing:
 
 ```csharp
@@ -46,7 +46,7 @@ protected virtual ValueTask OnEncryptionRequest(
 
 Application code overrides only what it needs. The rest of the packets pass
 through the no-op with no code on the application side. `MinimalBot` inherits
-`ClientboundHandler` and overrides 16 packet methods out of 143, plus
+`ClientboundHandler` and overrides 16 packet methods out of 156, plus
 `OnUnknown` - login, configuration, keep-alive, teleport, health.
 
 ## Who sets Phase
@@ -82,10 +82,10 @@ protected override ValueTask OnUnknown(in IncomingPacket raw)
 }
 ```
 
-`raw` lives only for the duration of the call: the packet body is a window into
-the buffer, and it lives only until the next read (see
-[Receive buffer](../04-transport/03-packet-stream.md)). If the body bytes are
-needed later, code must copy them right here.
+`raw` is borrowed for the duration of the call. The body is a window into a
+pooled block that the read loop owns, and the loop releases it on the next step
+(see [Who owns the body](../04-transport/03-packet-stream.md)). To use the body
+later, call `Retain` right here, or copy the bytes.
 
 ## Trailing bytes at the end
 

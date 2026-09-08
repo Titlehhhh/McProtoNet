@@ -101,9 +101,9 @@ But when
 is not needed - for example, for the handshake before login, or for a short
 protocol exchange without buffering - `PacketStreamReader` and
 `PacketStreamWriter` give the same frame format directly over any `Stream`, one
-packet per call. The packet body is a window into a buffer that lives until the
-next read. It must be parsed right away, not across an `await`
-([Receive buffer](03-packet-stream.md)).
+packet per call. The packet body is a window into a pooled block, and the packet
+owns that block. Dispose the packet once the body is no longer needed
+([Who owns the body](03-packet-stream.md)).
 
 ## Next
 

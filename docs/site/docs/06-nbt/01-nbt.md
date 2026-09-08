@@ -140,11 +140,11 @@ its own.
 
 ## Common mistake: the buffer runs out before the tag
 
-The body of the packet that NBT is read from is a window into a buffer that
-lives until the next read. It must be parsed right away, not across an `await`,
-like the rest of the packet fields
-([Receive buffer](../04-transport/03-packet-stream.md)). `ReadNbtTag` reads that
-same buffer and must be called in the same synchronous frame. `NbtSpanReader`
+The body of the packet that NBT is read from is a window into a pooled block. It
+must be parsed while the packet holds its reference to that block, and not
+across an `await`, like the rest of the packet fields
+([Who owns the body](../04-transport/03-packet-stream.md)). `ReadNbtTag` reads
+that same memory and must be called in the same synchronous frame. `NbtSpanReader`
 locks this in at the compiler level: as a `ref struct`, it cannot be stored in a
 field or carried across an `await`. The `NbtTag` tree that `ReadNbtTag` returns
 is free of this constraint. The strings and arrays inside it are already copied

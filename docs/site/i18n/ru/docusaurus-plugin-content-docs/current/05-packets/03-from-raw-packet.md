@@ -11,19 +11,19 @@
 - то, что транспорт отдаёт после чтения, до всякого разбора:
 
 ```csharp
-public readonly struct IncomingPacket
+public struct IncomingPacket : IDisposable
 {
     public readonly int Id;
-    public readonly ReadOnlyMemory<byte> Body;
+    public ReadOnlyMemory<byte> Body { get; }
 }
 ```
 
 `Id` - номер пакета на проводе, `Body` - тело без номера. В протоколе это поле
 называется Packet ID, формат пакета - на странице
 [Packet format](https://minecraft.wiki/w/Java_Edition_protocol/Packets#Without_compression).
-Тело пакета - окно в буфер, которое живёт до следующего чтения; разбирать его
-нужно сразу, не через `await`
-([«Буфер приёма»](../04-transport/03-packet-stream.md)).
+Тело пакета - окно в блок из пула. Пакет освобождаемый, потому что держит на
+этот блок ссылку, а `Retain` берёт ещё одну
+([«Кто владеет телом пакета»](../04-transport/03-packet-stream.md)).
 
 Одного `Id` мало. Один и тот же номер в разных фазах и направлениях означает
 разные пакеты - `0x00` в login и `0x00` в play не имеют между собой ничего

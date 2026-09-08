@@ -54,12 +54,17 @@ happened.
 
 ## How to learn the reason
 
-`CloseReason` is `null` while the connection is open, and it stays `null` after
-a clean end of stream. In every other case it holds an exception: either what
-was passed into `Abort`, or the first failure that the connection's own reader
-or writer caught. `Completion` is a task that completes at the moment of closing
-and never faults: the code can wait for it without a `try/catch` to learn that
-closing happened, and then read `CloseReason` to learn why.
+`CloseReason` is `null` while the connection is open. After closing it holds an
+exception: either what was passed into `Abort`, or the first failure that the
+connection's own reader or writer caught. The end of the stream is one of those
+failures. The read that reaches it throws `EndOfStreamException`, and the same
+exception settles into `CloseReason`. A connection that closes with no reason at
+all is the streaming one, and only through `CompleteAsync` or an empty final
+batch - the last section of this page covers it.
+
+`Completion` is a task that completes at the moment of closing and never faults.
+The code can wait for it without a `try/catch` to learn that closing happened,
+and then read `CloseReason` to learn why.
 
 The first failure of the stream reaches the code that caused it as its own
 exception type, and at the same moment it settles into `CloseReason`. Every
