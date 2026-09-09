@@ -11,96 +11,119 @@ using McProtoNet.Benchmark.Pipelines.ReadBenchs;
 
 namespace McProtoNet.Benchmark.Pipelines;
 
-[Config(typeof(ConfigWithCustomEnvVars))]
+[Config(typeof(PacedSocketConfig))]
 [MemoryDiagnoser]
 public class PipelinesReadBenchmarks
 {
-    private class ConfigWithCustomEnvVars : ManualConfig
+    private class PacedSocketConfig : ManualConfig
     {
-        public ConfigWithCustomEnvVars()
+        public PacedSocketConfig()
         {
             AddJob(Job.Default.WithRuntime(CoreRuntime.Core10_0)
-                .WithEnvironmentVariables(
-                    new EnvironmentVariable("DOTNET_RuntimeAsync", "true")
-                )
                 .WithToolchain(InProcessNoEmitToolchain.Instance)
-                .WithId("RuntimeAsync"));
+                .WithInvocationCount(1)
+                .WithUnrollFactor(1)
+                .WithWarmupCount(2)
+                .WithIterationCount(6)
+                .WithId("PacedSocket"));
         }
     }
-    
-    [Params(1_000_000)] public int PacketsCount;
-    [Params(-1, 0)] public int CompressionThreshold;
 
-    [Params(BenchType.BufferedStream, BenchType.Streaming)]
+    [Params(100_000)] public int PacketsCount;
+    [Params(-1, 0)] public int CompressionThreshold;
+    [Params(1, 100)] public int Connections;
+    [Params(0, 10)] public int GapMicroseconds;
+
+    [Params(BenchType.Stream, BenchType.BufferedStream, BenchType.Streaming)]
     public BenchType Bench { get; set; }
 
-    private TestServer _server = new();
+    private readonly TestServer _server = new();
 
-    private readonly StreamReadBench _streamBench = new();
-    private readonly BufferedStreamReadBench _bufferedStreamBench = new BufferedStreamReadBench();
-    private readonly StreamingReadBench _streamingBench = new StreamingReadBench();
+    private TcpClient[] _clients = [];
+    private Stream[] _streams = [];
+    private IReceiveBench[] _benches = [];
 
-    private IReceiveBench _activeBench;
-    private Stream _stream;
+    private int PerConnection => PacketsCount / Connections;
 
     [GlobalSetup]
     public async Task GlobalSetup()
     {
-        await _server.Run(PacketsCount, CompressionThreshold, ServerMode.Receive);
+        await _server.Run(PacketsCount, CompressionThreshold, ServerMode.Receive,
+            TimeSpan.FromMicroseconds(GapMicroseconds), PerConnection);
     }
 
     [IterationSetup]
-    public async Task IterationSetup()
+    public void IterationSetup()
     {
-        _stream = await Connect();
+        _clients = new TcpClient[Connections];
+        _streams = new Stream[Connections];
+        _benches = new IReceiveBench[Connections];
 
-        switch (Bench)
+        for (var i = 0; i < Connections; i++)
         {
-            case BenchType.Stream:
-                _activeBench = _streamBench;
-                break;
-            case BenchType.BufferedStream:
-                _activeBench = _bufferedStreamBench;
-                break;
-            case BenchType.Streaming:
-                _activeBench = _streamingBench;
-                break;
-            default:
-                throw new ArgumentOutOfRangeException();
-        }
+            var client = new TcpClient { NoDelay = true, LingerState = new LingerOption(true, 0) };
+            client.Connect("127.0.0.1", 6060);
 
-        await _activeBench.Setup(_stream, CompressionThreshold);
+            _clients[i] = client;
+            _streams[i] = client.GetStream();
+            _benches[i] = Create();
+            _benches[i].Setup(_streams[i], CompressionThreshold).GetAwaiter().GetResult();
+        }
     }
 
-    private static async Task<Stream> Connect()
+    private IReceiveBench Create()
     {
-        var client = new TcpClient();
-        await client.ConnectAsync("127.0.0.1", 6060);
-        return client.GetStream(); 
+        return Bench switch
+        {
+            BenchType.Stream => new StreamReadBench(),
+            BenchType.BufferedStream => new BufferedStreamReadBench(),
+            BenchType.Streaming => new StreamingReadBench(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
     }
 
     [IterationCleanup]
-    public async Task IterationCleanup()
+    public void IterationCleanup()
     {
-        if (_activeBench != null)
-        {
-            await _activeBench.Cleanup();
-            _activeBench = null;
-        }
-
-        if (_stream != null)
+        foreach (var bench in _benches)
         {
             try
             {
-                _stream.Dispose();
+                bench?.Cleanup().GetAwaiter().GetResult();
             }
-            catch
+            catch (Exception)
             {
-                /* ignore */
+                // ignored
             }
-
-            _stream = null;
         }
+
+        foreach (var stream in _streams)
+        {
+            try
+            {
+                stream?.Dispose();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        foreach (var client in _clients)
+        {
+            try
+            {
+                client?.Dispose();
+            }
+            catch (Exception)
+            {
+                // ignored
+            }
+        }
+
+        _benches = [];
+        _streams = [];
+        _clients = [];
     }
 
     [GlobalCleanup]
@@ -108,11 +131,20 @@ public class PipelinesReadBenchmarks
     {
         _server.Stop();
     }
-  
+
     [Benchmark]
-    public async Task ReadPackets()
+    public Task ReadPackets()
     {
-        if (_activeBench == null) throw new InvalidOperationException("Active bench is not configured.");
-        await _activeBench.Run(PacketsCount);
+        var per = PerConnection;
+        if (_benches.Length == 1) return _benches[0].Run(per);
+
+        var readers = new Task[_benches.Length];
+        for (var i = 0; i < _benches.Length; i++)
+        {
+            var bench = _benches[i];
+            readers[i] = Task.Run(() => bench.Run(per));
+        }
+
+        return Task.WhenAll(readers);
     }
 }

@@ -126,6 +126,7 @@ internal sealed class BufferedPacketReader : IDisposable
         }
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<PacketBatch> FillAndParseAsync(CancellationToken token)
     {
         try

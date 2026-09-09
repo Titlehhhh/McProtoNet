@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Runtime.CompilerServices;
 using McProtoNet.Primitives;
 using McProtoNet.Transport.Compression;
 using McProtoNet.Transport.Cryptography;
@@ -221,6 +222,7 @@ public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
         }
     }
 
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     private async ValueTask<int> ReadLengthAsync(CancellationToken token)
     {
         var memory = _varIntBuff.AsMemory(0, 1);

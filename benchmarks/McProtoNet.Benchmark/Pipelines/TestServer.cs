@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -37,19 +39,23 @@ public class TestServer
 
     private byte[] bytes;
 
-    private static byte[] ConsumerBuffer = new byte[1024 * 1024];
-
     private TcpListener listener;
     private CancellationTokenSource cts;
 
-    public async Task Run(int packetsCount, int compressionThreshold, ServerMode mode)
+    private int _frameLength;
+    private long _gapTicks;
+    private long _budget;
+    private volatile bool _open;
+    private readonly ConcurrentQueue<Socket> _paced = new();
+    private Thread _pacer;
+
+    public async Task Run(int packetsCount, int compressionThreshold, ServerMode mode, TimeSpan gap = default,
+        int framesPerConnection = 0)
     {
         cts = new CancellationTokenSource();
         listener = new TcpListener(IPAddress.Any, 6060);
         listener.Start();
 
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         var stream = new MemoryStream();
         await using var writer = new PacketStreamWriter(stream);
         writer.CompressionThreshold = compressionThreshold;
@@ -63,12 +69,36 @@ public class TestServer
 
         bytes = stream.ToArray();
 
+        var paced = mode == ServerMode.Receive && gap > TimeSpan.Zero;
+        if (paced)
+        {
+            _frameLength = bytes.Length / packetsCount;
+            if (_frameLength * packetsCount != bytes.Length)
+                throw new InvalidOperationException("Paced mode needs frames of one length.");
+
+            _gapTicks = (long)(gap.TotalSeconds * Stopwatch.Frequency);
+            _budget = (long)(framesPerConnection > 0 ? framesPerConnection : packetsCount) * _frameLength;
+
+            _pacer = new Thread(PaceLoop) { IsBackground = true, Priority = ThreadPriority.AboveNormal };
+            _pacer.Start();
+        }
+
         _ = Task.Run(async () =>
         {
             while (!cts.IsCancellationRequested)
             {
                 var socket = await listener.AcceptSocketAsync(CancellationToken.None);
-                await Task.Run(async () =>
+
+                if (paced)
+                {
+                    socket.NoDelay = true;
+                    socket.LingerState = new LingerOption(true, 0);
+                    socket.Blocking = false;
+                    _paced.Enqueue(socket);
+                    continue;
+                }
+
+                _ = Task.Run(async () =>
                 {
                     if (mode == ServerMode.Receive)
                     {
@@ -84,47 +114,129 @@ public class TestServer
                     }
                     else
                     {
-                        int count = 0;
+                        var sink = new byte[1024 * 1024];
                         try
                         {
                             await using var ns = new NetworkStream(socket, true);
                             while (true)
                             {
-                                await ns.ReadExactlyAsync(ConsumerBuffer, CancellationToken.None);
+                                await ns.ReadExactlyAsync(sink, CancellationToken.None);
                             }
-                            // await using var buffer = new PoolingBufferedStream(ns);
-                            // var packetReader = new PacketStreamReader
-                            // {
-                            //     BaseStream = buffer
-                            // };
-                            // packetReader.SwitchCompression(compressionThreshold);
-                            //
-                            // while (true)
-                            // {
-                            //     using var p = await packetReader.ReadNextPacketAsync();
-                            //     count++;
-                            // }
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
-                            //Console.WriteLine($"TestServer: {ex}");
                             // ignored
                         }
-
-                        return;
-                        if (count != packetsCount)
-                            Environment.FailFast($"TestServer: Packets count mismatch {count} != {packetsCount}");
                     }
                 });
             }
         });
     }
 
+    public void Release()
+    {
+        _open = true;
+    }
+
+    public void Hold()
+    {
+        _open = false;
+    }
+
+    private void PaceLoop()
+    {
+        var live = new List<Feeder>();
+        var token = cts.Token;
+        var next = Stopwatch.GetTimestamp();
+
+        while (!token.IsCancellationRequested)
+        {
+            if (!_open)
+            {
+                foreach (var feeder in live) Drop(feeder.Socket);
+                live.Clear();
+
+                Thread.Sleep(1);
+                next = Stopwatch.GetTimestamp();
+                continue;
+            }
+
+            while (_paced.TryDequeue(out var socket)) live.Add(new Feeder(socket, _budget));
+
+            if (live.Count == 0)
+            {
+                Thread.SpinWait(64);
+                next = Stopwatch.GetTimestamp();
+                continue;
+            }
+
+            for (var i = live.Count - 1; i >= 0; i--)
+            {
+                var feeder = live[i];
+                if (feeder.Remaining <= 0) continue;
+
+                try
+                {
+                    var count = (int)Math.Min(Math.Min(_frameLength, feeder.Remaining),
+                        bytes.Length - feeder.Offset);
+                    var sent = feeder.Socket.Send(bytes, feeder.Offset, count, SocketFlags.None);
+
+                    feeder.Offset += sent;
+                    feeder.Remaining -= sent;
+                    if (feeder.Offset >= bytes.Length) feeder.Offset = 0;
+                }
+                catch (SocketException e) when (e.SocketErrorCode == SocketError.WouldBlock)
+                {
+                    // the reader is behind; the other connections keep their turn
+                }
+                catch (Exception)
+                {
+                    live.RemoveAt(i);
+                    Drop(feeder.Socket);
+                }
+            }
+
+            next += _gapTicks;
+            var now = Stopwatch.GetTimestamp();
+            if (now >= next) next = now;
+            else
+                while (Stopwatch.GetTimestamp() < next)
+                    Thread.SpinWait(8);
+        }
+
+        foreach (var feeder in live) Drop(feeder.Socket);
+    }
+
+    private static void Drop(Socket socket)
+    {
+        try
+        {
+            socket.Dispose();
+        }
+        catch (Exception)
+        {
+            // ignored
+        }
+    }
+
     public void Stop()
     {
+        _open = false;
         cts.Cancel();
         listener.Stop();
         listener.Dispose();
+        _pacer?.Join(TimeSpan.FromSeconds(5));
+        _pacer = null;
+        while (_paced.TryDequeue(out var socket)) Drop(socket);
         cts.Dispose();
+    }
+
+    private sealed class Feeder(Socket socket, long budget)
+    {
+        public Socket Socket { get; } = socket;
+
+        public int Offset { get; set; }
+
+        public long Remaining { get; set; } = budget;
     }
 }
