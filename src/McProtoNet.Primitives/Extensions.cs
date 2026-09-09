@@ -353,7 +353,6 @@ public static class Extensions
     /// <exception cref="InvalidDataException">The VarInt is longer than 5 bytes.</exception>
     /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception is
     /// stored into the returned task.</exception>
-    //[AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
     public static async ValueTask<int> ReadVarIntAsync(this Stream stream, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
