@@ -32,62 +32,11 @@ public sealed partial record PlayerRemovePacket(Guid[] Players) : IPacket<Player
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 761 && protocolVersion <= 761)
-        {
-            id = 0x35;
-            return true;
-        }
-
-        if (protocolVersion >= 762 && protocolVersion <= 763)
-        {
-            id = 0x39;
-            return true;
-        }
-
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-        {
-            id = 0x3B;
-            return true;
-        }
-
-        if (protocolVersion >= 766 && protocolVersion <= 767)
-        {
-            id = 0x3D;
-            return true;
-        }
-
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-        {
-            id = 0x3F;
-            return true;
-        }
-
-        if (protocolVersion >= 770 && protocolVersion <= 772)
-        {
-            id = 0x3E;
-            return true;
-        }
-
-        if (protocolVersion >= 773 && protocolVersion <= 774)
-        {
-            id = 0x43;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x45;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

@@ -28,26 +28,11 @@ public sealed partial record WorldBorderPacket(WorldBorderAction Action) : IPack
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 736)
-        {
-            id = 0x3D;
-            return true;
-        }
-
-        if (protocolVersion >= 751 && protocolVersion <= 754)
-        {
-            id = 0x3D;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

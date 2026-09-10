@@ -70,6 +70,33 @@ public static partial class PacketRegistry
         return false;
     }
 
+    /// <summary>Gets the wire id a packet carries on the specified protocol version, or
+    /// false when the packet does not exist there. The reverse of TryGetOrdinal: the dense
+    /// tables index id-&gt;ordinal, so one packet's own ranges are scanned instead, which is
+    /// what the send path needs and it is cold.</summary>
+    public static bool TryGetId(in PacketIdentity identity, int protocolVersion, out int id)
+    {
+        foreach (var range in Catalog(identity.Phase, identity.Direction)[identity.Ordinal].Ids)
+        {
+            if (protocolVersion >= range.FromPv && protocolVersion <= range.ToPv)
+            {
+                id = range.Id;
+                return true;
+            }
+        }
+
+        id = 0;
+        return false;
+    }
+
+    /// <summary>Gets the wire id a packet carries on the specified protocol version.</summary>
+    public static int GetId(in PacketIdentity identity, int protocolVersion)
+    {
+        if (TryGetId(identity, protocolVersion, out var id))
+            return id;
+        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+    }
+
     public static ReadOnlySpan<PacketDescriptor> Catalog(PacketPhase phase, PacketDirection dir)
     {
         switch (phase, dir)

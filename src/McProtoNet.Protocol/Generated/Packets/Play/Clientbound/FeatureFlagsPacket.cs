@@ -31,26 +31,11 @@ public sealed partial record FeatureFlagsPacket(string[] Features) : IPacket<Fea
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 761 && protocolVersion <= 761)
-        {
-            id = 0x67;
-            return true;
-        }
-
-        if (protocolVersion >= 762 && protocolVersion <= 763)
-        {
-            id = 0x6B;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

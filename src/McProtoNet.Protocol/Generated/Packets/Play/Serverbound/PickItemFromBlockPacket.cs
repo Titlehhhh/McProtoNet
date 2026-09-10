@@ -29,32 +29,11 @@ public sealed partial record PickItemFromBlockPacket(Position Position, bool Inc
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 769 && protocolVersion <= 770)
-        {
-            id = 0x22;
-            return true;
-        }
-
-        if (protocolVersion >= 771 && protocolVersion <= 774)
-        {
-            id = 0x23;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x24;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

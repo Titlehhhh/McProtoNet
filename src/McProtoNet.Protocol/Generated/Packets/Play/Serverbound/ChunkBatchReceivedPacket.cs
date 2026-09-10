@@ -26,44 +26,11 @@ public sealed partial record ChunkBatchReceivedPacket(float ChunksPerTick) : IPa
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 764 && protocolVersion <= 765)
-        {
-            id = 0x07;
-            return true;
-        }
-
-        if (protocolVersion >= 766 && protocolVersion <= 767)
-        {
-            id = 0x08;
-            return true;
-        }
-
-        if (protocolVersion >= 768 && protocolVersion <= 770)
-        {
-            id = 0x09;
-            return true;
-        }
-
-        if (protocolVersion >= 771 && protocolVersion <= 774)
-        {
-            id = 0x0A;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x0B;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

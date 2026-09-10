@@ -33,50 +33,11 @@ public sealed partial record ResetScorePacket(string EntityName, string? Objecti
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-        {
-            id = 0x42;
-            return true;
-        }
-
-        if (protocolVersion >= 766 && protocolVersion <= 767)
-        {
-            id = 0x44;
-            return true;
-        }
-
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-        {
-            id = 0x49;
-            return true;
-        }
-
-        if (protocolVersion >= 770 && protocolVersion <= 772)
-        {
-            id = 0x48;
-            return true;
-        }
-
-        if (protocolVersion >= 773 && protocolVersion <= 774)
-        {
-            id = 0x4D;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x4F;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

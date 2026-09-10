@@ -31,38 +31,11 @@ public sealed partial record CustomReportDetailsPacket(ReportDetail[] Details) :
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 767 && protocolVersion <= 767)
-        {
-            id = 0x7A;
-            return true;
-        }
-
-        if (protocolVersion >= 768 && protocolVersion <= 772)
-        {
-            id = 0x81;
-            return true;
-        }
-
-        if (protocolVersion >= 773 && protocolVersion <= 774)
-        {
-            id = 0x86;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x88;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

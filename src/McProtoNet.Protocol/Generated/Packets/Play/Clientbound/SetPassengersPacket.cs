@@ -34,92 +34,11 @@ public sealed partial record SetPassengersPacket(int EntityId, int[] Passengers)
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 736)
-        {
-            id = 0x4B;
-            return true;
-        }
-
-        if (protocolVersion >= 751 && protocolVersion <= 754)
-        {
-            id = 0x4B;
-            return true;
-        }
-
-        if (protocolVersion >= 755 && protocolVersion <= 759)
-        {
-            id = 0x54;
-            return true;
-        }
-
-        if (protocolVersion >= 760 && protocolVersion <= 760)
-        {
-            id = 0x57;
-            return true;
-        }
-
-        if (protocolVersion >= 761 && protocolVersion <= 761)
-        {
-            id = 0x55;
-            return true;
-        }
-
-        if (protocolVersion >= 762 && protocolVersion <= 763)
-        {
-            id = 0x59;
-            return true;
-        }
-
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-        {
-            id = 0x5B;
-            return true;
-        }
-
-        if (protocolVersion >= 765 && protocolVersion <= 765)
-        {
-            id = 0x5D;
-            return true;
-        }
-
-        if (protocolVersion >= 766 && protocolVersion <= 767)
-        {
-            id = 0x5F;
-            return true;
-        }
-
-        if (protocolVersion >= 768 && protocolVersion <= 769)
-        {
-            id = 0x65;
-            return true;
-        }
-
-        if (protocolVersion >= 770 && protocolVersion <= 772)
-        {
-            id = 0x64;
-            return true;
-        }
-
-        if (protocolVersion >= 773 && protocolVersion <= 774)
-        {
-            id = 0x69;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x6B;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

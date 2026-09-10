@@ -32,32 +32,11 @@ public sealed partial record SetTestBlockPacket(Position Position, int Mode, str
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 770 && protocolVersion <= 770)
-        {
-            id = 0x39;
-            return true;
-        }
-
-        if (protocolVersion >= 771 && protocolVersion <= 774)
-        {
-            id = 0x3A;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x3C;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

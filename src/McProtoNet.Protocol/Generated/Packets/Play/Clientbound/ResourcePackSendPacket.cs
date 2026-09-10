@@ -68,62 +68,11 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, Res
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 735 && protocolVersion <= 736)
-        {
-            id = 0x39;
-            return true;
-        }
-
-        if (protocolVersion >= 751 && protocolVersion <= 754)
-        {
-            id = 0x38;
-            return true;
-        }
-
-        if (protocolVersion >= 755 && protocolVersion <= 758)
-        {
-            id = 0x3C;
-            return true;
-        }
-
-        if (protocolVersion >= 759 && protocolVersion <= 759)
-        {
-            id = 0x3A;
-            return true;
-        }
-
-        if (protocolVersion >= 760 && protocolVersion <= 760)
-        {
-            id = 0x3D;
-            return true;
-        }
-
-        if (protocolVersion >= 761 && protocolVersion <= 761)
-        {
-            id = 0x3C;
-            return true;
-        }
-
-        if (protocolVersion >= 762 && protocolVersion <= 763)
-        {
-            id = 0x40;
-            return true;
-        }
-
-        if (protocolVersion >= 764 && protocolVersion <= 764)
-        {
-            id = 0x42;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }

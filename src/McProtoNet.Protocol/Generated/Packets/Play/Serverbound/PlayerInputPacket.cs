@@ -26,38 +26,11 @@ public sealed partial record PlayerInputPacket(PlayerInputFlags Inputs) : IPacke
 
     public static bool TryGetPacketId(int protocolVersion, out int id)
     {
-        if (protocolVersion >= 768 && protocolVersion <= 768)
-        {
-            id = 0x28;
-            return true;
-        }
-
-        if (protocolVersion >= 769 && protocolVersion <= 770)
-        {
-            id = 0x29;
-            return true;
-        }
-
-        if (protocolVersion >= 771 && protocolVersion <= 774)
-        {
-            id = 0x2A;
-            return true;
-        }
-
-        if (protocolVersion >= 775 && protocolVersion <= 776)
-        {
-            id = 0x2B;
-            return true;
-        }
-
-        id = 0;
-        return false;
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
     }
 
     public static int GetPacketId(int protocolVersion)
     {
-        if (TryGetPacketId(protocolVersion, out var id))
-            return id;
-        throw new System.NotSupportedException($"No packet id for protocol {protocolVersion}.");
+        return PacketRegistry.GetId(Identity, protocolVersion);
     }
 }
