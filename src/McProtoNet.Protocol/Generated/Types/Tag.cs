@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 public sealed partial class Tag : IProtocolType<Tag>
 {

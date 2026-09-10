@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(762, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct Vec3f64(double X, double Y, double Z) : IProtocolType<Vec3f64>
 {

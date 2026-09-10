@@ -3,6 +3,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 736)]
 [Union]
 public partial record CraftingBookDataAction

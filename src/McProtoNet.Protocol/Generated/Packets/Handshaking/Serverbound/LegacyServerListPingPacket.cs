@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("handshaking.toServer.legacy_server_list_ping", PacketPhase.Handshaking, PacketDirection.Serverbound)]
 [PacketField("Payload", "int")]

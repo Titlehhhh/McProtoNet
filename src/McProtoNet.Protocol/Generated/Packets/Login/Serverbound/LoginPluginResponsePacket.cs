@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("login.toServer.login_plugin_response", PacketPhase.Login, PacketDirection.Serverbound)]
 [PacketField("MessageId", "int")]

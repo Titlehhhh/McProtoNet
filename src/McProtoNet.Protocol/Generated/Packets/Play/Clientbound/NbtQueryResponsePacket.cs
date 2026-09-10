@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.nbt_query_response", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("TransactionId", "int")]

@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(759, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.system_chat", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("ContentJson", "string", Group = "V759", From = 759, To = 759)]

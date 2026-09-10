@@ -4,6 +4,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
 [Union]
 public partial record ServerLinkLabel

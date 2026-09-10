@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.death_combat_event", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("PlayerId", "int")]

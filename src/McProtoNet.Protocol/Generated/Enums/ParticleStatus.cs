@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct ParticleStatus(int Value) : IProtocolType<ParticleStatus>
 {

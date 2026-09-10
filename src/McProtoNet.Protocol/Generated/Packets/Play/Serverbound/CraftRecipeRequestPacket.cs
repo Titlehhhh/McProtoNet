@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.craft_recipe_request", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("WindowId", "int")]

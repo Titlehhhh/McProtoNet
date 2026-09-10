@@ -3,6 +3,7 @@ using System;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 public delegate void TrailingBytesHook(int packetId, int protocolVersion, long remainingBytes);
 /// <summary>Generated dispatcher. Packets whose codegen is still stubbed are not
 /// dispatched — they fall through to <c>Unknown</c> instead of throwing inside the

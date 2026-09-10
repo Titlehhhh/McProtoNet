@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.cookie_response", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("Key", "string")]

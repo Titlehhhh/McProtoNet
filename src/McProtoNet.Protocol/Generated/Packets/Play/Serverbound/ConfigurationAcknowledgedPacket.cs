@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.configuration_acknowledged", PacketPhase.Play, PacketDirection.Serverbound)]
 public sealed partial record ConfigurationAcknowledgedPacket() : IPacket<ConfigurationAcknowledgedPacket>, IPacket

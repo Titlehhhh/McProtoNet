@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(761, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct SoundSource(int Value) : IProtocolType<SoundSource>
 {

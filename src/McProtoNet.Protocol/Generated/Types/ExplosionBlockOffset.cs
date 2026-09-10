@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 767)]
 public readonly partial record struct ExplosionBlockOffset(int X, int Y, int Z) : IProtocolType<ExplosionBlockOffset>
 {

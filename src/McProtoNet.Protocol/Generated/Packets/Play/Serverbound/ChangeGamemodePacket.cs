@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.change_gamemode", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Mode", "Gamemode")]

@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct HeightmapType(int Value) : IProtocolType<HeightmapType>
 {

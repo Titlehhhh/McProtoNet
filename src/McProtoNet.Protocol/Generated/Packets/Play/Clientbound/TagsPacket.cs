@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.tags", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("BlockTags", "Tag[]", Group = "VUntil754", To = 754)]

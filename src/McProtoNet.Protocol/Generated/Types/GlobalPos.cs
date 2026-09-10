@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(773, MinecraftVersion.LatestProtocol)]
 public sealed partial class GlobalPos : IProtocolType<GlobalPos>
 {

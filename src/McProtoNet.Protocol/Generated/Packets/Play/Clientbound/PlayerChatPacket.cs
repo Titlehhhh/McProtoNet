@@ -4,6 +4,7 @@ using McProtoNet.NBT;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(759, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.player_chat", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("SenderUuid", "Guid")]

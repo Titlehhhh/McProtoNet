@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("login.toClient.encryption_begin", PacketPhase.Login, PacketDirection.Clientbound)]
 [PacketField("ServerId", "string")]

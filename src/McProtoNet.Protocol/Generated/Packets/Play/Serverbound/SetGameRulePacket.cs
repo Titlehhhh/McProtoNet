@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(775, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.set_game_rule", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Entries", "GameRule[]")]

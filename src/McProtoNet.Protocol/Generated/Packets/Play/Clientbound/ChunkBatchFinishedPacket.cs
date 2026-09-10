@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.chunk_batch_finished", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("BatchSize", "int")]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.reset_chat", PacketPhase.Configuration, PacketDirection.Clientbound)]
 public sealed partial record ResetChatPacket() : IPacket<ResetChatPacket>, IPacket

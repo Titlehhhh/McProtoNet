@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.map_chunk", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("X", "int")]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct TeamFlags(bool FriendlyFire, bool SeeFriendlyInvisible) : IProtocolType<TeamFlags>
 {

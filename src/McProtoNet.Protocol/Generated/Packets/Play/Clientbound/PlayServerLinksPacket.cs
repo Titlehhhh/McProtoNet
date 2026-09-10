@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.server_links", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Links", "ServerLink[]")]

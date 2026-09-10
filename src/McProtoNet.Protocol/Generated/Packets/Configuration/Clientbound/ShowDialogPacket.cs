@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.show_dialog", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("Dialog", "NbtTag")]

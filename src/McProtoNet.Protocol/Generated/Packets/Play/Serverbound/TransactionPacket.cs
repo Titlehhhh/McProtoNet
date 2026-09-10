@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
 [Packet("play.toServer.transaction", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("WindowId", "int")]

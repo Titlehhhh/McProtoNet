@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(757, MinecraftVersion.LatestProtocol)]
 public sealed partial class ChunkBlockEntity : IProtocolType<ChunkBlockEntity>
 {

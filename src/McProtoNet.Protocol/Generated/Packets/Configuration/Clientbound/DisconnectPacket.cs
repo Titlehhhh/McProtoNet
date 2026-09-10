@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.disconnect", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("ReasonJson", "string", Group = "V764", From = 764, To = 764)]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(773, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.game_test_highlight_pos", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("AbsolutePos", "Position")]

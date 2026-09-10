@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 public sealed partial class MinecartStep : IProtocolType<MinecartStep>
 {

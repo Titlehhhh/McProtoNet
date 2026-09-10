@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(751, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.displayed_recipe", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("RecipeId", "string", Group = "V751_767", From = 751, To = 767)]

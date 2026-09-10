@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(765, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.set_slot_state", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("SlotId", "int")]

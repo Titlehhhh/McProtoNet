@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(775, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.low_disk_space_warning", PacketPhase.Play, PacketDirection.Clientbound)]
 public sealed partial record LowDiskSpaceWarningPacket() : IPacket<LowDiskSpaceWarningPacket>, IPacket

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("login.toServer.login_acknowledged", PacketPhase.Login, PacketDirection.Serverbound)]
 public sealed partial record LoginAcknowledgedPacket() : IPacket<LoginAcknowledgedPacket>, IPacket

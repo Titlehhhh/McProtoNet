@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Status.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("status.toServer.ping_start", PacketPhase.Status, PacketDirection.Serverbound)]
 public sealed partial record PingStartPacket() : IPacket<PingStartPacket>, IPacket

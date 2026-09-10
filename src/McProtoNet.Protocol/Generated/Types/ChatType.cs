@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 public sealed partial class ChatType : IProtocolType<ChatType>
 {

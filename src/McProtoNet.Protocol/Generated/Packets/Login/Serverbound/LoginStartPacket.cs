@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("login.toServer.login_start", PacketPhase.Login, PacketDirection.Serverbound)]
 [PacketField("Username", "string")]

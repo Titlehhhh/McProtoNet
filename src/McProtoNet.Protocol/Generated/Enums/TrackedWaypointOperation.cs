@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct TrackedWaypointOperation(int Value) : IProtocolType<TrackedWaypointOperation>
 {

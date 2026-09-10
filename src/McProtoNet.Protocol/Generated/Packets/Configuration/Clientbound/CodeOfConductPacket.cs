@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(773, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.code_of_conduct", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("Contents", "string")]

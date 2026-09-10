@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toClient.custom_report_details", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("Details", "ReportDetail[]")]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.pong", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Id", "int")]

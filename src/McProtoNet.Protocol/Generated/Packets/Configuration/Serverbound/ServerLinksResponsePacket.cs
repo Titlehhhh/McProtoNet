@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(767, 770)]
 [Packet("configuration.toServer.server_links", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("Links", "ServerLink[]")]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.tracked_waypoint", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Operation", "TrackedWaypointOperation")]

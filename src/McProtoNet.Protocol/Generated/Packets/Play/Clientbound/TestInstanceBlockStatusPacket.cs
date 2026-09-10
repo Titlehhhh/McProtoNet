@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(770, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.test_instance_block_status", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Status", "NbtTag")]

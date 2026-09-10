@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.clear_dialog", PacketPhase.Play, PacketDirection.Clientbound)]
 public sealed partial record ClearDialogPacket() : IPacket<ClearDialogPacket>, IPacket

@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.kick_disconnect", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("ReasonJson", "string", Group = "VUntil764", To = 764)]

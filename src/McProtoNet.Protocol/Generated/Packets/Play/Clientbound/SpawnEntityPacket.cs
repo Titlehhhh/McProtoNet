@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.spawn_entity", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]

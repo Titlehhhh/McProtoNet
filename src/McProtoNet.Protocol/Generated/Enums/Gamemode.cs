@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct Gamemode(int Value) : IProtocolType<Gamemode>
 {

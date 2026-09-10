@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.acknowledge_player_digging", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Location", "Position", Group = "VUntil758", To = 758)]

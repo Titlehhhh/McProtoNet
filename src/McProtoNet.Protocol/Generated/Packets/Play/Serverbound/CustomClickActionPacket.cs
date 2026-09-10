@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.custom_click_action", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Id", "string")]

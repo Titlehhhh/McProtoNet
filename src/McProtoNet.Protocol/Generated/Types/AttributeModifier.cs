@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 public sealed partial class AttributeModifier : IProtocolType<AttributeModifier>
 {

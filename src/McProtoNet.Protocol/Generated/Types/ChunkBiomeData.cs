@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(762, MinecraftVersion.LatestProtocol)]
 public sealed partial class ChunkBiomeData : IProtocolType<ChunkBiomeData>
 {

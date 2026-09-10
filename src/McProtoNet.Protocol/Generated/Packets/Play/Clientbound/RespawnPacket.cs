@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.respawn", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Dimension", "string", Group = "VUntil736", To = 736)]

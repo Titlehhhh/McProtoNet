@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.resource_pack_receive", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("Result", "int")]

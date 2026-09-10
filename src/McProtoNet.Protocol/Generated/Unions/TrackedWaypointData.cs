@@ -3,6 +3,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Union]
 public partial record TrackedWaypointData

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.select_bundle_item", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("SlotId", "int")]

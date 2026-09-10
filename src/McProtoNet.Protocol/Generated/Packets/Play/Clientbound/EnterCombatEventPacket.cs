@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.enter_combat_event", PacketPhase.Play, PacketDirection.Clientbound)]
 public sealed partial record EnterCombatEventPacket() : IPacket<EnterCombatEventPacket>, IPacket

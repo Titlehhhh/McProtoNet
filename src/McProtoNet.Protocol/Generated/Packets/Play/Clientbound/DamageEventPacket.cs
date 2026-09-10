@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(762, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.damage_event", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]

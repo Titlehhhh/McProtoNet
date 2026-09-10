@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("login.toClient.success", PacketPhase.Login, PacketDirection.Clientbound)]
 [PacketField("Uuid", "Guid")]

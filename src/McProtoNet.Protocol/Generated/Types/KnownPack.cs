@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 public sealed partial class KnownPack : IProtocolType<KnownPack>
 {

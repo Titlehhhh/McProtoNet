@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct PlayerInputFlags(bool Forward, bool Backward, bool Left, bool Right, bool Jump, bool Shift, bool Sprint) : IProtocolType<PlayerInputFlags>
 {

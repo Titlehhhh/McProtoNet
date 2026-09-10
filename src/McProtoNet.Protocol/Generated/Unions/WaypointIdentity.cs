@@ -4,6 +4,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 [Union]
 public partial record WaypointIdentity

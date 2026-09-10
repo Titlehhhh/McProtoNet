@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.start_configuration", PacketPhase.Play, PacketDirection.Clientbound)]
 public sealed partial record StartConfigurationPacket() : IPacket<StartConfigurationPacket>, IPacket

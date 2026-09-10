@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(759, 760)]
 public sealed partial class LoginSignature : IProtocolType<LoginSignature>
 {

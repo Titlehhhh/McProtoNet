@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(769, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.player_loaded", PacketPhase.Play, PacketDirection.Serverbound)]
 public sealed partial record PlayerLoadedPacket() : IPacket<PlayerLoadedPacket>, IPacket

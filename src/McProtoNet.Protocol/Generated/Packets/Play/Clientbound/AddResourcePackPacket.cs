@@ -4,6 +4,7 @@ using McProtoNet.NBT;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(765, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.add_resource_pack", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Uuid", "Guid")]

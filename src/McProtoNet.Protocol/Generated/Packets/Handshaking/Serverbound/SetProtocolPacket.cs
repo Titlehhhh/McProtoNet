@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("handshaking.toServer.set_protocol", PacketPhase.Handshaking, PacketDirection.Serverbound)]
 [PacketField("ProtocolVersion", "int")]

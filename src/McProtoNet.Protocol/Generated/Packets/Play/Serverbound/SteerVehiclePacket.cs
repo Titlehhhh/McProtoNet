@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 767)]
 [Packet("play.toServer.steer_vehicle", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Sideways", "float")]

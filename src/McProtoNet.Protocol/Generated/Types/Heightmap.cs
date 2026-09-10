@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(770, MinecraftVersion.LatestProtocol)]
 public sealed partial class Heightmap : IProtocolType<Heightmap>
 {

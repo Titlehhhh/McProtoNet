@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.ping_response", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Id", "long")]

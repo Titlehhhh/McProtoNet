@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(759, 760)]
 [Packet("play.toServer.chat_preview", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Query", "int")]

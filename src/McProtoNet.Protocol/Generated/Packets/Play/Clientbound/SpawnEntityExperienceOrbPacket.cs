@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 769)]
 [Packet("play.toClient.spawn_entity_experience_orb", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]

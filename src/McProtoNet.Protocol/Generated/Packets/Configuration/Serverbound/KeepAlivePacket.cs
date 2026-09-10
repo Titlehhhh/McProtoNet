@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(764, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.keep_alive", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("KeepAliveId", "long")]

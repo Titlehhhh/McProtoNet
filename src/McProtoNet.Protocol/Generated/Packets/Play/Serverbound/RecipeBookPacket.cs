@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(751, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.recipe_book", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("BookId", "int")]

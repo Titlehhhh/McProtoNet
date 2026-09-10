@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(768, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.player_rotation", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Yaw", "float")]

@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(760, 760)]
 [Packet("play.toClient.message_header", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("PreviousSignature", "byte[]?")]

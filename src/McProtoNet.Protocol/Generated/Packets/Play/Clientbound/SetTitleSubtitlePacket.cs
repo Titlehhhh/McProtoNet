@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(755, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.set_title_subtitle", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("TextJson", "string", Group = "V755_764", From = 755, To = 764)]

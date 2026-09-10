@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(761, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.player_remove", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Players", "Guid[]")]

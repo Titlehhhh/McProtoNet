@@ -4,6 +4,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(767, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct ServerLinkType(int Value) : IProtocolType<ServerLinkType>
 {

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(775, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct ClockUpdate(int Id, long TotalTicks, float PartialTick, float Rate) : IProtocolType<ClockUpdate>
 {

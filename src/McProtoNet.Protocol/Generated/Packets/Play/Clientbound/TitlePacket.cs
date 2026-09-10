@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
 [Packet("play.toClient.title", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Action", "TitleAction")]

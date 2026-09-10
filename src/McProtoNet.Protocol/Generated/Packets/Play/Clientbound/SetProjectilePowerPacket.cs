@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.set_projectile_power", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Id", "int")]

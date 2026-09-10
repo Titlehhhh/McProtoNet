@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct PositionUpdateRelatives(bool X, bool Y, bool Z, bool Yaw, bool Pitch, bool Dx, bool Dy, bool Dz, bool YawDelta) : IProtocolType<PositionUpdateRelatives>
 {

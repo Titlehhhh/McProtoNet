@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(755, 755)]
 [Packet("play.toClient.destroy_entity", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("EntityId", "int")]

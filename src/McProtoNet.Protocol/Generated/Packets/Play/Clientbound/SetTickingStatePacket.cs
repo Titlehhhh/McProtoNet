@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(765, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.set_ticking_state", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("TickRate", "float")]

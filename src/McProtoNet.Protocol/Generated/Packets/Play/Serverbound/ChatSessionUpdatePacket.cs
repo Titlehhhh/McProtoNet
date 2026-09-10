@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(761, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.chat_session_update", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("SessionUuid", "Guid")]

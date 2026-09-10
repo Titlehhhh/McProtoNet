@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(759, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.chat_message", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Message", "string")]

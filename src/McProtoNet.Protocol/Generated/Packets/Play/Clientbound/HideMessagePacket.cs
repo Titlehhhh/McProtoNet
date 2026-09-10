@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(760, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.hide_message", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("MessageSignature", "byte[]", Group = "V760", From = 760, To = 760)]

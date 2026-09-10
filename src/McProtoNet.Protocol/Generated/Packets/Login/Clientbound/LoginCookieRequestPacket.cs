@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 [Packet("login.toClient.cookie_request", PacketPhase.Login, PacketDirection.Clientbound)]
 [PacketField("Cookie", "string")]

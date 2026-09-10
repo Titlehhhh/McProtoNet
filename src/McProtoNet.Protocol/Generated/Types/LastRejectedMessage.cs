@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(760, 760)]
 public sealed partial class LastRejectedMessage : IProtocolType<LastRejectedMessage>
 {

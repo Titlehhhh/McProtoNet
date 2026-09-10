@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 758)]
 [Packet("play.toClient.chat", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Message", "string")]

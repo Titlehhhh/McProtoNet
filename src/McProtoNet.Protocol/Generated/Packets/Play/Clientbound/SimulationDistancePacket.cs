@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(757, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.simulation_distance", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Distance", "int")]

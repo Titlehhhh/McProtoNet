@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(766, 772)]
 [Packet("play.toServer.debug_sample_subscription", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Type", "int")]

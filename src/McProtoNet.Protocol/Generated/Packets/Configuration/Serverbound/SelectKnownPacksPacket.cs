@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(766, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.select_known_packs", PacketPhase.Configuration, PacketDirection.Serverbound)]
 [PacketField("Packs", "KnownPack[]")]

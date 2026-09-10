@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using System;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(760, MinecraftVersion.LatestProtocol)]
 public sealed partial class PreviousMessage : IProtocolType<PreviousMessage>
 {

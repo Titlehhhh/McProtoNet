@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 760)]
 [Packet("play.toClient.named_sound_effect", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("SoundName", "string")]

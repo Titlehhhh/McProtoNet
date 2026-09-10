@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(761, 763)]
 [Packet("play.toClient.feature_flags", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Features", "string[]")]

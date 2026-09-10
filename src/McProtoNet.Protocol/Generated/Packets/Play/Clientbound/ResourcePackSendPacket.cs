@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 764)]
 [Packet("play.toClient.resource_pack_send", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Url", "string")]

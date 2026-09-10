@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
+
 [ProtocolSupport(773, MinecraftVersion.LatestProtocol)]
 [Packet("configuration.toServer.accept_code_of_conduct", PacketPhase.Configuration, PacketDirection.Serverbound)]
 public sealed partial record AcceptCodeOfConductPacket() : IPacket<AcceptCodeOfConductPacket>, IPacket

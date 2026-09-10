@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(761, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.profileless_chat", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("MessageJson", "string", Group = "V761_764", From = 761, To = 764)]

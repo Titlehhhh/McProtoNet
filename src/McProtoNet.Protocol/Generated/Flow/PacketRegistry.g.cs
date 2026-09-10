@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace McProtoNet.Protocol;
+
 public readonly record struct IdRange(int FromPv, int ToPv, int Id);
 public sealed record PacketDescriptor(PacketIdentity Identity, IdRange[] Ids);
 /// <summary>Generated packet registry: dense id->ordinal tables on the hot path,

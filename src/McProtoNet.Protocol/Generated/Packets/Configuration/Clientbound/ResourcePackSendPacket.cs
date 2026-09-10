@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
+
 [ProtocolSupport(764, 764)]
 [Packet("configuration.toClient.resource_pack_send", PacketPhase.Configuration, PacketDirection.Clientbound)]
 [PacketField("Url", "string")]

@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 [ProtocolSupport(771, MinecraftVersion.LatestProtocol)]
 public readonly partial record struct WaypointColor(int Red, int Green, int Blue) : IProtocolType<WaypointColor>
 {

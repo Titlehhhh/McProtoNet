@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, 754)]
 [Packet("play.toClient.combat_event", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("Action", "CombatEventAction")]

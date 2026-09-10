@@ -3,6 +3,7 @@ using McProtoNet.Primitives;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
+
 [ProtocolSupport(MinecraftVersion.StartProtocol, MinecraftVersion.LatestProtocol)]
 [Packet("play.toClient.playerlist_header", PacketPhase.Play, PacketDirection.Clientbound)]
 [PacketField("HeaderJson", "string", Group = "VUntil764", To = 764)]

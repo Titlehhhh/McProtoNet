@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
+
 /// <summary>Generated handler base over every clientbound phase. The truth about
 /// the current phase is the consumer's: set <see cref = "Phase"/> as the connection
 /// advances. <c>HandleAsync</c> decodes synchronously (the raw data window must not

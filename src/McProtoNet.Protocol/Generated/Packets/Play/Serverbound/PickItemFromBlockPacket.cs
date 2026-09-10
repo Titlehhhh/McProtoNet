@@ -2,6 +2,7 @@ using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
 [ProtocolSupport(769, MinecraftVersion.LatestProtocol)]
 [Packet("play.toServer.pick_item_from_block", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("Position", "Position")]
