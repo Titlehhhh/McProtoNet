@@ -23,7 +23,7 @@ public sealed partial record TrackedWaypointPacket(TrackedWaypointOperation Oper
         writer.WriteType<Waypoint>(Waypoint, protocolVersion);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tracked_waypoint", "TrackedWaypoint", PacketPhase.Play, PacketDirection.Clientbound, 116);
+    public static PacketIdentity Identity => new("play.toClient.tracked_waypoint", "TrackedWaypoint", PacketPhase.Play, PacketDirection.Clientbound, 117);
 
     PacketIdentity IPacket.Identity => Identity;
 

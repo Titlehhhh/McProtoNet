@@ -20,7 +20,7 @@ public sealed partial record ShouldDisplayChatPreviewPacket(bool ShouldDisplayCh
         writer.WriteBoolean(ShouldDisplayChatPreview);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.should_display_chat_preview", "ShouldDisplayChatPreview", PacketPhase.Play, PacketDirection.Clientbound, 96);
+    public static PacketIdentity Identity => new("play.toClient.should_display_chat_preview", "ShouldDisplayChatPreview", PacketPhase.Play, PacketDirection.Clientbound, 97);
 
     PacketIdentity IPacket.Identity => Identity;
 

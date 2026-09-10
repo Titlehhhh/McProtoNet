@@ -6,8 +6,11 @@ namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 [Packet("login.toServer.encryption_begin", PacketPhase.Login, PacketDirection.Serverbound)]
 [PacketField("SharedSecret", "byte[]")]
 [PacketField("VerifyToken", "byte[]?")]
-public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[]? VerifyToken) : IPacket<EncryptionResponsePacket>, IPacket
+[PacketField("Salt", "long?", Group = "V759_760", From = 759, To = 760)]
+[PacketField("MessageSignature", "byte[]?", Group = "V759_760", From = 759, To = 760)]
+public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[]? VerifyToken, EncryptionResponsePacket.V759_760Layer? V759_760 = null) : IPacket<EncryptionResponsePacket>, IPacket
 {
+    public readonly record struct V759_760Layer(long? Salt, byte[]? MessageSignature);
     public static EncryptionResponsePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<EncryptionResponsePacket>(protocolVersion);
@@ -20,8 +23,25 @@ public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[
 
         if (protocolVersion >= 759 && protocolVersion <= 760)
         {
-            // TODO(codegen): InlineUnion   ("_hasVerifyToken",    [{ Keys = [1]       Name = "VerifyToken"       Entries = [Read ("verifyToken", ByteArray, "VerifyToken")] };     { Keys = [0]       Name = "SaltSignature"       Entries =        [Read ("salt", I64, "Salt");         Read ("messageSignature", ByteArray, "MessageSignature")] }])
-            throw new System.NotImplementedException("TODO(codegen): EncryptionResponsePacket wire layout is not fully generated for this protocol version.");
+            var sharedSecret = reader.ReadByteArray();
+            var _hasVerifyToken = reader.ReadBoolean();
+            byte[]? verifyToken = default;
+            long? salt = default;
+            byte[]? messageSignature = default;
+            if (_hasVerifyToken)
+            {
+                var verifyTokenValue = reader.ReadByteArray();
+                verifyToken = verifyTokenValue;
+            }
+            else
+            {
+                var saltValue = reader.ReadSignedLong();
+                var messageSignatureValue = reader.ReadByteArray();
+                salt = saltValue;
+                messageSignature = messageSignatureValue;
+            }
+
+            return new EncryptionResponsePacket(sharedSecret, verifyToken, V759_760: new V759_760Layer(salt, messageSignature));
         }
 
         if (protocolVersion >= 761)
@@ -46,9 +66,23 @@ public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[
 
         if (protocolVersion >= 759 && protocolVersion <= 760)
         {
-            // TODO(codegen): write wire-only '_hasVerifyToken' (derive from model)
-            // TODO(codegen): InlineUnion   ("_hasVerifyToken",    [{ Keys = [1]       Name = "VerifyToken"       Entries = [Read ("verifyToken", ByteArray, "VerifyToken")] };     { Keys = [0]       Name = "SaltSignature"       Entries =        [Read ("salt", I64, "Salt");         Read ("messageSignature", ByteArray, "MessageSignature")] }])
-            throw new System.NotImplementedException("TODO(codegen): EncryptionResponsePacket wire layout is not fully generated for this protocol version.");
+            var layer = V759_760 ?? throw new WrongLayerException("EncryptionResponsePacket", protocolVersion, "V759_760");
+            long? Salt = layer.Salt;
+            byte[]? MessageSignature = layer.MessageSignature;
+            writer.WriteByteArray(SharedSecret);
+            bool _hasVerifyToken = VerifyToken is not null ? true : Salt is not null && MessageSignature is not null ? false : throw new System.InvalidOperationException("No inline union case selected by '_hasVerifyToken' matches the fields that are set.");
+            writer.WriteBoolean(_hasVerifyToken);
+            if (_hasVerifyToken)
+            {
+                writer.WriteByteArray((VerifyToken ?? throw new System.InvalidOperationException("VerifyToken is required at this protocol version.")));
+            }
+            else
+            {
+                writer.WriteSignedLong((Salt ?? throw new System.InvalidOperationException("Salt is required at this protocol version.")));
+                writer.WriteByteArray((MessageSignature ?? throw new System.InvalidOperationException("MessageSignature is required at this protocol version.")));
+            }
+
+            return;
         }
 
         if (protocolVersion >= 761)

@@ -17,19 +17,19 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("BlockLightMask", "long[]", Group = "V755_762", From = 755, To = 762)]
 [PacketField("EmptySkyLightMask", "long[]", Group = "V755_762", From = 755, To = 762)]
 [PacketField("EmptyBlockLightMask", "long[]", Group = "V755_762", From = 755, To = 762)]
-[PacketField("SkyLight", "int[][]", Group = "V755_762", From = 755, To = 762)]
-[PacketField("BlockLight", "int[][]", Group = "V755_762", From = 755, To = 762)]
+[PacketField("SkyLight", "byte[][]", Group = "V755_762", From = 755, To = 762)]
+[PacketField("BlockLight", "byte[][]", Group = "V755_762", From = 755, To = 762)]
 [PacketField("SkyLightMask", "long[]", Group = "V763_Last", From = 763)]
 [PacketField("BlockLightMask", "long[]", Group = "V763_Last", From = 763)]
 [PacketField("EmptySkyLightMask", "long[]", Group = "V763_Last", From = 763)]
 [PacketField("EmptyBlockLightMask", "long[]", Group = "V763_Last", From = 763)]
-[PacketField("SkyLight", "int[][]", Group = "V763_Last", From = 763)]
-[PacketField("BlockLight", "int[][]", Group = "V763_Last", From = 763)]
+[PacketField("SkyLight", "byte[][]", Group = "V763_Last", From = 763)]
+[PacketField("BlockLight", "byte[][]", Group = "V763_Last", From = 763)]
 public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLightPacket.VUntil754Layer? VUntil754 = null, UpdateLightPacket.V755_762Layer? V755_762 = null, UpdateLightPacket.V763_LastLayer? V763_Last = null) : IPacket<UpdateLightPacket>, IPacket
 {
     public readonly record struct VUntil754Layer(bool TrustEdges, int SkyLightMaskLegacy, int BlockLightMaskLegacy, int EmptySkyLightMaskLegacy, int EmptyBlockLightMaskLegacy, byte[] Data);
-    public readonly record struct V755_762Layer(bool TrustEdges, long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, int[][] SkyLight, int[][] BlockLight);
-    public readonly record struct V763_LastLayer(long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, int[][] SkyLight, int[][] BlockLight);
+    public readonly record struct V755_762Layer(bool TrustEdges, long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, byte[][] SkyLight, byte[][] BlockLight);
+    public readonly record struct V763_LastLayer(long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, byte[][] SkyLight, byte[][] BlockLight);
     public static UpdateLightPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UpdateLightPacket>(protocolVersion);
@@ -48,16 +48,65 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
 
         if (protocolVersion >= 755 && protocolVersion <= 762)
         {
-            // TODO(codegen): read 'SkyLight' (Array Array (U8, VarIntCount))
-            // TODO(codegen): read 'BlockLight' (Array Array (U8, VarIntCount))
-            throw new System.NotImplementedException("TODO(codegen): UpdateLightPacket wire layout is not fully generated for this protocol version.");
+            var chunkX = reader.ReadVarInt();
+            var chunkZ = reader.ReadVarInt();
+            var trustEdges = reader.ReadBoolean();
+            int skyLightMaskCount = reader.ReadVarInt();
+            var skyLightMask = new long[skyLightMaskCount];
+            for (int i = 0; i < skyLightMask.Length; i++)
+                skyLightMask[i] = reader.ReadSignedLong();
+            int blockLightMaskCount = reader.ReadVarInt();
+            var blockLightMask = new long[blockLightMaskCount];
+            for (int i = 0; i < blockLightMask.Length; i++)
+                blockLightMask[i] = reader.ReadSignedLong();
+            int emptySkyLightMaskCount = reader.ReadVarInt();
+            var emptySkyLightMask = new long[emptySkyLightMaskCount];
+            for (int i = 0; i < emptySkyLightMask.Length; i++)
+                emptySkyLightMask[i] = reader.ReadSignedLong();
+            int emptyBlockLightMaskCount = reader.ReadVarInt();
+            var emptyBlockLightMask = new long[emptyBlockLightMaskCount];
+            for (int i = 0; i < emptyBlockLightMask.Length; i++)
+                emptyBlockLightMask[i] = reader.ReadSignedLong();
+            int skyLightCount = reader.ReadVarInt();
+            var skyLight = new byte[skyLightCount][];
+            for (int i = 0; i < skyLight.Length; i++)
+                skyLight[i] = reader.ReadByteArray();
+            int blockLightCount = reader.ReadVarInt();
+            var blockLight = new byte[blockLightCount][];
+            for (int i = 0; i < blockLight.Length; i++)
+                blockLight[i] = reader.ReadByteArray();
+            return new UpdateLightPacket(chunkX, chunkZ, V755_762: new V755_762Layer(trustEdges, skyLightMask, blockLightMask, emptySkyLightMask, emptyBlockLightMask, skyLight, blockLight));
         }
 
         if (protocolVersion >= 763)
         {
-            // TODO(codegen): read 'SkyLight' (Array Array (U8, VarIntCount))
-            // TODO(codegen): read 'BlockLight' (Array Array (U8, VarIntCount))
-            throw new System.NotImplementedException("TODO(codegen): UpdateLightPacket wire layout is not fully generated for this protocol version.");
+            var chunkX = reader.ReadVarInt();
+            var chunkZ = reader.ReadVarInt();
+            int skyLightMaskCount = reader.ReadVarInt();
+            var skyLightMask = new long[skyLightMaskCount];
+            for (int i = 0; i < skyLightMask.Length; i++)
+                skyLightMask[i] = reader.ReadSignedLong();
+            int blockLightMaskCount = reader.ReadVarInt();
+            var blockLightMask = new long[blockLightMaskCount];
+            for (int i = 0; i < blockLightMask.Length; i++)
+                blockLightMask[i] = reader.ReadSignedLong();
+            int emptySkyLightMaskCount = reader.ReadVarInt();
+            var emptySkyLightMask = new long[emptySkyLightMaskCount];
+            for (int i = 0; i < emptySkyLightMask.Length; i++)
+                emptySkyLightMask[i] = reader.ReadSignedLong();
+            int emptyBlockLightMaskCount = reader.ReadVarInt();
+            var emptyBlockLightMask = new long[emptyBlockLightMaskCount];
+            for (int i = 0; i < emptyBlockLightMask.Length; i++)
+                emptyBlockLightMask[i] = reader.ReadSignedLong();
+            int skyLightCount = reader.ReadVarInt();
+            var skyLight = new byte[skyLightCount][];
+            for (int i = 0; i < skyLight.Length; i++)
+                skyLight[i] = reader.ReadByteArray();
+            int blockLightCount = reader.ReadVarInt();
+            var blockLight = new byte[blockLightCount][];
+            for (int i = 0; i < blockLight.Length; i++)
+                blockLight[i] = reader.ReadByteArray();
+            return new UpdateLightPacket(chunkX, chunkZ, V763_Last: new V763_LastLayer(skyLightMask, blockLightMask, emptySkyLightMask, emptyBlockLightMask, skyLight, blockLight));
         }
 
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
@@ -88,22 +137,74 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
 
         if (protocolVersion >= 755 && protocolVersion <= 762)
         {
-            // TODO(codegen): write 'SkyLight' (Array Array (U8, VarIntCount))
-            // TODO(codegen): write 'BlockLight' (Array Array (U8, VarIntCount))
-            throw new System.NotImplementedException("TODO(codegen): UpdateLightPacket wire layout is not fully generated for this protocol version.");
+            var layer = V755_762 ?? throw new WrongLayerException("UpdateLightPacket", protocolVersion, "V755_762");
+            bool TrustEdges = layer.TrustEdges;
+            long[] SkyLightMask = layer.SkyLightMask;
+            long[] BlockLightMask = layer.BlockLightMask;
+            long[] EmptySkyLightMask = layer.EmptySkyLightMask;
+            long[] EmptyBlockLightMask = layer.EmptyBlockLightMask;
+            byte[][] SkyLight = layer.SkyLight;
+            byte[][] BlockLight = layer.BlockLight;
+            writer.WriteVarInt(ChunkX);
+            writer.WriteVarInt(ChunkZ);
+            writer.WriteBoolean(TrustEdges);
+            writer.WriteVarInt(SkyLightMask.Length);
+            foreach (var skyLightMaskItem in SkyLightMask)
+                writer.WriteSignedLong(skyLightMaskItem);
+            writer.WriteVarInt(BlockLightMask.Length);
+            foreach (var blockLightMaskItem in BlockLightMask)
+                writer.WriteSignedLong(blockLightMaskItem);
+            writer.WriteVarInt(EmptySkyLightMask.Length);
+            foreach (var emptySkyLightMaskItem in EmptySkyLightMask)
+                writer.WriteSignedLong(emptySkyLightMaskItem);
+            writer.WriteVarInt(EmptyBlockLightMask.Length);
+            foreach (var emptyBlockLightMaskItem in EmptyBlockLightMask)
+                writer.WriteSignedLong(emptyBlockLightMaskItem);
+            writer.WriteVarInt(SkyLight.Length);
+            foreach (var skyLightItem in SkyLight)
+                writer.WriteByteArray(skyLightItem);
+            writer.WriteVarInt(BlockLight.Length);
+            foreach (var blockLightItem in BlockLight)
+                writer.WriteByteArray(blockLightItem);
+            return;
         }
 
         if (protocolVersion >= 763)
         {
-            // TODO(codegen): write 'SkyLight' (Array Array (U8, VarIntCount))
-            // TODO(codegen): write 'BlockLight' (Array Array (U8, VarIntCount))
-            throw new System.NotImplementedException("TODO(codegen): UpdateLightPacket wire layout is not fully generated for this protocol version.");
+            var layer = V763_Last ?? throw new WrongLayerException("UpdateLightPacket", protocolVersion, "V763_Last");
+            long[] SkyLightMask = layer.SkyLightMask;
+            long[] BlockLightMask = layer.BlockLightMask;
+            long[] EmptySkyLightMask = layer.EmptySkyLightMask;
+            long[] EmptyBlockLightMask = layer.EmptyBlockLightMask;
+            byte[][] SkyLight = layer.SkyLight;
+            byte[][] BlockLight = layer.BlockLight;
+            writer.WriteVarInt(ChunkX);
+            writer.WriteVarInt(ChunkZ);
+            writer.WriteVarInt(SkyLightMask.Length);
+            foreach (var skyLightMaskItem in SkyLightMask)
+                writer.WriteSignedLong(skyLightMaskItem);
+            writer.WriteVarInt(BlockLightMask.Length);
+            foreach (var blockLightMaskItem in BlockLightMask)
+                writer.WriteSignedLong(blockLightMaskItem);
+            writer.WriteVarInt(EmptySkyLightMask.Length);
+            foreach (var emptySkyLightMaskItem in EmptySkyLightMask)
+                writer.WriteSignedLong(emptySkyLightMaskItem);
+            writer.WriteVarInt(EmptyBlockLightMask.Length);
+            foreach (var emptyBlockLightMaskItem in EmptyBlockLightMask)
+                writer.WriteSignedLong(emptyBlockLightMaskItem);
+            writer.WriteVarInt(SkyLight.Length);
+            foreach (var skyLightItem in SkyLight)
+                writer.WriteByteArray(skyLightItem);
+            writer.WriteVarInt(BlockLight.Length);
+            foreach (var blockLightItem in BlockLight)
+                writer.WriteByteArray(blockLightItem);
+            return;
         }
 
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 122);
+    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 123);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -27,7 +27,7 @@ public sealed partial record ResetScorePacket(string EntityName, string? Objecti
             writer.WriteString(objectiveNameValue);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.reset_score", "ResetScore", PacketPhase.Play, PacketDirection.Clientbound, 80);
+    public static PacketIdentity Identity => new("play.toClient.reset_score", "ResetScore", PacketPhase.Play, PacketDirection.Clientbound, 81);
 
     PacketIdentity IPacket.Identity => Identity;
 

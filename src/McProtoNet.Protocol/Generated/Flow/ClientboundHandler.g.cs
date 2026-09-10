@@ -636,432 +636,439 @@ public abstract partial class ClientboundHandler
 
                     case 59:
                     {
+                        var packet = Packets.Play.Clientbound.MapChunkPacket.Read(ref reader, protocolVersion);
+                        pending = OnMapChunk(packet);
+                        break;
+                    }
+
+                    case 60:
+                    {
                         var packet = Packets.Play.Clientbound.MessageHeaderPacket.Read(ref reader, protocolVersion);
                         pending = OnMessageHeader(packet);
                         break;
                     }
 
-                    case 60:
+                    case 61:
                     {
                         var packet = Packets.Play.Clientbound.MoveMinecartPacket.Read(ref reader, protocolVersion);
                         pending = OnMoveMinecart(packet);
                         break;
                     }
 
-                    case 61:
+                    case 62:
                     {
                         var packet = Packets.Play.Clientbound.NamedEntitySpawnPacket.Read(ref reader, protocolVersion);
                         pending = OnNamedEntitySpawn(packet);
                         break;
                     }
 
-                    case 62:
+                    case 63:
                     {
                         var packet = Packets.Play.Clientbound.NamedSoundEffectPacket.Read(ref reader, protocolVersion);
                         pending = OnNamedSoundEffect(packet);
                         break;
                     }
 
-                    case 63:
+                    case 64:
                     {
                         var packet = Packets.Play.Clientbound.NbtQueryResponsePacket.Read(ref reader, protocolVersion);
                         pending = OnNbtQueryResponse(packet);
                         break;
                     }
 
-                    case 64:
+                    case 65:
                     {
                         var packet = Packets.Play.Clientbound.OpenBookPacket.Read(ref reader, protocolVersion);
                         pending = OnOpenBook(packet);
                         break;
                     }
 
-                    case 65:
+                    case 66:
                     {
                         var packet = Packets.Play.Clientbound.OpenHorseWindowPacket.Read(ref reader, protocolVersion);
                         pending = OnOpenHorseWindow(packet);
                         break;
                     }
 
-                    case 66:
+                    case 67:
                     {
                         var packet = Packets.Play.Clientbound.OpenSignEntityPacket.Read(ref reader, protocolVersion);
                         pending = OnOpenSignEntity(packet);
                         break;
                     }
 
-                    case 67:
+                    case 68:
                     {
                         var packet = Packets.Play.Clientbound.OpenWindowPacket.Read(ref reader, protocolVersion);
                         pending = OnOpenWindow(packet);
                         break;
                     }
 
-                    case 68:
+                    case 69:
                     {
                         var packet = Packets.Play.Clientbound.PingPacket.Read(ref reader, protocolVersion);
                         pending = OnPing(packet);
                         break;
                     }
 
-                    case 69:
+                    case 70:
                     {
                         var packet = Packets.Play.Clientbound.PingResponsePacket.Read(ref reader, protocolVersion);
                         pending = OnPingResponse(packet);
                         break;
                     }
 
-                    case 70:
+                    case 71:
                     {
                         var packet = Packets.Play.Clientbound.PlayerChatPacket.Read(ref reader, protocolVersion);
                         pending = OnPlayerChat(packet);
                         break;
                     }
 
-                    case 71:
+                    case 72:
                     {
                         var packet = Packets.Play.Clientbound.PlayerRemovePacket.Read(ref reader, protocolVersion);
                         pending = OnPlayerRemove(packet);
                         break;
                     }
 
-                    case 72:
+                    case 73:
                     {
                         var packet = Packets.Play.Clientbound.PlayerRotationPacket.Read(ref reader, protocolVersion);
                         pending = OnPlayerRotation(packet);
                         break;
                     }
 
-                    case 73:
+                    case 74:
                     {
                         var packet = Packets.Play.Clientbound.PlayerlistHeaderPacket.Read(ref reader, protocolVersion);
                         pending = OnPlayerlistHeader(packet);
                         break;
                     }
 
-                    case 74:
+                    case 75:
                     {
                         var packet = Packets.Play.Clientbound.PlayerPositionPacket.Read(ref reader, protocolVersion);
                         pending = OnPlayerPosition(packet);
                         break;
                     }
 
-                    case 75:
+                    case 76:
                     {
                         var packet = Packets.Play.Clientbound.ProfilelessChatPacket.Read(ref reader, protocolVersion);
                         pending = OnProfilelessChat(packet);
                         break;
                     }
 
-                    case 76:
+                    case 77:
                     {
                         var packet = Packets.Play.Clientbound.RecipeBookRemovePacket.Read(ref reader, protocolVersion);
                         pending = OnRecipeBookRemove(packet);
                         break;
                     }
 
-                    case 77:
+                    case 78:
                     {
                         var packet = Packets.Play.Clientbound.RelEntityMovePacket.Read(ref reader, protocolVersion);
                         pending = OnRelEntityMove(packet);
                         break;
                     }
 
-                    case 78:
+                    case 79:
                     {
                         var packet = Packets.Play.Clientbound.RemoveEntityEffectPacket.Read(ref reader, protocolVersion);
                         pending = OnRemoveEntityEffect(packet);
                         break;
                     }
 
-                    case 79:
+                    case 80:
                     {
                         var packet = Packets.Play.Clientbound.RemoveResourcePackPacket.Read(ref reader, protocolVersion);
                         pending = OnRemoveResourcePack(packet);
                         break;
                     }
 
-                    case 80:
+                    case 81:
                     {
                         var packet = Packets.Play.Clientbound.ResetScorePacket.Read(ref reader, protocolVersion);
                         pending = OnResetScore(packet);
                         break;
                     }
 
-                    case 81:
+                    case 82:
                     {
                         var packet = Packets.Play.Clientbound.ResourcePackSendPacket.Read(ref reader, protocolVersion);
                         pending = OnResourcePackSend(packet);
                         break;
                     }
 
-                    case 82:
+                    case 83:
                     {
                         var packet = Packets.Play.Clientbound.RespawnPacket.Read(ref reader, protocolVersion);
                         pending = OnRespawn(packet);
                         break;
                     }
 
-                    case 83:
+                    case 84:
                     {
                         var packet = Packets.Play.Clientbound.ScoreboardDisplayObjectivePacket.Read(ref reader, protocolVersion);
                         pending = OnScoreboardDisplayObjective(packet);
                         break;
                     }
 
-                    case 84:
+                    case 85:
                     {
                         var packet = Packets.Play.Clientbound.ScoreboardObjectivePacket.Read(ref reader, protocolVersion);
                         pending = OnScoreboardObjective(packet);
                         break;
                     }
 
-                    case 85:
+                    case 86:
                     {
                         var packet = Packets.Play.Clientbound.ScoreboardScorePacket.Read(ref reader, protocolVersion);
                         pending = OnScoreboardScore(packet);
                         break;
                     }
 
-                    case 86:
+                    case 87:
                     {
                         var packet = Packets.Play.Clientbound.SelectAdvancementTabPacket.Read(ref reader, protocolVersion);
                         pending = OnSelectAdvancementTab(packet);
                         break;
                     }
 
-                    case 87:
+                    case 88:
                     {
                         var packet = Packets.Play.Clientbound.ServerDataPacket.Read(ref reader, protocolVersion);
                         pending = OnServerData(packet);
                         break;
                     }
 
-                    case 88:
+                    case 89:
                     {
                         var packet = Packets.Play.Clientbound.PlayServerLinksPacket.Read(ref reader, protocolVersion);
                         pending = OnPlayServerLinks(packet);
                         break;
                     }
 
-                    case 89:
+                    case 90:
                     {
                         var packet = Packets.Play.Clientbound.SetCooldownPacket.Read(ref reader, protocolVersion);
                         pending = OnSetCooldown(packet);
                         break;
                     }
 
-                    case 90:
+                    case 91:
                     {
                         var packet = Packets.Play.Clientbound.SetPassengersPacket.Read(ref reader, protocolVersion);
                         pending = OnSetPassengers(packet);
                         break;
                     }
 
-                    case 91:
+                    case 92:
                     {
                         var packet = Packets.Play.Clientbound.SetProjectilePowerPacket.Read(ref reader, protocolVersion);
                         pending = OnSetProjectilePower(packet);
                         break;
                     }
 
-                    case 92:
+                    case 93:
                     {
                         var packet = Packets.Play.Clientbound.SetTickingStatePacket.Read(ref reader, protocolVersion);
                         pending = OnSetTickingState(packet);
                         break;
                     }
 
-                    case 93:
+                    case 94:
                     {
                         var packet = Packets.Play.Clientbound.SetTitleSubtitlePacket.Read(ref reader, protocolVersion);
                         pending = OnSetTitleSubtitle(packet);
                         break;
                     }
 
-                    case 94:
+                    case 95:
                     {
                         var packet = Packets.Play.Clientbound.SetTitleTextPacket.Read(ref reader, protocolVersion);
                         pending = OnSetTitleText(packet);
                         break;
                     }
 
-                    case 95:
+                    case 96:
                     {
                         var packet = Packets.Play.Clientbound.SetTitleTimePacket.Read(ref reader, protocolVersion);
                         pending = OnSetTitleTime(packet);
                         break;
                     }
 
-                    case 96:
+                    case 97:
                     {
                         var packet = Packets.Play.Clientbound.ShouldDisplayChatPreviewPacket.Read(ref reader, protocolVersion);
                         pending = OnShouldDisplayChatPreview(packet);
                         break;
                     }
 
-                    case 97:
+                    case 98:
                     {
                         var packet = Packets.Play.Clientbound.SimulationDistancePacket.Read(ref reader, protocolVersion);
                         pending = OnSimulationDistance(packet);
                         break;
                     }
 
-                    case 99:
+                    case 100:
                     {
                         var packet = Packets.Play.Clientbound.SpawnEntityExperienceOrbPacket.Read(ref reader, protocolVersion);
                         pending = OnSpawnEntityExperienceOrb(packet);
                         break;
                     }
 
-                    case 100:
+                    case 101:
                     {
                         var packet = Packets.Play.Clientbound.SpawnEntityLivingPacket.Read(ref reader, protocolVersion);
                         pending = OnSpawnEntityLiving(packet);
                         break;
                     }
 
-                    case 101:
+                    case 102:
                     {
                         var packet = Packets.Play.Clientbound.SpawnEntityPaintingPacket.Read(ref reader, protocolVersion);
                         pending = OnSpawnEntityPainting(packet);
                         break;
                     }
 
-                    case 102:
+                    case 103:
                     {
                         var packet = Packets.Play.Clientbound.SpawnPositionPacket.Read(ref reader, protocolVersion);
                         pending = OnSpawnPosition(packet);
                         break;
                     }
 
-                    case 103:
+                    case 104:
                     {
                         var packet = Packets.Play.Clientbound.StartConfigurationPacket.Read(ref reader, protocolVersion);
                         pending = OnStartConfiguration(packet);
                         break;
                     }
 
-                    case 104:
+                    case 105:
                     {
                         var packet = Packets.Play.Clientbound.StatisticsPacket.Read(ref reader, protocolVersion);
                         pending = OnStatistics(packet);
                         break;
                     }
 
-                    case 105:
+                    case 106:
                     {
                         var packet = Packets.Play.Clientbound.StepTickPacket.Read(ref reader, protocolVersion);
                         pending = OnStepTick(packet);
                         break;
                     }
 
-                    case 106:
+                    case 107:
                     {
                         var packet = Packets.Play.Clientbound.StopSoundPacket.Read(ref reader, protocolVersion);
                         pending = OnStopSound(packet);
                         break;
                     }
 
-                    case 107:
+                    case 108:
                     {
                         var packet = Packets.Play.Clientbound.StoreCookiePacket.Read(ref reader, protocolVersion);
                         pending = OnStoreCookie(packet);
                         break;
                     }
 
-                    case 108:
+                    case 109:
                     {
                         var packet = Packets.Play.Clientbound.SyncEntityPositionPacket.Read(ref reader, protocolVersion);
                         pending = OnSyncEntityPosition(packet);
                         break;
                     }
 
-                    case 109:
+                    case 110:
                     {
                         var packet = Packets.Play.Clientbound.SystemChatPacket.Read(ref reader, protocolVersion);
                         pending = OnSystemChat(packet);
                         break;
                     }
 
-                    case 110:
+                    case 111:
                     {
                         var packet = Packets.Play.Clientbound.TabCompletePacket.Read(ref reader, protocolVersion);
                         pending = OnTabComplete(packet);
                         break;
                     }
 
-                    case 111:
+                    case 112:
                     {
                         var packet = Packets.Play.Clientbound.TagsPacket.Read(ref reader, protocolVersion);
                         pending = OnTags(packet);
                         break;
                     }
 
-                    case 112:
+                    case 113:
                     {
                         var packet = Packets.Play.Clientbound.TeamsPacket.Read(ref reader, protocolVersion);
                         pending = OnTeams(packet);
                         break;
                     }
 
-                    case 113:
+                    case 114:
                     {
                         var packet = Packets.Play.Clientbound.TestInstanceBlockStatusPacket.Read(ref reader, protocolVersion);
                         pending = OnTestInstanceBlockStatus(packet);
                         break;
                     }
 
-                    case 114:
+                    case 115:
                     {
                         var packet = Packets.Play.Clientbound.TileEntityDataPacket.Read(ref reader, protocolVersion);
                         pending = OnTileEntityData(packet);
                         break;
                     }
 
-                    case 115:
+                    case 116:
                     {
                         var packet = Packets.Play.Clientbound.TitlePacket.Read(ref reader, protocolVersion);
                         pending = OnTitle(packet);
                         break;
                     }
 
-                    case 116:
+                    case 117:
                     {
                         var packet = Packets.Play.Clientbound.TrackedWaypointPacket.Read(ref reader, protocolVersion);
                         pending = OnTrackedWaypoint(packet);
                         break;
                     }
 
-                    case 117:
+                    case 118:
                     {
                         var packet = Packets.Play.Clientbound.TransactionPacket.Read(ref reader, protocolVersion);
                         pending = OnTransaction(packet);
                         break;
                     }
 
-                    case 118:
+                    case 119:
                     {
                         var packet = Packets.Play.Clientbound.TransferPacket.Read(ref reader, protocolVersion);
                         pending = OnTransfer(packet);
                         break;
                     }
 
-                    case 119:
+                    case 120:
                     {
                         var packet = Packets.Play.Clientbound.UnloadChunkPacket.Read(ref reader, protocolVersion);
                         pending = OnUnloadChunk(packet);
                         break;
                     }
 
-                    case 120:
+                    case 121:
                     {
                         var packet = Packets.Play.Clientbound.UnlockRecipesPacket.Read(ref reader, protocolVersion);
                         pending = OnUnlockRecipes(packet);
                         break;
                     }
 
-                    case 121:
+                    case 122:
                     {
                         var packet = Packets.Play.Clientbound.UpdateHealthPacket.Read(ref reader, protocolVersion);
                         pending = OnUpdateHealth(packet);
@@ -1070,75 +1077,82 @@ public abstract partial class ClientboundHandler
 
                     case 123:
                     {
+                        var packet = Packets.Play.Clientbound.UpdateLightPacket.Read(ref reader, protocolVersion);
+                        pending = OnUpdateLight(packet);
+                        break;
+                    }
+
+                    case 124:
+                    {
                         var packet = Packets.Play.Clientbound.UpdateTimePacket.Read(ref reader, protocolVersion);
                         pending = OnUpdateTime(packet);
                         break;
                     }
 
-                    case 124:
+                    case 125:
                     {
                         var packet = Packets.Play.Clientbound.UpdateViewDistancePacket.Read(ref reader, protocolVersion);
                         pending = OnUpdateViewDistance(packet);
                         break;
                     }
 
-                    case 125:
+                    case 126:
                     {
                         var packet = Packets.Play.Clientbound.UpdateViewPositionPacket.Read(ref reader, protocolVersion);
                         pending = OnUpdateViewPosition(packet);
                         break;
                     }
 
-                    case 126:
+                    case 127:
                     {
                         var packet = Packets.Play.Clientbound.VehicleMovePacket.Read(ref reader, protocolVersion);
                         pending = OnVehicleMove(packet);
                         break;
                     }
 
-                    case 127:
+                    case 128:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderPacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorder(packet);
                         break;
                     }
 
-                    case 128:
+                    case 129:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderCenterPacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorderCenter(packet);
                         break;
                     }
 
-                    case 129:
+                    case 130:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderLerpSizePacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorderLerpSize(packet);
                         break;
                     }
 
-                    case 130:
+                    case 131:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderSizePacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorderSize(packet);
                         break;
                     }
 
-                    case 131:
+                    case 132:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderWarningDelayPacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorderWarningDelay(packet);
                         break;
                     }
 
-                    case 132:
+                    case 133:
                     {
                         var packet = Packets.Play.Clientbound.WorldBorderWarningReachPacket.Read(ref reader, protocolVersion);
                         pending = OnWorldBorderWarningReach(packet);
                         break;
                     }
 
-                    case 133:
+                    case 134:
                     {
                         var packet = Packets.Play.Clientbound.WorldEventPacket.Read(ref reader, protocolVersion);
                         pending = OnWorldEvent(packet);
@@ -1247,6 +1261,7 @@ public abstract partial class ClientboundHandler
     protected virtual ValueTask OnKickDisconnect(Packets.Play.Clientbound.KickDisconnectPacket packet) => default;
     protected virtual ValueTask OnLogin(Packets.Play.Clientbound.LoginPacket packet) => default;
     protected virtual ValueTask OnLowDiskSpaceWarning(Packets.Play.Clientbound.LowDiskSpaceWarningPacket packet) => default;
+    protected virtual ValueTask OnMapChunk(Packets.Play.Clientbound.MapChunkPacket packet) => default;
     protected virtual ValueTask OnMessageHeader(Packets.Play.Clientbound.MessageHeaderPacket packet) => default;
     protected virtual ValueTask OnMoveMinecart(Packets.Play.Clientbound.MoveMinecartPacket packet) => default;
     protected virtual ValueTask OnNamedEntitySpawn(Packets.Play.Clientbound.NamedEntitySpawnPacket packet) => default;
@@ -1309,6 +1324,7 @@ public abstract partial class ClientboundHandler
     protected virtual ValueTask OnUnloadChunk(Packets.Play.Clientbound.UnloadChunkPacket packet) => default;
     protected virtual ValueTask OnUnlockRecipes(Packets.Play.Clientbound.UnlockRecipesPacket packet) => default;
     protected virtual ValueTask OnUpdateHealth(Packets.Play.Clientbound.UpdateHealthPacket packet) => default;
+    protected virtual ValueTask OnUpdateLight(Packets.Play.Clientbound.UpdateLightPacket packet) => default;
     protected virtual ValueTask OnUpdateTime(Packets.Play.Clientbound.UpdateTimePacket packet) => default;
     protected virtual ValueTask OnUpdateViewDistance(Packets.Play.Clientbound.UpdateViewDistancePacket packet) => default;
     protected virtual ValueTask OnUpdateViewPosition(Packets.Play.Clientbound.UpdateViewPositionPacket packet) => default;

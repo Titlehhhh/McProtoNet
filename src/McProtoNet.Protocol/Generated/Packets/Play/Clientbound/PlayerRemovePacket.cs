@@ -26,7 +26,7 @@ public sealed partial record PlayerRemovePacket(Guid[] Players) : IPacket<Player
             writer.WriteUUID(playersItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.player_remove", "PlayerRemove", PacketPhase.Play, PacketDirection.Clientbound, 71);
+    public static PacketIdentity Identity => new("play.toClient.player_remove", "PlayerRemove", PacketPhase.Play, PacketDirection.Clientbound, 72);
 
     PacketIdentity IPacket.Identity => Identity;
 

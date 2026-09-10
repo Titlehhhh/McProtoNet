@@ -26,7 +26,7 @@ public sealed partial record TransactionPacket(int WindowId, int Action, bool Ac
         writer.WriteBoolean(Accepted);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.transaction", "Transaction", PacketPhase.Play, PacketDirection.Clientbound, 117);
+    public static PacketIdentity Identity => new("play.toClient.transaction", "Transaction", PacketPhase.Play, PacketDirection.Clientbound, 118);
 
     PacketIdentity IPacket.Identity => Identity;
 

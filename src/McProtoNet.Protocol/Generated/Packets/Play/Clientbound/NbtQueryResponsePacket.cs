@@ -57,7 +57,7 @@ public sealed partial record NbtQueryResponsePacket(int TransactionId, NbtTag? N
         throw new System.NotSupportedException($"NbtQueryResponsePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 63);
+    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 64);
 
     PacketIdentity IPacket.Identity => Identity;
 

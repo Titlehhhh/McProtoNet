@@ -53,7 +53,7 @@ public sealed partial record OpenHorseWindowPacket(int WindowId, int NbSlots, in
         throw new System.NotSupportedException($"OpenHorseWindowPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.open_horse_window", "OpenHorseWindow", PacketPhase.Play, PacketDirection.Clientbound, 65);
+    public static PacketIdentity Identity => new("play.toClient.open_horse_window", "OpenHorseWindow", PacketPhase.Play, PacketDirection.Clientbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 

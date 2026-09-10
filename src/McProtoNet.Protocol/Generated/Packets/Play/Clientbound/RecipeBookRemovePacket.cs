@@ -25,7 +25,7 @@ public sealed partial record RecipeBookRemovePacket(int[] RecipeIds) : IPacket<R
             writer.WriteVarInt(recipeIdsItem);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 76);
+    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 77);
 
     PacketIdentity IPacket.Identity => Identity;
 

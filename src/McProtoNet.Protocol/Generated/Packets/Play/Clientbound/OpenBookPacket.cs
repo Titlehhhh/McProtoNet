@@ -20,7 +20,7 @@ public sealed partial record OpenBookPacket(int Hand) : IPacket<OpenBookPacket>,
         writer.WriteVarInt(Hand);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.open_book", "OpenBook", PacketPhase.Play, PacketDirection.Clientbound, 64);
+    public static PacketIdentity Identity => new("play.toClient.open_book", "OpenBook", PacketPhase.Play, PacketDirection.Clientbound, 65);
 
     PacketIdentity IPacket.Identity => Identity;
 

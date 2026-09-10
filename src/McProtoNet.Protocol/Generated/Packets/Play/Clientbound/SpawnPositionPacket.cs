@@ -70,7 +70,7 @@ public sealed partial record SpawnPositionPacket(SpawnPositionPacket.VUntil754La
         throw new System.NotSupportedException($"SpawnPositionPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 102);
+    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 103);
 
     PacketIdentity IPacket.Identity => Identity;
 

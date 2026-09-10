@@ -141,7 +141,7 @@ public sealed partial record UnlockRecipesPacket(int Action, bool CraftingBookOp
         throw new System.NotSupportedException($"UnlockRecipesPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.unlock_recipes", "UnlockRecipes", PacketPhase.Play, PacketDirection.Clientbound, 120);
+    public static PacketIdentity Identity => new("play.toClient.unlock_recipes", "UnlockRecipes", PacketPhase.Play, PacketDirection.Clientbound, 121);
 
     PacketIdentity IPacket.Identity => Identity;
 

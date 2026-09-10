@@ -115,7 +115,7 @@ public sealed partial record ProfilelessChatPacket(ProfilelessChatPacket.V761_76
         throw new System.NotSupportedException($"ProfilelessChatPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.profileless_chat", "ProfilelessChat", PacketPhase.Play, PacketDirection.Clientbound, 75);
+    public static PacketIdentity Identity => new("play.toClient.profileless_chat", "ProfilelessChat", PacketPhase.Play, PacketDirection.Clientbound, 76);
 
     PacketIdentity IPacket.Identity => Identity;
 

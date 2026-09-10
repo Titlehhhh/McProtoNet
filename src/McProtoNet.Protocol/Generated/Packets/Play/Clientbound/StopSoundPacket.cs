@@ -53,7 +53,7 @@ public sealed partial record StopSoundPacket(int Flags, int? Source, string? Sou
         }
     }
 
-    public static PacketIdentity Identity => new("play.toClient.stop_sound", "StopSound", PacketPhase.Play, PacketDirection.Clientbound, 106);
+    public static PacketIdentity Identity => new("play.toClient.stop_sound", "StopSound", PacketPhase.Play, PacketDirection.Clientbound, 107);
 
     PacketIdentity IPacket.Identity => Identity;
 

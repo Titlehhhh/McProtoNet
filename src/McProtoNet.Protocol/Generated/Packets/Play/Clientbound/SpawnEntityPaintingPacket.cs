@@ -33,7 +33,7 @@ public sealed partial record SpawnEntityPaintingPacket(int EntityId, Guid Entity
         writer.WriteUnsignedByte((byte)Direction);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity_painting", "SpawnEntityPainting", PacketPhase.Play, PacketDirection.Clientbound, 101);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity_painting", "SpawnEntityPainting", PacketPhase.Play, PacketDirection.Clientbound, 102);
 
     PacketIdentity IPacket.Identity => Identity;
 

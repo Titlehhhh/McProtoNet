@@ -392,6 +392,14 @@ public static partial class PacketFlow
                 return true;
             }
 
+            case 1:
+            {
+                var packet = Packets.Login.Serverbound.EncryptionResponsePacket.Read(ref reader, protocolVersion);
+                reading = false;
+                visitor.Visit(packet);
+                return true;
+            }
+
             case 2:
             {
                 var packet = Packets.Login.Serverbound.LoginAcknowledgedPacket.Read(ref reader, protocolVersion);
@@ -1153,7 +1161,7 @@ public static partial class PacketFlow
 
             case 59:
             {
-                var packet = Packets.Play.Clientbound.MessageHeaderPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.MapChunkPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1161,7 +1169,7 @@ public static partial class PacketFlow
 
             case 60:
             {
-                var packet = Packets.Play.Clientbound.MoveMinecartPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.MessageHeaderPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1169,7 +1177,7 @@ public static partial class PacketFlow
 
             case 61:
             {
-                var packet = Packets.Play.Clientbound.NamedEntitySpawnPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.MoveMinecartPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1177,7 +1185,7 @@ public static partial class PacketFlow
 
             case 62:
             {
-                var packet = Packets.Play.Clientbound.NamedSoundEffectPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.NamedEntitySpawnPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1185,7 +1193,7 @@ public static partial class PacketFlow
 
             case 63:
             {
-                var packet = Packets.Play.Clientbound.NbtQueryResponsePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.NamedSoundEffectPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1193,7 +1201,7 @@ public static partial class PacketFlow
 
             case 64:
             {
-                var packet = Packets.Play.Clientbound.OpenBookPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.NbtQueryResponsePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1201,7 +1209,7 @@ public static partial class PacketFlow
 
             case 65:
             {
-                var packet = Packets.Play.Clientbound.OpenHorseWindowPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.OpenBookPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1209,7 +1217,7 @@ public static partial class PacketFlow
 
             case 66:
             {
-                var packet = Packets.Play.Clientbound.OpenSignEntityPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.OpenHorseWindowPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1217,7 +1225,7 @@ public static partial class PacketFlow
 
             case 67:
             {
-                var packet = Packets.Play.Clientbound.OpenWindowPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.OpenSignEntityPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1225,7 +1233,7 @@ public static partial class PacketFlow
 
             case 68:
             {
-                var packet = Packets.Play.Clientbound.PingPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.OpenWindowPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1233,7 +1241,7 @@ public static partial class PacketFlow
 
             case 69:
             {
-                var packet = Packets.Play.Clientbound.PingResponsePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PingPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1241,7 +1249,7 @@ public static partial class PacketFlow
 
             case 70:
             {
-                var packet = Packets.Play.Clientbound.PlayerChatPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PingResponsePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1249,7 +1257,7 @@ public static partial class PacketFlow
 
             case 71:
             {
-                var packet = Packets.Play.Clientbound.PlayerRemovePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayerChatPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1257,7 +1265,7 @@ public static partial class PacketFlow
 
             case 72:
             {
-                var packet = Packets.Play.Clientbound.PlayerRotationPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayerRemovePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1265,7 +1273,7 @@ public static partial class PacketFlow
 
             case 73:
             {
-                var packet = Packets.Play.Clientbound.PlayerlistHeaderPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayerRotationPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1273,7 +1281,7 @@ public static partial class PacketFlow
 
             case 74:
             {
-                var packet = Packets.Play.Clientbound.PlayerPositionPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayerlistHeaderPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1281,7 +1289,7 @@ public static partial class PacketFlow
 
             case 75:
             {
-                var packet = Packets.Play.Clientbound.ProfilelessChatPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayerPositionPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1289,7 +1297,7 @@ public static partial class PacketFlow
 
             case 76:
             {
-                var packet = Packets.Play.Clientbound.RecipeBookRemovePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ProfilelessChatPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1297,7 +1305,7 @@ public static partial class PacketFlow
 
             case 77:
             {
-                var packet = Packets.Play.Clientbound.RelEntityMovePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.RecipeBookRemovePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1305,7 +1313,7 @@ public static partial class PacketFlow
 
             case 78:
             {
-                var packet = Packets.Play.Clientbound.RemoveEntityEffectPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.RelEntityMovePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1313,7 +1321,7 @@ public static partial class PacketFlow
 
             case 79:
             {
-                var packet = Packets.Play.Clientbound.RemoveResourcePackPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.RemoveEntityEffectPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1321,7 +1329,7 @@ public static partial class PacketFlow
 
             case 80:
             {
-                var packet = Packets.Play.Clientbound.ResetScorePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.RemoveResourcePackPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1329,7 +1337,7 @@ public static partial class PacketFlow
 
             case 81:
             {
-                var packet = Packets.Play.Clientbound.ResourcePackSendPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ResetScorePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1337,7 +1345,7 @@ public static partial class PacketFlow
 
             case 82:
             {
-                var packet = Packets.Play.Clientbound.RespawnPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ResourcePackSendPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1345,7 +1353,7 @@ public static partial class PacketFlow
 
             case 83:
             {
-                var packet = Packets.Play.Clientbound.ScoreboardDisplayObjectivePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.RespawnPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1353,7 +1361,7 @@ public static partial class PacketFlow
 
             case 84:
             {
-                var packet = Packets.Play.Clientbound.ScoreboardObjectivePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ScoreboardDisplayObjectivePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1361,7 +1369,7 @@ public static partial class PacketFlow
 
             case 85:
             {
-                var packet = Packets.Play.Clientbound.ScoreboardScorePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ScoreboardObjectivePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1369,7 +1377,7 @@ public static partial class PacketFlow
 
             case 86:
             {
-                var packet = Packets.Play.Clientbound.SelectAdvancementTabPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ScoreboardScorePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1377,7 +1385,7 @@ public static partial class PacketFlow
 
             case 87:
             {
-                var packet = Packets.Play.Clientbound.ServerDataPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SelectAdvancementTabPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1385,7 +1393,7 @@ public static partial class PacketFlow
 
             case 88:
             {
-                var packet = Packets.Play.Clientbound.PlayServerLinksPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ServerDataPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1393,7 +1401,7 @@ public static partial class PacketFlow
 
             case 89:
             {
-                var packet = Packets.Play.Clientbound.SetCooldownPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.PlayServerLinksPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1401,7 +1409,7 @@ public static partial class PacketFlow
 
             case 90:
             {
-                var packet = Packets.Play.Clientbound.SetPassengersPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetCooldownPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1409,7 +1417,7 @@ public static partial class PacketFlow
 
             case 91:
             {
-                var packet = Packets.Play.Clientbound.SetProjectilePowerPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetPassengersPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1417,7 +1425,7 @@ public static partial class PacketFlow
 
             case 92:
             {
-                var packet = Packets.Play.Clientbound.SetTickingStatePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetProjectilePowerPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1425,7 +1433,7 @@ public static partial class PacketFlow
 
             case 93:
             {
-                var packet = Packets.Play.Clientbound.SetTitleSubtitlePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetTickingStatePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1433,7 +1441,7 @@ public static partial class PacketFlow
 
             case 94:
             {
-                var packet = Packets.Play.Clientbound.SetTitleTextPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetTitleSubtitlePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1441,7 +1449,7 @@ public static partial class PacketFlow
 
             case 95:
             {
-                var packet = Packets.Play.Clientbound.SetTitleTimePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetTitleTextPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1449,7 +1457,7 @@ public static partial class PacketFlow
 
             case 96:
             {
-                var packet = Packets.Play.Clientbound.ShouldDisplayChatPreviewPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SetTitleTimePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1457,15 +1465,15 @@ public static partial class PacketFlow
 
             case 97:
             {
-                var packet = Packets.Play.Clientbound.SimulationDistancePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.ShouldDisplayChatPreviewPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
             }
 
-            case 99:
+            case 98:
             {
-                var packet = Packets.Play.Clientbound.SpawnEntityExperienceOrbPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SimulationDistancePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1473,7 +1481,7 @@ public static partial class PacketFlow
 
             case 100:
             {
-                var packet = Packets.Play.Clientbound.SpawnEntityLivingPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SpawnEntityExperienceOrbPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1481,7 +1489,7 @@ public static partial class PacketFlow
 
             case 101:
             {
-                var packet = Packets.Play.Clientbound.SpawnEntityPaintingPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SpawnEntityLivingPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1489,7 +1497,7 @@ public static partial class PacketFlow
 
             case 102:
             {
-                var packet = Packets.Play.Clientbound.SpawnPositionPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SpawnEntityPaintingPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1497,7 +1505,7 @@ public static partial class PacketFlow
 
             case 103:
             {
-                var packet = Packets.Play.Clientbound.StartConfigurationPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SpawnPositionPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1505,7 +1513,7 @@ public static partial class PacketFlow
 
             case 104:
             {
-                var packet = Packets.Play.Clientbound.StatisticsPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.StartConfigurationPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1513,7 +1521,7 @@ public static partial class PacketFlow
 
             case 105:
             {
-                var packet = Packets.Play.Clientbound.StepTickPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.StatisticsPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1521,7 +1529,7 @@ public static partial class PacketFlow
 
             case 106:
             {
-                var packet = Packets.Play.Clientbound.StopSoundPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.StepTickPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1529,7 +1537,7 @@ public static partial class PacketFlow
 
             case 107:
             {
-                var packet = Packets.Play.Clientbound.StoreCookiePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.StopSoundPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1537,7 +1545,7 @@ public static partial class PacketFlow
 
             case 108:
             {
-                var packet = Packets.Play.Clientbound.SyncEntityPositionPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.StoreCookiePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1545,7 +1553,7 @@ public static partial class PacketFlow
 
             case 109:
             {
-                var packet = Packets.Play.Clientbound.SystemChatPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SyncEntityPositionPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1553,7 +1561,7 @@ public static partial class PacketFlow
 
             case 110:
             {
-                var packet = Packets.Play.Clientbound.TabCompletePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.SystemChatPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1561,7 +1569,7 @@ public static partial class PacketFlow
 
             case 111:
             {
-                var packet = Packets.Play.Clientbound.TagsPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TabCompletePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1569,7 +1577,7 @@ public static partial class PacketFlow
 
             case 112:
             {
-                var packet = Packets.Play.Clientbound.TeamsPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TagsPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1577,7 +1585,7 @@ public static partial class PacketFlow
 
             case 113:
             {
-                var packet = Packets.Play.Clientbound.TestInstanceBlockStatusPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TeamsPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1585,7 +1593,7 @@ public static partial class PacketFlow
 
             case 114:
             {
-                var packet = Packets.Play.Clientbound.TileEntityDataPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TestInstanceBlockStatusPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1593,7 +1601,7 @@ public static partial class PacketFlow
 
             case 115:
             {
-                var packet = Packets.Play.Clientbound.TitlePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TileEntityDataPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1601,7 +1609,7 @@ public static partial class PacketFlow
 
             case 116:
             {
-                var packet = Packets.Play.Clientbound.TrackedWaypointPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TitlePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1609,7 +1617,7 @@ public static partial class PacketFlow
 
             case 117:
             {
-                var packet = Packets.Play.Clientbound.TransactionPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TrackedWaypointPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1617,7 +1625,7 @@ public static partial class PacketFlow
 
             case 118:
             {
-                var packet = Packets.Play.Clientbound.TransferPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TransactionPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1625,7 +1633,7 @@ public static partial class PacketFlow
 
             case 119:
             {
-                var packet = Packets.Play.Clientbound.UnloadChunkPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.TransferPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1633,13 +1641,21 @@ public static partial class PacketFlow
 
             case 120:
             {
-                var packet = Packets.Play.Clientbound.UnlockRecipesPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.UnloadChunkPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
             }
 
             case 121:
+            {
+                var packet = Packets.Play.Clientbound.UnlockRecipesPacket.Read(ref reader, protocolVersion);
+                reading = false;
+                visitor.Visit(packet);
+                return true;
+            }
+
+            case 122:
             {
                 var packet = Packets.Play.Clientbound.UpdateHealthPacket.Read(ref reader, protocolVersion);
                 reading = false;
@@ -1649,7 +1665,7 @@ public static partial class PacketFlow
 
             case 123:
             {
-                var packet = Packets.Play.Clientbound.UpdateTimePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.UpdateLightPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1657,7 +1673,7 @@ public static partial class PacketFlow
 
             case 124:
             {
-                var packet = Packets.Play.Clientbound.UpdateViewDistancePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.UpdateTimePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1665,7 +1681,7 @@ public static partial class PacketFlow
 
             case 125:
             {
-                var packet = Packets.Play.Clientbound.UpdateViewPositionPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.UpdateViewDistancePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1673,7 +1689,7 @@ public static partial class PacketFlow
 
             case 126:
             {
-                var packet = Packets.Play.Clientbound.VehicleMovePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.UpdateViewPositionPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1681,7 +1697,7 @@ public static partial class PacketFlow
 
             case 127:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.VehicleMovePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1689,7 +1705,7 @@ public static partial class PacketFlow
 
             case 128:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderCenterPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.WorldBorderPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1697,7 +1713,7 @@ public static partial class PacketFlow
 
             case 129:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderLerpSizePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.WorldBorderCenterPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1705,7 +1721,7 @@ public static partial class PacketFlow
 
             case 130:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderSizePacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.WorldBorderLerpSizePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1713,7 +1729,7 @@ public static partial class PacketFlow
 
             case 131:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderWarningDelayPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.WorldBorderSizePacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
@@ -1721,13 +1737,21 @@ public static partial class PacketFlow
 
             case 132:
             {
-                var packet = Packets.Play.Clientbound.WorldBorderWarningReachPacket.Read(ref reader, protocolVersion);
+                var packet = Packets.Play.Clientbound.WorldBorderWarningDelayPacket.Read(ref reader, protocolVersion);
                 reading = false;
                 visitor.Visit(packet);
                 return true;
             }
 
             case 133:
+            {
+                var packet = Packets.Play.Clientbound.WorldBorderWarningReachPacket.Read(ref reader, protocolVersion);
+                reading = false;
+                visitor.Visit(packet);
+                return true;
+            }
+
+            case 134:
             {
                 var packet = Packets.Play.Clientbound.WorldEventPacket.Read(ref reader, protocolVersion);
                 reading = false;

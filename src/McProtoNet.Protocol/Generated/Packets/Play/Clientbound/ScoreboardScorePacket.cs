@@ -110,7 +110,7 @@ public sealed partial record ScoreboardScorePacket(string EntityName, string Obj
         throw new System.NotSupportedException($"ScoreboardScorePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_score", "ScoreboardScore", PacketPhase.Play, PacketDirection.Clientbound, 85);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_score", "ScoreboardScore", PacketPhase.Play, PacketDirection.Clientbound, 86);
 
     PacketIdentity IPacket.Identity => Identity;
 

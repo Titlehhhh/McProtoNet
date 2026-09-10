@@ -20,7 +20,7 @@ public sealed partial record WorldBorderWarningDelayPacket(int WarningTime) : IP
         writer.WriteVarInt(WarningTime);
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_warning_delay", "WorldBorderWarningDelay", PacketPhase.Play, PacketDirection.Clientbound, 131);
+    public static PacketIdentity Identity => new("play.toClient.world_border_warning_delay", "WorldBorderWarningDelay", PacketPhase.Play, PacketDirection.Clientbound, 132);
 
     PacketIdentity IPacket.Identity => Identity;
 

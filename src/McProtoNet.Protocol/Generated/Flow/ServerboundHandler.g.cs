@@ -80,6 +80,13 @@ public abstract partial class ServerboundHandler
                         break;
                     }
 
+                    case 1:
+                    {
+                        var packet = Packets.Login.Serverbound.EncryptionResponsePacket.Read(ref reader, protocolVersion);
+                        pending = OnEncryptionResponse(packet);
+                        break;
+                    }
+
                     case 2:
                     {
                         var packet = Packets.Login.Serverbound.LoginAcknowledgedPacket.Read(ref reader, protocolVersion);
@@ -700,6 +707,7 @@ public abstract partial class ServerboundHandler
     protected virtual ValueTask OnPingStart(Packets.Status.Serverbound.PingStartPacket packet) => default;
     // --- Login ---
     protected virtual ValueTask OnLoginCookieResponse(Packets.Login.Serverbound.LoginCookieResponsePacket packet) => default;
+    protected virtual ValueTask OnEncryptionResponse(Packets.Login.Serverbound.EncryptionResponsePacket packet) => default;
     protected virtual ValueTask OnLoginAcknowledged(Packets.Login.Serverbound.LoginAcknowledgedPacket packet) => default;
     protected virtual ValueTask OnLoginPluginResponse(Packets.Login.Serverbound.LoginPluginResponsePacket packet) => default;
     protected virtual ValueTask OnLoginStart(Packets.Login.Serverbound.LoginStartPacket packet) => default;
