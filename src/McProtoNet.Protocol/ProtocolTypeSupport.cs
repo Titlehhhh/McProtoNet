@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Text.Json;
 using McProtoNet.NBT;
 using McProtoNet.Primitives;
 namespace McProtoNet.Protocol;
@@ -24,6 +25,12 @@ public interface IProtocolType<TSelf> where TSelf : IProtocolType<TSelf>
     /// <param name="writer">The writer to write to.</param>
     /// <param name="protocolVersion">The protocol version of the connection.</param>
     void Write(MinecraftPrimitiveWriter writer, int protocolVersion);
+
+    /// <summary>
+    /// Writes the current value as JSON: the decoded model, not the wire layout.
+    /// </summary>
+    /// <param name="writer">The JSON writer to write to.</param>
+    void WriteJson(Utf8JsonWriter writer);
 }
 
 /// <summary>

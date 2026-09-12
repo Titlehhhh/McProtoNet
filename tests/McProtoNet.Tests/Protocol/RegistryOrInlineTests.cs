@@ -21,6 +21,8 @@ public class RegistryOrInlineTests
             return new SoundLike(name, hasRange ? reader.ReadFloat() : null);
         }
 
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
         {
             writer.WriteString(Name);

@@ -20,6 +20,8 @@ public class PacketSubscriptionsTests
         public static FakePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadSignedLong());
 
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteSignedLong(Value);
     }
@@ -37,6 +39,8 @@ public class PacketSubscriptionsTests
 
         public static FakeOtherPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
+
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);
@@ -109,6 +113,8 @@ public class PacketSubscriptionsTests
         public static SameOrdinalOtherPhasePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
 
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);
     }
@@ -126,6 +132,8 @@ public class PacketSubscriptionsTests
 
         public static SameOrdinalOtherDirectionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
+
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);

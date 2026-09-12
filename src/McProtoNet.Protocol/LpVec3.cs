@@ -1,5 +1,7 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
+
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -102,4 +104,17 @@ public readonly partial record struct LpVec3(double X, double Y, double Z) : IPr
 
     private static double Clamp(double value) =>
         double.IsNaN(value) ? 0d : Math.Clamp(value, -AbsMax, AbsMax);
+
+    /// <summary>
+    /// Writes the vector as a JSON object with X, Y and Z members.
+    /// </summary>
+    /// <param name="writer">The JSON writer to write to.</param>
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteNumber("X", X);
+        writer.WriteNumber("Y", Y);
+        writer.WriteNumber("Z", Z);
+        writer.WriteEndObject();
+    }
 }

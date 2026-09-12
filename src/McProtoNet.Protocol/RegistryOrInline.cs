@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 using McProtoNet.Primitives;
 
 namespace McProtoNet.Protocol;
@@ -173,5 +174,26 @@ public readonly record struct RegistryOrInline<T> : IProtocolType<RegistryOrInli
 
         writer.WriteVarInt(0);
         _value.Write(writer, protocolVersion);
+    }
+
+    /// <summary>
+    /// Writes the holder as JSON: the registry id as a number, or the inline value as its own JSON.
+    /// </summary>
+    /// <param name="writer">The JSON writer to write to.</param>
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        if (_tag != 0)
+        {
+            writer.WriteNumberValue(_tag - 1);
+            return;
+        }
+
+        if (_value is null)
+        {
+            writer.WriteNullValue();
+            return;
+        }
+
+        _value.WriteJson(writer);
     }
 }

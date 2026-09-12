@@ -21,6 +21,8 @@ public class PacketIoTests
         public static FakePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadSignedLong());
 
+        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteSignedLong(Value);
     }

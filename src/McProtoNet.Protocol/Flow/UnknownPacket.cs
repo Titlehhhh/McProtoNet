@@ -1,3 +1,5 @@
+using System.Text.Json;
+
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -85,4 +87,17 @@ public sealed class UnknownPacket : IPacket
     /// fact this packet carries.
     /// </remarks>
     public PacketIdentity Identity => new(UnmappedKey, UnmappedName, Phase, Direction, UnmappedOrdinal);
+
+    /// <summary>
+    /// Writes the packet as JSON: only the wire id, the phase and the direction are known.
+    /// </summary>
+    /// <param name="writer">The JSON writer to write to.</param>
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteNumber("Id", Id);
+        writer.WriteString("Phase", Phase.ToString());
+        writer.WriteString("Direction", Direction.ToString());
+        writer.WriteEndObject();
+    }
 }

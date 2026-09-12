@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -47,5 +48,18 @@ public readonly partial record struct Position(int X, int Y, int Z) : IProtocolT
                       ((long)(Z & 0x3FFFFFF) << 12) |
                       (long)(Y & 0xFFF);
         writer.WriteSignedLong(encoded);
+    }
+
+    /// <summary>
+    /// Writes the position as a JSON object with X, Y and Z members.
+    /// </summary>
+    /// <param name="writer">The JSON writer to write to.</param>
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteNumber("X", X);
+        writer.WriteNumber("Y", Y);
+        writer.WriteNumber("Z", Z);
+        writer.WriteEndObject();
     }
 }
