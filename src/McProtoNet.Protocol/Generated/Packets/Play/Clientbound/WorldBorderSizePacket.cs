@@ -33,7 +33,7 @@ public sealed partial record WorldBorderSizePacket(double Diameter) : IPacket<Wo
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_size", "WorldBorderSize", PacketPhase.Play, PacketDirection.Clientbound, 131);
+    public static PacketIdentity Identity => new("play.toClient.world_border_size", "WorldBorderSize", PacketPhase.Play, PacketDirection.Clientbound, 132);
 
     PacketIdentity IPacket.Identity => Identity;
 

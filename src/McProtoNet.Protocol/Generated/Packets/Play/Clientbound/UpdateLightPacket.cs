@@ -336,7 +336,7 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 123);
+    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 124);
 
     PacketIdentity IPacket.Identity => Identity;
 

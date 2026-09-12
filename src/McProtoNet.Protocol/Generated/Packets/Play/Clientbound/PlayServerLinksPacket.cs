@@ -41,7 +41,7 @@ public sealed partial record PlayServerLinksPacket(ServerLink[] Links) : IPacket
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.server_links", "PlayServerLinks", PacketPhase.Play, PacketDirection.Clientbound, 89);
+    public static PacketIdentity Identity => new("play.toClient.server_links", "PlayServerLinks", PacketPhase.Play, PacketDirection.Clientbound, 90);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -79,7 +79,7 @@ public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePower
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 92);
+    public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 93);
 
     PacketIdentity IPacket.Identity => Identity;
 

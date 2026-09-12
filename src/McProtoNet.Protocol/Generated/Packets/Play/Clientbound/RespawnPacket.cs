@@ -501,7 +501,7 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 83);
+    public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 84);
 
     PacketIdentity IPacket.Identity => Identity;
 

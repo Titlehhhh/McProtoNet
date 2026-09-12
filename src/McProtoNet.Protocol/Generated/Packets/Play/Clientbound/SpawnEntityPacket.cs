@@ -217,7 +217,7 @@ public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, in
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 99);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 100);
 
     PacketIdentity IPacket.Identity => Identity;
 

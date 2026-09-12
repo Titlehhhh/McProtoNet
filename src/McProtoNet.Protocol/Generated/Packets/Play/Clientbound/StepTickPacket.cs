@@ -30,7 +30,7 @@ public sealed partial record StepTickPacket(int TickSteps) : IPacket<StepTickPac
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 106);
+    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 107);
 
     PacketIdentity IPacket.Identity => Identity;
 

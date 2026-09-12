@@ -191,7 +191,7 @@ public sealed partial record UnlockRecipesPacket(int Action, bool CraftingBookOp
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.unlock_recipes", "UnlockRecipes", PacketPhase.Play, PacketDirection.Clientbound, 121);
+    public static PacketIdentity Identity => new("play.toClient.unlock_recipes", "UnlockRecipes", PacketPhase.Play, PacketDirection.Clientbound, 122);
 
     PacketIdentity IPacket.Identity => Identity;
 

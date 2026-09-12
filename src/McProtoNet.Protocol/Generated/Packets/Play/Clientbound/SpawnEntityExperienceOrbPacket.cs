@@ -59,7 +59,7 @@ public sealed partial record SpawnEntityExperienceOrbPacket(int EntityId, double
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity_experience_orb", "SpawnEntityExperienceOrb", PacketPhase.Play, PacketDirection.Clientbound, 100);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity_experience_orb", "SpawnEntityExperienceOrb", PacketPhase.Play, PacketDirection.Clientbound, 101);
 
     PacketIdentity IPacket.Identity => Identity;
 

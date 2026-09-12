@@ -142,7 +142,7 @@ public sealed partial record TagsPacket(TagsPacket.VUntil754Layer? VUntil754 = n
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tags", "Tags", PacketPhase.Play, PacketDirection.Clientbound, 112);
+    public static PacketIdentity Identity => new("play.toClient.tags", "Tags", PacketPhase.Play, PacketDirection.Clientbound, 113);
 
     PacketIdentity IPacket.Identity => Identity;
 

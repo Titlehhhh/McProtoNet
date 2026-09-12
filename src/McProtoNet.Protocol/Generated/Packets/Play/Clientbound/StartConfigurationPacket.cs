@@ -25,7 +25,7 @@ public sealed partial record StartConfigurationPacket() : IPacket<StartConfigura
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 104);
+    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 105);
 
     PacketIdentity IPacket.Identity => Identity;
 

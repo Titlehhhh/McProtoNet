@@ -76,7 +76,7 @@ public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPac
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 90);
+    public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 91);
 
     PacketIdentity IPacket.Identity => Identity;
 

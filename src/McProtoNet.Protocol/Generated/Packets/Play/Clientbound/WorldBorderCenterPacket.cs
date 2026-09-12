@@ -41,7 +41,7 @@ public sealed partial record WorldBorderCenterPacket(double X, double Z) : IPack
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_center", "WorldBorderCenter", PacketPhase.Play, PacketDirection.Clientbound, 129);
+    public static PacketIdentity Identity => new("play.toClient.world_border_center", "WorldBorderCenter", PacketPhase.Play, PacketDirection.Clientbound, 130);
 
     PacketIdentity IPacket.Identity => Identity;
 

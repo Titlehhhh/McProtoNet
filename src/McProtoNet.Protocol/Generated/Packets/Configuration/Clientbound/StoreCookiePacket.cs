@@ -35,7 +35,7 @@ public sealed partial record StoreCookiePacket(string Key, byte[] Value) : IPack
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.store_cookie", "StoreCookie", PacketPhase.Configuration, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("configuration.toClient.store_cookie", "StoreCookie", PacketPhase.Configuration, PacketDirection.Clientbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 

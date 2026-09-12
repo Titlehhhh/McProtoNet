@@ -44,7 +44,7 @@ public sealed partial record TestInstanceBlockStatusPacket(NbtTag Status, Vec3i?
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.test_instance_block_status", "TestInstanceBlockStatus", PacketPhase.Play, PacketDirection.Clientbound, 114);
+    public static PacketIdentity Identity => new("play.toClient.test_instance_block_status", "TestInstanceBlockStatus", PacketPhase.Play, PacketDirection.Clientbound, 115);
 
     PacketIdentity IPacket.Identity => Identity;
 

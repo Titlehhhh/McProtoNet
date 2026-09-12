@@ -100,7 +100,7 @@ public sealed partial record TileEntityDataPacket(Position Location, int Action,
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tile_entity_data", "TileEntityData", PacketPhase.Play, PacketDirection.Clientbound, 115);
+    public static PacketIdentity Identity => new("play.toClient.tile_entity_data", "TileEntityData", PacketPhase.Play, PacketDirection.Clientbound, 116);
 
     PacketIdentity IPacket.Identity => Identity;
 

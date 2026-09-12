@@ -297,7 +297,7 @@ public sealed partial record ServerDataPacket(ServerDataPacket.V759Layer? V759 =
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 88);
+    public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 89);
 
     PacketIdentity IPacket.Identity => Identity;
 

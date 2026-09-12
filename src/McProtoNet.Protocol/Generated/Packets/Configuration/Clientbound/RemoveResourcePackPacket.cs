@@ -39,7 +39,7 @@ public sealed partial record RemoveResourcePackPacket(Guid? Uuid) : IPacket<Remo
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 11);
+    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

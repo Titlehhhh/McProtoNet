@@ -41,7 +41,7 @@ public sealed partial record TagsPacket(TagCategory[] Tags) : IPacket<TagsPacket
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.tags", "Tags", PacketPhase.Configuration, PacketDirection.Clientbound, 18);
+    public static PacketIdentity Identity => new("configuration.toClient.tags", "Tags", PacketPhase.Configuration, PacketDirection.Clientbound, 19);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -75,7 +75,7 @@ public sealed partial record StopSoundPacket(int Flags, int? Source, string? Sou
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.stop_sound", "StopSound", PacketPhase.Play, PacketDirection.Clientbound, 107);
+    public static PacketIdentity Identity => new("play.toClient.stop_sound", "StopSound", PacketPhase.Play, PacketDirection.Clientbound, 108);
 
     PacketIdentity IPacket.Identity => Identity;
 

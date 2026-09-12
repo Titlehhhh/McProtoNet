@@ -25,7 +25,7 @@ public sealed partial record ResetChatPacket() : IPacket<ResetChatPacket>, IPack
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
+    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 

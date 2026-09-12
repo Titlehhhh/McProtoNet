@@ -60,7 +60,7 @@ public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 120);
+    public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 121);
 
     PacketIdentity IPacket.Identity => Identity;
 

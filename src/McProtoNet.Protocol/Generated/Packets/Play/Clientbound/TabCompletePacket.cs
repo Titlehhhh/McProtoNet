@@ -56,7 +56,7 @@ public sealed partial record TabCompletePacket(int TransactionId, int Start, int
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 111);
+    public static PacketIdentity Identity => new("play.toClient.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Clientbound, 112);
 
     PacketIdentity IPacket.Identity => Identity;
 

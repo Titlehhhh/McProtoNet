@@ -40,7 +40,7 @@ public sealed partial record SetTitleTimePacket(int FadeIn, int Stay, int FadeOu
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_title_time", "SetTitleTime", PacketPhase.Play, PacketDirection.Clientbound, 96);
+    public static PacketIdentity Identity => new("play.toClient.set_title_time", "SetTitleTime", PacketPhase.Play, PacketDirection.Clientbound, 97);
 
     PacketIdentity IPacket.Identity => Identity;
 

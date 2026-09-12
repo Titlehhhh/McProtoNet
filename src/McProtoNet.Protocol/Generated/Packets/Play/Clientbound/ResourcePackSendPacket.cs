@@ -85,7 +85,7 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, Res
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Play, PacketDirection.Clientbound, 82);
+    public static PacketIdentity Identity => new("play.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Play, PacketDirection.Clientbound, 83);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -73,7 +73,7 @@ public sealed partial record WorldBorderLerpSizePacket(double OldDiameter, doubl
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_lerp_size", "WorldBorderLerpSize", PacketPhase.Play, PacketDirection.Clientbound, 130);
+    public static PacketIdentity Identity => new("play.toClient.world_border_lerp_size", "WorldBorderLerpSize", PacketPhase.Play, PacketDirection.Clientbound, 131);
 
     PacketIdentity IPacket.Identity => Identity;
 

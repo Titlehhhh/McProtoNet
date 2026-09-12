@@ -41,7 +41,7 @@ public sealed partial record SelectKnownPacksPacket(KnownPack[] Packs) : IPacket
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("configuration.toClient.select_known_packs", "SelectKnownPacks", PacketPhase.Configuration, PacketDirection.Clientbound, 14);
+    public static PacketIdentity Identity => new("configuration.toClient.select_known_packs", "SelectKnownPacks", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
 
     PacketIdentity IPacket.Identity => Identity;
 

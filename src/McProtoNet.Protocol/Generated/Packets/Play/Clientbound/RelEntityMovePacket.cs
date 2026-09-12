@@ -50,7 +50,7 @@ public sealed partial record RelEntityMovePacket(int EntityId, int Dx, int Dy, i
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.rel_entity_move", "RelEntityMove", PacketPhase.Play, PacketDirection.Clientbound, 78);
+    public static PacketIdentity Identity => new("play.toClient.rel_entity_move", "RelEntityMove", PacketPhase.Play, PacketDirection.Clientbound, 79);
 
     PacketIdentity IPacket.Identity => Identity;
 

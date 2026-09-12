@@ -35,7 +35,7 @@ public sealed partial record TrackedWaypointPacket(TrackedWaypointOperation Oper
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.tracked_waypoint", "TrackedWaypoint", PacketPhase.Play, PacketDirection.Clientbound, 117);
+    public static PacketIdentity Identity => new("play.toClient.tracked_waypoint", "TrackedWaypoint", PacketPhase.Play, PacketDirection.Clientbound, 118);
 
     PacketIdentity IPacket.Identity => Identity;
 

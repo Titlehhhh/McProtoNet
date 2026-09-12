@@ -45,7 +45,7 @@ public sealed partial record WorldEventPacket(int EffectId, Position Location, i
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 134);
+    public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 135);
 
     PacketIdentity IPacket.Identity => Identity;
 

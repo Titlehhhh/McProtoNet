@@ -60,7 +60,7 @@ public sealed partial record ScoreboardDisplayObjectivePacket(int Position, stri
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 84);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 85);
 
     PacketIdentity IPacket.Identity => Identity;
 

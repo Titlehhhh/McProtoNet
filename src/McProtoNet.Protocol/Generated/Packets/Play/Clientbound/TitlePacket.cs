@@ -32,7 +32,7 @@ public sealed partial record TitlePacket(TitleAction Action) : IPacket<TitlePack
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.title", "Title", PacketPhase.Play, PacketDirection.Clientbound, 116);
+    public static PacketIdentity Identity => new("play.toClient.title", "Title", PacketPhase.Play, PacketDirection.Clientbound, 117);
 
     PacketIdentity IPacket.Identity => Identity;
 

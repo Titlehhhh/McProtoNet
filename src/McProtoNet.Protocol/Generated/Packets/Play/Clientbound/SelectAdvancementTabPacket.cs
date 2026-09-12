@@ -38,7 +38,7 @@ public sealed partial record SelectAdvancementTabPacket(string? Id) : IPacket<Se
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.select_advancement_tab", "SelectAdvancementTab", PacketPhase.Play, PacketDirection.Clientbound, 87);
+    public static PacketIdentity Identity => new("play.toClient.select_advancement_tab", "SelectAdvancementTab", PacketPhase.Play, PacketDirection.Clientbound, 88);
 
     PacketIdentity IPacket.Identity => Identity;
 

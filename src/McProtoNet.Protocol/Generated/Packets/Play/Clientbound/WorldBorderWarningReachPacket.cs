@@ -30,7 +30,7 @@ public sealed partial record WorldBorderWarningReachPacket(int WarningBlocks) : 
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.world_border_warning_reach", "WorldBorderWarningReach", PacketPhase.Play, PacketDirection.Clientbound, 133);
+    public static PacketIdentity Identity => new("play.toClient.world_border_warning_reach", "WorldBorderWarningReach", PacketPhase.Play, PacketDirection.Clientbound, 134);
 
     PacketIdentity IPacket.Identity => Identity;
 

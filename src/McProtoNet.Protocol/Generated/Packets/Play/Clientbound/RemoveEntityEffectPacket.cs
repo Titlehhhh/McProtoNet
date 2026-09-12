@@ -60,7 +60,7 @@ public sealed partial record RemoveEntityEffectPacket(int EntityId, int EffectId
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 79);
+    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 80);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -64,7 +64,7 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 113);
+    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 114);
 
     PacketIdentity IPacket.Identity => Identity;
 

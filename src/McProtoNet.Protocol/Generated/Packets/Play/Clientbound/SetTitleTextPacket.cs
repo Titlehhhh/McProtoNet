@@ -70,7 +70,7 @@ public sealed partial record SetTitleTextPacket(SetTitleTextPacket.V755_764Layer
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.set_title_text", "SetTitleText", PacketPhase.Play, PacketDirection.Clientbound, 95);
+    public static PacketIdentity Identity => new("play.toClient.set_title_text", "SetTitleText", PacketPhase.Play, PacketDirection.Clientbound, 96);
 
     PacketIdentity IPacket.Identity => Identity;
 

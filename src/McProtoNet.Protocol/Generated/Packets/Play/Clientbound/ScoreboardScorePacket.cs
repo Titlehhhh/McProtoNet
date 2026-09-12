@@ -154,7 +154,7 @@ public sealed partial record ScoreboardScorePacket(string EntityName, string Obj
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_score", "ScoreboardScore", PacketPhase.Play, PacketDirection.Clientbound, 86);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_score", "ScoreboardScore", PacketPhase.Play, PacketDirection.Clientbound, 87);
 
     PacketIdentity IPacket.Identity => Identity;
 

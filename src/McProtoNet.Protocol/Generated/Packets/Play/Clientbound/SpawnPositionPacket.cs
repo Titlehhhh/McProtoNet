@@ -99,7 +99,7 @@ public sealed partial record SpawnPositionPacket(SpawnPositionPacket.VUntil754La
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 103);
+    public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 104);
 
     PacketIdentity IPacket.Identity => Identity;
 

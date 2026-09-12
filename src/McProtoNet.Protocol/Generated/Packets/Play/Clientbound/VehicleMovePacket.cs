@@ -65,7 +65,7 @@ public sealed partial record VehicleMovePacket(double X, double Y, double Z, flo
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Clientbound, 127);
+    public static PacketIdentity Identity => new("play.toClient.vehicle_move", "VehicleMove", PacketPhase.Play, PacketDirection.Clientbound, 128);
 
     PacketIdentity IPacket.Identity => Identity;
 

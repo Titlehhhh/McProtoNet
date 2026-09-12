@@ -35,7 +35,7 @@ public sealed partial record UpdateViewPositionPacket(int ChunkX, int ChunkZ) : 
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 126);
+    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 127);
 
     PacketIdentity IPacket.Identity => Identity;
 

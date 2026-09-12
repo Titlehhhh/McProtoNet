@@ -109,7 +109,7 @@ public sealed partial record SystemChatPacket(SystemChatPacket.V759Layer? V759 =
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.system_chat", "SystemChat", PacketPhase.Play, PacketDirection.Clientbound, 110);
+    public static PacketIdentity Identity => new("play.toClient.system_chat", "SystemChat", PacketPhase.Play, PacketDirection.Clientbound, 111);
 
     PacketIdentity IPacket.Identity => Identity;
 

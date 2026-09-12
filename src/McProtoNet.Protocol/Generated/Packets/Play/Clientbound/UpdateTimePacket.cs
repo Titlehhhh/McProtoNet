@@ -116,7 +116,7 @@ public sealed partial record UpdateTimePacket(long Age, UpdateTimePacket.VUntil7
         writer.WriteEndObject();
     }
 
-    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 124);
+    public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 125);
 
     PacketIdentity IPacket.Identity => Identity;
 
