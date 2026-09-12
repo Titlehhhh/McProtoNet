@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
         ThrowHelper.ThrowIfProtocolNotSupported<CustomPayloadPacket>(protocolVersion);
         writer.WriteString(Channel);
         writer.WriteRestBytes(Data);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Channel");
+        writer.WriteStringValue(Channel);
+        writer.WritePropertyName("Data");
+        writer.WriteBase64StringValue(Data);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.custom_payload", "CustomPayload", PacketPhase.Configuration, PacketDirection.Clientbound, 4);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -203,6 +204,136 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
         }
 
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ChunkX");
+        writer.WriteNumberValue(ChunkX);
+        writer.WritePropertyName("ChunkZ");
+        writer.WriteNumberValue(ChunkZ);
+        if (VUntil754 is { } vUntil754)
+        {
+            writer.WritePropertyName("TrustEdges");
+            writer.WriteBooleanValue(vUntil754.TrustEdges);
+            writer.WritePropertyName("SkyLightMaskLegacy");
+            writer.WriteNumberValue(vUntil754.SkyLightMaskLegacy);
+            writer.WritePropertyName("BlockLightMaskLegacy");
+            writer.WriteNumberValue(vUntil754.BlockLightMaskLegacy);
+            writer.WritePropertyName("EmptySkyLightMaskLegacy");
+            writer.WriteNumberValue(vUntil754.EmptySkyLightMaskLegacy);
+            writer.WritePropertyName("EmptyBlockLightMaskLegacy");
+            writer.WriteNumberValue(vUntil754.EmptyBlockLightMaskLegacy);
+            writer.WritePropertyName("Data");
+            writer.WriteBase64StringValue(vUntil754.Data);
+        }
+        else if (V755_762 is { } v755_762)
+        {
+            writer.WritePropertyName("TrustEdges");
+            writer.WriteBooleanValue(v755_762.TrustEdges);
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_762.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V763_Last is { } v763_Last)
+        {
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v763_Last.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 123);

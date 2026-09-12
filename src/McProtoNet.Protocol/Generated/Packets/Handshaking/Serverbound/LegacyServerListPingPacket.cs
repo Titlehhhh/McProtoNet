@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record LegacyServerListPingPacket(int Payload) : IPacket<L
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LegacyServerListPingPacket>(protocolVersion);
         writer.WriteUnsignedByte((byte)Payload);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Payload");
+        writer.WriteNumberValue(Payload);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("handshaking.toServer.legacy_server_list_ping", "LegacyServerListPing", PacketPhase.Handshaking, PacketDirection.Serverbound, 0);

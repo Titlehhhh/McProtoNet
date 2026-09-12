@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -22,6 +23,16 @@ public sealed partial record QueryEntityNbtPacket(int TransactionId, int EntityI
         ThrowHelper.ThrowIfProtocolNotSupported<QueryEntityNbtPacket>(protocolVersion);
         writer.WriteVarInt(TransactionId);
         writer.WriteVarInt(EntityId);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("TransactionId");
+        writer.WriteNumberValue(TransactionId);
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.query_entity_nbt", "QueryEntityNbt", PacketPhase.Play, PacketDirection.Serverbound, 43);

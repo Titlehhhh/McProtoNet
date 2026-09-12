@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -77,6 +78,32 @@ public sealed partial record DeathCombatEventPacket(int PlayerId, DeathCombatEve
         }
 
         throw new System.NotSupportedException($"DeathCombatEventPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("PlayerId");
+        writer.WriteNumberValue(PlayerId);
+        if (V755_762 is { } v755_762)
+        {
+            writer.WritePropertyName("EntityId");
+            writer.WriteNumberValue(v755_762.EntityId);
+            writer.WritePropertyName("MessageJson");
+            writer.WriteStringValue(v755_762.MessageJson);
+        }
+        else if (V763_764 is { } v763_764)
+        {
+            writer.WritePropertyName("MessageJson");
+            writer.WriteStringValue(v763_764.MessageJson);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("Message");
+            v765_Last.Message.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.death_combat_event", "DeathCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 27);

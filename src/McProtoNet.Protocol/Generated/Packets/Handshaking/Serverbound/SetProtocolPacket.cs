@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Handshaking.Serverbound;
 
@@ -28,6 +29,20 @@ public sealed partial record SetProtocolPacket(int ProtocolVersion, string Serve
         writer.WriteString(ServerHost);
         writer.WriteUnsignedShort((ushort)ServerPort);
         writer.WriteVarInt(NextState);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ProtocolVersion");
+        writer.WriteNumberValue(ProtocolVersion);
+        writer.WritePropertyName("ServerHost");
+        writer.WriteStringValue(ServerHost);
+        writer.WritePropertyName("ServerPort");
+        writer.WriteNumberValue(ServerPort);
+        writer.WritePropertyName("NextState");
+        writer.WriteNumberValue(NextState);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("handshaking.toServer.set_protocol", "SetProtocol", PacketPhase.Handshaking, PacketDirection.Serverbound, 1);

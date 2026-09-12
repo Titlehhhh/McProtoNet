@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -16,6 +17,12 @@ public sealed partial record ConfigurationAcknowledgedPacket() : IPacket<Configu
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ConfigurationAcknowledgedPacket>(protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.configuration_acknowledged", "ConfigurationAcknowledged", PacketPhase.Play, PacketDirection.Serverbound, 16);

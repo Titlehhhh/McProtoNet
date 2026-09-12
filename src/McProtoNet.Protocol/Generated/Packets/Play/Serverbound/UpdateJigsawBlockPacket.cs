@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -77,6 +78,32 @@ public sealed partial record UpdateJigsawBlockPacket(Position Location, string N
         }
 
         throw new System.NotSupportedException($"UpdateJigsawBlockPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Name");
+        writer.WriteStringValue(Name);
+        writer.WritePropertyName("Target");
+        writer.WriteStringValue(Target);
+        writer.WritePropertyName("Pool");
+        writer.WriteStringValue(Pool);
+        writer.WritePropertyName("FinalState");
+        writer.WriteStringValue(FinalState);
+        writer.WritePropertyName("JointType");
+        writer.WriteStringValue(JointType);
+        if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("SelectionPriority");
+            writer.WriteNumberValue(v765_Last.SelectionPriority);
+            writer.WritePropertyName("PlacementPriority");
+            writer.WriteNumberValue(v765_Last.PlacementPriority);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.update_jigsaw_block", "UpdateJigsawBlock", PacketPhase.Play, PacketDirection.Serverbound, 63);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -81,6 +82,22 @@ public sealed partial record TileEntityDataPacket(Position Location, int Action,
         }
 
         throw new System.NotSupportedException($"TileEntityDataPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Action");
+        writer.WriteNumberValue(Action);
+        if (NbtData is { } nbtDataValue)
+        {
+            writer.WritePropertyName("NbtData");
+            nbtDataValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.tile_entity_data", "TileEntityData", PacketPhase.Play, PacketDirection.Clientbound, 115);

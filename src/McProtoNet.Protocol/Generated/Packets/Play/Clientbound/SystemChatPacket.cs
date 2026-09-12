@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -78,6 +79,34 @@ public sealed partial record SystemChatPacket(SystemChatPacket.V759Layer? V759 =
         }
 
         throw new System.NotSupportedException($"SystemChatPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V759 is { } v759)
+        {
+            writer.WritePropertyName("ContentJson");
+            writer.WriteStringValue(v759.ContentJson);
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v759.Type);
+        }
+        else if (V760_764 is { } v760_764)
+        {
+            writer.WritePropertyName("ContentJson");
+            writer.WriteStringValue(v760_764.ContentJson);
+            writer.WritePropertyName("IsActionBar");
+            writer.WriteBooleanValue(v760_764.IsActionBar);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("Content");
+            v765_Last.Content.WriteJson(writer);
+            writer.WritePropertyName("IsActionBar");
+            writer.WriteBooleanValue(v765_Last.IsActionBar);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.system_chat", "SystemChat", PacketPhase.Play, PacketDirection.Clientbound, 110);

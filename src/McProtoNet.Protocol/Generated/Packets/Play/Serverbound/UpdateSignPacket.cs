@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -68,6 +69,28 @@ public sealed partial record UpdateSignPacket(Position Location, string Text1, s
         }
 
         throw new System.NotSupportedException($"UpdateSignPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Text1");
+        writer.WriteStringValue(Text1);
+        writer.WritePropertyName("Text2");
+        writer.WriteStringValue(Text2);
+        writer.WritePropertyName("Text3");
+        writer.WriteStringValue(Text3);
+        writer.WritePropertyName("Text4");
+        writer.WriteStringValue(Text4);
+        if (V763_Last is { } v763_Last)
+        {
+            writer.WritePropertyName("IsFrontText");
+            writer.WriteBooleanValue(v763_Last.IsFrontText);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.update_sign", "UpdateSign", PacketPhase.Play, PacketDirection.Serverbound, 64);

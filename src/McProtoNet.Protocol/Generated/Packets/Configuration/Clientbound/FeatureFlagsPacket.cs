@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -24,6 +25,20 @@ public sealed partial record FeatureFlagsPacket(string[] Features) : IPacket<Fea
         writer.WriteVarInt(Features.Length);
         foreach (var featuresItem in Features)
             writer.WriteString(featuresItem);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Features");
+        writer.WriteStartArray();
+        foreach (var item0 in Features)
+        {
+            writer.WriteStringValue(item0);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.feature_flags", "FeatureFlags", PacketPhase.Configuration, PacketDirection.Clientbound, 7);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -36,5 +37,17 @@ public sealed partial class Waypoint : IProtocolType<Waypoint>
         writer.WriteType<WaypointIcon>(Icon, protocolVersion);
         writer.WriteVarInt(Data.Discriminator(protocolVersion));
         Data.Write(writer, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Identity");
+        Identity.WriteJson(writer);
+        writer.WritePropertyName("Icon");
+        Icon.WriteJson(writer);
+        writer.WritePropertyName("Data");
+        Data.WriteJson(writer);
+        writer.WriteEndObject();
     }
 }

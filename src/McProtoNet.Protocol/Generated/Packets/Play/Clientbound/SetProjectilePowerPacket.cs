@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -54,6 +55,28 @@ public sealed partial record SetProjectilePowerPacket(int Id, SetProjectilePower
         }
 
         throw new System.NotSupportedException($"SetProjectilePowerPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Id");
+        writer.WriteNumberValue(Id);
+        if (V766 is { } v766)
+        {
+            writer.WritePropertyName("Power");
+            v766.Power.WriteJson(writer);
+        }
+        else if (V767_Last is { } v767_Last)
+        {
+            writer.WritePropertyName("AccelerationPower");
+            if (double.IsFinite(v767_Last.AccelerationPower))
+                writer.WriteNumberValue(v767_Last.AccelerationPower);
+            else
+                writer.WriteStringValue(double.IsNaN(v767_Last.AccelerationPower) ? "NaN" : v767_Last.AccelerationPower > 0 ? "Infinity" : "-Infinity");
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.set_projectile_power", "SetProjectilePower", PacketPhase.Play, PacketDirection.Clientbound, 92);

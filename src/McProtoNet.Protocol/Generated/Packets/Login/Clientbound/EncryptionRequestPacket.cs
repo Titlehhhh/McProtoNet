@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
@@ -58,6 +59,24 @@ public sealed partial record EncryptionRequestPacket(string ServerId, byte[] Pub
         }
 
         throw new System.NotSupportedException($"EncryptionRequestPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ServerId");
+        writer.WriteStringValue(ServerId);
+        writer.WritePropertyName("PublicKey");
+        writer.WriteBase64StringValue(PublicKey);
+        writer.WritePropertyName("VerifyToken");
+        writer.WriteBase64StringValue(VerifyToken);
+        if (V766_Last is { } v766_Last)
+        {
+            writer.WritePropertyName("ShouldAuthenticate");
+            writer.WriteBooleanValue(v766_Last.ShouldAuthenticate);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toClient.encryption_begin", "EncryptionRequest", PacketPhase.Login, PacketDirection.Clientbound, 3);

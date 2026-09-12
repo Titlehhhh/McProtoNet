@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -23,6 +24,18 @@ public sealed partial record SelectAdvancementTabPacket(string? Id) : IPacket<Se
         writer.WriteBoolean(Id is not null);
         if (Id is { } idValue)
             writer.WriteString(idValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (Id is { } idValue)
+        {
+            writer.WritePropertyName("Id");
+            writer.WriteStringValue(idValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.select_advancement_tab", "SelectAdvancementTab", PacketPhase.Play, PacketDirection.Clientbound, 87);

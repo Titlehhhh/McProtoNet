@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -35,6 +36,20 @@ public sealed partial record AdvancementTabPacket(int Action, string? TabId) : I
         {
             throw new System.InvalidOperationException("TabId is set, but 'action' does not select it at this protocol version.");
         }
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Action");
+        writer.WriteNumberValue(Action);
+        if (TabId is { } tabIdValue)
+        {
+            writer.WritePropertyName("TabId");
+            writer.WriteStringValue(tabIdValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.advancement_tab", "AdvancementTab", PacketPhase.Play, PacketDirection.Serverbound, 1);

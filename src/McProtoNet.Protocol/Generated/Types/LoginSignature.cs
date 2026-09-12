@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,17 @@ public sealed partial class LoginSignature : IProtocolType<LoginSignature>
         writer.WriteSignedLong(Timestamp);
         writer.WriteByteArray(PublicKey);
         writer.WriteByteArray(Signature);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Timestamp");
+        writer.WriteNumberValue(Timestamp);
+        writer.WritePropertyName("PublicKey");
+        writer.WriteBase64StringValue(PublicKey);
+        writer.WritePropertyName("Signature");
+        writer.WriteBase64StringValue(Signature);
+        writer.WriteEndObject();
     }
 }

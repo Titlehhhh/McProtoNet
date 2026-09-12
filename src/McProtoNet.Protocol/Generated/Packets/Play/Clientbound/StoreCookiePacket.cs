@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record StoreCookiePacket(string Key, byte[] Value) : IPack
         ThrowHelper.ThrowIfProtocolNotSupported<StoreCookiePacket>(protocolVersion);
         writer.WriteString(Key);
         writer.WriteByteArray(Value);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Key");
+        writer.WriteStringValue(Key);
+        writer.WritePropertyName("Value");
+        writer.WriteBase64StringValue(Value);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.store_cookie", "StoreCookie", PacketPhase.Play, PacketDirection.Clientbound, 108);

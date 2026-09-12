@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Status.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record PingRequestPacket(long Time) : IPacket<PingRequestP
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PingRequestPacket>(protocolVersion);
         writer.WriteSignedLong(Time);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Time");
+        writer.WriteNumberValue(Time);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("status.toServer.ping", "PingRequest", PacketPhase.Status, PacketDirection.Serverbound, 0);

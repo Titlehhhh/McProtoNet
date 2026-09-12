@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -342,6 +343,162 @@ public sealed partial record RespawnPacket(RespawnPacket.VUntil736Layer? VUntil7
         }
 
         throw new System.NotSupportedException($"RespawnPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (VUntil736 is { } vUntil736)
+        {
+            writer.WritePropertyName("Dimension");
+            writer.WriteStringValue(vUntil736.Dimension);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(vUntil736.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(vUntil736.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(vUntil736.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(vUntil736.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(vUntil736.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(vUntil736.IsFlat);
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(vUntil736.CopyMetadata);
+        }
+        else if (V751_758 is { } v751_758)
+        {
+            writer.WritePropertyName("DimensionNbt");
+            v751_758.DimensionNbt.WriteJson(writer);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v751_758.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v751_758.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v751_758.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v751_758.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v751_758.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v751_758.IsFlat);
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(v751_758.CopyMetadata);
+        }
+        else if (V759 is { } v759)
+        {
+            writer.WritePropertyName("DimensionName");
+            writer.WriteStringValue(v759.DimensionName);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v759.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v759.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v759.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v759.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v759.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v759.IsFlat);
+            if (v759.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(v759.CopyMetadata);
+        }
+        else if (V760_762 is { } v760_762)
+        {
+            writer.WritePropertyName("DimensionName");
+            writer.WriteStringValue(v760_762.DimensionName);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v760_762.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v760_762.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v760_762.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v760_762.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v760_762.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v760_762.IsFlat);
+            if (v760_762.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(v760_762.CopyMetadata);
+        }
+        else if (V763 is { } v763)
+        {
+            writer.WritePropertyName("DimensionName");
+            writer.WriteStringValue(v763.DimensionName);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v763.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v763.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v763.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v763.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v763.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v763.IsFlat);
+            if (v763.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("PortalCooldown");
+            writer.WriteNumberValue(v763.PortalCooldown);
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(v763.CopyMetadata);
+        }
+        else if (V764_765 is { } v764_765)
+        {
+            writer.WritePropertyName("DimensionName");
+            writer.WriteStringValue(v764_765.DimensionName);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v764_765.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v764_765.HashedSeed);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v764_765.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v764_765.PreviousGamemode);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v764_765.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v764_765.IsFlat);
+            if (v764_765.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("PortalCooldown");
+            writer.WriteNumberValue(v764_765.PortalCooldown);
+            writer.WritePropertyName("CopyMetadata");
+            writer.WriteBooleanValue(v764_765.CopyMetadata);
+        }
+        else if (V766_Last is { } v766_Last)
+        {
+            writer.WritePropertyName("CopyMetadataByte");
+            writer.WriteNumberValue(v766_Last.CopyMetadataByte);
+            writer.WritePropertyName("WorldState");
+            v766_Last.WorldState.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.respawn", "Respawn", PacketPhase.Play, PacketDirection.Clientbound, 83);

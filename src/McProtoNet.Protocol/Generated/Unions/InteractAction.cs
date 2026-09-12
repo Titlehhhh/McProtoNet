@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -87,5 +88,54 @@ public partial record InteractAction
         }
 
         throw new System.NotSupportedException($"InteractAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case Interact arm:
+            {
+                writer.WriteString("$case", "Interact");
+                writer.WritePropertyName("Hand");
+                writer.WriteNumberValue(arm.Hand);
+                break;
+            }
+
+            case Attack _:
+            {
+                writer.WriteString("$case", "Attack");
+                break;
+            }
+
+            case InteractAt arm:
+            {
+                writer.WriteString("$case", "InteractAt");
+                writer.WritePropertyName("X");
+                if (double.IsFinite(arm.X))
+                    writer.WriteNumberValue(arm.X);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.X) ? "NaN" : arm.X > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Y");
+                if (double.IsFinite(arm.Y))
+                    writer.WriteNumberValue(arm.Y);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Y) ? "NaN" : arm.Y > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Z");
+                if (double.IsFinite(arm.Z))
+                    writer.WriteNumberValue(arm.Z);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Z) ? "NaN" : arm.Z > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Hand");
+                writer.WriteNumberValue(arm.Hand);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"InteractAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

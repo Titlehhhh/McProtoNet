@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -69,6 +70,33 @@ public sealed partial record SpawnPositionPacket(SpawnPositionPacket.VUntil754La
         }
 
         throw new System.NotSupportedException($"SpawnPositionPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (VUntil754 is { } vUntil754)
+        {
+            writer.WritePropertyName("Location");
+            vUntil754.Location.WriteJson(writer);
+        }
+        else if (V755_772 is { } v755_772)
+        {
+            writer.WritePropertyName("Location");
+            v755_772.Location.WriteJson(writer);
+            writer.WritePropertyName("Angle");
+            if (double.IsFinite(v755_772.Angle))
+                writer.WriteNumberValue(v755_772.Angle);
+            else
+                writer.WriteStringValue(double.IsNaN(v755_772.Angle) ? "NaN" : v755_772.Angle > 0 ? "Infinity" : "-Infinity");
+        }
+        else if (V773_Last is { } v773_Last)
+        {
+            writer.WritePropertyName("RespawnData");
+            v773_Last.RespawnData.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.spawn_position", "SpawnPosition", PacketPhase.Play, PacketDirection.Clientbound, 103);

@@ -2,6 +2,7 @@
 
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -46,6 +47,11 @@ public readonly partial record struct Difficulty(int Value) : IProtocolType<Diff
         }
 
         throw new System.NotSupportedException($"Difficulty has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStringValue(ToString());
     }
 
     public override string ToString() => Value switch

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -57,6 +58,30 @@ public sealed partial record PlayerRotationPacket(float Yaw, float Pitch, Player
         }
 
         throw new System.NotSupportedException($"PlayerRotationPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        if (V773_Last is { } v773_Last)
+        {
+            writer.WritePropertyName("RelativeYaw");
+            writer.WriteBooleanValue(v773_Last.RelativeYaw);
+            writer.WritePropertyName("RelativePitch");
+            writer.WriteBooleanValue(v773_Last.RelativePitch);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.player_rotation", "PlayerRotation", PacketPhase.Play, PacketDirection.Clientbound, 73);

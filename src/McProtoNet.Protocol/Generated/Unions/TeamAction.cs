@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -457,5 +458,217 @@ public partial record TeamAction
         }
 
         throw new System.NotSupportedException($"TeamAction has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case CreatedVUntil764 arm:
+            {
+                writer.WriteString("$case", "Created");
+                writer.WritePropertyName("Name");
+                writer.WriteStringValue(arm.Name);
+                writer.WritePropertyName("FriendlyFire");
+                writer.WriteNumberValue(arm.FriendlyFire);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteStringValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteStringValue(arm.CollisionRule);
+                writer.WritePropertyName("Formatting");
+                writer.WriteNumberValue(arm.Formatting);
+                writer.WritePropertyName("Prefix");
+                writer.WriteStringValue(arm.Prefix);
+                writer.WritePropertyName("Suffix");
+                writer.WriteStringValue(arm.Suffix);
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case Removed _:
+            {
+                writer.WriteString("$case", "Removed");
+                break;
+            }
+
+            case UpdatedVUntil764 arm:
+            {
+                writer.WriteString("$case", "Updated");
+                writer.WritePropertyName("Name");
+                writer.WriteStringValue(arm.Name);
+                writer.WritePropertyName("FriendlyFire");
+                writer.WriteNumberValue(arm.FriendlyFire);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteStringValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteStringValue(arm.CollisionRule);
+                writer.WritePropertyName("Formatting");
+                writer.WriteNumberValue(arm.Formatting);
+                writer.WritePropertyName("Prefix");
+                writer.WriteStringValue(arm.Prefix);
+                writer.WritePropertyName("Suffix");
+                writer.WriteStringValue(arm.Suffix);
+                break;
+            }
+
+            case PlayersAdded arm:
+            {
+                writer.WriteString("$case", "PlayersAdded");
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case PlayersRemoved arm:
+            {
+                writer.WriteString("$case", "PlayersRemoved");
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case CreatedV771_775 arm:
+            {
+                writer.WriteString("$case", "Created");
+                writer.WritePropertyName("Name");
+                arm.Name.WriteJson(writer);
+                writer.WritePropertyName("Flags");
+                arm.Flags.WriteJson(writer);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteNumberValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteNumberValue(arm.CollisionRule);
+                writer.WritePropertyName("Formatting");
+                writer.WriteNumberValue(arm.Formatting);
+                writer.WritePropertyName("Prefix");
+                arm.Prefix.WriteJson(writer);
+                writer.WritePropertyName("Suffix");
+                arm.Suffix.WriteJson(writer);
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case UpdatedV771_775 arm:
+            {
+                writer.WriteString("$case", "Updated");
+                writer.WritePropertyName("Name");
+                arm.Name.WriteJson(writer);
+                writer.WritePropertyName("Flags");
+                arm.Flags.WriteJson(writer);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteNumberValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteNumberValue(arm.CollisionRule);
+                writer.WritePropertyName("Formatting");
+                writer.WriteNumberValue(arm.Formatting);
+                writer.WritePropertyName("Prefix");
+                arm.Prefix.WriteJson(writer);
+                writer.WritePropertyName("Suffix");
+                arm.Suffix.WriteJson(writer);
+                break;
+            }
+
+            case PlayersChanged arm:
+            {
+                writer.WriteString("$case", "PlayersChanged");
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case CreatedV776_Last arm:
+            {
+                writer.WriteString("$case", "Created");
+                writer.WritePropertyName("Name");
+                arm.Name.WriteJson(writer);
+                writer.WritePropertyName("Prefix");
+                arm.Prefix.WriteJson(writer);
+                writer.WritePropertyName("Suffix");
+                arm.Suffix.WriteJson(writer);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteNumberValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteNumberValue(arm.CollisionRule);
+                if (arm.Formatting is { } formattingValue)
+                {
+                    writer.WritePropertyName("Formatting");
+                    writer.WriteNumberValue(formattingValue);
+                }
+
+                writer.WritePropertyName("Flags");
+                arm.Flags.WriteJson(writer);
+                writer.WritePropertyName("Players");
+                writer.WriteStartArray();
+                foreach (var item0 in arm.Players)
+                {
+                    writer.WriteStringValue(item0);
+                }
+
+                writer.WriteEndArray();
+                break;
+            }
+
+            case UpdatedV776_Last arm:
+            {
+                writer.WriteString("$case", "Updated");
+                writer.WritePropertyName("Name");
+                arm.Name.WriteJson(writer);
+                writer.WritePropertyName("Prefix");
+                arm.Prefix.WriteJson(writer);
+                writer.WritePropertyName("Suffix");
+                arm.Suffix.WriteJson(writer);
+                writer.WritePropertyName("NameTagVisibility");
+                writer.WriteNumberValue(arm.NameTagVisibility);
+                writer.WritePropertyName("CollisionRule");
+                writer.WriteNumberValue(arm.CollisionRule);
+                if (arm.Formatting is { } formattingValue)
+                {
+                    writer.WritePropertyName("Formatting");
+                    writer.WriteNumberValue(formattingValue);
+                }
+
+                writer.WritePropertyName("Flags");
+                arm.Flags.WriteJson(writer);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"TeamAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

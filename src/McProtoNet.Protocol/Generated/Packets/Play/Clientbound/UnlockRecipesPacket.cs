@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -140,6 +141,54 @@ public sealed partial record UnlockRecipesPacket(int Action, bool CraftingBookOp
         }
 
         throw new System.NotSupportedException($"UnlockRecipesPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Action");
+        writer.WriteNumberValue(Action);
+        writer.WritePropertyName("CraftingBookOpen");
+        writer.WriteBooleanValue(CraftingBookOpen);
+        writer.WritePropertyName("FilteringCraftable");
+        writer.WriteBooleanValue(FilteringCraftable);
+        writer.WritePropertyName("SmeltingBookOpen");
+        writer.WriteBooleanValue(SmeltingBookOpen);
+        writer.WritePropertyName("FilteringSmeltable");
+        writer.WriteBooleanValue(FilteringSmeltable);
+        writer.WritePropertyName("Recipes1");
+        writer.WriteStartArray();
+        foreach (var item0 in Recipes1)
+        {
+            writer.WriteStringValue(item0);
+        }
+
+        writer.WriteEndArray();
+        if (Recipes2 is { } recipes2Value)
+        {
+            writer.WritePropertyName("Recipes2");
+            writer.WriteStartArray();
+            foreach (var item0 in recipes2Value)
+            {
+                writer.WriteStringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        if (V751_767 is { } v751_767)
+        {
+            writer.WritePropertyName("BlastFurnaceOpen");
+            writer.WriteBooleanValue(v751_767.BlastFurnaceOpen);
+            writer.WritePropertyName("FilteringBlastFurnace");
+            writer.WriteBooleanValue(v751_767.FilteringBlastFurnace);
+            writer.WritePropertyName("SmokerBookOpen");
+            writer.WriteBooleanValue(v751_767.SmokerBookOpen);
+            writer.WritePropertyName("FilteringSmoker");
+            writer.WriteBooleanValue(v751_767.FilteringSmoker);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.unlock_recipes", "UnlockRecipes", PacketPhase.Play, PacketDirection.Clientbound, 121);

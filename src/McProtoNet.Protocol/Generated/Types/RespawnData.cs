@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,23 @@ public sealed partial class RespawnData : IProtocolType<RespawnData>
         writer.WriteType<GlobalPos>(GlobalPos, protocolVersion);
         writer.WriteFloat(Yaw);
         writer.WriteFloat(Pitch);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("GlobalPos");
+        GlobalPos.WriteJson(writer);
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 }

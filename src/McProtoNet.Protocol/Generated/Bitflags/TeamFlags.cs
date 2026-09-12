@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -22,5 +23,15 @@ public readonly partial record struct TeamFlags(bool FriendlyFire, bool SeeFrien
         if (SeeFriendlyInvisible)
             flags |= (1 << 1);
         writer.WriteUnsignedByte(flags);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("FriendlyFire");
+        writer.WriteBooleanValue(FriendlyFire);
+        writer.WritePropertyName("SeeFriendlyInvisible");
+        writer.WriteBooleanValue(SeeFriendlyInvisible);
+        writer.WriteEndObject();
     }
 }

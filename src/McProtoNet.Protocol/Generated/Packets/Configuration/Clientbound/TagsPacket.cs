@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -24,6 +25,20 @@ public sealed partial record TagsPacket(TagCategory[] Tags) : IPacket<TagsPacket
         writer.WriteVarInt(Tags.Length);
         foreach (var tagsItem in Tags)
             writer.WriteType<TagCategory>(tagsItem, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Tags");
+        writer.WriteStartArray();
+        foreach (var item0 in Tags)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.tags", "Tags", PacketPhase.Configuration, PacketDirection.Clientbound, 18);

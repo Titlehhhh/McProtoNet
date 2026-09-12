@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -28,5 +29,15 @@ public sealed partial class ChatTypes : IProtocolType<ChatTypes>
         ThrowHelper.ThrowIfProtocolNotSupported<ChatTypes>(protocolVersion);
         writer.WriteType<ChatType>(Chat, protocolVersion);
         writer.WriteType<ChatType>(Narration, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Chat");
+        Chat.WriteJson(writer);
+        writer.WritePropertyName("Narration");
+        Narration.WriteJson(writer);
+        writer.WriteEndObject();
     }
 }

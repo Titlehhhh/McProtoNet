@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -87,5 +88,45 @@ public partial record CombatEventAction
         }
 
         throw new System.NotSupportedException($"CombatEventAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case Enter _:
+            {
+                writer.WriteString("$case", "Enter");
+                break;
+            }
+
+            case End arm:
+            {
+                writer.WriteString("$case", "End");
+                writer.WritePropertyName("Duration");
+                writer.WriteNumberValue(arm.Duration);
+                writer.WritePropertyName("EntityId");
+                writer.WriteNumberValue(arm.EntityId);
+                break;
+            }
+
+            case Death arm:
+            {
+                writer.WriteString("$case", "Death");
+                writer.WritePropertyName("PlayerId");
+                writer.WriteNumberValue(arm.PlayerId);
+                writer.WritePropertyName("EntityId");
+                writer.WriteNumberValue(arm.EntityId);
+                writer.WritePropertyName("MessageJson");
+                writer.WriteStringValue(arm.MessageJson);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"CombatEventAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -28,6 +29,20 @@ public sealed partial record EntityLookPacket(int EntityId, int Yaw, int Pitch, 
         writer.WriteSignedByte((sbyte)Yaw);
         writer.WriteSignedByte((sbyte)Pitch);
         writer.WriteBoolean(OnGround);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Yaw");
+        writer.WriteNumberValue(Yaw);
+        writer.WritePropertyName("Pitch");
+        writer.WriteNumberValue(Pitch);
+        writer.WritePropertyName("OnGround");
+        writer.WriteBooleanValue(OnGround);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.entity_look", "EntityLook", PacketPhase.Play, PacketDirection.Clientbound, 36);

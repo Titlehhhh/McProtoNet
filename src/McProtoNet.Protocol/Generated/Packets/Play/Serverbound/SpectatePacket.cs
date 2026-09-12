@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
@@ -20,6 +21,14 @@ public sealed partial record SpectatePacket(Guid Target) : IPacket<SpectatePacke
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SpectatePacket>(protocolVersion);
         writer.WriteUUID(Target);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Target");
+        writer.WriteStringValue(Target);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.spectate", "Spectate", PacketPhase.Play, PacketDirection.Serverbound, 53);

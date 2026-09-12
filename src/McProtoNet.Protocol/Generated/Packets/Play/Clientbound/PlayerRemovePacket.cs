@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -25,6 +26,20 @@ public sealed partial record PlayerRemovePacket(Guid[] Players) : IPacket<Player
         writer.WriteVarInt(Players.Length);
         foreach (var playersItem in Players)
             writer.WriteUUID(playersItem);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Players");
+        writer.WriteStartArray();
+        foreach (var item0 in Players)
+        {
+            writer.WriteStringValue(item0);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.player_remove", "PlayerRemove", PacketPhase.Play, PacketDirection.Clientbound, 72);

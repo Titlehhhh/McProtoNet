@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -33,5 +34,21 @@ public sealed partial class TagCategory : IProtocolType<TagCategory>
         writer.WriteVarInt(Tags.Length);
         foreach (var tagsItem in Tags)
             writer.WriteType<Tag>(tagsItem, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("TagType");
+        writer.WriteStringValue(TagType);
+        writer.WritePropertyName("Tags");
+        writer.WriteStartArray();
+        foreach (var item0 in Tags)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 }

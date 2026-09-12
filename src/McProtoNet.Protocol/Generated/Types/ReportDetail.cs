@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -28,5 +29,15 @@ public sealed partial class ReportDetail : IProtocolType<ReportDetail>
         ThrowHelper.ThrowIfProtocolNotSupported<ReportDetail>(protocolVersion);
         writer.WriteString(Key);
         writer.WriteString(Value);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Key");
+        writer.WriteStringValue(Key);
+        writer.WritePropertyName("Value");
+        writer.WriteStringValue(Value);
+        writer.WriteEndObject();
     }
 }

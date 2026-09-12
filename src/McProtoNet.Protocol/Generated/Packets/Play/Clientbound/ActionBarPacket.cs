@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -50,6 +51,23 @@ public sealed partial record ActionBarPacket(ActionBarPacket.V755_764Layer? V755
         }
 
         throw new System.NotSupportedException($"ActionBarPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V755_764 is { } v755_764)
+        {
+            writer.WritePropertyName("TextJson");
+            writer.WriteStringValue(v755_764.TextJson);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("Text");
+            v765_Last.Text.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.action_bar", "ActionBar", PacketPhase.Play, PacketDirection.Clientbound, 2);

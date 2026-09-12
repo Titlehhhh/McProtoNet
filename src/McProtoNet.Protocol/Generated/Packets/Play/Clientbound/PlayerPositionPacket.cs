@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -164,6 +165,65 @@ public sealed partial record PlayerPositionPacket(double X, double Y, double Z, 
         }
 
         throw new System.NotSupportedException($"PlayerPositionPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Flags");
+        Flags.WriteJson(writer);
+        writer.WritePropertyName("TeleportId");
+        writer.WriteNumberValue(TeleportId);
+        if (V755_761 is { } v755_761)
+        {
+            writer.WritePropertyName("DismountVehicle");
+            writer.WriteBooleanValue(v755_761.DismountVehicle);
+        }
+        else if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("Dx");
+            if (double.IsFinite(v768_Last.Dx))
+                writer.WriteNumberValue(v768_Last.Dx);
+            else
+                writer.WriteStringValue(double.IsNaN(v768_Last.Dx) ? "NaN" : v768_Last.Dx > 0 ? "Infinity" : "-Infinity");
+            writer.WritePropertyName("Dy");
+            if (double.IsFinite(v768_Last.Dy))
+                writer.WriteNumberValue(v768_Last.Dy);
+            else
+                writer.WriteStringValue(double.IsNaN(v768_Last.Dy) ? "NaN" : v768_Last.Dy > 0 ? "Infinity" : "-Infinity");
+            writer.WritePropertyName("Dz");
+            if (double.IsFinite(v768_Last.Dz))
+                writer.WriteNumberValue(v768_Last.Dz);
+            else
+                writer.WriteStringValue(double.IsNaN(v768_Last.Dz) ? "NaN" : v768_Last.Dz > 0 ? "Infinity" : "-Infinity");
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.position", "PlayerPosition", PacketPhase.Play, PacketDirection.Clientbound, 75);

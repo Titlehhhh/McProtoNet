@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
@@ -26,6 +27,20 @@ public sealed partial record LoginPluginResponsePacket(int MessageId, byte[]? Da
         writer.WriteBoolean(Data is not null);
         if (Data is { } dataValue)
             writer.WriteRestBytes(dataValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("MessageId");
+        writer.WriteNumberValue(MessageId);
+        if (Data is { } dataValue)
+        {
+            writer.WritePropertyName("Data");
+            writer.WriteBase64StringValue(dataValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toServer.login_plugin_response", "LoginPluginResponse", PacketPhase.Login, PacketDirection.Serverbound, 3);

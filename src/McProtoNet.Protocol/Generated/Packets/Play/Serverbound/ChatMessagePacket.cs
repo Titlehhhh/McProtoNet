@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -154,6 +155,64 @@ public sealed partial record ChatMessagePacket(string Message, long Timestamp, l
         }
 
         throw new System.NotSupportedException($"ChatMessagePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Message");
+        writer.WriteStringValue(Message);
+        writer.WritePropertyName("Timestamp");
+        writer.WriteNumberValue(Timestamp);
+        writer.WritePropertyName("Salt");
+        writer.WriteNumberValue(Salt);
+        if (Signature is { } signatureValue)
+        {
+            writer.WritePropertyName("Signature");
+            writer.WriteBase64StringValue(signatureValue);
+        }
+
+        if (V759 is { } v759)
+        {
+            writer.WritePropertyName("SignedPreview");
+            writer.WriteBooleanValue(v759.SignedPreview);
+        }
+        else if (V760 is { } v760)
+        {
+            writer.WritePropertyName("SignedPreview");
+            writer.WriteBooleanValue(v760.SignedPreview);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v760.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v760.LastRejectedMessage is { } lastRejectedMessageValue)
+            {
+                writer.WritePropertyName("LastRejectedMessage");
+                lastRejectedMessageValue.WriteJson(writer);
+            }
+        }
+        else if (V761_769 is { } v761_769)
+        {
+            writer.WritePropertyName("Offset");
+            writer.WriteNumberValue(v761_769.Offset);
+            writer.WritePropertyName("Acknowledged");
+            writer.WriteBase64StringValue(v761_769.Acknowledged);
+        }
+        else if (V770_Last is { } v770_Last)
+        {
+            writer.WritePropertyName("Offset");
+            writer.WriteNumberValue(v770_Last.Offset);
+            writer.WritePropertyName("Acknowledged");
+            writer.WriteBase64StringValue(v770_Last.Acknowledged);
+            writer.WritePropertyName("Checksum");
+            writer.WriteNumberValue(v770_Last.Checksum);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chat_message", "ChatMessage", PacketPhase.Play, PacketDirection.Serverbound, 10);

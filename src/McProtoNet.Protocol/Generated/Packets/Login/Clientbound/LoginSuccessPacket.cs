@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
@@ -142,6 +143,65 @@ public sealed partial record LoginSuccessPacket(Guid Uuid, string Username, Logi
         }
 
         throw new System.NotSupportedException($"LoginSuccessPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Uuid");
+        writer.WriteStringValue(Uuid);
+        writer.WritePropertyName("Username");
+        writer.WriteStringValue(Username);
+        if (V759_765 is { } v759_765)
+        {
+            writer.WritePropertyName("Properties");
+            writer.WriteStartArray();
+            foreach (var item0 in v759_765.Properties)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V766_767 is { } v766_767)
+        {
+            writer.WritePropertyName("Properties");
+            writer.WriteStartArray();
+            foreach (var item0 in v766_767.Properties)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("StrictErrorHandling");
+            writer.WriteBooleanValue(v766_767.StrictErrorHandling);
+        }
+        else if (V768_775 is { } v768_775)
+        {
+            writer.WritePropertyName("Properties");
+            writer.WriteStartArray();
+            foreach (var item0 in v768_775.Properties)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V776_Last is { } v776_Last)
+        {
+            writer.WritePropertyName("Properties");
+            writer.WriteStartArray();
+            foreach (var item0 in v776_Last.Properties)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SessionId");
+            writer.WriteStringValue(v776_Last.SessionId);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toClient.success", "LoginSuccess", PacketPhase.Login, PacketDirection.Clientbound, 5);

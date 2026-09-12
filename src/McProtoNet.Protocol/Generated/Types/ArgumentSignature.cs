@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -28,5 +29,15 @@ public sealed partial class ArgumentSignature : IProtocolType<ArgumentSignature>
         ThrowHelper.ThrowIfProtocolNotSupported<ArgumentSignature>(protocolVersion);
         writer.WriteString(ArgumentName);
         writer.WriteFixedBytes(Signature, 256);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ArgumentName");
+        writer.WriteStringValue(ArgumentName);
+        writer.WritePropertyName("Signature");
+        writer.WriteBase64StringValue(Signature);
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -38,5 +39,23 @@ public sealed partial class ChatType : IProtocolType<ChatType>
         foreach (var parametersItem in Parameters)
             writer.WriteType<ChatTypeParameterType>(parametersItem, protocolVersion);
         writer.WriteNbt(Style);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("TranslationKey");
+        writer.WriteStringValue(TranslationKey);
+        writer.WritePropertyName("Parameters");
+        writer.WriteStartArray();
+        foreach (var item0 in Parameters)
+        {
+            writer.WriteStringValue(item0.ToString());
+        }
+
+        writer.WriteEndArray();
+        writer.WritePropertyName("Style");
+        Style.WriteJson(writer);
+        writer.WriteEndObject();
     }
 }

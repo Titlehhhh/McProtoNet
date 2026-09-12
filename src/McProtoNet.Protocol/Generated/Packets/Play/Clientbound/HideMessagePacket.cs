@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -67,6 +68,28 @@ public sealed partial record HideMessagePacket(HideMessagePacket.V760Layer? V760
         }
 
         throw new System.NotSupportedException($"HideMessagePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V760 is { } v760)
+        {
+            writer.WritePropertyName("MessageSignature");
+            writer.WriteBase64StringValue(v760.MessageSignature);
+        }
+        else if (V761_Last is { } v761_Last)
+        {
+            writer.WritePropertyName("Id");
+            writer.WriteNumberValue(v761_Last.Id);
+            if (v761_Last.Signature is { } signatureValue)
+            {
+                writer.WritePropertyName("Signature");
+                writer.WriteBase64StringValue(signatureValue);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.hide_message", "HideMessage", PacketPhase.Play, PacketDirection.Clientbound, 51);

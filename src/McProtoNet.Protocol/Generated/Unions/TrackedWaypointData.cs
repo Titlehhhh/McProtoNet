@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -97,5 +98,52 @@ public partial record TrackedWaypointData
         }
 
         throw new System.NotSupportedException($"TrackedWaypointData case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case Empty _:
+            {
+                writer.WriteString("$case", "Empty");
+                break;
+            }
+
+            case Position arm:
+            {
+                writer.WriteString("$case", "Position");
+                writer.WritePropertyName("Coordinates");
+                arm.Coordinates.WriteJson(writer);
+                break;
+            }
+
+            case Chunk arm:
+            {
+                writer.WriteString("$case", "Chunk");
+                writer.WritePropertyName("ChunkX");
+                writer.WriteNumberValue(arm.ChunkX);
+                writer.WritePropertyName("ChunkZ");
+                writer.WriteNumberValue(arm.ChunkZ);
+                break;
+            }
+
+            case Azimuth arm:
+            {
+                writer.WriteString("$case", "Azimuth");
+                writer.WritePropertyName("Angle");
+                if (double.IsFinite(arm.Angle))
+                    writer.WriteNumberValue(arm.Angle);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Angle) ? "NaN" : arm.Angle > 0 ? "Infinity" : "-Infinity");
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"TrackedWaypointData case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

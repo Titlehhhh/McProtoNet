@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -33,6 +34,24 @@ public sealed partial record MessageHeaderPacket(byte[]? PreviousSignature, Guid
         writer.WriteUUID(SenderUuid);
         writer.WriteByteArray(Signature);
         writer.WriteByteArray(MessageHash);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (PreviousSignature is { } previousSignatureValue)
+        {
+            writer.WritePropertyName("PreviousSignature");
+            writer.WriteBase64StringValue(previousSignatureValue);
+        }
+
+        writer.WritePropertyName("SenderUuid");
+        writer.WriteStringValue(SenderUuid);
+        writer.WritePropertyName("Signature");
+        writer.WriteBase64StringValue(Signature);
+        writer.WritePropertyName("MessageHash");
+        writer.WriteBase64StringValue(MessageHash);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.message_header", "MessageHeader", PacketPhase.Play, PacketDirection.Clientbound, 60);

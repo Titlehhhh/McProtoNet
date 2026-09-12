@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol;
@@ -62,5 +63,22 @@ public sealed partial class AttributeModifier : IProtocolType<AttributeModifier>
         }
 
         throw new System.NotSupportedException($"AttributeModifier has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Uuid");
+        writer.WriteStringValue(Uuid);
+        writer.WritePropertyName("Id");
+        writer.WriteStringValue(Id);
+        writer.WritePropertyName("Amount");
+        if (double.IsFinite(Amount))
+            writer.WriteNumberValue(Amount);
+        else
+            writer.WriteStringValue(double.IsNaN(Amount) ? "NaN" : Amount > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Operation");
+        writer.WriteNumberValue(Operation);
+        writer.WriteEndObject();
     }
 }

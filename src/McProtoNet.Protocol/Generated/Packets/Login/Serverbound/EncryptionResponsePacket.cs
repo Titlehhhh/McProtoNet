@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
 
@@ -94,6 +95,35 @@ public sealed partial record EncryptionResponsePacket(byte[] SharedSecret, byte[
         }
 
         throw new System.NotSupportedException($"EncryptionResponsePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("SharedSecret");
+        writer.WriteBase64StringValue(SharedSecret);
+        if (VerifyToken is { } verifyTokenValue)
+        {
+            writer.WritePropertyName("VerifyToken");
+            writer.WriteBase64StringValue(verifyTokenValue);
+        }
+
+        if (V759_760 is { } v759_760)
+        {
+            if (v759_760.Salt is { } saltValue)
+            {
+                writer.WritePropertyName("Salt");
+                writer.WriteNumberValue(saltValue);
+            }
+
+            if (v759_760.MessageSignature is { } messageSignatureValue)
+            {
+                writer.WritePropertyName("MessageSignature");
+                writer.WriteBase64StringValue(messageSignatureValue);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toServer.encryption_begin", "EncryptionResponse", PacketPhase.Login, PacketDirection.Serverbound, 1);

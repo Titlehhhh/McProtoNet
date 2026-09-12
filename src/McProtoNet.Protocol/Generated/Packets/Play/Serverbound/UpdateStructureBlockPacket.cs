@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -117,6 +118,47 @@ public sealed partial record UpdateStructureBlockPacket(Position Location, int A
         }
 
         throw new System.NotSupportedException($"UpdateStructureBlockPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Action");
+        writer.WriteNumberValue(Action);
+        writer.WritePropertyName("Mode");
+        writer.WriteNumberValue(Mode);
+        writer.WritePropertyName("Name");
+        writer.WriteStringValue(Name);
+        writer.WritePropertyName("OffsetX");
+        writer.WriteNumberValue(OffsetX);
+        writer.WritePropertyName("OffsetY");
+        writer.WriteNumberValue(OffsetY);
+        writer.WritePropertyName("OffsetZ");
+        writer.WriteNumberValue(OffsetZ);
+        writer.WritePropertyName("SizeX");
+        writer.WriteNumberValue(SizeX);
+        writer.WritePropertyName("SizeY");
+        writer.WriteNumberValue(SizeY);
+        writer.WritePropertyName("SizeZ");
+        writer.WriteNumberValue(SizeZ);
+        writer.WritePropertyName("Mirror");
+        writer.WriteNumberValue(Mirror);
+        writer.WritePropertyName("Rotation");
+        writer.WriteNumberValue(Rotation);
+        writer.WritePropertyName("Metadata");
+        writer.WriteStringValue(Metadata);
+        writer.WritePropertyName("Integrity");
+        if (double.IsFinite(Integrity))
+            writer.WriteNumberValue(Integrity);
+        else
+            writer.WriteStringValue(double.IsNaN(Integrity) ? "NaN" : Integrity > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Seed");
+        writer.WriteNumberValue(Seed);
+        writer.WritePropertyName("Flags");
+        writer.WriteNumberValue(Flags);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.update_structure_block", "UpdateStructureBlock", PacketPhase.Play, PacketDirection.Serverbound, 65);

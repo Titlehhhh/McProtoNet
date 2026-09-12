@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -26,6 +27,20 @@ public sealed partial record ResetScorePacket(string EntityName, string? Objecti
         writer.WriteBoolean(ObjectiveName is not null);
         if (ObjectiveName is { } objectiveNameValue)
             writer.WriteString(objectiveNameValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityName");
+        writer.WriteStringValue(EntityName);
+        if (ObjectiveName is { } objectiveNameValue)
+        {
+            writer.WritePropertyName("ObjectiveName");
+            writer.WriteStringValue(objectiveNameValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.reset_score", "ResetScore", PacketPhase.Play, PacketDirection.Clientbound, 81);

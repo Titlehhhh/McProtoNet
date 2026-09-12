@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -27,6 +28,22 @@ public sealed partial record MoveMinecartPacket(int EntityId, MinecartStep[] Ste
         writer.WriteVarInt(Steps.Length);
         foreach (var stepsItem in Steps)
             writer.WriteType<MinecartStep>(stepsItem, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Steps");
+        writer.WriteStartArray();
+        foreach (var item0 in Steps)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.move_minecart", "MoveMinecart", PacketPhase.Play, PacketDirection.Clientbound, 61);

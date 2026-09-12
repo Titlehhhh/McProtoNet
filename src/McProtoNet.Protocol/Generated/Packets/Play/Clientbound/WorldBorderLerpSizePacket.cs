@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -52,6 +53,24 @@ public sealed partial record WorldBorderLerpSizePacket(double OldDiameter, doubl
         }
 
         throw new System.NotSupportedException($"WorldBorderLerpSizePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("OldDiameter");
+        if (double.IsFinite(OldDiameter))
+            writer.WriteNumberValue(OldDiameter);
+        else
+            writer.WriteStringValue(double.IsNaN(OldDiameter) ? "NaN" : OldDiameter > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("NewDiameter");
+        if (double.IsFinite(NewDiameter))
+            writer.WriteNumberValue(NewDiameter);
+        else
+            writer.WriteStringValue(double.IsNaN(NewDiameter) ? "NaN" : NewDiameter > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Speed");
+        writer.WriteNumberValue(Speed);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.world_border_lerp_size", "WorldBorderLerpSize", PacketPhase.Play, PacketDirection.Clientbound, 130);

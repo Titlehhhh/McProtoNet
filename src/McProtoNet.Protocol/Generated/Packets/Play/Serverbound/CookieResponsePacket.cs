@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -69,6 +70,20 @@ public sealed partial record CookieResponsePacket(string Key, byte[]? Value) : I
         }
 
         throw new System.NotSupportedException($"CookieResponsePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Key");
+        writer.WriteStringValue(Key);
+        if (Value is { } valueValue)
+        {
+            writer.WritePropertyName("Value");
+            writer.WriteBase64StringValue(valueValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.cookie_response", "CookieResponse", PacketPhase.Play, PacketDirection.Serverbound, 17);

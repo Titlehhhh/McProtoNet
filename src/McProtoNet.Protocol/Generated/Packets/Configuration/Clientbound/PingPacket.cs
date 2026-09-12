@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -19,6 +20,14 @@ public sealed partial record PingPacket(int Id) : IPacket<PingPacket>, IPacket
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PingPacket>(protocolVersion);
         writer.WriteSignedInt(Id);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Id");
+        writer.WriteNumberValue(Id);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.ping", "Ping", PacketPhase.Configuration, PacketDirection.Clientbound, 10);

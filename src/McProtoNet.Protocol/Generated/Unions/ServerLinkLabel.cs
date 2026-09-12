@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -66,5 +67,33 @@ public partial record ServerLinkLabel
         }
 
         throw new System.NotSupportedException($"ServerLinkLabel case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case KnownType arm:
+            {
+                writer.WriteString("$case", "KnownType");
+                writer.WritePropertyName("Type");
+                writer.WriteStringValue(arm.Type.ToString());
+                break;
+            }
+
+            case Custom arm:
+            {
+                writer.WriteString("$case", "Custom");
+                writer.WritePropertyName("Label");
+                arm.Label.WriteJson(writer);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"ServerLinkLabel case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

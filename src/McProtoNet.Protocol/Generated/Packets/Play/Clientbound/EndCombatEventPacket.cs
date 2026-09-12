@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -48,6 +49,20 @@ public sealed partial record EndCombatEventPacket(int Duration, EndCombatEventPa
         }
 
         throw new System.NotSupportedException($"EndCombatEventPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Duration");
+        writer.WriteNumberValue(Duration);
+        if (V755_762 is { } v755_762)
+        {
+            writer.WritePropertyName("EntityId");
+            writer.WriteNumberValue(v755_762.EntityId);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.end_combat_event", "EndCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 31);

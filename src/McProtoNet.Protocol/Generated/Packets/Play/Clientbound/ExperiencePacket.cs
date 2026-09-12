@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,21 @@ public sealed partial record ExperiencePacket(float ExperienceBar, int Level, in
         writer.WriteFloat(ExperienceBar);
         writer.WriteVarInt(Level);
         writer.WriteVarInt(TotalExperience);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ExperienceBar");
+        if (double.IsFinite(ExperienceBar))
+            writer.WriteNumberValue(ExperienceBar);
+        else
+            writer.WriteStringValue(double.IsNaN(ExperienceBar) ? "NaN" : ExperienceBar > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Level");
+        writer.WriteNumberValue(Level);
+        writer.WritePropertyName("TotalExperience");
+        writer.WriteNumberValue(TotalExperience);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.experience", "Experience", PacketPhase.Play, PacketDirection.Clientbound, 43);

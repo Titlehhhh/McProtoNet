@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -82,5 +83,29 @@ public sealed partial class ObjectiveDisplay : IProtocolType<ObjectiveDisplay>
         }
 
         throw new System.NotSupportedException($"ObjectiveDisplay has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("DisplayTextJson");
+        writer.WriteStringValue(DisplayTextJson);
+        writer.WritePropertyName("DisplayText");
+        DisplayText.WriteJson(writer);
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        if (NumberFormat is { } numberFormatValue)
+        {
+            writer.WritePropertyName("NumberFormat");
+            writer.WriteNumberValue(numberFormatValue);
+        }
+
+        if (Styling is { } stylingValue)
+        {
+            writer.WritePropertyName("Styling");
+            stylingValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -38,6 +39,35 @@ public sealed partial record NamedEntitySpawnPacket(int EntityId, Guid PlayerUui
         writer.WriteDouble(Z);
         writer.WriteSignedByte((sbyte)Yaw);
         writer.WriteSignedByte((sbyte)Pitch);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("PlayerUuid");
+        writer.WriteStringValue(PlayerUuid);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        writer.WriteNumberValue(Yaw);
+        writer.WritePropertyName("Pitch");
+        writer.WriteNumberValue(Pitch);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.named_entity_spawn", "NamedEntitySpawn", PacketPhase.Play, PacketDirection.Clientbound, 62);

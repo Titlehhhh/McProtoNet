@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 using System;
 
@@ -548,6 +549,278 @@ public sealed partial record PlayerChatPacket(Guid SenderUuid, byte[]? Signature
         }
 
         throw new System.NotSupportedException($"PlayerChatPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("SenderUuid");
+        writer.WriteStringValue(SenderUuid);
+        if (Signature is { } signatureValue)
+        {
+            writer.WritePropertyName("Signature");
+            writer.WriteBase64StringValue(signatureValue);
+        }
+
+        writer.WritePropertyName("Timestamp");
+        writer.WriteNumberValue(Timestamp);
+        writer.WritePropertyName("Salt");
+        writer.WriteNumberValue(Salt);
+        if (V759 is { } v759)
+        {
+            writer.WritePropertyName("SignedChatContent");
+            writer.WriteStringValue(v759.SignedChatContent);
+            writer.WritePropertyName("SenderName");
+            writer.WriteStringValue(v759.SenderName);
+            if (v759.SenderTeam is { } senderTeamValue)
+            {
+                writer.WritePropertyName("SenderTeam");
+                writer.WriteStringValue(senderTeamValue);
+            }
+
+            if (v759.UnsignedChatContentJson is { } unsignedChatContentJsonValue)
+            {
+                writer.WritePropertyName("UnsignedChatContentJson");
+                writer.WriteStringValue(unsignedChatContentJsonValue);
+            }
+
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v759.Type);
+        }
+        else if (V760 is { } v760)
+        {
+            if (v760.PreviousSignature is { } previousSignatureValue)
+            {
+                writer.WritePropertyName("PreviousSignature");
+                writer.WriteBase64StringValue(previousSignatureValue);
+            }
+
+            if (v760.FormattedMessage is { } formattedMessageValue)
+            {
+                writer.WritePropertyName("FormattedMessage");
+                writer.WriteStringValue(formattedMessageValue);
+            }
+
+            writer.WritePropertyName("PlainMessage");
+            writer.WriteStringValue(v760.PlainMessage);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v760.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v760.UnsignedChatContentJson is { } unsignedChatContentJsonValue)
+            {
+                writer.WritePropertyName("UnsignedChatContentJson");
+                writer.WriteStringValue(unsignedChatContentJsonValue);
+            }
+
+            writer.WritePropertyName("FilterType");
+            writer.WriteNumberValue(v760.FilterType);
+            if (v760.FilterTypeMask is { } filterTypeMaskValue)
+            {
+                writer.WritePropertyName("FilterTypeMask");
+                writer.WriteStartArray();
+                foreach (var item0 in filterTypeMaskValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v760.Type);
+            writer.WritePropertyName("NetworkNameJson");
+            writer.WriteStringValue(v760.NetworkNameJson);
+            if (v760.NetworkTargetNameJson is { } networkTargetNameJsonValue)
+            {
+                writer.WritePropertyName("NetworkTargetNameJson");
+                writer.WriteStringValue(networkTargetNameJsonValue);
+            }
+        }
+        else if (V761_764 is { } v761_764)
+        {
+            writer.WritePropertyName("Index");
+            writer.WriteNumberValue(v761_764.Index);
+            writer.WritePropertyName("PlainMessage");
+            writer.WriteStringValue(v761_764.PlainMessage);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v761_764.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v761_764.UnsignedChatContentJson is { } unsignedChatContentJsonValue)
+            {
+                writer.WritePropertyName("UnsignedChatContentJson");
+                writer.WriteStringValue(unsignedChatContentJsonValue);
+            }
+
+            writer.WritePropertyName("FilterType");
+            writer.WriteNumberValue(v761_764.FilterType);
+            if (v761_764.FilterTypeMask is { } filterTypeMaskValue)
+            {
+                writer.WritePropertyName("FilterTypeMask");
+                writer.WriteStartArray();
+                foreach (var item0 in filterTypeMaskValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v761_764.Type);
+            writer.WritePropertyName("NetworkNameJson");
+            writer.WriteStringValue(v761_764.NetworkNameJson);
+            if (v761_764.NetworkTargetNameJson is { } networkTargetNameJsonValue)
+            {
+                writer.WritePropertyName("NetworkTargetNameJson");
+                writer.WriteStringValue(networkTargetNameJsonValue);
+            }
+        }
+        else if (V765_766 is { } v765_766)
+        {
+            writer.WritePropertyName("Index");
+            writer.WriteNumberValue(v765_766.Index);
+            writer.WritePropertyName("PlainMessage");
+            writer.WriteStringValue(v765_766.PlainMessage);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v765_766.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v765_766.UnsignedChatContent is { } unsignedChatContentValue)
+            {
+                writer.WritePropertyName("UnsignedChatContent");
+                unsignedChatContentValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("FilterType");
+            writer.WriteNumberValue(v765_766.FilterType);
+            if (v765_766.FilterTypeMask is { } filterTypeMaskValue)
+            {
+                writer.WritePropertyName("FilterTypeMask");
+                writer.WriteStartArray();
+                foreach (var item0 in filterTypeMaskValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v765_766.Type);
+            writer.WritePropertyName("NetworkName");
+            v765_766.NetworkName.WriteJson(writer);
+            if (v765_766.NetworkTargetName is { } networkTargetNameValue)
+            {
+                writer.WritePropertyName("NetworkTargetName");
+                networkTargetNameValue.WriteJson(writer);
+            }
+        }
+        else if (V767_769 is { } v767_769)
+        {
+            writer.WritePropertyName("Index");
+            writer.WriteNumberValue(v767_769.Index);
+            writer.WritePropertyName("PlainMessage");
+            writer.WriteStringValue(v767_769.PlainMessage);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v767_769.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v767_769.UnsignedChatContent is { } unsignedChatContentValue)
+            {
+                writer.WritePropertyName("UnsignedChatContent");
+                unsignedChatContentValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("FilterType");
+            writer.WriteNumberValue(v767_769.FilterType);
+            if (v767_769.FilterTypeMask is { } filterTypeMaskValue)
+            {
+                writer.WritePropertyName("FilterTypeMask");
+                writer.WriteStartArray();
+                foreach (var item0 in filterTypeMaskValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("ChatType");
+            v767_769.ChatType.WriteJson(writer);
+            writer.WritePropertyName("NetworkName");
+            v767_769.NetworkName.WriteJson(writer);
+            if (v767_769.NetworkTargetName is { } networkTargetNameValue)
+            {
+                writer.WritePropertyName("NetworkTargetName");
+                networkTargetNameValue.WriteJson(writer);
+            }
+        }
+        else if (V770_Last is { } v770_Last)
+        {
+            writer.WritePropertyName("GlobalIndex");
+            writer.WriteNumberValue(v770_Last.GlobalIndex);
+            writer.WritePropertyName("Index");
+            writer.WriteNumberValue(v770_Last.Index);
+            writer.WritePropertyName("PlainMessage");
+            writer.WriteStringValue(v770_Last.PlainMessage);
+            writer.WritePropertyName("PreviousMessages");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.PreviousMessages)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            if (v770_Last.UnsignedChatContent is { } unsignedChatContentValue)
+            {
+                writer.WritePropertyName("UnsignedChatContent");
+                unsignedChatContentValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("FilterType");
+            writer.WriteNumberValue(v770_Last.FilterType);
+            if (v770_Last.FilterTypeMask is { } filterTypeMaskValue)
+            {
+                writer.WritePropertyName("FilterTypeMask");
+                writer.WriteStartArray();
+                foreach (var item0 in filterTypeMaskValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("ChatType");
+            v770_Last.ChatType.WriteJson(writer);
+            writer.WritePropertyName("NetworkName");
+            v770_Last.NetworkName.WriteJson(writer);
+            if (v770_Last.NetworkTargetName is { } networkTargetNameValue)
+            {
+                writer.WritePropertyName("NetworkTargetName");
+                networkTargetNameValue.WriteJson(writer);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.player_chat", "PlayerChat", PacketPhase.Play, PacketDirection.Clientbound, 71);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,25 @@ public readonly partial record struct PlayerInputFlags(bool Forward, bool Backwa
         if (Sprint)
             flags |= (1 << 6);
         writer.WriteUnsignedByte(flags);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Forward");
+        writer.WriteBooleanValue(Forward);
+        writer.WritePropertyName("Backward");
+        writer.WriteBooleanValue(Backward);
+        writer.WritePropertyName("Left");
+        writer.WriteBooleanValue(Left);
+        writer.WritePropertyName("Right");
+        writer.WriteBooleanValue(Right);
+        writer.WritePropertyName("Jump");
+        writer.WriteBooleanValue(Jump);
+        writer.WritePropertyName("Shift");
+        writer.WriteBooleanValue(Shift);
+        writer.WritePropertyName("Sprint");
+        writer.WriteBooleanValue(Sprint);
+        writer.WriteEndObject();
     }
 }

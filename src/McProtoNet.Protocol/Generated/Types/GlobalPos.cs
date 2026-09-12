@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -28,5 +29,15 @@ public sealed partial class GlobalPos : IProtocolType<GlobalPos>
         ThrowHelper.ThrowIfProtocolNotSupported<GlobalPos>(protocolVersion);
         writer.WriteString(DimensionName);
         writer.WriteType<Position>(Location, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("DimensionName");
+        writer.WriteStringValue(DimensionName);
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WriteEndObject();
     }
 }

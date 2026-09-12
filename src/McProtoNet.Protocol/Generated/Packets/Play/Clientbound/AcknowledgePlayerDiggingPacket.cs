@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -61,6 +62,29 @@ public sealed partial record AcknowledgePlayerDiggingPacket(AcknowledgePlayerDig
         }
 
         throw new System.NotSupportedException($"AcknowledgePlayerDiggingPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (VUntil758 is { } vUntil758)
+        {
+            writer.WritePropertyName("Location");
+            vUntil758.Location.WriteJson(writer);
+            writer.WritePropertyName("Block");
+            writer.WriteNumberValue(vUntil758.Block);
+            writer.WritePropertyName("Status");
+            writer.WriteNumberValue(vUntil758.Status);
+            writer.WritePropertyName("Successful");
+            writer.WriteBooleanValue(vUntil758.Successful);
+        }
+        else if (V759_Last is { } v759_Last)
+        {
+            writer.WritePropertyName("SequenceId");
+            writer.WriteNumberValue(v759_Last.SequenceId);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.acknowledge_player_digging", "AcknowledgePlayerDigging", PacketPhase.Play, PacketDirection.Clientbound, 1);

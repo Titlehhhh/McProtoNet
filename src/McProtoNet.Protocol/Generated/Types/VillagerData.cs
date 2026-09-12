@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -21,5 +22,17 @@ public readonly partial record struct VillagerData(int Type, int Profession, int
         writer.WriteVarInt(Type);
         writer.WriteVarInt(Profession);
         writer.WriteVarInt(Level);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        writer.WritePropertyName("Profession");
+        writer.WriteNumberValue(Profession);
+        writer.WritePropertyName("Level");
+        writer.WriteNumberValue(Level);
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,6 +26,18 @@ public sealed partial record RecipeBookPacket(int BookId, bool BookOpen, bool Fi
         writer.WriteVarInt(BookId);
         writer.WriteBoolean(BookOpen);
         writer.WriteBoolean(FilterActive);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("BookId");
+        writer.WriteNumberValue(BookId);
+        writer.WritePropertyName("BookOpen");
+        writer.WriteBooleanValue(BookOpen);
+        writer.WritePropertyName("FilterActive");
+        writer.WriteBooleanValue(FilterActive);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.recipe_book", "RecipeBook", PacketPhase.Play, PacketDirection.Serverbound, 44);

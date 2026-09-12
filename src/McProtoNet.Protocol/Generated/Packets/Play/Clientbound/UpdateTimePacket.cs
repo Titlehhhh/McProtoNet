@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -81,6 +82,38 @@ public sealed partial record UpdateTimePacket(long Age, UpdateTimePacket.VUntil7
         }
 
         throw new System.NotSupportedException($"UpdateTimePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Age");
+        writer.WriteNumberValue(Age);
+        if (VUntil767 is { } vUntil767)
+        {
+            writer.WritePropertyName("Time");
+            writer.WriteNumberValue(vUntil767.Time);
+        }
+        else if (V768_774 is { } v768_774)
+        {
+            writer.WritePropertyName("Time");
+            writer.WriteNumberValue(v768_774.Time);
+            writer.WritePropertyName("TickDayTime");
+            writer.WriteBooleanValue(v768_774.TickDayTime);
+        }
+        else if (V775_Last is { } v775_Last)
+        {
+            writer.WritePropertyName("ClockUpdates");
+            writer.WriteStartArray();
+            foreach (var item0 in v775_Last.ClockUpdates)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.update_time", "UpdateTime", PacketPhase.Play, PacketDirection.Clientbound, 124);

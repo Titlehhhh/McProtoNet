@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,17 @@ public sealed partial record ChunkBatchReceivedPacket(float ChunksPerTick) : IPa
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChunkBatchReceivedPacket>(protocolVersion);
         writer.WriteFloat(ChunksPerTick);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ChunksPerTick");
+        if (double.IsFinite(ChunksPerTick))
+            writer.WriteNumberValue(ChunksPerTick);
+        else
+            writer.WriteStringValue(double.IsNaN(ChunksPerTick) ? "NaN" : ChunksPerTick > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chunk_batch_received", "ChunkBatchReceived", PacketPhase.Play, PacketDirection.Serverbound, 13);

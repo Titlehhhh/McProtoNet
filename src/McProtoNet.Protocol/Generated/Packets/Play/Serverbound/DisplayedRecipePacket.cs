@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -49,6 +50,23 @@ public sealed partial record DisplayedRecipePacket(DisplayedRecipePacket.V751_76
         }
 
         throw new System.NotSupportedException($"DisplayedRecipePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V751_767 is { } v751_767)
+        {
+            writer.WritePropertyName("RecipeId");
+            writer.WriteStringValue(v751_767.RecipeId);
+        }
+        else if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("RecipeIdInt");
+            writer.WriteNumberValue(v768_Last.RecipeIdInt);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.displayed_recipe", "DisplayedRecipe", PacketPhase.Play, PacketDirection.Serverbound, 23);

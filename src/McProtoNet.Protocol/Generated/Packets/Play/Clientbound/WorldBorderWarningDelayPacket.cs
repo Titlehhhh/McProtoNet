@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,6 +20,14 @@ public sealed partial record WorldBorderWarningDelayPacket(int WarningTime) : IP
     {
         ThrowHelper.ThrowIfProtocolNotSupported<WorldBorderWarningDelayPacket>(protocolVersion);
         writer.WriteVarInt(WarningTime);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("WarningTime");
+        writer.WriteNumberValue(WarningTime);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.world_border_warning_delay", "WorldBorderWarningDelay", PacketPhase.Play, PacketDirection.Clientbound, 132);

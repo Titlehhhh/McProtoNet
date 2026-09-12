@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -77,6 +78,40 @@ public sealed partial record InitializeWorldBorderPacket(double X, double Z, dou
         }
 
         throw new System.NotSupportedException($"InitializeWorldBorderPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("OldDiameter");
+        if (double.IsFinite(OldDiameter))
+            writer.WriteNumberValue(OldDiameter);
+        else
+            writer.WriteStringValue(double.IsNaN(OldDiameter) ? "NaN" : OldDiameter > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("NewDiameter");
+        if (double.IsFinite(NewDiameter))
+            writer.WriteNumberValue(NewDiameter);
+        else
+            writer.WriteStringValue(double.IsNaN(NewDiameter) ? "NaN" : NewDiameter > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Speed");
+        writer.WriteNumberValue(Speed);
+        writer.WritePropertyName("PortalTeleportBoundary");
+        writer.WriteNumberValue(PortalTeleportBoundary);
+        writer.WritePropertyName("WarningBlocks");
+        writer.WriteNumberValue(WarningBlocks);
+        writer.WritePropertyName("WarningTime");
+        writer.WriteNumberValue(WarningTime);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.initialize_world_border", "InitializeWorldBorder", PacketPhase.Play, PacketDirection.Clientbound, 53);

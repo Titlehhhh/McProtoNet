@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -63,5 +64,21 @@ public sealed partial class Heightmap : IProtocolType<Heightmap>
         }
 
         throw new System.NotSupportedException($"Heightmap has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Type");
+        writer.WriteStringValue(Type.ToString());
+        writer.WritePropertyName("Data");
+        writer.WriteStartArray();
+        foreach (var item0 in Data)
+        {
+            writer.WriteNumberValue(item0);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 }

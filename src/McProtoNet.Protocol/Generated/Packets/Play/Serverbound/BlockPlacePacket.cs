@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -112,6 +113,48 @@ public sealed partial record BlockPlacePacket(int Hand, Position Location, int D
         }
 
         throw new System.NotSupportedException($"BlockPlacePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Hand");
+        writer.WriteNumberValue(Hand);
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Direction");
+        writer.WriteNumberValue(Direction);
+        writer.WritePropertyName("CursorX");
+        if (double.IsFinite(CursorX))
+            writer.WriteNumberValue(CursorX);
+        else
+            writer.WriteStringValue(double.IsNaN(CursorX) ? "NaN" : CursorX > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("CursorY");
+        if (double.IsFinite(CursorY))
+            writer.WriteNumberValue(CursorY);
+        else
+            writer.WriteStringValue(double.IsNaN(CursorY) ? "NaN" : CursorY > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("CursorZ");
+        if (double.IsFinite(CursorZ))
+            writer.WriteNumberValue(CursorZ);
+        else
+            writer.WriteStringValue(double.IsNaN(CursorZ) ? "NaN" : CursorZ > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("InsideBlock");
+        writer.WriteBooleanValue(InsideBlock);
+        if (V759_767 is { } v759_767)
+        {
+            writer.WritePropertyName("Sequence");
+            writer.WriteNumberValue(v759_767.Sequence);
+        }
+        else if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("WorldBorderHit");
+            writer.WriteBooleanValue(v768_Last.WorldBorderHit);
+            writer.WritePropertyName("Sequence");
+            writer.WriteNumberValue(v768_Last.Sequence);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.block_place", "BlockPlace", PacketPhase.Play, PacketDirection.Serverbound, 5);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -19,5 +20,21 @@ public readonly partial record struct Vec2f(float X, float Y) : IProtocolType<Ve
         ThrowHelper.ThrowIfProtocolNotSupported<Vec2f>(protocolVersion);
         writer.WriteFloat(X);
         writer.WriteFloat(Y);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Login.Serverbound;
@@ -123,6 +124,50 @@ public sealed partial record LoginStartPacket(string Username, LoginStartPacket.
         }
 
         throw new System.NotSupportedException($"LoginStartPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Username");
+        writer.WriteStringValue(Username);
+        if (V759 is { } v759)
+        {
+            if (v759.Signature is { } signatureValue)
+            {
+                writer.WritePropertyName("Signature");
+                signatureValue.WriteJson(writer);
+            }
+        }
+        else if (V760 is { } v760)
+        {
+            if (v760.Signature is { } signatureValue)
+            {
+                writer.WritePropertyName("Signature");
+                signatureValue.WriteJson(writer);
+            }
+
+            if (v760.PlayerUuid is { } playerUuidValue)
+            {
+                writer.WritePropertyName("PlayerUuid");
+                writer.WriteStringValue(playerUuidValue);
+            }
+        }
+        else if (V761_763 is { } v761_763)
+        {
+            if (v761_763.PlayerUuid is { } playerUuidValue)
+            {
+                writer.WritePropertyName("PlayerUuid");
+                writer.WriteStringValue(playerUuidValue);
+            }
+        }
+        else if (V764_Last is { } v764_Last)
+        {
+            writer.WritePropertyName("PlayerUuid");
+            writer.WriteStringValue(v764_Last.PlayerUuid);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toServer.login_start", "LoginStart", PacketPhase.Login, PacketDirection.Serverbound, 4);

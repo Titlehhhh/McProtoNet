@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -22,6 +23,16 @@ public sealed partial record ChatPreviewPacket(int Query, string Message) : IPac
         ThrowHelper.ThrowIfProtocolNotSupported<ChatPreviewPacket>(protocolVersion);
         writer.WriteSignedInt(Query);
         writer.WriteString(Message);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Query");
+        writer.WriteNumberValue(Query);
+        writer.WritePropertyName("Message");
+        writer.WriteStringValue(Message);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chat_preview", "ChatPreview", PacketPhase.Play, PacketDirection.Serverbound, 11);

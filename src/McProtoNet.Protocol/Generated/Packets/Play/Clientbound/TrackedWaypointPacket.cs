@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record TrackedWaypointPacket(TrackedWaypointOperation Oper
         ThrowHelper.ThrowIfProtocolNotSupported<TrackedWaypointPacket>(protocolVersion);
         writer.WriteType<TrackedWaypointOperation>(Operation, protocolVersion);
         writer.WriteType<Waypoint>(Waypoint, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Operation");
+        writer.WriteStringValue(Operation.ToString());
+        writer.WritePropertyName("Waypoint");
+        Waypoint.WriteJson(writer);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.tracked_waypoint", "TrackedWaypoint", PacketPhase.Play, PacketDirection.Clientbound, 117);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 
@@ -19,6 +20,14 @@ public sealed partial record ServerInfoPacket(string Response) : IPacket<ServerI
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ServerInfoPacket>(protocolVersion);
         writer.WriteString(Response);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Response");
+        writer.WriteStringValue(Response);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("status.toClient.server_info", "ServerInfo", PacketPhase.Status, PacketDirection.Clientbound, 1);

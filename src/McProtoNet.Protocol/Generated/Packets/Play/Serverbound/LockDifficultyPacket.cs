@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record LockDifficultyPacket(bool Locked) : IPacket<LockDif
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LockDifficultyPacket>(protocolVersion);
         writer.WriteBoolean(Locked);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Locked");
+        writer.WriteBooleanValue(Locked);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.lock_difficulty", "LockDifficulty", PacketPhase.Play, PacketDirection.Serverbound, 30);

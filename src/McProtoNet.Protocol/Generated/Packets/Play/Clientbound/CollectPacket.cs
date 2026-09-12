@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,18 @@ public sealed partial record CollectPacket(int CollectedEntityId, int CollectorE
         writer.WriteVarInt(CollectedEntityId);
         writer.WriteVarInt(CollectorEntityId);
         writer.WriteVarInt(PickupItemCount);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("CollectedEntityId");
+        writer.WriteNumberValue(CollectedEntityId);
+        writer.WritePropertyName("CollectorEntityId");
+        writer.WriteNumberValue(CollectorEntityId);
+        writer.WritePropertyName("PickupItemCount");
+        writer.WriteNumberValue(PickupItemCount);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.collect", "Collect", PacketPhase.Play, PacketDirection.Clientbound, 20);

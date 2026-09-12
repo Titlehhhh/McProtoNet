@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -109,6 +110,48 @@ public sealed partial record ScoreboardScorePacket(string EntityName, string Obj
         }
 
         throw new System.NotSupportedException($"ScoreboardScorePacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityName");
+        writer.WriteStringValue(EntityName);
+        writer.WritePropertyName("ObjectiveName");
+        writer.WriteStringValue(ObjectiveName);
+        if (Value is { } valueValue)
+        {
+            writer.WritePropertyName("Value");
+            writer.WriteNumberValue(valueValue);
+        }
+
+        if (VUntil764 is { } vUntil764)
+        {
+            writer.WritePropertyName("Action");
+            writer.WriteNumberValue(vUntil764.Action);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            if (v765_Last.DisplayName is { } displayNameValue)
+            {
+                writer.WritePropertyName("DisplayName");
+                displayNameValue.WriteJson(writer);
+            }
+
+            if (v765_Last.NumberFormat is { } numberFormatValue)
+            {
+                writer.WritePropertyName("NumberFormat");
+                writer.WriteNumberValue(numberFormatValue);
+            }
+
+            if (v765_Last.Styling is { } stylingValue)
+            {
+                writer.WritePropertyName("Styling");
+                stylingValue.WriteJson(writer);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.scoreboard_score", "ScoreboardScore", PacketPhase.Play, PacketDirection.Clientbound, 86);

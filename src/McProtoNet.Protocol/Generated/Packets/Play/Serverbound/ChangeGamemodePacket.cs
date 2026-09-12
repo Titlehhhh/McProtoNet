@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record ChangeGamemodePacket(Gamemode Mode) : IPacket<Chang
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChangeGamemodePacket>(protocolVersion);
         writer.WriteVarInt((int)Mode.Value);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Mode");
+        writer.WriteStringValue(Mode.ToString());
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.change_gamemode", "ChangeGamemode", PacketPhase.Play, PacketDirection.Serverbound, 6);

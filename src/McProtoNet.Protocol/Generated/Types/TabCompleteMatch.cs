@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -64,5 +65,25 @@ public sealed partial class TabCompleteMatch : IProtocolType<TabCompleteMatch>
         }
 
         throw new System.NotSupportedException($"TabCompleteMatch has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Match");
+        writer.WriteStringValue(Match);
+        if (TooltipJson is { } tooltipJsonValue)
+        {
+            writer.WritePropertyName("TooltipJson");
+            writer.WriteStringValue(tooltipJsonValue);
+        }
+
+        if (Tooltip is { } tooltipValue)
+        {
+            writer.WritePropertyName("Tooltip");
+            tooltipValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 }

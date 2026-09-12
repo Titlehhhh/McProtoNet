@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -53,6 +54,45 @@ public sealed partial record SpawnEntityLivingPacket(int EntityId, Guid EntityUu
         writer.WriteSignedShort((short)VelocityX);
         writer.WriteSignedShort((short)VelocityY);
         writer.WriteSignedShort((short)VelocityZ);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("EntityUuid");
+        writer.WriteStringValue(EntityUuid);
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        writer.WriteNumberValue(Yaw);
+        writer.WritePropertyName("Pitch");
+        writer.WriteNumberValue(Pitch);
+        writer.WritePropertyName("HeadPitch");
+        writer.WriteNumberValue(HeadPitch);
+        writer.WritePropertyName("VelocityX");
+        writer.WriteNumberValue(VelocityX);
+        writer.WritePropertyName("VelocityY");
+        writer.WriteNumberValue(VelocityY);
+        writer.WritePropertyName("VelocityZ");
+        writer.WriteNumberValue(VelocityZ);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.spawn_entity_living", "SpawnEntityLiving", PacketPhase.Play, PacketDirection.Clientbound, 101);

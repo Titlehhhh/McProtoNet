@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,18 @@ public sealed partial record BlockBreakAnimationPacket(int EntityId, Position Lo
         writer.WriteVarInt(EntityId);
         writer.WriteType<Position>(Location, protocolVersion);
         writer.WriteSignedByte((sbyte)DestroyStage);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("DestroyStage");
+        writer.WriteNumberValue(DestroyStage);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.block_break_animation", "BlockBreakAnimation", PacketPhase.Play, PacketDirection.Clientbound, 7);

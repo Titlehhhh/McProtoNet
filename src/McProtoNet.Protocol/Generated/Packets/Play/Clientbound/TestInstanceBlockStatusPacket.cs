@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -27,6 +28,20 @@ public sealed partial record TestInstanceBlockStatusPacket(NbtTag Status, Vec3i?
         writer.WriteBoolean(Size is not null);
         if (Size is { } sizeValue)
             writer.WriteType<Vec3i>(sizeValue, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Status");
+        Status.WriteJson(writer);
+        if (Size is { } sizeValue)
+        {
+            writer.WritePropertyName("Size");
+            sizeValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.test_instance_block_status", "TestInstanceBlockStatus", PacketPhase.Play, PacketDirection.Clientbound, 114);

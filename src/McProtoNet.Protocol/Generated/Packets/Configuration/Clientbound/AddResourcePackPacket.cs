@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 using System;
 
@@ -37,6 +38,26 @@ public sealed partial record AddResourcePackPacket(Guid Uuid, string Url, string
         writer.WriteBoolean(PromptMessage is not null);
         if (PromptMessage is { } promptMessageValue)
             writer.WriteNbt(promptMessageValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Uuid");
+        writer.WriteStringValue(Uuid);
+        writer.WritePropertyName("Url");
+        writer.WriteStringValue(Url);
+        writer.WritePropertyName("Hash");
+        writer.WriteStringValue(Hash);
+        writer.WritePropertyName("Forced");
+        writer.WriteBooleanValue(Forced);
+        if (PromptMessage is { } promptMessageValue)
+        {
+            writer.WritePropertyName("PromptMessage");
+            promptMessageValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.add_resource_pack", "AddResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 0);

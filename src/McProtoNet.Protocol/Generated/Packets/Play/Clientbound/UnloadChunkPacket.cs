@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -47,6 +48,16 @@ public sealed partial record UnloadChunkPacket(int ChunkX, int ChunkZ) : IPacket
         }
 
         throw new System.NotSupportedException($"UnloadChunkPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("ChunkX");
+        writer.WriteNumberValue(ChunkX);
+        writer.WritePropertyName("ChunkZ");
+        writer.WriteNumberValue(ChunkZ);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.unload_chunk", "UnloadChunk", PacketPhase.Play, PacketDirection.Clientbound, 120);

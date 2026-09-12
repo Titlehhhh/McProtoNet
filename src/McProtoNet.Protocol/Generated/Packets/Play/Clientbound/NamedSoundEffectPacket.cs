@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -78,6 +79,38 @@ public sealed partial record NamedSoundEffectPacket(string SoundName, int SoundC
         }
 
         throw new System.NotSupportedException($"NamedSoundEffectPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("SoundName");
+        writer.WriteStringValue(SoundName);
+        writer.WritePropertyName("SoundCategory");
+        writer.WriteNumberValue(SoundCategory);
+        writer.WritePropertyName("X");
+        writer.WriteNumberValue(X);
+        writer.WritePropertyName("Y");
+        writer.WriteNumberValue(Y);
+        writer.WritePropertyName("Z");
+        writer.WriteNumberValue(Z);
+        writer.WritePropertyName("Volume");
+        if (double.IsFinite(Volume))
+            writer.WriteNumberValue(Volume);
+        else
+            writer.WriteStringValue(double.IsNaN(Volume) ? "NaN" : Volume > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        if (V759_760 is { } v759_760)
+        {
+            writer.WritePropertyName("Seed");
+            writer.WriteNumberValue(v759_760.Seed);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.named_sound_effect", "NamedSoundEffect", PacketPhase.Play, PacketDirection.Clientbound, 63);

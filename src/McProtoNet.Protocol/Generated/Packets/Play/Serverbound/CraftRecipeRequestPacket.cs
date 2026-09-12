@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -79,6 +80,32 @@ public sealed partial record CraftRecipeRequestPacket(int WindowId, bool MakeAll
         }
 
         throw new System.NotSupportedException($"CraftRecipeRequestPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("WindowId");
+        writer.WriteNumberValue(WindowId);
+        writer.WritePropertyName("MakeAll");
+        writer.WriteBooleanValue(MakeAll);
+        if (VUntil766 is { } vUntil766)
+        {
+            writer.WritePropertyName("Recipe");
+            writer.WriteStringValue(vUntil766.Recipe);
+        }
+        else if (V767 is { } v767)
+        {
+            writer.WritePropertyName("Recipe");
+            writer.WriteStringValue(v767.Recipe);
+        }
+        else if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("RecipeId");
+            writer.WriteNumberValue(v768_Last.RecipeId);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.craft_recipe_request", "CraftRecipeRequest", PacketPhase.Play, PacketDirection.Serverbound, 18);

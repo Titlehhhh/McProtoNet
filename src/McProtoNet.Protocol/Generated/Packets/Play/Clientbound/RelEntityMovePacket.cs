@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -31,6 +32,22 @@ public sealed partial record RelEntityMovePacket(int EntityId, int Dx, int Dy, i
         writer.WriteSignedShort((short)Dy);
         writer.WriteSignedShort((short)Dz);
         writer.WriteBoolean(OnGround);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Dx");
+        writer.WriteNumberValue(Dx);
+        writer.WritePropertyName("Dy");
+        writer.WriteNumberValue(Dy);
+        writer.WritePropertyName("Dz");
+        writer.WriteNumberValue(Dz);
+        writer.WritePropertyName("OnGround");
+        writer.WriteBooleanValue(OnGround);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.rel_entity_move", "RelEntityMove", PacketPhase.Play, PacketDirection.Clientbound, 78);

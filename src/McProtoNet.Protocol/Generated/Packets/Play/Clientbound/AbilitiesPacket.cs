@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,24 @@ public sealed partial record AbilitiesPacket(int Flags, float FlyingSpeed, float
         writer.WriteSignedByte((sbyte)Flags);
         writer.WriteFloat(FlyingSpeed);
         writer.WriteFloat(WalkingSpeed);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Flags");
+        writer.WriteNumberValue(Flags);
+        writer.WritePropertyName("FlyingSpeed");
+        if (double.IsFinite(FlyingSpeed))
+            writer.WriteNumberValue(FlyingSpeed);
+        else
+            writer.WriteStringValue(double.IsNaN(FlyingSpeed) ? "NaN" : FlyingSpeed > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("WalkingSpeed");
+        if (double.IsFinite(WalkingSpeed))
+            writer.WriteNumberValue(WalkingSpeed);
+        else
+            writer.WriteStringValue(double.IsNaN(WalkingSpeed) ? "NaN" : WalkingSpeed > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.abilities", "Abilities", PacketPhase.Play, PacketDirection.Clientbound, 0);

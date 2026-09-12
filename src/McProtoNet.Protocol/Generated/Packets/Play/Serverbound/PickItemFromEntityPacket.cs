@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -22,6 +23,16 @@ public sealed partial record PickItemFromEntityPacket(int EntityId, bool Include
         ThrowHelper.ThrowIfProtocolNotSupported<PickItemFromEntityPacket>(protocolVersion);
         writer.WriteVarInt(EntityId);
         writer.WriteBoolean(IncludeData);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("IncludeData");
+        writer.WriteBooleanValue(IncludeData);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.pick_item_from_entity", "PickItemFromEntity", PacketPhase.Play, PacketDirection.Serverbound, 35);

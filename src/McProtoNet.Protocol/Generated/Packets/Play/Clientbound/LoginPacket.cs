@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -625,6 +626,233 @@ public sealed partial record LoginPacket(int EntityId, string[] WorldNames, int 
         }
 
         throw new System.NotSupportedException($"LoginPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("WorldNames");
+        writer.WriteStartArray();
+        foreach (var item0 in WorldNames)
+        {
+            writer.WriteStringValue(item0);
+        }
+
+        writer.WriteEndArray();
+        writer.WritePropertyName("MaxPlayers");
+        writer.WriteNumberValue(MaxPlayers);
+        writer.WritePropertyName("ViewDistance");
+        writer.WriteNumberValue(ViewDistance);
+        writer.WritePropertyName("ReducedDebugInfo");
+        writer.WriteBooleanValue(ReducedDebugInfo);
+        writer.WritePropertyName("EnableRespawnScreen");
+        writer.WriteBooleanValue(EnableRespawnScreen);
+        if (VUntil736 is { } vUntil736)
+        {
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(vUntil736.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(vUntil736.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            vUntil736.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("Dimension");
+            writer.WriteStringValue(vUntil736.Dimension);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(vUntil736.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(vUntil736.HashedSeed);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(vUntil736.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(vUntil736.IsFlat);
+        }
+        else if (V751_754 is { } v751_754)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v751_754.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v751_754.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v751_754.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            v751_754.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("DimensionNbt");
+            v751_754.DimensionNbt.WriteJson(writer);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v751_754.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v751_754.HashedSeed);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v751_754.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v751_754.IsFlat);
+        }
+        else if (V755_756 is { } v755_756)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v755_756.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v755_756.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v755_756.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            v755_756.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("DimensionNbt");
+            v755_756.DimensionNbt.WriteJson(writer);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v755_756.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v755_756.HashedSeed);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v755_756.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v755_756.IsFlat);
+        }
+        else if (V757_758 is { } v757_758)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v757_758.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v757_758.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v757_758.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            v757_758.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("DimensionNbt");
+            v757_758.DimensionNbt.WriteJson(writer);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v757_758.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v757_758.HashedSeed);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v757_758.SimulationDistance);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v757_758.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v757_758.IsFlat);
+        }
+        else if (V759_762 is { } v759_762)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v759_762.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v759_762.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v759_762.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            v759_762.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("WorldType");
+            writer.WriteStringValue(v759_762.WorldType);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v759_762.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v759_762.HashedSeed);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v759_762.SimulationDistance);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v759_762.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v759_762.IsFlat);
+            if (v759_762.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+        }
+        else if (V763 is { } v763)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v763.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v763.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v763.PreviousGamemode);
+            writer.WritePropertyName("DimensionCodec");
+            v763.DimensionCodec.WriteJson(writer);
+            writer.WritePropertyName("WorldType");
+            writer.WriteStringValue(v763.WorldType);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v763.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v763.HashedSeed);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v763.SimulationDistance);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v763.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v763.IsFlat);
+            if (v763.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("PortalCooldown");
+            writer.WriteNumberValue(v763.PortalCooldown);
+        }
+        else if (V764_765 is { } v764_765)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v764_765.IsHardcore);
+            writer.WritePropertyName("Gamemode");
+            writer.WriteNumberValue(v764_765.Gamemode);
+            writer.WritePropertyName("PreviousGamemode");
+            writer.WriteNumberValue(v764_765.PreviousGamemode);
+            writer.WritePropertyName("WorldType");
+            writer.WriteStringValue(v764_765.WorldType);
+            writer.WritePropertyName("WorldName");
+            writer.WriteStringValue(v764_765.WorldName);
+            writer.WritePropertyName("HashedSeed");
+            writer.WriteNumberValue(v764_765.HashedSeed);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v764_765.SimulationDistance);
+            writer.WritePropertyName("IsDebug");
+            writer.WriteBooleanValue(v764_765.IsDebug);
+            writer.WritePropertyName("IsFlat");
+            writer.WriteBooleanValue(v764_765.IsFlat);
+            if (v764_765.Death is { } deathValue)
+            {
+                writer.WritePropertyName("Death");
+                deathValue.WriteJson(writer);
+            }
+
+            writer.WritePropertyName("PortalCooldown");
+            writer.WriteNumberValue(v764_765.PortalCooldown);
+            writer.WritePropertyName("DoLimitedCrafting");
+            writer.WriteBooleanValue(v764_765.DoLimitedCrafting);
+        }
+        else if (V766_775 is { } v766_775)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v766_775.IsHardcore);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v766_775.SimulationDistance);
+            writer.WritePropertyName("DoLimitedCrafting");
+            writer.WriteBooleanValue(v766_775.DoLimitedCrafting);
+            writer.WritePropertyName("WorldState");
+            v766_775.WorldState.WriteJson(writer);
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v766_775.EnforcesSecureChat);
+        }
+        else if (V776_Last is { } v776_Last)
+        {
+            writer.WritePropertyName("IsHardcore");
+            writer.WriteBooleanValue(v776_Last.IsHardcore);
+            writer.WritePropertyName("SimulationDistance");
+            writer.WriteNumberValue(v776_Last.SimulationDistance);
+            writer.WritePropertyName("DoLimitedCrafting");
+            writer.WriteBooleanValue(v776_Last.DoLimitedCrafting);
+            writer.WritePropertyName("WorldState");
+            v776_Last.WorldState.WriteJson(writer);
+            writer.WritePropertyName("OnlineMode");
+            writer.WriteBooleanValue(v776_Last.OnlineMode);
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v776_Last.EnforcesSecureChat);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.login", "Login", PacketPhase.Play, PacketDirection.Clientbound, 56);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -52,6 +53,26 @@ public sealed partial record StopSoundPacket(int Flags, int? Source, string? Sou
         {
             throw new System.InvalidOperationException("Sound is set, but 'flags' does not select it at this protocol version.");
         }
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Flags");
+        writer.WriteNumberValue(Flags);
+        if (Source is { } sourceValue)
+        {
+            writer.WritePropertyName("Source");
+            writer.WriteNumberValue(sourceValue);
+        }
+
+        if (Sound is { } soundValue)
+        {
+            writer.WritePropertyName("Sound");
+            writer.WriteStringValue(soundValue);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.stop_sound", "StopSound", PacketPhase.Play, PacketDirection.Clientbound, 107);

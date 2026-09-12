@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -28,6 +29,20 @@ public sealed partial record WorldEventPacket(int EffectId, Position Location, i
         writer.WriteType<Position>(Location, protocolVersion);
         writer.WriteSignedInt(Data);
         writer.WriteBoolean(Global);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EffectId");
+        writer.WriteNumberValue(EffectId);
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Data");
+        writer.WriteNumberValue(Data);
+        writer.WritePropertyName("Global");
+        writer.WriteBooleanValue(Global);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.world_event", "WorldEvent", PacketPhase.Play, PacketDirection.Clientbound, 134);

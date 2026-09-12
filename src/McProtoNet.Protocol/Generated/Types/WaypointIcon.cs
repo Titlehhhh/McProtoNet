@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,19 @@ public sealed partial class WaypointIcon : IProtocolType<WaypointIcon>
         writer.WriteBoolean(Color is not null);
         if (Color is { } colorValue)
             writer.WriteType<WaypointColor>(colorValue, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Style");
+        writer.WriteStringValue(Style);
+        if (Color is { } colorValue)
+        {
+            writer.WritePropertyName("Color");
+            colorValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 }

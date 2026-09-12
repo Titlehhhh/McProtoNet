@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -52,6 +53,18 @@ public sealed partial record CraftProgressBarPacket(int WindowId, int Property, 
         }
 
         throw new System.NotSupportedException($"CraftProgressBarPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("WindowId");
+        writer.WriteNumberValue(WindowId);
+        writer.WritePropertyName("Property");
+        writer.WriteNumberValue(Property);
+        writer.WritePropertyName("Value");
+        writer.WriteNumberValue(Value);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.craft_progress_bar", "CraftProgressBar", PacketPhase.Play, PacketDirection.Clientbound, 23);

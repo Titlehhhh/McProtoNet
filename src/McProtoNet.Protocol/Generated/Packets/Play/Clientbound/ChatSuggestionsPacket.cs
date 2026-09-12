@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -27,6 +28,22 @@ public sealed partial record ChatSuggestionsPacket(int Action, string[] Entries)
         writer.WriteVarInt(Entries.Length);
         foreach (var entriesItem in Entries)
             writer.WriteString(entriesItem);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Action");
+        writer.WriteNumberValue(Action);
+        writer.WritePropertyName("Entries");
+        writer.WriteStartArray();
+        foreach (var item0 in Entries)
+        {
+            writer.WriteStringValue(item0);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.chat_suggestions", "ChatSuggestions", PacketPhase.Play, PacketDirection.Clientbound, 13);

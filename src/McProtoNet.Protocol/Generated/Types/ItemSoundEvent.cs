@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,22 @@ public sealed partial class ItemSoundEvent : IProtocolType<ItemSoundEvent>
         writer.WriteBoolean(FixedRange is not null);
         if (FixedRange is { } fixedRangeValue)
             writer.WriteFloat(fixedRangeValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("SoundName");
+        writer.WriteStringValue(SoundName);
+        if (FixedRange is { } fixedRangeValue)
+        {
+            writer.WritePropertyName("FixedRange");
+            if (double.IsFinite(fixedRangeValue))
+                writer.WriteNumberValue(fixedRangeValue);
+            else
+                writer.WriteStringValue(double.IsNaN(fixedRangeValue) ? "NaN" : fixedRangeValue > 0 ? "Infinity" : "-Infinity");
+        }
+
+        writer.WriteEndObject();
     }
 }

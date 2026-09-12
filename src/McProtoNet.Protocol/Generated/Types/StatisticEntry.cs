@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -21,5 +22,17 @@ public readonly partial record struct StatisticEntry(int CategoryId, int Statist
         writer.WriteVarInt(CategoryId);
         writer.WriteVarInt(StatisticId);
         writer.WriteVarInt(Value);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("CategoryId");
+        writer.WriteNumberValue(CategoryId);
+        writer.WritePropertyName("StatisticId");
+        writer.WriteNumberValue(StatisticId);
+        writer.WritePropertyName("Value");
+        writer.WriteNumberValue(Value);
+        writer.WriteEndObject();
     }
 }

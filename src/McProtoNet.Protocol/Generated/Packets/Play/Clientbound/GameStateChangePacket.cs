@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,19 @@ public sealed partial record GameStateChangePacket(int Reason, float GameMode) :
         ThrowHelper.ThrowIfProtocolNotSupported<GameStateChangePacket>(protocolVersion);
         writer.WriteUnsignedByte((byte)Reason);
         writer.WriteFloat(GameMode);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Reason");
+        writer.WriteNumberValue(Reason);
+        writer.WritePropertyName("GameMode");
+        if (double.IsFinite(GameMode))
+            writer.WriteNumberValue(GameMode);
+        else
+            writer.WriteStringValue(double.IsNaN(GameMode) ? "NaN" : GameMode > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.game_state_change", "GameStateChange", PacketPhase.Play, PacketDirection.Clientbound, 48);

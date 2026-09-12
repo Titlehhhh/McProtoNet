@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,19 @@ public sealed partial record HurtAnimationPacket(int EntityId, float Yaw) : IPac
         ThrowHelper.ThrowIfProtocolNotSupported<HurtAnimationPacket>(protocolVersion);
         writer.WriteVarInt(EntityId);
         writer.WriteFloat(Yaw);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.hurt_animation", "HurtAnimation", PacketPhase.Play, PacketDirection.Clientbound, 52);

@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -103,5 +104,53 @@ public partial record TitleAction
         }
 
         throw new System.NotSupportedException($"TitleAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case SetTitle arm:
+            {
+                writer.WriteString("$case", "SetTitle");
+                writer.WritePropertyName("TextJson");
+                writer.WriteStringValue(arm.TextJson);
+                break;
+            }
+
+            case SetSubtitle arm:
+            {
+                writer.WriteString("$case", "SetSubtitle");
+                writer.WritePropertyName("TextJson");
+                writer.WriteStringValue(arm.TextJson);
+                break;
+            }
+
+            case SetActionBar arm:
+            {
+                writer.WriteString("$case", "SetActionBar");
+                writer.WritePropertyName("TextJson");
+                writer.WriteStringValue(arm.TextJson);
+                break;
+            }
+
+            case SetTimes arm:
+            {
+                writer.WriteString("$case", "SetTimes");
+                writer.WritePropertyName("FadeIn");
+                writer.WriteNumberValue(arm.FadeIn);
+                writer.WritePropertyName("Stay");
+                writer.WriteNumberValue(arm.Stay);
+                writer.WritePropertyName("FadeOut");
+                writer.WriteNumberValue(arm.FadeOut);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"TitleAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

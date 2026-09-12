@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -60,6 +61,27 @@ public sealed partial record OpenWindowPacket(int WindowId, int InventoryType, O
         }
 
         throw new System.NotSupportedException($"OpenWindowPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("WindowId");
+        writer.WriteNumberValue(WindowId);
+        writer.WritePropertyName("InventoryType");
+        writer.WriteNumberValue(InventoryType);
+        if (VUntil764 is { } vUntil764)
+        {
+            writer.WritePropertyName("WindowTitleJson");
+            writer.WriteStringValue(vUntil764.WindowTitleJson);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("WindowTitle");
+            v765_Last.WindowTitle.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.open_window", "OpenWindow", PacketPhase.Play, PacketDirection.Clientbound, 68);

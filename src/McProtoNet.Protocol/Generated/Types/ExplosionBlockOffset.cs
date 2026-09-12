@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -21,5 +22,17 @@ public readonly partial record struct ExplosionBlockOffset(int X, int Y, int Z) 
         writer.WriteSignedByte((sbyte)X);
         writer.WriteSignedByte((sbyte)Y);
         writer.WriteSignedByte((sbyte)Z);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        writer.WriteNumberValue(X);
+        writer.WritePropertyName("Y");
+        writer.WriteNumberValue(Y);
+        writer.WritePropertyName("Z");
+        writer.WriteNumberValue(Z);
+        writer.WriteEndObject();
     }
 }

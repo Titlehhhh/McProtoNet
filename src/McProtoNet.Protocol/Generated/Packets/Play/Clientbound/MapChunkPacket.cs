@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -540,6 +541,360 @@ public sealed partial record MapChunkPacket(int X, int Z, byte[] ChunkData, MapC
         }
 
         throw new System.NotSupportedException($"MapChunkPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        writer.WriteNumberValue(X);
+        writer.WritePropertyName("Z");
+        writer.WriteNumberValue(Z);
+        writer.WritePropertyName("ChunkData");
+        writer.WriteBase64StringValue(ChunkData);
+        if (VUntil736 is { } vUntil736)
+        {
+            writer.WritePropertyName("GroundUp");
+            writer.WriteNumberValue(vUntil736.GroundUp);
+            writer.WritePropertyName("IgnoreOldData");
+            writer.WriteBooleanValue(vUntil736.IgnoreOldData);
+            writer.WritePropertyName("BitMapLegacy");
+            writer.WriteNumberValue(vUntil736.BitMapLegacy);
+            writer.WritePropertyName("HeightmapsLegacy");
+            vUntil736.HeightmapsLegacy.WriteJson(writer);
+            if (vUntil736.Biomes is { } biomesValue)
+            {
+                writer.WritePropertyName("Biomes");
+                writer.WriteStartArray();
+                foreach (var item0 in biomesValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("BlockEntitiesLegacy");
+            writer.WriteStartArray();
+            foreach (var item0 in vUntil736.BlockEntitiesLegacy)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V751_754 is { } v751_754)
+        {
+            writer.WritePropertyName("GroundUp");
+            writer.WriteNumberValue(v751_754.GroundUp);
+            writer.WritePropertyName("BitMapLegacy");
+            writer.WriteNumberValue(v751_754.BitMapLegacy);
+            writer.WritePropertyName("HeightmapsLegacy");
+            v751_754.HeightmapsLegacy.WriteJson(writer);
+            if (v751_754.Biomes is { } biomesValue)
+            {
+                writer.WritePropertyName("Biomes");
+                writer.WriteStartArray();
+                foreach (var item0 in biomesValue)
+                {
+                    writer.WriteNumberValue(item0);
+                }
+
+                writer.WriteEndArray();
+            }
+
+            writer.WritePropertyName("BlockEntitiesLegacy");
+            writer.WriteStartArray();
+            foreach (var item0 in v751_754.BlockEntitiesLegacy)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V755_756 is { } v755_756)
+        {
+            writer.WritePropertyName("BitMap");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_756.BitMap)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("HeightmapsLegacy");
+            v755_756.HeightmapsLegacy.WriteJson(writer);
+            writer.WritePropertyName("Biomes");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_756.Biomes)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockEntitiesLegacy");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_756.BlockEntitiesLegacy)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V757_762 is { } v757_762)
+        {
+            writer.WritePropertyName("HeightmapsLegacy");
+            v757_762.HeightmapsLegacy.WriteJson(writer);
+            writer.WritePropertyName("BlockEntities");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.BlockEntities)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("TrustEdges");
+            writer.WriteBooleanValue(v757_762.TrustEdges);
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v757_762.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V763 is { } v763)
+        {
+            writer.WritePropertyName("HeightmapsLegacy");
+            v763.HeightmapsLegacy.WriteJson(writer);
+            writer.WritePropertyName("BlockEntities");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.BlockEntities)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v763.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V764_769 is { } v764_769)
+        {
+            writer.WritePropertyName("HeightmapsLegacy");
+            v764_769.HeightmapsLegacy.WriteJson(writer);
+            writer.WritePropertyName("BlockEntities");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.BlockEntities)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v764_769.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V770_Last is { } v770_Last)
+        {
+            writer.WritePropertyName("Heightmaps");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.Heightmaps)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockEntities");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.BlockEntities)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.SkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.BlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptySkyLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.EmptySkyLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EmptyBlockLightMask");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.EmptyBlockLightMask)
+            {
+                writer.WriteNumberValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("SkyLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.SkyLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("BlockLight");
+            writer.WriteStartArray();
+            foreach (var item0 in v770_Last.BlockLight)
+            {
+                writer.WriteBase64StringValue(item0);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.map_chunk", "MapChunk", PacketPhase.Play, PacketDirection.Clientbound, 59);

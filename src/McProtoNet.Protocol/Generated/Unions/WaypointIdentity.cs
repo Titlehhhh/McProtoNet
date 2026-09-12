@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol;
@@ -66,5 +67,33 @@ public partial record WaypointIdentity
         }
 
         throw new System.NotSupportedException($"WaypointIdentity case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case Uuid arm:
+            {
+                writer.WriteString("$case", "Uuid");
+                writer.WritePropertyName("Value");
+                writer.WriteStringValue(arm.Value);
+                break;
+            }
+
+            case Id arm:
+            {
+                writer.WriteString("$case", "Id");
+                writer.WritePropertyName("Value");
+                writer.WriteStringValue(arm.Value);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"WaypointIdentity case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

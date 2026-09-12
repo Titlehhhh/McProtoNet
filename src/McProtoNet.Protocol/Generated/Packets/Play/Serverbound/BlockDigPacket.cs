@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -58,6 +59,24 @@ public sealed partial record BlockDigPacket(int Status, Position Location, int F
         }
 
         throw new System.NotSupportedException($"BlockDigPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Status");
+        writer.WriteNumberValue(Status);
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Face");
+        writer.WriteNumberValue(Face);
+        if (V759_Last is { } v759_Last)
+        {
+            writer.WritePropertyName("Sequence");
+            writer.WriteNumberValue(v759_Last.Sequence);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.block_dig", "BlockDig", PacketPhase.Play, PacketDirection.Serverbound, 4);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -55,5 +56,17 @@ public sealed partial class FacePlayerEntityTarget : IProtocolType<FacePlayerEnt
         }
 
         throw new System.NotSupportedException($"FacePlayerEntityTarget has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("FeetEyesName");
+        writer.WriteStringValue(FeetEyesName);
+        writer.WritePropertyName("FeetEyes");
+        writer.WriteNumberValue(FeetEyes);
+        writer.WriteEndObject();
     }
 }

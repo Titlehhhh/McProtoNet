@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -21,5 +22,26 @@ public readonly partial record struct Rotations(float Pitch, float Yaw, float Ro
         writer.WriteFloat(Pitch);
         writer.WriteFloat(Yaw);
         writer.WriteFloat(Roll);
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Roll");
+        if (double.IsFinite(Roll))
+            writer.WriteNumberValue(Roll);
+        else
+            writer.WriteStringValue(double.IsNaN(Roll) ? "NaN" : Roll > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 }

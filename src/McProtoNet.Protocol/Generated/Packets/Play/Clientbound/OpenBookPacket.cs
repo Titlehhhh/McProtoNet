@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,6 +20,14 @@ public sealed partial record OpenBookPacket(int Hand) : IPacket<OpenBookPacket>,
     {
         ThrowHelper.ThrowIfProtocolNotSupported<OpenBookPacket>(protocolVersion);
         writer.WriteVarInt(Hand);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Hand");
+        writer.WriteNumberValue(Hand);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.open_book", "OpenBook", PacketPhase.Play, PacketDirection.Clientbound, 65);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -47,6 +48,16 @@ public sealed partial record DifficultyPacket(Difficulty Difficulty, bool Diffic
         }
 
         throw new System.NotSupportedException($"DifficultyPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Difficulty");
+        writer.WriteStringValue(Difficulty.ToString());
+        writer.WritePropertyName("DifficultyLocked");
+        writer.WriteBooleanValue(DifficultyLocked);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.difficulty", "Difficulty", PacketPhase.Play, PacketDirection.Clientbound, 30);

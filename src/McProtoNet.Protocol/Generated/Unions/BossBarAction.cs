@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -286,5 +287,106 @@ public partial record BossBarAction
         }
 
         throw new System.NotSupportedException($"BossBarAction has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case AddVUntil764 arm:
+            {
+                writer.WriteString("$case", "Add");
+                writer.WritePropertyName("Title");
+                writer.WriteStringValue(arm.Title);
+                writer.WritePropertyName("Health");
+                if (double.IsFinite(arm.Health))
+                    writer.WriteNumberValue(arm.Health);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Health) ? "NaN" : arm.Health > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Color");
+                writer.WriteNumberValue(arm.Color);
+                writer.WritePropertyName("Dividers");
+                writer.WriteNumberValue(arm.Dividers);
+                writer.WritePropertyName("Flags");
+                writer.WriteNumberValue(arm.Flags);
+                break;
+            }
+
+            case Remove _:
+            {
+                writer.WriteString("$case", "Remove");
+                break;
+            }
+
+            case UpdateHealth arm:
+            {
+                writer.WriteString("$case", "UpdateHealth");
+                writer.WritePropertyName("Health");
+                if (double.IsFinite(arm.Health))
+                    writer.WriteNumberValue(arm.Health);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Health) ? "NaN" : arm.Health > 0 ? "Infinity" : "-Infinity");
+                break;
+            }
+
+            case UpdateTitleVUntil764 arm:
+            {
+                writer.WriteString("$case", "UpdateTitle");
+                writer.WritePropertyName("Title");
+                writer.WriteStringValue(arm.Title);
+                break;
+            }
+
+            case UpdateStyle arm:
+            {
+                writer.WriteString("$case", "UpdateStyle");
+                writer.WritePropertyName("Color");
+                writer.WriteNumberValue(arm.Color);
+                writer.WritePropertyName("Dividers");
+                writer.WriteNumberValue(arm.Dividers);
+                break;
+            }
+
+            case UpdateFlags arm:
+            {
+                writer.WriteString("$case", "UpdateFlags");
+                writer.WritePropertyName("Flags");
+                writer.WriteNumberValue(arm.Flags);
+                break;
+            }
+
+            case AddV765_Last arm:
+            {
+                writer.WriteString("$case", "Add");
+                writer.WritePropertyName("Title");
+                arm.Title.WriteJson(writer);
+                writer.WritePropertyName("Health");
+                if (double.IsFinite(arm.Health))
+                    writer.WriteNumberValue(arm.Health);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Health) ? "NaN" : arm.Health > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Color");
+                writer.WriteNumberValue(arm.Color);
+                writer.WritePropertyName("Dividers");
+                writer.WriteNumberValue(arm.Dividers);
+                writer.WritePropertyName("Flags");
+                writer.WriteNumberValue(arm.Flags);
+                break;
+            }
+
+            case UpdateTitleV765_Last arm:
+            {
+                writer.WriteString("$case", "UpdateTitle");
+                writer.WritePropertyName("Title");
+                arm.Title.WriteJson(writer);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"BossBarAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

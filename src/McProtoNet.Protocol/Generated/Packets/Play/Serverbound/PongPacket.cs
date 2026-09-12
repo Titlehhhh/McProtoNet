@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record PongPacket(int Id) : IPacket<PongPacket>, IPacket
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PongPacket>(protocolVersion);
         writer.WriteSignedInt(Id);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Id");
+        writer.WriteNumberValue(Id);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.pong", "Pong", PacketPhase.Play, PacketDirection.Serverbound, 39);

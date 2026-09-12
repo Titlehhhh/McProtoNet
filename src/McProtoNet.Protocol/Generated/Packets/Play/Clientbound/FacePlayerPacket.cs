@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -35,6 +36,35 @@ public sealed partial record FacePlayerPacket(int FeetEyes, double X, double Y, 
         writer.WriteBoolean(Entity is not null);
         if (Entity is { } entityValue)
             writer.WriteType<FacePlayerEntityTarget>(entityValue, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("FeetEyes");
+        writer.WriteNumberValue(FeetEyes);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        if (Entity is { } entityValue)
+        {
+            writer.WritePropertyName("Entity");
+            entityValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.face_player", "FacePlayer", PacketPhase.Play, PacketDirection.Clientbound, 45);

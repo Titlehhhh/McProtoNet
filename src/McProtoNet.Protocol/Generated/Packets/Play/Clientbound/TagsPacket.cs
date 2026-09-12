@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -86,6 +87,59 @@ public sealed partial record TagsPacket(TagsPacket.VUntil754Layer? VUntil754 = n
         }
 
         throw new System.NotSupportedException($"TagsPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (VUntil754 is { } vUntil754)
+        {
+            writer.WritePropertyName("BlockTags");
+            writer.WriteStartArray();
+            foreach (var item0 in vUntil754.BlockTags)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("ItemTags");
+            writer.WriteStartArray();
+            foreach (var item0 in vUntil754.ItemTags)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("FluidTags");
+            writer.WriteStartArray();
+            foreach (var item0 in vUntil754.FluidTags)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+            writer.WritePropertyName("EntityTags");
+            writer.WriteStartArray();
+            foreach (var item0 in vUntil754.EntityTags)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+        else if (V755_Last is { } v755_Last)
+        {
+            writer.WritePropertyName("Tags");
+            writer.WriteStartArray();
+            foreach (var item0 in v755_Last.Tags)
+            {
+                item0.WriteJson(writer);
+            }
+
+            writer.WriteEndArray();
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.tags", "Tags", PacketPhase.Play, PacketDirection.Clientbound, 112);

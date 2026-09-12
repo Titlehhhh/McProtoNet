@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -21,6 +22,14 @@ public sealed partial record CraftingBookDataPacket(CraftingBookDataAction Data)
         ThrowHelper.ThrowIfProtocolNotSupported<CraftingBookDataPacket>(protocolVersion);
         writer.WriteVarInt(Data.Discriminator(protocolVersion));
         Data.Write(writer, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Data");
+        Data.WriteJson(writer);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.crafting_book_data", "CraftingBookData", PacketPhase.Play, PacketDirection.Serverbound, 19);

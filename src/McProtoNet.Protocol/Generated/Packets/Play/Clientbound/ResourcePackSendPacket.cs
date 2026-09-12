@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -61,6 +62,27 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, Res
         }
 
         throw new System.NotSupportedException($"ResourcePackSendPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Url");
+        writer.WriteStringValue(Url);
+        writer.WritePropertyName("Hash");
+        writer.WriteStringValue(Hash);
+        if (V755_764 is { } v755_764)
+        {
+            writer.WritePropertyName("Forced");
+            writer.WriteBooleanValue(v755_764.Forced);
+            if (v755_764.PromptMessage is { } promptMessageValue)
+            {
+                writer.WritePropertyName("PromptMessage");
+                writer.WriteStringValue(promptMessageValue);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Play, PacketDirection.Clientbound, 82);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -28,6 +29,20 @@ public sealed partial record BlockActionPacket(Position Location, int Byte1, int
         writer.WriteUnsignedByte((byte)Byte1);
         writer.WriteUnsignedByte((byte)Byte2);
         writer.WriteVarInt(BlockId);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Byte1");
+        writer.WriteNumberValue(Byte1);
+        writer.WritePropertyName("Byte2");
+        writer.WriteNumberValue(Byte2);
+        writer.WritePropertyName("BlockId");
+        writer.WriteNumberValue(BlockId);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.block_action", "BlockAction", PacketPhase.Play, PacketDirection.Clientbound, 6);

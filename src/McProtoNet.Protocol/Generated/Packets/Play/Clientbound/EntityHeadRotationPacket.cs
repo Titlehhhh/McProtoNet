@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record EntityHeadRotationPacket(int EntityId, int HeadYaw)
         ThrowHelper.ThrowIfProtocolNotSupported<EntityHeadRotationPacket>(protocolVersion);
         writer.WriteVarInt(EntityId);
         writer.WriteSignedByte((sbyte)HeadYaw);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("HeadYaw");
+        writer.WriteNumberValue(HeadYaw);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.entity_head_rotation", "EntityHeadRotation", PacketPhase.Play, PacketDirection.Clientbound, 35);

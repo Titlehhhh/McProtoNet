@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -16,6 +17,12 @@ public sealed partial record TickEndPacket() : IPacket<TickEndPacket>, IPacket
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<TickEndPacket>(protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.tick_end", "TickEnd", PacketPhase.Play, PacketDirection.Serverbound, 59);

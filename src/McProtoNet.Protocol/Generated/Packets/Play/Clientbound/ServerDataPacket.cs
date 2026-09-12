@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -198,6 +199,102 @@ public sealed partial record ServerDataPacket(ServerDataPacket.V759Layer? V759 =
         }
 
         throw new System.NotSupportedException($"ServerDataPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V759 is { } v759)
+        {
+            if (v759.MotdJson is { } motdJsonValue)
+            {
+                writer.WritePropertyName("MotdJson");
+                writer.WriteStringValue(motdJsonValue);
+            }
+
+            if (v759.Icon is { } iconValue)
+            {
+                writer.WritePropertyName("Icon");
+                writer.WriteStringValue(iconValue);
+            }
+
+            writer.WritePropertyName("PreviewsChat");
+            writer.WriteBooleanValue(v759.PreviewsChat);
+        }
+        else if (V760 is { } v760)
+        {
+            if (v760.MotdJson is { } motdJsonValue)
+            {
+                writer.WritePropertyName("MotdJson");
+                writer.WriteStringValue(motdJsonValue);
+            }
+
+            if (v760.Icon is { } iconValue)
+            {
+                writer.WritePropertyName("Icon");
+                writer.WriteStringValue(iconValue);
+            }
+
+            writer.WritePropertyName("PreviewsChat");
+            writer.WriteBooleanValue(v760.PreviewsChat);
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v760.EnforcesSecureChat);
+        }
+        else if (V761 is { } v761)
+        {
+            if (v761.MotdJson is { } motdJsonValue)
+            {
+                writer.WritePropertyName("MotdJson");
+                writer.WriteStringValue(motdJsonValue);
+            }
+
+            if (v761.Icon is { } iconValue)
+            {
+                writer.WritePropertyName("Icon");
+                writer.WriteStringValue(iconValue);
+            }
+
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v761.EnforcesSecureChat);
+        }
+        else if (V762_764 is { } v762_764)
+        {
+            writer.WritePropertyName("MotdJson");
+            writer.WriteStringValue(v762_764.MotdJson);
+            if (v762_764.IconBytes is { } iconBytesValue)
+            {
+                writer.WritePropertyName("IconBytes");
+                writer.WriteBase64StringValue(iconBytesValue);
+            }
+
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v762_764.EnforcesSecureChat);
+        }
+        else if (V765 is { } v765)
+        {
+            writer.WritePropertyName("Motd");
+            v765.Motd.WriteJson(writer);
+            if (v765.IconBytes is { } iconBytesValue)
+            {
+                writer.WritePropertyName("IconBytes");
+                writer.WriteBase64StringValue(iconBytesValue);
+            }
+
+            writer.WritePropertyName("EnforcesSecureChat");
+            writer.WriteBooleanValue(v765.EnforcesSecureChat);
+        }
+        else if (V766_Last is { } v766_Last)
+        {
+            writer.WritePropertyName("Motd");
+            v766_Last.Motd.WriteJson(writer);
+            if (v766_Last.IconBytes is { } iconBytesValue)
+            {
+                writer.WritePropertyName("IconBytes");
+                writer.WriteBase64StringValue(iconBytesValue);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.server_data", "ServerData", PacketPhase.Play, PacketDirection.Clientbound, 88);

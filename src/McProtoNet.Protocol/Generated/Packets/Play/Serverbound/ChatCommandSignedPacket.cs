@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -83,6 +84,36 @@ public sealed partial record ChatCommandSignedPacket(string Command, long Timest
         }
 
         throw new System.NotSupportedException($"ChatCommandSignedPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Command");
+        writer.WriteStringValue(Command);
+        writer.WritePropertyName("Timestamp");
+        writer.WriteNumberValue(Timestamp);
+        writer.WritePropertyName("Salt");
+        writer.WriteNumberValue(Salt);
+        writer.WritePropertyName("ArgumentSignatures");
+        writer.WriteStartArray();
+        foreach (var item0 in ArgumentSignatures)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WritePropertyName("MessageCount");
+        writer.WriteNumberValue(MessageCount);
+        writer.WritePropertyName("Acknowledged");
+        writer.WriteBase64StringValue(Acknowledged);
+        if (V770_Last is { } v770_Last)
+        {
+            writer.WritePropertyName("Checksum");
+            writer.WriteNumberValue(v770_Last.Checksum);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chat_command_signed", "ChatCommandSigned", PacketPhase.Play, PacketDirection.Serverbound, 9);

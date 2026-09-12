@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -32,5 +33,17 @@ public sealed partial class KnownPack : IProtocolType<KnownPack>
         writer.WriteString(Namespace);
         writer.WriteString(Id);
         writer.WriteString(Version);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Namespace");
+        writer.WriteStringValue(Namespace);
+        writer.WritePropertyName("Id");
+        writer.WriteStringValue(Id);
+        writer.WritePropertyName("Version");
+        writer.WriteStringValue(Version);
+        writer.WriteEndObject();
     }
 }

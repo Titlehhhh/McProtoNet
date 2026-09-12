@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -62,6 +63,29 @@ public sealed partial record EntityVelocityPacket(int EntityId, EntityVelocityPa
         }
 
         throw new System.NotSupportedException($"EntityVelocityPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        if (VUntil772 is { } vUntil772)
+        {
+            writer.WritePropertyName("VelocityX");
+            writer.WriteNumberValue(vUntil772.VelocityX);
+            writer.WritePropertyName("VelocityY");
+            writer.WriteNumberValue(vUntil772.VelocityY);
+            writer.WritePropertyName("VelocityZ");
+            writer.WriteNumberValue(vUntil772.VelocityZ);
+        }
+        else if (V773_Last is { } v773_Last)
+        {
+            writer.WritePropertyName("Velocity");
+            v773_Last.Velocity.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.entity_velocity", "EntityVelocity", PacketPhase.Play, PacketDirection.Clientbound, 42);

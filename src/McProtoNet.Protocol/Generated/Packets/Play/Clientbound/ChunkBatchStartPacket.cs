@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -16,6 +17,12 @@ public sealed partial record ChunkBatchStartPacket() : IPacket<ChunkBatchStartPa
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChunkBatchStartPacket>(protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.chunk_batch_start", "ChunkBatchStart", PacketPhase.Play, PacketDirection.Clientbound, 15);

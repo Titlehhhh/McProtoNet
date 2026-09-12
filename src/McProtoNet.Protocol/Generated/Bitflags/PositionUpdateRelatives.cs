@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -70,5 +71,29 @@ public readonly partial record struct PositionUpdateRelatives(bool X, bool Y, bo
         }
 
         throw new System.NotSupportedException($"PositionUpdateRelatives has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public readonly void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("X");
+        writer.WriteBooleanValue(X);
+        writer.WritePropertyName("Y");
+        writer.WriteBooleanValue(Y);
+        writer.WritePropertyName("Z");
+        writer.WriteBooleanValue(Z);
+        writer.WritePropertyName("Yaw");
+        writer.WriteBooleanValue(Yaw);
+        writer.WritePropertyName("Pitch");
+        writer.WriteBooleanValue(Pitch);
+        writer.WritePropertyName("Dx");
+        writer.WriteBooleanValue(Dx);
+        writer.WritePropertyName("Dy");
+        writer.WriteBooleanValue(Dy);
+        writer.WritePropertyName("Dz");
+        writer.WriteBooleanValue(Dz);
+        writer.WritePropertyName("YawDelta");
+        writer.WriteBooleanValue(YawDelta);
+        writer.WriteEndObject();
     }
 }

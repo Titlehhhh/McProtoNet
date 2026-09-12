@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -159,5 +160,112 @@ public partial record WorldBorderAction
         }
 
         throw new System.NotSupportedException($"WorldBorderAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case SetSize arm:
+            {
+                writer.WriteString("$case", "SetSize");
+                writer.WritePropertyName("Diameter");
+                if (double.IsFinite(arm.Diameter))
+                    writer.WriteNumberValue(arm.Diameter);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Diameter) ? "NaN" : arm.Diameter > 0 ? "Infinity" : "-Infinity");
+                break;
+            }
+
+            case LerpSize arm:
+            {
+                writer.WriteString("$case", "LerpSize");
+                writer.WritePropertyName("OldDiameter");
+                if (double.IsFinite(arm.OldDiameter))
+                    writer.WriteNumberValue(arm.OldDiameter);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.OldDiameter) ? "NaN" : arm.OldDiameter > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("NewDiameter");
+                if (double.IsFinite(arm.NewDiameter))
+                    writer.WriteNumberValue(arm.NewDiameter);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.NewDiameter) ? "NaN" : arm.NewDiameter > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Speed");
+                writer.WriteNumberValue(arm.Speed);
+                break;
+            }
+
+            case SetCenter arm:
+            {
+                writer.WriteString("$case", "SetCenter");
+                writer.WritePropertyName("X");
+                if (double.IsFinite(arm.X))
+                    writer.WriteNumberValue(arm.X);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.X) ? "NaN" : arm.X > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Z");
+                if (double.IsFinite(arm.Z))
+                    writer.WriteNumberValue(arm.Z);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Z) ? "NaN" : arm.Z > 0 ? "Infinity" : "-Infinity");
+                break;
+            }
+
+            case Initialize arm:
+            {
+                writer.WriteString("$case", "Initialize");
+                writer.WritePropertyName("X");
+                if (double.IsFinite(arm.X))
+                    writer.WriteNumberValue(arm.X);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.X) ? "NaN" : arm.X > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Z");
+                if (double.IsFinite(arm.Z))
+                    writer.WriteNumberValue(arm.Z);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.Z) ? "NaN" : arm.Z > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("OldDiameter");
+                if (double.IsFinite(arm.OldDiameter))
+                    writer.WriteNumberValue(arm.OldDiameter);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.OldDiameter) ? "NaN" : arm.OldDiameter > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("NewDiameter");
+                if (double.IsFinite(arm.NewDiameter))
+                    writer.WriteNumberValue(arm.NewDiameter);
+                else
+                    writer.WriteStringValue(double.IsNaN(arm.NewDiameter) ? "NaN" : arm.NewDiameter > 0 ? "Infinity" : "-Infinity");
+                writer.WritePropertyName("Speed");
+                writer.WriteNumberValue(arm.Speed);
+                writer.WritePropertyName("PortalTeleportBoundary");
+                writer.WriteNumberValue(arm.PortalTeleportBoundary);
+                writer.WritePropertyName("WarningTime");
+                writer.WriteNumberValue(arm.WarningTime);
+                writer.WritePropertyName("WarningBlocks");
+                writer.WriteNumberValue(arm.WarningBlocks);
+                break;
+            }
+
+            case SetWarningTime arm:
+            {
+                writer.WriteString("$case", "SetWarningTime");
+                writer.WritePropertyName("WarningTime");
+                writer.WriteNumberValue(arm.WarningTime);
+                break;
+            }
+
+            case SetWarningBlocks arm:
+            {
+                writer.WriteString("$case", "SetWarningBlocks");
+                writer.WritePropertyName("WarningBlocks");
+                writer.WriteNumberValue(arm.WarningBlocks);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"WorldBorderAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

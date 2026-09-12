@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -25,6 +26,16 @@ public sealed partial record BossBarPacket(Guid EntityUuid, BossBarAction Action
         writer.WriteUUID(EntityUuid);
         writer.WriteVarInt(Action.Discriminator(protocolVersion));
         Action.Write(writer, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityUuid");
+        writer.WriteStringValue(EntityUuid);
+        writer.WritePropertyName("Action");
+        Action.WriteJson(writer);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.boss_bar", "BossBar", PacketPhase.Play, PacketDirection.Clientbound, 9);

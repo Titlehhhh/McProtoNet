@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -36,5 +37,21 @@ public sealed partial class ProfileProperty : IProtocolType<ProfileProperty>
         writer.WriteBoolean(Signature is not null);
         if (Signature is { } signatureValue)
             writer.WriteString(signatureValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Name");
+        writer.WriteStringValue(Name);
+        writer.WritePropertyName("Value");
+        writer.WriteStringValue(Value);
+        if (Signature is { } signatureValue)
+        {
+            writer.WritePropertyName("Signature");
+            writer.WriteStringValue(signatureValue);
+        }
+
+        writer.WriteEndObject();
     }
 }

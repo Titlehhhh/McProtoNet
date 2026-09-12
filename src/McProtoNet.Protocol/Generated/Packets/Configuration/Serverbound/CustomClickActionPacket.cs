@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
@@ -27,6 +28,20 @@ public sealed partial record CustomClickActionPacket(string Id, NbtTag? Nbt) : I
         writer.WriteBoolean(Nbt is not null);
         if (Nbt is { } nbtValue)
             writer.WriteNbt(nbtValue);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Id");
+        writer.WriteStringValue(Id);
+        if (Nbt is { } nbtValue)
+        {
+            writer.WritePropertyName("Nbt");
+            nbtValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toServer.custom_click_action", "CustomClickAction", PacketPhase.Configuration, PacketDirection.Serverbound, 2);

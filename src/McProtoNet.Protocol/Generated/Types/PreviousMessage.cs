@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol;
@@ -72,5 +73,23 @@ public sealed partial class PreviousMessage : IProtocolType<PreviousMessage>
         }
 
         throw new System.NotSupportedException($"PreviousMessage has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("MessageSender");
+        writer.WriteStringValue(MessageSender);
+        writer.WritePropertyName("MessageSignature");
+        writer.WriteBase64StringValue(MessageSignature);
+        writer.WritePropertyName("Id");
+        writer.WriteNumberValue(Id);
+        if (Signature is { } signatureValue)
+        {
+            writer.WritePropertyName("Signature");
+            writer.WriteBase64StringValue(signatureValue);
+        }
+
+        writer.WriteEndObject();
     }
 }

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,18 @@ public sealed partial record SetTitleTimePacket(int FadeIn, int Stay, int FadeOu
         writer.WriteSignedInt(FadeIn);
         writer.WriteSignedInt(Stay);
         writer.WriteSignedInt(FadeOut);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("FadeIn");
+        writer.WriteNumberValue(FadeIn);
+        writer.WritePropertyName("Stay");
+        writer.WriteNumberValue(Stay);
+        writer.WritePropertyName("FadeOut");
+        writer.WriteNumberValue(FadeOut);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.set_title_time", "SetTitleTime", PacketPhase.Play, PacketDirection.Clientbound, 96);

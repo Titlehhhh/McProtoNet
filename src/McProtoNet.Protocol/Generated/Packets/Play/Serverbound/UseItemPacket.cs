@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -70,6 +71,27 @@ public sealed partial record UseItemPacket(int Hand, UseItemPacket.V759_766Layer
         }
 
         throw new System.NotSupportedException($"UseItemPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Hand");
+        writer.WriteNumberValue(Hand);
+        if (V759_766 is { } v759_766)
+        {
+            writer.WritePropertyName("Sequence");
+            writer.WriteNumberValue(v759_766.Sequence);
+        }
+        else if (V767_Last is { } v767_Last)
+        {
+            writer.WritePropertyName("Sequence");
+            writer.WriteNumberValue(v767_Last.Sequence);
+            writer.WritePropertyName("Rotation");
+            v767_Last.Rotation.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.use_item", "UseItem", PacketPhase.Play, PacketDirection.Serverbound, 67);

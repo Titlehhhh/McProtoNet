@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -24,6 +25,20 @@ public sealed partial record GameRuleValuesPacket(GameRule[] Values) : IPacket<G
         writer.WriteVarInt(Values.Length);
         foreach (var valuesItem in Values)
             writer.WriteType<GameRule>(valuesItem, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Values");
+        writer.WriteStartArray();
+        foreach (var item0 in Values)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.game_rule_values", "GameRuleValues", PacketPhase.Play, PacketDirection.Clientbound, 47);

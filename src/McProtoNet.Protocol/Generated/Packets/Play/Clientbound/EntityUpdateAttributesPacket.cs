@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -57,6 +58,22 @@ public sealed partial record EntityUpdateAttributesPacket(int EntityId, EntityAt
         }
 
         throw new System.NotSupportedException($"EntityUpdateAttributesPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("Properties");
+        writer.WriteStartArray();
+        foreach (var item0 in Properties)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.entity_update_attributes", "EntityUpdateAttributes", PacketPhase.Play, PacketDirection.Clientbound, 41);

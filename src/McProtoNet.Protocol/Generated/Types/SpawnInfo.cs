@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -107,5 +108,35 @@ public sealed partial class SpawnInfo : IProtocolType<SpawnInfo>
         }
 
         throw new System.NotSupportedException($"SpawnInfo has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Dimension");
+        writer.WriteNumberValue(Dimension);
+        writer.WritePropertyName("Name");
+        writer.WriteStringValue(Name);
+        writer.WritePropertyName("HashedSeed");
+        writer.WriteNumberValue(HashedSeed);
+        writer.WritePropertyName("Gamemode");
+        writer.WriteStringValue(Gamemode.ToString());
+        writer.WritePropertyName("PreviousGamemode");
+        writer.WriteNumberValue(PreviousGamemode);
+        writer.WritePropertyName("IsDebug");
+        writer.WriteBooleanValue(IsDebug);
+        writer.WritePropertyName("IsFlat");
+        writer.WriteBooleanValue(IsFlat);
+        if (Death is { } deathValue)
+        {
+            writer.WritePropertyName("Death");
+            deathValue.WriteJson(writer);
+        }
+
+        writer.WritePropertyName("PortalCooldown");
+        writer.WriteNumberValue(PortalCooldown);
+        writer.WritePropertyName("SeaLevel");
+        writer.WriteNumberValue(SeaLevel);
+        writer.WriteEndObject();
     }
 }

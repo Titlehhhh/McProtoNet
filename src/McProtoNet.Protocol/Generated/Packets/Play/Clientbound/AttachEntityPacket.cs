@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record AttachEntityPacket(int EntityId, int VehicleId) : I
         ThrowHelper.ThrowIfProtocolNotSupported<AttachEntityPacket>(protocolVersion);
         writer.WriteSignedInt(EntityId);
         writer.WriteSignedInt(VehicleId);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("VehicleId");
+        writer.WriteNumberValue(VehicleId);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.attach_entity", "AttachEntity", PacketPhase.Play, PacketDirection.Clientbound, 5);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record HeldItemSlotPacket(int SlotId) : IPacket<HeldItemSl
     {
         ThrowHelper.ThrowIfProtocolNotSupported<HeldItemSlotPacket>(protocolVersion);
         writer.WriteSignedShort((short)SlotId);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("SlotId");
+        writer.WriteNumberValue(SlotId);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Serverbound, 28);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -54,6 +55,25 @@ public sealed partial record SetCooldownPacket(int CooldownTicks, SetCooldownPac
         }
 
         throw new System.NotSupportedException($"SetCooldownPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("CooldownTicks");
+        writer.WriteNumberValue(CooldownTicks);
+        if (VUntil767 is { } vUntil767)
+        {
+            writer.WritePropertyName("ItemId");
+            writer.WriteNumberValue(vUntil767.ItemId);
+        }
+        else if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("CooldownGroup");
+            writer.WriteStringValue(v768_Last.CooldownGroup);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.set_cooldown", "SetCooldown", PacketPhase.Play, PacketDirection.Clientbound, 90);

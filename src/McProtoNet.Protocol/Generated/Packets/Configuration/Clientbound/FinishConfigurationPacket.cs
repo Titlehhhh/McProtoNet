@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -16,6 +17,12 @@ public sealed partial record FinishConfigurationPacket() : IPacket<FinishConfigu
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<FinishConfigurationPacket>(protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.finish_configuration", "FinishConfiguration", PacketPhase.Configuration, PacketDirection.Clientbound, 8);

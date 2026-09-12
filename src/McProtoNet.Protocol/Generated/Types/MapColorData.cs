@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -36,5 +37,19 @@ public sealed partial class MapColorData : IProtocolType<MapColorData>
         writer.WriteSignedByte((sbyte)X);
         writer.WriteSignedByte((sbyte)Y);
         writer.WriteByteArray(Data);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Rows");
+        writer.WriteNumberValue(Rows);
+        writer.WritePropertyName("X");
+        writer.WriteNumberValue(X);
+        writer.WritePropertyName("Y");
+        writer.WriteNumberValue(Y);
+        writer.WritePropertyName("Data");
+        writer.WriteBase64StringValue(Data);
+        writer.WriteEndObject();
     }
 }

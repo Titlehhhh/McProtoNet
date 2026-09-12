@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -37,6 +38,35 @@ public sealed partial record EntityTeleportPacket(int EntityId, double X, double
         writer.WriteSignedByte((sbyte)Yaw);
         writer.WriteSignedByte((sbyte)Pitch);
         writer.WriteBoolean(OnGround);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        writer.WriteNumberValue(Yaw);
+        writer.WritePropertyName("Pitch");
+        writer.WriteNumberValue(Pitch);
+        writer.WritePropertyName("OnGround");
+        writer.WriteBooleanValue(OnGround);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.entity_teleport", "EntityTeleport", PacketPhase.Play, PacketDirection.Clientbound, 40);

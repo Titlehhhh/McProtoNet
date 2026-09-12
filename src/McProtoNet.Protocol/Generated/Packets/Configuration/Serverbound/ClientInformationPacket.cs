@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
 
@@ -83,6 +84,34 @@ public sealed partial record ClientInformationPacket(string Locale, int ViewDist
         }
 
         throw new System.NotSupportedException($"ClientInformationPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Locale");
+        writer.WriteStringValue(Locale);
+        writer.WritePropertyName("ViewDistance");
+        writer.WriteNumberValue(ViewDistance);
+        writer.WritePropertyName("ChatFlags");
+        writer.WriteNumberValue(ChatFlags);
+        writer.WritePropertyName("ChatColors");
+        writer.WriteBooleanValue(ChatColors);
+        writer.WritePropertyName("SkinParts");
+        writer.WriteNumberValue(SkinParts);
+        writer.WritePropertyName("MainHand");
+        writer.WriteNumberValue(MainHand);
+        writer.WritePropertyName("EnableTextFiltering");
+        writer.WriteBooleanValue(EnableTextFiltering);
+        writer.WritePropertyName("EnableServerListing");
+        writer.WriteBooleanValue(EnableServerListing);
+        if (V768_Last is { } v768_Last)
+        {
+            writer.WritePropertyName("ParticleStatus");
+            writer.WriteStringValue(v768_Last.ParticleStatus.ToString());
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toServer.settings", "ClientInformation", PacketPhase.Configuration, PacketDirection.Serverbound, 11);

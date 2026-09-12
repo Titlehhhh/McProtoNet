@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -19,6 +20,14 @@ public sealed partial record KeepAlivePacket(long KeepAliveId) : IPacket<KeepAli
     {
         ThrowHelper.ThrowIfProtocolNotSupported<KeepAlivePacket>(protocolVersion);
         writer.WriteSignedLong(KeepAliveId);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("KeepAliveId");
+        writer.WriteNumberValue(KeepAliveId);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.keep_alive", "KeepAlive", PacketPhase.Play, PacketDirection.Serverbound, 29);

@@ -1,6 +1,7 @@
 using Dunet;
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -86,5 +87,47 @@ public partial record CraftingBookDataAction
         }
 
         throw new System.NotSupportedException($"CraftingBookDataAction case {GetType().Name} has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        switch (this)
+        {
+            case DisplayedRecipe arm:
+            {
+                writer.WriteString("$case", "DisplayedRecipe");
+                writer.WritePropertyName("RecipeId");
+                writer.WriteStringValue(arm.RecipeId);
+                break;
+            }
+
+            case BookSettings arm:
+            {
+                writer.WriteString("$case", "BookSettings");
+                writer.WritePropertyName("CraftingBookOpen");
+                writer.WriteBooleanValue(arm.CraftingBookOpen);
+                writer.WritePropertyName("CraftingFilter");
+                writer.WriteBooleanValue(arm.CraftingFilter);
+                writer.WritePropertyName("SmeltingBookOpen");
+                writer.WriteBooleanValue(arm.SmeltingBookOpen);
+                writer.WritePropertyName("SmeltingFilter");
+                writer.WriteBooleanValue(arm.SmeltingFilter);
+                writer.WritePropertyName("BlastingBookOpen");
+                writer.WriteBooleanValue(arm.BlastingBookOpen);
+                writer.WritePropertyName("BlastingFilter");
+                writer.WriteBooleanValue(arm.BlastingFilter);
+                writer.WritePropertyName("SmokingBookOpen");
+                writer.WriteBooleanValue(arm.SmokingBookOpen);
+                writer.WritePropertyName("SmokingFilter");
+                writer.WriteBooleanValue(arm.SmokingFilter);
+                break;
+            }
+
+            default:
+                throw new System.NotSupportedException($"CraftingBookDataAction case {GetType().Name} has no JSON view.");
+        }
+
+        writer.WriteEndObject();
     }
 }

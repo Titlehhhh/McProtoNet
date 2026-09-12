@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -40,5 +41,30 @@ public sealed partial class MinecartStep : IProtocolType<MinecartStep>
         writer.WriteFloat(Yaw);
         writer.WriteFloat(Pitch);
         writer.WriteFloat(Weight);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Position");
+        Position.WriteJson(writer);
+        writer.WritePropertyName("Movement");
+        Movement.WriteJson(writer);
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Weight");
+        if (double.IsFinite(Weight))
+            writer.WriteNumberValue(Weight);
+        else
+            writer.WriteStringValue(double.IsNaN(Weight) ? "NaN" : Weight > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 }

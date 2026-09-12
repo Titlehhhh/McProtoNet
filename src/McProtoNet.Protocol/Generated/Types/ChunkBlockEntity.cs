@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -74,5 +75,23 @@ public sealed partial class ChunkBlockEntity : IProtocolType<ChunkBlockEntity>
         }
 
         throw new System.NotSupportedException($"ChunkBlockEntity has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("PackedXZ");
+        writer.WriteNumberValue(PackedXZ);
+        writer.WritePropertyName("Y");
+        writer.WriteNumberValue(Y);
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        if (NbtData is { } nbtDataValue)
+        {
+            writer.WritePropertyName("NbtData");
+            nbtDataValue.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 }

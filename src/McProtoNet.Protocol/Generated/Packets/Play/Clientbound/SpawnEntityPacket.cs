@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -153,6 +154,67 @@ public sealed partial record SpawnEntityPacket(int EntityId, Guid ObjectUuid, in
         }
 
         throw new System.NotSupportedException($"SpawnEntityPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("ObjectUuid");
+        writer.WriteStringValue(ObjectUuid);
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        writer.WriteNumberValue(Pitch);
+        writer.WritePropertyName("Yaw");
+        writer.WriteNumberValue(Yaw);
+        writer.WritePropertyName("ObjectData");
+        writer.WriteNumberValue(ObjectData);
+        if (VUntil758 is { } vUntil758)
+        {
+            writer.WritePropertyName("VelocityX");
+            writer.WriteNumberValue(vUntil758.VelocityX);
+            writer.WritePropertyName("VelocityY");
+            writer.WriteNumberValue(vUntil758.VelocityY);
+            writer.WritePropertyName("VelocityZ");
+            writer.WriteNumberValue(vUntil758.VelocityZ);
+        }
+        else if (V759_772 is { } v759_772)
+        {
+            writer.WritePropertyName("HeadPitch");
+            writer.WriteNumberValue(v759_772.HeadPitch);
+            writer.WritePropertyName("VelocityX");
+            writer.WriteNumberValue(v759_772.VelocityX);
+            writer.WritePropertyName("VelocityY");
+            writer.WriteNumberValue(v759_772.VelocityY);
+            writer.WritePropertyName("VelocityZ");
+            writer.WriteNumberValue(v759_772.VelocityZ);
+        }
+        else if (V773_Last is { } v773_Last)
+        {
+            writer.WritePropertyName("HeadPitch");
+            writer.WriteNumberValue(v773_Last.HeadPitch);
+            writer.WritePropertyName("Velocity");
+            v773_Last.Velocity.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.spawn_entity", "SpawnEntity", PacketPhase.Play, PacketDirection.Clientbound, 99);

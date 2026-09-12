@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,6 +26,24 @@ public sealed partial record UpdateHealthPacket(float Health, int Food, float Fo
         writer.WriteFloat(Health);
         writer.WriteVarInt(Food);
         writer.WriteFloat(FoodSaturation);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Health");
+        if (double.IsFinite(Health))
+            writer.WriteNumberValue(Health);
+        else
+            writer.WriteStringValue(double.IsNaN(Health) ? "NaN" : Health > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Food");
+        writer.WriteNumberValue(Food);
+        writer.WritePropertyName("FoodSaturation");
+        if (double.IsFinite(FoodSaturation))
+            writer.WriteNumberValue(FoodSaturation);
+        else
+            writer.WriteStringValue(double.IsNaN(FoodSaturation) ? "NaN" : FoodSaturation > 0 ? "Infinity" : "-Infinity");
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.update_health", "UpdateHealth", PacketPhase.Play, PacketDirection.Clientbound, 122);

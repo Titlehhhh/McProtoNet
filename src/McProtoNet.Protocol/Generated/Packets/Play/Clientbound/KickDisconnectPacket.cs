@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -50,6 +51,23 @@ public sealed partial record KickDisconnectPacket(KickDisconnectPacket.VUntil764
         }
 
         throw new System.NotSupportedException($"KickDisconnectPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (VUntil764 is { } vUntil764)
+        {
+            writer.WritePropertyName("ReasonJson");
+            writer.WriteStringValue(vUntil764.ReasonJson);
+        }
+        else if (V765_Last is { } v765_Last)
+        {
+            writer.WritePropertyName("Reason");
+            v765_Last.Reason.WriteJson(writer);
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.kick_disconnect", "KickDisconnect", PacketPhase.Play, PacketDirection.Clientbound, 55);

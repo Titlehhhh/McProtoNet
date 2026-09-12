@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,6 +20,14 @@ public sealed partial record SimulationDistancePacket(int Distance) : IPacket<Si
     {
         ThrowHelper.ThrowIfProtocolNotSupported<SimulationDistancePacket>(protocolVersion);
         writer.WriteVarInt(Distance);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Distance");
+        writer.WriteNumberValue(Distance);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.simulation_distance", "SimulationDistance", PacketPhase.Play, PacketDirection.Clientbound, 98);

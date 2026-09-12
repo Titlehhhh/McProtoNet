@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -114,6 +115,55 @@ public sealed partial record ProfilelessChatPacket(ProfilelessChatPacket.V761_76
         }
 
         throw new System.NotSupportedException($"ProfilelessChatPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        if (V761_764 is { } v761_764)
+        {
+            writer.WritePropertyName("MessageJson");
+            writer.WriteStringValue(v761_764.MessageJson);
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v761_764.Type);
+            writer.WritePropertyName("NameJson");
+            writer.WriteStringValue(v761_764.NameJson);
+            if (v761_764.TargetJson is { } targetJsonValue)
+            {
+                writer.WritePropertyName("TargetJson");
+                writer.WriteStringValue(targetJsonValue);
+            }
+        }
+        else if (V765_766 is { } v765_766)
+        {
+            writer.WritePropertyName("Message");
+            v765_766.Message.WriteJson(writer);
+            writer.WritePropertyName("Type");
+            writer.WriteNumberValue(v765_766.Type);
+            writer.WritePropertyName("Name");
+            v765_766.Name.WriteJson(writer);
+            if (v765_766.Target is { } targetValue)
+            {
+                writer.WritePropertyName("Target");
+                targetValue.WriteJson(writer);
+            }
+        }
+        else if (V767_Last is { } v767_Last)
+        {
+            writer.WritePropertyName("Message");
+            v767_Last.Message.WriteJson(writer);
+            writer.WritePropertyName("ChatType");
+            v767_Last.ChatType.WriteJson(writer);
+            writer.WritePropertyName("Name");
+            v767_Last.Name.WriteJson(writer);
+            if (v767_Last.Target is { } targetValue)
+            {
+                writer.WritePropertyName("Target");
+                targetValue.WriteJson(writer);
+            }
+        }
+
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.profileless_chat", "ProfilelessChat", PacketPhase.Play, PacketDirection.Clientbound, 76);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,6 +29,20 @@ public sealed partial record UpdateCommandBlockPacket(Position Location, string 
         writer.WriteString(Command);
         writer.WriteVarInt(Mode);
         writer.WriteUnsignedByte((byte)Flags);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Command");
+        writer.WriteStringValue(Command);
+        writer.WritePropertyName("Mode");
+        writer.WriteNumberValue(Mode);
+        writer.WritePropertyName("Flags");
+        writer.WriteNumberValue(Flags);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.update_command_block", "UpdateCommandBlock", PacketPhase.Play, PacketDirection.Serverbound, 61);

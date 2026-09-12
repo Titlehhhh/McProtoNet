@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -46,6 +47,56 @@ public sealed partial record SyncEntityPositionPacket(int EntityId, double X, do
         writer.WriteFloat(Yaw);
         writer.WriteFloat(Pitch);
         writer.WriteBoolean(OnGround);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("EntityId");
+        writer.WriteNumberValue(EntityId);
+        writer.WritePropertyName("X");
+        if (double.IsFinite(X))
+            writer.WriteNumberValue(X);
+        else
+            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Y");
+        if (double.IsFinite(Y))
+            writer.WriteNumberValue(Y);
+        else
+            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Z");
+        if (double.IsFinite(Z))
+            writer.WriteNumberValue(Z);
+        else
+            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Dx");
+        if (double.IsFinite(Dx))
+            writer.WriteNumberValue(Dx);
+        else
+            writer.WriteStringValue(double.IsNaN(Dx) ? "NaN" : Dx > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Dy");
+        if (double.IsFinite(Dy))
+            writer.WriteNumberValue(Dy);
+        else
+            writer.WriteStringValue(double.IsNaN(Dy) ? "NaN" : Dy > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Dz");
+        if (double.IsFinite(Dz))
+            writer.WriteNumberValue(Dz);
+        else
+            writer.WriteStringValue(double.IsNaN(Dz) ? "NaN" : Dz > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Yaw");
+        if (double.IsFinite(Yaw))
+            writer.WriteNumberValue(Yaw);
+        else
+            writer.WriteStringValue(double.IsNaN(Yaw) ? "NaN" : Yaw > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("Pitch");
+        if (double.IsFinite(Pitch))
+            writer.WriteNumberValue(Pitch);
+        else
+            writer.WriteStringValue(double.IsNaN(Pitch) ? "NaN" : Pitch > 0 ? "Infinity" : "-Infinity");
+        writer.WritePropertyName("OnGround");
+        writer.WriteBooleanValue(OnGround);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.sync_entity_position", "SyncEntityPosition", PacketPhase.Play, PacketDirection.Clientbound, 109);

@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -24,6 +25,20 @@ public sealed partial record PlayServerLinksPacket(ServerLink[] Links) : IPacket
         writer.WriteVarInt(Links.Length);
         foreach (var linksItem in Links)
             writer.WriteType<ServerLink>(linksItem, protocolVersion);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Links");
+        writer.WriteStartArray();
+        foreach (var item0 in Links)
+        {
+            item0.WriteJson(writer);
+        }
+
+        writer.WriteEndArray();
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.server_links", "PlayServerLinks", PacketPhase.Play, PacketDirection.Clientbound, 89);

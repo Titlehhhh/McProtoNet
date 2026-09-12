@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -51,6 +52,16 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         }
 
         throw new System.NotSupportedException($"TeamsPacket has no wire layout for protocol version {protocolVersion}.");
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("TeamName");
+        writer.WriteStringValue(TeamName);
+        writer.WritePropertyName("Action");
+        Action.WriteJson(writer);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 113);

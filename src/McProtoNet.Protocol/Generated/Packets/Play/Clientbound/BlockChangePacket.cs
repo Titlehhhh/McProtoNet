@@ -1,5 +1,6 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
+using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,6 +23,16 @@ public sealed partial record BlockChangePacket(Position Location, int Type) : IP
         ThrowHelper.ThrowIfProtocolNotSupported<BlockChangePacket>(protocolVersion);
         writer.WriteType<Position>(Location, protocolVersion);
         writer.WriteVarInt(Type);
+    }
+
+    public void WriteJson(Utf8JsonWriter writer)
+    {
+        writer.WriteStartObject();
+        writer.WritePropertyName("Location");
+        Location.WriteJson(writer);
+        writer.WritePropertyName("Type");
+        writer.WriteNumberValue(Type);
+        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toClient.block_change", "BlockChange", PacketPhase.Play, PacketDirection.Clientbound, 8);
