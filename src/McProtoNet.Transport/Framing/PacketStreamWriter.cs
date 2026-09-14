@@ -287,7 +287,9 @@ public sealed class PacketStreamWriter : IDisposable, IAsyncDisposable
         cancellationToken.ThrowIfCancellationRequested();
         ThrowIfDisposed();
         if (Interlocked.CompareExchange(ref _writeState, Writing, NonWrite) == Writing)
-            throw new InvalidOperationException("Concurrent packet sending is not allowed.");
+            throw new InvalidOperationException(
+                "Concurrent packet sending is not allowed: a connection has one writer, and the caller " +
+                "must serialize its own sends.");
     }
 
     private void EndWrite() => Interlocked.Exchange(ref _writeState, NonWrite);
