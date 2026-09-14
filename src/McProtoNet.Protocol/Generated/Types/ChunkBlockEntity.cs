@@ -40,9 +40,7 @@ public sealed partial class ChunkBlockEntity : IProtocolType<ChunkBlockEntity>
             var packedXZ = reader.ReadUnsignedByte();
             var y = reader.ReadSignedShort();
             var type = reader.ReadVarInt();
-            NbtTag? nbtData = null;
-            if (reader.ReadBoolean())
-                nbtData = reader.ReadNbtTag(false)!;
+            var nbtData = reader.ReadNbtTag(false)!;
             return new ChunkBlockEntity(packedXZ, y, type, nbtData);
         }
 
@@ -68,9 +66,7 @@ public sealed partial class ChunkBlockEntity : IProtocolType<ChunkBlockEntity>
             writer.WriteUnsignedByte((byte)PackedXZ);
             writer.WriteSignedShort((short)Y);
             writer.WriteVarInt(Type);
-            writer.WriteBoolean(NbtData is not null);
-            if (NbtData is { } nbtDataValue)
-                writer.WriteNbt(nbtDataValue);
+            writer.WriteNbt((NbtData ?? throw new System.InvalidOperationException("NbtData is required at this protocol version.")));
             return;
         }
 
