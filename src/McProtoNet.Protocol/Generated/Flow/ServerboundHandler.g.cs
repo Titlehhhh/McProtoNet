@@ -671,6 +671,13 @@ public abstract partial class ServerboundHandler
                         break;
                     }
 
+                    case 66:
+                    {
+                        var packet = Packets.Play.Serverbound.UseEntityPacket.Read(ref reader, protocolVersion);
+                        pending = OnUseEntity(packet);
+                        break;
+                    }
+
                     case 67:
                     {
                         var packet = Packets.Play.Serverbound.UseItemPacket.Read(ref reader, protocolVersion);
@@ -792,6 +799,7 @@ public abstract partial class ServerboundHandler
     protected virtual ValueTask OnUpdateJigsawBlock(Packets.Play.Serverbound.UpdateJigsawBlockPacket packet) => default;
     protected virtual ValueTask OnUpdateSign(Packets.Play.Serverbound.UpdateSignPacket packet) => default;
     protected virtual ValueTask OnUpdateStructureBlock(Packets.Play.Serverbound.UpdateStructureBlockPacket packet) => default;
+    protected virtual ValueTask OnUseEntity(Packets.Play.Serverbound.UseEntityPacket packet) => default;
     protected virtual ValueTask OnUseItem(Packets.Play.Serverbound.UseItemPacket packet) => default;
     protected virtual ValueTask OnVehicleMove(Packets.Play.Serverbound.VehicleMovePacket packet) => default;
 }

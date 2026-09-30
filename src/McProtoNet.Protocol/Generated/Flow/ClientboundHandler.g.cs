@@ -544,6 +544,13 @@ public abstract partial class ClientboundHandler
                         break;
                     }
 
+                    case 42:
+                    {
+                        var packet = Packets.Play.Clientbound.EntityVelocityPacket.Read(ref reader, protocolVersion);
+                        pending = OnEntityVelocity(packet);
+                        break;
+                    }
+
                     case 43:
                     {
                         var packet = Packets.Play.Clientbound.ExperiencePacket.Read(ref reader, protocolVersion);
@@ -929,6 +936,13 @@ public abstract partial class ClientboundHandler
                         break;
                     }
 
+                    case 100:
+                    {
+                        var packet = Packets.Play.Clientbound.SpawnEntityPacket.Read(ref reader, protocolVersion);
+                        pending = OnSpawnEntity(packet);
+                        break;
+                    }
+
                     case 101:
                     {
                         var packet = Packets.Play.Clientbound.SpawnEntityExperienceOrbPacket.Read(ref reader, protocolVersion);
@@ -1263,6 +1277,7 @@ public abstract partial class ClientboundHandler
     protected virtual ValueTask OnEntityStatus(Packets.Play.Clientbound.EntityStatusPacket packet) => default;
     protected virtual ValueTask OnEntityTeleport(Packets.Play.Clientbound.EntityTeleportPacket packet) => default;
     protected virtual ValueTask OnEntityUpdateAttributes(Packets.Play.Clientbound.EntityUpdateAttributesPacket packet) => default;
+    protected virtual ValueTask OnEntityVelocity(Packets.Play.Clientbound.EntityVelocityPacket packet) => default;
     protected virtual ValueTask OnExperience(Packets.Play.Clientbound.ExperiencePacket packet) => default;
     protected virtual ValueTask OnFacePlayer(Packets.Play.Clientbound.FacePlayerPacket packet) => default;
     protected virtual ValueTask OnFeatureFlags(Packets.Play.Clientbound.FeatureFlagsPacket packet) => default;
@@ -1318,6 +1333,7 @@ public abstract partial class ClientboundHandler
     protected virtual ValueTask OnSetTitleTime(Packets.Play.Clientbound.SetTitleTimePacket packet) => default;
     protected virtual ValueTask OnShouldDisplayChatPreview(Packets.Play.Clientbound.ShouldDisplayChatPreviewPacket packet) => default;
     protected virtual ValueTask OnSimulationDistance(Packets.Play.Clientbound.SimulationDistancePacket packet) => default;
+    protected virtual ValueTask OnSpawnEntity(Packets.Play.Clientbound.SpawnEntityPacket packet) => default;
     protected virtual ValueTask OnSpawnEntityExperienceOrb(Packets.Play.Clientbound.SpawnEntityExperienceOrbPacket packet) => default;
     protected virtual ValueTask OnSpawnEntityLiving(Packets.Play.Clientbound.SpawnEntityLivingPacket packet) => default;
     protected virtual ValueTask OnSpawnEntityPainting(Packets.Play.Clientbound.SpawnEntityPaintingPacket packet) => default;
