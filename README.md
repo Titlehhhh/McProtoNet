@@ -133,6 +133,6 @@ be returned. None of the addresses needs a memo or a tag.
 
 **BTC, Bitcoin network**: `bc1q3ushl443q9xvclxtqxcvltdd64ffy3h8x7xsm4`
 
-The same is on the site: [Support the project](https://titlehhhh.github.io/McProtoNet/next/support).
+The same is on the site: [Support the project](https://titlehhhh.github.io/McProtoNet/docs/overview/support).
 
 [libdeflate]: https://github.com/ebiggers/libdeflate
