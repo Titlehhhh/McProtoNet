@@ -1,4 +1,0 @@
-module SimpleBot
-
-
-printfn "asd"

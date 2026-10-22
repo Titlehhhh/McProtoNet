@@ -1,0 +1,203 @@
+using McProtoNet.Primitives;
+using McProtoNet.Protocol;
+namespace McProtoNet.Tests.Protocol;
+
+public class PacketSubscriptionsTests
+{
+    // Local hand-written IPacket implementations, same shape as PacketIoTests' FakePacket;
+    // Ordinal is deliberately non-adjacent (0 and 5) to exercise slot-array growth.
+    private sealed record FakePacket(long Value) : IPacket<FakePacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toClient.fake", "Fake", PacketPhase.Play, PacketDirection.Clientbound, 0);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x42;
+            return true;
+        }
+
+        public static FakePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadSignedLong());
+
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteSignedLong(Value);
+    }
+
+    private sealed record FakeOtherPacket(int Value) : IPacket<FakeOtherPacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toClient.fakeOther", "FakeOther", PacketPhase.Play, PacketDirection.Clientbound, 5);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x43;
+            return true;
+        }
+
+        public static FakeOtherPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadVarInt());
+
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteVarInt(Value);
+    }
+
+    [Fact]
+    public void On_Then_Visit_InvokesHandlerWithSameInstance()
+    {
+        var subscriptions = new PacketSubscriptions();
+        FakePacket? received = null;
+        subscriptions.On<FakePacket>(p => received = p);
+
+        var packet = new FakePacket(123456789L);
+        subscriptions.Visit(packet);
+
+        Assert.Same(packet, received);
+    }
+
+    [Fact]
+    public void Visit_UnsubscribedType_DoesNotThrow()
+    {
+        var subscriptions = new PacketSubscriptions();
+
+        var exception = Record.Exception(() => subscriptions.Visit(new FakePacket(1L)));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Visit_OrdinalBeyondSlotArray_DoesNotThrow()
+    {
+        var subscriptions = new PacketSubscriptions();
+        // Subscribing only to the low-ordinal type leaves the slot array shorter than
+        // FakeOtherPacket's Ordinal (5), exercising the out-of-range guard in Visit.
+        subscriptions.On<FakePacket>(_ => { });
+
+        var exception = Record.Exception(() => subscriptions.Visit(new FakeOtherPacket(7)));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void On_SameTypeTwice_ReplacesHandler()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var firstCalled = false;
+        var secondCalled = false;
+        subscriptions.On<FakePacket>(_ => firstCalled = true);
+        subscriptions.On<FakePacket>(_ => secondCalled = true);
+
+        subscriptions.Visit(new FakePacket(1L));
+
+        Assert.False(firstCalled);
+        Assert.True(secondCalled);
+    }
+
+    // Ordinal is dense per (phase, direction) catalog, so the same Ordinal is reused across
+    // catalogs. These three share Ordinal 0 with FakePacket and differ only in phase/direction.
+    private sealed record SameOrdinalOtherPhasePacket(int Value) : IPacket<SameOrdinalOtherPhasePacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toClient.login", "LoginFake", PacketPhase.Login, PacketDirection.Clientbound, 0);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x44;
+            return true;
+        }
+
+        public static SameOrdinalOtherPhasePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadVarInt());
+
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteVarInt(Value);
+    }
+
+    private sealed record SameOrdinalOtherDirectionPacket(int Value) : IPacket<SameOrdinalOtherDirectionPacket>
+    {
+        public static PacketIdentity Identity =>
+            new("test.toServer.fake", "FakeServerbound", PacketPhase.Play, PacketDirection.Serverbound, 0);
+
+        public static bool TryGetPacketId(int protocolVersion, out int id)
+        {
+            id = 0x45;
+            return true;
+        }
+
+        public static SameOrdinalOtherDirectionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+            => new(reader.ReadVarInt());
+
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+
+        public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+            => writer.WriteVarInt(Value);
+    }
+
+    [Fact]
+    public void On_TypesSharingAnOrdinalAcrossPhases_DoNotOverwriteEachOther()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var playCalls = 0;
+        var loginCalls = 0;
+        subscriptions.On<FakePacket>(_ => playCalls++);
+        subscriptions.On<SameOrdinalOtherPhasePacket>(_ => loginCalls++);
+
+        subscriptions.Visit(new FakePacket(1L));
+        subscriptions.Visit(new SameOrdinalOtherPhasePacket(2));
+
+        Assert.Equal(1, playCalls);
+        Assert.Equal(1, loginCalls);
+    }
+
+    [Fact]
+    public void On_TypesSharingAnOrdinalAcrossDirections_DoNotOverwriteEachOther()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var clientboundCalls = 0;
+        var serverboundCalls = 0;
+        subscriptions.On<FakePacket>(_ => clientboundCalls++);
+        subscriptions.On<SameOrdinalOtherDirectionPacket>(_ => serverboundCalls++);
+
+        subscriptions.Visit(new FakePacket(1L));
+        subscriptions.Visit(new SameOrdinalOtherDirectionPacket(2));
+
+        Assert.Equal(1, clientboundCalls);
+        Assert.Equal(1, serverboundCalls);
+    }
+
+    [Fact]
+    public void Visit_TypeSharingAnOrdinalWithASubscribedOtherCatalog_IsNotDelivered()
+    {
+        var subscriptions = new PacketSubscriptions();
+        subscriptions.On<FakePacket>(_ => Assert.Fail("a Play clientbound handler saw a Login packet"));
+
+        var exception = Record.Exception(() => subscriptions.Visit(new SameOrdinalOtherPhasePacket(1)));
+
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public void Unknown_DoesNotThrow()
+    {
+        var subscriptions = new PacketSubscriptions();
+        var raw = new IncomingPacket(0x99, Array.Empty<byte>());
+
+        var exception = Record.Exception(() => subscriptions.Unknown(in raw));
+
+        Assert.Null(exception);
+    }
+}

@@ -1,0 +1,130 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.NBT": {
+    "message": "NBT",
+    "description": "The label for category 'NBT' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Overview": {
+    "message": "Обзор",
+    "description": "The label for category 'Overview' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Getting started": {
+    "message": "Начало работы",
+    "description": "The label for category 'Getting started' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.How the library is built": {
+    "message": "Как устроена библиотека",
+    "description": "The label for category 'How the library is built' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Transport": {
+    "message": "Транспорт",
+    "description": "The label for category 'Transport' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Packets": {
+    "message": "Пакеты",
+    "description": "The label for category 'Packets' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Reference": {
+    "message": "Справка",
+    "description": "The label for category 'Reference' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.API reference": {
+    "message": "Справка API",
+    "description": "The label for category 'API reference' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet": {
+    "message": "McProtoNet",
+    "description": "The label for category 'McProtoNet' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.NBT": {
+    "message": "NBT",
+    "description": "The label for category 'NBT' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Primitives": {
+    "message": "Primitives",
+    "description": "The label for category 'Primitives' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol": {
+    "message": "Protocol",
+    "description": "The label for category 'Protocol' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Attributes": {
+    "message": "Attributes",
+    "description": "The label for category 'Attributes' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets": {
+    "message": "Packets",
+    "description": "The label for category 'Packets' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Configuration": {
+    "message": "Configuration",
+    "description": "The label for category 'Configuration' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Configuration.Clientbound": {
+    "message": "Clientbound",
+    "description": "The label for category 'Clientbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Configuration.Serverbound": {
+    "message": "Serverbound",
+    "description": "The label for category 'Serverbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Handshaking": {
+    "message": "Handshaking",
+    "description": "The label for category 'Handshaking' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Handshaking.Serverbound": {
+    "message": "Serverbound",
+    "description": "The label for category 'Serverbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Login": {
+    "message": "Login",
+    "description": "The label for category 'Login' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Login.Clientbound": {
+    "message": "Clientbound",
+    "description": "The label for category 'Clientbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Login.Serverbound": {
+    "message": "Serverbound",
+    "description": "The label for category 'Serverbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Play": {
+    "message": "Play",
+    "description": "The label for category 'Play' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Play.Clientbound": {
+    "message": "Clientbound",
+    "description": "The label for category 'Clientbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Play.Serverbound": {
+    "message": "Serverbound",
+    "description": "The label for category 'Serverbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Status": {
+    "message": "Status",
+    "description": "The label for category 'Status' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Status.Clientbound": {
+    "message": "Clientbound",
+    "description": "The label for category 'Clientbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Protocol.Packets.Status.Serverbound": {
+    "message": "Serverbound",
+    "description": "The label for category 'Serverbound' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Transport": {
+    "message": "Transport",
+    "description": "The label for category 'Transport' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Transport.Cryptography": {
+    "message": "Cryptography",
+    "description": "The label for category 'Cryptography' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.McProtoNet.Transport.Framing": {
+    "message": "Framing",
+    "description": "The label for category 'Framing' in sidebar 'docs'"
+  }
+}

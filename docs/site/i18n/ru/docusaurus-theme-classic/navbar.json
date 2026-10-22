@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "McProtoNet",
+    "description": "The title in the navbar"
+  },
+  "logo.alt": {
+    "message": "McProtoNet",
+    "description": "The alt text of navbar logo"
+  },
+  "item.label.NuGet": {
+    "message": "NuGet",
+    "description": "Navbar item with label NuGet"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  },
+  "item.label.Docs": {
+    "message": "Документация",
+    "description": "Navbar item with label Docs"
+  },
+  "item.label.Discord": {
+    "message": "Discord",
+    "description": "Navbar item with label Discord"
+  }
+}

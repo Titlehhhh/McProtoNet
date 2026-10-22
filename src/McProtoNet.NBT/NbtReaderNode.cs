@@ -1,8 +1,6 @@
 namespace McProtoNet.NBT;
 
-/// <summary>
-///     Represents state of a node in the NBT file tree, used by NbtReader
-/// </summary>
+/// <summary>Holds the saved state of one node of the NBT tree while a reader descends into it.</summary>
 internal sealed class NbtReaderNode
 {
     public int ListIndex;

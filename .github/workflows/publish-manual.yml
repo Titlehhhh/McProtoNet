@@ -1,6 +1,3 @@
-# NuGet publishing is manual-only. The Nuke Pack target is currently disabled
-# (build/Build.cs: Pack returns before PackCore calls), so running this today
-# publishes nothing. Re-enable Pack before using.
 name: publish-manual
 on:
   workflow_dispatch:
@@ -23,10 +20,21 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
       - name: Push to feedz
         if: ${{ inputs.target == 'feedz' }}
-        run: ./build.cmd Push --Configuration Release --skip Tests --NugetApiUrl https://f.feedz.io/mcprotonet/night/nuget/index.json --NugetApiKey ${{secrets.FEEDZ_TOKEN}}
+        run: ./build.cmd Push --Configuration Release --NugetApiUrl https://f.feedz.io/mcprotonet/night/nuget/index.json --NugetApiKey ${{secrets.FEEDZ_TOKEN}}
       - name: Push to nuget.org
-        if: ${{ inputs.target == 'nuget' }}
-        run: ./build.cmd Push --Configuration Release --skip Tests --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
+        if: ${{ inputs.target == 'nuget' && startsWith(github.ref, 'refs/tags/v') }}
+        run: ./build.cmd Push --Configuration Release --NugetApiUrl https://api.nuget.org/v3/index.json --NugetApiKey ${{secrets.NUGET_TOKEN}}
+      - name: Upload packages
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget
+          path: artifacts/nuget/*.nupkg
+          retention-days: 14
+          if-no-files-found: ignore

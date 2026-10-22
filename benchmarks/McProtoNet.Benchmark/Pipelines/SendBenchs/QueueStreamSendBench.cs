@@ -2,13 +2,12 @@ using System;
 using System.IO;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using McProtoNet.Net;
-
+using McProtoNet.Transport.Framing;
 namespace McProtoNet.Benchmark.Pipelines.SendBenchs;
 
 public class QueueStreamSendBench : ISendBench
 {
-    private MinecraftPacketSender _sender;
+    private PacketStreamWriter _sender;
     private Stream _stream;
     private readonly int _queueSize;
 
@@ -36,7 +35,7 @@ public class QueueStreamSendBench : ISendBench
         }
         _stream = new BufferedStream(stream);
 
-        _sender = new MinecraftPacketSender(_stream)
+        _sender = new PacketStreamWriter(_stream)
         {
             AutoFlush = false,
             CompressionThreshold = compressionThreshold
@@ -52,7 +51,7 @@ public class QueueStreamSendBench : ISendBench
                     while (reader.TryRead(out var memory))
                     {
                         count++;
-                        await _sender.SendPacketAsync(memory);
+                        await _sender.WritePacketAsync(memory);
                         if (count == 500_000)
                         {
                             count = 0;

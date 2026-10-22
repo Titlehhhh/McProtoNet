@@ -1,0 +1,298 @@
+using System.Buffers;
+using System.Runtime.CompilerServices;
+using McProtoNet.Primitives;
+using McProtoNet.Transport.Compression;
+using McProtoNet.Transport.Cryptography;
+
+namespace McProtoNet.Transport.Framing;
+
+/// <summary>
+/// Provides a reader that takes exactly one frame at a time from a <see cref="Stream"/>.
+/// </summary>
+/// <remarks>
+/// The length varint is read one byte at a time and the body by an exact read, so the reader never
+/// takes a byte past the end of a frame. That is what allows <see cref="Cipher"/> and
+/// <see cref="CompressionThreshold"/> to be switched between two frames. Every packet owns the pooled
+/// block behind its body and must be disposed by whoever received it; the reader keeps no buffer
+/// between two reads. Concurrent reads are not allowed.
+/// </remarks>
+public sealed class PacketStreamReader : IDisposable, IAsyncDisposable
+{
+    private const int NotRead = 0;
+    private const int Reading = 1;
+
+    private const int Normal = 0;
+    private const int Disposed = 1;
+
+    private readonly Stream _stream;
+    private readonly ArrayPool<byte> _pool;
+    private readonly bool _leaveOpen;
+    private readonly byte[] _varIntBuff = new byte[1];
+
+    private volatile int _compressionThreshold = -1;
+    private volatile int _readState = NotRead;
+    private volatile int _state;
+
+    private PacketCipher? _cipher;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PacketStreamReader"/> class that reads from the
+    /// specified stream and rents its buffers from <see cref="ArrayPool{T}.Shared"/>.
+    /// </summary>
+    /// <param name="stream">The stream to read frames from.</param>
+    /// <param name="leaveOpen"><see langword="true"/> to leave the stream open when the reader is
+    /// disposed; otherwise, <see langword="false"/>. The default is <see langword="false"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    public PacketStreamReader(Stream stream, bool leaveOpen = false) :
+        this(stream, ArrayPool<byte>.Shared, leaveOpen)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PacketStreamReader"/> class that reads from the
+    /// specified stream and rents its buffers from the specified pool.
+    /// </summary>
+    /// <param name="stream">The stream to read frames from.</param>
+    /// <param name="pool">The pool that packet buffers are rented from and returned to.</param>
+    /// <param name="leaveOpen"><see langword="true"/> to leave the stream open when the reader is
+    /// disposed; otherwise, <see langword="false"/>. The default is <see langword="false"/>.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.
+    /// -or-
+    /// <paramref name="pool"/> is <see langword="null"/>.</exception>
+    public PacketStreamReader(Stream stream, ArrayPool<byte> pool, bool leaveOpen = false)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(pool);
+        _stream = stream;
+        _pool = pool;
+        _leaveOpen = leaveOpen;
+    }
+
+    /// <summary>
+    /// Gets the stream that frames are read from.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    public Stream BaseStream
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _stream;
+        }
+    }
+
+    /// <summary>
+    /// Gets the cipher that decrypts every byte in place as it is read.
+    /// </summary>
+    /// <value>
+    /// The decryptor, or <see langword="null"/> when the stream is not encrypted.
+    /// </value>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <remarks>
+    /// The cipher can be set only between two frames. The reader holds no bytes of the next frame, so
+    /// the change always lands on a frame boundary.
+    /// </remarks>
+    public PacketCipher? Cipher
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _cipher;
+        }
+        internal set
+        {
+            ThrowIfDisposed();
+            if (_readState == Reading)
+                throw new InvalidOperationException("Cannot change the cipher while reading a packet");
+
+            _cipher = value;
+        }
+    }
+
+    /// <summary>
+    /// Gets or sets the compression threshold, in bytes. A negative value disables the compression
+    /// envelope.
+    /// </summary>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">A read is in progress.</exception>
+    /// <remarks>
+    /// A new value applies from the next frame. Set this property between frames.
+    /// </remarks>
+    public int CompressionThreshold
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _compressionThreshold;
+        }
+        set
+        {
+            ThrowIfDisposed();
+            if (_readState == Reading)
+                throw new InvalidOperationException("Cannot set CompressionThreshold while reading a packet");
+
+            _compressionThreshold = value;
+        }
+    }
+
+    /// <summary>
+    /// Asynchronously reads exactly one frame from the stream.
+    /// </summary>
+    /// <param name="token">The token to monitor for cancellation requests. The default value is
+    /// <see cref="CancellationToken.None"/>.</param>
+    /// <returns>A task that represents the asynchronous read operation. The result contains the packet
+    /// that was read.</returns>
+    /// <exception cref="ObjectDisposedException">The current instance has already been disposed.</exception>
+    /// <exception cref="InvalidOperationException">Another read is already in progress.</exception>
+    /// <exception cref="InvalidDataException">The frame length is not positive or is greater than 32
+    /// MiB, the length varint is longer than five bytes, the declared uncompressed size is out of
+    /// range, the compression envelope carries no packet, or decompression failed.</exception>
+    /// <exception cref="EndOfStreamException">The stream ended in the middle of a frame.</exception>
+    /// <exception cref="OperationCanceledException">The cancellation token was canceled. This exception
+    /// is stored into the returned task.</exception>
+    /// <remarks>
+    /// The packet owns the pooled block behind <see cref="IncomingPacket.Body"/>: dispose it when it
+    /// is no longer needed, or keep it as long as needed. Cancellation after the read has started
+    /// leaves the stream positioned inside a frame.
+    /// </remarks>
+    public async ValueTask<IncomingPacket> ReadPacketAsync(CancellationToken token = default)
+    {
+        token.ThrowIfCancellationRequested();
+        ThrowIfDisposed();
+
+        if (Interlocked.CompareExchange(ref _readState, Reading, NotRead) == Reading)
+            ThrowHelper.ThrowConcurrentRead();
+
+        try
+        {
+            var len = await ReadLengthAsync(token).ConfigureAwait(false);
+            if (len <= 0 || len > BufferedPacketReader.MaxFrameLength) ThrowHelper.ThrowInvalidFrameLength(len);
+
+            // the reader's one reference to the wire block goes to the packet when the packet lives in
+            // it, and back to the pool once the packet was inflated elsewhere or the frame was refused
+            var wire = new PooledBlock(_pool, len);
+            PooledBlock? held = wire;
+            try
+            {
+                var memory = wire.Array.AsMemory(0, len);
+                await _stream.ReadExactlyAsync(memory, token).ConfigureAwait(false);
+                _cipher?.Transform(memory.Span);
+
+                if (_compressionThreshold < 0)
+                {
+                    var packet = CreatePacket(wire, 0, len);
+                    held = null;
+                    return packet;
+                }
+
+                var sizeUncompressed = memory.Span.ReadVarInt(out var sizeLength);
+
+                if (sizeUncompressed <= 0)
+                {
+                    if (len - sizeLength <= 0) ThrowHelper.ThrowEmptyEnvelope();
+
+                    var packet = CreatePacket(wire, sizeLength, len - sizeLength);
+                    held = null;
+                    return packet;
+                }
+
+                if (sizeUncompressed > BufferedPacketReader.MaxFrameLength)
+                    ThrowHelper.ThrowInvalidUncompressedSize(sizeUncompressed);
+
+                var inflated = new PooledBlock(_pool, sizeUncompressed);
+                try
+                {
+                    DecompressCore(memory.Span[sizeLength..], inflated.Array.AsSpan(0, sizeUncompressed));
+                    return CreatePacket(inflated, 0, sizeUncompressed);
+                }
+                catch
+                {
+                    inflated.Release();
+                    throw;
+                }
+            }
+            finally
+            {
+                held?.Release();
+            }
+        }
+        finally
+        {
+            Interlocked.Exchange(ref _readState, NotRead);
+        }
+    }
+
+    [AsyncMethodBuilder(typeof(PoolingAsyncValueTaskMethodBuilder<>))]
+    private async ValueTask<int> ReadLengthAsync(CancellationToken token)
+    {
+        var memory = _varIntBuff.AsMemory(0, 1);
+        var numRead = 0;
+        var result = 0;
+        byte read;
+        do
+        {
+            await _stream.ReadExactlyAsync(memory, token).ConfigureAwait(false);
+            _cipher?.Transform(memory.Span);
+
+            read = memory.Span[0];
+            result |= (read & 0b01111111) << (7 * numRead);
+
+            numRead++;
+            if (numRead > 5) ThrowHelper.ThrowVarIntTooLong();
+        } while ((read & 0b10000000) != 0);
+
+        return result;
+    }
+
+    internal static void DecompressCore(ReadOnlySpan<byte> bufferCompress, Span<byte> uncompress)
+    {
+        var decompressor = LibDeflateCache.RentDecompressor();
+        var status = decompressor.Decompress(bufferCompress, uncompress, out var written);
+
+        // status first: a broken frame reports its own reason, not a buffer-length mismatch
+        if (status != OperationStatus.Done) ThrowHelper.ThrowDecompressFailed(status);
+        if (written != uncompress.Length) ThrowHelper.ThrowDecompressSizeMismatch(written, uncompress.Length);
+    }
+
+    /// <summary>Builds the packet over a window of the block; the packet takes the caller's reference.</summary>
+    private static IncomingPacket CreatePacket(PooledBlock block, int offset, int length)
+    {
+        var id = block.Array.AsSpan(offset, length).ReadVarInt(out var idLength);
+        if (length - idLength < 0) ThrowHelper.ThrowIdPastFrameEnd();
+
+        return new IncomingPacket(id, block, offset + idLength, length - idLength);
+    }
+
+    private void ThrowIfDisposed() =>
+        ObjectDisposedException.ThrowIf(_state == Disposed, typeof(PacketStreamReader));
+
+    /// <summary>
+    /// Releases all resources used by the current instance of the <see cref="PacketStreamReader"/>
+    /// class.
+    /// </summary>
+    /// <remarks>
+    /// Packets already read are not affected: each owns its buffer. The stream is disposed unless the
+    /// reader was created with <c>leaveOpen</c> set to <see langword="true"/>.
+    /// </remarks>
+    public void Dispose()
+    {
+        if (Interlocked.CompareExchange(ref _state, Disposed, Normal) == Disposed) return;
+
+        if (!_leaveOpen) _stream.Dispose();
+    }
+
+    /// <summary>
+    /// Asynchronously releases all resources used by the current instance of the
+    /// <see cref="PacketStreamReader"/> class.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous dispose operation.</returns>
+    /// <remarks>
+    /// Packets already read are not affected: each owns its buffer. The stream is disposed unless the
+    /// reader was created with <c>leaveOpen</c> set to <see langword="true"/>.
+    /// </remarks>
+    public ValueTask DisposeAsync()
+    {
+        Dispose();
+        return ValueTask.CompletedTask;
+    }
+}

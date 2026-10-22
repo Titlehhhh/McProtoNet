@@ -1,0 +1,37 @@
+using McProtoNet.Protocol.Attributes;
+using McProtoNet.Primitives;
+
+namespace McProtoNet.Protocol.Packets.Play.Serverbound;
+
+[ProtocolSupport(766, 772)]
+[Packet("play.toServer.debug_sample_subscription", PacketPhase.Play, PacketDirection.Serverbound)]
+[PacketField("Type", "int")]
+public sealed partial record DebugSampleSubscriptionPacket(int Type) : IPacket<DebugSampleSubscriptionPacket>, IPacket
+{
+    public static DebugSampleSubscriptionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
+    {
+        ThrowHelper.ThrowIfProtocolNotSupported<DebugSampleSubscriptionPacket>(protocolVersion);
+        var type = reader.ReadVarInt();
+        return new DebugSampleSubscriptionPacket(type);
+    }
+
+    public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
+    {
+        ThrowHelper.ThrowIfProtocolNotSupported<DebugSampleSubscriptionPacket>(protocolVersion);
+        writer.WriteVarInt(Type);
+    }
+
+    public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 22);
+
+    PacketIdentity IPacket.Identity => Identity;
+
+    public static bool TryGetPacketId(int protocolVersion, out int id)
+    {
+        return PacketRegistry.TryGetId(Identity, protocolVersion, out id);
+    }
+
+    public static int GetPacketId(int protocolVersion)
+    {
+        return PacketRegistry.GetId(Identity, protocolVersion);
+    }
+}

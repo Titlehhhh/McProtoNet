@@ -1,7 +1,6 @@
 using System.Text;
 using BenchmarkDotNet.Attributes;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Benchmark;
 
 [MemoryDiagnoser]

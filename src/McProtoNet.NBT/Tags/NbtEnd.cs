@@ -2,18 +2,13 @@ using System.Text;
 
 namespace McProtoNet.NBT;
 
-internal class NbtEnd : NbtTag
+/// <summary>Represents the NBT tag that marks the end of a compound and carries no payload.</summary>
+internal sealed class NbtEnd : NbtTag
 {
     public override NbtTagType TagType => NbtTagType.End;
 
-    internal override bool ReadTag(NbtBinaryReader readStream)
+    internal override void ReadTag(NbtBinaryReader readStream)
     {
-        return true;
-    }
-
-    internal override void SkipTag(NbtBinaryReader readStream)
-    {
-        readStream.Skip(0);
     }
 
     internal override void WriteTag(NbtBinaryWriter writeReader)

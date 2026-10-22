@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0;net11.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <LangVersion>14</LangVersion>
@@ -14,34 +14,17 @@
         <NoWarn>$(NoWarn);CS0535</NoWarn>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <IncludeHandshakePackets>true</IncludeHandshakePackets>
-        <IncludeLoginPackets>true</IncludeLoginPackets>
-        <IncludeStatusPackets>true</IncludeStatusPackets>
-        <IncludeConfigurationPackets>true</IncludeConfigurationPackets>
-        <IncludePlayClientboundPackets>false</IncludePlayClientboundPackets>
-        <IncludePlayServerboundPackets>false</IncludePlayServerboundPackets>
-    </PropertyGroup>
-
-    <ItemGroup>
-        <Compile Remove="Packets/Handshaking/**/*.cs" Condition="'$(IncludeHandshakePackets)' == 'false'" />
-        <Compile Remove="Packets/Login/**/*.cs" Condition="'$(IncludeLoginPackets)' == 'false'" />
-        <Compile Remove="Packets/Status/**/*.cs" Condition="'$(IncludeStatusPackets)' == 'false'" />
-        <Compile Remove="Packets/Configuration/**/*.cs" Condition="'$(IncludeConfigurationPackets)' == 'false'" />
-        <Compile Remove="Packets/Play/Clientbound/**/*.cs" Condition="'$(IncludePlayClientboundPackets)' == 'false'" />
-        <Compile Remove="Packets/Play/Serverbound/**/*.cs" Condition="'$(IncludePlayServerboundPackets)' == 'false'" />
-    </ItemGroup>
     <ItemGroup>
         <InternalsVisibleTo Include="McProtoNet.Benchmark"/>
         <InternalsVisibleTo Include="McProtoNet.Tests"/>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\McProtoNet.Serialization\McProtoNet.Serialization.csproj"/>
-        <ProjectReference Include="..\McProtoNet\McProtoNet.csproj"/>
+        <ProjectReference Include="..\McProtoNet.Primitives\McProtoNet.Primitives.csproj"/>
+        <ProjectReference Include="..\McProtoNet.NBT\McProtoNet.NBT.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dunet"/>
+        <PackageReference Include="Dunet" PrivateAssets="all"/>
     </ItemGroup>
 
 

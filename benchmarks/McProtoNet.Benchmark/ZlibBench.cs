@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
 using BenchmarkDotNet.Attributes;
-using McProtoNet.Net.Zlib;
+using McProtoNet.Transport.Compression;
 using CompressionLevel = System.IO.Compression.CompressionLevel;
 
 namespace McProtoNet.Benchmark;

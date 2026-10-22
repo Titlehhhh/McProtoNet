@@ -1,8 +1,7 @@
 using System.Buffers;
 using System.IO;
 using System.Threading;
-using McProtoNet.Serialization;
-
+using McProtoNet.Primitives;
 namespace McProtoNet.Benchmark.Pipelines;
 
 public class TestPacket

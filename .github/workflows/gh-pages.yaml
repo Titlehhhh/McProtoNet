@@ -1,27 +1,45 @@
 name: Build documentation
 
+# Публикуются оба сайта сразу: старая документация Writerside в корне
+# Pages, новая на Docusaurus - в подпапке /next/.
+#
+# Фильтр путей стоит на воркфлоу, а не на отдельных джобах, и это
+# обязательно: deploy ждёт оба артефакта, а Pages заменяет сайт целиком.
+# Пропусти джоба legacy правку в docs/site - и корень сайта уехал бы
+# пустым, то есть старая дока пропала бы с titlehhhh.github.io.
 on:
   push:
     branches:
-      - '**'  # Запускается на всех ветках
+      - master
+      - dev
     paths:
-      - 'docs/**'  # Только если изменены файлы в папке docs/
-  workflow_dispatch:  # Позволяет запускать вручную
+      - 'docs/**'
+      - '.github/workflows/gh-pages.yaml'
+  workflow_dispatch:
 
+# Группа общая на все ветки: пуш в dev и пуш в master иначе деплоят
+# одновременно и перезаписывают друг друга.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: true
 
 permissions:
+  contents: read
   id-token: write
   pages: write
 
 env:
-  INSTANCE: 'docs/in'
+  # Локатор экшена принимает ровно <module>/<product>, поэтому папка проекта
+  # передаётся отдельно через location, а не склеивается с инстансом.
+  WS_LOCATION: 'docs'
+  WS_INSTANCE: 'legacy-writerside/in'
   DOCKER_VERSION: '243.22562'
 
 jobs:
-  build:
+  legacy:
+    name: Writerside (site root)
     runs-on: ubuntu-latest
     outputs:
-      algolia_artifact: ${{ steps.define-ids.outputs.algolia_artifact }}
       artifact: ${{ steps.define-ids.outputs.artifact }}
     steps:
       - name: Checkout repository
@@ -29,68 +47,115 @@ jobs:
         with:
           fetch-depth: 0
 
-
-      - name: Define instance id and artifacts
+      - name: Define instance id and artifact
         id: define-ids
         run: |
-          INSTANCE=${INSTANCE#*/}
-          INSTANCE_ID_UPPER=$(echo "$INSTANCE" | tr '[:lower:]' '[:upper:]')
+          # Имя архива собирается из идентификатора инстанса, без модуля.
+          INSTANCE_ID=${WS_INSTANCE##*/}
+          INSTANCE_ID_UPPER=$(echo "$INSTANCE_ID" | tr '[:lower:]' '[:upper:]')
           ARTIFACT="webHelp${INSTANCE_ID_UPPER}2-all.zip"
-          ALGOLIA_ARTIFACT="algolia-indexes-${INSTANCE_ID_UPPER}.zip"
-
-          # Print the values
-          echo "INSTANCE_ID_UPPER: $INSTANCE_ID_UPPER"
           echo "ARTIFACT: $ARTIFACT"
-          echo "ALGOLIA_ARTIFACT: $ALGOLIA_ARTIFACT"
-
-          # Set the environment variables and outputs
-          echo "INSTANCE_ID_UPPER=$INSTANCE_ID_UPPER" >> $GITHUB_ENV
-          echo "ARTIFACT=$ARTIFACT" >> $GITHUB_ENV
-          echo "ALGOLIA_ARTIFACT=$ALGOLIA_ARTIFACT" >> $GITHUB_ENV
           echo "artifact=$ARTIFACT" >> $GITHUB_OUTPUT
-          echo "algolia_artifact=$ALGOLIA_ARTIFACT" >> $GITHUB_OUTPUT
-
-      - run: echo ${{ env.INSTANCE }}
 
       - name: Build docs using Writerside Docker builder
         uses: JetBrains/writerside-github-action@v4
         with:
-          instance: ${{ env.INSTANCE }}
+          location: ${{ env.WS_LOCATION }}
+          instance: ${{ env.WS_INSTANCE }}
           docker-version: ${{ env.DOCKER_VERSION }}
-
 
       - name: Save artifact with build results
         uses: actions/upload-artifact@v4
         with:
-          name: docs
-          path: |
-            artifacts/${{ steps.define-ids.outputs.artifact }}
-            artifacts/report.json
-            artifacts/${{ steps.define-ids.outputs.algolia_artifact }}
+          name: legacy-docs
+          path: artifacts/${{ steps.define-ids.outputs.artifact }}
           retention-days: 7
+
+  site:
+    name: Docusaurus (/next/)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs/site
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # Docusaurus читает git-историю ради «последнее обновление»;
+          # при глубине 1 даты будут пустые.
+          fetch-depth: 0
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: docs/site/package-lock.json
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            10.0.x
+            11.0.x
+          dotnet-quality: preview
+
+      - name: Install docfx
+        run: |
+          dotnet tool install -g docfx
+          echo "$HOME/.dotnet/tools" >> $GITHUB_PATH
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Справка API не лежит в git: docfx собирает метаданные из проектов,
+      # скрипт разворачивает их в страницы. Без этих двух шагов раздел
+      # "Справка API" на сайте пустой.
+      - name: Collect API metadata
+        run: npm run metadata
+
+      - name: Generate API pages
+        run: npm run api
+
+      - name: Build site
+        run: npm run build
+
+      - name: Save artifact with build results
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-docs
+          path: docs/site/build
+          retention-days: 7
+
   deploy:
+    needs: [legacy, site]
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
-    runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download Writerside artifact
         uses: actions/download-artifact@v4
         with:
-          name: docs
+          name: legacy-docs
           path: artifacts
 
-      - name: Unzip artifact
-        run: unzip -O UTF-8 -qq "artifacts/${{ needs.build.outputs.artifact }}" -d dir
+      - name: Unzip Writerside artifact into the site root
+        run: unzip -O UTF-8 -qq "artifacts/${{ needs.legacy.outputs.artifact }}" -d public
+
+      - name: Download Docusaurus artifact into /next/
+        uses: actions/download-artifact@v4
+        with:
+          name: next-docs
+          path: public/next
 
       - name: Setup Pages
-        uses: actions/configure-pages@v4
+        uses: actions/configure-pages@v5
 
-      - name: Package and upload Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dir
+          path: public
 
       - name: Deploy to GitHub Pages
         id: deployment

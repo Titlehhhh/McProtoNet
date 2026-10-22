@@ -1,0 +1,631 @@
+// Разбирает YAML метаданные DocFX (docs/site/api/*.yml, генерируются `npm run metadata`)
+// и раскладывает их в markdown-страницы под docs/08-api-reference/:
+// одна страница на пространство имён (список типов) и одна страница на тип
+// (описание, объявление, таблицы членов с якорями). Страницы генерируются
+// заново при каждом запуске и не хранятся в git - см. .gitignore рядом.
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { execFileSync } from "node:child_process";
+import YAML from "yaml";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const ROOT = path.resolve(__dirname, "..");
+const API_DIR = path.join(ROOT, "api");
+const OUT_DIR = path.join(ROOT, "docs", "08-api-reference");
+const BASE_URL = "/docs/api-reference";
+
+// Ссылка на строку должна пережить переименование/удаление файла в будущих
+// коммитах ветки, поэтому "Исходный код" указывает на конкретный коммит, а
+// не на branch. Хеш вычисляется один раз при старте скрипта: CI кладёт его
+// в GITHUB_SHA, локально берём HEAD; если ни то ни другое не сработало -
+// откатываемся на имя ветки из метаданных docfx.
+const COMMIT_SHA =
+  process.env.GITHUB_SHA ||
+  (() => {
+    try {
+      return execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+    } catch {
+      return null;
+    }
+  })();
+
+const TYPE_KINDS = ["Class", "Struct", "Interface", "Enum", "Delegate"];
+const MEMBER_KINDS = ["Constructor", "Property", "Field", "Method", "Event", "Operator"];
+
+const KIND_LABEL = {
+  Class: "class",
+  Struct: "struct",
+  Interface: "interface",
+  Enum: "enum",
+  Delegate: "delegate",
+};
+const SECTION_LABEL = {
+  Constructor: "Constructors",
+  Property: "Properties",
+  Field: "Fields",
+  Method: "Methods",
+  Event: "Events",
+  Operator: "Operators",
+};
+const LABELS = {
+  namespace: "Namespace",
+  assembly: "Assembly",
+  source: "Source",
+  declaration: "Declaration",
+  inherits: "Inheritance",
+  implements: "Implements",
+  derived: "Derived",
+  remarks: "Remarks",
+  params: "Parameters",
+  returns: "Returns",
+  exceptions: "Exceptions",
+  seealso: "See also",
+  noSummary: "-",
+  types: "Types",
+  signature: "Signature",
+  description: "Description",
+};
+
+// ---------- load DocFX metadata ----------
+if (!fs.existsSync(API_DIR)) {
+  console.error(`Нет каталога с метаданными DocFX: ${API_DIR}. Сначала запусти "npm run metadata".`);
+  process.exit(1);
+}
+const itemsMap = new Map(); // uid -> item
+// DocFX also emits a `references` block per file: every uid mentioned anywhere,
+// including BCL ones, with a display name already formatted the C# way
+// ("ReadOnlyMemory<byte>", "TimeSpan.Zero"). It is the only source of good
+// labels for types and members outside this API surface.
+const refsMap = new Map(); // uid -> reference
+for (const f of fs.readdirSync(API_DIR)) {
+  if (!f.endsWith(".yml") || f === "toc.yml") continue;
+  const doc = YAML.parse(fs.readFileSync(path.join(API_DIR, f), "utf8"));
+  for (const r of doc?.references ?? []) if (r.uid && !refsMap.has(r.uid)) refsMap.set(r.uid, r);
+  if (!doc?.items) continue;
+  for (const it of doc.items) itemsMap.set(it.uid, it);
+}
+
+const types = [...itemsMap.values()]
+  .filter((it) => TYPE_KINDS.includes(it.type))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
+const byNamespace = new Map(); // namespace -> type[]
+for (const t of types) {
+  const ns = t.namespace ?? "";
+  if (!byNamespace.has(ns)) byNamespace.set(ns, []);
+  byNamespace.get(ns).push(t);
+}
+const namespaces = [...byNamespace.keys()].sort();
+
+// short type name -> uid, only when unique across the whole API surface
+const typeIndexByShortName = new Map();
+{
+  const count = new Map();
+  for (const t of types) {
+    const n = t.name.replace(/<.*$/, "");
+    count.set(n, (count.get(n) ?? 0) + 1);
+  }
+  for (const t of types) {
+    const n = t.name.replace(/<.*$/, "");
+    if (count.get(n) === 1) typeIndexByShortName.set(n, t.uid);
+  }
+}
+
+// ---------- small helpers ----------
+const slug = (s) =>
+  String(s)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "x";
+
+const fsSafe = (s) => String(s).replace(/`/g, "-");
+
+function localId(t) {
+  const prefix = `${t.namespace}.`;
+  return t.uid.startsWith(prefix) ? t.uid.slice(prefix.length) : t.uid;
+}
+function typeFileName(t) {
+  return fsSafe(localId(t));
+}
+// Namespaces map to nested folders (one path segment per dot), so URLs
+// follow the same nesting: McProtoNet.Protocol.Packets.Play.Clientbound
+// -> /McProtoNet/Protocol/Packets/Play/Clientbound.
+function namespacePath(ns) {
+  return ns.split(".").join("/");
+}
+function typeUrl(t) {
+  return `${BASE_URL}/${namespacePath(t.namespace)}/${typeFileName(t)}`;
+}
+function namespaceUrl(ns) {
+  return `${BASE_URL}/${namespacePath(ns)}`;
+}
+function memberLocalId(m, parentUid) {
+  const prefix = `${parentUid}.`;
+  return m.uid.startsWith(prefix) ? m.uid.slice(prefix.length) : m.uid;
+}
+// unique-per-page anchor slugs
+function makeAnchorer() {
+  const used = new Set();
+  return (raw) => {
+    let s = slug(raw);
+    let out = s;
+    let n = 2;
+    while (used.has(out)) out = `${s}-${n++}`;
+    used.add(out);
+    return out;
+  };
+}
+
+function frontMatter(fields) {
+  const lines = Object.entries(fields)
+    .filter(([, v]) => v !== undefined && v !== null && v !== "")
+    .map(([k, v]) => `${k}: ${JSON.stringify(v)}`);
+  if (!lines.length) return "";
+  return `---\n${lines.join("\n")}\n---\n\n`;
+}
+
+// ---------- XML-doc-comment text (summary/remarks/descriptions) -> markdown ----------
+// DocFX turns doc-comment markup into HTML: <see cref> becomes <xref>,
+// <see langword> becomes <a href> to the C# language reference, <paramref>
+// and <typeparamref> become <code class="paramref">, <list> becomes
+// <ul>/<li>/<span class="term">, <para> becomes <p>. Everything renderDoc
+// does not convert is escaped so it can never be parsed as MDX/JSX - which
+// also means it shows up on the page as literal "&lt;a href=..." text, so
+// leftovers are counted in unhandledTags and reported at the end of the run.
+function decodeUid(uidRaw) {
+  try {
+    return decodeURIComponent(uidRaw);
+  } catch {
+    return uidRaw;
+  }
+}
+// short display name for a uid that resolves to nothing we know about
+// (external BCL types): last dotted segment, generic arity marker stripped.
+function fallbackLabel(uid) {
+  const ref = refsMap.get(uid);
+  if (ref?.nameWithType) return ref.nameWithType;
+  return uid.split(".").pop().replace(/`+\d+$/, "");
+}
+function resolveXrefTarget(uid) {
+  const it = itemsMap.get(uid);
+  if (!it) return null;
+  if (TYPE_KINDS.includes(it.type)) return { label: it.name, href: typeUrl(it) };
+  if (it.type === "Namespace") return { label: it.name, href: namespaceUrl(it.uid) };
+  const parent = itemsMap.get(it.parent);
+  if (parent && TYPE_KINDS.includes(parent.type)) {
+    const label = it.name.replace(/\(.*$/, "");
+    return { label: `${parent.name}.${label}`, href: `${typeUrl(parent)}#${slug(memberLocalId(it, parent.uid))}` };
+  }
+  return { label: it.name, href: null };
+}
+// Escaping must happen after DocFX's markup is turned into markdown links, code
+// spans and lists, otherwise the escape pass would mangle them. Placeholders
+// (a NUL-delimited index, a byte no doc comment can contain) keep the generated
+// markdown out of the way of the escaping regexes below.
+const MARK = "\u0000";
+const MARK_RE = new RegExp(`${MARK}(\\d+)${MARK}`, "g");
+// Tags that carry doc-comment markup. A tag left here after all conversions is
+// a gap in this function; generic arguments in prose (Memory<byte>) are not in
+// the list and stay escaped, which is what we want.
+const HTML_TAGS = new Set([
+  "a", "b", "br", "code", "div", "em", "i", "img", "li", "ol", "p", "para",
+  "pre", "span", "strong", "table", "td", "th", "tr", "ul", "xref",
+]);
+// A tag reported here is a gap in renderDoc, not a hard failure: the run
+// finishes and the tag is visible on the page, escaped, so the gap can be seen
+// and closed. Names only - a tag is counted once per open and once per close,
+// and summaries pass through renderDoc twice (table row and body), so any
+// number here would be misleading.
+const unhandledTags = new Set();
+function auditTags(text) {
+  for (const [, tag] of text.matchAll(/<\/?([a-zA-Z][a-zA-Z0-9]*)[\s/>]/g)) {
+    const t = tag.toLowerCase();
+    if (HTML_TAGS.has(t)) unhandledTags.add(t);
+  }
+}
+// DocFX keeps doc-comment text HTML-escaped: <c>_minecraft._tcp.&lt;host&gt;</c>.
+// Markdown does not decode entities inside a code span, so the reader would
+// see "&lt;host&gt;" verbatim. Prose is left alone - there the entity is what
+// keeps the text out of the MDX parser's hands.
+const decodeEntities = (s) =>
+  String(s)
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&(?:apos|#39);/g, "'")
+    .replace(/&amp;/g, "&");
+// A code span has to be fenced by more backticks than the longest run inside
+// it, otherwise content like `a\`b` closes the span early and the rest of the
+// text lands in MDX raw.
+function codeSpan(text) {
+  const longest = (text.match(/`+/g) ?? []).reduce((a, b) => Math.max(a, b.length), 0);
+  if (!longest) return `\`${text}\``;
+  const fence = "`".repeat(longest + 1);
+  return `${fence} ${text} ${fence}`;
+}
+function renderDoc(text) {
+  if (!text) return "";
+  // Every mark carries both forms: `md` is what lands on the page, `text` is
+  // the same thing flattened. A mark nested inside another one (<c> around a
+  // <see langword>, say) has to collapse to the flat form - markdown has no
+  // links or code spans inside a code span, and leaving the placeholder in
+  // place would ship a raw NUL byte into the .md file.
+  const marks = [];
+  const mark = (md, text) => {
+    marks.push({ md, text });
+    return `${MARK}${marks.length - 1}${MARK}`;
+  };
+  const flatten = (t) => t.replace(MARK_RE, (_, i) => marks[Number(i)]?.text ?? "");
+  let s = String(text);
+  s = s.replace(/<xref href="([^"]+)"[^>]*>([^<]*)<\/xref>/g, (_, uidRaw, inner) => {
+    const uid = decodeUid(uidRaw);
+    const target = resolveXrefTarget(uid);
+    const label = target?.label ?? (inner || fallbackLabel(uid));
+    return mark(target?.href ? `[${codeSpan(label)}](${target.href})` : codeSpan(label), label);
+  });
+  // <see langword="true"/> arrives as a link to the C# language reference.
+  // Nine hundred links on the words true/false/null are noise, so language
+  // keywords become code spans; any other <a> keeps its link.
+  s = s.replace(/<a href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g, (_, href, inner) => {
+    const label = decodeEntities(flatten(inner).trim());
+    if (/\/dotnet\/csharp\/language-reference\//.test(href)) return mark(codeSpan(label), label);
+    return mark(`[${label}](${href})`, label);
+  });
+  // <example><code>…</code></example> arrives as a <pre> block. It has to be
+  // taken before the inline <code> pass below, which would otherwise pull a
+  // multi-line listing into a code span and drop its blank lines into MDX raw.
+  s = s.replace(/<pre><code(?: class="lang-([^"]*)")?[^>]*>([\s\S]*?)<\/code><\/pre>/g, (_, lang, body) => {
+    const code = decodeEntities(flatten(body)).replace(/^\n+|\n+$/g, "");
+    return mark(`\n\n\`\`\`${lang ?? ""}\n${code}\n\`\`\`\n\n`, code);
+  });
+  // <paramref>/<typeparamref> come through as <code class="paramref">, not bare <code>.
+  s = s.replace(/<code[^>]*>([\s\S]*?)<\/code>/g, (_, inner) => {
+    const code = decodeEntities(flatten(inner));
+    return mark(codeSpan(code), code);
+  });
+  // <list type="table"> comes through as <ul><li><span class="term">term</span>text</li>…
+  // Innermost list first, so a nested list keeps all of its items: the outer
+  // pass would otherwise close on the inner </ul> and spill the rest as prose.
+  const listRe = /<([uo])l>((?:(?!<[uo]l>)[\s\S])*?)<\/\1l>/;
+  while (listRe.test(s)) {
+    s = s.replace(listRe, (_, __, list) => {
+      const rows = [...list.matchAll(/<li>([\s\S]*?)<\/li>/g)].map(([, li]) => {
+        // <para> inside a list item arrives as <p>; taken here, it would split
+        // the item into an empty bullet and a loose paragraph.
+        const item = li
+          .replace(/<\/?p>/g, " ")
+          .replace(/<span class="term">([\s\S]*?)<\/span>\s*/g, (m, term) => (term.trim() ? `**${term.trim()}** — ` : ""))
+          .trim();
+        // An already converted nested list is indented back under its parent.
+        return ("- " + item).replace(/\n+/g, "\n  ");
+      });
+      return `\n\n${rows.join("\n")}\n\n`;
+    });
+  }
+  s = s.replace(/<\/?p>/g, "\n\n");
+  auditTags(s);
+  s = s.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\{/g, "&#123;").replace(/\}/g, "&#125;");
+  // Expand until stable: one pass is enough today, the loop is what guarantees
+  // no placeholder byte can reach the file.
+  for (let prev = null; prev !== s; ) {
+    prev = s;
+    s = s.replace(MARK_RE, (_, i) => marks[Number(i)]?.md ?? "");
+  }
+  // Second audit, on what the marks brought back: their content skipped the
+  // escape pass above, so a tag hidden inside one reaches MDX raw. The first
+  // audit cannot see it - by then the mark is a placeholder.
+  auditTags(s);
+  return s.replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+}
+// Plain (non-code-span) text dropped into MDX still needs the same escaping
+// as renderDoc: generic type names such as `MemoryOwner<T>` would otherwise
+// be parsed as a JSX tag once they are no longer wrapped in backticks.
+function escapeMdxText(s) {
+  return String(s).replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\{/g, "&#123;").replace(/\}/g, "&#125;");
+}
+function oneLine(md) {
+  return md.replace(/\s+/g, " ").trim();
+}
+function firstSentence(md) {
+  const t = oneLine(md);
+  let paren = 0,
+    bracket = 0,
+    backtick = false;
+  for (let i = 0; i < t.length; i++) {
+    const c = t[i];
+    if (c === "`") backtick = !backtick;
+    else if (backtick) continue;
+    else if (c === "[") bracket++;
+    else if (c === "]") bracket = Math.max(0, bracket - 1);
+    else if (c === "(") paren++;
+    else if (c === ")") paren = Math.max(0, paren - 1);
+    else if ((c === "." || c === "!" || c === "?") && paren === 0 && bracket === 0) {
+      const next = t[i + 1];
+      if (next === undefined || next === " ") return t.slice(0, i + 1);
+    }
+  }
+  return t;
+}
+function tableCell(md) {
+  return oneLine(md).replace(/\n/g, " ");
+}
+
+// ---------- type signature display ----------
+function shortSig(m) {
+  let c = (m.syntax?.content ?? m.name ?? "").replace(/\s+/g, " ").trim();
+  c = c.replace(/^(public|private|protected|internal|protected internal|private protected)\s+/, "");
+  c = c.replace(/\b(readonly|override|virtual|abstract|sealed|new|extern|unsafe|required)\s+/g, "");
+  c = c.replace(/\s*\{\s*(get|set|init|add|remove)[^}]*\}\s*$/, "");
+  c = c.replace(/\s*=\s*default\s*$/, "");
+  return c;
+}
+function kindLabel(it) {
+  const c = it.syntax?.content ?? "";
+  const m = c.match(
+    /^(?:public\s+)?((?:static\s+|abstract\s+|sealed\s+|readonly\s+|ref\s+|partial\s+)*)(record struct|record|class|struct|interface|enum|delegate)\b/,
+  );
+  return m ? (m[1] + m[2]).replace(/\s+/g, " ").trim() : KIND_LABEL[it.type] ?? it.type.toLowerCase();
+}
+// a single type reference used as a param/return/inheritance entry -> markdown, always inline code
+function typeDisplay(uid) {
+  const it = itemsMap.get(uid);
+  if (it && TYPE_KINDS.includes(it.type)) return `[\`${it.name}\`](${typeUrl(it)})`;
+  const ref = refsMap.get(uid);
+  if (ref?.name) return `\`${ref.name}\``;
+  const short = uid
+    .replace(/`+\d+/g, "")
+    .replace(/\{/g, "<")
+    .replace(/\}/g, ">")
+    .replace(/[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)+/g, (m) => m.split(".").pop());
+  return `\`${short}\``;
+}
+function sourceLink(it) {
+  const s = it.source;
+  if (!s?.remote) return null;
+  const ref = COMMIT_SHA ?? s.remote.branch;
+  return `${s.remote.repo.replace(/\.git$/, "")}/blob/${ref}/${s.remote.path}#L${(s.startLine ?? 0) + 1}`;
+}
+
+// ---------- namespace index page ----------
+function namespacePage(ns) {
+  const list = byNamespace.get(ns);
+  // Колонка описаний пустеет целиком на сгенерированных пакетах: столбец из
+  // двух сотен прочерков читателю ничего не даёт. Показываем её только если
+  // хотя бы у одного типа пространства есть summary.
+  const summaries = list.map((t) => tableCell(firstSentence(renderDoc(t.summary))));
+  const withDocs = summaries.some((x) => x);
+  const rows = list
+    .map((t, i) => {
+      const cell = `| \`${kindLabel(t)}\` [\`${t.name}\`](${typeUrl(t)}) |`;
+      return withDocs ? `${cell} ${summaries[i] || LABELS.noSummary} |` : cell;
+    })
+    .join("\n");
+  const head = withDocs
+    ? `| ${LABELS.types} | ${LABELS.description} |\n| --- | --- |\n`
+    : `| ${LABELS.types} |\n| --- |\n`;
+  const long = ns.length > 24;
+  const fm = frontMatter({ title: ns, sidebar_label: long ? ns.split(".").pop() : undefined });
+  return (
+    `${fm}# ${escapeMdxText(ns)}\n\n` +
+    `${LABELS.types}: **${list.length}**.\n\n` +
+    `${head}${rows}\n`
+  );
+}
+
+// ---------- type page ----------
+function defTable(it) {
+  const pkg = it.assemblies?.[0] ?? "?";
+  const rows = [
+    [LABELS.namespace, `[\`${it.namespace}\`](${namespaceUrl(it.namespace)})`],
+    [LABELS.assembly, `\`${pkg}.dll\``],
+  ];
+  const src = sourceLink(it);
+  if (src) rows.push([LABELS.source, `[${it.source.remote.path}#L${(it.source.startLine ?? 0) + 1} ↗](${src})`]);
+  return `| | |\n| --- | --- |\n${rows.map(([k, v]) => `| ${k} | ${v} |`).join("\n")}\n`;
+}
+// One member section = a summary table (links point at heading anchors below)
+// plus one heading per member carrying the same anchor id. Docs are compiled
+// as MDX (docusaurus.config markdown.format defaults to "mdx" for .md too),
+// where the classic `{#id}` heading syntax is parsed as a JS expression and
+// fails — the MDX-safe form is the comment syntax `{/* #id */}`. Real
+// headings are also what the broken-anchor checker tracks, so no raw HTML
+// <a>/<details> (those trip up the MDX parser once markdown paragraphs
+// follow on later lines).
+function memberSection(anchorFor, parent, kind, members) {
+  const label = SECTION_LABEL[kind];
+  const ids = members.map((m) => anchorFor(memberLocalId(m, parent.uid)));
+  const rows = members
+    .map((m, i) => {
+      const sig = tableCell(shortSig(m)).replace(/\|/g, "\\|");
+      const sum = tableCell(firstSentence(renderDoc(m.summary))) || LABELS.noSummary;
+      return `| [\`${sig}\`](#${ids[i]}) | ${sum} |`;
+    })
+    .join("\n");
+  const table = `## ${label}\n\n| ${LABELS.signature} | ${LABELS.description} |\n| --- | --- |\n${rows}\n\n`;
+
+  const details = members
+    .map((m, i) => memberDetails(m, ids[i]))
+    .join("");
+  return table + details;
+}
+function memberDetails(m, id) {
+  const params = m.syntax?.parameters ?? [];
+  const ret = m.syntax?.return;
+  // Heading text is DocFX's own short `name` (member name, and for
+  // overloads the parameter types with no names or defaults, e.g.
+  // "ConnectAsync(CancellationToken)") - the full declaration goes into the
+  // code block right below. Headings drive the page's right-hand ToC, and a
+  // full signature there wrapped onto three lines is unreadable.
+  let body = `### \`${m.name}\` {/* #${id} */}\n\n`;
+  body += "```csharp\n" + (m.syntax?.content ?? "") + "\n```\n\n";
+  if (m.summary) body += `${renderDoc(m.summary)}\n\n`;
+  // Member <remarks> used to be dropped: 140+ members carry one, and for many
+  // of them it is the only place the contract is spelled out. No heading —
+  // a member section has none, its blocks are bold labels and prose.
+  if (m.remarks) body += `${renderDoc(m.remarks)}\n\n`;
+  if (params.length) {
+    body += `**${LABELS.params}:** `;
+    body += params.map((p) => `\`${p.id}\` (${typeDisplay(p.type)})`).join(", ");
+    body += "\n\n";
+  }
+  if (ret?.type && ret.type !== "System.Void") {
+    body += `**${LABELS.returns}:** ${typeDisplay(ret.type)}`;
+    if (ret.description) body += ` - ${oneLine(renderDoc(ret.description))}`;
+    body += "\n\n";
+  }
+  if (m.exceptions?.length) {
+    body += `**${LABELS.exceptions}:** `;
+    body += m.exceptions.map((e) => `${typeDisplay(e.type)}${e.description ? ` - ${oneLine(renderDoc(e.description))}` : ""}`).join("; ");
+    body += "\n\n";
+  }
+  if (m.seealso?.length) {
+    const links = m.seealso.map((x) => {
+      const uid = decodeUid(x.linkId ?? x.uid ?? "");
+      if (/^https?:\/\//.test(uid)) return `[${x.altText ?? uid}](${uid})`;
+      const target = resolveXrefTarget(uid);
+      const label = target?.label ?? fallbackLabel(uid);
+      return target?.href ? `[\`${label}\`](${target.href})` : `\`${label}\``;
+    });
+    body += `**${LABELS.seealso}:** ${links.join(", ")}\n\n`;
+  }
+  return body;
+}
+function typePage(t) {
+  const anchorFor = makeAnchorer();
+  const kids = (t.children ?? []).map((u) => itemsMap.get(u)).filter(Boolean);
+  const long = t.name.length > 20;
+  // Right-hand ToC should list sections (Конструкторы/Свойства/Методы), not
+  // every single member heading underneath them.
+  const fm = frontMatter({
+    title: t.name,
+    sidebar_label: long ? t.name : undefined,
+    toc_max_heading_level: 2,
+  });
+
+  // Plain heading, not a code-quoted plaque: monospace comes from CSS
+  // scoped to api-reference pages (src/css/custom.css), not from wrapping
+  // the name in backticks.
+  let body = `${fm}# ${escapeMdxText(t.name)}\n\n`;
+  body += `\`${kindLabel(t)}\`\n\n`;
+  if (t.summary) body += `${renderDoc(t.summary)}\n\n`;
+
+  body += `## ${LABELS.declaration}\n\n`;
+  body += "```csharp\n" + (t.syntax?.content ?? "") + "\n```\n\n";
+  body += defTable(t) + "\n";
+
+  if (t.inheritance?.length > 1) {
+    body += `**${LABELS.inherits}:** ${t.inheritance
+      .slice(0, -1)
+      .map((u) => typeDisplay(u))
+      .join(" → ")} → \`${t.name}\`\n\n`;
+  }
+  if (t.implements?.length) {
+    body += `**${LABELS.implements}:** ${t.implements.map((u) => typeDisplay(u)).join(", ")}\n\n`;
+  }
+  if (t.derivedClasses?.length) {
+    body += `**${LABELS.derived}:** ${t.derivedClasses.map((u) => typeDisplay(u)).join(", ")}\n\n`;
+  }
+  if (t.remarks) {
+    body += `## ${LABELS.remarks}\n\n${renderDoc(t.remarks)}\n\n`;
+  }
+
+  for (const kind of MEMBER_KINDS) {
+    const list = kids.filter((k) => k.type === kind);
+    if (!list.length) continue;
+    body += memberSection(anchorFor, t, kind, list);
+  }
+
+  return body;
+}
+
+// ---------- namespace tree ----------
+// One node per dot-separated segment, e.g. McProtoNet.Protocol.Packets.Play
+// walks McProtoNet -> Protocol -> Packets -> Play. A node's `ns` is set only
+// when that exact dotted path is itself a namespace with types of its own
+// (an intermediate segment like Packets has none - plain category, no page).
+function buildNamespaceTree() {
+  const root = { segment: null, path: "", ns: undefined, children: new Map() };
+  for (const ns of namespaces) {
+    let node = root;
+    let path = "";
+    for (const seg of ns.split(".")) {
+      path = path ? `${path}.${seg}` : seg;
+      if (!node.children.has(seg)) {
+        node.children.set(seg, { segment: seg, path, ns: undefined, children: new Map() });
+      }
+      node = node.children.get(seg);
+    }
+    node.ns = ns;
+  }
+  return root;
+}
+// Hand-written namespaces (McProtoNet, Transport, Primitives, NBT, Protocol,
+// Protocol.Attributes, ...) sort before the generated packet tree: within
+// each folder, a "Packets" sibling always sorts last, everything else stays
+// alphabetical.
+function sortedChildren(node) {
+  return [...node.children.values()].sort((a, b) => {
+    const aPackets = a.segment === "Packets" ? 1 : 0;
+    const bPackets = b.segment === "Packets" ? 1 : 0;
+    return aPackets !== bPackets ? aPackets - bPackets : a.segment.localeCompare(b.segment);
+  });
+}
+
+// ---------- write ----------
+fs.rmSync(OUT_DIR, { recursive: true, force: true });
+fs.mkdirSync(OUT_DIR, { recursive: true });
+fs.writeFileSync(
+  path.join(OUT_DIR, "_category_.json"),
+  JSON.stringify({ label: "API reference" }, null, 2) + "\n",
+);
+
+let pages = 0;
+function writeNode(node, dir) {
+  sortedChildren(node).forEach((child, i) => {
+    const childDir = path.join(dir, fsSafe(child.segment));
+    fs.mkdirSync(childDir, { recursive: true });
+    // Category label is the last segment only ("Clientbound", not the full
+    // dotted namespace) - the breadcrumb trail already shows the parents.
+    // "Clientbound"/"Serverbound"/"NBT" repeat at several places in the
+    // tree, and Docusaurus keys sidebar translations by label text unless
+    // told otherwise, so `key` carries the full dotted path to stay unique.
+    const category = { label: child.segment, position: i + 1, key: child.path };
+    if (child.ns) category.link = { type: "doc", id: "index" };
+    fs.writeFileSync(path.join(childDir, "_category_.json"), JSON.stringify(category, null, 2) + "\n");
+    if (child.ns) {
+      fs.writeFileSync(path.join(childDir, "index.md"), namespacePage(child.ns));
+      pages++;
+      for (const t of byNamespace.get(child.ns)) {
+        fs.writeFileSync(path.join(childDir, `${typeFileName(t)}.md`), typePage(t));
+        pages++;
+      }
+    }
+    writeNode(child, childDir);
+  });
+}
+writeNode(buildNamespaceTree(), OUT_DIR);
+
+// Русская локаль живёт отдельным деревом, и относительные ссылки из русских
+// страниц ищут справку внутри него. Поэтому та же справка кладётся и туда;
+// содержимое английское, меняется только подпись раздела.
+const RU_OUT_DIR = path.join(
+  ROOT, "i18n", "ru", "docusaurus-plugin-content-docs", "current",
+  "08-api-reference",
+);
+fs.rmSync(RU_OUT_DIR, { recursive: true, force: true });
+fs.cpSync(OUT_DIR, RU_OUT_DIR, { recursive: true });
+fs.writeFileSync(
+  path.join(RU_OUT_DIR, "_category_.json"),
+  JSON.stringify({ label: "Справка API" }, null, 2) + "\n",
+);
+
+if (unhandledTags.size) {
+  const list = [...unhandledTags].map((t) => `<${t}>`).join(", ");
+  console.warn(`ВНИМАНИЕ: DocFX прислал теги, которых renderDoc не знает: ${list}. Они уйдут на страницу экранированным текстом.`);
+}
+console.log(`Пространств имён: ${namespaces.length}`);
+console.log(`Типов: ${types.length}`);
+console.log(`Страниц записано: ${pages}`);
+console.log(`Каталог: ${OUT_DIR}`);
+console.log(`Каталог (ru): ${RU_OUT_DIR}`);

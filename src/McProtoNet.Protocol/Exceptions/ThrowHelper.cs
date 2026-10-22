@@ -19,6 +19,12 @@ internal static partial class ThrowHelper
 
 
     [DoesNotReturn]
+    public static void ThrowInvalidArrayLength(int count, int maxCount, long remaining)
+        => throw new InvalidDataException(
+            $"Array length {count} is out of range: the frame has {remaining} bytes left and at most " +
+            $"{maxCount} elements are allowed.");
+
+    [DoesNotReturn]
     private static void ThrowUnknownType(Type type)
         => throw new InvalidOperationException($"Unknown protocol type {type}");
 }

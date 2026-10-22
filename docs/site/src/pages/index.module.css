@@ -1,0 +1,272 @@
+/**
+ * Главная страница.
+ * Раскладка — семь блоков подряд, каждый со своим вертикальным ритмом.
+ * Пустоты между hero и подвалом больше нет: её создавал flex-grow пустого
+ * main-wrapper, когда на странице не было ничего, кроме заголовка.
+ */
+
+.hero {
+  position: relative;
+  overflow: hidden;
+
+  background: var(--mc-bg2);
+  border-bottom: 1px solid var(--mc-line);
+  padding: 72px 0 64px;
+  text-align: center;
+}
+
+.heroTitle {
+  /* Фиксированные 45px рвали «McProtoNet» на «McProtoN / et» уже на 320px */
+  font-size: clamp(2rem, 1.4rem + 3vw, 3rem);
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+
+.heroSubtitle {
+  color: var(--mc-fg2);
+  font-size: clamp(1rem, 0.95rem + 0.5vw, 1.375rem);
+  margin-bottom: 28px;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+}
+
+.install {
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: left;
+}
+
+.installCode :global(.theme-code-block) {
+  margin-bottom: 8px;
+}
+
+.installNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  text-align: center;
+  margin: 0;
+}
+
+.section {
+  padding: 56px 0;
+}
+
+.sectionTitle {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Код и его вывод рядом — приём с главной Serilog */
+.sampleGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.sampleCode,
+.sampleOut {
+  min-width: 0;
+}
+
+.sampleNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  margin: 0;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.card {
+  background: var(--mc-bg2);
+  border: 1px solid var(--mc-line);
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.cardTitle {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.cardBody {
+  color: var(--mc-fg2);
+  font-size: 14.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.band {
+  background: var(--mc-bg2);
+  border-top: 1px solid var(--mc-line);
+  border-bottom: 1px solid var(--mc-line);
+  text-align: center;
+}
+
+.bandTitle {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.bandRange {
+  font-family: var(--ifm-font-family-monospace);
+  font-size: clamp(1.75rem, 1.2rem + 2.5vw, 2.75rem);
+  color: var(--mc-acc);
+  margin-bottom: 12px;
+}
+
+.bandDash {
+  color: var(--mc-fg3);
+  margin: 0 8px;
+}
+
+.bandNote {
+  color: var(--mc-fg2);
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.table {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 0;
+  border-bottom: 1px solid var(--mc-line);
+  padding: 10px 12px 10px 0;
+  text-align: left;
+  vertical-align: top;
+}
+
+.table th {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.table td:first-child {
+  white-space: nowrap;
+}
+
+.tableNote {
+  color: var(--mc-fg3);
+  font-size: 13px;
+  margin: 12px 0 0;
+}
+
+.next {
+  border-top: 1px solid var(--mc-line);
+}
+
+.nextList {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--mc-fg2);
+}
+
+.nextList li {
+  margin-bottom: 8px;
+}
+
+@media (max-width: 996px) {
+  .sampleGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .hero {
+    padding: 48px 0 40px;
+  }
+  .section {
+    padding: 40px 0;
+  }
+}
+
+/* Иконка пакета с nuget.org над заголовком. Растр 128px, показываем 96:
+   мельче — теряется кирка, крупнее — видно пиксельную кромку. */
+.heroIcon {
+  display: block;
+  margin: 0 auto 18px;
+  image-rendering: pixelated;
+}
+
+/* Подпись к фоновой картинке первого экрана */
+.backdropNote {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--mc-fg3);
+}
+
+/* Снимок строя ботов. Тёмная рамка, чтобы кадр не сливался с фоном. */
+.shot {
+  margin: 0;
+  border: 1px solid var(--mc-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--mc-bg2);
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.shotCaption {
+  padding: 14px 18px 16px;
+  color: var(--mc-fg2);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* На узком экране nowrap в первом столбце отдавал описанию половину ширины */
+@media (max-width: 576px) {
+  .table td:first-child {
+    white-space: normal;
+  }
+}
+
+/* Слой с постройкой: сильное приближение, лёгкое размытие и затемнение
+   сверху. Целиком надпись не показываем - она повторяла бы заголовок. */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: -24px;
+  background-image: var(--hero-backdrop);
+  background-size: 190%;
+  background-position: 18% 46%;
+  background-repeat: no-repeat;
+  filter: blur(2px) saturate(0.8);
+  opacity: 0.55;
+  z-index: 0;
+}
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(14, 16, 19, 0.55) 0%,
+    rgba(14, 16, 19, 0.78) 55%,
+    var(--mc-bg) 100%
+  );
+  z-index: 0;
+}
+.hero > :global(.container) {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32" role="img" aria-label="McProtoNet">
+  <rect width="32" height="32" rx="7" fill="#13161a"/>
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="6.25" fill="none" stroke="#333b46" stroke-width="1.5"/>
+  <!-- кадр пакета: длина, затем тело -->
+  <rect x="6" y="10" width="4" height="12" rx="1.5" fill="#4ade80"/>
+  <rect x="12" y="10" width="14" height="4" rx="1.5" fill="#7fd7a0"/>
+  <rect x="12" y="18" width="9" height="4" rx="1.5" fill="#7fd7a0" opacity="0.65"/>
+</svg>
