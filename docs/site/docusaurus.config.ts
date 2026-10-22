@@ -69,9 +69,9 @@ const config: Config = {
   },
 
   // GitHub Pages: project site у пользователя Titlehhhh. Новый сайт живёт
-  // на /next/, в корне пока публикуется старая документация Writerside.
+  // сайт публикуется в корне Pages: /McProtoNet/.
   url: 'https://titlehhhh.github.io',
-  baseUrl: '/McProtoNet/next/',
+  baseUrl: '/McProtoNet/',
   organizationName: 'Titlehhhh',
   projectName: 'McProtoNet',
   trailingSlash: false,

@@ -36,6 +36,7 @@ public class DispatchBenchmarks
     [GlobalSetup]
     public void Setup()
     {
+        AssertCatalogOrdinals();
         _direct = new DirectHandler();
         _visitor = new LegacyRouteHandler();
         _corpus = BuildCorpus(ProtocolVersion, Corpus);
@@ -70,18 +71,48 @@ public class DispatchBenchmarks
         return handler.Sink;
     }
 
+    /// <summary>Checks the ordinals the legacy route switches on against the delivered registry.
+    /// An ordinal is dense inside its catalog, so every delivery that adds a packet to
+    /// play/toClient shifts the ones after it; a stale number would dispatch to another packet
+    /// type instead of failing. The registry is the source of truth:
+    /// src/McProtoNet.Protocol/Generated/Flow/PacketRegistry.g.cs, catalog
+    /// CatalogPlayClientbound.</summary>
+    private static void AssertCatalogOrdinals()
+    {
+        AssertCatalogOrdinal<BlockChangePacket>(9);
+        AssertCatalogOrdinal<CustomPayloadPacket>(26);
+        AssertCatalogOrdinal<EntityHeadRotationPacket>(37);
+        AssertCatalogOrdinal<EntityLookPacket>(38);
+        AssertCatalogOrdinal<EntityStatusPacket>(41);
+        AssertCatalogOrdinal<KeepAlivePacket>(56);
+        AssertCatalogOrdinal<UpdateHealthPacket>(127);
+    }
+
+    private static void AssertCatalogOrdinal<T>(ushort expected) where T : class, IPacket<T>
+    {
+        var actual = T.Identity.Ordinal;
+        if (actual != expected)
+            throw new InvalidOperationException(
+                $"stale catalog ordinal for {typeof(T).Name}: the switch says {expected}, the delivered registry says {actual}.");
+    }
+
     private static IncomingPacket[] BuildCorpus(int pv, CorpusKind kind)
     {
         var list = new List<IncomingPacket>();
 
         // Frequent, small play clientbound packets, repeated to weight the mix the way a
-        // live stream does.
+        // live stream does. The 26.3 delivery holds back two of them (rel_entity_move and
+        // entity_move_look carry the native entityDelta type, whose encoding no
+        // McProtoFacts surface exposes), so the two entity slots hold entity_status and
+        // update_health instead: both are delivered, both are small, both have a flat
+        // constructor and a version-independent wire layout, so the corpus stays valid on
+        // every protocol the benchmark runs.
         for (var i = 0; i < 8; i++)
         {
             Add(list, pv, new KeepAlivePacket(0x0123456789ABCDEFL ^ i));
-            Add(list, pv, new RelEntityMovePacket(1000 + i, 12, -34, 56, true));
+            Add(list, pv, new EntityStatusPacket(1000 + i, 3));
             Add(list, pv, new EntityLookPacket(2000 + i, 17, -42, false));
-            Add(list, pv, new EntityMoveLookPacket(3000 + i, 5, 6, 7, 8, 9, true));
+            Add(list, pv, new UpdateHealthPacket(20f, 18, 4.5f));
             Add(list, pv, new EntityHeadRotationPacket(4000 + i, 33));
             Add(list, pv, new BlockChangePacket(new Position(100 + i, 64, -200), 12345));
         }
@@ -154,28 +185,33 @@ public class DispatchBenchmarks
             switch (identity.Phase)
             {
                 case PacketPhase.Play:
+                    // The ordinals are dense inside the play/toClient catalog, so every delivery
+                    // that adds a packet to it shifts the ones after it. These are the ordinals
+                    // of the delivered registry (Generated/Flow/PacketRegistry.g.cs, catalog
+                    // CatalogPlayClientbound); Setup() checks them against the registry, so a
+                    // stale one fails the benchmark instead of dispatching to another type.
                     switch (identity.Ordinal)
                     {
-                        case 8:
+                        case 9:
                             _pending = OnBlockChange((BlockChangePacket)(object)packet);
                             return;
-                        case 22:
+                        case 26:
                             _pending = OnCustomPayload((CustomPayloadPacket)(object)packet);
                             return;
-                        case 33:
+                        case 37:
                             _pending = OnEntityHeadRotation((EntityHeadRotationPacket)(object)packet);
                             return;
-                        case 34:
+                        case 38:
                             _pending = OnEntityLook((EntityLookPacket)(object)packet);
                             return;
-                        case 36:
-                            _pending = OnEntityMoveLook((EntityMoveLookPacket)(object)packet);
+                        case 41:
+                            _pending = OnEntityStatus((EntityStatusPacket)(object)packet);
                             return;
-                        case 50:
+                        case 56:
                             _pending = OnKeepAlive((KeepAlivePacket)(object)packet);
                             return;
-                        case 71:
-                            _pending = OnRelEntityMove((RelEntityMovePacket)(object)packet);
+                        case 127:
+                            _pending = OnUpdateHealth((UpdateHealthPacket)(object)packet);
                             return;
                     }
 
@@ -191,9 +227,9 @@ public class DispatchBenchmarks
             return default;
         }
 
-        protected virtual ValueTask OnRelEntityMove(RelEntityMovePacket packet)
+        protected virtual ValueTask OnEntityStatus(EntityStatusPacket packet)
         {
-            Sink += packet.EntityId + packet.Dx;
+            Sink += packet.EntityId + packet.EntityStatus;
             return default;
         }
 
@@ -203,9 +239,9 @@ public class DispatchBenchmarks
             return default;
         }
 
-        protected virtual ValueTask OnEntityMoveLook(EntityMoveLookPacket packet)
+        protected virtual ValueTask OnUpdateHealth(UpdateHealthPacket packet)
         {
-            Sink += packet.EntityId + packet.Dz;
+            Sink += (long)packet.Health + packet.Food;
             return default;
         }
 
@@ -242,9 +278,9 @@ public class DispatchBenchmarks
             return default;
         }
 
-        protected override ValueTask OnRelEntityMove(RelEntityMovePacket packet)
+        protected override ValueTask OnEntityStatus(EntityStatusPacket packet)
         {
-            Sink += packet.EntityId + packet.Dx;
+            Sink += packet.EntityId + packet.EntityStatus;
             return default;
         }
 
@@ -254,9 +290,9 @@ public class DispatchBenchmarks
             return default;
         }
 
-        protected override ValueTask OnEntityMoveLook(EntityMoveLookPacket packet)
+        protected override ValueTask OnUpdateHealth(UpdateHealthPacket packet)
         {
-            Sink += packet.EntityId + packet.Dz;
+            Sink += (long)packet.Health + packet.Food;
             return default;
         }
 
