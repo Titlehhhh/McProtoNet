@@ -2,7 +2,6 @@
 
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -24,11 +23,6 @@ public readonly partial record struct ParticleStatus(int Value) : IProtocolType<
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ParticleStatus>(protocolVersion);
         writer.WriteVarInt((int)Value);
-    }
-
-    public readonly void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStringValue(ToString());
     }
 
     public override string ToString() => Value switch

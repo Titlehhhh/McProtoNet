@@ -1,10 +1,9 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
-[ProtocolSupport(775, MinecraftVersion.LatestProtocol)]
+[ProtocolSupport(775, 776)]
 [Packet("play.toServer.spectate_entity", PacketPhase.Play, PacketDirection.Serverbound)]
 [PacketField("EntityId", "int")]
 public sealed partial record SpectateEntityPacket(int EntityId) : IPacket<SpectateEntityPacket>, IPacket
@@ -22,15 +21,7 @@ public sealed partial record SpectateEntityPacket(int EntityId) : IPacket<Specta
         writer.WriteVarInt(EntityId);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.spectate_entity", "SpectateEntity", PacketPhase.Play, PacketDirection.Serverbound, 54);
+    public static PacketIdentity Identity => new("play.toServer.spectate_entity", "SpectateEntity", PacketPhase.Play, PacketDirection.Serverbound, 57);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -20,14 +19,6 @@ public sealed partial record ChatPacket(string Message) : IPacket<ChatPacket>, I
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ChatPacket>(protocolVersion);
         writer.WriteString(Message);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Message");
-        writer.WriteStringValue(Message);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chat", "Chat", PacketPhase.Play, PacketDirection.Serverbound, 7);

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -55,21 +54,7 @@ public sealed partial record EntityDestroyPacket(int[] EntityIds) : IPacket<Enti
         throw new System.NotSupportedException($"EntityDestroyPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityIds");
-        writer.WriteStartArray();
-        foreach (var item0 in EntityIds)
-        {
-            writer.WriteNumberValue(item0);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.entity_destroy", "EntityDestroy", PacketPhase.Play, PacketDirection.Clientbound, 34);
+    public static PacketIdentity Identity => new("play.toClient.entity_destroy", "EntityDestroy", PacketPhase.Play, PacketDirection.Clientbound, 36);
 
     PacketIdentity IPacket.Identity => Identity;
 

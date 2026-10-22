@@ -21,7 +21,9 @@ public class RegistryOrInlineTests
             return new SoundLike(name, hasRange ? reader.ReadFloat() : null);
         }
 
-        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
         {

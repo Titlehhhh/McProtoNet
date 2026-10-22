@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -88,16 +86,18 @@ public sealed class UnknownPacket : IPacket
     /// </remarks>
     public PacketIdentity Identity => new(UnmappedKey, UnmappedName, Phase, Direction, UnmappedOrdinal);
 
-    /// <summary>
-    /// Writes the packet as JSON: only the wire id, the phase and the direction are known.
-    /// </summary>
-    /// <param name="writer">The JSON writer to write to.</param>
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteNumber("Id", Id);
-        writer.WriteString("Phase", Phase.ToString());
-        writer.WriteString("Direction", Direction.ToString());
-        writer.WriteEndObject();
-    }
+    // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+    // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+    // /// <summary>
+    // /// Writes the packet as JSON: only the wire id, the phase and the direction are known.
+    // /// </summary>
+    // /// <param name="writer">The JSON writer to write to.</param>
+    // public void WriteJson(Utf8JsonWriter writer)
+    // {
+    //     writer.WriteStartObject();
+    //     writer.WriteNumber("Id", Id);
+    //     writer.WriteString("Phase", Phase.ToString());
+    //     writer.WriteString("Direction", Direction.ToString());
+    //     writer.WriteEndObject();
+    // }
 }

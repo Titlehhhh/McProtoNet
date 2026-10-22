@@ -46,12 +46,6 @@ public class HandlerDispatchTests
             return OnKeepAliveOverride?.Invoke() ?? default;
         }
 
-        protected override ValueTask OnRelEntityMove(McProtoNet.Protocol.Packets.Play.Clientbound.RelEntityMovePacket packet)
-        {
-            Calls.Add(nameof(OnRelEntityMove));
-            return default;
-        }
-
         protected override ValueTask OnLoginCompress(McProtoNet.Protocol.Packets.Login.Clientbound.LoginCompressPacket packet)
         {
             Calls.Add(nameof(OnLoginCompress));

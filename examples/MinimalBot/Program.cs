@@ -1,4 +1,4 @@
-// dotnet run [host] [port] [name] - defaults are 127.0.0.1 25565 McProtoBot (pv 772)
+// dotnet run [host] [port] [name] - defaults are 127.0.0.1 25565 McProtoBot (pv: MinecraftVersion.LatestProtocol)
 
 using McProtoNet;
 using McProtoNet.Primitives;
@@ -12,7 +12,7 @@ using LoginSb = McProtoNet.Protocol.Packets.Login.Serverbound;
 using PlayCb = McProtoNet.Protocol.Packets.Play.Clientbound;
 using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
 
-const int Pv = 772;
+var Pv = MinecraftVersion.LatestProtocol;
 
 var host = args.Length > 0 ? args[0] : "127.0.0.1";
 var port = args.Length > 1 && int.TryParse(args[1], out var typed) ? typed : 25565;
@@ -140,7 +140,14 @@ sealed class Bot(MinecraftClient client, int pv) : ClientboundHandler
 
     protected override async ValueTask OnPlayerPosition(PlayCb.PlayerPositionPacket packet)
     {
-        await client.SendAsync(new PlaySb.TeleportConfirmPacket(packet.TeleportId), pv);
+        // protocol 777: the confirm carries the teleported-to position next to the teleport id
+        var confirm = pv >= 777
+            ? new PlaySb.TeleportConfirmPacket(
+                packet.TeleportId,
+                new PlaySb.TeleportConfirmPacket.V777_LastLayer(packet.X, packet.Y, packet.Z, packet.Yaw, packet.Pitch))
+            : new PlaySb.TeleportConfirmPacket(packet.TeleportId);
+
+        await client.SendAsync(confirm, pv);
         Console.WriteLine(
             $"[play] position: x={packet.X:F1} y={packet.Y:F1} z={packet.Z:F1} - teleport {packet.TeleportId} confirmed");
 

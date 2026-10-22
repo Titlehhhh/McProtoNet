@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,17 +24,7 @@ public sealed partial record QueryBlockNbtPacket(int TransactionId, Position Loc
         writer.WriteType<Position>(Location, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("TransactionId");
-        writer.WriteNumberValue(TransactionId);
-        writer.WritePropertyName("Location");
-        Location.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 42);
+    public static PacketIdentity Identity => new("play.toServer.query_block_nbt", "QueryBlockNbt", PacketPhase.Play, PacketDirection.Serverbound, 45);
 
     PacketIdentity IPacket.Identity => Identity;
 

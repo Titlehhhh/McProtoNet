@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Serverbound;
@@ -50,20 +49,6 @@ public sealed partial record ResourcePackReceivePacket(int Result, ResourcePackR
         }
 
         throw new System.NotSupportedException($"ResourcePackReceivePacket has no wire layout for protocol version {protocolVersion}.");
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Result");
-        writer.WriteNumberValue(Result);
-        if (V765_Last is { } v765_Last)
-        {
-            writer.WritePropertyName("Uuid");
-            writer.WriteStringValue(v765_Last.Uuid);
-        }
-
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toServer.resource_pack_receive", "ResourcePackReceive", PacketPhase.Configuration, PacketDirection.Serverbound, 8);

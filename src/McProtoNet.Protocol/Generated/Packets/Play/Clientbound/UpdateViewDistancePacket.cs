@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record UpdateViewDistancePacket(int ViewDistance) : IPacke
         writer.WriteVarInt(ViewDistance);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("ViewDistance");
-        writer.WriteNumberValue(ViewDistance);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 126);
+    public static PacketIdentity Identity => new("play.toClient.update_view_distance", "UpdateViewDistance", PacketPhase.Play, PacketDirection.Clientbound, 130);
 
     PacketIdentity IPacket.Identity => Identity;
 

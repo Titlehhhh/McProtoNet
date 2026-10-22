@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol;
@@ -30,15 +29,5 @@ public sealed partial class LastRejectedMessage : IProtocolType<LastRejectedMess
         ThrowHelper.ThrowIfProtocolNotSupported<LastRejectedMessage>(protocolVersion);
         writer.WriteUUID(Sender);
         writer.WriteByteArray(Signature);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Sender");
-        writer.WriteStringValue(Sender);
-        writer.WritePropertyName("Signature");
-        writer.WriteBase64StringValue(Signature);
-        writer.WriteEndObject();
     }
 }

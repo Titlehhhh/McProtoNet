@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -68,30 +67,7 @@ public sealed partial record UseEntityPacket(int Target, bool Sneaking, UseEntit
         throw new System.NotSupportedException($"UseEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Target");
-        writer.WriteNumberValue(Target);
-        writer.WritePropertyName("Sneaking");
-        writer.WriteBooleanValue(Sneaking);
-        if (VUntil774 is { } vUntil774)
-        {
-            writer.WritePropertyName("Action");
-            vUntil774.Action.WriteJson(writer);
-        }
-        else if (V775_Last is { } v775_Last)
-        {
-            writer.WritePropertyName("Hand");
-            writer.WriteNumberValue(v775_Last.Hand);
-            writer.WritePropertyName("Location");
-            v775_Last.Location.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.use_entity", "UseEntity", PacketPhase.Play, PacketDirection.Serverbound, 66);
+    public static PacketIdentity Identity => new("play.toServer.use_entity", "UseEntity", PacketPhase.Play, PacketDirection.Serverbound, 70);
 
     PacketIdentity IPacket.Identity => Identity;
 

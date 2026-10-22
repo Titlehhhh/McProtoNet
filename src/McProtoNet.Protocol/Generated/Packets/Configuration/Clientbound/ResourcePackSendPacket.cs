@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -35,25 +34,7 @@ public sealed partial record ResourcePackSendPacket(string Url, string Hash, boo
             writer.WriteString(promptMessageValue);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Url");
-        writer.WriteStringValue(Url);
-        writer.WritePropertyName("Hash");
-        writer.WriteStringValue(Hash);
-        writer.WritePropertyName("Forced");
-        writer.WriteBooleanValue(Forced);
-        if (PromptMessage is { } promptMessageValue)
-        {
-            writer.WritePropertyName("PromptMessage");
-            writer.WriteStringValue(promptMessageValue);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Configuration, PacketDirection.Clientbound, 14);
+    public static PacketIdentity Identity => new("configuration.toClient.resource_pack_send", "ResourcePackSend", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
 
     PacketIdentity IPacket.Identity => Identity;
 

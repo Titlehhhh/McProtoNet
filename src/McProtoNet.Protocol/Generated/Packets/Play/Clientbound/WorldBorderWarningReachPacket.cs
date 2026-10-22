@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record WorldBorderWarningReachPacket(int WarningBlocks) : 
         writer.WriteVarInt(WarningBlocks);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("WarningBlocks");
-        writer.WriteNumberValue(WarningBlocks);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.world_border_warning_reach", "WorldBorderWarningReach", PacketPhase.Play, PacketDirection.Clientbound, 134);
+    public static PacketIdentity Identity => new("play.toClient.world_border_warning_reach", "WorldBorderWarningReach", PacketPhase.Play, PacketDirection.Clientbound, 138);
 
     PacketIdentity IPacket.Identity => Identity;
 

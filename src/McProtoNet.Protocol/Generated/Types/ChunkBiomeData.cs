@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -29,15 +28,5 @@ public sealed partial class ChunkBiomeData : IProtocolType<ChunkBiomeData>
         ThrowHelper.ThrowIfProtocolNotSupported<ChunkBiomeData>(protocolVersion);
         writer.WriteType<PackedChunkPos>(Position, protocolVersion);
         writer.WriteByteArray(Data);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Position");
-        Position.WriteJson(writer);
-        writer.WritePropertyName("Data");
-        writer.WriteBase64StringValue(Data);
-        writer.WriteEndObject();
     }
 }

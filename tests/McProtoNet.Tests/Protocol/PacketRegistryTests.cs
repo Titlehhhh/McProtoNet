@@ -17,7 +17,7 @@ public class PacketRegistryTests
     private static readonly PacketDirection[] Directions = Enum.GetValues<PacketDirection>();
 
     private const int FirstProtocol = 735;
-    private const int LastProtocol = 776;
+    private const int LastProtocol = 777;
 
     public static TheoryData<PacketPhase, PacketDirection> Catalogs()
     {

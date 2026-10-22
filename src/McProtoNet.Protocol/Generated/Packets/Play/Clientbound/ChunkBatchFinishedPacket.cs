@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record ChunkBatchFinishedPacket(int BatchSize) : IPacket<C
         writer.WriteVarInt(BatchSize);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("BatchSize");
-        writer.WriteNumberValue(BatchSize);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.chunk_batch_finished", "ChunkBatchFinished", PacketPhase.Play, PacketDirection.Clientbound, 14);
+    public static PacketIdentity Identity => new("play.toClient.chunk_batch_finished", "ChunkBatchFinished", PacketPhase.Play, PacketDirection.Clientbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

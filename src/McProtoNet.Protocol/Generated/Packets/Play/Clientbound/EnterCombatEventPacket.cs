@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,13 +18,7 @@ public sealed partial record EnterCombatEventPacket() : IPacket<EnterCombatEvent
         ThrowHelper.ThrowIfProtocolNotSupported<EnterCombatEventPacket>(protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.enter_combat_event", "EnterCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 32);
+    public static PacketIdentity Identity => new("play.toClient.enter_combat_event", "EnterCombatEvent", PacketPhase.Play, PacketDirection.Clientbound, 34);
 
     PacketIdentity IPacket.Identity => Identity;
 

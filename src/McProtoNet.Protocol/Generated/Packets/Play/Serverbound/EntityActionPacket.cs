@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record EntityActionPacket(int EntityId, int ActionId, int 
         writer.WriteVarInt(JumpBoost);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("ActionId");
-        writer.WriteNumberValue(ActionId);
-        writer.WritePropertyName("JumpBoost");
-        writer.WriteNumberValue(JumpBoost);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 25);
+    public static PacketIdentity Identity => new("play.toServer.entity_action", "EntityAction", PacketPhase.Play, PacketDirection.Serverbound, 26);
 
     PacketIdentity IPacket.Identity => Identity;
 

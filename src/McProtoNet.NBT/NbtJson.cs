@@ -1,3 +1,6 @@
+// The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+// it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+/*
 using System.Text.Json;
 
 namespace McProtoNet.NBT;
@@ -108,3 +111,4 @@ public static class NbtJson
         writer.WriteStringValue(double.IsNaN(value) ? "NaN" : value > 0 ? "Infinity" : "-Infinity");
     }
 }
+*/

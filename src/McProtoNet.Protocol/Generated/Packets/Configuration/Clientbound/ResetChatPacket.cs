@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -19,13 +18,7 @@ public sealed partial record ResetChatPacket() : IPacket<ResetChatPacket>, IPack
         ThrowHelper.ThrowIfProtocolNotSupported<ResetChatPacket>(protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 13);
+    public static PacketIdentity Identity => new("configuration.toClient.reset_chat", "ResetChat", PacketPhase.Configuration, PacketDirection.Clientbound, 14);
 
     PacketIdentity IPacket.Identity => Identity;
 

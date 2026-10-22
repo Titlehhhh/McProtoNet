@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -20,15 +19,5 @@ public readonly partial record struct PackedChunkPos(int Z, int X) : IProtocolTy
         ThrowHelper.ThrowIfProtocolNotSupported<PackedChunkPos>(protocolVersion);
         writer.WriteSignedInt(Z);
         writer.WriteSignedInt(X);
-    }
-
-    public readonly void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Z");
-        writer.WriteNumberValue(Z);
-        writer.WritePropertyName("X");
-        writer.WriteNumberValue(X);
-        writer.WriteEndObject();
     }
 }

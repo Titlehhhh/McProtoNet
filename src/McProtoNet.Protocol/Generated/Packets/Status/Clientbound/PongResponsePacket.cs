@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Status.Clientbound;
 
@@ -20,14 +19,6 @@ public sealed partial record PongResponsePacket(long Time) : IPacket<PongRespons
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PongResponsePacket>(protocolVersion);
         writer.WriteSignedLong(Time);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Time");
-        writer.WriteNumberValue(Time);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("status.toClient.ping", "PongResponse", PacketPhase.Status, PacketDirection.Clientbound, 0);

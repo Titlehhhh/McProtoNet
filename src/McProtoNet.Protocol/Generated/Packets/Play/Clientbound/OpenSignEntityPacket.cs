@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -51,21 +50,7 @@ public sealed partial record OpenSignEntityPacket(Position Location, OpenSignEnt
         throw new System.NotSupportedException($"OpenSignEntityPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Location");
-        Location.WriteJson(writer);
-        if (V763_Last is { } v763_Last)
-        {
-            writer.WritePropertyName("IsFrontText");
-            writer.WriteBooleanValue(v763_Last.IsFrontText);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.open_sign_entity", "OpenSignEntity", PacketPhase.Play, PacketDirection.Clientbound, 67);
+    public static PacketIdentity Identity => new("play.toClient.open_sign_entity", "OpenSignEntity", PacketPhase.Play, PacketDirection.Clientbound, 69);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -35,23 +34,7 @@ public sealed partial record SpawnEntityPaintingPacket(int EntityId, Guid Entity
         writer.WriteUnsignedByte((byte)Direction);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("EntityUuid");
-        writer.WriteStringValue(EntityUuid);
-        writer.WritePropertyName("Title");
-        writer.WriteNumberValue(Title);
-        writer.WritePropertyName("Location");
-        Location.WriteJson(writer);
-        writer.WritePropertyName("Direction");
-        writer.WriteNumberValue(Direction);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity_painting", "SpawnEntityPainting", PacketPhase.Play, PacketDirection.Clientbound, 103);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity_painting", "SpawnEntityPainting", PacketPhase.Play, PacketDirection.Clientbound, 106);
 
     PacketIdentity IPacket.Identity => Identity;
 

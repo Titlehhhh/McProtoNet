@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -27,21 +26,7 @@ public sealed partial record StatisticsPacket(StatisticEntry[] Entries) : IPacke
             writer.WriteType<StatisticEntry>(entriesItem, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Entries");
-        writer.WriteStartArray();
-        foreach (var item0 in Entries)
-        {
-            item0.WriteJson(writer);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 106);
+    public static PacketIdentity Identity => new("play.toClient.statistics", "Statistics", PacketPhase.Play, PacketDirection.Clientbound, 109);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -50,17 +49,7 @@ public sealed partial record RemoveEntityEffectPacket(int EntityId, int EffectId
         throw new System.NotSupportedException($"RemoveEntityEffectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("EffectId");
-        writer.WriteNumberValue(EffectId);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 80);
+    public static PacketIdentity Identity => new("play.toClient.remove_entity_effect", "RemoveEntityEffect", PacketPhase.Play, PacketDirection.Clientbound, 83);
 
     PacketIdentity IPacket.Identity => Identity;
 

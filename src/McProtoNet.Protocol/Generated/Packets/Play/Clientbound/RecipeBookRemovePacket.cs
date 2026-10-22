@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -27,21 +26,7 @@ public sealed partial record RecipeBookRemovePacket(int[] RecipeIds) : IPacket<R
             writer.WriteVarInt(recipeIdsItem);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("RecipeIds");
-        writer.WriteStartArray();
-        foreach (var item0 in RecipeIds)
-        {
-            writer.WriteNumberValue(item0);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 77);
+    public static PacketIdentity Identity => new("play.toClient.recipe_book_remove", "RecipeBookRemove", PacketPhase.Play, PacketDirection.Clientbound, 80);
 
     PacketIdentity IPacket.Identity => Identity;
 

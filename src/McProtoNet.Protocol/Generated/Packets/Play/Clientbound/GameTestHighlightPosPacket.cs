@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,17 +24,7 @@ public sealed partial record GameTestHighlightPosPacket(Position AbsolutePos, Po
         writer.WriteType<Position>(RelativePos, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("AbsolutePos");
-        AbsolutePos.WriteJson(writer);
-        writer.WritePropertyName("RelativePos");
-        RelativePos.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.game_test_highlight_pos", "GameTestHighlightPos", PacketPhase.Play, PacketDirection.Clientbound, 49);
+    public static PacketIdentity Identity => new("play.toClient.game_test_highlight_pos", "GameTestHighlightPos", PacketPhase.Play, PacketDirection.Clientbound, 51);
 
     PacketIdentity IPacket.Identity => Identity;
 

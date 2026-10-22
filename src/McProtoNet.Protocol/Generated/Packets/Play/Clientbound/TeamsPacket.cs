@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -14,6 +13,14 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
     {
         ThrowHelper.ThrowIfProtocolNotSupported<TeamsPacket>(protocolVersion);
         if (protocolVersion <= 764)
+        {
+            var teamName = reader.ReadString();
+            var _mode = reader.ReadSignedByte();
+            var action = TeamAction.Read(ref reader, protocolVersion, (int)_mode);
+            return new TeamsPacket(teamName, action);
+        }
+
+        if (protocolVersion >= 765 && protocolVersion <= 770)
         {
             var teamName = reader.ReadString();
             var _mode = reader.ReadSignedByte();
@@ -43,6 +50,14 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
             return;
         }
 
+        if (protocolVersion >= 765 && protocolVersion <= 770)
+        {
+            writer.WriteString(TeamName);
+            writer.WriteSignedByte(checked((sbyte)Action.Discriminator(protocolVersion)));
+            Action.Write(writer, protocolVersion);
+            return;
+        }
+
         if (protocolVersion >= 771)
         {
             writer.WriteString(TeamName);
@@ -54,17 +69,7 @@ public sealed partial record TeamsPacket(string TeamName, TeamAction Action) : I
         throw new System.NotSupportedException($"TeamsPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("TeamName");
-        writer.WriteStringValue(TeamName);
-        writer.WritePropertyName("Action");
-        Action.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 114);
+    public static PacketIdentity Identity => new("play.toClient.teams", "Teams", PacketPhase.Play, PacketDirection.Clientbound, 118);
 
     PacketIdentity IPacket.Identity => Identity;
 

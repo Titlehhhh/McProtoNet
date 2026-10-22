@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -59,21 +58,7 @@ public sealed partial record NbtQueryResponsePacket(int TransactionId, NbtTag? N
         throw new System.NotSupportedException($"NbtQueryResponsePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("TransactionId");
-        writer.WriteNumberValue(TransactionId);
-        if (Nbt is { } nbtValue)
-        {
-            writer.WritePropertyName("Nbt");
-            nbtValue.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 64);
+    public static PacketIdentity Identity => new("play.toClient.nbt_query_response", "NbtQueryResponse", PacketPhase.Play, PacketDirection.Clientbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 

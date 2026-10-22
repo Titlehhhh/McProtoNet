@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -23,15 +22,5 @@ public readonly partial record struct MovementFlags(bool OnGround, bool HasHoriz
         if (HasHorizontalCollision)
             flags |= (1 << 1);
         writer.WriteUnsignedByte(flags);
-    }
-
-    public readonly void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("OnGround");
-        writer.WriteBooleanValue(OnGround);
-        writer.WritePropertyName("HasHorizontalCollision");
-        writer.WriteBooleanValue(HasHorizontalCollision);
-        writer.WriteEndObject();
     }
 }

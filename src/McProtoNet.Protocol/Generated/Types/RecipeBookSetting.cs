@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -20,15 +19,5 @@ public readonly partial record struct RecipeBookSetting(bool Open, bool Filterin
         ThrowHelper.ThrowIfProtocolNotSupported<RecipeBookSetting>(protocolVersion);
         writer.WriteBoolean(Open);
         writer.WriteBoolean(Filtering);
-    }
-
-    public readonly void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Open");
-        writer.WriteBooleanValue(Open);
-        writer.WritePropertyName("Filtering");
-        writer.WriteBooleanValue(Filtering);
-        writer.WriteEndObject();
     }
 }

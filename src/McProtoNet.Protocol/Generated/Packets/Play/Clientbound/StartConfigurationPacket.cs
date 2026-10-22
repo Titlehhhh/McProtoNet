@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,13 +18,7 @@ public sealed partial record StartConfigurationPacket() : IPacket<StartConfigura
         ThrowHelper.ThrowIfProtocolNotSupported<StartConfigurationPacket>(protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 105);
+    public static PacketIdentity Identity => new("play.toClient.start_configuration", "StartConfiguration", PacketPhase.Play, PacketDirection.Clientbound, 108);
 
     PacketIdentity IPacket.Identity => Identity;
 

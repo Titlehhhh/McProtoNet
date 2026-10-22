@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -92,44 +91,7 @@ public sealed partial record RecipeBookSettingsPacket(RecipeBookSettingsPacket.V
         throw new System.NotSupportedException($"RecipeBookSettingsPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (V768_770 is { } v768_770)
-        {
-            writer.WritePropertyName("CraftingGuiOpen");
-            writer.WriteBooleanValue(v768_770.CraftingGuiOpen);
-            writer.WritePropertyName("CraftingFilteringCraftable");
-            writer.WriteBooleanValue(v768_770.CraftingFilteringCraftable);
-            writer.WritePropertyName("SmeltingGuiOpen");
-            writer.WriteBooleanValue(v768_770.SmeltingGuiOpen);
-            writer.WritePropertyName("SmeltingFilteringCraftable");
-            writer.WriteBooleanValue(v768_770.SmeltingFilteringCraftable);
-            writer.WritePropertyName("BlastGuiOpen");
-            writer.WriteBooleanValue(v768_770.BlastGuiOpen);
-            writer.WritePropertyName("BlastFilteringCraftable");
-            writer.WriteBooleanValue(v768_770.BlastFilteringCraftable);
-            writer.WritePropertyName("SmokerGuiOpen");
-            writer.WriteBooleanValue(v768_770.SmokerGuiOpen);
-            writer.WritePropertyName("SmokerFilteringCraftable");
-            writer.WriteBooleanValue(v768_770.SmokerFilteringCraftable);
-        }
-        else if (V771_Last is { } v771_Last)
-        {
-            writer.WritePropertyName("Crafting");
-            v771_Last.Crafting.WriteJson(writer);
-            writer.WritePropertyName("Furnace");
-            v771_Last.Furnace.WriteJson(writer);
-            writer.WritePropertyName("Blast");
-            v771_Last.Blast.WriteJson(writer);
-            writer.WritePropertyName("Smoker");
-            v771_Last.Smoker.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.recipe_book_settings", "RecipeBookSettings", PacketPhase.Play, PacketDirection.Clientbound, 78);
+    public static PacketIdentity Identity => new("play.toClient.recipe_book_settings", "RecipeBookSettings", PacketPhase.Play, PacketDirection.Clientbound, 81);
 
     PacketIdentity IPacket.Identity => Identity;
 

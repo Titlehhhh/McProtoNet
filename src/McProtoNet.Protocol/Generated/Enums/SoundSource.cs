@@ -2,7 +2,6 @@
 
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -54,11 +53,6 @@ public readonly partial record struct SoundSource(int Value) : IProtocolType<Sou
         }
 
         throw new System.NotSupportedException($"SoundSource has no wire layout for protocol version {protocolVersion}.");
-    }
-
-    public readonly void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStringValue(ToString());
     }
 
     public override string ToString() => Value switch

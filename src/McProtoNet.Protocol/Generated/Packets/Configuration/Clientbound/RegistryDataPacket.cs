@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
@@ -62,32 +61,7 @@ public sealed partial record RegistryDataPacket(RegistryDataPacket.V764_765Layer
         throw new System.NotSupportedException($"RegistryDataPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (V764_765 is { } v764_765)
-        {
-            writer.WritePropertyName("Codec");
-            v764_765.Codec.WriteJson(writer);
-        }
-        else if (V766_Last is { } v766_Last)
-        {
-            writer.WritePropertyName("Registry");
-            writer.WriteStringValue(v766_Last.Registry);
-            writer.WritePropertyName("Entries");
-            writer.WriteStartArray();
-            foreach (var item0 in v766_Last.Entries)
-            {
-                item0.WriteJson(writer);
-            }
-
-            writer.WriteEndArray();
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.registry_data", "RegistryData", PacketPhase.Configuration, PacketDirection.Clientbound, 11);
+    public static PacketIdentity Identity => new("configuration.toClient.registry_data", "RegistryData", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

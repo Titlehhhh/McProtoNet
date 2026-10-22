@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,17 +24,7 @@ public sealed partial record SelectBundleItemPacket(int SlotId, int SelectedItem
         writer.WriteVarInt(SelectedItemIndex);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("SlotId");
-        writer.WriteNumberValue(SlotId);
-        writer.WritePropertyName("SelectedItemIndex");
-        writer.WriteNumberValue(SelectedItemIndex);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 46);
+    public static PacketIdentity Identity => new("play.toServer.select_bundle_item", "SelectBundleItem", PacketPhase.Play, PacketDirection.Serverbound, 49);
 
     PacketIdentity IPacket.Identity => Identity;
 

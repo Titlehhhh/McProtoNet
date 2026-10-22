@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -52,24 +51,7 @@ public sealed partial record FlyingPacket(FlyingPacket.VUntil767Layer? VUntil767
         throw new System.NotSupportedException($"FlyingPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (VUntil767 is { } vUntil767)
-        {
-            writer.WritePropertyName("OnGround");
-            writer.WriteBooleanValue(vUntil767.OnGround);
-        }
-        else if (V768_Last is { } v768_Last)
-        {
-            writer.WritePropertyName("Flags");
-            v768_Last.Flags.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.flying", "Flying", PacketPhase.Play, PacketDirection.Serverbound, 26);
+    public static PacketIdentity Identity => new("play.toServer.flying", "Flying", PacketPhase.Play, PacketDirection.Serverbound, 27);
 
     PacketIdentity IPacket.Identity => Identity;
 

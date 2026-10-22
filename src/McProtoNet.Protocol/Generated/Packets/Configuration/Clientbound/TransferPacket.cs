@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -25,17 +24,7 @@ public sealed partial record TransferPacket(string Host, int Port) : IPacket<Tra
         writer.WriteVarInt(Port);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Host");
-        writer.WriteStringValue(Host);
-        writer.WritePropertyName("Port");
-        writer.WriteNumberValue(Port);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 20);
+    public static PacketIdentity Identity => new("configuration.toClient.transfer", "Transfer", PacketPhase.Configuration, PacketDirection.Clientbound, 21);
 
     PacketIdentity IPacket.Identity => Identity;
 

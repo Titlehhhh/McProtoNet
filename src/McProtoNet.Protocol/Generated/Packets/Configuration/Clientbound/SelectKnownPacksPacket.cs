@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -27,21 +26,7 @@ public sealed partial record SelectKnownPacksPacket(KnownPack[] Packs) : IPacket
             writer.WriteType<KnownPack>(packsItem, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Packs");
-        writer.WriteStartArray();
-        foreach (var item0 in Packs)
-        {
-            item0.WriteJson(writer);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.select_known_packs", "SelectKnownPacks", PacketPhase.Configuration, PacketDirection.Clientbound, 15);
+    public static PacketIdentity Identity => new("configuration.toClient.select_known_packs", "SelectKnownPacks", PacketPhase.Configuration, PacketDirection.Clientbound, 16);
 
     PacketIdentity IPacket.Identity => Identity;
 

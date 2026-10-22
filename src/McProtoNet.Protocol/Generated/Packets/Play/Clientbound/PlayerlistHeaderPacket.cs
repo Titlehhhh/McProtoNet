@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -61,28 +60,7 @@ public sealed partial record PlayerlistHeaderPacket(PlayerlistHeaderPacket.VUnti
         throw new System.NotSupportedException($"PlayerlistHeaderPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (VUntil764 is { } vUntil764)
-        {
-            writer.WritePropertyName("HeaderJson");
-            writer.WriteStringValue(vUntil764.HeaderJson);
-            writer.WritePropertyName("FooterJson");
-            writer.WriteStringValue(vUntil764.FooterJson);
-        }
-        else if (V765_Last is { } v765_Last)
-        {
-            writer.WritePropertyName("Header");
-            v765_Last.Header.WriteJson(writer);
-            writer.WritePropertyName("Footer");
-            v765_Last.Footer.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.playerlist_header", "PlayerlistHeader", PacketPhase.Play, PacketDirection.Clientbound, 74);
+    public static PacketIdentity Identity => new("play.toClient.playerlist_header", "PlayerlistHeader", PacketPhase.Play, PacketDirection.Clientbound, 76);
 
     PacketIdentity IPacket.Identity => Identity;
 

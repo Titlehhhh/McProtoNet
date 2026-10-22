@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,18 +21,7 @@ public sealed partial record WorldBorderSizePacket(double Diameter) : IPacket<Wo
         writer.WriteDouble(Diameter);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Diameter");
-        if (double.IsFinite(Diameter))
-            writer.WriteNumberValue(Diameter);
-        else
-            writer.WriteStringValue(double.IsNaN(Diameter) ? "NaN" : Diameter > 0 ? "Infinity" : "-Infinity");
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.world_border_size", "WorldBorderSize", PacketPhase.Play, PacketDirection.Clientbound, 132);
+    public static PacketIdentity Identity => new("play.toClient.world_border_size", "WorldBorderSize", PacketPhase.Play, PacketDirection.Clientbound, 136);
 
     PacketIdentity IPacket.Identity => Identity;
 

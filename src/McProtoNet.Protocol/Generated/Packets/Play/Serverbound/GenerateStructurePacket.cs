@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record GenerateStructurePacket(Position Location, int Leve
         writer.WriteBoolean(KeepJigsaws);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Location");
-        Location.WriteJson(writer);
-        writer.WritePropertyName("Levels");
-        writer.WriteNumberValue(Levels);
-        writer.WritePropertyName("KeepJigsaws");
-        writer.WriteBooleanValue(KeepJigsaws);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 27);
+    public static PacketIdentity Identity => new("play.toServer.generate_structure", "GenerateStructure", PacketPhase.Play, PacketDirection.Serverbound, 28);
 
     PacketIdentity IPacket.Identity => Identity;
 

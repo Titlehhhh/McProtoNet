@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -101,70 +100,7 @@ public sealed partial record EntityTeleportPacket(int EntityId, double X, double
         throw new System.NotSupportedException($"EntityTeleportPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("X");
-        if (double.IsFinite(X))
-            writer.WriteNumberValue(X);
-        else
-            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("Y");
-        if (double.IsFinite(Y))
-            writer.WriteNumberValue(Y);
-        else
-            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("Z");
-        if (double.IsFinite(Z))
-            writer.WriteNumberValue(Z);
-        else
-            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("OnGround");
-        writer.WriteBooleanValue(OnGround);
-        if (VUntil767 is { } vUntil767)
-        {
-            writer.WritePropertyName("YawByte");
-            writer.WriteNumberValue(vUntil767.YawByte);
-            writer.WritePropertyName("PitchByte");
-            writer.WriteNumberValue(vUntil767.PitchByte);
-        }
-        else if (V768_Last is { } v768_Last)
-        {
-            writer.WritePropertyName("Dx");
-            if (double.IsFinite(v768_Last.Dx))
-                writer.WriteNumberValue(v768_Last.Dx);
-            else
-                writer.WriteStringValue(double.IsNaN(v768_Last.Dx) ? "NaN" : v768_Last.Dx > 0 ? "Infinity" : "-Infinity");
-            writer.WritePropertyName("Dy");
-            if (double.IsFinite(v768_Last.Dy))
-                writer.WriteNumberValue(v768_Last.Dy);
-            else
-                writer.WriteStringValue(double.IsNaN(v768_Last.Dy) ? "NaN" : v768_Last.Dy > 0 ? "Infinity" : "-Infinity");
-            writer.WritePropertyName("Dz");
-            if (double.IsFinite(v768_Last.Dz))
-                writer.WriteNumberValue(v768_Last.Dz);
-            else
-                writer.WriteStringValue(double.IsNaN(v768_Last.Dz) ? "NaN" : v768_Last.Dz > 0 ? "Infinity" : "-Infinity");
-            writer.WritePropertyName("Yaw");
-            if (double.IsFinite(v768_Last.Yaw))
-                writer.WriteNumberValue(v768_Last.Yaw);
-            else
-                writer.WriteStringValue(double.IsNaN(v768_Last.Yaw) ? "NaN" : v768_Last.Yaw > 0 ? "Infinity" : "-Infinity");
-            writer.WritePropertyName("Pitch");
-            if (double.IsFinite(v768_Last.Pitch))
-                writer.WriteNumberValue(v768_Last.Pitch);
-            else
-                writer.WriteStringValue(double.IsNaN(v768_Last.Pitch) ? "NaN" : v768_Last.Pitch > 0 ? "Infinity" : "-Infinity");
-            writer.WritePropertyName("Flags");
-            v768_Last.Flags.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.entity_teleport", "EntityTeleport", PacketPhase.Play, PacketDirection.Clientbound, 40);
+    public static PacketIdentity Identity => new("play.toClient.entity_teleport", "EntityTeleport", PacketPhase.Play, PacketDirection.Clientbound, 42);
 
     PacketIdentity IPacket.Identity => Identity;
 

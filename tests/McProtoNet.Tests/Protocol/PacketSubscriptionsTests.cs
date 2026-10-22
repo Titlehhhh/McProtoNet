@@ -20,7 +20,9 @@ public class PacketSubscriptionsTests
         public static FakePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadSignedLong());
 
-        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteSignedLong(Value);
@@ -40,7 +42,9 @@ public class PacketSubscriptionsTests
         public static FakeOtherPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
 
-        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);
@@ -113,7 +117,9 @@ public class PacketSubscriptionsTests
         public static SameOrdinalOtherPhasePacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
 
-        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);
@@ -133,7 +139,9 @@ public class PacketSubscriptionsTests
         public static SameOrdinalOtherDirectionPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
             => new(reader.ReadVarInt());
 
-        public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
+        // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+        // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+        // public void WriteJson(System.Text.Json.Utf8JsonWriter writer) { writer.WriteStartObject(); writer.WriteEndObject(); }
 
         public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
             => writer.WriteVarInt(Value);

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
@@ -27,19 +26,7 @@ public sealed partial record RemoveResourcePackPacket(Guid? Uuid) : IPacket<Remo
             writer.WriteUUID(uuidValue);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (Uuid is { } uuidValue)
-        {
-            writer.WritePropertyName("Uuid");
-            writer.WriteStringValue(uuidValue);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 12);
+    public static PacketIdentity Identity => new("configuration.toClient.remove_resource_pack", "RemoveResourcePack", PacketPhase.Configuration, PacketDirection.Clientbound, 13);
 
     PacketIdentity IPacket.Identity => Identity;
 

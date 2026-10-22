@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -29,15 +28,5 @@ public sealed partial class GameRule : IProtocolType<GameRule>
         ThrowHelper.ThrowIfProtocolNotSupported<GameRule>(protocolVersion);
         writer.WriteString(Name);
         writer.WriteString(Value);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Name");
-        writer.WriteStringValue(Name);
-        writer.WritePropertyName("Value");
-        writer.WriteStringValue(Value);
-        writer.WriteEndObject();
     }
 }

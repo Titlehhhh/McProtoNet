@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,17 +24,7 @@ public sealed partial record CustomPayloadPacket(string Channel, byte[] Data) : 
         writer.WriteRestBytes(Data);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Channel");
-        writer.WriteStringValue(Channel);
-        writer.WritePropertyName("Data");
-        writer.WriteBase64StringValue(Data);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Clientbound, 24);
+    public static PacketIdentity Identity => new("play.toClient.custom_payload", "CustomPayload", PacketPhase.Play, PacketDirection.Clientbound, 26);
 
     PacketIdentity IPacket.Identity => Identity;
 

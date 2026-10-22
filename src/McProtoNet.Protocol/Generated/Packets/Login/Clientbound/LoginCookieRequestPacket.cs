@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
@@ -20,14 +19,6 @@ public sealed partial record LoginCookieRequestPacket(string Cookie) : IPacket<L
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginCookieRequestPacket>(protocolVersion);
         writer.WriteString(Cookie);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Cookie");
-        writer.WriteStringValue(Cookie);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toClient.cookie_request", "LoginCookieRequest", PacketPhase.Login, PacketDirection.Clientbound, 1);

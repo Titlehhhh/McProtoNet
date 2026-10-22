@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -64,17 +63,7 @@ public sealed partial record EnchantItemPacket(int WindowId, int Enchantment) : 
         throw new System.NotSupportedException($"EnchantItemPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("WindowId");
-        writer.WriteNumberValue(WindowId);
-        writer.WritePropertyName("Enchantment");
-        writer.WriteNumberValue(Enchantment);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 24);
+    public static PacketIdentity Identity => new("play.toServer.enchant_item", "EnchantItem", PacketPhase.Play, PacketDirection.Serverbound, 25);
 
     PacketIdentity IPacket.Identity => Identity;
 

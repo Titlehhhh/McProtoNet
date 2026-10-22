@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -25,20 +24,6 @@ public sealed partial record CustomReportDetailsPacket(ReportDetail[] Details) :
         writer.WriteVarInt(Details.Length);
         foreach (var detailsItem in Details)
             writer.WriteType<ReportDetail>(detailsItem, protocolVersion);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Details");
-        writer.WriteStartArray();
-        foreach (var item0 in Details)
-        {
-            item0.WriteJson(writer);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("configuration.toClient.custom_report_details", "CustomReportDetails", PacketPhase.Configuration, PacketDirection.Clientbound, 5);

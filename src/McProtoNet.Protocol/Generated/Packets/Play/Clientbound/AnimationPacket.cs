@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,17 +24,7 @@ public sealed partial record AnimationPacket(int EntityId, int Animation) : IPac
         writer.WriteUnsignedByte((byte)Animation);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("Animation");
-        writer.WriteNumberValue(Animation);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.animation", "Animation", PacketPhase.Play, PacketDirection.Clientbound, 4);
+    public static PacketIdentity Identity => new("play.toClient.animation", "Animation", PacketPhase.Play, PacketDirection.Clientbound, 5);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -41,23 +40,7 @@ public sealed partial record ScoreboardObjectivePacket(string Name, int Action, 
         }
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Name");
-        writer.WriteStringValue(Name);
-        writer.WritePropertyName("Action");
-        writer.WriteNumberValue(Action);
-        if (Display is { } displayValue)
-        {
-            writer.WritePropertyName("Display");
-            displayValue.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_objective", "ScoreboardObjective", PacketPhase.Play, PacketDirection.Clientbound, 86);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_objective", "ScoreboardObjective", PacketPhase.Play, PacketDirection.Clientbound, 89);
 
     PacketIdentity IPacket.Identity => Identity;
 

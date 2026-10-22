@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Login.Clientbound;
 
@@ -20,14 +19,6 @@ public sealed partial record LoginDisconnectPacket(string Reason) : IPacket<Logi
     {
         ThrowHelper.ThrowIfProtocolNotSupported<LoginDisconnectPacket>(protocolVersion);
         writer.WriteString(Reason);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Reason");
-        writer.WriteStringValue(Reason);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("login.toClient.disconnect", "LoginDisconnect", PacketPhase.Login, PacketDirection.Clientbound, 2);

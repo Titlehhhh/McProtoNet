@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -27,21 +26,7 @@ public sealed partial record ChunkBiomesPacket(ChunkBiomeData[] Biomes) : IPacke
             writer.WriteType<ChunkBiomeData>(biomesItem, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Biomes");
-        writer.WriteStartArray();
-        foreach (var item0 in Biomes)
-        {
-            item0.WriteJson(writer);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.chunk_biomes", "ChunkBiomes", PacketPhase.Play, PacketDirection.Clientbound, 16);
+    public static PacketIdentity Identity => new("play.toClient.chunk_biomes", "ChunkBiomes", PacketPhase.Play, PacketDirection.Clientbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Status.Serverbound;
 
@@ -17,12 +16,6 @@ public sealed partial record PingStartPacket() : IPacket<PingStartPacket>, IPack
     public void Write(MinecraftPrimitiveWriter writer, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<PingStartPacket>(protocolVersion);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("status.toServer.ping_start", "PingStart", PacketPhase.Status, PacketDirection.Serverbound, 1);

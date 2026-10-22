@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -24,15 +23,7 @@ public sealed partial record WorldBorderPacket(WorldBorderAction Action) : IPack
         Action.Write(writer, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Action");
-        Action.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.world_border", "WorldBorder", PacketPhase.Play, PacketDirection.Clientbound, 129);
+    public static PacketIdentity Identity => new("play.toClient.world_border", "WorldBorder", PacketPhase.Play, PacketDirection.Clientbound, 133);
 
     PacketIdentity IPacket.Identity => Identity;
 

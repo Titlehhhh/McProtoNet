@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,17 +24,7 @@ public sealed partial record TabCompletePacket(int TransactionId, string Text) :
         writer.WriteString(Text);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("TransactionId");
-        writer.WriteNumberValue(TransactionId);
-        writer.WritePropertyName("Text");
-        writer.WriteStringValue(Text);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Serverbound, 57);
+    public static PacketIdentity Identity => new("play.toServer.tab_complete", "TabComplete", PacketPhase.Play, PacketDirection.Serverbound, 60);
 
     PacketIdentity IPacket.Identity => Identity;
 

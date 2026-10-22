@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record ClearTitlesPacket(bool Reset) : IPacket<ClearTitles
         writer.WriteBoolean(Reset);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Reset");
-        writer.WriteBooleanValue(Reset);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.clear_titles", "ClearTitles", PacketPhase.Play, PacketDirection.Clientbound, 18);
+    public static PacketIdentity Identity => new("play.toClient.clear_titles", "ClearTitles", PacketPhase.Play, PacketDirection.Clientbound, 20);
 
     PacketIdentity IPacket.Identity => Identity;
 

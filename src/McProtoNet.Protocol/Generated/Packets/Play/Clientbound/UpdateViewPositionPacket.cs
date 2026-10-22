@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -25,17 +24,7 @@ public sealed partial record UpdateViewPositionPacket(int ChunkX, int ChunkZ) : 
         writer.WriteVarInt(ChunkZ);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("ChunkX");
-        writer.WriteNumberValue(ChunkX);
-        writer.WritePropertyName("ChunkZ");
-        writer.WriteNumberValue(ChunkZ);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 127);
+    public static PacketIdentity Identity => new("play.toClient.update_view_position", "UpdateViewPosition", PacketPhase.Play, PacketDirection.Clientbound, 131);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
@@ -23,15 +22,7 @@ public sealed partial record ShowDialogPacket(NbtTag Dialog) : IPacket<ShowDialo
         writer.WriteNbt(Dialog);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Dialog");
-        Dialog.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("configuration.toClient.show_dialog", "ShowDialog", PacketPhase.Configuration, PacketDirection.Clientbound, 18);
 
     PacketIdentity IPacket.Identity => Identity;
 

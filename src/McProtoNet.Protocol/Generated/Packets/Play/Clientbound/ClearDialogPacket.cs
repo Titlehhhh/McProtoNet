@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,13 +18,7 @@ public sealed partial record ClearDialogPacket() : IPacket<ClearDialogPacket>, I
         ThrowHelper.ThrowIfProtocolNotSupported<ClearDialogPacket>(protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.clear_dialog", "ClearDialog", PacketPhase.Play, PacketDirection.Clientbound, 17);
+    public static PacketIdentity Identity => new("play.toClient.clear_dialog", "ClearDialog", PacketPhase.Play, PacketDirection.Clientbound, 19);
 
     PacketIdentity IPacket.Identity => Identity;
 

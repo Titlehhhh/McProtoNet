@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,17 +24,7 @@ public sealed partial record SteerBoatPacket(bool LeftPaddle, bool RightPaddle) 
         writer.WriteBoolean(RightPaddle);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("LeftPaddle");
-        writer.WriteBooleanValue(LeftPaddle);
-        writer.WritePropertyName("RightPaddle");
-        writer.WriteBooleanValue(RightPaddle);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 55);
+    public static PacketIdentity Identity => new("play.toServer.steer_boat", "SteerBoat", PacketPhase.Play, PacketDirection.Serverbound, 58);
 
     PacketIdentity IPacket.Identity => Identity;
 

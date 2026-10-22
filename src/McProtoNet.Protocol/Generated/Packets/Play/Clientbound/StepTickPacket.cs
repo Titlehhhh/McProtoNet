@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record StepTickPacket(int TickSteps) : IPacket<StepTickPac
         writer.WriteVarInt(TickSteps);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("TickSteps");
-        writer.WriteNumberValue(TickSteps);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 107);
+    public static PacketIdentity Identity => new("play.toClient.step_tick", "StepTick", PacketPhase.Play, PacketDirection.Clientbound, 110);
 
     PacketIdentity IPacket.Identity => Identity;
 

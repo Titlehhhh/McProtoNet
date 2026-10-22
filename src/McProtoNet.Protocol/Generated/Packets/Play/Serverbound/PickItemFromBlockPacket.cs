@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -25,17 +24,7 @@ public sealed partial record PickItemFromBlockPacket(Position Position, bool Inc
         writer.WriteBoolean(IncludeData);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Position");
-        Position.WriteJson(writer);
-        writer.WritePropertyName("IncludeData");
-        writer.WriteBooleanValue(IncludeData);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.pick_item_from_block", "PickItemFromBlock", PacketPhase.Play, PacketDirection.Serverbound, 34);
+    public static PacketIdentity Identity => new("play.toServer.pick_item_from_block", "PickItemFromBlock", PacketPhase.Play, PacketDirection.Serverbound, 36);
 
     PacketIdentity IPacket.Identity => Identity;
 

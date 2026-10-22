@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 namespace McProtoNet.Protocol;
 
 /// <summary>
@@ -26,12 +24,14 @@ public interface IPacket
     /// <value>The same value as the static identity declared by the concrete packet type.</value>
     PacketIdentity Identity { get; }
 
-    /// <summary>
-    /// Writes the packet as JSON: the decoded model, not the wire layout. Version layers are
-    /// flattened into the object, so the JSON carries no version-specific members.
-    /// </summary>
-    /// <param name="writer">The JSON writer to write to.</param>
-    void WriteJson(Utf8JsonWriter writer);
+    // The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+    // it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+    // /// <summary>
+    // /// Writes the packet as JSON: the decoded model, not the wire layout. Version layers are
+    // /// flattened into the object, so the JSON carries no version-specific members.
+    // /// </summary>
+    // /// <param name="writer">The JSON writer to write to.</param>
+    // void WriteJson(Utf8JsonWriter writer);
 }
 
 /// <summary>

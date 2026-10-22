@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -55,19 +54,7 @@ public sealed partial record OpenHorseWindowPacket(int WindowId, int NbSlots, in
         throw new System.NotSupportedException($"OpenHorseWindowPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("WindowId");
-        writer.WriteNumberValue(WindowId);
-        writer.WritePropertyName("NbSlots");
-        writer.WriteNumberValue(NbSlots);
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.open_horse_window", "OpenHorseWindow", PacketPhase.Play, PacketDirection.Clientbound, 66);
+    public static PacketIdentity Identity => new("play.toClient.open_horse_window", "OpenHorseWindow", PacketPhase.Play, PacketDirection.Clientbound, 68);
 
     PacketIdentity IPacket.Identity => Identity;
 

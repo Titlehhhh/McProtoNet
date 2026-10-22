@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -58,25 +57,7 @@ public sealed partial record SetBeaconEffectPacket(int? PrimaryEffect, int? Seco
         throw new System.NotSupportedException($"SetBeaconEffectPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (PrimaryEffect is { } primaryEffectValue)
-        {
-            writer.WritePropertyName("PrimaryEffect");
-            writer.WriteNumberValue(primaryEffectValue);
-        }
-
-        if (SecondaryEffect is { } secondaryEffectValue)
-        {
-            writer.WritePropertyName("SecondaryEffect");
-            writer.WriteNumberValue(secondaryEffectValue);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.set_beacon_effect", "SetBeaconEffect", PacketPhase.Play, PacketDirection.Serverbound, 48);
+    public static PacketIdentity Identity => new("play.toServer.set_beacon_effect", "SetBeaconEffect", PacketPhase.Play, PacketDirection.Serverbound, 51);
 
     PacketIdentity IPacket.Identity => Identity;
 

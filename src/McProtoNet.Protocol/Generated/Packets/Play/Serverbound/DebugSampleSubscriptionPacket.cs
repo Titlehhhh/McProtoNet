@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -20,14 +19,6 @@ public sealed partial record DebugSampleSubscriptionPacket(int Type) : IPacket<D
     {
         ThrowHelper.ThrowIfProtocolNotSupported<DebugSampleSubscriptionPacket>(protocolVersion);
         writer.WriteVarInt(Type);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Type");
-        writer.WriteNumberValue(Type);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.debug_sample_subscription", "DebugSampleSubscription", PacketPhase.Play, PacketDirection.Serverbound, 22);

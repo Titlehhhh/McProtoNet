@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record SetTestBlockPacket(Position Position, int Mode, str
         writer.WriteString(Message);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Position");
-        Position.WriteJson(writer);
-        writer.WritePropertyName("Mode");
-        writer.WriteNumberValue(Mode);
-        writer.WritePropertyName("Message");
-        writer.WriteStringValue(Message);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 52);
+    public static PacketIdentity Identity => new("play.toServer.set_test_block", "SetTestBlock", PacketPhase.Play, PacketDirection.Serverbound, 55);
 
     PacketIdentity IPacket.Identity => Identity;
 

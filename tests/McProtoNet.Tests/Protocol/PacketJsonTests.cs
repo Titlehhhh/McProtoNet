@@ -1,3 +1,6 @@
+// The JSON model view is parked pending a redesign of the public JSON interface (owner, 2026-10-22);
+// it comes back with the `emitJson` flag in minecraft-protocol-fs/minecraft-protocol-fs/Codegen/CSharp/Json.fs.
+/*
 using System.Buffers;
 using System.Text;
 using System.Text.Json;
@@ -117,3 +120,4 @@ public class PacketJsonTests
         Assert.Equal("""{"Id":42,"Phase":"Play","Direction":"Clientbound"}""", Json(p));
     }
 }
+*/

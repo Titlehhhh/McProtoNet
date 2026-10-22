@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record PingResponsePacket(long Id) : IPacket<PingResponseP
         writer.WriteSignedLong(Id);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Id");
-        writer.WriteNumberValue(Id);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.ping_response", "PingResponse", PacketPhase.Play, PacketDirection.Clientbound, 70);
+    public static PacketIdentity Identity => new("play.toClient.ping_response", "PingResponse", PacketPhase.Play, PacketDirection.Clientbound, 72);
 
     PacketIdentity IPacket.Identity => Identity;
 

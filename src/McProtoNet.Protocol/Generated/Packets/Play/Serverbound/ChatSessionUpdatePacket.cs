@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using System;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
@@ -30,20 +29,6 @@ public sealed partial record ChatSessionUpdatePacket(Guid SessionUuid, long Expi
         writer.WriteSignedLong(ExpireTime);
         writer.WriteByteArray(PublicKey);
         writer.WriteByteArray(Signature);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("SessionUuid");
-        writer.WriteStringValue(SessionUuid);
-        writer.WritePropertyName("ExpireTime");
-        writer.WriteNumberValue(ExpireTime);
-        writer.WritePropertyName("PublicKey");
-        writer.WriteBase64StringValue(PublicKey);
-        writer.WritePropertyName("Signature");
-        writer.WriteBase64StringValue(Signature);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.chat_session_update", "ChatSessionUpdate", PacketPhase.Play, PacketDirection.Serverbound, 12);

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record UpdateCommandBlockMinecartPacket(int EntityId, stri
         writer.WriteBoolean(TrackOutput);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("Command");
-        writer.WriteStringValue(Command);
-        writer.WritePropertyName("TrackOutput");
-        writer.WriteBooleanValue(TrackOutput);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.update_command_block_minecart", "UpdateCommandBlockMinecart", PacketPhase.Play, PacketDirection.Serverbound, 62);
+    public static PacketIdentity Identity => new("play.toServer.update_command_block_minecart", "UpdateCommandBlockMinecart", PacketPhase.Play, PacketDirection.Serverbound, 66);
 
     PacketIdentity IPacket.Identity => Identity;
 

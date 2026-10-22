@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -45,15 +44,7 @@ public sealed partial record CloseWindowPacket(int WindowId) : IPacket<CloseWind
         throw new System.NotSupportedException($"CloseWindowPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("WindowId");
-        writer.WriteNumberValue(WindowId);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.close_window", "CloseWindow", PacketPhase.Play, PacketDirection.Clientbound, 19);
+    public static PacketIdentity Identity => new("play.toClient.close_window", "CloseWindow", PacketPhase.Play, PacketDirection.Clientbound, 21);
 
     PacketIdentity IPacket.Identity => Identity;
 

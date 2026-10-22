@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Configuration.Clientbound;
 
@@ -27,21 +26,7 @@ public sealed partial record ServerLinksPacket(ServerLink[] Links) : IPacket<Ser
             writer.WriteType<ServerLink>(linksItem, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Links");
-        writer.WriteStartArray();
-        foreach (var item0 in Links)
-        {
-            item0.WriteJson(writer);
-        }
-
-        writer.WriteEndArray();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("configuration.toClient.server_links", "ServerLinks", PacketPhase.Configuration, PacketDirection.Clientbound, 16);
+    public static PacketIdentity Identity => new("configuration.toClient.server_links", "ServerLinks", PacketPhase.Configuration, PacketDirection.Clientbound, 17);
 
     PacketIdentity IPacket.Identity => Identity;
 

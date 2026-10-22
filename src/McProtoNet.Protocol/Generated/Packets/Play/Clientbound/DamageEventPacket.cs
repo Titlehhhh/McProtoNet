@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -38,27 +37,7 @@ public sealed partial record DamageEventPacket(int EntityId, int SourceTypeId, i
             writer.WriteType<Vec3f64>(sourcePositionValue, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("SourceTypeId");
-        writer.WriteNumberValue(SourceTypeId);
-        writer.WritePropertyName("SourceCauseId");
-        writer.WriteNumberValue(SourceCauseId);
-        writer.WritePropertyName("SourceDirectId");
-        writer.WriteNumberValue(SourceDirectId);
-        if (SourcePosition is { } sourcePositionValue)
-        {
-            writer.WritePropertyName("SourcePosition");
-            sourcePositionValue.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 26);
+    public static PacketIdentity Identity => new("play.toClient.damage_event", "DamageEvent", PacketPhase.Play, PacketDirection.Clientbound, 28);
 
     PacketIdentity IPacket.Identity => Identity;
 

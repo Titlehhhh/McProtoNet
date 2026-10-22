@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -19,13 +18,7 @@ public sealed partial record LowDiskSpaceWarningPacket() : IPacket<LowDiskSpaceW
         ThrowHelper.ThrowIfProtocolNotSupported<LowDiskSpaceWarningPacket>(protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.low_disk_space_warning", "LowDiskSpaceWarning", PacketPhase.Play, PacketDirection.Clientbound, 57);
+    public static PacketIdentity Identity => new("play.toClient.low_disk_space_warning", "LowDiskSpaceWarning", PacketPhase.Play, PacketDirection.Clientbound, 59);
 
     PacketIdentity IPacket.Identity => Identity;
 

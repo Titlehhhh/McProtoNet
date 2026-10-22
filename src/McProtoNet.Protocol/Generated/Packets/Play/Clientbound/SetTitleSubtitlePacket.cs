@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
@@ -53,24 +52,7 @@ public sealed partial record SetTitleSubtitlePacket(SetTitleSubtitlePacket.V755_
         throw new System.NotSupportedException($"SetTitleSubtitlePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        if (V755_764 is { } v755_764)
-        {
-            writer.WritePropertyName("TextJson");
-            writer.WriteStringValue(v755_764.TextJson);
-        }
-        else if (V765_Last is { } v765_Last)
-        {
-            writer.WritePropertyName("Text");
-            v765_Last.Text.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.set_title_subtitle", "SetTitleSubtitle", PacketPhase.Play, PacketDirection.Clientbound, 95);
+    public static PacketIdentity Identity => new("play.toClient.set_title_subtitle", "SetTitleSubtitle", PacketPhase.Play, PacketDirection.Clientbound, 98);
 
     PacketIdentity IPacket.Identity => Identity;
 

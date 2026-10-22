@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 using McProtoNet.NBT;
 
 namespace McProtoNet.Protocol;
@@ -34,19 +33,5 @@ public sealed partial class RegistryEntry : IProtocolType<RegistryEntry>
         writer.WriteBoolean(Value is not null);
         if (Value is { } valueValue)
             writer.WriteNbt(valueValue);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Key");
-        writer.WriteStringValue(Key);
-        if (Value is { } valueValue)
-        {
-            writer.WritePropertyName("Value");
-            valueValue.WriteJson(writer);
-        }
-
-        writer.WriteEndObject();
     }
 }

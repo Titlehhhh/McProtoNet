@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -45,15 +44,7 @@ public sealed partial record HeldItemSlotPacket(int Slot) : IPacket<HeldItemSlot
         throw new System.NotSupportedException($"HeldItemSlotPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Slot");
-        writer.WriteNumberValue(Slot);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Clientbound, 50);
+    public static PacketIdentity Identity => new("play.toClient.held_item_slot", "HeldItemSlot", PacketPhase.Play, PacketDirection.Clientbound, 52);
 
     PacketIdentity IPacket.Identity => Identity;
 

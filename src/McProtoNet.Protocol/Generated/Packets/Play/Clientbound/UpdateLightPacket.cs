@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -21,17 +20,24 @@ namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 [PacketField("EmptyBlockLightMask", "long[]", Group = "V755_762", From = 755, To = 762)]
 [PacketField("SkyLight", "byte[][]", Group = "V755_762", From = 755, To = 762)]
 [PacketField("BlockLight", "byte[][]", Group = "V755_762", From = 755, To = 762)]
-[PacketField("SkyLightMask", "long[]", Group = "V763_Last", From = 763)]
-[PacketField("BlockLightMask", "long[]", Group = "V763_Last", From = 763)]
-[PacketField("EmptySkyLightMask", "long[]", Group = "V763_Last", From = 763)]
-[PacketField("EmptyBlockLightMask", "long[]", Group = "V763_Last", From = 763)]
-[PacketField("SkyLight", "byte[][]", Group = "V763_Last", From = 763)]
-[PacketField("BlockLight", "byte[][]", Group = "V763_Last", From = 763)]
-public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLightPacket.VUntil754Layer? VUntil754 = null, UpdateLightPacket.V755_762Layer? V755_762 = null, UpdateLightPacket.V763_LastLayer? V763_Last = null) : IPacket<UpdateLightPacket>, IPacket
+[PacketField("SkyLightMask", "long[]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("BlockLightMask", "long[]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("EmptySkyLightMask", "long[]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("EmptyBlockLightMask", "long[]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("SkyLight", "byte[][]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("BlockLight", "byte[][]", Group = "V763_776", From = 763, To = 776)]
+[PacketField("SkyLightMaskBytes", "byte[]", Group = "V777_Last", From = 777)]
+[PacketField("BlockLightMaskBytes", "byte[]", Group = "V777_Last", From = 777)]
+[PacketField("EmptySkyLightMaskBytes", "byte[]", Group = "V777_Last", From = 777)]
+[PacketField("EmptyBlockLightMaskBytes", "byte[]", Group = "V777_Last", From = 777)]
+[PacketField("SkyLight", "byte[][]", Group = "V777_Last", From = 777)]
+[PacketField("BlockLight", "byte[][]", Group = "V777_Last", From = 777)]
+public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLightPacket.VUntil754Layer? VUntil754 = null, UpdateLightPacket.V755_762Layer? V755_762 = null, UpdateLightPacket.V763_776Layer? V763_776 = null, UpdateLightPacket.V777_LastLayer? V777_Last = null) : IPacket<UpdateLightPacket>, IPacket
 {
     public readonly record struct VUntil754Layer(bool TrustEdges, int SkyLightMaskLegacy, int BlockLightMaskLegacy, int EmptySkyLightMaskLegacy, int EmptyBlockLightMaskLegacy, byte[] Data);
     public readonly record struct V755_762Layer(bool TrustEdges, long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, byte[][] SkyLight, byte[][] BlockLight);
-    public readonly record struct V763_LastLayer(long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, byte[][] SkyLight, byte[][] BlockLight);
+    public readonly record struct V763_776Layer(long[] SkyLightMask, long[] BlockLightMask, long[] EmptySkyLightMask, long[] EmptyBlockLightMask, byte[][] SkyLight, byte[][] BlockLight);
+    public readonly record struct V777_LastLayer(byte[] SkyLightMaskBytes, byte[] BlockLightMaskBytes, byte[] EmptySkyLightMaskBytes, byte[] EmptyBlockLightMaskBytes, byte[][] SkyLight, byte[][] BlockLight);
     public static UpdateLightPacket Read(ref MinecraftPrimitiveReader reader, int protocolVersion)
     {
         ThrowHelper.ThrowIfProtocolNotSupported<UpdateLightPacket>(protocolVersion);
@@ -80,7 +86,7 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
             return new UpdateLightPacket(chunkX, chunkZ, V755_762: new V755_762Layer(trustEdges, skyLightMask, blockLightMask, emptySkyLightMask, emptyBlockLightMask, skyLight, blockLight));
         }
 
-        if (protocolVersion >= 763)
+        if (protocolVersion >= 763 && protocolVersion <= 776)
         {
             var chunkX = reader.ReadVarInt();
             var chunkZ = reader.ReadVarInt();
@@ -108,7 +114,26 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
             var blockLight = new byte[blockLightCount][];
             for (int i = 0; i < blockLight.Length; i++)
                 blockLight[i] = reader.ReadByteArray();
-            return new UpdateLightPacket(chunkX, chunkZ, V763_Last: new V763_LastLayer(skyLightMask, blockLightMask, emptySkyLightMask, emptyBlockLightMask, skyLight, blockLight));
+            return new UpdateLightPacket(chunkX, chunkZ, V763_776: new V763_776Layer(skyLightMask, blockLightMask, emptySkyLightMask, emptyBlockLightMask, skyLight, blockLight));
+        }
+
+        if (protocolVersion >= 777)
+        {
+            var chunkX = reader.ReadVarInt();
+            var chunkZ = reader.ReadVarInt();
+            var skyLightMaskBytes = reader.ReadByteArray();
+            var blockLightMaskBytes = reader.ReadByteArray();
+            var emptySkyLightMaskBytes = reader.ReadByteArray();
+            var emptyBlockLightMaskBytes = reader.ReadByteArray();
+            int skyLightCount = reader.ReadVarInt();
+            var skyLight = new byte[skyLightCount][];
+            for (int i = 0; i < skyLight.Length; i++)
+                skyLight[i] = reader.ReadByteArray();
+            int blockLightCount = reader.ReadVarInt();
+            var blockLight = new byte[blockLightCount][];
+            for (int i = 0; i < blockLight.Length; i++)
+                blockLight[i] = reader.ReadByteArray();
+            return new UpdateLightPacket(chunkX, chunkZ, V777_Last: new V777_LastLayer(skyLightMaskBytes, blockLightMaskBytes, emptySkyLightMaskBytes, emptyBlockLightMaskBytes, skyLight, blockLight));
         }
 
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
@@ -171,9 +196,9 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
             return;
         }
 
-        if (protocolVersion >= 763)
+        if (protocolVersion >= 763 && protocolVersion <= 776)
         {
-            var layer = V763_Last ?? throw new WrongLayerException("UpdateLightPacket", protocolVersion, "V763_Last");
+            var layer = V763_776 ?? throw new WrongLayerException("UpdateLightPacket", protocolVersion, "V763_776");
             long[] SkyLightMask = layer.SkyLightMask;
             long[] BlockLightMask = layer.BlockLightMask;
             long[] EmptySkyLightMask = layer.EmptySkyLightMask;
@@ -203,140 +228,34 @@ public sealed partial record UpdateLightPacket(int ChunkX, int ChunkZ, UpdateLig
             return;
         }
 
+        if (protocolVersion >= 777)
+        {
+            var layer = V777_Last ?? throw new WrongLayerException("UpdateLightPacket", protocolVersion, "V777_Last");
+            byte[] SkyLightMaskBytes = layer.SkyLightMaskBytes;
+            byte[] BlockLightMaskBytes = layer.BlockLightMaskBytes;
+            byte[] EmptySkyLightMaskBytes = layer.EmptySkyLightMaskBytes;
+            byte[] EmptyBlockLightMaskBytes = layer.EmptyBlockLightMaskBytes;
+            byte[][] SkyLight = layer.SkyLight;
+            byte[][] BlockLight = layer.BlockLight;
+            writer.WriteVarInt(ChunkX);
+            writer.WriteVarInt(ChunkZ);
+            writer.WriteByteArray(SkyLightMaskBytes);
+            writer.WriteByteArray(BlockLightMaskBytes);
+            writer.WriteByteArray(EmptySkyLightMaskBytes);
+            writer.WriteByteArray(EmptyBlockLightMaskBytes);
+            writer.WriteVarInt(SkyLight.Length);
+            foreach (var skyLightItem in SkyLight)
+                writer.WriteByteArray(skyLightItem);
+            writer.WriteVarInt(BlockLight.Length);
+            foreach (var blockLightItem in BlockLight)
+                writer.WriteByteArray(blockLightItem);
+            return;
+        }
+
         throw new System.NotSupportedException($"UpdateLightPacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("ChunkX");
-        writer.WriteNumberValue(ChunkX);
-        writer.WritePropertyName("ChunkZ");
-        writer.WriteNumberValue(ChunkZ);
-        if (VUntil754 is { } vUntil754)
-        {
-            writer.WritePropertyName("TrustEdges");
-            writer.WriteBooleanValue(vUntil754.TrustEdges);
-            writer.WritePropertyName("SkyLightMaskLegacy");
-            writer.WriteNumberValue(vUntil754.SkyLightMaskLegacy);
-            writer.WritePropertyName("BlockLightMaskLegacy");
-            writer.WriteNumberValue(vUntil754.BlockLightMaskLegacy);
-            writer.WritePropertyName("EmptySkyLightMaskLegacy");
-            writer.WriteNumberValue(vUntil754.EmptySkyLightMaskLegacy);
-            writer.WritePropertyName("EmptyBlockLightMaskLegacy");
-            writer.WriteNumberValue(vUntil754.EmptyBlockLightMaskLegacy);
-            writer.WritePropertyName("Data");
-            writer.WriteBase64StringValue(vUntil754.Data);
-        }
-        else if (V755_762 is { } v755_762)
-        {
-            writer.WritePropertyName("TrustEdges");
-            writer.WriteBooleanValue(v755_762.TrustEdges);
-            writer.WritePropertyName("SkyLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.SkyLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("BlockLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.BlockLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("EmptySkyLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.EmptySkyLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("EmptyBlockLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.EmptyBlockLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("SkyLight");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.SkyLight)
-            {
-                writer.WriteBase64StringValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("BlockLight");
-            writer.WriteStartArray();
-            foreach (var item0 in v755_762.BlockLight)
-            {
-                writer.WriteBase64StringValue(item0);
-            }
-
-            writer.WriteEndArray();
-        }
-        else if (V763_Last is { } v763_Last)
-        {
-            writer.WritePropertyName("SkyLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.SkyLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("BlockLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.BlockLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("EmptySkyLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.EmptySkyLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("EmptyBlockLightMask");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.EmptyBlockLightMask)
-            {
-                writer.WriteNumberValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("SkyLight");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.SkyLight)
-            {
-                writer.WriteBase64StringValue(item0);
-            }
-
-            writer.WriteEndArray();
-            writer.WritePropertyName("BlockLight");
-            writer.WriteStartArray();
-            foreach (var item0 in v763_Last.BlockLight)
-            {
-                writer.WriteBase64StringValue(item0);
-            }
-
-            writer.WriteEndArray();
-        }
-
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 124);
+    public static PacketIdentity Identity => new("play.toClient.update_light", "UpdateLight", PacketPhase.Play, PacketDirection.Clientbound, 128);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record SetSlotStatePacket(int SlotId, int WindowId, bool S
         writer.WriteBoolean(State);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("SlotId");
-        writer.WriteNumberValue(SlotId);
-        writer.WritePropertyName("WindowId");
-        writer.WriteNumberValue(WindowId);
-        writer.WritePropertyName("State");
-        writer.WriteBooleanValue(State);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 51);
+    public static PacketIdentity Identity => new("play.toServer.set_slot_state", "SetSlotState", PacketPhase.Play, PacketDirection.Serverbound, 54);
 
     PacketIdentity IPacket.Identity => Identity;
 

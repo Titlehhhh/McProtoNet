@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol;
 
@@ -31,15 +30,5 @@ public sealed partial class ServerLink : IProtocolType<ServerLink>
         writer.WriteUnsignedByte(checked((byte)Label.Discriminator(protocolVersion)));
         Label.Write(writer, protocolVersion);
         writer.WriteString(Link);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Label");
-        Label.WriteJson(writer);
-        writer.WritePropertyName("Link");
-        writer.WriteStringValue(Link);
-        writer.WriteEndObject();
     }
 }

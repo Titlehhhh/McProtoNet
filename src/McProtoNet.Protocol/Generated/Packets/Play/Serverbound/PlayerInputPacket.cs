@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -22,15 +21,7 @@ public sealed partial record PlayerInputPacket(PlayerInputFlags Inputs) : IPacke
         writer.WriteType<PlayerInputFlags>(Inputs, protocolVersion);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Inputs");
-        Inputs.WriteJson(writer);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 37);
+    public static PacketIdentity Identity => new("play.toServer.player_input", "PlayerInput", PacketPhase.Play, PacketDirection.Serverbound, 39);
 
     PacketIdentity IPacket.Identity => Identity;
 

@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record CookieRequestPacket(string Cookie) : IPacket<Cookie
         writer.WriteString(Cookie);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Cookie");
-        writer.WriteStringValue(Cookie);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.cookie_request", "CookieRequest", PacketPhase.Play, PacketDirection.Clientbound, 22);
+    public static PacketIdentity Identity => new("play.toClient.cookie_request", "CookieRequest", PacketPhase.Play, PacketDirection.Clientbound, 24);
 
     PacketIdentity IPacket.Identity => Identity;
 

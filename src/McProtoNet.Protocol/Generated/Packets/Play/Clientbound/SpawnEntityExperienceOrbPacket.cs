@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -34,32 +33,7 @@ public sealed partial record SpawnEntityExperienceOrbPacket(int EntityId, double
         writer.WriteSignedShort((short)Count);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("EntityId");
-        writer.WriteNumberValue(EntityId);
-        writer.WritePropertyName("X");
-        if (double.IsFinite(X))
-            writer.WriteNumberValue(X);
-        else
-            writer.WriteStringValue(double.IsNaN(X) ? "NaN" : X > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("Y");
-        if (double.IsFinite(Y))
-            writer.WriteNumberValue(Y);
-        else
-            writer.WriteStringValue(double.IsNaN(Y) ? "NaN" : Y > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("Z");
-        if (double.IsFinite(Z))
-            writer.WriteNumberValue(Z);
-        else
-            writer.WriteStringValue(double.IsNaN(Z) ? "NaN" : Z > 0 ? "Infinity" : "-Infinity");
-        writer.WritePropertyName("Count");
-        writer.WriteNumberValue(Count);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.spawn_entity_experience_orb", "SpawnEntityExperienceOrb", PacketPhase.Play, PacketDirection.Clientbound, 101);
+    public static PacketIdentity Identity => new("play.toClient.spawn_entity_experience_orb", "SpawnEntityExperienceOrb", PacketPhase.Play, PacketDirection.Clientbound, 104);
 
     PacketIdentity IPacket.Identity => Identity;
 

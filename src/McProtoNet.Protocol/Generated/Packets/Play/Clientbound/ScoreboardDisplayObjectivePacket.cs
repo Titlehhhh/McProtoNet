@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -50,17 +49,7 @@ public sealed partial record ScoreboardDisplayObjectivePacket(int Position, stri
         throw new System.NotSupportedException($"ScoreboardDisplayObjectivePacket has no wire layout for protocol version {protocolVersion}.");
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Position");
-        writer.WriteNumberValue(Position);
-        writer.WritePropertyName("Name");
-        writer.WriteStringValue(Name);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 85);
+    public static PacketIdentity Identity => new("play.toClient.scoreboard_display_objective", "ScoreboardDisplayObjective", PacketPhase.Play, PacketDirection.Clientbound, 88);
 
     PacketIdentity IPacket.Identity => Identity;
 

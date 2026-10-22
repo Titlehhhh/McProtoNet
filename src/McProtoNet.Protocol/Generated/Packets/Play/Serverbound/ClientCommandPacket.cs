@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -20,14 +19,6 @@ public sealed partial record ClientCommandPacket(int ActionId) : IPacket<ClientC
     {
         ThrowHelper.ThrowIfProtocolNotSupported<ClientCommandPacket>(protocolVersion);
         writer.WriteVarInt(ActionId);
-    }
-
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("ActionId");
-        writer.WriteNumberValue(ActionId);
-        writer.WriteEndObject();
     }
 
     public static PacketIdentity Identity => new("play.toServer.client_command", "ClientCommand", PacketPhase.Play, PacketDirection.Serverbound, 14);

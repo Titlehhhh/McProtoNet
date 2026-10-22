@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -28,19 +27,7 @@ public sealed partial record TransactionPacket(int WindowId, int Action, bool Ac
         writer.WriteBoolean(Accepted);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("WindowId");
-        writer.WriteNumberValue(WindowId);
-        writer.WritePropertyName("Action");
-        writer.WriteNumberValue(Action);
-        writer.WritePropertyName("Accepted");
-        writer.WriteBooleanValue(Accepted);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.transaction", "Transaction", PacketPhase.Play, PacketDirection.Serverbound, 60);
+    public static PacketIdentity Identity => new("play.toServer.transaction", "Transaction", PacketPhase.Play, PacketDirection.Serverbound, 64);
 
     PacketIdentity IPacket.Identity => Identity;
 

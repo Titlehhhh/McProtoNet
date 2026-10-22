@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Clientbound;
 
@@ -22,15 +21,7 @@ public sealed partial record CameraPacket(int CameraId) : IPacket<CameraPacket>,
         writer.WriteVarInt(CameraId);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("CameraId");
-        writer.WriteNumberValue(CameraId);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toClient.camera", "Camera", PacketPhase.Play, PacketDirection.Clientbound, 10);
+    public static PacketIdentity Identity => new("play.toClient.camera", "Camera", PacketPhase.Play, PacketDirection.Clientbound, 12);
 
     PacketIdentity IPacket.Identity => Identity;
 

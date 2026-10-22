@@ -1,6 +1,5 @@
 using McProtoNet.Protocol.Attributes;
 using McProtoNet.Primitives;
-using System.Text.Json;
 
 namespace McProtoNet.Protocol.Packets.Play.Serverbound;
 
@@ -22,15 +21,7 @@ public sealed partial record SelectTradePacket(int Slot) : IPacket<SelectTradePa
         writer.WriteVarInt(Slot);
     }
 
-    public void WriteJson(Utf8JsonWriter writer)
-    {
-        writer.WriteStartObject();
-        writer.WritePropertyName("Slot");
-        writer.WriteNumberValue(Slot);
-        writer.WriteEndObject();
-    }
-
-    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 47);
+    public static PacketIdentity Identity => new("play.toServer.select_trade", "SelectTrade", PacketPhase.Play, PacketDirection.Serverbound, 50);
 
     PacketIdentity IPacket.Identity => Identity;
 
