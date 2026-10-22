@@ -33,7 +33,7 @@ a few hundred lines on top of the library.*
   BouncyCastle by about 2x in our
   [benchmarks](https://github.com/Titlehhhh/McProtoNet/tree/master/benchmarks)
   and allocates nothing per call.
-- **Packets.** Typed packet classes for protocols 735–776 (Minecraft 1.16 → 26.2),
+- **Packets.** Typed packet classes for protocols 735–777 (Minecraft 1.16 → 26.3),
   generated from [F# specs](https://github.com/Titlehhhh/minecraft-protocol-fs).
   One allocation per packet, no reflection, no boxing on the hot path.
   Unknown packets stay available as raw id + bytes.

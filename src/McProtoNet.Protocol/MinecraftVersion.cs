@@ -297,6 +297,9 @@ public readonly struct MinecraftVersion :
     /// <summary>Minecraft 26.2, protocol 776.</summary>
     public static readonly MinecraftVersion V26_2 = new(V26_2_Protocol, "26.2");
 
+    /// <summary>Minecraft 26.3, protocol 777.</summary>
+    public static readonly MinecraftVersion V26_3 = new(V26_3_Protocol, "26.3");
+
     /// <summary>The protocol number of Minecraft 1.16.</summary>
     public const int V1_16_Protocol = 735;
 
@@ -315,11 +318,14 @@ public readonly struct MinecraftVersion :
     /// <summary>The protocol number of Minecraft 26.2.</summary>
     public const int V26_2_Protocol = 776;
 
+    /// <summary>The protocol number of Minecraft 26.3.</summary>
+    public const int V26_3_Protocol = 777;
+
     /// <summary>The lowest protocol number this library supports.</summary>
     public const int StartProtocol = V1_16_Protocol;
 
     /// <summary>The highest protocol number this library supports.</summary>
-    public const int LatestProtocol = V26_2_Protocol;
+    public const int LatestProtocol = V26_3_Protocol;
 
     /// <summary>
     /// Gets the oldest release version this library supports.
@@ -329,7 +335,7 @@ public readonly struct MinecraftVersion :
     /// <summary>
     /// Gets the newest version this library supports.
     /// </summary>
-    public static MinecraftVersion Latest => V26_2;
+    public static MinecraftVersion Latest => V26_3;
 
     /// <summary>
     /// Gets every version declared by this type, ordered by protocol number.
@@ -419,6 +425,7 @@ public readonly struct MinecraftVersion :
             774 => V1_21_11,
             775 => V26_1_To_26_1_2,
             776 => V26_2,
+            777 => V26_3,
 
             _ => throw new NotSupportedException($"Protocol {protocol} not supported")
         };

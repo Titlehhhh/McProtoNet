@@ -3,9 +3,9 @@
 .NET library for the Minecraft Java Edition protocol (client side): transport,
 primitives, packets, multi-version support. Active branch:
 `dev` (`refactoring/layout-2.0` merged and deleted 2026-08-22; layout
-canon: `../diagrams/layout.md`). Honest protocol range in code: **735–776**
-(1.16 → 26.2; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
-README agrees since 2026-08-22. Every push to `dev` publishes
+canon: `../diagrams/layout.md`). Honest protocol range in code: **735–777**
+(1.16 → 26.3; `MinecraftVersion.StartProtocol` / `LatestProtocol`) — the
+README agrees since 2026-10-22. Every push to `dev` publishes
 `2.0.0-preview.4.<height>` to the Feedz feed `mcprotonet/night`
 (`.github/workflows/publish-dev.yml`); nuget.org only on `v*` tags.
 
