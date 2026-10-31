@@ -5,35 +5,24 @@ namespace McProtoNet.Transport.Compression;
 
 /// <summary>
 /// Provides zlib compression through a native libdeflate compressor handle owned by a
-/// heap-allocated instance.
+/// heap-allocated instance. Lifetime of the native handle belongs to
+/// <see cref="LibDeflateCompressorHandle"/>, so an instance that is dropped without Dispose is still
+/// freed by the SafeHandle finalizer.
 /// </summary>
-internal class ZlibCompressorHeapAlloc : IDisposable
+internal class LibDeflateCompressor : IDisposable
 {
-    private readonly IntPtr compressor;
+    private readonly LibDeflateCompressorHandle compressor;
 
-    // Set by Dispose and read by the guard; the native handle is freed only once.
+    // Set by Dispose and read by the guard; the SafeHandle itself refuses a second release.
     private bool disposed;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ZlibCompressorHeapAlloc(int compressionLevel)
+    public LibDeflateCompressor(int compressionLevel)
     {
-        if (compressionLevel < 0 || compressionLevel > 12)
-        {
-            ThrowHelperBadCompressionLevel();
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(compressionLevel);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(compressionLevel, 12);
 
-        var compressor = Native.Compression.libdeflate_alloc_compressor(compressionLevel);
-        if (compressor == IntPtr.Zero)
-        {
-            ThrowHelperFailedAllocCompressor();
-        }
-
-        this.compressor = compressor;
-
-        static void ThrowHelperBadCompressionLevel() => throw new ArgumentOutOfRangeException(nameof(compressionLevel));
-
-        static void ThrowHelperFailedAllocCompressor() =>
-            throw new InvalidOperationException("Failed to allocate compressor");
+        compressor = LibDeflateCompressorHandle.Allocate(compressionLevel);
     }
 
 
@@ -67,17 +56,7 @@ internal class ZlibCompressorHeapAlloc : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void DisposedGuard()
     {
-        if (disposed)
-        {
-            ThrowHelperObjectDisposed();
-        }
-
-        static void ThrowHelperObjectDisposed() => throw new ObjectDisposedException(nameof(ZlibCompressorHeapAlloc));
-    }
-
-    ~ZlibCompressorHeapAlloc()
-    {
-        Dispose();
+        ObjectDisposedException.ThrowIf(disposed, this);
     }
 
     public void Dispose()
@@ -85,7 +64,6 @@ internal class ZlibCompressorHeapAlloc : IDisposable
         if (disposed)
             return;
         disposed = true;
-        Native.Compression.libdeflate_free_compressor(compressor);
-        GC.SuppressFinalize(this);
+        compressor.Dispose();
     }
-}
+}

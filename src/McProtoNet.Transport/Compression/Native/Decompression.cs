@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices;
 using size_t = nuint;
-using libdeflate_decompressor = System.IntPtr;
+using libdeflate_decompressor = McProtoNet.Transport.Compression.Native.LibDeflateDecompressorHandle;
 
 
 namespace McProtoNet.Transport.Compression.Native;
@@ -23,12 +23,14 @@ internal static class Decompression
     }
 
 
+    // Allocation returns a raw pointer on purpose: the factory that turns it into a SafeHandle lives
+    // on LibDeflateDecompressorHandle, so a failed allocation never reaches a handle instance.
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
-    public static extern libdeflate_decompressor libdeflate_alloc_decompressor();
+    public static extern IntPtr libdeflate_alloc_decompressor();
 
 
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
-    public static extern libdeflate_decompressor libdeflate_alloc_decompressor_ex(in libdeflate_options options);
+    public static extern IntPtr libdeflate_alloc_decompressor_ex(in libdeflate_options options);
 
 
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
@@ -64,6 +66,8 @@ internal static class Decompression
         out size_t actual_out_nbytes_ret);
 
 
+    // The free entry point takes the raw pointer: ReleaseHandle must not depend on the SafeHandle it
+    // is closing.
     [DllImport(Constants.DllName, CallingConvention = Constants.CallConv, ExactSpelling = true)]
-    public static extern void libdeflate_free_decompressor(libdeflate_decompressor decompressor);
-}
+    public static extern void libdeflate_free_decompressor(IntPtr decompressor);
+}
