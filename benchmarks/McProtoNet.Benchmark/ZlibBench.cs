@@ -230,6 +230,19 @@ public class ZlibBench
     [Benchmark(Baseline = true)]
     public int LibDeflate() => LibDeflateCache.RentCompressor().Compress(_plain, _output);
 
+    [Benchmark]
+    public int LibDeflate_x1000()
+    {
+        var compressor = LibDeflateCache.RentCompressor();
+        int written = 0;
+        for (int i = 0; i < BatchSize; i++)
+        {
+            written = compressor.Compress(_plain, _output);
+        }
+
+        return written;
+    }
+
 #if NET11_0_OR_GREATER
     [Benchmark]
     public int ZLibEncoder_ThreadStatic()
@@ -249,7 +262,41 @@ public class ZlibBench
             throw new InvalidOperationException("net11 ZLibEncoder TryCompress failed");
         return written;
     }
+
+    // The x1000 variants (this one and the two below) do BatchSize compressions per invocation, so
+    // BenchmarkDotNet's Allocated column reads directly as bytes per BatchSize compressions ("how
+    // much does a thousand packets cost"), instead of bytes per single compression.
+    [Benchmark]
+    public int ZLibEncoder_ThreadStatic_x1000()
+    {
+        ZLibEncoder encoder = ZlibEncoderCache.Rent();
+        int written = 0;
+        for (int i = 0; i < BatchSize; i++)
+        {
+            encoder.Reset();
+            OperationStatus status = encoder.Compress(_plain, _output, out int consumed, out written, isFinalBlock: true);
+            if (status != OperationStatus.Done || consumed != _plain.Length)
+                throw new InvalidOperationException("net11 ZLibEncoder compress failed");
+        }
+
+        return written;
+    }
+
+    [Benchmark]
+    public int ZLibEncoder_TryCompress_x1000()
+    {
+        int written = 0;
+        for (int i = 0; i < BatchSize; i++)
+        {
+            if (!ZLibEncoder.TryCompress(_plain, _output, out written, LibraryLevel))
+                throw new InvalidOperationException("net11 ZLibEncoder TryCompress failed");
+        }
+
+        return written;
+    }
 #endif
+
+    private const int BatchSize = 1000;
 }
 
 #if NET11_0_OR_GREATER
