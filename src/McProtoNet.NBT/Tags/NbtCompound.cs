@@ -65,7 +65,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// One of the tags already belongs to another compound or list.</exception>
     public NbtCompound(string? tagName, IEnumerable<NbtTag> tags)
     {
-        if (tags == null) throw new ArgumentNullException(nameof(tags));
+        ArgumentNullException.ThrowIfNull(tags);
         Name = tagName;
         foreach (var tag in tags) Add(tag);
     }
@@ -77,7 +77,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtCompound(NbtCompound other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         foreach (var tag in other._tags.Values) Add((NbtTag)tag.Clone());
     }
@@ -109,9 +109,9 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
         get => Get<NbtTag>(tagName);
         set
         {
-            if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+            ArgumentNullException.ThrowIfNull(tagName);
 
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
             if (value.Name != tagName) throw new ArgumentException("Given tag name must match tag's actual name.");
             if (value.Parent != null)
                 throw new ArgumentException("A tag may only be added to one compound/list at a time.");
@@ -143,7 +143,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="InvalidCastException">The tag cannot be cast to <typeparamref name="T"/>.</exception>
     public T? Get<T>(string tagName) where T : NbtTag
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         if (_tags.TryGetValue(tagName, out var result)) return (T)result;
         return null;
     }
@@ -157,7 +157,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public NbtTag? Get(string tagName)
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         return _tags.TryGetValue(tagName, out var result) ? result : null;
     }
 
@@ -174,7 +174,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="InvalidCastException">The tag cannot be cast to <typeparamref name="T"/>.</exception>
     public bool TryGet<T>(string tagName, out T result) where T : NbtTag
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         if (_tags.TryGetValue(tagName, out var tempResult))
         {
             result = (T)tempResult;
@@ -196,7 +196,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public bool TryGet(string tagName, out NbtTag result)
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         if (_tags.TryGetValue(tagName, out var tempResult))
         {
             result = tempResult;
@@ -221,7 +221,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// One of the tags already belongs to another compound or list.</exception>
     public void AddRange(IEnumerable<NbtTag> newTags)
     {
-        if (newTags == null) throw new ArgumentNullException(nameof(newTags));
+        ArgumentNullException.ThrowIfNull(newTags);
         foreach (var tag in newTags) Add(tag);
     }
 
@@ -234,7 +234,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// <exception cref="ArgumentNullException"><paramref name="tagName"/> is <see langword="null"/>.</exception>
     public bool Contains(string tagName)
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         return _tags.ContainsKey(tagName);
     }
 
@@ -249,7 +249,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// </remarks>
     public bool Remove(string tagName)
     {
-        if (tagName == null) throw new ArgumentNullException(nameof(tagName));
+        ArgumentNullException.ThrowIfNull(tagName);
         if (!_tags.TryGetValue(tagName, out var tag)) return false;
         _tags.Remove(tagName);
         tag.Parent = null;
@@ -373,7 +373,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// </remarks>
     public void Add(NbtTag newTag)
     {
-        if (newTag == null) throw new ArgumentNullException(nameof(newTag));
+        ArgumentNullException.ThrowIfNull(newTag);
 
         if (newTag == this) throw new ArgumentException("Cannot add tag to self");
 
@@ -417,7 +417,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// </remarks>
     public bool Contains(NbtTag tag)
     {
-        if (tag == null) throw new ArgumentNullException(nameof(tag));
+        ArgumentNullException.ThrowIfNull(tag);
         return _tags.ContainsValue(tag);
     }
 
@@ -449,7 +449,7 @@ public sealed class NbtCompound : NbtTag, ICollection<NbtTag>, ICollection
     /// </remarks>
     public bool Remove(NbtTag tag)
     {
-        if (tag == null) throw new ArgumentNullException(nameof(tag));
+        ArgumentNullException.ThrowIfNull(tag);
         if (tag.Name == null) throw new ArgumentException("Trying to remove an unnamed tag.");
         if (!_tags.TryGetValue(tag.Name, out var maybeItem)) return false;
         if (maybeItem != tag || !_tags.Remove(tag.Name)) return false;

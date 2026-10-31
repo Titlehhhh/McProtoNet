@@ -50,7 +50,7 @@ public sealed class NbtFloat : NbtTag
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtFloat(NbtFloat other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         Value = other.Value;
     }

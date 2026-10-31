@@ -50,7 +50,7 @@ public sealed class NbtDouble : NbtTag
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtDouble(NbtDouble other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         Value = other.Value;
     }

@@ -62,7 +62,7 @@ public sealed class NbtIntArray : NbtTag
     /// </remarks>
     public NbtIntArray(string? tagName, int[] value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         Name = tagName;
         _ints = (int[])value.Clone();
     }
@@ -77,7 +77,7 @@ public sealed class NbtIntArray : NbtTag
     /// </remarks>
     public NbtIntArray(NbtIntArray other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         _ints = (int[])other.Value.Clone();
     }

@@ -62,7 +62,7 @@ public sealed class NbtByteArray : NbtTag
     /// </remarks>
     public NbtByteArray(string? tagName, byte[] value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         Name = tagName;
         _bytes = (byte[])value.Clone();
     }
@@ -77,7 +77,7 @@ public sealed class NbtByteArray : NbtTag
     /// </remarks>
     public NbtByteArray(NbtByteArray other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         _bytes = (byte[])other.Value.Clone();
     }

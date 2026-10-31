@@ -1061,7 +1061,7 @@ public class NbtReader
     /// </remarks>
     public string ToString(bool includeValue, string indentString)
     {
-        if (indentString == null) throw new ArgumentNullException(nameof(indentString));
+        ArgumentNullException.ThrowIfNull(indentString);
         var sb = new StringBuilder();
         for (var i = 0; i < Depth; i++) sb.Append(indentString);
         sb.Append('#').Append(TagsRead).Append(". ").Append(TagType);

@@ -57,8 +57,7 @@ public static class ModifiedUtf8
             rest = rest.Slice(ascii);
         }
 
-        if (count > int.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(chars), "Encoded text does not fit in an Int32.");
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(count, int.MaxValue, nameof(chars));
         return (int)count;
     }
 
@@ -77,8 +76,7 @@ public static class ModifiedUtf8
     {
         ArgumentOutOfRangeException.ThrowIfNegative(charCount);
         var max = 3L * charCount;
-        if (max > int.MaxValue)
-            throw new ArgumentOutOfRangeException(nameof(charCount), "Encoded text does not fit in an Int32.");
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(max, int.MaxValue, nameof(charCount));
         return (int)max;
     }
 

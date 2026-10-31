@@ -122,7 +122,7 @@ public sealed class NbtWriter
     /// </remarks>
     public void WriteTag(NbtTag tag)
     {
-        if (tag == null) throw new ArgumentNullException(nameof(tag));
+        ArgumentNullException.ThrowIfNull(tag);
         EnforceConstraints(tag.Name, tag.TagType);
         if (tag.Name != null)
             tag.WriteTag(_writer);
@@ -213,11 +213,11 @@ public sealed class NbtWriter
 
     private static void CheckArray(Array data, int offset, int count)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
 
-        if (offset < 0) throw new ArgumentOutOfRangeException(nameof(offset), "offset may not be negative.");
+        ArgumentOutOfRangeException.ThrowIfNegative(offset);
 
-        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count may not be negative.");
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         if (data.Length - offset < count)
             throw new ArgumentException("count may not be greater than offset subtracted from the array length.");
@@ -652,7 +652,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteString(string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         EnforceConstraints(null!, NbtTagType.String);
         _writer.Write(value);
     }
@@ -677,7 +677,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteString(string tagName, string value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         EnforceConstraints(tagName, NbtTagType.String);
         _writer.Write((byte)NbtTagType.String);
         _writer.Write(tagName);
@@ -704,7 +704,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteByteArray(byte[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteByteArray(data, 0, data.Length);
     }
 
@@ -757,7 +757,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteByteArray(string tagName, byte[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteByteArray(tagName, data, 0, data.Length);
     }
 
@@ -824,11 +824,11 @@ public sealed class NbtWriter
     /// </remarks>
     public void WriteByteArray(Stream dataSource, int count)
     {
-        if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
+        ArgumentNullException.ThrowIfNull(dataSource);
         if (!dataSource.CanRead)
             throw new ArgumentException("Given stream does not support reading.", nameof(dataSource));
 
-        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count may not be negative");
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         var bufferSize = Math.Min(count, MaxStreamCopyBufferSize);
         var streamCopyBuffer = new byte[bufferSize];
         WriteByteArray(dataSource, count, streamCopyBuffer);
@@ -867,12 +867,12 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteByteArray(Stream dataSource, int count, byte[] buffer)
     {
-        if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
-        if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+        ArgumentNullException.ThrowIfNull(dataSource);
+        ArgumentNullException.ThrowIfNull(buffer);
         if (!dataSource.CanRead)
             throw new ArgumentException("Given stream does not support reading.", nameof(dataSource));
 
-        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count may not be negative");
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         if (buffer.Length == 0 && count > 0)
             throw new ArgumentException("buffer size must be greater than 0 when count is greater than 0",
                 nameof(buffer));
@@ -910,8 +910,8 @@ public sealed class NbtWriter
     /// </remarks>
     public void WriteByteArray(string tagName, Stream dataSource, int count)
     {
-        if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
-        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count may not be negative");
+        ArgumentNullException.ThrowIfNull(dataSource);
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         var bufferSize = Math.Min(count, MaxStreamCopyBufferSize);
         var streamCopyBuffer = new byte[bufferSize];
         WriteByteArray(tagName, dataSource, count, streamCopyBuffer);
@@ -952,12 +952,12 @@ public sealed class NbtWriter
     public void WriteByteArray(string tagName, Stream dataSource, int count,
         byte[] buffer)
     {
-        if (dataSource == null) throw new ArgumentNullException(nameof(dataSource));
-        if (buffer == null) throw new ArgumentNullException(nameof(buffer));
+        ArgumentNullException.ThrowIfNull(dataSource);
+        ArgumentNullException.ThrowIfNull(buffer);
         if (!dataSource.CanRead)
             throw new ArgumentException("Given stream does not support reading.", nameof(dataSource));
 
-        if (count < 0) throw new ArgumentOutOfRangeException(nameof(count), "count may not be negative");
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
         if (buffer.Length == 0 && count > 0)
             throw new ArgumentException("buffer size must be greater than 0 when count is greater than 0",
                 nameof(buffer));
@@ -984,7 +984,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteIntArray(int[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteIntArray(data, 0, data.Length);
     }
 
@@ -1037,7 +1037,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteIntArray(string tagName, int[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteIntArray(tagName, data, 0, data.Length);
     }
 
@@ -1092,7 +1092,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteLongArray(long[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteLongArray(data, 0, data.Length);
     }
 
@@ -1145,7 +1145,7 @@ public sealed class NbtWriter
     /// </exception>
     public void WriteLongArray(string tagName, long[] data)
     {
-        if (data == null) throw new ArgumentNullException(nameof(data));
+        ArgumentNullException.ThrowIfNull(data);
         WriteLongArray(tagName, data, 0, data.Length);
     }
 

@@ -50,7 +50,7 @@ public sealed class NbtShort : NbtTag
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtShort(NbtShort other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         Value = other.Value;
     }

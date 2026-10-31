@@ -34,10 +34,7 @@ public readonly record struct RegistryOrInline<T> : IProtocolType<RegistryOrInli
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="id"/> is less than zero.</exception>
     public static RegistryOrInline<T> FromRegistry(int id)
     {
-        if (id < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(id), id, "Registry id must not be negative.");
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(id);
 
         return new RegistryOrInline<T>(id + 1, default);
     }

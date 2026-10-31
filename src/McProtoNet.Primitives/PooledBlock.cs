@@ -79,10 +79,8 @@ public sealed class PooledBlock
         do
         {
             seen = Volatile.Read(ref _references);
-            if (seen <= 0) ThrowReleased();
+            ObjectDisposedException.ThrowIf(seen <= 0, typeof(PooledBlock));
         } while (Interlocked.CompareExchange(ref _references, seen + 1, seen) != seen);
-
-        static void ThrowReleased() => throw new ObjectDisposedException(nameof(PooledBlock));
     }
 
     /// <summary>

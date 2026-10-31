@@ -199,7 +199,7 @@ public abstract class NbtTag : ICloneable
     /// <see langword="null"/>.</exception>
     public string ToString(string indentString)
     {
-        if (indentString == null) throw new ArgumentNullException(nameof(indentString));
+        ArgumentNullException.ThrowIfNull(indentString);
         var sb = new StringBuilder();
         PrettyPrint(sb, indentString, 0);
         return sb.ToString();

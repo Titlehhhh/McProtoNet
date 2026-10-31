@@ -50,7 +50,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
         : this(null, tags, NbtTagType.End)
     {
         // the base constructor will allow null "tags," but we don't want that in this constructor
-        if (tags == null) throw new ArgumentNullException(nameof(tags));
+        ArgumentNullException.ThrowIfNull(tags);
     }
 
     /// <summary>
@@ -83,7 +83,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
         : this(tagName, tags, NbtTagType.End)
     {
         // the base constructor will allow null "tags," but we don't want that in this constructor
-        if (tags == null) throw new ArgumentNullException(nameof(tags));
+        ArgumentNullException.ThrowIfNull(tags);
     }
 
     /// <summary>
@@ -107,7 +107,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
         : this(null, tags, givenListType)
     {
         // the base constructor will allow null "tags," but we don't want that in this constructor
-        if (tags == null) throw new ArgumentNullException(nameof(tags));
+        ArgumentNullException.ThrowIfNull(tags);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// <exception cref="ArgumentNullException"><paramref name="other"/> is <see langword="null"/>.</exception>
     public NbtList(NbtList other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
         Name = other.Name;
         _listType = other._listType;
         foreach (var tag in other._tags) _tags.Add((NbtTag)tag.Clone());
@@ -230,7 +230,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
         get => _tags[tagIndex];
         set
         {
-            if (value == null) throw new ArgumentNullException(nameof(value));
+            ArgumentNullException.ThrowIfNull(value);
 
             if (value.Parent != null)
                 throw new ArgumentException("A tag may only be added to one compound/list at a time.");
@@ -275,7 +275,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// One of the tags is named or already belongs to another compound or list.</exception>
     public void AddRange(IEnumerable<NbtTag> newTags)
     {
-        if (newTags == null) throw new ArgumentNullException(nameof(newTags));
+        ArgumentNullException.ThrowIfNull(newTags);
         foreach (var tag in newTags) Add(tag);
     }
 
@@ -425,7 +425,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// </remarks>
     public void Insert(int tagIndex, NbtTag newTag)
     {
-        if (newTag == null) throw new ArgumentNullException(nameof(newTag));
+        ArgumentNullException.ThrowIfNull(newTag);
 
         if (_listType != NbtTagType.End && newTag.TagType != _listType)
             throw new ArgumentException("Items must be of type " + _listType);
@@ -473,7 +473,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// </remarks>
     public void Add(NbtTag newTag)
     {
-        if (newTag == null) throw new ArgumentNullException(nameof(newTag));
+        ArgumentNullException.ThrowIfNull(newTag);
 
         if (newTag.Parent != null)
             throw new ArgumentException("A tag may only be added to one compound/list at a time.");
@@ -541,7 +541,7 @@ public sealed class NbtList : NbtTag, IList<NbtTag>, IList
     /// </remarks>
     public bool Remove(NbtTag tag)
     {
-        if (tag == null) throw new ArgumentNullException(nameof(tag));
+        ArgumentNullException.ThrowIfNull(tag);
         if (!_tags.Remove(tag)) return false;
         tag.Parent = null;
         return true;

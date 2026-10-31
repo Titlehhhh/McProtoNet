@@ -62,7 +62,7 @@ public sealed class NbtLongArray : NbtTag
     /// </remarks>
     public NbtLongArray(string? tagName, long[] value)
     {
-        if (value == null) throw new ArgumentNullException(nameof(value));
+        ArgumentNullException.ThrowIfNull(value);
         Name = tagName;
         _longs = (long[])value.Clone();
     }
@@ -77,7 +77,7 @@ public sealed class NbtLongArray : NbtTag
     /// </remarks>
     public NbtLongArray(NbtLongArray other)
     {
-        if (other == null) throw new ArgumentNullException(nameof(other));
+        ArgumentNullException.ThrowIfNull(other);
 
         Name = other.Name;
         _longs = (long[])other._longs.Clone();
