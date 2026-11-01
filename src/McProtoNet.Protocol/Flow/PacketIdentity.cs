@@ -1,39 +1,6 @@
 namespace McProtoNet.Protocol;
 
 /// <summary>
-/// Specifies the connection phase a packet belongs to.
-/// </summary>
-public enum PacketPhase : byte
-{
-    /// <summary>The handshaking phase.</summary>
-    Handshaking,
-
-    /// <summary>The status phase.</summary>
-    Status,
-
-    /// <summary>The login phase.</summary>
-    Login,
-
-    /// <summary>The configuration phase.</summary>
-    Configuration,
-
-    /// <summary>The play phase.</summary>
-    Play
-}
-
-/// <summary>
-/// Specifies the direction a packet travels in.
-/// </summary>
-public enum PacketDirection : byte
-{
-    /// <summary>The packet is sent by the server and received by the client.</summary>
-    Clientbound,
-
-    /// <summary>The packet is sent by the client and received by the server.</summary>
-    Serverbound
-}
-
-/// <summary>
 /// Represents the identity of a packet type.
 /// </summary>
 /// <param name="Key">The manifest key of the packet, such as <c>login.toServer.login_start</c>.</param>

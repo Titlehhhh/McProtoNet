@@ -17,9 +17,6 @@ using PlaySb = McProtoNet.Protocol.Packets.Play.Serverbound;
 
 namespace FormationBots;
 
-// record-КЛАСС: ссылка меняется атомарно, читатели из других потоков не видят рваных координат
-public sealed record BotLocation(double X, double Y, double Z, float Yaw, float Pitch);
-
 public sealed class Bot(string name, string host, int port, int pv) : ClientboundHandler
 {
     private readonly MinecraftClient _client = new(new MinecraftClientOptions { Host = host, Port = port });

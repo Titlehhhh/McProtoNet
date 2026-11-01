@@ -4,35 +4,6 @@ using McProtoNet.Protocol;
 
 namespace McProtoNet.Scenarios;
 
-/// <summary>What an <see cref="Expectation{T}" /> does when its queue is full and one more packet arrives.</summary>
-public enum OverflowPolicy : byte
-{
-    /// <summary>Evict the oldest queued packet. Right for "latest state" waits.</summary>
-    DropOldest,
-
-    /// <summary>Discard the arriving packet. Right for "the first one matters" waits.</summary>
-    DropNewest,
-
-    /// <summary>Fail the expectation: the next await throws <see cref="PacketOverflowException" />.</summary>
-    Fault
-}
-
-/// <summary>
-///     Untyped view of an expectation, enough for <see cref="PacketWait.AnyAsync" /> to race several of
-///     them without taking a packet from the ones that lose.
-/// </summary>
-public interface IExpectation
-{
-    /// <summary>Completes when a packet can be taken, or with false when the expectation is closed.</summary>
-    ValueTask<bool> WaitToReadAsync(CancellationToken cancellationToken);
-
-    /// <summary>Takes one queued packet without waiting.</summary>
-    bool TryTake(out object packet);
-
-    /// <summary>Throws the closing error if the expectation is closed; otherwise does nothing.</summary>
-    void ThrowIfClosed();
-}
-
 /// <summary>
 ///     One open wait for packets of type T: a bounded queue that fills from the receive loop for as
 ///     long as the handle lives. Open it <b>before</b> sending the trigger — the queue is live when

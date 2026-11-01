@@ -3,6 +3,7 @@ using System.IO.Compression;
 using System.Runtime.CompilerServices;
 using McProtoNet.Primitives;
 using McProtoNet.Transport.Framing;
+
 namespace McProtoNet.Transport.Compression;
 
 /// <summary>Provides zlib decompression methods for buffered packet payloads.</summary>
@@ -65,15 +66,5 @@ internal static class Extensions
                 ArrayPool<byte>.Shared.Return(rented);
             }
         }
-    }
-}
-
-/// <summary>Provides zlib decompression through the thread-local libdeflate decompressor.</summary>
-internal static class LibDeflateStatic
-{
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static OperationStatus Decompress(ReadOnlySpan<byte> input, Span<byte> output, out int written)
-    {
-        return LibDeflateCache.RentDecompressor().Decompress(input, output, out written);
     }
 }

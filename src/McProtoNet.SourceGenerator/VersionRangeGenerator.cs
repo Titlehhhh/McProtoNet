@@ -182,17 +182,3 @@ public sealed class VersionRangeGenerator : IIncrementalGenerator
         ctx.AddSource("ThrowHelper.Protocol.g.cs", sb.ToString());
     }
 }
-
-public sealed class ProtocolTypeInfo
-{
-    public INamedTypeSymbol Symbol { get; }
-    public ImmutableArray<(int From, int To)> Ranges { get; }
-
-    public ProtocolTypeInfo(
-        INamedTypeSymbol symbol,
-        ImmutableArray<(int From, int To)> ranges)
-    {
-        Symbol = symbol;
-        Ranges = ranges;
-    }
-}
