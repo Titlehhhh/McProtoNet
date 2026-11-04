@@ -25,6 +25,20 @@ internal static partial class ThrowHelper
             $"{maxCount} elements are allowed.");
 
     [DoesNotReturn]
+    public static void ThrowInvalidLength(int length)
+        => throw new InvalidDataException($"Array length {length} is negative.");
+
+    [DoesNotReturn]
+    public static void ThrowUnsupportedElementType(Type type)
+        => throw new NotSupportedException($"Array element type {type.Name} has no fixed-width wire encoding.");
+
+    [DoesNotReturn]
+    public static void ThrowArrayExceedsFrame(int count, int bytesPerElement, long remaining)
+        => throw new InvalidDataException(
+            $"Array of {count} elements needs at least {(long)count * bytesPerElement} bytes, " +
+            $"but the frame has {remaining} left.");
+
+    [DoesNotReturn]
     private static void ThrowUnknownType(Type type)
         => throw new InvalidOperationException($"Unknown protocol type {type}");
 }
